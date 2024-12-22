@@ -15,17 +15,15 @@
  */
 package github.koukobin.ermis.server.main.java.util;
 
-import java.security.SecureRandom;
+import io.netty.util.internal.ThreadLocalRandom;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public final class SecureRandomGenerator {
+public final class RandomNumberGenerator {
 
-	private static final SecureRandom secureRandom = new SecureRandom();
-	
-	private SecureRandomGenerator() {}
+	private RandomNumberGenerator() {}
 
     /**
      * Generates random numbers with the specified number of digits and fills the provided array with the generated numbers.
@@ -56,7 +54,7 @@ public final class SecureRandomGenerator {
     public static int generateRandomNumber(int numDigits) {
         int origin = (int) Math.pow(10, numDigits - 1);
         int bound = (int) (Math.pow(10, numDigits));
-        return secureRandom.nextInt(origin, bound);
+        return generateRandomNumber(origin, bound);
     }
 
     /**
@@ -67,6 +65,7 @@ public final class SecureRandomGenerator {
      * @return a random number between origin (inclusive) and bound (exclusive)
      */
     public static int generateRandomNumber(int origin, int bound) {
-        return secureRandom.nextInt(origin, bound);
+        return ThreadLocalRandom.current().nextInt(origin, bound);
     }
+    
 }

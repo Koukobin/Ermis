@@ -92,3 +92,4 @@ public class Requirements {
 		return "Requirements:\nminEntropy=" + minEntropy + "\nmaxLength=" + maxLength + "\ninvalidCharacters=" + invalidCharacters;
 	}
 }
+

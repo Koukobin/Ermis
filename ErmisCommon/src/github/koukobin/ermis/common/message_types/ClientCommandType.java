@@ -41,6 +41,7 @@ public enum ClientCommandType {
 	FETCH_CLIENT_ID(CommandLevel.LIGHT, 201),
 	FETCH_USER_DEVICES(CommandLevel.HEAVY, 202),
 	FETCH_ACCOUNT_ICON(CommandLevel.HEAVY, 203),
+	FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS(CommandLevel.HEAVY, 204),
 
 	// Chat Management
 	FETCH_CHAT_REQUESTS(CommandLevel.LIGHT, 300),

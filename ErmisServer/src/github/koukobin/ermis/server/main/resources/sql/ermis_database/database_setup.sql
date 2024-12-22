@@ -18,7 +18,7 @@
 CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
     password_hash CHAR(PASSWORD_HASH_LENGTH) NOT NULL,
-    client_id INT NOT NULL, -- IDs are generated manually within server
+    client_id INTEGER NOT NULL, -- IDs are generated manually within server
     backup_verification_codes CHAR(BACKUP_VERIFICATION_CODES_LENGTH)[BACKUP_VERIFICATION_CODES_AMOUNT] NOT NULL,
     salt CHAR(SALT_LENGTH) NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     client_id INTEGER NOT NULL REFERENCES users(client_id) ON DELETE CASCADE,
     display_name VARCHAR(DISPLAY_LENGTH) NOT NULL,
     about VARCHAR(128) NOT NULL,
-    profile_photo BYTEA,
+    profile_photo_id TEXT,
     last_updated_at TIMESTAMP DEFAULT now(),
     display_name_updated_at TIMESTAMP DEFAULT now(),
     about_updated_at TIMESTAMP DEFAULT now(),
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     client_id INTEGER NOT NULL REFERENCES users (client_id) ON DELETE CASCADE,
     text BYTEA,
     file_name TEXT,
-    file_bytes BYTEA,
+    file_content_url TEXT,
     content_type INTEGER NOT NULL,
     PRIMARY KEY (chat_session_id, message_id),
     CHECK (text IS NOT NULL OR file_bytes IS NOT NULL),

@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2024 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as

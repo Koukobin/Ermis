@@ -35,6 +35,7 @@ public enum ClientCommandResultType {
     GET_CLIENT_ID(201),
     FETCH_USER_DEVICES(202),
     FETCH_ACCOUNT_ICON(203),
+    FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS(204),
     
     // Chat Management
     GET_CHAT_REQUESTS(300),

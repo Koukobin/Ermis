@@ -44,43 +44,41 @@ public class MessageHandlerDecoder extends Decoder {
 		this.maxMessageFileLength = maxMessageFileLength;
 	}
 
-	private static ByteBuf decompress(ChannelHandlerContext ctx, ByteBuf in) {
-        int compressedLength = in.readInt();
-        byte[] compressedData = new byte[compressedLength];
-        in.readBytes(compressedData);
+	private static void decompress(ByteBuf in) {
+		int compressedLength = in.readInt();
+		byte[] compressedData = new byte[compressedLength];
+		in.readBytes(compressedData);
 
-        try {
-            return ctx.alloc().ioBuffer()
-					.writeBytes(Zstd.decompress(compressedData, (int) Zstd.decompressedSize(compressedData)));
-		} catch (Exception e) {
-			logger.debug(Throwables.getStackTraceAsString(e));
-			createErrorResponse(ctx, "Decompression failed");
-			return null; // Indicate failure by returning null
-		}
+		byte[] decompressedData = Zstd.decompress(compressedData, (int) Zstd.decompressedSize(compressedData));
+
+		in.clear();
+		in.writeBytes(decompressedData);
+		in.capacity(decompressedData.length);
 	}
 	
 
 	@Override
 	public boolean handleMessage(ChannelHandlerContext ctx, int length, ByteBuf in) {
-		ByteBuf data = in;
-
-		if (CompressionDetector.isZstdCompressed(data)) {
-			data = decompress(ctx, in);
-			if (data == null) {
+		if (CompressionDetector.isZstdCompressed(in)) {
+			try {
+				decompress(in);
+			} catch (Exception e) {
+				logger.debug(Throwables.getStackTraceAsString(e));
+				createErrorResponse(ctx, "Decompression failed");
 				return false; // Decompression failed, terminate the method early
 			}
 		}
 
 		ClientMessageType messageType;
 		try {
-			messageType = ClientMessageType.fromId(data.readInt());
+			messageType = ClientMessageType.fromId(in.readInt());
 		} catch (IndexOutOfBoundsException iobe) {
 			logger.debug(Throwables.getStackTraceAsString(iobe));
 			createErrorResponse(ctx, "Message type not known!");
 			return false;
 		}
 
-		int maxLength = determineMaxLength(ctx, data, messageType);
+		int maxLength = determineMaxLength(ctx, in, messageType);
 		if (maxLength == -1) {
 			return false; // Invalid message type or content type
 		}

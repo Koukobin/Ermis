@@ -15,6 +15,7 @@
  */
 package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database;
  
+import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.Array;
 import java.sql.Connection;
@@ -35,6 +36,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.base.Throwables;
 import com.zaxxer.hikari.HikariDataSource;
 
+import github.koukobin.ermis.common.Account;
 import github.koukobin.ermis.common.DeviceType;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.UserDeviceInfo;
@@ -549,45 +551,6 @@ public final class ErmisDatabase {
 			return ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD.resultHolder;
 		}
 		
-//		public String getDisplayName(InetAddress inetAddress) {
-//
-//			String username = null;
-//
-//			try (PreparedStatement getUsername = conn
-//					.prepareStatement("SELECT username FROM users WHERE ?=ANY(ips_logged_into);")) {
-//
-//				getUsername.setString(1, inetAddress.getHostName());
-//				ResultSet rs = getUsername.executeQuery();
-//
-//				if (rs.next()) {
-//					username = rs.getString(1);
-//				}
-//			} catch (SQLException sqle) {
-//				logger.error(Throwables.getStackTraceAsString(sqle));
-//			}
-//
-//			return username;
-//		}
-
-//		public String getUsername(String emailAddress) {
-//
-//			String username = null;
-//
-//			try (PreparedStatement getUsername = conn.prepareStatement("SELECT username FROM users WHERE email=?;")) {
-//
-//				getUsername.setString(1, emailAddress);
-//				ResultSet rs = getUsername.executeQuery();
-//
-//				if (rs.next()) {
-//					username = rs.getString(1);
-//				}
-//			} catch (SQLException sqle) {
-//				logger.error(Throwables.getStackTraceAsString(sqle));
-//			}
-//
-//			return username;
-//		}
-
 		public String getUsername(int clientID) {
 
 			String username = null;
@@ -855,28 +818,6 @@ public final class ErmisDatabase {
 			return userIPS;
 		}
 		
-//		public String[] getIPSLoggedInto(String email) {
-//
-//			String[] ipsLoggedInto = ArrayUtils.EMPTY_STRING_ARRAY;
-//
-//			try (PreparedStatement getClientID = conn
-//					.prepareStatement("SELECT ips_logged_into FROM users WHERE email=?;")) {
-//
-//				getClientID.setString(1, email);
-//				ResultSet rs = getClientID.executeQuery();
-//
-//				if (!rs.next()) {
-//					return ipsLoggedInto;
-//				}
-//
-//				ipsLoggedInto = (String[]) rs.getArray(1).getArray();
-//			} catch (SQLException sqle) {
-//				logger.error(Throwables.getStackTraceAsString(sqle));
-//			}
-//
-//			return ipsLoggedInto;
-//		}
-
 		public int createChat(int chatSessionID, int... members) {
 
 			int resultUpdate = 0;
@@ -912,29 +853,6 @@ public final class ErmisDatabase {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 		}
-
-//		private int createChat(int chatSessionID, int[] membersClientIDs) {
-//
-//			int resultUpdate = 0;
-//
-//			try (PreparedStatement createChat = conn
-//					.prepareStatement("INSERT INTO chat_sessions (chat_session_id, members) VALUES(?, ?);")) {
-//
-//				createChat.setInt(1, chatSessionID);
-//
-//				Integer[] membersClientIDSObject = ArrayUtils.toObject(membersClientIDs);
-//
-//				Array array = conn.createArrayOf("INTEGER", membersClientIDSObject);
-//				createChat.setArray(2, array);
-//				array.free();
-//
-//				resultUpdate = createChat.executeUpdate();
-//			} catch (SQLException sqle) {
-//				logger.error(Throwables.getStackTraceAsString(sqle));
-//			}
-//
-//			return resultUpdate;
-//		}
 
 		/**
 		 * Accepts a chat request and creates a new chat session.
@@ -1190,6 +1108,57 @@ public final class ErmisDatabase {
 			return members;
 		}
 		
+		public Account[] getAccountsAssociatedWithDevice(InetAddress address) {
+			
+			Account[] accounts = EmptyArrays.EMPTY_ACCOUNT_ARRAY;
+
+			String query = """
+					SELECT up.display_name, 
+					ui.client_id, 
+					up.profile_photo_id
+					FROM user_profiles up
+					JOIN user_ips ui ON up.client_id = ui.client_id
+					WHERE ui.ip_address = ?;
+					""";
+			try (PreparedStatement pstmt = conn.prepareStatement(
+					query,
+					ResultSet.TYPE_SCROLL_SENSITIVE,
+					ResultSet.CONCUR_UPDATABLE)) {
+				pstmt.setString(1, address.getHostName());
+				ResultSet rs = pstmt.executeQuery();
+				
+				// Move to the last row to get the row count
+				rs.last();
+				int rowCount = rs.getRow(); // Get total rows
+				rs.beforeFirst();
+
+				accounts = new Account[rowCount];
+
+				int i = 0;
+				while (rs.next()) {
+					String displayName = rs.getString(1);
+					int clientID = rs.getInt(2);
+					byte[] profilePhoto = EmptyArrays.EMPTY_BYTE_ARRAY;
+					
+					String profileID = rs.getString(3);
+					if (profileID != null) {
+						try {
+							profilePhoto = ProfilePhotosStorage.loadProfilePhoto(profileID);
+						} catch (IOException ioe) {
+							logger.error("Could not retrieve profile photo", ioe);
+						}
+					}
+					
+					accounts[i] = new Account(profilePhoto, displayName, clientID);
+					i++;
+				}
+			} catch (SQLException sqle) {
+				logger.error(Throwables.getStackTraceAsString(sqle));
+			}
+
+			return accounts;
+		}
+		
 		public int logout(InetAddress address, int clientID) {
 
 			int resultUpdate = 0;
@@ -1281,11 +1250,18 @@ public final class ErmisDatabase {
 		public int addUserIcon(int clientID, byte[] icon) {
 			
 			int resultUpdate = 0;
+			
+			String profilePhotoID;
+			try {
+				profilePhotoID = ProfilePhotosStorage.createProfilePhoto(icon);
+			} catch (IOException ioe) {
+				logger.error("An error occured while trying to create profile photo file", ioe);
+				return resultUpdate;
+			}
 
-			try (PreparedStatement pstmt = conn.prepareStatement(
-					"UPDATE user_profiles SET profile_photo = ? WHERE client_id = ?;")) {
-
-				pstmt.setBytes(1, icon);
+			String sql = "UPDATE user_profiles SET profile_photo_id = ? WHERE client_id = ?;";
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setString(1, profilePhotoID);
 				pstmt.setInt(2, clientID);
 
 				resultUpdate = pstmt.executeUpdate();
@@ -1295,27 +1271,33 @@ public final class ErmisDatabase {
 
 			return resultUpdate;
 		}
-		
+
 		public byte[] selectUserIcon(int clientID) {
-			
-			byte[] icon = null;
 
-			try (PreparedStatement pstmt = conn.prepareStatement(
-					"SELECT profile_photo FROM user_profiles WHERE client_id = ?;")) {
+			String iconID = null;
+			byte[] icon = EmptyArrays.EMPTY_BYTE_ARRAY;
 
+			String sql = "SELECT profile_photo_id FROM user_profiles WHERE client_id = ?;";
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 				pstmt.setInt(1, clientID);
 
 				ResultSet rs = pstmt.executeQuery();
-				
+
 				if (rs.next()) {
-					icon = rs.getBytes(1);
+					iconID = rs.getString(1);
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
-			
-			if (icon == null) {
-				icon = EmptyArrays.EMPTY_BYTE_ARRAY;
+
+			if (iconID == null) {
+				return icon;
+			}
+
+			try {
+				icon = ProfilePhotosStorage.loadProfilePhoto(iconID);
+			} catch (IOException ioe) {
+				logger.error("An error occured while trying to create profile photo file", ioe);
 			}
 
 			return icon;

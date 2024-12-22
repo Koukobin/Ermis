@@ -38,20 +38,10 @@ abstract sealed class ParentHandler extends SimpleChannelInboundHandler<ByteBuf>
 
 	protected static final Logger logger = LogManager.getLogger("server");
 	
-	private static final int maxRequestsPerSecond = 10;
-	private static final int blockDurationSeconds = 10;
-
-	private int requestCount;
-	private boolean isBanned;
-	private Instant lastMessageSent;
-
 	protected final ClientInfo clientInfo;
 
 	protected ParentHandler(ClientInfo clientInfo) {
 		this.clientInfo = clientInfo;
-		this.requestCount = 0;
-		this.isBanned = false;
-		this.lastMessageSent = Instant.now();
 	}
 
 	// Ensure this method is not ovveridable
@@ -61,32 +51,7 @@ abstract sealed class ParentHandler extends SimpleChannelInboundHandler<ByteBuf>
 	
 	public final void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 		
-		if (isBanned) {
-			return; // Ignore further processing for this request
-		}
-		
-		Instant currentTime = Instant.now();
 
-		// If a second has passed since the last message was sent reset the request count.
-		// Otherwise increment it and check whether or not it has exceeded the limit
-		if (currentTime.getEpochSecond() - lastMessageSent.getEpochSecond() >= 1) {
-			requestCount = 1;
-		} else {
-			requestCount++;
-			if (requestCount > maxRequestsPerSecond) {
-				
-				isBanned = true;
-				
-				// Block incoming messages for a certain time interval
-				ctx.executor().schedule(() -> isBanned = false, blockDurationSeconds, TimeUnit.SECONDS);
-				MessageByteBufCreator.sendMessageInfo(ctx,
-						"You have exceeded the maximum number of requests you can make per second. "
-						+ "Consequently, you have been banned from any kind of interaction with the server for a short time interval.");
-				return;
-			}
-		}
-		
-		lastMessageSent = currentTime;
 		channelRead1(ctx, msg);
 	}
 	

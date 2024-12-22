@@ -17,6 +17,7 @@ package github.koukobin.ermis.common.util;
 
 import java.lang.reflect.Field;
 
+import github.koukobin.ermis.common.Account;
 import github.koukobin.ermis.common.UserDeviceInfo;
 
 /**
@@ -53,6 +54,7 @@ public final class EmptyArrays {
     public static final Object[] EMPTY_OBJECT_ARRAY = {};
     public static final String[] EMPTY_STRING_ARRAY = {};
     public static final UserDeviceInfo[] EMPTY_DEVICE_INFO_ARRAY = {};
+    public static final Account[] EMPTY_ACCOUNT_ARRAY = {};
 
 	/**
 	 * Index value representing "not found" in a list or array.

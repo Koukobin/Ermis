@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -13,12 +13,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.common;
+package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public record UserDeviceInfo(String ipAddress, DeviceType deviceType, String osName) {
+public class MessageRoutingHandler {
 
 }

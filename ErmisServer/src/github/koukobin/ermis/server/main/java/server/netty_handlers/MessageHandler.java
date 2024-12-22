@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 
 import com.google.common.primitives.Ints;
 
+import github.koukobin.ermis.common.Account;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.UserDeviceInfo;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
@@ -816,7 +817,7 @@ final class MessageHandler extends ParentHandler {
 								isActive = false;
 							} else {
 								ClientInfo random = memberClientInfo.get(0);
-								if (clientInfo.getChannel().equals(random.getChannel())) {
+								if (clientInfo.getClientID() ==  random.getClientID()) {
 									continue;
 								}
 								
@@ -840,6 +841,31 @@ final class MessageHandler extends ParentHandler {
 					}
 
 				}
+			}
+			
+			channel.writeAndFlush(payload);
+		}
+		case FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS -> {
+
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+			payload.writeInt(ClientCommandResultType.FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS.id);
+
+			Account[] accounts;
+			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+				accounts = conn.getAccountsAssociatedWithDevice(clientInfo.getInetAddress());
+			}
+			
+			for (int i = 0; i < accounts.length; i++) {
+				payload.writeInt(accounts[i].clientID());
+				
+				String displayName = accounts[i].displayName();
+				payload.writeInt(displayName.length());
+				payload.writeBytes(displayName.getBytes());
+				
+				byte[] profilePhoto = accounts[i].profilePhoto();
+				payload.writeInt(profilePhoto.length);
+				payload.writeBytes(profilePhoto);
 			}
 			
 			channel.writeAndFlush(payload);
