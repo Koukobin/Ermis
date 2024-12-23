@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     file_content_url TEXT,
     content_type INTEGER NOT NULL,
     PRIMARY KEY (chat_session_id, message_id),
-    CHECK (text IS NOT NULL OR file_bytes IS NOT NULL),
+    CHECK (text IS NOT NULL OR file_content_url IS NOT NULL),
     CONSTRAINT fk_chat_session FOREIGN KEY (chat_session_id) REFERENCES chat_sessions (chat_session_id),
     CONSTRAINT fk_sender_client FOREIGN KEY (client_id) REFERENCES users (client_id)
 );

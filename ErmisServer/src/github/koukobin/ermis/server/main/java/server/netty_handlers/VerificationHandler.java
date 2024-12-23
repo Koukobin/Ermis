@@ -87,7 +87,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 	}
 
 	@Override
-	public void channelRead2(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
+	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 		
 		EntryResult entryResult = new EntryResult(Result.WRONG_CODE.resultHolder);
 		attemptsRemaining--;
@@ -124,9 +124,9 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 		
 		if (isVerificationComplete) {
 			if (entryResult.isSuccessful()) {
-				success(ctx);
+				registrationSuccessful(ctx);
 			} else {
-				failed(ctx);
+				registrationFailed(ctx);
 			}
 		}
 	}
@@ -134,7 +134,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 	public abstract String createEmailMessage(String account, String generatedVerificationCode);
 	public abstract EntryResult executeWhenVerificationSuccessful() throws IOException;
 	
-	protected void onSuccess(ChannelHandlerContext ctx) {
+	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
 		login(ctx, clientInfo);
 	}
 }

@@ -19,11 +19,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import com.google.common.primitives.Ints;
@@ -33,19 +30,16 @@ import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.UserDeviceInfo;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
-import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
+import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.DatabaseChatMessage;
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
-import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.codec.MessageHandlerDecoder;
+import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -55,216 +49,47 @@ import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
  * @author Ilias Koukovinis
- * 
+ *
  */
-final class MessageHandler extends ParentHandler {
-	
+public final class CommandHandler extends ParentHandler {
+
 	private CompletableFuture<?> commandsToBeExecutedQueue = 
 			CompletableFuture.runAsync(() -> {}); // initialize it like this for thenRunAsync to work
 	
-	public MessageHandler(ClientInfo clientInfo) {
+	protected CommandHandler(ClientInfo clientInfo) {
 		super(clientInfo);
 	}
 	
 	@Override
-	public void handlerAdded(ChannelHandlerContext ctx) {
-		
-		MessageHandlerDecoder decoder = new MessageHandlerDecoder(ServerSettings.MAX_CLIENT_MESSAGE_TEXT_BYTES, ServerSettings.MAX_CLIENT_MESSAGE_FILE_BYTES);
-		ctx.pipeline().replace("decoder", "decoder", decoder);
-		
-		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			
-			int clientID = conn.getClientID(clientInfo.getChannel().remoteAddress().getAddress());
-			
-			clientInfo.setUsername(conn.getUsername(clientID));
-			clientInfo.setEmail(conn.getEmailAddress(clientID));
-			clientInfo.setClientID(clientID);
-
-			Integer[] chatSessionsIDS = conn.getChatSessionsUserBelongsTo(clientID);
-
-			List<ChatSession> chatSessions = new ArrayList<>(chatSessionsIDS.length);
-			clientInfo.setChatSessions(chatSessions);
-			for (int i = 0; i < chatSessionsIDS.length; i++) {
-
-				int chatSessionID = chatSessionsIDS[i];
-
-				ChatSession chatSession = ActiveChatSessions.getChatSession(chatSessionID);
-
-				if (chatSession == null) {
-
-					List<Integer> membersList;
-
-					{
-						Integer[] members = conn.getMembersOfChatSession(chatSessionID);
-						membersList = new ArrayList<>(members.length);
-						Collections.addAll(membersList, members);
-					}
-
-					// The client will become active in the chat session once he calls
-					// GET_CHAT_SESSIONS command. The reason that this happens is because if he
-					// hadn't gotten the chat session with FETCH_CHAT_SESSIONS command then if
-					// there was a message sent in the chat session, the server would send that to
-					// the client but the client would not know how to proccess it and in what chat
-					// session the message belongs to
-					List<Channel> activeMembersList = new ArrayList<>(membersList.size());
-					chatSession = new ChatSession(chatSessionID, activeMembersList, membersList);
-					ActiveChatSessions.addChatSession(chatSessionID, chatSession);
-				}
-
-				chatSessions.add(chatSession);
-			}
-
-			Integer[] chatRequests = conn.getChatRequests(clientID);
-			List<Integer> chatRequestsList = new ArrayList<>(chatRequests.length);
-			Collections.addAll(chatRequestsList, chatRequests);
-
-			clientInfo.setChatRequests(chatRequestsList);
-		}
-
-		ActiveClients.addClient(clientInfo);
-	}
-
-	@Override
-	public void handlerRemoved(ChannelHandlerContext ctx) throws IOException {
-		ActiveClients.removeClient(clientInfo);
-		
-		List<ChatSession> userChatSessions = clientInfo.getChatSessions();
-		for (int i = 0; i < userChatSessions.size(); i++) {
-			
-			ChatSession chatSession = userChatSessions.get(i);
-			chatSession.getActiveChannels().remove(clientInfo.getChannel());
-
-			if (chatSession.getActiveChannels().isEmpty()) {
-				ActiveChatSessions.removeChatSession(chatSession.getChatSessionID());
-			} else {
-				refreshChatSession(chatSession);
-			}
-			
-		}
-		
-	}
-
-	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-
-		ClientMessageType msgType = ClientMessageType.fromId(msg.readInt());
-
-		switch (msgType) {
-		case CLIENT_CONTENT -> {
-
-			ChatSession chatSession;
-			
-			ClientContentType contentType = ClientContentType.fromId(msg.readInt());
-			
-			try {
-				int indexOfChatSession = msg.readInt();
-				chatSession = clientInfo.getChatSessions().get(indexOfChatSession);
-			} catch (IndexOutOfBoundsException ioobe) {
-				ByteBuf payload = ctx.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
-				payload.writeBytes("Chat session selected doesn't exist. (May have been deleted by the other user)".getBytes());
-				ctx.channel().writeAndFlush(payload);
-				return;
-			}
-
-			int chatSessionID = chatSession.getChatSessionID();
-			byte[] usernameBytes = clientInfo.getUsername().getBytes();
-
-			byte[] textBytes = null;
-
-			byte[] fileNameBytes = null;
-			byte[] fileBytes = null;
-					
-			ByteBuf payload = ctx.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.CLIENT_CONTENT.id);
-			payload.writeInt(contentType.id);
-
-			payload.writeLong(System.currentTimeMillis());
-			
-			switch (contentType) {
-			case TEXT -> {
-				
-				int textLength = msg.readInt();
-				textBytes = new byte[textLength];
-				msg.readBytes(textBytes);
-				
-				payload.writeInt(textLength);
-				payload.writeBytes(textBytes);
-			}
-			case FILE, IMAGE -> {
-				
-				int fileNameLength = msg.readInt();
-				fileNameBytes = new byte[fileNameLength];
-				msg.readBytes(fileNameBytes);
-				
-				fileBytes = new byte[msg.readableBytes()];
-				msg.readBytes(fileBytes);
-
-				payload.writeInt(fileNameLength);
-				payload.writeBytes(fileNameBytes);
-			}
-			}
-			
-			int messageIDInDatabase = 0;
-			try (ErmisDatabase.WriteChatMessagesDBConnection conn = ErmisDatabase.getWriteChatMessagesConnection()) {
-
-				DatabaseChatMessage chatMessage = new DatabaseChatMessage(
-						clientInfo.getClientID(),
-						chatSessionID,
-						textBytes,
-						fileNameBytes,
-						fileBytes,
-						contentType);
-
-				messageIDInDatabase = conn.addMessage(chatMessage);
-			}
-
-			payload.writeInt(usernameBytes.length);
-			payload.writeBytes(usernameBytes);
-			
-			payload.writeInt(clientInfo.getClientID());
-			
-			payload.writeInt(messageIDInDatabase);
-			payload.writeInt(chatSessionID);
-
-			broadcastMessageToChatSession(payload, messageIDInDatabase, chatSession);
 		
-		}
-		case COMMAND -> {
-			
-			ClientCommandType commandType = ClientCommandType.fromId(msg.readInt());
+		ClientCommandType commandType = ClientCommandType.fromId(msg.readInt());
 
-			switch (commandType.getCommandLevel()) {
-			case HEAVY -> {
-				msg.retain(); // increase reference count by 1 for executeCommand
-				commandsToBeExecutedQueue.thenRunAsync(() -> {
-					try {
-						executeCommand(commandType, msg);
-					} catch (Exception e) {
-						exceptionCaught(ctx, e);
-					}
-				});
-			}
-			case LIGHT -> {
-				executeCommand(commandType, msg);
-			}
-			default -> { /* No such case */ }
-			}
+		switch (commandType.getCommandLevel()) {
+		case HEAVY -> {
+			msg.retain(); // increase reference count by 1 for executeCommand
+			commandsToBeExecutedQueue.thenRunAsync(() -> {
+				try {
+					executeCommand(commandType, msg);
+				} catch (Exception e) {
+					exceptionCaught(ctx, e);
+				}
+			});
 		}
+		case LIGHT -> {
+			executeCommand(commandType, msg);
+		}
+		default -> logger.debug("Command not recognized");
 		}
 	}
-	
-	private void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {
-		ActiveClients.broadcastMessageToChatSession(payload, messageID, chatSession, clientInfo);
-	}
-	
+
 	private void executeCommand(ClientCommandType commandType, ByteBuf args) {
 		executeCommand(clientInfo, commandType, args);
 	}
 	
 	/**
 	 * This method can be used by the client to execute various commands, such as to
-	 * change his username or to fetch his clientID
+	 * change his username or to get his clientID
 	 * 
 	 */
 	private static void executeCommand(ClientInfo clientInfo, ClientCommandType commandType, ByteBuf args) {
@@ -881,5 +706,3 @@ final class MessageHandler extends ParentHandler {
 	}
 
 }
-
-

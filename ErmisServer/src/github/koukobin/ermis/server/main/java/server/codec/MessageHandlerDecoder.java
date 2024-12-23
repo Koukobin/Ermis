@@ -23,7 +23,7 @@ import com.google.common.base.Throwables;
 
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
-import github.koukobin.ermis.common.message_types.ContentType;
+import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.util.CompressionDetector;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -95,9 +95,9 @@ public class MessageHandlerDecoder extends Decoder {
 	private int determineMaxLength(ChannelHandlerContext ctx, ByteBuf data, ClientMessageType messageType) {
 		switch (messageType) {
 		case CLIENT_CONTENT:
-			ContentType contentType;
+			ClientContentType contentType;
 			try {
-				contentType = ContentType.fromId(data.readInt());
+				contentType = ClientContentType.fromId(data.readInt());
 			} catch (IndexOutOfBoundsException iobe) {
 				logger.debug(Throwables.getStackTraceAsString(iobe));
 				createErrorResponse(ctx, "Content type not known!");
@@ -113,7 +113,7 @@ public class MessageHandlerDecoder extends Decoder {
 		}
 	}
 
-	private int getMaxLengthForContentType(ChannelHandlerContext ctx, ContentType contentType) {
+	private int getMaxLengthForContentType(ChannelHandlerContext ctx, ClientContentType contentType) {
 		switch (contentType) {
 		case FILE, IMAGE:
 			return maxMessageFileLength;

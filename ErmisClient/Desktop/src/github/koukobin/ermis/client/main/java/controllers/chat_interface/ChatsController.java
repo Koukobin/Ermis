@@ -31,7 +31,7 @@ import github.koukobin.ermis.client.main.java.service.client.ChatSession.Member;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
 import github.koukobin.ermis.client.main.java.util.ContextMenusUtil;
 import github.koukobin.ermis.client.main.java.util.Threads;
-import github.koukobin.ermis.common.message_types.Message;
+import github.koukobin.ermis.common.message_types.UserMessage;
 import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -93,9 +93,9 @@ public class ChatsController extends GeneralController {
 						ioe.printStackTrace();
 					}
 				} else {
-					List<Message> messages = chatSession.getMessages();
+					List<UserMessage> messages = chatSession.getMessages();
 					RootReferences.getMessagingController().addMessages(
-							messages.toArray(new Message[0]),
+							messages.toArray(new UserMessage[0]),
 							chatSession.getChatSessionIndex(),
 							getActiveChatSessionIndex());
 				}

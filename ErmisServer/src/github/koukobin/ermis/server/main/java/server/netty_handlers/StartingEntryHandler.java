@@ -29,56 +29,23 @@ import io.netty.channel.ChannelHandlerContext;
  * 
  */
 public final class StartingEntryHandler extends ParentHandler {
-	
-	private boolean isIPVerified;
-	
-	public StartingEntryHandler(ClientInfo clientInfo, boolean isLoggedIn) {
-		super(clientInfo);
-		this.isIPVerified = isLoggedIn;
-	}
-	
+
 	public StartingEntryHandler(ClientInfo clientInfo) {
 		super(clientInfo);
-
-		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			isIPVerified = conn.isLoggedIn(clientInfo.getChannel().remoteAddress().getAddress());
-		}
 	}
-	
+
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) {
-		ctx.channel().writeAndFlush(Unpooled.copyBoolean(isIPVerified));
+		ctx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER); // Message denoting server is ready for messages
 	}
 
 	@Override
-	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
+	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 
 		EntryType entryType = EntryType.fromId(msg.readInt());
 
 		switch (entryType) {
-		case LOGIN -> {
-			if (isIPVerified && msg.readableBytes() > 0) {
-				
-				byte[] email = new byte[msg.readInt()];
-				msg.readBytes(email);
-				
-				byte[] passwordHash = new byte[msg.readableBytes()];
-				msg.readBytes(passwordHash);
-				
-				boolean check;
-				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-					check = conn.checkAuthenticationViaHash(new String(email), new String(passwordHash));
-				}
-				
-				ctx.channel().writeAndFlush(Unpooled.copyBoolean(check));
-				if (check) {
-					EntryHandler.login(ctx, clientInfo);
-					return;
-				}
-			}
-			logger.debug("Moving into login!");
-			ctx.pipeline().replace(this, LoginHandler.class.getName(), new LoginHandler(clientInfo));
-		}
+		case LOGIN -> tryLogin(ctx, msg, clientInfo);
 		case CREATE_ACCOUNT -> {
 			logger.debug("Moving into account creation!");
 			ctx.pipeline().replace(this, CreateAccountHandler.class.getName(), new CreateAccountHandler(clientInfo));
@@ -87,5 +54,45 @@ public final class StartingEntryHandler extends ParentHandler {
 		}
 
 	}
-}
 
+	private static void tryLogin(ChannelHandlerContext ctx, ByteBuf msg, ClientInfo clientInfo) {
+	    // If no readable bytes in buffer, transition to LoginHandler
+		if (msg.readableBytes() == 0) {
+			logger.debug("Moving into login!");
+			ctx.pipeline().replace(ctx.handler(), LoginHandler.class.getName(), new LoginHandler(clientInfo));
+			return;
+		}
+		
+		// Otherwise, authenticate client via email and passwordHash
+		boolean isSuccessful = false;
+		try {
+			int emailLength = msg.readInt();
+			byte[] emailBytes = new byte[emailLength];
+			msg.readBytes(emailBytes);
+
+			byte[] passwordHashBytes = new byte[msg.readableBytes()];
+			msg.readBytes(passwordHashBytes);
+
+			String email = new String(emailBytes);
+			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+				if (!conn.isLoggedIn(email, clientInfo.getInetAddress())) {
+					logger.debug("Client not logged in: {}", clientInfo);
+					return;
+				}
+
+				isSuccessful = conn.checkAuthenticationViaHash(email, new String(passwordHashBytes));
+			}
+
+			if (isSuccessful) {
+				EntryHandler.login(ctx, clientInfo);
+			}
+		} catch (Exception e) {
+			logger.debug("Error during authentication", e);
+		} finally {
+			// Regardless of authentication outcome inform success to user
+			ctx.channel().writeAndFlush(Unpooled.copyBoolean(isSuccessful));
+		}
+		
+	}
+
+}

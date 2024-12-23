@@ -33,8 +33,8 @@ import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
-import github.koukobin.ermis.common.message_types.ContentType;
-import github.koukobin.ermis.common.message_types.Message;
+import github.koukobin.ermis.common.message_types.ClientContentType;
+import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -78,7 +78,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		
 		ByteBuf payload = Unpooled.buffer();
 		payload.writeInt(ClientMessageType.CLIENT_CONTENT.id);
-		payload.writeInt(ContentType.TEXT.id);
+		payload.writeInt(ClientContentType.TEXT.id);
 		payload.writeInt(chatSessionIndex);
 		payload.writeInt(textBytes.length);
 		payload.writeBytes(textBytes);
@@ -97,7 +97,7 @@ public abstract class MessageHandler implements AutoCloseable {
 
 		ByteBuf payload = Unpooled.buffer();
 		payload.writeInt(ClientMessageType.CLIENT_CONTENT.id);
-		payload.writeInt(ContentType.FILE.id);
+		payload.writeInt(ClientContentType.FILE.id);
 		payload.writeInt(chatSessionIndex);
 		payload.writeInt(fileNameBytes.length);
 		payload.writeBytes(fileNameBytes);
@@ -107,7 +107,7 @@ public abstract class MessageHandler implements AutoCloseable {
 	}
 
 	public abstract void usernameReceived(String username);
-	public abstract void messageReceived(Message message, int chatSessionIndex);
+	public abstract void messageReceived(UserMessage message, int chatSessionIndex);
 	public abstract void messageSuccesfullySentReceived(ChatSession chatSession, int messageID);
 	public abstract void alreadyWrittenTextReceived(ChatSession chatSession);
 	public abstract void serverMessageReceived(String message);
@@ -349,9 +349,9 @@ public abstract class MessageHandler implements AutoCloseable {
 						}
 						case CLIENT_CONTENT -> {
 
-							Message message = new Message();
+							UserMessage message = new UserMessage();
 							
-							ContentType contentType = ContentType.fromId(msg.readInt());
+							ClientContentType contentType = ClientContentType.fromId(msg.readInt());
 							
 							long timeWritten = msg.readLong();
 							
@@ -485,10 +485,10 @@ public abstract class MessageHandler implements AutoCloseable {
 									chatSession = chatSessions.get(chatSessionIndex);
 								}
 								
-								List<Message> messages = chatSession.getMessages();
+								List<UserMessage> messages = chatSession.getMessages();
 								while (msg.readableBytes() > 0) {
 
-									ContentType contentType = ContentType.fromId(msg.readInt());
+									ClientContentType contentType = ClientContentType.fromId(msg.readInt());
 									
 									int clientID = msg.readInt();
 									int messageID = msg.readInt();
@@ -519,7 +519,7 @@ public abstract class MessageHandler implements AutoCloseable {
 									}
 
 									if (contentType != null) {
-										Message message = new Message(username,
+										UserMessage message = new UserMessage(username,
 												clientID,
 												messageID,
 												chatSession.getChatSessionID(),
@@ -531,7 +531,7 @@ public abstract class MessageHandler implements AutoCloseable {
 									}
 								}
 								
-								messages.sort(Comparator.comparing(Message::getMessageID));
+								messages.sort(Comparator.comparing(UserMessage::getMessageID));
 								
 								chatSession.setHaveChatMessagesBeenCached(true);
 								alreadyWrittenTextReceived(chatSession);

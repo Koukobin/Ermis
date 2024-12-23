@@ -39,10 +39,10 @@ abstract sealed class EntryHandler extends ParentHandler permits LoginHandler, C
 	 * 
 	 */
 	public abstract void executeEntryAction(ChannelHandlerContext ctx, ByteBuf msg) throws IOException;
-	public abstract void channelRead2(ChannelHandlerContext ctx, ByteBuf msg) throws IOException;
+	public abstract void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException;
 
 	@Override
-	public final void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
+	public final void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 
 		boolean isAction = msg.readBoolean();
 
@@ -51,20 +51,20 @@ abstract sealed class EntryHandler extends ParentHandler permits LoginHandler, C
 			return;
 		}
 
-		channelRead2(ctx, msg);
+		channelRead1(ctx, msg);
 	}
 
-    /**
-     * Self-evident 
-     *
-     */
-	protected abstract void onSuccess(ChannelHandlerContext ctx);
+	/**
+	 * Self-evident
+	 *
+	 */
+	protected abstract void onSuccessfulRegistration(ChannelHandlerContext ctx);
 
-	protected void success(ChannelHandlerContext ctx) {
-		onSuccess(ctx);
+	protected void registrationSuccessful(ChannelHandlerContext ctx) {
+		onSuccessfulRegistration(ctx);
 	}
 
-	protected void failed(ChannelHandlerContext ctx) {
+	protected void registrationFailed(ChannelHandlerContext ctx) {
 		registrationFailed(ctx, clientInfo);
 	}
 
@@ -73,6 +73,10 @@ abstract sealed class EntryHandler extends ParentHandler permits LoginHandler, C
 	 *
 	 */
 	public static void login(ChannelHandlerContext ctx, ClientInfo clientInfo) {
+		if (ctx.pipeline().get(MessageHandler.class.getName()) != null) {
+			ctx.pipeline().remove(ctx.handler());
+			return;
+		}
 		ctx.pipeline().replace(ctx.handler(), MessageHandler.class.getName(), new MessageHandler(clientInfo));
 	}
 
@@ -81,6 +85,10 @@ abstract sealed class EntryHandler extends ParentHandler permits LoginHandler, C
 	 *
 	 */
 	public static void registrationFailed(ChannelHandlerContext ctx, ClientInfo clientInfo) {
+		if (ctx.pipeline().get(MessageHandler.class.getName()) != null) {
+			ctx.pipeline().remove(ctx.handler());
+			return;
+		}
 		ctx.pipeline().replace(ctx.handler(), StartingEntryHandler.class.getName(), new StartingEntryHandler(clientInfo));
 	}
 }

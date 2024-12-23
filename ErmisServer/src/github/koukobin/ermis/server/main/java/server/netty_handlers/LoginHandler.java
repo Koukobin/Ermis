@@ -75,7 +75,7 @@ final class LoginHandler extends EntryHandler {
 	}
 	
 	@Override
-	public void channelRead2(ChannelHandlerContext ctx, ByteBuf msg) {
+	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) {
 		
 		{
 			Credential credential = Credential.fromId(msg.readInt());
@@ -99,9 +99,9 @@ final class LoginHandler extends EntryHandler {
 			payload.writeBoolean(resultHolder.isSuccessful());
 
 			if (resultHolder.isSuccessful()) {
-				success(ctx);
+				registrationSuccessful(ctx);
 			} else {
-				failed(ctx);
+				registrationFailed(ctx);
 			}
 			
 			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
@@ -112,7 +112,7 @@ final class LoginHandler extends EntryHandler {
 	}
 
 	@Override
-	protected void onSuccess(ChannelHandlerContext ctx) {
+	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
 		String email = credentials.get(Credential.EMAIL);
 		String password = credentials.get(Credential.PASSWORD);
 

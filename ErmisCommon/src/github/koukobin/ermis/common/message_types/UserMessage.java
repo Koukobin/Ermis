@@ -22,7 +22,7 @@ import java.util.Objects;
  * @author Ilias Koukovinis
  *
  */
-public final class Message {
+public final class UserMessage {
 	
 	private String username;
 	private int clientID;
@@ -35,11 +35,11 @@ public final class Message {
 	
 	private long timeWritten;
 	
-	private ContentType contentType;
+	private ClientContentType contentType;
 
-	public Message() {}
+	public UserMessage() {}
 
-	public Message(String username, int clientID, int messageID, int chatSessionID, byte[] text, byte[] fileName, long timeWritten, ContentType contentType) {
+	public UserMessage(String username, int clientID, int messageID, int chatSessionID, byte[] text, byte[] fileName, long timeWritten, ClientContentType contentType) {
 		this.username = username;
 		this.clientID = clientID;
 		this.messageID = messageID;
@@ -78,7 +78,7 @@ public final class Message {
 		this.timeWritten = timeWritten;
 	}
 
-	public void setContentType(ContentType contentType) {
+	public void setContentType(ClientContentType contentType) {
 		this.contentType = contentType;
 	}
 	
@@ -110,7 +110,7 @@ public final class Message {
 		return timeWritten;
 	}
 
-	public ContentType getContentType() {
+	public ClientContentType getContentType() {
 		return contentType;
 	}
 
@@ -134,7 +134,7 @@ public final class Message {
 			return false;
 		}
 		
-		Message other = (Message) obj;
+		UserMessage other = (UserMessage) obj;
 		return chatSessionID == other.chatSessionID 
 				&& clientID == other.clientID 
 				&& contentType == other.contentType

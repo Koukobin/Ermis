@@ -72,13 +72,13 @@ import io.netty.util.internal.logging.Log4J2LoggerFactory;
  */
 public final class Server {
 
-	private static final Logger logger;
-	
+	private static final Logger LOGGER;
+
 	private static EpollServerSocketChannel serverSocketChannel;
 
 	private static EpollEventLoopGroup bossGroup;
 	private static EpollEventLoopGroup workerGroup;
-	
+
 	private static ClientConnector clientConnector;
 
 	private static AtomicBoolean isRunning;
@@ -88,15 +88,14 @@ public final class Server {
 	}
 
 	static {
-		logger = LogManager.getLogger("server");
+		LOGGER = LogManager.getLogger("server");
 		InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
 	}
 
 	static {
 		try {
-			
-			logger.info("Initializing...");
-			
+			LOGGER.info("Initializing...");
+
 			EmailerService.initialize();
 			ErmisDatabase.initialize();
 
@@ -104,10 +103,10 @@ public final class Server {
 			workerGroup = new EpollEventLoopGroup(ServerSettings.WORKER_THREADS);
 
 			clientConnector = new ClientConnector();
-			
+
 			isRunning = new AtomicBoolean(false);
 		} catch (Exception e) {
-			logger.fatal(Throwables.getStackTraceAsString(e));
+			LOGGER.fatal(Throwables.getStackTraceAsString(e));
 			throw new RuntimeException(e);
 		}
 	}
@@ -136,42 +135,42 @@ public final class Server {
 			if (!ServerSettings.IS_PRODUCTION_READY) {
 				bootstrapTCP.handler(new LoggingHandler(LogLevel.INFO));
 			}
-			
+
 			serverSocketChannel = (EpollServerSocketChannel) bootstrapTCP.bind().sync().channel();
 
 			Server.isRunning.set(true);
 
 			InetSocketAddress socketAddress = serverSocketChannel.localAddress();
-			
-			logger.info("Server started succesfully on port {} and at address {}", socketAddress.getPort(),
+
+			LOGGER.info("Server started succesfully on port {} and at address {}", socketAddress.getPort(),
 					socketAddress.getHostName());
-			logger.info("Waiting for new connections...");
-		}  catch (Exception e) {
-			logger.fatal(Throwables.getStackTraceAsString(e));
+			LOGGER.info("Waiting for new connections...");
+		} catch (Exception e) {
+			LOGGER.fatal(Throwables.getStackTraceAsString(e));
 			throw new RuntimeException("Failed to start TCP server", e);
 		}
-		
+
 		ServerUDP.start();
 	}
-	
+
 	private static class ClientConnector extends ChannelInitializer<EpollSocketChannel> {
 
 		private static final SslContext sslContext;
-		
+
 		static {
 			try {
 
 				char[] certificatePassword = ServerSettings.SSL.CERTIFICATE_PASSWORD.toCharArray();
-				
+
 				KeyStore ks = KeyStore.getInstance(ServerSettings.SSL.CERTIFICATE_TYPE);
 				ks.load(new FileInputStream(ServerSettings.SSL.CERTIFICATE_LOCATION), certificatePassword);
-				
+
 				KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 				kmf.init(ks, certificatePassword);
-				
+
 				TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 				tmf.init(ks);
-				
+
 				sslContext = SslContextBuilder.forServer(kmf)
 						.trustManager(tmf)
 						.protocols(ServerSettings.SSL.getEnabledProtocols())
@@ -182,11 +181,11 @@ public final class Server {
 										SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_1_1))
 						.build();
 			} catch (Exception e) {
-				logger.fatal(Throwables.getStackTraceAsString(e));
+				LOGGER.fatal(Throwables.getStackTraceAsString(e));
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 		@Override
 		public void initChannel(EpollSocketChannel ch) {
 
@@ -197,12 +196,12 @@ public final class Server {
 			SSLEngine engine = sslContext.newEngine(ch.alloc());
 			engine.setUseClientMode(false);
 			pipeline.addLast("ssl", new SslHandler(engine));
-			
+
 			// Add protocol detector (a custom handler to detect HTTP or custom protocol)
 			pipeline.addLast("protocolDetector", new ProtocolDetectorHandler());
 		}
-		
-		public class ProtocolDetectorHandler extends ChannelInboundHandlerAdapter {
+
+		public static class ProtocolDetectorHandler extends ChannelInboundHandlerAdapter {
 			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 				ByteBuf byteBuf = (ByteBuf) msg;
@@ -215,32 +214,27 @@ public final class Server {
 					ctx.pipeline().addLast("httpAggregator", new HttpObjectAggregator(1048576));
 					ctx.pipeline().addLast("httpEncoder", new HttpResponseEncoder());
 					ctx.pipeline().addLast("httpHandler", new HttpStaticFileServerHandler());
-					
+
 					ctx.fireChannelRead(msg);
 				} else {
-					ctx.pipeline().addLast("decoder",
-							new SimpleDecoder(500 /*
-													 * max length doesn't need to be too big as this decoder will only be used
-													 * to send simple small messages and will be replaced with the main decoder
-													 * once it reaches the message handler
-													 */));
+					ctx.pipeline().addLast("decoder", new SimpleDecoder());
 					ctx.pipeline().addLast("encoder", new Encoder());
 
 					ClientInfo clientInfo = new ClientInfo();
 					clientInfo.setChannel(ctx.channel());
-					
+
 					ctx.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler(clientInfo));
 				}
 
 				ctx.pipeline().remove(this);
 			}
-		    
+
 			@Override
 			public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-				logger.debug(Throwables.getStackTraceAsString(cause));
+				LOGGER.debug(Throwables.getStackTraceAsString(cause));
 			}
 		}
-		
+
 	}
 
 	public static void stop() {
@@ -253,14 +247,11 @@ public final class Server {
 		bossGroup.shutdownGracefully();
 
 		Server.isRunning.set(false);
-		
-		logger.info("Server stopped succesfully on port {} and at address {}",
+
+		LOGGER.info("Server stopped succesfully on port {} and at address {}",
 				serverSocketChannel.localAddress().getHostName(), serverSocketChannel.localAddress().getPort());
 
-		logger.info("Stopped waiting for new connections...");
+		LOGGER.info("Stopped waiting for new connections...");
 	}
 }
-
-
-
 

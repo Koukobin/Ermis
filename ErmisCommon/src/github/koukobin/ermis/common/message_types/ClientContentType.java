@@ -25,25 +25,25 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
 * @author Ilias Koukovinis
 *
 */
-public enum ContentType {
+public enum ClientContentType {
 	TEXT(0), FILE(1), IMAGE(2);
 	
-	private static final HashMap<Integer, ContentType> values;
+	private static final HashMap<Integer, ClientContentType> values;
 	
 	static {
 		values = new HashMap<>(
-				Arrays.stream(ContentType.values())
+				Arrays.stream(ClientContentType.values())
 				.collect(Collectors.toMap(type -> type.id, type -> type))
 				);
 	}
 	
     public final int id;
 
-    ContentType(int id) {
+    ClientContentType(int id) {
         this.id = id;
     }
 
-	public static ContentType fromId(int id) {
+	public static ClientContentType fromId(int id) {
 		return EnumIntConverter.fromId(values, id);
 	}
 }

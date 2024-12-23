@@ -15,10 +15,13 @@
  */
 package github.koukobin.ermis.server.main.java.server;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import github.koukobin.ermis.common.message_types.ServerMessageType;
+import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 
@@ -26,36 +29,29 @@ import io.netty.channel.Channel;
  * @author Ilias Koukovinis
  *
  */
-public class ActiveChatSessions {
+public class ActiveClients {
 
 	/**
-	 * Map to track active chat sessions
+	 * Map to track active clients
 	 */
-	private static final Map<Integer, ChatSession> chatSessionIDSToActiveChatSessions = new ConcurrentHashMap<>(100);
+	private static final Map<Integer, List<ClientInfo>> clientIDSToActiveClients = new ConcurrentHashMap<>(ServerSettings.SERVER_BACKLOG);
+	
+	private ActiveClients() {}
+	
+	public static List<ClientInfo> getClient(int clientID) {
+		return clientIDSToActiveClients.get(clientID);
+	}
+	
+	public static void addClient(ClientInfo clientInfo) {
+		clientIDSToActiveClients.putIfAbsent(clientInfo.getClientID(), new ArrayList<>());
+		clientIDSToActiveClients.get(clientInfo.getClientID()).add(clientInfo);
+	}
+	
+	public static void removeClient(ClientInfo clientInfo) {
+		clientIDSToActiveClients.get(clientInfo.getClientID()).remove(clientInfo);
+	}
 
-	private ActiveChatSessions() {}
-	
-	public static ChatSession getChatSession(int chatSessionID) {
-		return chatSessionIDSToActiveChatSessions.get(chatSessionID);
-	}
-	
-	public static void addChatSession(int chatSessionID, ChatSession chatSession) {
-		chatSessionIDSToActiveChatSessions.put(chatSessionID, chatSession);
-	}
-	
-	public static void removeChatSession(int chatSessionID) {
-		chatSessionIDSToActiveChatSessions.remove(chatSessionID);
-	}
-
-	public static void addMember(int chatSessionID, ClientInfo member) {
-		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveChannels().add(member.getChannel());
-	}
-	
-	public static void removeMember(int chatSessionID, ClientInfo member) {
-		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveChannels().remove(member.getChannel());
-	}
-	
-	public static void broadcastToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {
+	public static void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession, ClientInfo sender) {
 
 		List<Channel> membersOfChatSession = chatSession.getActiveChannels();
 
@@ -78,8 +74,17 @@ public class ActiveChatSessions {
 
 		for (int i = 0; i < membersOfChatSession.size(); i++) {
 			Channel channel = membersOfChatSession.get(i);
+			
+			if (channel.equals(sender.getChannel())) {
+				ByteBuf messageSent = channel.alloc().ioBuffer();
+				messageSent.writeInt(ServerMessageType.MESSAGE_SUCCESFULLY_SENT.id);
+				messageSent.writeInt(chatSession.getChatSessionID());
+				messageSent.writeInt(messageID);
+				channel.writeAndFlush(messageSent);
+				continue;
+			}
+			
 			channel.writeAndFlush(payload.duplicate());
 		}
 	}
-	
 }

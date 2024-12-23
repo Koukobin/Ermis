@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-import github.koukobin.ermis.common.message_types.Message;
+import github.koukobin.ermis.common.message_types.UserMessage;
 
 /**
  * @author Ilias Koukovinis
@@ -104,7 +104,7 @@ public class ChatSession {
 	private final int chatSessionIndex; // Index of chat session that the server uses to access said chat session for the specific user
 	
 	private List<Member> members;
-	private List<Message> messages;
+	private List<UserMessage> messages;
 
 	private boolean haveChatMessagesBeenCached;
 	
@@ -115,7 +115,7 @@ public class ChatSession {
 		this.messages = new ArrayList<>();
 	}
 
-	public ChatSession(int chatSessionID, int chatSessionIndex, List<Message> messages, List<Member> members, boolean haveChatMessagesBeenCached) {
+	public ChatSession(int chatSessionID, int chatSessionIndex, List<UserMessage> messages, List<Member> members, boolean haveChatMessagesBeenCached) {
 		this.chatSessionID = chatSessionID;
 		this.chatSessionIndex = chatSessionIndex;
 		this.members = members;
@@ -127,7 +127,7 @@ public class ChatSession {
 		this.members = members;
 	}
 
-	public void setMessages(List<Message> messages) {
+	public void setMessages(List<UserMessage> messages) {
 		this.messages = messages;
 	}
 	
@@ -147,7 +147,7 @@ public class ChatSession {
 		return members;
 	}
 
-	public List<Message> getMessages() {
+	public List<UserMessage> getMessages() {
 		return messages;
 	}
 	

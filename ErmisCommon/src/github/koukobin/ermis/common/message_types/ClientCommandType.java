@@ -35,6 +35,7 @@ public enum ClientCommandType {
 	LOGOUT_OTHER_DEVICE(CommandLevel.HEAVY, 104),
 	LOGOUT_ALL_DEVICES(CommandLevel.HEAVY, 105),
 	DELETE_ACCOUNT(CommandLevel.HEAVY, 106),
+	ADD_NEW_ACCOUNT(CommandLevel.HEAVY, 107),
 
 	// User Information Requests
 	FETCH_USERNAME(CommandLevel.LIGHT, 200),

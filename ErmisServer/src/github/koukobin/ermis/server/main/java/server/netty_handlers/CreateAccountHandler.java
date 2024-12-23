@@ -89,7 +89,7 @@ final class CreateAccountHandler extends EntryHandler {
 	}
 
 	@Override
-	public void channelRead2(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
+	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 
 		{
 			Credential credential = Credential.fromId(msg.readInt());
@@ -120,9 +120,9 @@ final class CreateAccountHandler extends EntryHandler {
 			payload.writeBoolean(resultHolder.isSuccessful());
 
 			if (resultHolder.isSuccessful()) {
-				success(ctx);
+				registrationSuccessful(ctx);
 			} else {
-				failed(ctx);
+				registrationFailed(ctx);
 			}
 
 			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
@@ -133,7 +133,7 @@ final class CreateAccountHandler extends EntryHandler {
 	}
 
 	@Override
-	protected void onSuccess(ChannelHandlerContext ctx) {
+	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
 		String email = credentials.get(Credential.EMAIL);
 
 		VerificationHandler verificationHandler = new VerificationHandler(clientInfo, email) {

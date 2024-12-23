@@ -18,7 +18,7 @@ package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databa
 import java.util.Arrays;
 import java.util.Objects;
 
-import github.koukobin.ermis.common.message_types.ContentType;
+import github.koukobin.ermis.common.message_types.ClientContentType;
 
 /**
  * @author Ilias Koukovinis
@@ -34,11 +34,11 @@ public class DatabaseChatMessage {
 	private byte[] fileName;
 	private byte[] fileBytes;
 	
-	private ContentType contentType;
+	private ClientContentType contentType;
 	
 	public DatabaseChatMessage() {}
 
-	public DatabaseChatMessage(int clientID, int chatSessionID, byte[] text, byte[] fileName, byte[] fileBytes, ContentType contentType) {
+	public DatabaseChatMessage(int clientID, int chatSessionID, byte[] text, byte[] fileName, byte[] fileBytes, ClientContentType contentType) {
 		this.clientID = clientID;
 		this.chatSessionID = chatSessionID;
 		this.text = text;
@@ -67,7 +67,7 @@ public class DatabaseChatMessage {
 		this.fileBytes = fileBytes;
 	}
 	
-	public void setContentType(ContentType contentType) {
+	public void setContentType(ClientContentType contentType) {
 		this.contentType = contentType;
 	}
 
@@ -91,7 +91,7 @@ public class DatabaseChatMessage {
 		return fileBytes;
 	}
 	
-	public ContentType getContentType() {
+	public ClientContentType getContentType() {
 		return contentType;
 	}
 

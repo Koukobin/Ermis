@@ -43,8 +43,8 @@ import github.koukobin.ermis.common.UserDeviceInfo;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.LoginInfo;
-import github.koukobin.ermis.common.message_types.ContentType;
-import github.koukobin.ermis.common.message_types.Message;
+import github.koukobin.ermis.common.message_types.ClientContentType;
+import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.results.ChangePasswordResult;
 import github.koukobin.ermis.common.results.ChangeUsernameResult;
 import github.koukobin.ermis.common.results.EntryResult;
@@ -1193,15 +1193,22 @@ public final class ErmisDatabase {
 			return resultUpdate;
 		}
 
-		public boolean isLoggedIn(InetAddress address) {
+		public boolean isLoggedIn(String email, InetAddress address) {
 
 			boolean isLoggedIn = false;
 
-			try (PreparedStatement getIsLoggedIn = conn
-					.prepareStatement("SELECT 1 from user_ips WHERE ip_address=?;")) {
+			String query = """
+					    SELECT 1
+					    FROM users u
+					    JOIN user_ips ui
+					    ON u.client_id = ui.client_id
+					    WHERE u.email = ? AND ui.ip_address = ?;
+					""";
+			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+				pstmt.setString(1, email);
+				pstmt.setString(2, address.getHostName());
 
-				getIsLoggedIn.setString(1, address.getHostName());
-				ResultSet rs = getIsLoggedIn.executeQuery();
+				ResultSet rs = pstmt.executeQuery();
 				isLoggedIn = rs.next();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
@@ -1246,11 +1253,11 @@ public final class ErmisDatabase {
 
 			return accountExists;
 		}
-		
+
 		public int addUserIcon(int clientID, byte[] icon) {
-			
+
 			int resultUpdate = 0;
-			
+
 			String profilePhotoID;
 			try {
 				profilePhotoID = ProfilePhotosStorage.createProfilePhoto(icon);
@@ -1327,9 +1334,9 @@ public final class ErmisDatabase {
 			return file;
 		}
 
-		public Message[] selectMessages(int chatSessionID, int numOfMessagesAlreadySelected, int numOfMessagesToSelect) {
+		public UserMessage[] selectMessages(int chatSessionID, int numOfMessagesAlreadySelected, int numOfMessagesToSelect) {
 
-			Message[] messages = new Message[0];
+			UserMessage[] messages = new UserMessage[0];
 
 			try (PreparedStatement selectMessages = conn.prepareStatement(
 					"SELECT message_id, client_id, text, file_name, ts_entered, content_type "
@@ -1360,7 +1367,7 @@ public final class ErmisDatabase {
 				rs.first();
 				// </GET MESSAGES SELECTED NUMBER>
 
-				messages = new Message[rowCount];
+				messages = new UserMessage[rowCount];
 
 				Map<Integer, String> clientIDSToUsernames = new HashMap<>();
 
@@ -1382,9 +1389,9 @@ public final class ErmisDatabase {
 
 					Timestamp timeWritten = rs.getTimestamp(5);
 					
-					ContentType contentType = ContentTypeConverter.getDatabaseIntAsContentType(rs.getInt(6));
+					ClientContentType contentType = ContentTypeConverter.getDatabaseIntAsContentType(rs.getInt(6));
 					
-					messages[i] = new Message(username, clientID, messageID, chatSessionID, textBytes, fileNameBytes, timeWritten.getTime(), contentType);
+					messages[i] = new UserMessage(username, clientID, messageID, chatSessionID, textBytes, fileNameBytes, timeWritten.getTime(), contentType);
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));

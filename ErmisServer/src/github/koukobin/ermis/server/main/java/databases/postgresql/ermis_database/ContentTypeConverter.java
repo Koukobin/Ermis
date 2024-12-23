@@ -19,7 +19,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.koukobin.ermis.common.message_types.ContentType;
+import github.koukobin.ermis.common.message_types.ClientContentType;
 
 /**
  * 
@@ -34,27 +34,27 @@ final class ContentTypeConverter {
 	private static final int FILE = 64; // WARNING: DO NOT CHANGE
 	private static final int PHOTO = 343; // WARNING: DO NOT CHANGE
 	
-	private static final Map<ContentType, Integer> contentTypesToDatabaseInts = new EnumMap<>(ContentType.class);
-	private static final Map<Integer, ContentType> databaseIntsToContentTypes = new HashMap<>();
+	private static final Map<ClientContentType, Integer> contentTypesToDatabaseInts = new EnumMap<>(ClientContentType.class);
+	private static final Map<Integer, ClientContentType> databaseIntsToContentTypes = new HashMap<>();
 
 	private ContentTypeConverter() {}
 	
 	static {
-		contentTypesToDatabaseInts.put(ContentType.TEXT, TEXT);
-		contentTypesToDatabaseInts.put(ContentType.FILE, FILE);
-		contentTypesToDatabaseInts.put(ContentType.IMAGE, PHOTO);
+		contentTypesToDatabaseInts.put(ClientContentType.TEXT, TEXT);
+		contentTypesToDatabaseInts.put(ClientContentType.FILE, FILE);
+		contentTypesToDatabaseInts.put(ClientContentType.IMAGE, PHOTO);
 		
-		databaseIntsToContentTypes.put(TEXT, ContentType.TEXT);
-		databaseIntsToContentTypes.put(FILE, ContentType.FILE);
-		databaseIntsToContentTypes.put(PHOTO, ContentType.IMAGE);
+		databaseIntsToContentTypes.put(TEXT, ClientContentType.TEXT);
+		databaseIntsToContentTypes.put(FILE, ClientContentType.FILE);
+		databaseIntsToContentTypes.put(PHOTO, ClientContentType.IMAGE);
 	}
 
-	static int getContentTypeAsDatabaseInt(ContentType contentType) {
+	static int getContentTypeAsDatabaseInt(ClientContentType contentType) {
 		return contentTypesToDatabaseInts.get(contentType);
 	}
 	
 
-	static ContentType getDatabaseIntAsContentType(int contentTypeInt) {
+	static ClientContentType getDatabaseIntAsContentType(int contentTypeInt) {
 		return databaseIntsToContentTypes.get(contentTypeInt);
 	}
 }

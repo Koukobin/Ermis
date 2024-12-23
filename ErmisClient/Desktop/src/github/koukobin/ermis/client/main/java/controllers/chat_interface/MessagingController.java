@@ -41,8 +41,8 @@ import github.koukobin.ermis.client.main.java.util.ContextMenusUtil;
 import github.koukobin.ermis.client.main.java.util.NotificationsUtil;
 import github.koukobin.ermis.client.main.java.util.Threads;
 import github.koukobin.ermis.client.main.java.util.dialogs.MFXDialogsUtil;
-import github.koukobin.ermis.common.message_types.ContentType;
-import github.koukobin.ermis.common.message_types.Message;
+import github.koukobin.ermis.common.message_types.ClientContentType;
+import github.koukobin.ermis.common.message_types.UserMessage;
 import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import javafx.application.Platform;
@@ -84,7 +84,7 @@ public class MessagingController extends GeneralController {
 	@FXML
 	private TextField inputField;
 	
-	private Queue<Message> pendingMessages = new ArrayDeque<>();
+	private Queue<UserMessage> pendingMessages = new ArrayDeque<>();
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -119,19 +119,19 @@ public class MessagingController extends GeneralController {
 		});
 	}
 	
-	public void addMessages(Message[] messages, int chatSessionIndex, int activeChatSessionIndex) {
+	public void addMessages(UserMessage[] messages, int chatSessionIndex, int activeChatSessionIndex) {
 		for (int i = 0; i < messages.length; i++) {
 			addMessage(messages[i], chatSessionIndex, activeChatSessionIndex);
 		}
 	}
 	
-	public void addMessage(Message message, int chatSessionIndex, int activeChatSessionIndex) {
+	public void addMessage(UserMessage message, int chatSessionIndex, int activeChatSessionIndex) {
 		printToMessageArea(message, chatSessionIndex, activeChatSessionIndex);
 	}
 	
-	private HBox createClientMessage(Message message) {
+	private HBox createClientMessage(UserMessage message) {
 		
-		ContentType contentType = message.getContentType();
+		ClientContentType contentType = message.getContentType();
 		
 		Instant instant = Instant.ofEpochMilli(message.getTimeWritten());
 		ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
@@ -228,7 +228,7 @@ public class MessagingController extends GeneralController {
 		return hbox;
 	}
 	
-	private void printDateLabelIfNeeded(Message msg) {
+	private void printDateLabelIfNeeded(UserMessage msg) {
 
 		class MessageDateTracker {
 			
@@ -274,7 +274,7 @@ public class MessagingController extends GeneralController {
 		MessageDateTracker.updatelastMessageDate(currentMessageDate);
 	}
 	
-	public void printToMessageArea(Message msg, int chatSessionIndex, int activeChatSessionIndex) {
+	public void printToMessageArea(UserMessage msg, int chatSessionIndex, int activeChatSessionIndex) {
 
 		if (chatSessionIndex != activeChatSessionIndex) {
 			return;
@@ -336,7 +336,7 @@ public class MessagingController extends GeneralController {
 		setVvalue(chatBoxScrollpane.getVmax());
 	}
 	
-	public void notifyUser(Message message, int chatSessionIndex, int activeChatSessionIndex) {
+	public void notifyUser(UserMessage message, int chatSessionIndex, int activeChatSessionIndex) {
 		
 		/*
 		 * Skip notification if the user is focused on the app and the message received
@@ -349,7 +349,7 @@ public class MessagingController extends GeneralController {
 
 		byte[] messageContent;
 		
-		if (message.getContentType() == ContentType.FILE) {
+		if (message.getContentType() == ClientContentType.FILE) {
 			messageContent = message.getFileName();
 		} else {
 			messageContent = message.getText();
@@ -385,7 +385,7 @@ public class MessagingController extends GeneralController {
 
 		try {
 			Client.sendFile(file, RootReferences.getChatsController().getActiveChatSessionIndex());
-			addPendingMessage(null, file.getName().getBytes(), ContentType.FILE);
+			addPendingMessage(null, file.getName().getBytes(), ClientContentType.FILE);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -418,7 +418,7 @@ public class MessagingController extends GeneralController {
 
 		try {
 			Client.sendMessageToClient(message, RootReferences.getChatsController().getActiveChatSessionIndex());
-			addPendingMessage(message.getBytes(), null, ContentType.TEXT);
+			addPendingMessage(message.getBytes(), null, ClientContentType.TEXT);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -426,9 +426,9 @@ public class MessagingController extends GeneralController {
 		inputField.setText("");
 	}
 	
-	void addPendingMessage(byte[] text, byte[] fileName, ContentType contentType) {
+	void addPendingMessage(byte[] text, byte[] fileName, ClientContentType contentType) {
 
-		Message pendingMessage = new Message(Client.getDisplayName(),
+		UserMessage pendingMessage = new UserMessage(Client.getDisplayName(),
 				Client.getClientID(), -1,
 				RootReferences.getChatsController().getActiveChatSession().getChatSessionID(),
 				text,
@@ -443,7 +443,7 @@ public class MessagingController extends GeneralController {
 	}
 
 	public void succesfullySentMessage(ChatSession chatSession, int messageID) {
-		Message message = pendingMessages.peek();
+		UserMessage message = pendingMessages.peek();
 		message.setMessageID(messageID);
 		chatSession.getMessages().add(message);
 		Threads.delay(50, () -> {

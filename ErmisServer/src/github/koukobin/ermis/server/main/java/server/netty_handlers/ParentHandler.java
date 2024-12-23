@@ -34,36 +34,69 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @author Ilias Koukovinis
  * 
  */
-abstract sealed class ParentHandler extends SimpleChannelInboundHandler<ByteBuf> permits MessageHandler, StartingEntryHandler, EntryHandler {
+abstract sealed class ParentHandler extends SimpleChannelInboundHandler<ByteBuf> permits MessageHandler, StartingEntryHandler, EntryHandler, CommandHandler {
 
 	protected static final Logger logger = LogManager.getLogger("server");
-	
+
+	private static final int MAX_REQUESTS_PER_SECOND = 10;
+	private static final int BLOCK_DURATION_SECONDS = 10;
+
+	private int requestCount;
+	private boolean isBanned;
+	private Instant lastMessageSent;
+
 	protected final ClientInfo clientInfo;
 
 	protected ParentHandler(ClientInfo clientInfo) {
 		this.clientInfo = clientInfo;
+
+		this.requestCount = 0;
+		this.isBanned = false;
+		this.lastMessageSent = Instant.now();
 	}
 
 	// Ensure this method is not ovveridable
 	public final void channelRead(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-		super.channelRead(ctx, msg);
-	}
-	
-	public final void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		
+		if (isBanned) {
+			return; // Ignore further processing for this request
+		}
 
-		channelRead1(ctx, msg);
+		Instant currentTime = Instant.now();
+
+		// If a second has passed since the last message was sent reset the request count.
+		// Otherwise increment it and check whether or not it has exceeded the limit
+		if (currentTime.getEpochSecond() - lastMessageSent.getEpochSecond() >= 1) {
+			requestCount = 1;
+		} else {
+			requestCount++;
+			if (requestCount > MAX_REQUESTS_PER_SECOND) {
+				
+				isBanned = true;
+				
+				// Block incoming messages for a certain time interval
+				ctx.executor().schedule(() -> isBanned = false, BLOCK_DURATION_SECONDS, TimeUnit.SECONDS);
+				MessageByteBufCreator.sendMessageInfo(ctx,
+						"You have exceeded the maximum number of requests you can make per second. "
+						+ "Consequently, you have been banned from any kind of interaction with the server for a short time interval.");
+				return;
+			}
+		}
+
+		lastMessageSent = currentTime;
+
+		super.channelRead(ctx, msg); // Calls channelRead0
 	}
-	
+
 	/**
-	 * Note: ByteBuf message is automatically released since this class extends
+	 * Abstract method to process the incoming ByteBuf message. Note: ByteBuf
+	 * message is automatically released since this class extends
 	 * SimpleChannelInboundHandler.
 	 */
-	public abstract void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException;
-	
+	public abstract void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException;
+
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		logger.debug(Throwables.getStackTraceAsString(cause));
+		logger.error("Exception caught: {}", Throwables.getStackTraceAsString(cause));
 	}
 }
 

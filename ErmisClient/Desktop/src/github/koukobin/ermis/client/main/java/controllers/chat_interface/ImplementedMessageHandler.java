@@ -34,7 +34,7 @@ import github.koukobin.ermis.client.main.java.util.HostServicesUtil;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.client.main.java.util.dialogs.MFXDialogsUtil;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
-import github.koukobin.ermis.common.message_types.Message;
+import github.koukobin.ermis.common.message_types.UserMessage;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -59,7 +59,7 @@ class ImplementedMessageHandler extends MessageHandler {
 	}
 	
 	@Override
-	public void messageReceived(Message message, int chatSessionIndex) {
+	public void messageReceived(UserMessage message, int chatSessionIndex) {
 		Platform.runLater(new Runnable() {
 			
 			@Override
@@ -90,11 +90,11 @@ class ImplementedMessageHandler extends MessageHandler {
 		Platform.runLater(() -> {
 			
 			int chatSessionIndex = chatSession.getChatSessionIndex();
-			List<Message> messages = chatSession.getMessages();
+			List<UserMessage> messages = chatSession.getMessages();
 			
 			for (int i = 0; i < messages.size(); i++) {
 				
-				Message message = messages.get(i);
+				UserMessage message = messages.get(i);
 
 				RootReferences.getMessagingController().printToMessageArea(
 						message, 
@@ -183,10 +183,10 @@ class ImplementedMessageHandler extends MessageHandler {
 	public void messageDeleted(ChatSession chatSession, int messageIDOfDeletedMessage) {
 		Platform.runLater(() -> {
 
-			List<Message> messages = chatSession.getMessages();
+			List<UserMessage> messages = chatSession.getMessages();
 			for (int i = 0; i < messages.size(); i++) {
 
-				Message message = messages.get(i);
+				UserMessage message = messages.get(i);
 
 				if (message.getMessageID() == messageIDOfDeletedMessage) {
 
@@ -197,7 +197,7 @@ class ImplementedMessageHandler extends MessageHandler {
 					
 					if (activeChatSessionIndex == chatSessionIndex) {
 						RootReferences.getMessagingController().clearMessages();
-						RootReferences.getMessagingController().addMessages(messages.toArray(new Message[0]),
+						RootReferences.getMessagingController().addMessages(messages.toArray(new UserMessage[0]),
 								chatSession.getChatSessionIndex(),
 								RootReferences.getChatsController().getActiveChatSessionIndex());
 					}
