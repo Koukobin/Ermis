@@ -17,6 +17,7 @@
 import 'dart:typed_data';
 
 import 'package:ermis_client/main_ui/loading_state.dart';
+import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../client/client.dart';
@@ -30,10 +31,10 @@ class UserProfilePhoto extends StatefulWidget {
   const UserProfilePhoto({this.radius, required this.profileBytes, super.key});
 
   @override
-  LoadingState<UserProfilePhoto> createState() => UserProfilePhotoState();
+  State<UserProfilePhoto> createState() => UserProfilePhotoState();
 }
 
-class UserProfilePhotoState extends LoadingState<UserProfilePhoto> {
+class UserProfilePhotoState extends State<UserProfilePhoto> {
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class UserProfilePhotoState extends LoadingState<UserProfilePhoto> {
   }
 
   @override
-  Widget build0(BuildContext context) {
+  Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Container(
       decoration: BoxDecoration(
@@ -55,19 +56,20 @@ class UserProfilePhotoState extends LoadingState<UserProfilePhoto> {
         radius: widget.radius,
         backgroundColor: Colors.grey[200],
         backgroundImage: MemoryImage(widget.profileBytes),
+        child: widget.profileBytes.isEmpty
+            ? Icon(
+                Icons.person_rounded,
+                color: Colors.grey,
+                size: widget.radius == null ? 40 : widget.radius! * 2,
+              )
+            : null,
       ),
     );
-  }
-
-  @override
-  Widget buildLoadingScreen() {
-    return Center(child: CircularProgressIndicator());
   }
 
 }
 
 class PersonalProfilePhoto extends StatefulWidget {
-
   final double? radius;
 
   const PersonalProfilePhoto({this.radius, super.key});
@@ -93,6 +95,20 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
         isLoading = false;
       });
     });
+
+    Client.getInstance().callbacks.onAddProfilePhotoResult((bool success) {
+      if (success) {
+        setState(() {
+          _profileBytes = Client.getInstance().profilePhoto;
+          isLoading = false;
+        });
+        return;
+      }
+      showSnackBarDialog(
+          context: context,
+          content: "An error occured while trying to change profile photo");
+    });
+
   }
 
   @override

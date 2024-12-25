@@ -21,6 +21,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'client.dart';
+import 'common/account.dart';
 import 'common/message_types/client_command_type.dart';
 import 'common/message_types/client_message_type.dart';
 import 'common/message_types/server_message_type.dart';
@@ -48,6 +49,7 @@ typedef ServerSourceCodeCallback = void Function(String serverSourceCodeUrl);
 typedef ClientIdCallback = void Function(int clientId);
 typedef ChatRequestsCallback = void Function(List<ChatRequest> chatRequests);
 typedef ChatSessionsCallback = void Function(List<ChatSession> chatSessions);
+typedef OtherAccountsCallback = void Function(List<Account> accounts);
 typedef VoiceCallIncomingCallback = bool Function(Member member);
 typedef MessageDeletedCallback = void Function(ChatSession chatSession, int deletedMessageId);
 typedef ProfilePhotoCallback = void Function(Uint8List iconBytes);
@@ -119,6 +121,11 @@ class EventCallbacks {
     _chatSessionsCallbacks.add(callback);
   }
 
+  final List<OtherAccountsCallback> _otherAccountsCallbacks = [];
+  void onOtherAccountsReceived(OtherAccountsCallback callback) {
+    _otherAccountsCallbacks.add(callback);
+  }
+
   final List<VoiceCallIncomingCallback> _voiceCallIncomingCallbacks = [];
   void onVoiceCallIncoming(VoiceCallIncomingCallback callback) {
     _voiceCallIncomingCallbacks.add(callback);
@@ -156,8 +163,9 @@ class MessageHandler {
   final List<UserDeviceInfo> _userDevices = [];
 
   final Map<int, ChatSession> _chatSessionIDSToChatSessions = {};
-  late List<ChatSession>? _chatSessions;
-  late List<ChatRequest>? _chatRequests;
+  List<ChatSession>? _chatSessions;
+  List<ChatRequest>? _chatRequests;
+  List<Account>? _otherAccounts;
 
   bool _isClientListeningToMessages = false;
 
@@ -231,7 +239,9 @@ class MessageHandler {
     commands.fetchChatRequests();
     commands.fetchDevices();
     commands.fetchAccountIcon();
+    commands.fetchOtherAccountsAssociatedWithDevice();
 
+    // Block until requested information has been fetched
     await Future.doWhile(() async {
       return await Future.delayed(Duration(milliseconds: 100), () {
         return (username == null ||
@@ -353,6 +363,26 @@ class MessageHandler {
             callback(chatRequests!);
           }
           break;
+        case ClientCommandResultType.getOtherAccountsAssociatedWithDevice:
+          _otherAccounts = [];
+
+          while (msg.readableBytes > 0) {
+            int clientID = msg.readInt32();
+            String email = utf8.decode(msg.readBytes(msg.readInt32()));
+            String displayName = utf8.decode(msg.readBytes(msg.readInt32()));
+            Uint8List profilePhoto = msg.readBytes(msg.readInt32());
+
+            _otherAccounts!.add(Account(
+                profilePhoto: profilePhoto,
+                displayName: displayName,
+                email: email,
+                clientID: clientID));
+          }
+
+          for (final callback in callBacks._otherAccountsCallbacks) {
+            callback(_otherAccounts!);
+          }
+          break;
         case ClientCommandResultType.getWrittenText:
           int chatSessionIndex = msg.readInt32();
           ChatSession chatSession = _chatSessions![chatSessionIndex];
@@ -425,10 +455,11 @@ class MessageHandler {
           break;
         case ClientCommandResultType.setAccountIcon:
           bool isSuccessful = msg.readBoolean();
-          if (isSuccessful) {
-            _profilePhoto = Commands.pendingAccountIcon;
+          if (!isSuccessful) {
+            break;
           }
-
+          
+          _profilePhoto = Commands.pendingAccountIcon;
           for (final callback in callBacks._addProfilePhotoResultCallbacks) {
             callback(isSuccessful);
           }
@@ -555,6 +586,7 @@ class MessageHandler {
   List<ChatSession>? get chatSessions => _chatSessions;
   List<ChatRequest>? get chatRequests => _chatRequests;
   get usesDevices => _userDevices;
+  List<Account>? get otherAccounts => _otherAccounts;
 }
 
 class Commands {
@@ -775,6 +807,13 @@ class Commands {
     out.write(payload);
   }
 
+  void fetchOtherAccountsAssociatedWithDevice() {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.command.id);
+    payload.writeInt(ClientCommandType.fetchOtherAccountsAssociatedWithDevice.id);
+    out.write(payload);
+  }
+
   void fetchAccountIcon() {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt(ClientMessageType.command.id);
@@ -795,6 +834,20 @@ class Commands {
     payload.writeInt(password.length);
     payload.writeBytes(utf8.encode(password));
 
+    out.write(payload);
+  }
+
+  void addNewAccount() {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.command.id);
+    payload.writeInt(ClientCommandType.addNewAccount.id);
+    out.write(payload);
+  }
+
+  void switchAccount() {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.command.id);
+    payload.writeInt(ClientCommandType.switchAccount.id);
     out.write(payload);
   }
 }

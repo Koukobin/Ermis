@@ -18,7 +18,8 @@ import '../exceptions/EnumNotFoundException.dart';
 
 enum ClientMessageType {
   clientContent(0),
-  command(1);
+  entry(1),
+  command(2);
 
   final int id;
   const ClientMessageType(this.id);

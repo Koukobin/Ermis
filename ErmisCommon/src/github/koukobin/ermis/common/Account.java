@@ -22,14 +22,14 @@ import java.util.Objects;
  * @author Ilias Koukovinis
  *
  */
-public record Account(byte[] profilePhoto, String displayName, int clientID) {
+public record Account(byte[] profilePhoto, String email, String displayName, int clientID) {
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(profilePhoto);
-		result = prime * result + Objects.hash(clientID, displayName);
+		result = prime * result + Objects.hash(clientID, email, displayName);
 		return result;
 	}
 
@@ -50,12 +50,13 @@ public record Account(byte[] profilePhoto, String displayName, int clientID) {
 		Account other = (Account) obj;
 		return clientID == other.clientID 
 				&& Arrays.equals(profilePhoto, other.profilePhoto)
+				&& Objects.equals(email, other.email)
 				&& Objects.equals(displayName, other.displayName);
 	}
 
 	@Override
 	public String toString() {
-		return "Account [icon=" + Arrays.toString(profilePhoto) + ", username=" + displayName + ", clientID=" + clientID + "]";
+		return "Account [icon=" + Arrays.toString(profilePhoto) + ", username=" + displayName + ", email=" + email + ", clientID=" + clientID + "]";
 	}
 
 }

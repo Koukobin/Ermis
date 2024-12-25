@@ -15,7 +15,13 @@
  */
 package github.koukobin.ermis.server.main.java.configs;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import github.koukobin.ermis.server.main.ConfigProperty;
 
 /**
  * @author Ilias Koukovinis
@@ -28,10 +34,10 @@ public final class ConfigurationsPaths {
 	
 	public static class Server {
 		
-		public static final String SERVER_SETTINGS_PATH = CONFIGURATIONS_ROOT_FOLDER_PATH + "Server Settings/";
+		public static final String SETTINGS = CONFIGURATIONS_ROOT_FOLDER_PATH + "Server Settings/";
 		
-		public static final String GENERAL_SETTINGS_PATH = SERVER_SETTINGS_PATH + "General Settings.cnf";
-		public static final String SSL_SETTINGS_PATH = SERVER_SETTINGS_PATH + "SSLSettings.cnf";
+		public static final String GENERAL_SETTINGS = SETTINGS + "General Settings.cnf";
+		public static final String SSL_SETTINGS = SETTINGS + "SSLSettings.cnf";
 
 		public static class EmailCreator {
 
@@ -39,14 +45,14 @@ public final class ConfigurationsPaths {
 
 				public static class Login {
 
-					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SERVER_SETTINGS_PATH + "Login Verification Message.txt";
+					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SETTINGS + "Login Verification Message.txt";
 
 					private Login() {}
 				}
 
 				public static class CreateAccount {
 
-					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SERVER_SETTINGS_PATH + "CreateAccount Verification Message.txt";
+					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SETTINGS + "CreateAccount Verification Message.txt";
 
 					private CreateAccount() {}
 				}
@@ -59,23 +65,37 @@ public final class ConfigurationsPaths {
 		
 		private Server() {}
 	}
-	
+
 	public static class Donations {
-		
+
 		public static final String DONATIONS_SETTINGS_PATH = CONFIGURATIONS_ROOT_FOLDER_PATH + "Donation Settings/";
-		
 		public static final String HTML_FILE_PATH = DONATIONS_SETTINGS_PATH + "index.html";
-		
+
 		private Donations() {}
 	}
-	
+
 	public static class Emailer {
-		
+
 		public static final String EMAILER_SETTINGS_PATH = CONFIGURATIONS_ROOT_FOLDER_PATH + "Emailer Settings/";
-		
 		public static final String GENERAL_SETTINGS_PATH = EMAILER_SETTINGS_PATH + "GeneralSettings.cnf";
 		
 		private Emailer() {}
+	}
+	
+	public static class UserFilesStorage {
+		public static final String ROOT_FOLDER = "/var/lib/ermis-server/";
+		public static final String PROFILE_PHOTOS_DIRECTORY = ROOT_FOLDER + "profile_photos/";
+		public static final String SENT_FILES_DIRECTORY = ROOT_FOLDER + "user_files/";
+
+		static {
+			try {
+				Files.createDirectory(Paths.get(UserFilesStorage.PROFILE_PHOTOS_DIRECTORY));
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+		
+		private UserFilesStorage() {}
 	}
 
 	public static class Database {
@@ -142,14 +162,25 @@ public final class ConfigurationsPaths {
 		private Database() {}
 	}
 	
-	public static class LoggerSettingsPath {
+	public static class Logger {
 		
-		public static final String LOGGER_SETTINGS_PATH = CONFIGURATIONS_ROOT_FOLDER_PATH + "Logger Settings/";
+		public static final String LOGGER_SETTINGS = CONFIGURATIONS_ROOT_FOLDER_PATH + "Logger Settings/";
+		public static final String LOG4J_SETTINGS = LOGGER_SETTINGS + "log4j2.xml";
 		
-		public static final String LOG4J_SETTINGS_PATH = LOGGER_SETTINGS_PATH + "log4j2.xml";
-		
-		private LoggerSettingsPath() {}
+		private Logger() {}
 	}
 	
 	private ConfigurationsPaths() {}
+
+	private static void createDirectory(String path) {
+		try {
+			Files.createDirectories(Paths.get(path));
+		} catch (FileAlreadyExistsException fae) {
+			System.out.println("Directory " + UserFilesStorage.PROFILE_PHOTOS_DIRECTORY + " already exists");
+		} catch (IOException ioe) {
+			System.err.println("Failed to create directory: " + path + " - " + ioe.getMessage());
+			throw new RuntimeException("Failed to create directory: " + path + " - " + ioe.getMessage(), ioe);
+		}
+	}
 }
+

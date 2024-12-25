@@ -28,7 +28,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Ilias Koukovinis
  *
  */
-abstract sealed class EntryHandler extends ParentHandler permits LoginHandler, CreateAccountHandler, VerificationHandler {
+abstract sealed class EntryHandler extends AbstractChannelClientHandler permits LoginHandler, CreateAccountHandler, VerificationHandler {
 
 	protected EntryHandler(ClientInfo clientInfo) {
 		super(clientInfo);
@@ -73,11 +73,17 @@ abstract sealed class EntryHandler extends ParentHandler permits LoginHandler, C
 	 *
 	 */
 	public static void login(ChannelHandlerContext ctx, ClientInfo clientInfo) {
-		if (ctx.pipeline().get(MessageHandler.class.getName()) != null) {
-			ctx.pipeline().remove(ctx.handler());
-			return;
+		// If a message handler already exists, simply remove this handler instead of
+		// replacing with new one. This predicament would occur, in an instance, when a
+		// client, already authenticated, attempts to add a new account while logged in.
+		if (ctx.pipeline().get(MessageHandler.class) != null) {
+			ctx.pipeline().remove(MessageHandler.class);
+			ctx.pipeline().remove(CommandHandler.class);
 		}
-		ctx.pipeline().replace(ctx.handler(), MessageHandler.class.getName(), new MessageHandler(clientInfo));
+		MessageHandler messageHandler =  new MessageHandler(clientInfo);
+		ctx.pipeline().replace(ctx.handler(), MessageHandler.class.getName(), messageHandler);
+		messageHandler.awaitInitialization();
+		ctx.pipeline().addLast(CommandHandler.class.getName(), new CommandHandler(clientInfo));
 	}
 
 	/**
@@ -85,7 +91,10 @@ abstract sealed class EntryHandler extends ParentHandler permits LoginHandler, C
 	 *
 	 */
 	public static void registrationFailed(ChannelHandlerContext ctx, ClientInfo clientInfo) {
-		if (ctx.pipeline().get(MessageHandler.class.getName()) != null) {
+		// If a message handler already exists, simply remove this handler instead of
+		// replacing with new one. This predicament would occur, in an instance, when a
+		// client, already authenticated, attempts to add a new account while logged in.
+		if (ctx.pipeline().get(MessageHandler.class) != null) {
 			ctx.pipeline().remove(ctx.handler());
 			return;
 		}

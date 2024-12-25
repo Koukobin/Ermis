@@ -39,7 +39,7 @@ public final class ServerSettings {
 
 	static {
 		try {
-			GENERAL_PROPERTIES = FileEditor.readPropertiesFile(ConfigurationsPaths.Server.GENERAL_SETTINGS_PATH);
+			GENERAL_PROPERTIES = FileEditor.readPropertiesFile(ConfigurationsPaths.Server.GENERAL_SETTINGS);
 		} catch (IOException ioe) {
 			logger.fatal(Throwables.getStackTraceAsString(ioe));
 			throw new RuntimeException(ioe);
@@ -76,7 +76,7 @@ public final class ServerSettings {
 
 		static {
 			try {
-				SSL_PROPERTIES = FileEditor.readPropertiesFile(ConfigurationsPaths.Server.SSL_SETTINGS_PATH);
+				SSL_PROPERTIES = FileEditor.readPropertiesFile(ConfigurationsPaths.Server.SSL_SETTINGS);
 			} catch (IOException ioe) {
 				logger.fatal(Throwables.getStackTraceAsString(ioe));
 				throw new RuntimeException(ioe);

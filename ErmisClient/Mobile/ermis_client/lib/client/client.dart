@@ -20,9 +20,10 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:ermis_client/client/common/account.dart';
+import 'package:ermis_client/client/common/entry/requirements.dart';
 import 'package:ermis_client/client/io/byte_buf.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 import '../util/database_service.dart';
 import 'common/chat_request.dart';
@@ -68,7 +69,7 @@ class Client {
 
   Client._();
 
-  Future<bool> initialize(Uri uri, ServerCertificateVerification scv) async {
+  Future<void> initialize(Uri uri, ServerCertificateVerification scv) async {
     if (uri.port <= 0) {
       throw ArgumentError("Port cannot be below zero");
     }
@@ -92,8 +93,7 @@ class Client {
       _messageHandler.setByteBufInputStream(_inputStream!);
       _messageHandler.setByteBufOutputStream(_outputStream!);
 
-      _outputStream!.write(ByteBuf.empty());
-      return _isLoggedIn = (await _inputStream!.read()).readBoolean();
+      _outputStream!.write(ByteBuf.empty()); // Denotes connection
     } on HandshakeException {
       if (scv == ServerCertificateVerification.verify) {
         throw HandshakeException("Could not verify server certificate");
@@ -102,15 +102,19 @@ class Client {
     }
   }
 
-  Future<bool> attemptShallowLogin(UserInformation userInfo) async {
+  Future<void> syncWithServer() async {
+    await _inputStream!.read(); // Message denoting server is ready for MESSAGES
+  }
+
+  Future<bool> attemptShallowLogin(UserAccount userInfo) async {
 
     ByteBuf buffer = ByteBuf.smallBuffer();
-
+    buffer.writeInt(ClientMessageType.entry.id);    
     buffer.writeInt(EntryType.login.id);
-    buffer.writeInt(userInfo.email!.length);
-    buffer.writeBytes(utf8.encode(userInfo.email!));
-
-    buffer.writeBytes(utf8.encode(userInfo.passwordHash!));
+    
+    buffer.writeInt(userInfo.email.length);
+    buffer.writeBytes(utf8.encode(userInfo.email));
+    buffer.writeBytes(utf8.encode(userInfo.passwordHash));
 
     _outputStream!.write(buffer);
 
@@ -222,6 +226,7 @@ class Client {
     _messageHandler.callBacks.onUserDevicesReceived(runThis);
   }
 
+  EventCallbacks get callbacks => _messageHandler.callBacks;
   Commands get commands => _messageHandler.commands;
   int get clientID => _messageHandler.clientID;
   String? get displayName => _messageHandler.username;
@@ -230,17 +235,10 @@ class Client {
   List<ChatRequest>? get chatRequests => _messageHandler.chatRequests;
   ServerInfo get serverInfo => ServerInfo(uri!);
   List<UserDeviceInfo> get userDevices => _messageHandler.usesDevices;
+  List<Account>? get otherAccounts => _messageHandler.otherAccounts;
 
   bool isLoggedIn() {
     return _isLoggedIn;
-  }
-
-  Future<void> close() async {
-    if (_sslSocket != null) {
-      await _sslSocket!.close();
-      _sslSocket = null;
-      _isLoggedIn = false;
-    }
   }
 
 }
@@ -320,6 +318,7 @@ class Entry<T extends CredentialInterface> {
       String credentialValue = credential.value;
 
       ByteBuf payload = ByteBuf.smallBuffer();
+      payload.writeInt(ClientMessageType.entry.id);
       payload.writeBoolean(isAction);
       payload.writeInt(credentialInt);
       payload.writeBytes(Uint8List.fromList(credentialValue.codeUnits));
@@ -340,13 +339,14 @@ class Entry<T extends CredentialInterface> {
   }
 
   Future<void> sendEntryType() async {
-    outputStream.write(ByteBuf.smallBuffer()..writeInt(entryType.id));
+    outputStream.write(ByteBuf.smallBuffer()..writeInt(ClientMessageType.entry.id)..writeInt(entryType.id));
   }
 
   Future<void> sendVerificationCode(int verificationCode) async {
     bool isAction = false;
 
     ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
     payload.writeInt(verificationCode);
 
@@ -365,15 +365,8 @@ class Entry<T extends CredentialInterface> {
     Map<AddedInfo, String> map = HashMap();
     EntryResult result = EntryResult(ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes)), map);
 
-    if (kDebugMode) {
-      debugPrint("fetched result: $result");
-    }
-
     while (msg.readableBytes > 0) {
       AddedInfo addedInfo = AddedInfo.fromId(msg.readInt32());
-      if (kDebugMode) {
-        debugPrint("fetched result: $addedInfo");
-      }
       Uint8List message = msg.readBytes(msg.readInt32());
       map[addedInfo] = utf8.decode(message.toList());
     }
@@ -385,6 +378,7 @@ class Entry<T extends CredentialInterface> {
     bool isAction = true;
 
     ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
     payload.writeInt(VerificationAction.resendCode.id);
 
@@ -393,13 +387,45 @@ class Entry<T extends CredentialInterface> {
 }
 
 class CreateAccountEntry extends Entry<CreateAccountCredential> {
-  CreateAccountEntry(ByteBufOutputStream outputStream, ByteBufInputStream inputStream) : super(EntryType.createAccount, outputStream, inputStream);
 
-    Future<void> addDeviceInfo(DeviceType deviceType, String osName) async {
+  late final Requirements usernameRequirements;
+  late final Requirements passwordRequirements;
+
+  CreateAccountEntry(
+      ByteBufOutputStream outputStream, ByteBufInputStream inputStream)
+      : super(EntryType.createAccount, outputStream, inputStream) {
+    // void fetch() async {
+    //   ByteBuf payload = await inputStream.read();
+
+    //   {
+    //     int usernameMaxLength = payload.readInt32();
+    //     String invalidCharacters =
+    //         utf8.decode(payload.readBytes(payload.readInt32()));
+    //     usernameRequirements = Requirements(
+    //         maxLength: usernameMaxLength, invalidCharacters: invalidCharacters);
+    //   }
+
+    //   {
+    //     int passwordMaxLength = payload.readInt32();
+    //     double minEntropy = payload.readFloat64();
+    //     String invalidCharacters =
+    //         utf8.decode(payload.readBytes(payload.readableBytes));
+    //     passwordRequirements = Requirements(
+    //         minEntropy: minEntropy,
+    //         maxLength: passwordMaxLength,
+    //         invalidCharacters: invalidCharacters);
+    //   }
+    // }
+
+    // fetch();
+  }
+
+  Future<void> addDeviceInfo(DeviceType deviceType, String osName) async {
     bool isAction = true;
     int actionId = CreateAccountAction.addDeviceInfo.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.entry.id);    
     payload.writeBoolean(isAction);
     payload.writeInt(actionId);
     payload.writeInt(deviceType.id);
@@ -420,6 +446,7 @@ class LoginEntry extends Entry<LoginCredential> {
     int actionId = LoginAction.togglePasswordType.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
     payload.writeInt(actionId);
 
@@ -431,6 +458,7 @@ class LoginEntry extends Entry<LoginCredential> {
     int actionId = LoginAction.addDeviceInfo.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
     payload.writeInt(actionId);
     payload.writeInt(deviceType.id);

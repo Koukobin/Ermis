@@ -151,11 +151,18 @@ final class CreateAccountHandler extends EntryHandler {
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 					result = conn.createAccount(username, password, deviceInfo, email);
 				}
-				
+
+				if (!result.isSuccessful()) {
+					return result;
+				}
+
+				clientInfo.setEmail(email);
+				clientInfo.setUsername(username);
+
 				try {
 					EmailerService.sendEmail("Backup verification codes", result.getAddedInfo().get(AddedInfo.BACKUP_VERIFICATION_CODES), email);
 				} catch (MessagingException me) {
-					logger.error("An error occured while trying to send email", me);
+					getLogger().error("An error occured while trying to send email", me);
 				}
 				
 				return result;

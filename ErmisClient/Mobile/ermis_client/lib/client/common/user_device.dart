@@ -38,9 +38,7 @@ enum DeviceType {
         return 'Desktop';
       case DeviceType.unknown:
         return 'Device unspecified';
-      default:
-        return '';
-    }
+      }
   }
 
   // This function mimics the fromId functionality and throws an exception when no match is found.

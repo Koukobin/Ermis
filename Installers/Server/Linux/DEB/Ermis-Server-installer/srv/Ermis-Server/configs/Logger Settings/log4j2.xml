@@ -2,8 +2,8 @@
 <Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
 	
     <Properties>
-		<Property name="serverLogsPath">/srv/Ermis-Server/logs/Server Logs/</Property>
-        <Property name="databaseLogsPath">/srv/Ermis-Server/logs/Database Logs/</Property>
+		<Property name="serverLogsPath">/var/log/ermis-server/server logs/</Property>
+        <Property name="databaseLogsPath">/var/log/ermis-server/database logs/</Property>
 	</Properties>
 	
     <Appenders>

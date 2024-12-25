@@ -21,8 +21,8 @@ enum DirectionYAxis {
   bottomToTop;
 }
 
-Future<void> pushHorizontalTransition(BuildContext context, Widget newPage, [Widget? oldPage]) async {
-  await Navigator.push(
+Future<Object?> pushHorizontalTransition(BuildContext context, Widget newPage, [Widget? oldPage]) async {
+  return await Navigator.push(
     context,
     PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => newPage,

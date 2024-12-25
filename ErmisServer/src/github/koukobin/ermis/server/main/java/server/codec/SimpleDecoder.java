@@ -31,7 +31,7 @@ public final class SimpleDecoder extends Decoder {
      * The maximum allowable length for a message processed by this decoder.
      * This value is deliberately small to suit simple operations.
      */
-	private static final int MAX_LENGTH = 500; 
+	public static final int MAX_LENGTH = 500; 
 
     /**
      * Validates and processes incoming messages.

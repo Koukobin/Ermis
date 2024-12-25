@@ -18,6 +18,7 @@ package github.koukobin.ermis.server.main.java;
 import java.io.IOException;
 import java.io.InputStream;
 
+import github.koukobin.ermis.server.main.ConfigLoader;
 import github.koukobin.ermis.server.main.java.configs.LoggerSettings;
 import github.koukobin.ermis.server.main.java.server.Server;
 
@@ -27,7 +28,14 @@ import github.koukobin.ermis.server.main.java.server.Server;
 public class ServerLauncher {
 
 	static {
-		LoggerSettings.initializeConfigurationFile();
+		// Initialize and load the config
+		try {
+			ConfigLoader configLoader = new ConfigLoader(ServerLauncher.class.getResourceAsStream("/github/koukobin/ermis/server/main/resources/config.properties"));
+			configLoader.loadConfig();
+			LoggerSettings.initializeConfigurationFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void main(String[] args) {

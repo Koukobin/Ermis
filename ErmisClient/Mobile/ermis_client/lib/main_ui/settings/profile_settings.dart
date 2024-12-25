@@ -38,6 +38,14 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   int _clientID = Client.getInstance().clientID;
   String _displayName = Client.getInstance().displayName ?? "";
 
+  bool _isExpanded = false; // State to toggle animation
+
+  void _toggleSize() {
+    setState(() {
+      _isExpanded = !_isExpanded; // Toggle between small and large size
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +61,8 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         _displayName = displayName;
       });
     });
+
+    Future.delayed(Duration(milliseconds: 150), _toggleSize);
   }
 
   @override
@@ -72,32 +82,35 @@ class _ProfileSettingsState extends State<ProfileSettings> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Profile Image Section
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                GestureDetector(
-                  onTap: onChangeProfileImage,
-                  child: const PersonalProfilePhoto(radius: 80),
-                ),
-                Positioned(
-                  right: 115,
-                  bottom: 5,
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.green, // Online or offline color
-                      shape: BoxShape.circle,
+            GestureDetector(
+              onTap: onChangeProfileImage,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  const PersonalProfilePhoto(radius: 80),
+                  AnimatedPositioned(
+                    right: 110,
+                    bottom: 5,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      width: _isExpanded ? 50 : 10,
+                      height: _isExpanded ? 50 : 10,
+                      decoration: BoxDecoration(
+                        color: Colors.green, // Online or offline color
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                            Icons.camera_alt_outlined,
+                            size: _isExpanded ? null : 0,
+                            color: appColors.secondaryColor,
+                          ),
                     ),
-                    child: IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.camera_alt_outlined,
-                          color: appColors.secondaryColor,
-                        )),
-                  ),
-                ),
-              ],
+                  )
+                ],
+              ),
             ),
             SizedBox(height: 20),
             ListTile(

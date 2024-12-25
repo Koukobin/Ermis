@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/util/string_validator.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -21,12 +22,14 @@ import '../theme/app_theme.dart';
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final String hint;
+  final String illegalCharacters;
   final bool obscureText;
 
   const CustomTextField({
     super.key,
     required this.controller,
     required this.hint,
+    this.illegalCharacters = "",
     this.obscureText = false,
   });
 
@@ -35,6 +38,7 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  String? _errorMessage;
   late bool _obscureText;
 
   @override
@@ -46,15 +50,22 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-
     return Row(
       children: [
         Expanded(
           child: TextField(
             controller: widget.controller,
+            onChanged: (String input) {
+              if (!StringValidator.validate(input, widget.illegalCharacters)) {
+                setState(() => _errorMessage = "Invalid character entered!");
+                return;
+              }
+              setState(() => _errorMessage = null);
+            },
             obscureText: _obscureText,
             decoration: InputDecoration(
               hintText: widget.hint,
+              errorText: _errorMessage,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),

@@ -37,7 +37,7 @@ class SplashScreenState extends State<SplashScreen> {
 
   void fetch() async {
     // Fetch server URLs asynchronously
-    Set<ServerInfo> cachedServerUrls = (await Database.createDBConnection().getServerUrls()).toSet();
+    Set<ServerInfo> cachedServerUrls = (await ErmisDB.createConnection().getServerUrls()).toSet();
     Future.delayed(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,

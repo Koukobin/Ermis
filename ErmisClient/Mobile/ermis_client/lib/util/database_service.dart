@@ -20,87 +20,144 @@ import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-class Database {
-  Database._() {
+class ErmisDB {
+  ErmisDB._() {
     throw Exception(
         "Database cannot be constructed since it is statically initialized!");
   }
 
-  static DBConnection createDBConnection() {
+  static DBConnection createConnection() {
     return DBConnection._create();
   }
 }
 
 class DBConnection {
 
-  final dynamic _database;
+  final Future<Database> _database;
 
   DBConnection._(this._database);
 
   factory DBConnection._create() {
-    var database = _initializeDB();
+    final database = _initializeDB();
     return DBConnection._(database);
   }
 
-  static dynamic _initializeDB() async {
+  static Future<Database> _initializeDB() async {
     // "Avoid errors caused by flutter upgrade.
     // Importing 'package:flutter/widgets.dart' is required." by flutter documentation
     // P.S. I don't know exactly why this is necessary, but the documentation said so
     WidgetsFlutterBinding.ensureInitialized();
     return openDatabase(
-      join(await getDatabasesPath(), 'ermis_sqlite_database_1.db'),
-      onCreate: (db, version) {
-        return db.execute(
-          "CREATE TABLE IF NOT EXISTS server_info (server_url TEXT NOT NULL, "
-          "email TEXT, "
-          "password_hash TEXT, "
-          "last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, "
-          "PRIMARY KEY(server_url));",
+      join(await getDatabasesPath(), 'ermis_sqlite_database_5.db'),
+      onCreate: (db, version) async {
+        // Create the 'servers' table
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS servers (
+          server_url TEXT NOT NULL,
+          last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (server_url)
         );
+      ''');
+
+        // Create 'server_accounts' table
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS server_accounts (
+          server_url NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+          email TEXT NOT NULL,
+          password_hash TEXT NOT NULL,
+          last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (server_url, email)
+        );
+      ''');
       },
-      version: 1,
+      version: 1
     );
   }
 
-  Future<void> setUserInformation(UserInformation userInfo, ServerInfo serverInfo) async {
+  Future<void> addUserAccount(UserAccount userAccount, ServerInfo serverInfo) async {
     final db = await _database;
 
-    await db.update(
-      'server_info',
-      {'email': userInfo.email, 
-      'password_hash': userInfo.passwordHash
-      },
+    await db.insert(
+        'server_accounts',
+        {
+          'server_url': serverInfo.toString(),
+          'email': userAccount.email,
+          'password_hash': userAccount.passwordHash,
+          'last_used': userAccount.lastUsed.toIso8601String(),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<UserAccount?> getLastUsedAccount(ServerInfo serverInfo) async {
+    final db = await _database;
+
+    final List<Map<String, dynamic>> result = await db.query(
+      'server_accounts',
+      columns: ['email', 'password_hash', 'last_used'],
       where: 'server_url = ?',
-      whereArgs: [
-        serverInfo.serverUrl.toString() // Identifier
-      ],
+      whereArgs: [serverInfo.toString()],
+      orderBy: 'last_used DESC',
+      limit: 1,
     );
+
+    // If the query returns a result, return the first row; otherwise, return null.
+    final firstRow = result.firstOrNull;
+    if (firstRow == null) {
+      return null;
+    }
+
+    final String email = firstRow['email'] as String;
+    final String passwordHash = firstRow['password_hash'] as String;
+    final String lastUsed = firstRow['last_used'] as String;
+
+    return UserAccount(
+        email: email,
+        passwordHash: passwordHash,
+        lastUsed: DateTime.parse(lastUsed));
   }
 
-  Future<UserInformation> getUserInformation(ServerInfo serverInfo) async {
+  /// Retrieves the list of user accounts associated with a specified server.
+  /// Each account includes the email, password hash, and the timestamp of last use.
+  /// The accounts are sorted by the last used timestamp in descending order.
+  Future<List<UserAccount>> getUserAccounts(ServerInfo serverInfo) async {
     final db = await _database;
 
-    final userInfoMap = await db.query(
-      "server_info",
-      columns: ["email", "password_hash"],
+    final List<Map<String, Object?>> userAccountMap = await db.query(
+      "server_accounts",
+      columns: ["email", "password_hash", "last_used"],
       where: 'server_url = ?',
       whereArgs: [serverInfo.toString()],
     );
-    final String? email = userInfoMap.first['email'] as String?;
-    final String? passwordHash = userInfoMap.first['password_hash'] as String?;
 
-    return UserInformation(email: email, passwordHash: passwordHash);
+    List<UserAccount> userAccount = userAccountMap.map((record) {
+      final String email = record['email'] as String;
+      final String passwordHash = record['password_hash'] as String;
+      final String lastUsed = record['last_used'] as String;
+      return UserAccount(
+          email: email,
+          passwordHash: passwordHash,
+          lastUsed: DateTime.parse(lastUsed));
+    }).toList();
+
+    userAccount.sort((a, b) {
+      final DateTime lastUsedA = a.lastUsed;
+      final DateTime lastUsedB = b.lastUsed;
+
+      return lastUsedB.compareTo(lastUsedA); // Most recent first
+    });
+
+    return userAccount;
   }
 
   Future<void> updateServerUrlLastUsed(ServerInfo serverInfo) async {
     final db = await _database;
 
     await db.update(
-      'server_info',
-      {'last_used': DateTime.now().toIso8601String()}, // Set current timestamp
+      'servers',
+      {'last_used': serverInfo.lastUsed.toIso8601String()}, // Set current timestamp
       where: 'server_url = ?',
       whereArgs: [
-        serverInfo.serverUrl.toString() // Identifier
+        serverInfo.toString() // Identifier
       ],
     );
   }
@@ -110,7 +167,7 @@ class DBConnection {
 
     info.lastUsed = DateTime.now();
     await db.insert(
-      'server_info',
+      'servers',
       info.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -121,7 +178,7 @@ class DBConnection {
     final db = await _database;
 
     await db.delete(
-      'server_info',
+      'servers',
       where: 'server_url = ?',
       whereArgs: [info.serverUrl.toString()]
     );
@@ -130,22 +187,21 @@ class DBConnection {
   Future<List<ServerInfo>> getServerUrls() async {
     final db = await _database;
 
-    final List<Map<String, Object?>> serverInfoMap = await db.query('server_info');
+    final List<Map<String, Object?>> serverInfoMap = await db.query('servers');
 
     List<ServerInfo> servers = serverInfoMap.map((record) {
       final String serverUrl = record['server_url'] as String;
-      final String? lastUsed = record['last_used'] as String?;
+      final String lastUsed = record['last_used'] as String;
 
       return ServerInfo(
         Uri.parse(serverUrl),
-        DateTime.parse(lastUsed ??
-            DateTime.fromMillisecondsSinceEpoch(0).toIso8601String()),
+        DateTime.parse(lastUsed),
       );
     }).toList();
 
     servers.sort((a, b) {
-      final DateTime lastUsedA = a.lastUsed!;
-      final DateTime lastUsedB = b.lastUsed!;
+      final DateTime lastUsedA = a.lastUsed;
+      final DateTime lastUsedB = b.lastUsed;
 
       return lastUsedB.compareTo(lastUsedA); // Most recent first
     });
@@ -154,14 +210,27 @@ class DBConnection {
   }
 }
 
-class UserInformation {
-  final String? email;
-  final String? passwordHash;
+class UserAccount {
+  final String email;
+  final String passwordHash;
+  final DateTime lastUsed;
 
-  UserInformation({required this.email, required this.passwordHash});
+  factory UserAccount.fuck({required String email, required String passwordHash}) {
+    return UserAccount(email: email, passwordHash: passwordHash, lastUsed: DateTime.now());
+  }
 
-  bool isValid() => email != null || passwordHash != null;
-  bool isNotValid() => !isValid();
+  UserAccount({required this.email, required this.passwordHash, required this.lastUsed});
+
+  // bool isValid() => email != null || passwordHash != null;
+  // bool isNotValid() => !isValid();
+
+  Map<String, Object?> toMap() {
+    return {
+      'email': email,
+      'password_hash': passwordHash,
+      'last_used': lastUsed.toIso8601String()
+    };
+  }
 }
 
 class InvalidServerUrlException implements Exception {
@@ -180,7 +249,7 @@ class ServerInfo {
   final Uri _serverUrl;
   final InternetAddress _address;
   final int _port;
-  DateTime? lastUsed;
+  DateTime lastUsed;
 
   factory ServerInfo(Uri serverUrl, [DateTime? lastUsed]) {
     if (!serverUrl.toString().startsWith("https://")) {
@@ -191,11 +260,11 @@ class ServerInfo {
     if (!(serverUrl.hasScheme && serverUrl.hasAuthority)) {
       throw InvalidServerUrlException("Invalid server URL: $serverUrl");
     }
-    
+
     InternetAddress address = InternetAddress(serverUrl.host);
     int port = serverUrl.port;
 
-    return ServerInfo._(serverUrl, address, port, lastUsed);
+    return ServerInfo._(serverUrl, address, port, lastUsed ?? DateTime.now());
   }
 
   ServerInfo._(this._serverUrl, this._address, this._port, this.lastUsed);
@@ -203,6 +272,7 @@ class ServerInfo {
   Map<String, Object?> toMap() {
     return {
       'server_url': _serverUrl.toString(),
+      'last_used': lastUsed.toIso8601String()
     };
   }
 

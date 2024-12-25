@@ -15,7 +15,6 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
@@ -24,19 +23,18 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 
 /**
  * @author Ilias Koukovinis
- * 
+ *
  */
-abstract sealed class ParentHandler extends SimpleChannelInboundHandler<ByteBuf> permits MessageHandler, StartingEntryHandler, EntryHandler, CommandHandler {
+public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 
-	protected static final Logger logger = LogManager.getLogger("server");
+	private static final Logger LOGGER = LogManager.getLogger("server");
 
 	private static final int MAX_REQUESTS_PER_SECOND = 10;
 	private static final int BLOCK_DURATION_SECONDS = 10;
@@ -44,20 +42,18 @@ abstract sealed class ParentHandler extends SimpleChannelInboundHandler<ByteBuf>
 	private int requestCount;
 	private boolean isBanned;
 	private Instant lastMessageSent;
-
-	protected final ClientInfo clientInfo;
-
-	protected ParentHandler(ClientInfo clientInfo) {
-		this.clientInfo = clientInfo;
-
+	
+	@Override
+	public void handlerAdded(ChannelHandlerContext ctx) {
 		this.requestCount = 0;
 		this.isBanned = false;
 		this.lastMessageSent = Instant.now();
 	}
 
-	// Ensure this method is not ovveridable
-	public final void channelRead(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		if (isBanned) {
+			ReferenceCountUtil.release(msg);
 			return; // Ignore further processing for this request
 		}
 
@@ -72,31 +68,24 @@ abstract sealed class ParentHandler extends SimpleChannelInboundHandler<ByteBuf>
 			if (requestCount > MAX_REQUESTS_PER_SECOND) {
 				
 				isBanned = true;
-				
+
 				// Block incoming messages for a certain time interval
 				ctx.executor().schedule(() -> isBanned = false, BLOCK_DURATION_SECONDS, TimeUnit.SECONDS);
-				MessageByteBufCreator.sendMessageInfo(ctx,
-						"You have exceeded the maximum number of requests you can make per second. "
-						+ "Consequently, you have been banned from any kind of interaction with the server for a short time interval.");
+				MessageByteBufCreator.sendMessageInfo(ctx, """
+						Slow your horses there! You've been temporarily banned from interacting
+						with the server for a short time interval.
+						""");
 				return;
 			}
 		}
 
 		lastMessageSent = currentTime;
 
-		super.channelRead(ctx, msg); // Calls channelRead0
+		ctx.fireChannelRead(msg); // Forwards message to next handler in the pipeline
 	}
-
-	/**
-	 * Abstract method to process the incoming ByteBuf message. Note: ByteBuf
-	 * message is automatically released since this class extends
-	 * SimpleChannelInboundHandler.
-	 */
-	public abstract void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException;
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		logger.error("Exception caught: {}", Throwables.getStackTraceAsString(cause));
+		LOGGER.error("Exception caught: {}", Throwables.getStackTraceAsString(cause));
 	}
 }
-

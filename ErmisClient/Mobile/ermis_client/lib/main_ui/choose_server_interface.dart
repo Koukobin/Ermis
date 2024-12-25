@@ -16,16 +16,16 @@
 
 import 'dart:io';
 
-import 'package:ermis_client/main_ui/entry/entry_interface.dart';
 import 'package:ermis_client/util/database_service.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../client/client.dart';
 import '../constants/app_constants.dart';
-import '../main.dart';
 import '../theme/app_theme.dart';
 import '../util/top_app_bar_utils.dart';
+import 't.dart';
 
 String? serverUrl;
 
@@ -107,7 +107,7 @@ class ChooseServerState extends State<ChooseServer> {
                         setState(() {
                           cachedServerUrls = cachedServerUrls..add(serverInfo);
                         });
-                        Database.createDBConnection().insertServerInfo(serverInfo);
+                        ErmisDB.createConnection().insertServerInfo(serverInfo);
           
                         // Feedback
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,15 +146,16 @@ class ChooseServerState extends State<ChooseServer> {
                   onPressed: () async {
                     Uri url = Uri.parse(serverUrl!);
 
-                    DBConnection conn = Database.createDBConnection();
+                    final DBConnection conn = ErmisDB.createConnection();
                     conn.updateServerUrlLastUsed(ServerInfo(url));
-                    UserInformation userInfo = await conn.getUserInformation(ServerInfo(url));
-                    print(userInfo.email);
-                    print(userInfo.passwordHash);
+                    UserAccount? userInfo = await conn.getLastUsedAccount(ServerInfo(url));
+                    if (kDebugMode) {
+                      debugPrint(userInfo?.email);
+                      debugPrint(userInfo?.passwordHash);
+                    }
 
-                    bool isIPVerified;
                     try {
-                      isIPVerified = await Client.getInstance().initialize(
+                      await Client.getInstance().initialize(
                         url,
                         _checkServerCertificate
                             ? ServerCertificateVerification.verify
@@ -165,41 +166,11 @@ class ChooseServerState extends State<ChooseServer> {
                         showExceptionDialog(context, (e as dynamic).message);
                         return;
                       }
-                      
+
                       rethrow;
                     }
 
-                    if (!isIPVerified || userInfo.isNotValid()) {
-                      // Navigate to the Registration interface
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => RegistrationInterface()),
-                        (route) => false, // Removes all previous routes.
-                      );
-                    } else {
-                      bool success = await showLoadingDialog(
-                          context, Client.getInstance().attemptShallowLogin(userInfo));
-                      if (!success) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RegistrationInterface()),
-                          (route) => false, // Removes all previous routes.
-                        );
-                        return;
-                      }
-                      Client.getInstance().startMessageHandler();
-                      await showLoadingDialog(
-                          context, Client.getInstance().fetchUserInformation());
-                      // Navigate to the main interface
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MainInterface()),
-                        (route) => false, // Removes all previous routes.
-                      );
-                    }
+                    setupClientSession(context, userInfo);
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: appColors.inferiorColor, // Splash color
@@ -288,7 +259,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
                       splashRadius: 20,
                       onPressed: () {
                         final serverInfo = ServerInfo(Uri.parse(url));
-                        Database.createDBConnection().removeServerInfo(serverInfo);
+                        ErmisDB.createConnection().removeServerInfo(serverInfo);
                         widget.cachedServerUrls = List.from(widget.cachedServerUrls)..remove(url);
                         setState(() {
                           _widgetKey = UniqueKey();

@@ -72,7 +72,6 @@ class SettingsJson {
   Future<void> saveSettingsJson() async {
     final path = await _getSettingsFilePath();
     final file = File(path);
-    await file.delete();
     await file.create();
     await file.writeAsString(jsonEncode(_settingsJson));
   }

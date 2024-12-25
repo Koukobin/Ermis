@@ -27,12 +27,15 @@ enum ClientCommandType {
   logoutOtherDevice(CommandLevel.light, 104),
   logoutAllDevices(CommandLevel.light, 105),
   deleteAccount(CommandLevel.heavy, 106),
+  addNewAccount(CommandLevel.heavy, 107),
+	switchAccount(CommandLevel.heavy, 108),
 
   // User Information Requests
   fetchUsername(CommandLevel.light, 200),
   fetchClientId(CommandLevel.light, 201),
   fetchUserDevices(CommandLevel.heavy, 202),
   fetchAccountIcon(CommandLevel.heavy, 203),
+  fetchOtherAccountsAssociatedWithDevice(CommandLevel.heavy, 204),
 
   // Chat Management
   fetchChatRequests(CommandLevel.light, 300),

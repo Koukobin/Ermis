@@ -28,7 +28,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Ilias Koukovinis
  * 
  */
-public final class StartingEntryHandler extends ParentHandler {
+public final class StartingEntryHandler extends AbstractChannelClientHandler {
 
 	public StartingEntryHandler(ClientInfo clientInfo) {
 		super(clientInfo);
@@ -47,10 +47,10 @@ public final class StartingEntryHandler extends ParentHandler {
 		switch (entryType) {
 		case LOGIN -> tryLogin(ctx, msg, clientInfo);
 		case CREATE_ACCOUNT -> {
-			logger.debug("Moving into account creation!");
+			getLogger().debug("Moving into account creation!");
 			ctx.pipeline().replace(this, CreateAccountHandler.class.getName(), new CreateAccountHandler(clientInfo));
 		}
-		default -> logger.debug("Unknown registration type");
+		default -> getLogger().debug("Unknown registration type");
 		}
 
 	}
@@ -58,7 +58,7 @@ public final class StartingEntryHandler extends ParentHandler {
 	private static void tryLogin(ChannelHandlerContext ctx, ByteBuf msg, ClientInfo clientInfo) {
 	    // If no readable bytes in buffer, transition to LoginHandler
 		if (msg.readableBytes() == 0) {
-			logger.debug("Moving into login!");
+			getLogger().debug("Moving into login!");
 			ctx.pipeline().replace(ctx.handler(), LoginHandler.class.getName(), new LoginHandler(clientInfo));
 			return;
 		}
@@ -76,7 +76,7 @@ public final class StartingEntryHandler extends ParentHandler {
 			String email = new String(emailBytes);
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				if (!conn.isLoggedIn(email, clientInfo.getInetAddress())) {
-					logger.debug("Client not logged in: {}", clientInfo);
+					getLogger().debug("Client not logged in: {}", clientInfo);
 					return;
 				}
 
@@ -84,10 +84,17 @@ public final class StartingEntryHandler extends ParentHandler {
 			}
 
 			if (isSuccessful) {
+				clientInfo.setEmail(email);
+				clientInfo.setClientID(emailLength);
 				EntryHandler.login(ctx, clientInfo);
+
+				getLogger().debug("Successful login");
+				return;
 			}
+			
+			ctx.pipeline().replace(ctx.handler(), LoginHandler.class.getName(), new LoginHandler(clientInfo));
 		} catch (Exception e) {
-			logger.debug("Error during authentication", e);
+			getLogger().debug("Error during authentication", e);
 		} finally {
 			// Regardless of authentication outcome inform success to user
 			ctx.channel().writeAndFlush(Unpooled.copyBoolean(isSuccessful));

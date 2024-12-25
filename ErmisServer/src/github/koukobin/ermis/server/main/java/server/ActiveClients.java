@@ -48,7 +48,18 @@ public class ActiveClients {
 	}
 	
 	public static void removeClient(ClientInfo clientInfo) {
-		clientIDSToActiveClients.get(clientInfo.getClientID()).remove(clientInfo);
+		int clientID = clientInfo.getClientID();
+		List<ClientInfo> clients = clientIDSToActiveClients.get(clientID);
+		
+		if (clients == null) {
+			return;
+		}
+		
+		clients.remove(clientInfo);
+		
+		if (clients.isEmpty()) {
+			clientIDSToActiveClients.remove(clientID);
+		}
 	}
 
 	public static void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession, ClientInfo sender) {

@@ -76,15 +76,21 @@ class ByteBuf {
   }
 
   int readInt32() {
-    var byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 4);
+    final byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 4);
     _readerIndex += 4;
     return byteData.getInt32(0, Endian.big);
   }
 
   int readInt64() {
-    var byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 8);
+    final byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 8);
     _readerIndex += 8;
     return byteData.getInt64(0, Endian.big);
+  }
+
+  double readFloat64() {
+    final byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 8);
+    _readerIndex += 8;
+    return byteData.getFloat64(0, Endian.big);
   }
 
   bool readBoolean() {

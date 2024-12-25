@@ -15,14 +15,13 @@
  */
 
 import 'package:ermis_client/main_ui/settings/account_settings.dart';
+import 'package:ermis_client/main_ui/settings/notification_settings.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../theme/app_theme.dart';
 import '../../client/client.dart';
 import '../../util/top_app_bar_utils.dart';
-import '../loading_state.dart';
 import '../user_profile.dart';
 import 'profile_settings.dart';
 import 'help_settings.dart';
@@ -57,10 +56,6 @@ class SettingsState extends State<Settings> {
             title: const DisplayName(),
             subtitle: Text('Profile, change name, ID'),
             onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (_) => ProfileSettings()),
-              // );
               pushHorizontalTransition(context, const ProfileSettings());
             },
           ),
@@ -85,7 +80,7 @@ class SettingsState extends State<Settings> {
             title: Text('Notifications'),
             subtitle: Text('Message, group, and call tones'),
             onTap: () {
-              // Navigate to Notifications settings
+               pushHorizontalTransition(context, const NotificationSettings());
             },
           ),
           ListTile(
@@ -171,7 +166,6 @@ class DisplayNameState extends State<DisplayName> {
   
 }
 
-
 void showLogoutConfirmationDialog(
     BuildContext context, String content, VoidCallback onYes) {
   showDialog(
@@ -197,8 +191,6 @@ void showLogoutConfirmationDialog(
     },
   );
 }
-
-
 
 // class LoadingTestName extends StatefulWidget {
 //   const LoadingTestName({super.key});

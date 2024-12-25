@@ -33,7 +33,10 @@ import com.google.common.base.Throwables;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.codec.Encoder;
+import github.koukobin.ermis.server.main.java.server.codec.PrimaryDecoder;
 import github.koukobin.ermis.server.main.java.server.codec.SimpleDecoder;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.DispatcherHandler;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.MessageRateLimiter;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
 import io.netty.bootstrap.ServerBootstrap;
@@ -217,12 +220,14 @@ public final class Server {
 
 					ctx.fireChannelRead(msg);
 				} else {
-					ctx.pipeline().addLast("decoder", new SimpleDecoder());
+					ctx.pipeline().addLast("decoder", new PrimaryDecoder());
 					ctx.pipeline().addLast("encoder", new Encoder());
 
 					ClientInfo clientInfo = new ClientInfo();
 					clientInfo.setChannel(ctx.channel());
 
+					ctx.pipeline().addLast(MessageRateLimiter.class.getName(), new MessageRateLimiter());
+					ctx.pipeline().addLast(DispatcherHandler.class.getName(), new DispatcherHandler());
 					ctx.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler(clientInfo));
 				}
 

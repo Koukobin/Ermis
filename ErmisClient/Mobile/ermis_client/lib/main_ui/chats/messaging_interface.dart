@@ -99,10 +99,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
         case ContentType.file || ContentType.image: 
           body = utf8.decode(msg.fileName!);
           break;
-        default:
-          body = "Message sent";
-          break;
-      }
+        }
 
       NotificationService.showInstantNotification(msg.getUsername, body);
       _addMessage(msg);
@@ -223,13 +220,17 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
   Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      backgroundColor: appColors.tertiaryColor,
-      appBar: _isEditingMessage ? _buildEditMessageAppBar(appColors) : _buildMainAppBar(appColors),
-      body: Column(
-        children: [
-          _buildMessageList(appColors),
-          _buildInputField(appColors),
-        ],
+      appBar: _isEditingMessage
+          ? _buildEditMessageAppBar(appColors)
+          : _buildMainAppBar(appColors),
+      body: Container(
+        decoration: _getDecoration(SettingsJson().chatsBackDrop),
+        child: Column(
+          children: [
+            _buildMessageList(appColors),
+            _buildInputField(appColors),
+          ],
+        ),
       ),
     );
   }
@@ -259,18 +260,20 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
               ),
             ],
           ),
-          IconButton(
-              onPressed: () async {
-                final address = InternetAddress("192.168.10.103");
-                final port = 8081;
-
-                final socket = UDPSocket();
-                print("initializing");
-                await socket.initialize(address, port);
-                print("sending");
-                socket.send("message");
-              },
-              icon: Icon(Icons.phone))
+          Flexible(
+            child: IconButton(
+                onPressed: () async {
+                  final address = InternetAddress("192.168.10.103");
+                  final port = 8081;
+            
+                  final socket = UDPSocket();
+                  print("initializing");
+                  await socket.initialize(address, port);
+                  print("sending");
+                  socket.send("message");
+                },
+                icon: Icon(Icons.phone)),
+          )
         ],
       ),
       bottom: DividerBottom(dividerColor: appColors.inferiorColor),
@@ -284,35 +287,32 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
           // If user reaches top of conversation retrieve more messages
           Client.getInstance().commands.fetchWrittenText(_chatSessionIndex);
         },
-        child: Container(
-          decoration: _getDecoration(SettingsJson().chatsBackDrop),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: ListView.builder(
-              controller: _scrollController,
-              reverse: true,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final Message message = _messages[_messages.length - index - 1];
-                return GestureDetector(
-                    onLongPress: () {
-                      setState(() {
-                        _isEditingMessage = true;
-                        _messageBeingEdited = message;
-                      });
-                    },
-                    child: Container(
-                        decoration: _isEditingMessage &&
-                                message == _messageBeingEdited
-                            ? BoxDecoration(
-                                color: appColors.secondaryColor.withOpacity(0.4),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.white, width: 1.5),
-                              )
-                            : null,
-                        child: MessageBubble(message: message, appColors: appColors)));
-              },
-            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: ListView.builder(
+            controller: _scrollController,
+            reverse: true,
+            itemCount: _messages.length,
+            itemBuilder: (context, index) {
+              final Message message = _messages[_messages.length - index - 1];
+              return GestureDetector(
+                  onLongPress: () {
+                    setState(() {
+                      _isEditingMessage = true;
+                      _messageBeingEdited = message;
+                    });
+                  },
+                  child: Container(
+                      decoration: _isEditingMessage &&
+                              message == _messageBeingEdited
+                          ? BoxDecoration(
+                              color: appColors.secondaryColor.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white, width: 1.5),
+                            )
+                          : null,
+                      child: MessageBubble(message: message, appColors: appColors)));
+            },
           ),
         ),
       ),
@@ -321,7 +321,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
 
   AppBar _buildEditMessageAppBar(AppColors appColors) {
     return AppBar(
-      backgroundColor: appColors.tertiaryColor,
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: appColors.inferiorColor),
         onPressed: () {
@@ -343,11 +342,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
                   case ContentType.file || ContentType.image:
                     data = _messageBeingEdited.fileName;
                     break;
-                  default:
-                    if (kDebugMode) {
-                      debugPrint("Message type: $_messageBeingEdited.contentType not implemented");
-                    }
-                    break;
                 }
                 if (data == null) {
                   showSnackBarDialog(
@@ -368,7 +362,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
               onPressed: () {
                 Client.getInstance().commands.deleteMessage(
                     _chatSessionIndex, _messageBeingEdited.messageID);
-                showSnackBarDialog(context: context, content: "Message deleted");
+                showSnackBarDialog(
+                    context: context, content: "Message deleted");
                 setState(() {
                   _isEditingMessage = false;
                 });
@@ -383,7 +378,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
   Widget _buildInputField(AppColors appColors) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      color: appColors.tertiaryColor,
       child: Row(
         children: [
           SizedBox(width: 5),
@@ -466,7 +460,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
         return BoxDecoration(
           image: DecorationImage(
             image: AssetImage(parthenonasPath),
-            fit: BoxFit.none,
+            fit: BoxFit.cover,
           ),
         );
       default:
@@ -474,6 +468,38 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
           color: appColors.secondaryColor,
         );
     }
+  }
+}
+
+class ErmisDoodlePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.withOpacity(0.2) // Subtle doodle color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    // Draw Circles
+    for (double x = 0; x < size.width; x += 50) {
+      for (double y = 0; y < size.height; y += 50) {
+        canvas.drawCircle(Offset(x, y), 15, paint);
+      }
+    }
+
+    // Draw Wavy Lines
+    for (double y = 20; y < size.height; y += 100) {
+      final path = Path();
+      path.moveTo(0, y);
+      for (double x = 0; x < size.width; x += 50) {
+        path.quadraticBezierTo(x + 25, y + 20, x + 50, y);
+      }
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false; // Redraw only if necessary
   }
 }
 

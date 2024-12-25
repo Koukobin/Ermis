@@ -14,15 +14,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/client/common/account.dart';
+import 'package:ermis_client/main_ui/settings/settings_interface.dart';
+import 'package:ermis_client/main_ui/user_profile.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../theme/app_theme.dart';
 import '../../client/client.dart';
+import '../../util/database_service.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../entry/entry_interface.dart';
-import '../user_profile.dart';
+import '../t.dart';
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -33,9 +37,17 @@ class AccountSettings extends StatefulWidget {
 
 class _AccountSettingsState extends State<AccountSettings> {
 
+  List<Account> accounts = Client.getInstance().otherAccounts ?? [];
+
   @override
   void initState() {
     super.initState();
+
+    Client.getInstance().callbacks.onOtherAccountsReceived((List<Account> accounts){
+      setState(() {
+        this.accounts = accounts;
+      });
+    });
   }
 
   @override
@@ -77,14 +89,57 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
-
+                          SizedBox(height: 20),
+                          ListTile(
+                            leading: const PersonalProfilePhoto(),
+                            title: Text(Client.getInstance().displayName!, style: TextStyle(fontSize: 18)),
+                            trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
+                          ),
+                          for (final Account account in accounts)
+                            ListTile(
+                              leading: UserProfilePhoto(profileBytes: account.profilePhoto),
+                              title: Text(account.name(), style: TextStyle(fontSize: 18)),
+                              onTap: () {
+                                showLogoutConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
+                                  ServerInfo serverInfo = Client.getInstance().serverInfo;
+                                  final DBConnection conn = ErmisDB.createConnection();
+                                  List<UserAccount> userAccounts = await conn.getUserAccounts(serverInfo);
+                                  UserAccount a = userAccounts.firstWhere((UserAccount uaccount) {
+                                    return uaccount.email == account.email;
+                                  });
+                                  Client.getInstance().commands.switchAccount();
+                                  setupClientSession(context, a);
+                                });
+                              },
+                            ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(
+                                    "Close",
+                                  )),
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    Client.getInstance().commands.addNewAccount();
+                                    pushHorizontalTransition(context,
+                                        const CreateAccountInterface());
+                                  },
+                                  child: Text(
+                                    "Add new account",
+                                  ))
+                            ],
+                          ),
                         ],
                       ),
                     );
                   },
                 );
-                pushHorizontalTransition(
-                    context, const RegistrationInterface());
               },
             ),
             ListTile(
@@ -162,7 +217,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                       },
                       child: Text(
                         "Save",
-                        style: TextStyle(),
                       ))
                 ],
               ),
@@ -199,29 +253,57 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
       backgroundColor: appColors.secondaryColor,
       appBar: const ErmisAppBar(
           title: Text(
-        "Account Settings",
+        "Delete Account",
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
       )),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
+                // Display a warning icon in red
                 Icon(Icons.warning_amber_rounded, color: Colors.red),
+
+                // Add space between the icon and text
                 SizedBox(width: 20),
-                Text('If you delete this account:',
+
+                // Display the warning text about account deletion
+                Text('Deleting this account will:',
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
                         fontSize: 16))
               ],
             ),
+
+            // Add space below the warning text
             SizedBox(height: 16),
-            buildBullet("Delete your account from this Ermis server"),
-            buildBullet("Erase  your message history"),
+
+            // Display bullet points explaining what will happen if the account is deleted
+            buildBullet("Delete your account with no way to recover"),
+            buildBullet("Erase your message history"),
             buildBullet("Delete all your chats"),
-            const SizedBox(height: 50),
+
+            // Add space below the bullet points            
+            const SizedBox(height: 30),
+
+            // Text
+            Text(
+              "Are you certain you want to proceed?",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+                letterSpacing: 1.7,
+              ),
+            ),            
+
+            // Add space
+            const SizedBox(height: 35),
+
+            // Input field for email address
             TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
@@ -230,7 +312,11 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                 border: OutlineInputBorder(),
               ),
             ),
+
+            // Add space below the email input field
             const SizedBox(height: 10),
+
+            // Input field for password
             TextField(
               controller: passwordController,
               keyboardType: TextInputType.visiblePassword,
@@ -239,7 +325,11 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                 border: OutlineInputBorder(),
               ),
             ),
+
+            // Add space below the password input field
             const SizedBox(height: 20),
+
+            // Button to delete the account
             ElevatedButton(
               onPressed: () {
                 Client.getInstance().commands.deleteAccount(emailController.text, passwordController.text);

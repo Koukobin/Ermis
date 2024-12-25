@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 
 import '../../client/common/entry/added_info.dart';
 import '../../client/common/entry/create_account_info.dart';
-import '../../client/common/entry/entry_type.dart';
 import '../../client/common/entry/login_info.dart';
 import '../../client/common/results/ResultHolder.dart';
 import '../../client/common/results/entry_result.dart';
@@ -33,260 +32,184 @@ import '../../util/top_app_bar_utils.dart';
 import '../../client/client.dart';
 import '../../util/transitions_util.dart';
 
-class RegistrationInterface extends StatefulWidget {
-  final EntryType entryType;
-  const RegistrationInterface({this.entryType = EntryType.login, super.key});
+class CreateAccountInterface extends StatefulWidget {
+  const CreateAccountInterface({super.key});
 
   @override
-  State<RegistrationInterface> createState() => RegistrationInterfaceState();
+  State<CreateAccountInterface> createState() => CreateAccountInterfaceState();
   
 }
 
-class RegistrationInterfaceState extends State<RegistrationInterface> {
-  static bool hasSwitched = false;
+class CreateAccountInterfaceState extends State<CreateAccountInterface> with Registration {
+  static bool isDisplaying = false;
 
   // Controllers for user input
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _useBackupverificationCode = false;
-
-  late List<Widget> loginWidgets;
-  late List<Widget> createAccountWidgets;
-  
-  late Widget switchToCreateAccount;
-  late Widget switchToLogin;
-
   @override
   void initState() {
     super.initState();
-    // Can't access context here, so use didChangeDependencies if necessary
+    isDisplaying = true;
   }
 
     @override
   void dispose() {
     super.dispose();
-    hasSwitched = false;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final appColors = Theme.of(context).extension<AppColors>()!;
-
-    // Buttons to switch
-    switchToCreateAccount = _buildButton(
-        label: "Create Account",
-        icon: Icons.account_circle,
-        backgroundColor: appColors.primaryColor,
-        textColor: appColors.secondaryColor,
-        onPressed: () {
-          if (hasSwitched) {
-            Navigator.of(context).pop();
-            return;
-          }
-          hasSwitched = true;
-          Navigator.of(context).push(
-              createVerticalTransition(
-                  RegistrationInterface(entryType: EntryType.createAccount),
-                  DirectionYAxis.bottomToTop));
-        });
-
-    switchToLogin = _buildButton(
-      label: "Login",
-      icon: Icons.login,
-      backgroundColor: appColors.primaryColor,
-      textColor: appColors.secondaryColor,
-      onPressed: () {
-        if (hasSwitched) {
-          Navigator.of(context).pop();
-          return;
-        }
-        hasSwitched = false;
-        Navigator.of(context).push(
-            createVerticalTransition(
-                RegistrationInterface(entryType: EntryType.login),
-                DirectionYAxis.bottomToTop));
-      },
-    );
-  }
-
-  Future<bool> performVerification() async {
-    Entry verificationEntry = Client.getInstance().createNewVerificationEntry();
-    EntryResult entryResult;
-
-    bool isSuccessful = false;
-
-    while (!verificationEntry.isVerificationComplete) {
-      await _showVerificationDialog(
-          context: context,
-          title: "Verification",
-          promptMessage: "Enter verification code sent to your email",
-          onResendCode: () => verificationEntry.resendVerificationCode(),
-          onSumbittedCode: (int code) =>
-              verificationEntry.sendVerificationCode(code));
-
-      entryResult = await verificationEntry.getResult();
-      isSuccessful = entryResult.isSuccessful;
-      String resultMessage = entryResult.message;
-
-      if (isSuccessful) {
-        showSimpleAlertDialog(
-            context: context,
-            title: "Verification successful",
-            content: resultMessage);
-        Database.createDBConnection().setUserInformation(
-            UserInformation(
-                email: _emailController.text,
-                passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
-            Client.getInstance().serverInfo);
-        break;
-      }
-
-      showSimpleAlertDialog(
-          context: context,
-          title: "Verification Failed",
-          content: resultMessage);
-    }
-
-    return isSuccessful;
+    isDisplaying = false;
   }
 
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    loginWidgets = [];
-    loginWidgets.addAll([
-      CustomTextField(controller: _emailController, hint: "Email"),
-      SizedBox(height: 8),
-      CustomTextField(controller: _usernameController, hint: "Password", obscureText: true),
-      SizedBox(height: 8),
-      _buildButton(
-        label: "Login",
-        icon: Icons.login,
-        backgroundColor: appColors.secondaryColor,
-        textColor: appColors.primaryColor,
-        onPressed: () async {
-          LoginEntry loginEntry = Client.getInstance().createNewLoginEntry();
-          loginEntry.sendEntryType();
-          loginEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
+    return Scaffold(
+      appBar: const ErmisAppBar(),
+      backgroundColor: appColors.tertiaryColor,
+      resizeToAvoidBottomInset: false, // Prevent resizing when keyboard opens
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // App icon display
+            Image.asset(
+              appIconPath,
+              width: 100,
+              height: 100,
+            ),
 
-          if (_useBackupverificationCode) {
-            loginEntry.togglePasswordType();
-          }
+            // Form section for login
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 60),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CustomTextField(
+                          controller: _emailController, hint: "Email"),
+                      SizedBox(height: 8),
+                      CustomTextField(
+                          controller: _usernameController,
+                          hint: "Display Name"),
+                      SizedBox(height: 8),
+                      CustomTextField(
+                          controller: _passwordController,
+                          hint: "Password",
+                          obscureText: true),
+                      SizedBox(height: 8),
+                      _buildButton(
+                        label: "Create Account",
+                        icon: Icons.account_circle,
+                        backgroundColor: appColors.secondaryColor,
+                        textColor: appColors.primaryColor,
+                        onPressed: () async {
+                          CreateAccountEntry createAccountEntry =
+                              Client.getInstance()
+                                  .createNewCreateAccountEntry();
+                          createAccountEntry.sendEntryType();
+                          createAccountEntry.addDeviceInfo(
+                              await getDeviceType(), await getDeviceDetails());
+                          createAccountEntry.sendCredentials({
+                            CreateAccountCredential.email:
+                                _emailController.text,
+                            CreateAccountCredential.username:
+                                _usernameController.text,
+                            CreateAccountCredential.password:
+                                _passwordController.text,
+                          });
 
-          loginEntry.sendCredentials({
-            LoginCredential.email : _emailController.text,
-            LoginCredential.password : _passwordController.text,
-          });
+                          ResultHolder entryResult = await createAccountEntry
+                              .getCredentialsExchangeResult();
 
-          ResultHolder entryResult = await loginEntry.getCredentialsExchangeResult();
+                          bool isSuccessful = entryResult.isSuccessful;
+                          String resultMessage = entryResult.message;
 
-          bool isSuccessful = entryResult.isSuccessful;
-          String resultMessage = entryResult.message;
+                          if (!isSuccessful) {
+                            showSnackBarDialog(
+                                context: context, content: resultMessage);
+                            return;
+                          }
 
-          if (!isSuccessful) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Registration failed: $resultMessage")),
-            );
-            return;
-          }
+                          isSuccessful = await performVerification(context, _emailController.text);
 
-          if (!_useBackupverificationCode) {
-            isSuccessful = await performVerification();
-          }
+                          if (isSuccessful) {
+                            Client.getInstance().startMessageHandler();
+                            await showLoadingDialog(context,
+                                Client.getInstance().fetchUserInformation());
+                            // Navigate to the main interface
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MainInterface()),
+                              (route) => false, // Removes all previous routes.
+                            );
+                          }
+                        },
+                      )
+                    ]
+                ),
+              ),
+            ),
 
-          if (isSuccessful) {
-            Client.getInstance().startMessageHandler();
-            await showLoadingDialog(
-                context, Client.getInstance().fetchUserInformation());
-            // Navigate to the main interface
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => MainInterface()),
-              (route) => false, // Removes all previous routes.
-            );
-          }
+            _buildButton(
+              label: "Login",
+              icon: Icons.login,
+              backgroundColor: appColors.primaryColor,
+              textColor: appColors.secondaryColor,
+              onPressed: () {
+                if (LoginInterfaceState.isDisplaying) {
+                  isDisplaying = false;
+                  Navigator.of(context).pop();
+                  return;
+                }
 
-        },
+                Navigator.of(context).push(createVerticalTransition(
+                    LoginInterface(), DirectionYAxis.bottomToTop));
+              },
+            )
+          ],
+        ),
       ),
-      SizedBox(height: 8),
-      _buildTextButton(
-          label: "${_useBackupverificationCode ? "Unuse" : "Use"} backup verification code",
-          icon: null,
-          backgroundColor: appColors.tertiaryColor,
-          textColor: appColors.primaryColor,
-          onPressed: () {
-            setState(() {
-              _useBackupverificationCode = !_useBackupverificationCode;
-            });
-          }),
-    ]);
-
-    createAccountWidgets = [];
-    createAccountWidgets.addAll([
-      CustomTextField(controller: _emailController, hint: "Email"),
-      SizedBox(height: 8),
-      CustomTextField(controller: _usernameController, hint: "Display Name"),
-      SizedBox(height: 8),
-      CustomTextField(controller: _passwordController, hint: "Password", obscureText: true),
-      SizedBox(height: 8),
-      _buildButton(
-        label: "Create Account",
-        icon: Icons.account_circle,
-        backgroundColor: appColors.secondaryColor,
-        textColor: appColors.primaryColor,
-        onPressed: () async {
-          CreateAccountEntry createAccountEntry = Client.getInstance().createNewCreateAccountEntry();
-          createAccountEntry.sendEntryType();
-          createAccountEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
-          createAccountEntry.sendCredentials({
-            CreateAccountCredential.email: _emailController.text,
-            CreateAccountCredential.username: _usernameController.text,
-            CreateAccountCredential.password: _passwordController.text,
-          });
-
-          ResultHolder entryResult = await createAccountEntry.getCredentialsExchangeResult();
-
-          bool isSuccessful = entryResult.isSuccessful;
-          String resultMessage = entryResult.message;
-
-          if (!isSuccessful) {
-            showSnackBarDialog(context: context, content: resultMessage);
-            return;
-          }
-
-          isSuccessful = await performVerification();
-
-          if (isSuccessful) {
-            Client.getInstance().startMessageHandler();
-            await showLoadingDialog(
-                context, Client.getInstance().fetchUserInformation());
-            // Navigate to the main interface
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => MainInterface()),
-              (route) => false, // Removes all previous routes.
-            );
-          }
-        },
-      )
-    ]);
-
-    return widget.entryType == EntryType.login ? _loginScaffold() : _createAccountScaffold();
+    );
   }
 
-  Scaffold _createAccountScaffold() {
-    return _mainScaffold(createAccountWidgets, switchToLogin);
+}
+
+class LoginInterface extends StatefulWidget {
+  const LoginInterface({super.key});
+
+  @override
+  State<LoginInterface> createState() => LoginInterfaceState();
+  
+}
+
+class LoginInterfaceState extends State<LoginInterface> with Registration {
+  static bool isDisplaying = false;
+
+  // Controllers for user input
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool _useBackupverificationCode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isDisplaying = true;
   }
 
-  Scaffold _loginScaffold() {
-    return _mainScaffold(loginWidgets, switchToCreateAccount);
+  @override
+  void dispose() {
+    super.dispose();
+    isDisplaying = false;
   }
 
-  Scaffold _mainScaffold(List<Widget> children, Widget switchButton) {
+  @override
+  Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       appBar: const ErmisAppBar(),
@@ -311,45 +234,134 @@ class RegistrationInterfaceState extends State<RegistrationInterface> {
                 padding: const EdgeInsets.only(top: 60),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: children
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CustomTextField(
+                          controller: _emailController, hint: "Email"),
+                      SizedBox(height: 8),
+                      CustomTextField(
+                          controller: _passwordController,
+                          hint: "Password",
+                          obscureText: true),
+                      SizedBox(height: 8),
+                      _buildButton(
+                        label: "Login",
+                        icon: Icons.login,
+                        backgroundColor: appColors.secondaryColor,
+                        textColor: appColors.primaryColor,
+                        onPressed: () async {
+                          LoginEntry loginEntry =
+                              Client.getInstance().createNewLoginEntry();
+                          loginEntry.sendEntryType();
+                          loginEntry.addDeviceInfo(
+                              await getDeviceType(), await getDeviceDetails());
+
+                          if (_useBackupverificationCode) {
+                            loginEntry.togglePasswordType();
+                          }
+
+                          loginEntry.sendCredentials({
+                            LoginCredential.email: _emailController.text,
+                            LoginCredential.password: _passwordController.text,
+                          });
+
+                          ResultHolder entryResult =
+                              await loginEntry.getCredentialsExchangeResult();
+
+                          bool isSuccessful = entryResult.isSuccessful;
+                          String resultMessage = entryResult.message;
+
+                          if (!isSuccessful) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      "Registration failed: $resultMessage")),
+                            );
+                            return;
+                          }
+
+                          if (!_useBackupverificationCode) {
+                            isSuccessful = await performVerification(context, _emailController.text);
+                          }
+
+                          if (isSuccessful) {
+                            Client.getInstance().startMessageHandler();
+                            await showLoadingDialog(context,
+                                Client.getInstance().fetchUserInformation());
+                            // Navigate to the main interface
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MainInterface()),
+                              (route) => false, // Removes all previous routes.
+                            );
+                          }
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      _buildTextButton(
+                          label:
+                              "${_useBackupverificationCode ? "Unuse" : "Use"} backup verification code",
+                          icon: null,
+                          backgroundColor: appColors.tertiaryColor,
+                          textColor: appColors.primaryColor,
+                          onPressed: () {
+                            setState(() {
+                              _useBackupverificationCode =
+                                  !_useBackupverificationCode;
+                            });
+                          }),
+                    ]
                 ),
               ),
             ),
 
-            switchButton
+            _buildButton(
+                label: "Create Account",
+                icon: Icons.account_circle,
+                backgroundColor: appColors.primaryColor,
+                textColor: appColors.secondaryColor,
+                onPressed: () {
+                  if (CreateAccountInterfaceState.isDisplaying) {
+                    isDisplaying = false;
+                    Navigator.of(context).pop();
+                    return;
+                  }
+                  Navigator.of(context).push(createVerticalTransition(
+                      CreateAccountInterface(), DirectionYAxis.bottomToTop));
+                })
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildButton({
-    required String label,
-    required IconData icon,
-    required Color backgroundColor,
-    required Color textColor,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+Widget _buildButton({
+  required String label,
+  required IconData icon,
+  required Color backgroundColor,
+  required Color textColor,
+  required VoidCallback onPressed,
+}) {
+  return ElevatedButton.icon(
+    onPressed: onPressed,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: backgroundColor,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
       ),
-      icon: Icon(
-        icon,
-        color: textColor,
-      ),
-      label: Text(
-        label,
-        style: TextStyle(fontSize: 18, color: textColor),
-      ),
-    );
-  }
+    ),
+    icon: Icon(
+      icon,
+      color: textColor,
+    ),
+    label: Text(
+      label,
+      style: TextStyle(fontSize: 18, color: textColor),
+    ),
+  );
 }
 
 Widget _buildTextButton({
@@ -475,4 +487,48 @@ Future<void> _showVerificationDialog({
       );
     },
   ).then((_) => codeController.clear());
+}
+
+mixin Registration {
+
+  Future<bool> performVerification(BuildContext context, String email) async {
+    Entry verificationEntry = Client.getInstance().createNewVerificationEntry();
+    EntryResult entryResult;
+
+    bool isSuccessful = false;
+
+    while (!verificationEntry.isVerificationComplete) {
+      await _showVerificationDialog(
+          context: context,
+          title: "Verification",
+          promptMessage: "Enter verification code sent to your email",
+          onResendCode: () => verificationEntry.resendVerificationCode(),
+          onSumbittedCode: (int code) =>
+              verificationEntry.sendVerificationCode(code));
+
+      entryResult = await verificationEntry.getResult();
+      isSuccessful = entryResult.isSuccessful;
+      String resultMessage = entryResult.message;
+
+      if (isSuccessful) {
+        showSimpleAlertDialog(
+            context: context,
+            title: "Verification successful",
+            content: resultMessage);
+        ErmisDB.createConnection().addUserAccount(
+            UserAccount.fuck(
+                email: email,
+                passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
+            Client.getInstance().serverInfo);
+        break;
+      }
+
+      showSimpleAlertDialog(
+          context: context,
+          title: "Verification Failed",
+          content: resultMessage);
+    }
+
+    return isSuccessful;
+  }
 }

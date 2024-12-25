@@ -52,6 +52,7 @@ import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.common.util.FileEditor;
 import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.Database;
+import github.koukobin.ermis.server.main.Vulnerable;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.PostgresqlDatabase;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.complexity_checker.PasswordComplexityChecker;
@@ -195,7 +196,7 @@ public final class ErmisDatabase {
 
 			String sql = """
 					    INSERT INTO chat_messages
-					    (chat_session_id, message_id, client_id, text, file_name, file_bytes, content_type)
+					    (chat_session_id, message_id, client_id, text, file_name, file_content_id, content_type)
 					    VALUES (?, ?, ?, ?, ?, ?, ?)
 					    RETURNING message_id;
 					""";
@@ -203,20 +204,25 @@ public final class ErmisDatabase {
 			try (PreparedStatement addMessage = conn.prepareStatement(sql)) {
 				int chatSessionID = message.getChatSessionID();
 		        int generatedMessageID = MessageIDGenerator.incrementAndGetMessageID(chatSessionID, conn);
+		        String fileID = null;
+		        
+		        if (message.getFileBytes() != null) {
+		        	fileID = FilesStorage.createUserFile(message.getFileBytes());
+		        }
 
 				addMessage.setInt(1, chatSessionID);
 				addMessage.setInt(2, generatedMessageID);
 				addMessage.setInt(3, message.getClientID());
 				addMessage.setBytes(4, message.getText()); // keep in mind this converts the bytes to hexadecimal form
 				addMessage.setBytes(5, message.getFileName()); // keep in mind this converts the bytes to hexadecimal form
-				addMessage.setBytes(6, message.getFileBytes());
+				addMessage.setString(6, fileID);
 				addMessage.setInt(7, ContentTypeConverter.getContentTypeAsDatabaseInt(message.getContentType()));
 
 				try (ResultSet rs = addMessage.executeQuery()) {
 					rs.next();
 					messageID = rs.getInt(1);
 				}
-			} catch (SQLException sqle) {
+			} catch (SQLException | IOException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
@@ -428,16 +434,6 @@ public final class ErmisDatabase {
 				return LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE.resultHolder;
 			}
 			
-			// Remove backup verification code from user - a backup verification code can only be used once
-			removeBackupVerificationCode(backupVerificationCode, email);
-
-			// Regenerate backup verification codes if they have become 0
-			boolean hasRegeneratedBackupVerificationCodes = false;
-			if (getNumberOfBackupVerificationCodesLeft(email) == 0) {
-				regenerateBackupVerificationCodes(email);
-				hasRegeneratedBackupVerificationCodes = true;
-			}
-			
 			// Add address to user logged in ip addresses
 			Constant resultC = insertUserIp(email, deviceInfo);
 			
@@ -445,9 +441,20 @@ public final class ErmisDatabase {
 				
 				ResultHolder result = LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder;
 				
+				// Remove backup verification code from user; a backup verification code can only be used once
+				removeBackupVerificationCode(backupVerificationCode, email);
+
+				// Regenerate backup verification codes if they have become 0
+				boolean hasRegeneratedBackupVerificationCodes = false;
+				if (backupVerificationCodes.length - 1 == 0) {
+					regenerateBackupVerificationCodes(email);
+					hasRegeneratedBackupVerificationCodes = true;
+				}
+				
 				// If has regenerated backup verification codes then add the to the result message
 				if (hasRegeneratedBackupVerificationCodes) {
-//					result.addTextToResultMessage("Backup Verification Codes:\n" + String.join("\n", getBackupVerificationCodesAsStringArray(email)));
+					Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
+					addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, backupVerificationCode);
 				}
 				
 				return result;
@@ -653,12 +660,11 @@ public final class ErmisDatabase {
 
 			String[] backupVerificationCodes = null;
 
-			try (PreparedStatement getBackupVerificationCodes = conn
-					.prepareStatement("SELECT backup_verification_codes FROM users WHERE email=?")) {
+			String query = "SELECT backup_verification_codes FROM users WHERE email=?";
+			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+				pstmt.setString(1, email);
 
-				getBackupVerificationCodes.setString(1, email);
-
-				ResultSet rs = getBackupVerificationCodes.executeQuery();
+				ResultSet rs = pstmt.executeQuery();
 
 				if (rs.next()) {
 					backupVerificationCodes = (String[]) rs.getArray(1).getArray();
@@ -746,6 +752,8 @@ public final class ErmisDatabase {
 			return numberOfBackupVerificationCodesLeft;
 		}
 
+		@Vulnerable("Should not be used: prone to vulnerabilities since it yields the first address it finds")
+		@Deprecated
 		public int getClientID(InetAddress address) {
 
 			int clientID = -1;
@@ -828,7 +836,7 @@ public final class ErmisDatabase {
 				resultUpdate = psmtp.executeUpdate();
 				
 				if (resultUpdate == 1) {
-					insertMember(chatSessionID, members);
+					insertMemberToChatSession(chatSessionID, members);
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
@@ -838,7 +846,7 @@ public final class ErmisDatabase {
 			return resultUpdate;
 		}
 		
-		public void insertMember(int chatSessionID, int... members) {
+		public void insertMemberToChatSession(int chatSessionID, int... members) {
 			String insertMembers = "INSERT INTO chat_session_members (chat_session_id, member_id) VALUES(?, ?) ON CONFLICT DO NOTHING;";
 			try (PreparedStatement psmtp = conn.prepareStatement(insertMembers)){
 				
@@ -859,14 +867,19 @@ public final class ErmisDatabase {
 		 *
 		 * @param senderClientID   ID of the client who sent the chat request.
 		 * @param receiverClientID ID of the client who received the chat request.
-		 * @return the newly created chat session ID. If the creation of the chat session fails, returns -1.
+		 * @return the newly created chat session ID. If the creation of the chat
+		 *         session fails, returns -1.
+		 * @apiNote This method is not thread-safe; if executed simultaneously with
+		 *          identical values, multiple unique chat sessions may be created. In
+		 *          order to make it thread-safe, synchronize the method or handle
+		 *          concurrency externally.
+		 * 
 		 */
 		public int acceptChatRequest(int receiverClientID, int senderClientID) {
-			
 			int chatSessionID = -1;
 
 			try {
-		        // Check if the chat request exists
+				// Check if the chat request exists
 		        String checkRequestSql = "SELECT 1 FROM chat_requests WHERE sender_client_id = ? AND receiver_client_id = ?";
 		        try (PreparedStatement pstmt = conn.prepareStatement(checkRequestSql)) {
 		            pstmt.setInt(1, senderClientID);
@@ -890,7 +903,6 @@ public final class ErmisDatabase {
 
 		            // Set the generated chat session ID as the result
 		            chatSessionID = newChatSessionID;
-
 		        } else {
 		        	ChatSessionIDGenerator.undo(newChatSessionID);
 		        }
@@ -901,18 +913,16 @@ public final class ErmisDatabase {
 		    return chatSessionID;
 		}
 
-
 		public int deleteChatRequest(int receiverClientID, int senderClientID) {
 
 			int resultUpdate = 0;
 
-			try (PreparedStatement deleteFriendRequest = conn.prepareStatement(
-					"DELETE FROM chat_requests WHERE receiver_client_id=? AND sender_client_id=?")) {
+			String query = "DELETE FROM chat_requests WHERE receiver_client_id=? AND sender_client_id=?";
+			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+				pstmt.setInt(1, receiverClientID);
+				pstmt.setInt(2, senderClientID);
 
-				deleteFriendRequest.setInt(1, receiverClientID);
-				deleteFriendRequest.setInt(2, senderClientID);
-
-				resultUpdate = deleteFriendRequest.executeUpdate();
+				resultUpdate = pstmt.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
@@ -1059,7 +1069,6 @@ public final class ErmisDatabase {
 				int i = 0;
 				while (rs.next()) {
 					Integer chatSessionID = rs.getInt(1);
-					System.out.println(chatSessionID);
 					chatSessions[i] = chatSessionID;
 					i++;
 				}
@@ -1109,17 +1118,20 @@ public final class ErmisDatabase {
 		}
 		
 		public Account[] getAccountsAssociatedWithDevice(InetAddress address) {
-			
+
 			Account[] accounts = EmptyArrays.EMPTY_ACCOUNT_ARRAY;
 
 			String query = """
-					SELECT up.display_name, 
-					ui.client_id, 
+					SELECT up.display_name,
+					u.email,
+					ui.client_id,
 					up.profile_photo_id
 					FROM user_profiles up
 					JOIN user_ips ui ON up.client_id = ui.client_id
+					JOIN users u ON up.client_id = u.client_id
 					WHERE ui.ip_address = ?;
 					""";
+
 			try (PreparedStatement pstmt = conn.prepareStatement(
 					query,
 					ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -1137,19 +1149,20 @@ public final class ErmisDatabase {
 				int i = 0;
 				while (rs.next()) {
 					String displayName = rs.getString(1);
-					int clientID = rs.getInt(2);
+					String email = rs.getString(2);
+					int clientID = rs.getInt(3);
 					byte[] profilePhoto = EmptyArrays.EMPTY_BYTE_ARRAY;
 					
-					String profileID = rs.getString(3);
+					String profileID = rs.getString(4);
 					if (profileID != null) {
 						try {
-							profilePhoto = ProfilePhotosStorage.loadProfilePhoto(profileID);
+							profilePhoto = FilesStorage.loadProfilePhoto(profileID);
 						} catch (IOException ioe) {
 							logger.error("Could not retrieve profile photo", ioe);
 						}
 					}
 					
-					accounts[i] = new Account(profilePhoto, displayName, clientID);
+					accounts[i] = new Account(profilePhoto, email, displayName, clientID);
 					i++;
 				}
 			} catch (SQLException sqle) {
@@ -1260,7 +1273,7 @@ public final class ErmisDatabase {
 
 			String profilePhotoID;
 			try {
-				profilePhotoID = ProfilePhotosStorage.createProfilePhoto(icon);
+				profilePhotoID = FilesStorage.createProfilePhoto(icon);
 			} catch (IOException ioe) {
 				logger.error("An error occured while trying to create profile photo file", ioe);
 				return resultUpdate;
@@ -1302,9 +1315,9 @@ public final class ErmisDatabase {
 			}
 
 			try {
-				icon = ProfilePhotosStorage.loadProfilePhoto(iconID);
+				icon = FilesStorage.loadProfilePhoto(iconID);
 			} catch (IOException ioe) {
-				logger.error("An error occured while trying to create profile photo file", ioe);
+				logger.error("An error occured while trying to retrieve profile photo file", ioe);
 			}
 
 			return icon;
@@ -1314,21 +1327,27 @@ public final class ErmisDatabase {
 
 			LoadedInMemoryFile file = null;
 
-			try (PreparedStatement getFileBytes = conn.prepareStatement(
-					"SELECT file_bytes, file_name FROM chat_messages WHERE message_id=? AND chat_session_id=?;")) {
+			String query = "SELECT file_content_id, file_name FROM chat_messages WHERE message_id=? AND chat_session_id=?;";
+			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+				pstmt.setInt(1, messageID);
+				pstmt.setInt(2, chatSessionID);
 
-				getFileBytes.setInt(1, messageID);
-				getFileBytes.setInt(2, chatSessionID);
+				ResultSet rs = pstmt.executeQuery();
 
-				ResultSet rs = getFileBytes.executeQuery();
-
-				if (rs.next()) {
-					byte[] fileBytes = rs.getBytes(1);
-					byte[] fileName = rs.getBytes(2);
-					file = new LoadedInMemoryFile(new String(fileName), fileBytes);
+				if (!rs.next()) {
+					return file;
 				}
+
+				String fileContentID = rs.getString(1);
+				String fileName = rs.getString(2);
+				
+				byte[] fileContent = FilesStorage.loadProfilePhoto(fileContentID);
+				
+				file = new LoadedInMemoryFile(fileName, fileContent);
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
+			} catch (IOException ioe) {
+				logger.error("An error occured while trying to retrieve file associated with message", ioe);
 			}
 
 			return file;

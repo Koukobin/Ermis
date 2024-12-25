@@ -44,6 +44,7 @@ import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.epoll.EpollSocketChannel;
 
@@ -51,35 +52,37 @@ import io.netty.channel.epoll.EpollSocketChannel;
  * @author Ilias Koukovinis
  *
  */
-public final class CommandHandler extends ParentHandler {
+public final class CommandHandler extends AbstractChannelClientHandler {
 
-	private CompletableFuture<?> commandsToBeExecutedQueue = 
-			CompletableFuture.runAsync(() -> {}); // initialize it like this for thenRunAsync to work
+	private CompletableFuture<?> commandsToBeExecutedQueue;
 	
 	protected CommandHandler(ClientInfo clientInfo) {
 		super(clientInfo);
+		commandsToBeExecutedQueue = CompletableFuture.runAsync(() -> {
+		}); // initialize it like this for thenRunAsync to work
 	}
-	
+
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 		
 		ClientCommandType commandType = ClientCommandType.fromId(msg.readInt());
-
+		getLogger().debug(commandType);
+		
 		switch (commandType.getCommandLevel()) {
 		case HEAVY -> {
-			msg.retain(); // increase reference count by 1 for executeCommand
+			msg.retain(); // increase reference count by 1 for executeCommand since autoRelease is true
 			commandsToBeExecutedQueue.thenRunAsync(() -> {
 				try {
 					executeCommand(commandType, msg);
 				} catch (Exception e) {
-					exceptionCaught(ctx, e);
+					super.exceptionCaught(ctx, e);
 				}
 			});
 		}
 		case LIGHT -> {
 			executeCommand(commandType, msg);
 		}
-		default -> logger.debug("Command not recognized");
+		default -> getLogger().debug("Command not recognized");
 		}
 	}
 
@@ -217,34 +220,35 @@ public final class CommandHandler extends ParentHandler {
 			});
 		}
 		case ACCEPT_CHAT_REQUEST -> {
-			
+
 			int senderClientID = args.readInt();
 			int receiverClientID = clientInfo.getClientID();
-			
+
 			int chatSessionID;
-			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				chatSessionID = conn.acceptChatRequest(receiverClientID, senderClientID);
+			synchronized (clientInfo.getChatRequests()) {
+				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+					chatSessionID = conn.acceptChatRequest(receiverClientID, senderClientID);
+				}
 			}
 
-			if (chatSessionID != -1) {
-
-				List<Integer> membersList = Ints.asList(receiverClientID, senderClientID);
-				List<Channel> activeMembersList = new ArrayList<>(membersList.size());
-
-				ChatSession chatSession = new ChatSession(chatSessionID, activeMembersList, membersList);
-
-				ActiveChatSessions.addChatSession(chatSessionID, chatSession);
-
-				clientInfo.getChatRequests().remove(Integer.valueOf(senderClientID));
-				clientInfo.getChatSessions().add(chatSession);
-
-				forClient(senderClientID, (ClientInfo ci) -> ci.getChatSessions().add(chatSession));
-			} else {
+			if (chatSessionID == -1) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
 				payload.writeBytes("Something went wrong while trying accept chat request!".getBytes());
 				channel.writeAndFlush(payload);
 			}
+
+			List<Integer> membersList = Ints.asList(receiverClientID, senderClientID);
+			List<Channel> activeMembersList = new ArrayList<>(membersList.size());
+
+			ChatSession chatSession = new ChatSession(chatSessionID, activeMembersList, membersList);
+
+			ActiveChatSessions.addChatSession(chatSessionID, chatSession);
+
+			clientInfo.getChatRequests().remove(Integer.valueOf(senderClientID));
+			clientInfo.getChatSessions().add(chatSession);
+
+			forClient(senderClientID, (ClientInfo ci) -> ci.getChatSessions().add(chatSession));
 		}
 		case DECLINE_CHAT_REQUEST -> {
 			
@@ -350,7 +354,7 @@ public final class CommandHandler extends ParentHandler {
 			try {
 				address = InetAddress.getByName(new String(addressBytes));
 			} catch (UnknownHostException uhe) {
-				logger.debug(String.format("Address not recognized %s", new String(addressBytes)), uhe);
+				getLogger().debug(String.format("Address not recognized %s", new String(addressBytes)), uhe);
 				MessageByteBufCreator.sendMessageInfo(channel, "Address not recognized!");
 				return;
 			}
@@ -456,8 +460,15 @@ public final class CommandHandler extends ParentHandler {
 			
 			channel.writeAndFlush(payload);
 		}
-		case ADD_NEW_ACCOUNT -> {
-			
+		case ADD_NEW_ACCOUNT, SWITCH_ACCOUNT -> {
+			// Check if handler is already present in the pipeline
+			ChannelHandler handler = channel.pipeline().get(StartingEntryHandler.class);
+			if (handler != null) {
+				return; // Handler already exists, so no need to add it again
+			}
+
+			// If handler doesn't exist, add it to the pipeline
+			channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler(clientInfo));
 		}
 		case FETCH_ACCOUNT_ICON -> {
 			
@@ -619,13 +630,24 @@ public final class CommandHandler extends ParentHandler {
 			}
 			
 			for (int i = 0; i < accounts.length; i++) {
-				payload.writeInt(accounts[i].clientID());
 				
-				String displayName = accounts[i].displayName();
+				Account account = accounts[i];
+				
+				if (account.clientID() == clientInfo.getClientID()) {
+					continue;
+				}
+				
+				payload.writeInt(account.clientID());
+				
+				String email = account.email();
+				payload.writeInt(email.length());
+				payload.writeBytes(email.getBytes());
+				
+				String displayName = account.displayName();
 				payload.writeInt(displayName.length());
 				payload.writeBytes(displayName.getBytes());
 				
-				byte[] profilePhoto = accounts[i].profilePhoto();
+				byte[] profilePhoto = account.profilePhoto();
 				payload.writeInt(profilePhoto.length);
 				payload.writeBytes(profilePhoto);
 			}
@@ -684,19 +706,25 @@ public final class CommandHandler extends ParentHandler {
 		
 	}
 	
-	private static void forClient(int clientID, Consumer<ClientInfo> DO) {
-		List<ClientInfo> idont =  ActiveClients.getClient(clientID);
+	/**
+	 * Executes a given action for every active device associated with the specified account/clientID.
+	 *
+	 * @param clientID the ID of the account whose active devices are to be processed
+	 * @param action the operation to perform on each active device
+	 */
+	private static void forClient(int clientID, Consumer<ClientInfo> action) {
+		List<ClientInfo> activeClients =  ActiveClients.getClient(clientID);
 		
-		if (idont == null) {
+		if (activeClients == null) {
 			return;
 		}
 		
-		for (ClientInfo clientInfo : idont) {
-			DO.accept(clientInfo);;
+		for (ClientInfo clientInfo : activeClients) {
+			action.accept(clientInfo);
 		}
 	}
 
-	private static void refreshChatSession(ChatSession chatSession) {
+	public static void refreshChatSession(ChatSession chatSession) {
 		List<Integer> activeMembers = chatSession.getActiveMembers();
 		for (int i = 0; i < activeMembers.size(); i++) {
 			forClient(activeMembers.get(i), (ClientInfo member) -> {

@@ -21,6 +21,7 @@ import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
+import 'main_ui/custom_textfield.dart';
 import 'main_ui/settings/profile_settings.dart';
 import 'theme/app_theme.dart';
 import 'main_ui/chats/chat_interface.dart';
@@ -28,118 +29,56 @@ import 'main_ui/settings/settings_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
-class CharacterLimitTextField extends StatefulWidget {
-  @override
-  _CharacterLimitTextFieldState createState() =>
-      _CharacterLimitTextFieldState();
-}
+void main() async {
+  // Ensure that Flutter bindings are initialized before running the app
+  WidgetsFlutterBinding.ensureInitialized();
 
-class _CharacterLimitTextFieldState extends State<CharacterLimitTextField> {
-  TextEditingController _controller = TextEditingController();
-  String _errorMessage = "";
-  
-  // Define allowed characters (for example, letters and numbers only)
-  final RegExp _allowedChars = RegExp(r'^[a-zA-Z0-9]*$');
+  // Initialize the background service
+  // Initialize the foreground task
+  FlutterForegroundTask.init(
+    androidNotificationOptions: AndroidNotificationOptions(
+      channelId: 'foreground_service_channel',
+      channelName: 'Foreground Service Channel',
+      channelDescription: 'This channel is used for the foreground service notification.',
+      channelImportance: NotificationChannelImportance.LOW,
+      priority: NotificationPriority.LOW,
+    ),
+    iosNotificationOptions: IOSNotificationOptions(
+      showNotification: true,
+    ),
+    foregroundTaskOptions: ForegroundTaskOptions(eventAction: ForegroundTaskEventAction.once()),
+  );  
 
-  // Check if the entered character is allowed
-  void _checkInput(String input) {
-    setState(() {
-      if (_allowedChars.hasMatch(input)) {
-        _errorMessage = ""; // Clear error message if the input is valid
-      } else {
-        _errorMessage = "Invalid character entered!";
-        _tooltipKey.currentState?.ensureTooltipVisible();
-      }
-    });
+  // Start the foreground task when the app runs
+  FlutterForegroundTask.startService(
+    notificationTitle: 'App is running in the background',
+      notificationText: 'Your background task is active',
+      callback: () => debugPrint("Flutter foreground service callback"));
+
+  await NotificationService.init();
+  tz.initializeTimeZones();
+
+  final jsonSettings = SettingsJson();
+  await jsonSettings.loadSettingsJson();
+
+  ThemeMode themeData;
+
+  if (jsonSettings.useSystemDefaultTheme) {
+    themeData = ThemeMode.system;
+  } else {
+    if (jsonSettings.useDarkMode) {
+      themeData = ThemeMode.dark;
+    } else {
+      themeData = ThemeMode.light;
+    }
   }
 
-  final GlobalKey<TooltipState> _tooltipKey = GlobalKey<TooltipState>();  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("TextField with Tooltip")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Tooltip(
-              key: _tooltipKey,
-              triggerMode: TooltipTriggerMode.longPress,
-              showDuration: const Duration(seconds: 1),
-              message: _errorMessage.isEmpty ? "" : _errorMessage,
-              child: TextField(
-                controller: _controller,
-                onChanged: (input) {
-                  _checkInput(input);
-                },
-                decoration: InputDecoration(
-                  labelText: "Enter text",
-                  border: OutlineInputBorder(),
-                  errorText: _errorMessage.isEmpty ? null : _errorMessage,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  runApp(_MyApp(
+    lightAppColors: lightAppColors,
+    darkAppColors: darkAppColors,
+    themeMode: themeData,
+  ));
 }
-
-void main() => runApp(MaterialApp(
-      home: CharacterLimitTextField(),
-    ));
-
-// void main() async {
-//   // Ensure that Flutter bindings are initialized before running the app
-//   WidgetsFlutterBinding.ensureInitialized();
-
-//   // Initialize the background service
-//   // Initialize the foreground task
-//   FlutterForegroundTask.init(
-//     androidNotificationOptions: AndroidNotificationOptions(
-//       channelId: 'foreground_service_channel',
-//       channelName: 'Foreground Service Channel',
-//       channelDescription: 'This channel is used for the foreground service notification.',
-//       channelImportance: NotificationChannelImportance.LOW,
-//       priority: NotificationPriority.LOW,
-//     ),
-//     iosNotificationOptions: IOSNotificationOptions(
-//       showNotification: true,
-//     ),
-//     foregroundTaskOptions: ForegroundTaskOptions(eventAction: ForegroundTaskEventAction.once()),
-//   );  
-
-//   // Start the foreground task when the app runs
-//   FlutterForegroundTask.startService(
-//     notificationTitle: 'App is running in the background',
-//       notificationText: 'Your background task is active',
-//       callback: () => debugPrint("Flutter foreground service callback"));
-
-//   await NotificationService.init();
-//   tz.initializeTimeZones();
-
-//   final jsonSettings = SettingsJson();
-//   await jsonSettings.loadSettingsJson();
-
-//   ThemeMode themeData;
-
-//   if (jsonSettings.useSystemDefaultTheme) {
-//     themeData = ThemeMode.system;
-//   } else {
-//     if (jsonSettings.useDarkMode) {
-//       themeData = ThemeMode.dark;
-//     } else {
-//       themeData = ThemeMode.light;
-//     }
-//   }
-
-//   runApp(_MyApp(
-//     lightAppColors: lightAppColors,
-//     darkAppColors: darkAppColors,
-//     themeMode: themeData,
-//   ));
-// }
 
 class _MyApp extends StatefulWidget {
   final AppColors lightAppColors;

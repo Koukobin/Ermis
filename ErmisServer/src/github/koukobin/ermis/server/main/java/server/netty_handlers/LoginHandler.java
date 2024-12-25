@@ -129,6 +129,7 @@ final class LoginHandler extends EntryHandler {
 
 			if (entryResult.isSuccessful()) {
 				login(ctx, clientInfo);
+				clientInfo.setEmail(email);
 			} else {
 				registrationFailed(ctx, clientInfo);
 			}
@@ -150,9 +151,16 @@ final class LoginHandler extends EntryHandler {
 					String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
 					UserDeviceInfo deviceInfo = new UserDeviceInfo(address, deviceType, osName);
 
+					EntryResult result;
 					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-						return conn.loginUsingPassword(email, password, deviceInfo);
+						result = conn.loginUsingPassword(email, password, deviceInfo);
 					}
+					
+					if (result.isSuccessful()) {
+						clientInfo.setEmail(email);
+					}
+					
+					return result;
 				}
 
 				@Override

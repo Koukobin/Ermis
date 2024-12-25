@@ -26,7 +26,7 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public enum ClientMessageType {
-	CLIENT_CONTENT(0), LOGIN(1), CREATE_ACCOUNT(2), COMMAND(3);
+	CLIENT_CONTENT(0), ENTRY(1), COMMAND(2);
 	
 	private static final HashMap<Integer, ClientMessageType> values;
 	

@@ -39,8 +39,8 @@ public final class EnumIntConverter {
 		T result = map.get(id);
 
 		if (result == null) {
-			throw new IllegalArgumentException("No enum constant with ID " + id + " exists for " 
-		            + map.getClass().getTypeName());
+			throw new IllegalArgumentException(
+					"No enum constant with ID " + id + " exists for " + map.getClass().getTypeName());
 		}
 
 		return result;

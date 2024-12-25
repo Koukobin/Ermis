@@ -71,7 +71,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 			try {
 				EmailerService.sendEmailWithHTML("Security Alert", createEmailMessage(emailAddress, codeString), emailAddress);
 			} catch (MessagingException me) {
-				logger.error("Failed to send email", me);
+				getLogger().error("Failed to send email", me);
 			}
 		});
 	}
@@ -95,7 +95,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 		boolean isVerificationComplete = false;
 
 		int clientGuessForVerificationCode = msg.readInt();
-		logger.debug("Client guessed: {}", clientGuessForVerificationCode);
+		getLogger().debug("Client guessed: {}", clientGuessForVerificationCode);
 
 		if (generatedVerificationCode == clientGuessForVerificationCode) {
 			entryResult = executeWhenVerificationSuccessful();
@@ -120,7 +120,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 		}
 		
 		ctx.channel().writeAndFlush(payload);
-		logger.debug("Sent result");
+		getLogger().debug("Sent result");
 		
 		if (isVerificationComplete) {
 			if (entryResult.isSuccessful()) {
