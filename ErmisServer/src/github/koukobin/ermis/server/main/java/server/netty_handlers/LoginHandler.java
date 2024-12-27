@@ -94,20 +94,20 @@ final class LoginHandler extends EntryHandler {
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				resultHolder = conn.checkIfUserMeetsRequirementsToLogin(email);
 			}
+
+			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
 			
 			ByteBuf payload = ctx.alloc().ioBuffer();
 			payload.writeBoolean(resultHolder.isSuccessful());
+			payload.writeBytes(resultMessageBytes);
+			ctx.channel().writeAndFlush(payload);
 
 			if (resultHolder.isSuccessful()) {
 				registrationSuccessful(ctx);
 			} else {
 				registrationFailed(ctx);
 			}
-			
-			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
-			payload.writeBytes(resultMessageBytes);
-			
-			ctx.channel().writeAndFlush(payload);
+
 		}
 	}
 
@@ -131,7 +131,7 @@ final class LoginHandler extends EntryHandler {
 				login(ctx, clientInfo);
 				clientInfo.setEmail(email);
 			} else {
-				registrationFailed(ctx, clientInfo);
+				registrationFailed(ctx);
 			}
 
 			byte[] resultMessageBytes = entryResult.getResultMessage().getBytes();

@@ -33,7 +33,7 @@ public enum ClientCommandResultType {
 	// User Information Requests
     GET_DISPLAY_NAME(200),
     GET_CLIENT_ID(201),
-    FETCH_USER_DEVICES(202),
+    FETCH_LINKED_DEVICES(202),
     FETCH_ACCOUNT_ICON(203),
     FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS(204),
     

@@ -116,19 +116,18 @@ final class CreateAccountHandler extends EntryHandler {
 				resultHolder = CreateAccountInfo.CredentialValidation.Result.INVALID_EMAIL_ADDRESS.resultHolder;
 			}
 
+			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
+
 			ByteBuf payload = ctx.alloc().ioBuffer();
 			payload.writeBoolean(resultHolder.isSuccessful());
-
+			payload.writeBytes(resultMessageBytes);
+			ctx.channel().writeAndFlush(payload);
+			
 			if (resultHolder.isSuccessful()) {
 				registrationSuccessful(ctx);
 			} else {
 				registrationFailed(ctx);
 			}
-
-			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
-			payload.writeBytes(resultMessageBytes);
-
-			ctx.channel().writeAndFlush(payload);
 		}
 	}
 

@@ -161,6 +161,28 @@ public final class ServerSettings {
 					return Verification.createEmail(VERIFICATION_EMAIL_BODY, email, account, verificationCode);
 				}
 			}
+			
+			public static class DeleteAccount {
+
+				private static final File verificationEmailBodyFile = new File(ConfigurationsPaths.Server.EmailCreator.Verification.DeleteAccount.VERIFICATION_EMAIL_BODY_FILE_PATH);
+
+				public static final String VERIFICATION_EMAIL_BODY;
+
+				static {
+					try {
+						VERIFICATION_EMAIL_BODY = FileEditor.readFile(verificationEmailBodyFile);
+					} catch (IOException ioe) {
+						logger.fatal(Throwables.getStackTraceAsString(ioe));
+						throw new RuntimeException(ioe);
+					}
+				}
+				
+				private DeleteAccount() {}
+
+				public static String createEmail(String email, String account, String verificationCode) {
+					return Verification.createEmail(VERIFICATION_EMAIL_BODY, email, account, verificationCode);
+				}
+			}
 
 			public static class CreateAccount {
 

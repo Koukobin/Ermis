@@ -220,15 +220,15 @@ public final class Server {
 
 					ctx.fireChannelRead(msg);
 				} else {
+
+					// Codec
 					ctx.pipeline().addLast("decoder", new PrimaryDecoder());
 					ctx.pipeline().addLast("encoder", new Encoder());
 
-					ClientInfo clientInfo = new ClientInfo();
-					clientInfo.setChannel(ctx.channel());
-
+					// Handlers
 					ctx.pipeline().addLast(MessageRateLimiter.class.getName(), new MessageRateLimiter());
 					ctx.pipeline().addLast(DispatcherHandler.class.getName(), new DispatcherHandler());
-					ctx.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler(clientInfo));
+					ctx.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 				}
 
 				ctx.pipeline().remove(this);

@@ -62,7 +62,7 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 	private TextField usernameTextField;
 	
 	@FXML
-	private AnchorPane createAccountAnchorPane;
+	private AnchorPane root;
 	@FXML
 	private JFXButton switchToLoginSceneButton;
 
@@ -140,7 +140,7 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 	public void switchScene(ActionEvent event) throws IOException {
 
 		FXMLLoader loader = new FXMLLoader(EntryInfo.Login.FXML_LOCATION);
-		final Parent root = loader.load();
+		final Parent loginRoot = loader.load();
 
 		LoginSceneController loginSceneController = loader.getController();
 		loginSceneController.setFXMLLoader(this.originalFXMLLoader);
@@ -155,8 +155,8 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 				.setDirection(UITransitions.Direction.YAxis.BOTTOM_TO_TOP)
 				.setDuration(Duration.seconds(1))
 				.setInterpolator(Interpolator.EASE_OUT)
-				.setNewComponent(root)
-				.setOldComponent(createAccountAnchorPane)
+				.setNewComponent(loginRoot)
+				.setOldComponent(this.root)
 				.setParentContainer((StackPane) scene.getRoot())
 				.build();
 

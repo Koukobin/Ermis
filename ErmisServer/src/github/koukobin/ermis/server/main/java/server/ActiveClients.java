@@ -64,7 +64,7 @@ public class ActiveClients {
 
 	public static void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession, ClientInfo sender) {
 
-		List<Channel> membersOfChatSession = chatSession.getActiveChannels();
+		List<ClientInfo> membersOfChatSession = chatSession.getActiveMembers();
 
 		/*
 		 * Increase reference count by the amount of clients that this message is gonna
@@ -77,15 +77,15 @@ public class ActiveClients {
 		 * payload's reference count by 2 (2 + 1 = 3) and release once (3 - 1 = 2),
 		 * which ensures the adequate number of writes for the specific number of users
 		 * 
-		 * Note: We cannot directly use (membersOfChatSession.size() - 1) because it would
-		 * throw an IllegalArgumentException if the size is 0.
+		 * Note: We cannot directly use (membersOfChatSession.size() - 1) because it
+		 * would throw an IllegalArgumentException if the size is 0.
 		 */
 		payload.retain(membersOfChatSession.size());
 		payload.release();
 
 		for (int i = 0; i < membersOfChatSession.size(); i++) {
-			Channel channel = membersOfChatSession.get(i);
-			
+			Channel channel = membersOfChatSession.get(i).getChannel();
+
 			if (channel.equals(sender.getChannel())) {
 				ByteBuf messageSent = channel.alloc().ioBuffer();
 				messageSent.writeInt(ServerMessageType.MESSAGE_SUCCESFULLY_SENT.id);
@@ -94,7 +94,7 @@ public class ActiveClients {
 				channel.writeAndFlush(messageSent);
 				continue;
 			}
-			
+
 			channel.writeAndFlush(payload.duplicate());
 		}
 	}

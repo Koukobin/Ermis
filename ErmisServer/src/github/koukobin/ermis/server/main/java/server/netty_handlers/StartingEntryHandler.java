@@ -30,13 +30,18 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public final class StartingEntryHandler extends AbstractChannelClientHandler {
 
-	public StartingEntryHandler(ClientInfo clientInfo) {
-		super(clientInfo);
+	public StartingEntryHandler() {
+		super(new ClientInfo());
 	}
+	
+//	public StartingEntryHandler(ClientInfo clientInfo) {
+//		super(clientInfo);
+//	}
 
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) {
 		ctx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER); // Message denoting server is ready for messages
+		clientInfo.setChannel(ctx.channel());
 	}
 
 	@Override
@@ -85,14 +90,10 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 
 			if (isSuccessful) {
 				clientInfo.setEmail(email);
-				clientInfo.setClientID(emailLength);
 				EntryHandler.login(ctx, clientInfo);
 
 				getLogger().debug("Successful login");
-				return;
 			}
-			
-			ctx.pipeline().replace(ctx.handler(), LoginHandler.class.getName(), new LoginHandler(clientInfo));
 		} catch (Exception e) {
 			getLogger().debug("Error during authentication", e);
 		} finally {

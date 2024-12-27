@@ -45,14 +45,21 @@ public final class ConfigurationsPaths {
 
 				public static class Login {
 
-					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SETTINGS + "Login Verification Message.txt";
+					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SETTINGS + "Login-Verification-Message.html";
 
 					private Login() {}
+				}
+				
+				public static class DeleteAccount {
+
+					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SETTINGS + "DeleteAccount-Verification-Message.html";
+
+					private DeleteAccount() {}
 				}
 
 				public static class CreateAccount {
 
-					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SETTINGS + "CreateAccount Verification Message.txt";
+					public static final String VERIFICATION_EMAIL_BODY_FILE_PATH = SETTINGS + "CreateAccount-Verification-Message.html";
 
 					private CreateAccount() {}
 				}

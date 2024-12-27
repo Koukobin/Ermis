@@ -95,13 +95,6 @@
 			</version>
 		</dependency>
 		<!--OpenJFX-->
-
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.4.0</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>

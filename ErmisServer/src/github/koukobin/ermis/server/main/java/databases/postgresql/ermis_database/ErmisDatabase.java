@@ -167,6 +167,10 @@ public final class ErmisDatabase {
 				throw new RuntimeException(sqle);
 			}
 		}
+		
+		public Connection underlyingConnection() {
+			return conn;
+		}
 
 		@Override
 		public void close() {
@@ -205,16 +209,26 @@ public final class ErmisDatabase {
 				int chatSessionID = message.getChatSessionID();
 		        int generatedMessageID = MessageIDGenerator.incrementAndGetMessageID(chatSessionID, conn);
 		        String fileID = null;
+		        String text = null;
+		        String fileName = null;
 		        
 		        if (message.getFileBytes() != null) {
 		        	fileID = FilesStorage.createUserFile(message.getFileBytes());
 		        }
-
+		        
+		        if (message.getText() != null) {
+		        	text = new String(message.getText());
+		        }
+		        
+		        if (message.getFileName() != null) {
+		        	fileName = new String(message.getFileName());
+		        }
+		        
 				addMessage.setInt(1, chatSessionID);
 				addMessage.setInt(2, generatedMessageID);
 				addMessage.setInt(3, message.getClientID());
-				addMessage.setBytes(4, message.getText()); // keep in mind this converts the bytes to hexadecimal form
-				addMessage.setBytes(5, message.getFileName()); // keep in mind this converts the bytes to hexadecimal form
+				addMessage.setString(4, text);
+				addMessage.setString(5, fileName);
 				addMessage.setString(6, fileID);
 				addMessage.setInt(7, ContentTypeConverter.getContentTypeAsDatabaseInt(message.getContentType()));
 
@@ -355,6 +369,9 @@ public final class ErmisDatabase {
 			return new EntryResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT.resultHolder);
 		}
 
+		/**
+		 * Authenticates client and deletes account
+		 */
 		public int deleteAccount(String enteredEmail, String enteredPassword, int clientID) {
 
 			int resultUpdate = 0;
@@ -876,39 +893,76 @@ public final class ErmisDatabase {
 		 * 
 		 */
 		public int acceptChatRequest(int receiverClientID, int senderClientID) {
+			// This method probably should be refactored in the future...
+			String sql = """
+					-- Check for an existing chat session
+					WITH existing_chat_session AS (
+					    SELECT 1
+					    FROM chat_sessions s
+					    JOIN chat_session_members m1 ON s.chat_session_id = m1.chat_session_id
+					    JOIN chat_session_members m2 ON s.chat_session_id = m2.chat_session_id
+					    WHERE m1.member_id = ? AND m2.member_id = ?
+					),
+					-- Check for an existing chat request
+					existing_request AS (
+					    SELECT 1
+					    FROM chat_requests
+					    WHERE sender_client_id = ? AND receiver_client_id = ?
+					      AND NOT EXISTS (SELECT 1 FROM existing_chat_session)
+					),
+					-- Create a new chat session if the request exists
+					new_session AS (
+					    INSERT INTO chat_sessions (chat_session_id)
+					    SELECT ?
+					    WHERE EXISTS (SELECT 1 FROM existing_request)
+					    RETURNING chat_session_id
+					),
+					-- Add members to the new chat session
+					new_session_members AS (
+					    INSERT INTO chat_session_members (chat_session_id, member_id)
+					    SELECT chat_session_id, ?
+					    FROM new_session
+					    UNION ALL
+					    SELECT chat_session_id, ?
+					    FROM new_session
+					    RETURNING chat_session_id
+					)
+					-- Delete the chat request upon successful creation of the chat session
+					DELETE FROM chat_requests
+					WHERE sender_client_id = ? AND receiver_client_id = ?
+					  AND EXISTS (SELECT 1 FROM new_session_members);
+					""";
+
+			// Generate a new chat session ID
+			int generatedChatSessionID = ChatSessionIDGenerator.retrieveAndDelete(conn);
+
+			if (generatedChatSessionID == -1) {
+				return generatedChatSessionID; // Return if failed
+			}
+
 			int chatSessionID = -1;
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setInt(1, senderClientID);
+				pstmt.setInt(2, receiverClientID);
+				pstmt.setInt(3, senderClientID);
+				pstmt.setInt(4, receiverClientID);
+				pstmt.setInt(5, generatedChatSessionID);
+				pstmt.setInt(6, senderClientID); // Repeated for the INSERT clause
+				pstmt.setInt(7, receiverClientID); // Repeated for the INSERT clause
+				pstmt.setInt(8, senderClientID); // Repeated for the DELETE clause
+				pstmt.setInt(9, receiverClientID); // Repeated for the DELETE clause
 
-			try {
-				// Check if the chat request exists
-		        String checkRequestSql = "SELECT 1 FROM chat_requests WHERE sender_client_id = ? AND receiver_client_id = ?";
-		        try (PreparedStatement pstmt = conn.prepareStatement(checkRequestSql)) {
-		            pstmt.setInt(1, senderClientID);
-					pstmt.setInt(2, receiverClientID);
-					if (!pstmt.execute()) {
-						return chatSessionID; // Chat request does not exist
-					}
-		        }
-
-		        // Generate a new chat session ID
-		        int newChatSessionID = ChatSessionIDGenerator.retrieveAndDelete(conn);
-
-				if (newChatSessionID == -1) {
-					return newChatSessionID;
+				int affectedRows = pstmt.executeUpdate();
+				if (affectedRows > 0) {
+					// Successfully created chat session
+					chatSessionID = generatedChatSessionID;
+				} else {
+					// Creation failed or chat request does not exist
+					ChatSessionIDGenerator.undo(generatedChatSessionID);
 				}
-
-		        // Attempt to create the chat session
-		        if (createChat(newChatSessionID, senderClientID, receiverClientID) == 1) {
-		            // Delete the chat request upon successful creation of the chat session
-		            deleteChatRequest(receiverClientID, senderClientID);
-
-		            // Set the generated chat session ID as the result
-		            chatSessionID = newChatSessionID;
-		        } else {
-		        	ChatSessionIDGenerator.undo(newChatSessionID);
-		        }
-		    } catch (SQLException sqle) {
-		        logger.debug("Error accepting chat request", sqle);
-		    }
+			} catch (SQLException sqle) {
+				logger.debug("Error accepting chat request", sqle);
+			}
 
 		    return chatSessionID;
 		}
@@ -934,11 +988,27 @@ public final class ErmisDatabase {
 
 			int resultUpdate = 0;
 
-		    String sql = "INSERT INTO chat_requests (receiver_client_id, sender_client_id) VALUES (?, ?)";
-		    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-		        pstmt.setInt(1, receiverClientID);
-		        pstmt.setInt(2, senderClientID);
-				resultUpdate = pstmt.executeUpdate();
+			// No need to check if given client id exists since the chat_requests table
+			// references client ids from users table
+			try {
+				String checkRequestSQL = "SELECT 1 FROM chat_requests WHERE sender_client_id = ? AND receiver_client_id = ?";
+				try (PreparedStatement pstmt = conn.prepareStatement(checkRequestSQL)) {
+					pstmt.setInt(1, senderClientID);
+					pstmt.setInt(2, receiverClientID);
+					
+					ResultSet rs = pstmt.executeQuery();
+					
+					if (rs.next()) {
+						return resultUpdate; // Chat request already exists
+					}
+				}
+				
+				String sql = "INSERT INTO chat_requests (receiver_client_id, sender_client_id) VALUES (?, ?)";
+				try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+					pstmt.setInt(1, receiverClientID);
+					pstmt.setInt(2, senderClientID);
+					resultUpdate = pstmt.executeUpdate();
+				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
@@ -1178,7 +1248,6 @@ public final class ErmisDatabase {
 
 			String sql = "DELETE FROM user_ips WHERE ip_address=? AND client_id=?";
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
 				pstmt.setString(1, address.getHostName());
 				pstmt.setInt(2, clientID);
 
@@ -1339,9 +1408,9 @@ public final class ErmisDatabase {
 				}
 
 				String fileContentID = rs.getString(1);
-				String fileName = rs.getString(2);
+				String fileName = new String(rs.getBytes(2));
 				
-				byte[] fileContent = FilesStorage.loadProfilePhoto(fileContentID);
+				byte[] fileContent = FilesStorage.loadUserFile(fileContentID);
 				
 				file = new LoadedInMemoryFile(fileName, fileContent);
 			} catch (SQLException sqle) {

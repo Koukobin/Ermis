@@ -29,8 +29,8 @@ import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
+import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -102,8 +102,8 @@ final class MessageHandler extends AbstractChannelClientHandler {
 					// there was a message sent in the chat session, the server would send that to
 					// the client but the client would not know how to proccess it and in what chat
 					// session the message belongs to
-					List<Channel> activeMembersList = new ArrayList<>(membersList.size());
-					chatSession = new ChatSession(chatSessionID, activeMembersList, membersList);
+					List<ClientInfo> activeMembers = new ArrayList<>(membersList.size());
+					chatSession = new ChatSession(chatSessionID, activeMembers, membersList);
 					ActiveChatSessions.addChatSession(chatSessionID, chatSession);
 				}
 
@@ -125,38 +125,34 @@ final class MessageHandler extends AbstractChannelClientHandler {
 	@Override
 	public void handlerRemoved(ChannelHandlerContext ctx) throws IOException {
 		ActiveClients.removeClient(clientInfo);
-		
-		List<ChatSession> userChatSessions = clientInfo.getChatSessions();
-		for (int i = 0; i < userChatSessions.size(); i++) {
-			
-			ChatSession chatSession = userChatSessions.get(i);
-			chatSession.getActiveChannels().remove(clientInfo.getChannel());
 
-			if (chatSession.getActiveChannels().isEmpty()) {
+		List<ChatSession> chatSessions = clientInfo.getChatSessions();
+		for (int i = 0; i < chatSessions.size(); i++) {
+
+			ChatSession chatSession = chatSessions.get(i);
+			chatSession.getActiveMembers().remove(clientInfo);
+
+			if (chatSession.getActiveMembers().isEmpty()) {
 				ActiveChatSessions.removeChatSession(chatSession.getChatSessionID());
-			} else {
-				CommandHandler.refreshChatSession(chatSession);
+				continue;
 			}
 			
+			CommandHandler.refreshChatSession(chatSession);
 		}
-		
+
 	}
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-
-		ChatSession chatSession;
 		
 		ClientContentType contentType = ClientContentType.fromId(msg.readInt());
-		
+		ChatSession chatSession;
 		try {
 			int indexOfChatSession = msg.readInt();
 			chatSession = clientInfo.getChatSessions().get(indexOfChatSession);
 		} catch (IndexOutOfBoundsException ioobe) {
-			ByteBuf payload = ctx.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
-			payload.writeBytes("Chat session selected doesn't exist. (May have been deleted by the other user)".getBytes());
-			ctx.channel().writeAndFlush(payload);
+			getLogger().debug("Chat session index does not exist:", ioobe);
+			MessageByteBufCreator.sendMessageInfo(ctx, "Chat session selected doesn't exist. (May have been deleted by the other user)");
 			return;
 		}
 
@@ -173,10 +169,9 @@ final class MessageHandler extends AbstractChannelClientHandler {
 		payload.writeInt(contentType.id);
 
 		payload.writeLong(System.currentTimeMillis());
-		
+
 		switch (contentType) {
 		case TEXT -> {
-			
 			int textLength = msg.readInt();
 			textBytes = new byte[textLength];
 			msg.readBytes(textBytes);
@@ -185,7 +180,6 @@ final class MessageHandler extends AbstractChannelClientHandler {
 			payload.writeBytes(textBytes);
 		}
 		case FILE, IMAGE -> {
-
 			int fileNameLength = msg.readInt();
 			fileNameBytes = new byte[fileNameLength];
 			msg.readBytes(fileNameBytes);
@@ -197,7 +191,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 			payload.writeBytes(fileNameBytes);
 		}
 		}
-		
+
 		int messageIDInDatabase = 0;
 		try (ErmisDatabase.WriteChatMessagesDBConnection conn = ErmisDatabase.getWriteChatMessagesConnection()) {
 
@@ -214,16 +208,16 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 		payload.writeInt(usernameBytes.length);
 		payload.writeBytes(usernameBytes);
-		
+
 		payload.writeInt(clientInfo.getClientID());
-		
+
 		payload.writeInt(messageIDInDatabase);
 		payload.writeInt(chatSessionID);
 
 		broadcastMessageToChatSession(payload, messageIDInDatabase, chatSession);
-	
+
 	}
-	
+
 	private void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {
 		ActiveClients.broadcastMessageToChatSession(payload, messageID, chatSession, clientInfo);
 	}

@@ -33,6 +33,7 @@ import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.UserMessage;
+import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
@@ -43,7 +44,6 @@ import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.epoll.EpollSocketChannel;
@@ -205,9 +205,9 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				resultUpdate = conn.sendChatRequest(receiverID, senderClientID);
 			}
 			
-			boolean isSuccessfull = resultUpdate == 1;
+			boolean isSuccessful = resultUpdate == 1;
 			
-			if (!isSuccessfull) {
+			if (!isSuccessful) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
 				payload.writeBytes("An error occured while trying to send chat request!".getBytes());
@@ -215,7 +215,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				return;
 			}
 			
-			forClient(receiverID, (ClientInfo ci) -> {
+			forActiveAccounts(receiverID, (ClientInfo ci) -> {
 				ci.getChatRequests().add(senderClientID);
 			});
 		}
@@ -236,19 +236,19 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
 				payload.writeBytes("Something went wrong while trying accept chat request!".getBytes());
 				channel.writeAndFlush(payload);
+				return;
 			}
 
-			List<Integer> membersList = Ints.asList(receiverClientID, senderClientID);
-			List<Channel> activeMembersList = new ArrayList<>(membersList.size());
+			List<Integer> members = Ints.asList(receiverClientID, senderClientID);
+			List<ClientInfo> activeMembers = new ArrayList<>(members.size());
 
-			ChatSession chatSession = new ChatSession(chatSessionID, activeMembersList, membersList);
-
+			ChatSession chatSession = new ChatSession(chatSessionID, activeMembers, members);
 			ActiveChatSessions.addChatSession(chatSessionID, chatSession);
 
 			clientInfo.getChatRequests().remove(Integer.valueOf(senderClientID));
 			clientInfo.getChatSessions().add(chatSession);
 
-			forClient(senderClientID, (ClientInfo ci) -> ci.getChatSessions().add(chatSession));
+			forActiveAccounts(senderClientID, (ClientInfo ci) -> ci.getChatSessions().add(chatSession));
 		}
 		case DECLINE_CHAT_REQUEST -> {
 			
@@ -298,9 +298,9 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				
 				if (chatSession != null) {
 					
-					List<Integer> activeMembers = chatSession.getActiveMembers();
+					List<ClientInfo> activeMembers = chatSession.getActiveMembers();
 					for (int i = 0; i < activeMembers.size(); i++) {
-						forClient(activeMembers.get(i), (ClientInfo ci) -> ci.getChatSessions().remove(chatSession));
+						activeMembers.get(i).getChatSessions().remove(chatSession);
 					}
 					
 					ActiveChatSessions.removeChatSession(chatSessionID);
@@ -337,7 +337,6 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}
 		}
 		case LOGOUT_THIS_DEVICE -> {
-
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				conn.logout(channel.remoteAddress().getAddress(), clientInfo.getClientID());
 			}
@@ -364,22 +363,25 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}
 
 			// Search for the specific IP address and if found logout that address
-			forClient(clientInfo.getClientID(), (ClientInfo ci) -> {
+			forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
 				if (!ci.getInetAddress().equals(address)) {
 					return;
 				}
 				
 				ci.getChannel().close();
 			});
+
+			forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
+				executeCommand(clientInfo, ClientCommandType.FETCH_LINKED_DEVICES, Unpooled.EMPTY_BUFFER);
+			});
 		}
 		case LOGOUT_ALL_DEVICES -> {
-
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				conn.logoutAllDevices(clientInfo.getClientID());
 			}
 
 			// Close all channels associated with this client id
-			forClient(clientInfo.getClientID(), (ClientInfo ci) -> {
+			forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
 				ci.getChannel().close();
 			});
 		}
@@ -397,10 +399,10 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			payload.writeInt(clientInfo.getClientID());
 			channel.writeAndFlush(payload);
 		}
-		case FETCH_USER_DEVICES -> {
+		case FETCH_LINKED_DEVICES -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-			payload.writeInt(ClientCommandResultType.FETCH_USER_DEVICES.id);
+			payload.writeInt(ClientCommandResultType.FETCH_LINKED_DEVICES.id);
 			
 			UserDeviceInfo[] devices;
 			
@@ -427,20 +429,42 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			byte[] emailAddress = new byte[args.readInt()];
 			args.readBytes(emailAddress);
 			
-			byte[] password = new byte[args.readInt()];
-			args.readBytes(password);
+			byte[] passwordBytes = new byte[args.readInt()];
+			args.readBytes(passwordBytes);
+			
+			String email = new String(emailAddress);
+			
+			if (email.equals(clientInfo.getEmail())) {
+				MessageByteBufCreator.sendMessageInfo(channel, "Incorrect email");
+			}
+			
+			channel.pipeline().addLast(VerificationHandler.class.getName(), new VerificationHandler(clientInfo, email) {
+				
+				@Override
+				public EntryResult executeWhenVerificationSuccessful() throws IOException {
 
-			int resultUpdate;
-			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				resultUpdate = conn.deleteAccount(new String(emailAddress), new String(password), clientInfo.getClientID());
-			}
-			
-			if (resultUpdate == 1) {
-				channel.close();
-				return;
-			}
-			
-			MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account");
+					String password = new String(passwordBytes);
+
+					int resultUpdate;
+					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+						resultUpdate = conn.deleteAccount(email, new String(password), clientInfo.getClientID());
+					}
+					
+					if (resultUpdate == 1) {
+						channel.close();
+						return null;
+					}
+					
+					MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account");
+					return null;
+				}
+				
+				@Override
+				public String createEmailMessage(String account, String generatedVerificationCode) {
+					return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(email, account, generatedVerificationCode);
+				}
+			});
+
 		}
 		case ADD_ACCOUNT_ICON -> {
 			
@@ -468,7 +492,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}
 
 			// If handler doesn't exist, add it to the pipeline
-			channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler(clientInfo));
+			channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 		}
 		case FETCH_ACCOUNT_ICON -> {
 			
@@ -568,28 +592,28 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 					ChatSession chatSession = chatSessions.get(i);
 					int chatSessionID = chatSession.getChatSessionID();
-					List<Integer> membersClientIDS = chatSession.getActiveMembers();
+					List<Integer> memberIDS = chatSession.getMembers();
 
 					payload.writeInt(chatSessionID);
 
 					// The one that is subtracted is attributed to the user inquring this command
-					payload.writeInt(membersClientIDS.size() - 1);
+					payload.writeInt(memberIDS.size() - 1);
 					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-						for (int j = 0; j < membersClientIDS.size(); j++) {
+						for (int j = 0; j < memberIDS.size(); j++) {
 
-							int clientID = membersClientIDS.get(j);
+							int clientID = memberIDS.get(j);
 
 							boolean isActive;
-							List<ClientInfo> memberClientInfo = ActiveClients.getClient(clientID);
+							List<ClientInfo> member = ActiveClients.getClient(clientID);
 							
 							byte[] usernameBytes;
 							byte[] iconBytes = conn.selectUserIcon(clientID);
 							
-							if (memberClientInfo == null) {
+							if (member == null) {
 								usernameBytes = conn.getUsername(clientID).getBytes();
 								isActive = false;
 							} else {
-								ClientInfo random = memberClientInfo.get(0);
+								ClientInfo random = member.get(0);
 								if (clientInfo.getClientID() ==  random.getClientID()) {
 									continue;
 								}
@@ -608,8 +632,8 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 					}
 
-					if (!chatSession.getActiveChannels().contains(clientInfo.getChannel())) {
-						chatSession.getActiveChannels().add(clientInfo.getChannel());
+					if (!chatSession.getActiveMembers().contains(clientInfo)) {
+						chatSession.getActiveMembers().add(clientInfo);
 						refreshChatSession(chatSession);
 					}
 
@@ -712,7 +736,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 	 * @param clientID the ID of the account whose active devices are to be processed
 	 * @param action the operation to perform on each active device
 	 */
-	private static void forClient(int clientID, Consumer<ClientInfo> action) {
+	private static void forActiveAccounts(int clientID, Consumer<ClientInfo> action) {
 		List<ClientInfo> activeClients =  ActiveClients.getClient(clientID);
 		
 		if (activeClients == null) {
@@ -725,11 +749,9 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 	}
 
 	public static void refreshChatSession(ChatSession chatSession) {
-		List<Integer> activeMembers = chatSession.getActiveMembers();
+		List<ClientInfo> activeMembers = chatSession.getActiveMembers();
 		for (int i = 0; i < activeMembers.size(); i++) {
-			forClient(activeMembers.get(i), (ClientInfo member) -> {
-				executeCommand(member, ClientCommandType.FETCH_CHAT_SESSIONS, Unpooled.EMPTY_BUFFER);
-			});
+			executeCommand(activeMembers.get(i), ClientCommandType.FETCH_CHAT_SESSIONS, Unpooled.EMPTY_BUFFER);
 		}
 	}
 

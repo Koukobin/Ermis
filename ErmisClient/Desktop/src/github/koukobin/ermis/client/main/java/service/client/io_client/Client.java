@@ -47,6 +47,7 @@ import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.entry.Verification;
+import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.results.ResultHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -126,7 +127,7 @@ public class Client {
 
 			// This message helps the server distinguish between a normal message and an http request
 			out.write(Unpooled.EMPTY_BUFFER);
-			isLoggedIn.set(in.read().readBoolean());
+			in.read();
 		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
 				| UnrecoverableKeyException | KeyManagementException e) {
 			throw new ClientInitializationException(e.getMessage());
@@ -165,7 +166,8 @@ public class Client {
 				int credentialInt = credential.getKey().id();
 				byte[] credentialValueBytes = credential.getValue().getBytes();
 
-				ByteBuf payload = Unpooled.buffer(1 /* boolean */ + Integer.BYTES + credentialValueBytes.length);
+				ByteBuf payload = Unpooled.buffer();
+				payload.writeInt(ClientMessageType.ENTRY.id);
 				payload.writeBoolean(isAction);
 				payload.writeInt(credentialInt);
 				payload.writeBytes(credentialValueBytes);
@@ -175,7 +177,7 @@ public class Client {
 		}
 		
 		public void sendEntryType() throws IOException {
-			out.write(Unpooled.copyInt(entryType.id));
+			out.write(Unpooled.copyInt(ClientMessageType.ENTRY.id, entryType.id));
 		}
 	}
 
@@ -234,8 +236,9 @@ public class Client {
 			boolean isAction = false;
 			
 			ByteBuf payload = Unpooled.buffer();
+			payload.writeInt(ClientMessageType.ENTRY.id);
 			payload.writeBoolean(isAction);
-			payload.writeBytes(verificationCode.getBytes());
+			payload.writeInt(Integer.valueOf(verificationCode));
 			
 			out.write(payload);
 		}
@@ -262,6 +265,7 @@ public class Client {
 			boolean isAction = true;
 			
 			ByteBuf payload = Unpooled.buffer(1 + Integer.BYTES);
+			payload.writeInt(ClientMessageType.ENTRY.id);
 			payload.writeBoolean(isAction);
 			payload.writeInt(Verification.Action.RESEND_CODE.id);
 			

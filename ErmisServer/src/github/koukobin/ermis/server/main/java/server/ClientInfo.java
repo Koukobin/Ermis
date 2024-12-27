@@ -109,9 +109,16 @@ public final class ClientInfo {
 		return Objects.hashCode(clientID);
 	}
 
+	public void clear() {
+		username = null;
+		email = null;
+		clientID = -1;
+		chatRequestsClientIDS = null;
+		chatSessions = null;
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
-		
 		if (this == obj) {
 			return true;
 		}
@@ -125,8 +132,10 @@ public final class ClientInfo {
 		}
 		
 		ClientInfo other = (ClientInfo) obj;
-		return Objects.equals(channel, other.channel) && Objects.equals(chatRequestsClientIDS, other.chatRequestsClientIDS)
-				&& Objects.equals(chatSessions, other.chatSessions) && clientID == other.clientID
+		return Objects.equals(channel, other.channel) 
+				&& Objects.equals(chatRequestsClientIDS, other.chatRequestsClientIDS)
+				&& Objects.equals(chatSessions, other.chatSessions) 
+				&& clientID == other.clientID
 				&& Objects.equals(email, other.email)
 				&& Objects.equals(username, other.username);
 	}
@@ -135,5 +144,6 @@ public final class ClientInfo {
 	public String toString() {
 		return username + clientID;
 	}
+
 }
 

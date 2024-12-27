@@ -34,30 +34,30 @@ public class ActiveChatSessions {
 	private static final Map<Integer, ChatSession> chatSessionIDSToActiveChatSessions = new ConcurrentHashMap<>(100);
 
 	private ActiveChatSessions() {}
-	
+
 	public static ChatSession getChatSession(int chatSessionID) {
 		return chatSessionIDSToActiveChatSessions.get(chatSessionID);
 	}
-	
+
 	public static void addChatSession(int chatSessionID, ChatSession chatSession) {
 		chatSessionIDSToActiveChatSessions.put(chatSessionID, chatSession);
 	}
-	
+
 	public static void removeChatSession(int chatSessionID) {
 		chatSessionIDSToActiveChatSessions.remove(chatSessionID);
 	}
 
 	public static void addMember(int chatSessionID, ClientInfo member) {
-		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveChannels().add(member.getChannel());
+		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveMembers().add(member);
 	}
-	
+
 	public static void removeMember(int chatSessionID, ClientInfo member) {
-		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveChannels().remove(member.getChannel());
+		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveMembers().remove(member);
 	}
-	
+
 	public static void broadcastToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {
 
-		List<Channel> membersOfChatSession = chatSession.getActiveChannels();
+		List<ClientInfo> members = chatSession.getActiveMembers();
 
 		/*
 		 * Increase reference count by the amount of clients that this message is gonna
@@ -70,16 +70,16 @@ public class ActiveChatSessions {
 		 * payload's reference count by 2 (2 + 1 = 3) and release once (3 - 1 = 2),
 		 * which ensures the adequate number of writes for the specific number of users
 		 * 
-		 * Note: We cannot directly use (membersOfChatSession.size() - 1) because it would
-		 * throw an IllegalArgumentException if the size is 0.
+		 * Note: We cannot directly use (membersOfChatSession.size() - 1) because it
+		 * would throw an IllegalArgumentException if the size is 0.
 		 */
-		payload.retain(membersOfChatSession.size());
+		payload.retain(members.size());
 		payload.release();
 
-		for (int i = 0; i < membersOfChatSession.size(); i++) {
-			Channel channel = membersOfChatSession.get(i);
+		for (int i = 0; i < members.size(); i++) {
+			Channel channel = members.get(i).getChannel();
 			channel.writeAndFlush(payload.duplicate());
 		}
 	}
-	
+
 }

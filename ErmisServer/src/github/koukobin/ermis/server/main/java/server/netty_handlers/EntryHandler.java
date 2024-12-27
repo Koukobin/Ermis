@@ -43,7 +43,6 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 
 	@Override
 	public final void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-
 		boolean isAction = msg.readBoolean();
 
 		if (isAction) {
@@ -62,10 +61,6 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 
 	protected void registrationSuccessful(ChannelHandlerContext ctx) {
 		onSuccessfulRegistration(ctx);
-	}
-
-	protected void registrationFailed(ChannelHandlerContext ctx) {
-		registrationFailed(ctx, clientInfo);
 	}
 
 	/**
@@ -90,7 +85,7 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 	 * Reverts the pipeline to the starting entry handler.
 	 *
 	 */
-	public static void registrationFailed(ChannelHandlerContext ctx, ClientInfo clientInfo) {
+	protected static void registrationFailed(ChannelHandlerContext ctx) {
 		// If a message handler already exists, simply remove this handler instead of
 		// replacing with new one. This predicament would occur, in an instance, when a
 		// client, already authenticated, attempts to add a new account while logged in.
@@ -98,6 +93,6 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 			ctx.pipeline().remove(ctx.handler());
 			return;
 		}
-		ctx.pipeline().replace(ctx.handler(), StartingEntryHandler.class.getName(), new StartingEntryHandler(clientInfo));
+		ctx.pipeline().replace(ctx.handler(), StartingEntryHandler.class.getName(), new StartingEntryHandler());
 	}
 }

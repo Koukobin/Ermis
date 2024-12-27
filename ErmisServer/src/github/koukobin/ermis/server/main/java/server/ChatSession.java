@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import io.netty.channel.Channel;
-
 /**
  * @author Ilias Koukovinis
  *
@@ -29,7 +27,7 @@ public final class ChatSession {
 
 	private final int chatSessionID;
 
-	private List<Channel> activeMembers;
+	private List<ClientInfo> activeMembers;
 	private List<Integer> membersClientIDS;
 
 	public ChatSession(int chatSessionID) {
@@ -38,13 +36,13 @@ public final class ChatSession {
 		this.membersClientIDS = new ArrayList<>();
 	}
 
-	public ChatSession(int chatSessionID, List<Channel> activeMembers, List<Integer> membersClientIDS) {
+	public ChatSession(int chatSessionID, List<ClientInfo> activeMembers, List<Integer> membersClientIDS) {
 		this.chatSessionID = chatSessionID;
 		this.activeMembers = activeMembers;
 		this.membersClientIDS = membersClientIDS;
 	}
 
-	public void setActiveMembers(List<Channel> activeMembers) {
+	public void setActiveMembers(List<ClientInfo> activeMembers) {
 		this.activeMembers = activeMembers;
 	}
 
@@ -56,11 +54,11 @@ public final class ChatSession {
 		return chatSessionID;
 	}
 
-	public List<Channel> getActiveChannels() {
+	public List<ClientInfo> getActiveMembers() {
 		return activeMembers;
 	}
 
-	public List<Integer> getActiveMembers() {
+	public List<Integer> getMembers() {
 		return membersClientIDS;
 	}
 

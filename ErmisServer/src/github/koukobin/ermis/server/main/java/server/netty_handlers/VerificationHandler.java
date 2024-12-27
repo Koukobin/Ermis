@@ -105,8 +105,12 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 			isVerificationComplete = true;
 		}
 		
+		if (entryResult == null) {
+			return;
+		}
+
 		byte[] resultMessageBytes = entryResult.getResultMessage().getBytes();
-		
+
 		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeBoolean(isVerificationComplete);
 		payload.writeBoolean(entryResult.isSuccessful());
@@ -118,16 +122,15 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 			payload.writeInt(info.length);
 			payload.writeBytes(info);
 		}
-		
+
 		ctx.channel().writeAndFlush(payload);
-		getLogger().debug("Sent result");
-		
+
 		if (isVerificationComplete) {
 			if (entryResult.isSuccessful()) {
 				registrationSuccessful(ctx);
-			} else {
-				registrationFailed(ctx);
+				return;
 			}
+			registrationFailed(ctx);
 		}
 	}
 
