@@ -88,7 +88,6 @@ public final class ErmisDatabase {
 	
 	static {
 		try {
-			
 			generalPurposeDataSource = new PostgresqlDatabase.HikariDataSourceBuilder()
 					.setUser(DatabaseSettings.USER)
 					.setServerNames(DatabaseSettings.DATABASE_ADDRESS)
@@ -137,6 +136,8 @@ public final class ErmisDatabase {
 				ChatSessionIDGenerator.generateAvailableChatSessionIDS(conn);
 				ClientIDGenerator.generateAvailableClientIDS(conn);
 			}
+			
+			FilesStorage.initialize();
 		} catch (Exception e) {
 			logger.fatal(Throwables.getStackTraceAsString(e));
 			throw new RuntimeException(e);

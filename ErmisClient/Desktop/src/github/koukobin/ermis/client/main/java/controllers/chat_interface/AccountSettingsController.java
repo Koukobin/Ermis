@@ -316,7 +316,7 @@ public class AccountSettingsController extends GeneralController {
 	@FXML
 	public void transitionBackToPlainSettings(ActionEvent event) {
 
-		Runnable transition = new UITransitions.Builder()
+		Runnable transition = UITransitions.newBuilder()
 				.setDirection(UITransitions.Direction.XAxis.LEFT_TO_RIGHT)
 				.setDuration(Duration.seconds(0.5))
 				.setInterpolator(Interpolator.EASE_BOTH)

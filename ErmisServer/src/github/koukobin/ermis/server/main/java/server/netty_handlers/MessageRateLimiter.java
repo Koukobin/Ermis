@@ -75,6 +75,7 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 						Slow your horses there! You've been temporarily banned from interacting
 						with the server for a short time interval.
 						""");
+				LOGGER.debug("User temporarily banned from server");
 				return;
 			}
 		}

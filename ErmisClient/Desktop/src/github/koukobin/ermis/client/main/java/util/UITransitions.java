@@ -23,7 +23,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -57,7 +56,11 @@ public final class UITransitions {
 		}
 	}
 	
-	public static final class Builder {
+	public static UITransitionBuilder newBuilder() {
+		return new UITransitionBuilder();
+	}
+	
+	public static final class UITransitionBuilder {
 		
 		private StackPane parentContainer;
 		private Node newComponent;
@@ -69,36 +72,19 @@ public final class UITransitions {
 		
 		private Direction.Which which = Direction.Which.NEW;
 
-		public Builder() {}
+		private UITransitionBuilder() {}
 
-		public Builder(StackPane parentContainer,
-				Parent newComponent,
-				Parent oldComponent,
-				Interpolator interpolator,
-				Duration duration,
-				Direction.Axis direction,
-				Direction.Which which) {
-			
-			this.parentContainer = parentContainer;
-			this.newComponent = newComponent;
-			this.oldComponent = oldComponent;
-			this.interpolator = interpolator;
-			this.duration = duration;
-			this.direction = direction;
-			this.which = which;
-		}
-
-		public Builder setParentContainer(StackPane parentContainer) {
+		public UITransitionBuilder setParentContainer(StackPane parentContainer) {
 			this.parentContainer = parentContainer;
 			return this;
 		}
 
-		public Builder setNewComponent(Node newComponent) {
+		public UITransitionBuilder setNewComponent(Node newComponent) {
 			this.newComponent = newComponent;
 			return this;
 		}
 
-		public Builder setOldComponent(Node oldComponent) {
+		public UITransitionBuilder setOldComponent(Node oldComponent) {
 			if (oldComponent.equals(newComponent)) {
 				throw new IllegalArgumentException("Old component cannot be the same as the new component");
 			}
@@ -107,22 +93,22 @@ public final class UITransitions {
 			return this;
 		}
 
-		public Builder setInterpolator(Interpolator interpolator) {
+		public UITransitionBuilder setInterpolator(Interpolator interpolator) {
 			this.interpolator = interpolator;
 			return this;
 		}
 
-		public Builder setDuration(Duration duration) {
+		public UITransitionBuilder setDuration(Duration duration) {
 			this.duration = duration;
 			return this;
 		}
 
-		public Builder setDirection(Direction.Axis direction) {
+		public UITransitionBuilder setDirection(Direction.Axis direction) {
 			this.direction = direction;
 			return this;
 		}
 		
-		public Builder setWhich(Direction.Which which) {
+		public UITransitionBuilder setWhich(Direction.Which which) {
 			this.which = which;
 			return this;
 		}

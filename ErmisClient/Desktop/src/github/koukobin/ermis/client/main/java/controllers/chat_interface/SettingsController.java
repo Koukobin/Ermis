@@ -39,7 +39,7 @@ public class SettingsController extends GeneralController {
 	@FXML
 	public void transitionToAccountSettings(ActionEvent event) {
 		
-		Runnable transition = new UITransitions.Builder()
+		Runnable transition = UITransitions.newBuilder()
 				.setDirection(UITransitions.Direction.XAxis.RIGHT_TO_LEFT)
 				.setDuration(Duration.seconds(0.5))
 				.setInterpolator(Interpolator.EASE_BOTH)
@@ -55,7 +55,7 @@ public class SettingsController extends GeneralController {
 	@FXML
 	public void transitionToHelpSettings(ActionEvent event) {
 		
-		Runnable transition = new UITransitions.Builder()
+		Runnable transition = UITransitions.newBuilder()
 				.setDirection(UITransitions.Direction.XAxis.RIGHT_TO_LEFT)
 				.setDuration(Duration.seconds(0.5))
 				.setInterpolator(Interpolator.EASE_BOTH)

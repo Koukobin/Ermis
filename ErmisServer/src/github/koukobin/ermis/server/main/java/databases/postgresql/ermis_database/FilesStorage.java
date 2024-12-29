@@ -21,9 +21,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.UserFilesStorage;
 
@@ -34,21 +39,60 @@ import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.UserFi
 public final class FilesStorage {
 
 	private static final Logger LOGGER = LogManager.getLogger("server");
+	private static final LoadingCache<String, byte[]> filesCache;
+	private static final LoadingCache<String, byte[]> profilePhotosCache;
+
+	private FilesStorage() {}
+
+	public static void initialize() {
+		// Helper method to initialize class
+	}
 
 	static {
 		try {
 			Files.createDirectories(Paths.get(UserFilesStorage.PROFILE_PHOTOS_DIRECTORY));
 			Files.createDirectories(Paths.get(UserFilesStorage.SENT_FILES_DIRECTORY));
 		} catch (FileAlreadyExistsException fae) {
-			LOGGER.info("Photo directory {} already exists", UserFilesStorage.PROFILE_PHOTOS_DIRECTORY);
+			LOGGER.info("Directory {} already exists", fae.getFile());
 		} catch (IOException ioe) {
-			LOGGER.error("Failed to create photo directory {}", UserFilesStorage.PROFILE_PHOTOS_DIRECTORY, ioe);
+			LOGGER.error("Failed to create directory; {}", ioe.getMessage());
+			throw new RuntimeException(ioe);
 		}
-    }
-    
-    private FilesStorage() {}
+	}
+	
+	static {
+		final int maxWeight = 50 * 1024 * 1024;
+		filesCache = CacheBuilder.newBuilder()
+                .maximumWeight(maxWeight)
+                .weigher((String key, byte[] value) -> value.length) // Weigh by byte array size in bytes
+                .recordStats() // Enable statistics
+                .build(new CacheLoader<String, byte[]>() {
 
-    private static String generateUUID() {
+					@Override
+					public byte[] load(String uuid) throws IOException {
+						String sentFilePath = UserFilesStorage.SENT_FILES_DIRECTORY + uuid;
+						return Files.readAllBytes(Paths.get(sentFilePath));
+					}
+				});
+	}
+
+	static {
+		final int maxWeight = 50 * 1024 * 1024;
+		profilePhotosCache = CacheBuilder.newBuilder()
+                .maximumWeight(maxWeight)
+                .weigher((String key, byte[] value) -> value.length) // Weigh by byte array size in bytes
+				.recordStats() // Enable statistics
+				.build(new CacheLoader<String, byte[]>() {
+
+					@Override
+					public byte[] load(String uuid) throws IOException {
+						String photoFilePath = UserFilesStorage.PROFILE_PHOTOS_DIRECTORY + uuid;
+						return Files.readAllBytes(Paths.get(photoFilePath));
+					}
+				});
+	}
+
+	private static String generateUUID() {
 		return UUID.randomUUID().toString();
 	}
 
@@ -62,11 +106,6 @@ public final class FilesStorage {
 		return uuid;
 	}
 
-	public static byte[] loadProfilePhoto(String photoUUID) throws IOException {
-		String photoFilePath = UserFilesStorage.PROFILE_PHOTOS_DIRECTORY + photoUUID;
-		return Files.readAllBytes(Paths.get(photoFilePath));
-	}
-	
 	public static String createUserFile(byte[] fileBytes) throws IOException {
 		String uuid = generateUUID();
 		String photoFilePath = UserFilesStorage.SENT_FILES_DIRECTORY + uuid;
@@ -77,9 +116,21 @@ public final class FilesStorage {
 		return uuid;
 	}
 
-	public static byte[] loadUserFile(String photoUUID) throws IOException {
-		String photoFilePath = UserFilesStorage.SENT_FILES_DIRECTORY + photoUUID;
-		return Files.readAllBytes(Paths.get(photoFilePath));
+	public static byte[] loadProfilePhoto(String photoUUID) throws IOException {
+		try {
+			return profilePhotosCache.get(photoUUID);
+		} catch (ExecutionException ee) {
+			throw new IOException(ee);
+		}
 	}
+
+	public static byte[] loadUserFile(String photoUUID) throws IOException {
+		try {
+			return filesCache.get(photoUUID);
+		} catch (ExecutionException ee) {
+			throw new IOException(ee);
+		}
+	}
+
 }
 

@@ -151,7 +151,7 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 
 		scene.getStylesheets().add(EntryInfo.Login.CSS_LOCATION);
 
-		Runnable transition = new UITransitions.Builder()
+		Runnable transition = UITransitions.newBuilder()
 				.setDirection(UITransitions.Direction.YAxis.BOTTOM_TO_TOP)
 				.setDuration(Duration.seconds(1))
 				.setInterpolator(Interpolator.EASE_OUT)

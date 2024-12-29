@@ -34,7 +34,6 @@ import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.codec.Encoder;
 import github.koukobin.ermis.server.main.java.server.codec.PrimaryDecoder;
-import github.koukobin.ermis.server.main.java.server.codec.SimpleDecoder;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.DispatcherHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.MessageRateLimiter;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
