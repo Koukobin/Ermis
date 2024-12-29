@@ -42,8 +42,8 @@ class SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      backgroundColor: appColors.tertiaryColor,
-      appBar: ErmisAppBar(
+      backgroundColor: appColors.secondaryColor,
+      appBar: const ErmisAppBar(
         title: Text(
           'Settings',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -54,67 +54,67 @@ class SettingsState extends State<Settings> {
           ListTile(
             leading: const PersonalProfilePhoto(),
             title: const DisplayName(),
-            subtitle: Text('Profile, change name, ID'),
+            subtitle: const Text('Profile, change name, ID'),
             onTap: () {
               pushHorizontalTransition(context, const ProfileSettings());
             },
           ),
           ListTile(
-            leading: Icon(Icons.lock),
-            title: Text('Account'),
-            subtitle: Text('Privacy, security, change number'),
+            leading: const Icon(Icons.lock),
+            title: const Text('Account'),
+            subtitle: const Text('Privacy, security, change number'),
             onTap: () {
               pushHorizontalTransition(context, const AccountSettings());
             },
           ),
           ListTile(
-            leading: Icon(Icons.chat),
-            title: Text('Chats'),
-            subtitle: Text('Theme, wallpapers, chat history'),
+            leading: const Icon(Icons.chat),
+            title: const Text('Chats'),
+            subtitle: const Text('Theme, wallpapers, chat history'),
             onTap: () {
               pushHorizontalTransition(context, const ThemeSettingsPage());
             },
           ),
           ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text('Notifications'),
-            subtitle: Text('Message, group, and call tones'),
+            leading: const Icon(Icons.notifications),
+            title: const Text('Notifications'),
+            subtitle: const Text('Message, group, and call tones'),
             onTap: () {
                pushHorizontalTransition(context, const NotificationSettings());
             },
           ),
           ListTile(
-            leading: Icon(Icons.data_usage),
-            title: Text('Storage and Data'),
-            subtitle: Text('Network usage, auto-download'),
+            leading: const Icon(Icons.data_usage),
+            title: const Text('Storage and Data'),
+            subtitle: const Text('Network usage, auto-download'),
             onTap: () {
               // Navigate to Storage and Data settings
             },
           ),
           ListTile(
-            leading: Icon(Icons.help),
-            title: Text('Help'),
-            subtitle: Text('FAQ, contact us, terms and privacy policy'),
+            leading: const Icon(Icons.help),
+            title: const Text('Help'),
+            subtitle: const Text('FAQ, contact us, terms and privacy policy'),
             onTap: () {
               pushHorizontalTransition(context, const HelpSettings());
             },
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.link),
-            title: Text('Linked Devices'),
+            leading: const Icon(Icons.link),
+            title: const Text('Linked Devices'),
             onTap: () {
               pushHorizontalTransition(context, const LinkedDevices());
             },
           ),
           ListTile(
-            leading: Icon(
+            leading: const Icon(
               Icons.logout,
               color: Colors.redAccent,
             ),
-            title: Text(
+            title: const Text(
               "Logout From Account",
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 color: Colors.redAccent,
                 fontWeight: FontWeight.bold,
@@ -191,107 +191,3 @@ void showLogoutConfirmationDialog(
     },
   );
 }
-
-// class LoadingTestName extends StatefulWidget {
-//   const LoadingTestName({super.key});
-
-//   @override
-//   State<LoadingTestName> createState() => LoadingTestNameState();
-// }
-
-// class LoadingTestNameState extends State<LoadingTestName> {
-
-
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final appColors = Theme.of(context).extension<AppColors>()!;
-//     return Scaffold(
-//       backgroundColor: appColors.secondaryColor,
-//       appBar: const ErmisAppBar(
-//           title: Text(
-//         "Account Settings",
-//         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-//       )),
-//       body: Padding(
-//         padding: const EdgeInsets.all(20.0),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: [
-//             Expanded(
-//               child: TextButton.icon(
-//                 onPressed: () {
-//                   print("Tapped TextButton");
-//                 },
-//                 icon:
-//                     Icon(Icons.person), // This is the equivalent of the "leading"
-//                 label: Text(
-//                     "Title"), // This is the text displayed alongside the icon
-//               ),
-//             ),
-
-//             Card(
-//               color: appColors.tertiaryColor,
-//               elevation: 3,
-//               margin: EdgeInsets.symmetric(vertical: 10),
-//               child: Padding(
-//                 padding: const EdgeInsets.all(15.0),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       "ID: 123",
-//                       style: TextStyle(
-//                         fontSize: 18,
-//                         color: appColors.primaryColor,
-//                         fontWeight: FontWeight.w500,
-//                       ),
-//                     ),
-//                     SizedBox(height: 10),
-//                     Text(
-//                       "Your Name:",
-//                       style: TextStyle(
-//                         fontSize: 16,
-//                         fontWeight: FontWeight.w400,
-//                       ),
-//                     ),
-//                     SizedBox(height: 5),
-//                     DisplayName()
-//                   ],
-//                 ),
-//               ),
-//             ),
-
-//             // Expanded(
-//             //   child: ListView(children: [
-//             //     ListTile(
-//             //       leading: Icon(Icons.person),
-//             //       title: Text("Title"),
-//             //       subtitle: Text("Subtitle"),
-//             //       onTap: () {
-//             //         print("Tapped ListTile");
-//             //       },
-//             //     ),
-//             //     ListTile(
-//             //       leading: Icon(Icons.person),
-//             //       title: Text("Title"),
-//             //       subtitle: Text("Subtitle"),
-//             //       onTap: () {
-//             //         print("Tapped ListTile");
-//             //       },
-//             //     ),
-//             //   ]),
-//             // ),
-
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-// }

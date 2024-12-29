@@ -125,8 +125,8 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
       child: CircleAvatar(
         radius: widget.radius,
         backgroundColor: Colors.grey[200],
-        backgroundImage: MemoryImage(_profileBytes ?? Uint8List(0)),
-        child: (_profileBytes == null || _profileBytes!.isEmpty)
+        backgroundImage: _profileBytes?.isEmpty ?? true ? null : MemoryImage(_profileBytes!),
+        child: _profileBytes?.isEmpty ?? true 
             ? Icon(
                 Icons.person_rounded,
                 color: Colors.grey,

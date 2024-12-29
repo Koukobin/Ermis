@@ -171,7 +171,7 @@ class Client {
   }
 
   void whenSuccesfullySentMessageReceived(void Function(ChatSession session, int messageID) runThis) {
-    _messageHandler.callBacks.onMessageSuccesfullySent(runThis);
+    _messageHandler.callBacks.onMessageSuccessfullySent(runThis);
   }
 
   void whenAlreadyWrittenTextReceived(void Function(ChatSession chatSession) runThis) {

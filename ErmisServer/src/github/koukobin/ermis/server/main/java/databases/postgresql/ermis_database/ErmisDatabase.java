@@ -1051,34 +1051,10 @@ public final class ErmisDatabase {
 
 			int resultUpdate = 0;
 
-			try {
-
-				try (PreparedStatement deleteUserFromChatSession = conn.prepareStatement(
-						"UPDATE users SET chat_session_ids = array_remove(chat_session_ids, ?) WHERE client_id=?;")) {
-
-					Integer[] chatMembersClientIDS = getMembersOfChatSession(chatSessionID);
-					for (int i = 0; i < chatMembersClientIDS.length; i++) {
-
-						deleteUserFromChatSession.setInt(1, chatSessionID);
-						deleteUserFromChatSession.setInt(2, chatMembersClientIDS[i]);
-
-						deleteUserFromChatSession.executeUpdate();
-					}
-
-					try (PreparedStatement deleteMessagesOfChatSession = conn
-							.prepareStatement("DELETE FROM chat_messages WHERE chat_session_id=?")) {
-						deleteMessagesOfChatSession.setInt(1, chatSessionID);
-						deleteMessagesOfChatSession.executeUpdate();
-					}
-
-					try (PreparedStatement deleteChatSession = conn
-							.prepareStatement("DELETE FROM chat_sessions WHERE chat_session_id=?")) {
-
-						deleteChatSession.setInt(1, chatSessionID);
-
-						resultUpdate = deleteChatSession.executeUpdate();
-					}
-				}
+			String query = "DELETE FROM chat_sessions WHERE chat_session_id = ?;";
+			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+				pstmt.setInt(1, chatSessionID);
+				resultUpdate = pstmt.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}

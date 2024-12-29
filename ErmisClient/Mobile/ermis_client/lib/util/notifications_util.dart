@@ -14,14 +14,17 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:typed_data';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  static Future<void> onDidReceiveNotification(
-      NotificationResponse response) async {}
+  static Future<void> onDidReceiveNotification(NotificationResponse response) async {
+    // Not need for now
+  }
 
   // Initialize the notification plugin
   static Future<void> init() async {
@@ -46,33 +49,49 @@ class NotificationService {
         ?.requestNotificationsPermission();
   }
 
-  // Show an instant Notification
-  static Future<void> showInstantNotification(String title, String body) async {
+  static Future<void> showIconNotification(Uint8List iconBytes, String title, String body) async {
     // Define Notification Details
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: AndroidNotificationDetails("channelId", "channelName",
-          importance: Importance.defaultImportance,
-          priority: Priority.defaultPriority),
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: AndroidNotificationDetails(
+        "channelId",
+        "channelName",
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+        largeIcon: ByteArrayAndroidBitmap(iconBytes),
+      ),
     );
 
     return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
   }
 
-  // static Future<void> scheduleNotification(String title, String body, DateTime scheduledDate) async {
-  //   // Define Notification Details
-  //   const NotificationDetails platformChannelSpecifics = NotificationDetails(
-  //     android: AndroidNotificationDetails("channelId", "channelName",
-  //         importance: Importance.defaultImportance,
-  //         priority: Priority.defaultPriority),
-  //   );
+  static Future<void> showIconNotification1(String iconPath, String title, String body) async {
+    // Define Notification Details
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: AndroidNotificationDetails(
+        "channelId",
+        "channelName",
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+        largeIcon: FilePathAndroidBitmap(iconPath),
+      ),
+    );
 
-  //   return flutterLocalNotificationsPlugin.zonedSchedule(
-  //       0, title, body, tz.TZDateTime.from(scheduledDate, tz.local), 
-  //       platformChannelSpecifics,
-  //       uiLocalNotificationDateInterpretation:
-  //           UILocalNotificationDateInterpretation.absoluteTime,
-  //       androidScheduleMode: AndroidScheduleMode.exact,
-  //       matchDateTimeComponents: DateTimeComponents.dateAndTime);
+    return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
+  }
 
-  // }
+  // Show an instant Notification
+  static Future<void> showInstantNotification(String title, String body) async {
+    // Define Notification Details
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: AndroidNotificationDetails(
+        "channelId",
+        "channelName",
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+      ),
+    );
+
+    return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
+  }
+
 }

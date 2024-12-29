@@ -102,7 +102,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               onTap: () {
                                 showLogoutConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
                                   ServerInfo serverInfo = Client.getInstance().serverInfo;
-                                  final DBConnection conn = ErmisDB.createConnection();
+                                  final DBConnection conn = ErmisDB.getConnection();
                                   List<UserAccount> userAccounts = await conn.getUserAccounts(serverInfo);
                                   UserAccount a = userAccounts.firstWhere((UserAccount uaccount) {
                                     return uaccount.email == account.email;

@@ -1,23 +1,10 @@
-/* Copyright (C) 2024 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
+import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/top_app_bar_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:vibration/vibration.dart';
 
 import '../../client/common/exceptions/EnumNotFoundException.dart';
+import '../../util/settings_json.dart';
 
 class NotificationSettings extends StatefulWidget {
   const NotificationSettings({super.key});
@@ -27,8 +14,7 @@ class NotificationSettings extends StatefulWidget {
 }
 
 enum NotificationSound {
-  osDefault(name: "OS default", id: 1),
-  bell(name: "Bell", id: 2);
+  osDefault(name: "OS default", id: 1);
 
   final String name;
 
@@ -47,9 +33,27 @@ enum NotificationSound {
 }
 
 class _NotificationSettingsState extends State<NotificationSettings> {
+  final SettingsJson _settingsJson = SettingsJson();
+
   bool _notificationsEnabled = true;
   bool _messagePreviewEnabled = true;
   NotificationSound _selectedSound = NotificationSound.osDefault;
+  bool _vibrationEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  void _loadSettings() async {
+    await _settingsJson.loadSettingsJson();
+    setState(() {
+      _notificationsEnabled = _settingsJson.notificationsEnabled;
+      _messagePreviewEnabled = _settingsJson.showMessagePreview;
+      _vibrationEnabled = _settingsJson.vibrationEnabled;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +71,12 @@ class _NotificationSettingsState extends State<NotificationSettings> {
           SwitchListTile(
             title: const Text("Enable Notifications"),
             value: _notificationsEnabled,
-            onChanged: (bool value) {
+            onChanged: (bool newValue) {
               setState(() {
-                _notificationsEnabled = value;
+                _notificationsEnabled = newValue;
               });
+              _settingsJson.setNotificationsEnabled(_notificationsEnabled);
+              _settingsJson.saveSettingsJson();
             },
           ),
 
@@ -79,10 +85,12 @@ class _NotificationSettingsState extends State<NotificationSettings> {
             title: const Text("Show Message Previews"),
             subtitle: const Text("Display part of the message in notifications"),
             value: _messagePreviewEnabled,
-            onChanged: (bool value) {
+            onChanged: (bool newValue) {
               setState(() {
-                _messagePreviewEnabled = value;
+                _messagePreviewEnabled = newValue;
               });
+              _settingsJson.setShowMessagePreview(_messagePreviewEnabled);
+              _settingsJson.saveSettingsJson();
             },
           ),
 
@@ -105,9 +113,21 @@ class _NotificationSettingsState extends State<NotificationSettings> {
           ListTile(
             title: const Text("Vibration"),
             trailing: Switch(
-              value: true,
-              onChanged: (value) {
-                // Handle vibration toggle
+              value: _vibrationEnabled,
+              onChanged: (bool newValue) async {
+                // Check if vibration is available on this device
+                if (!(await Vibration.hasVibrator() ?? false)) {
+                  showSnackBarDialog(context: context, content: "Vibration is not available on this device");
+                  return;
+                }
+                
+                Vibration.vibrate();
+
+                setState(() {
+                  _vibrationEnabled = newValue;
+                });
+                _settingsJson.setVibrationEnabled(_vibrationEnabled);
+                _settingsJson.saveSettingsJson();
               },
             ),
           ),

@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'message_types/content_type.dart';
@@ -61,7 +62,7 @@ class Message {
   int get getMessageID => messageID;
   int get getChatSessionID => chatSessionID;
   int get getChatSessionIndex => chatSessionIndex;
-  Uint8List? get getText => text;
+  String? get getText => text == null ? null : utf8.decode(text!);
   Uint8List? get getFileName => fileName;
   int get getTimeWritten => timeWritten;
   ContentType get getContentType => contentType;

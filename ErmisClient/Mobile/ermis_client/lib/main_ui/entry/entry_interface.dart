@@ -515,7 +515,7 @@ mixin Registration {
             context: context,
             title: "Verification successful",
             content: resultMessage);
-        ErmisDB.createConnection().addUserAccount(
+        ErmisDB.getConnection().addUserAccount(
             UserAccount.fuck(
                 email: email,
                 passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),

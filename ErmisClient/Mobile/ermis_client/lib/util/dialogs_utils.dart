@@ -21,12 +21,12 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-Future<void> confirmExitDi1alog(BuildContext context, String content, GestureTapCallback runOnConfirmation) async {
+Future<void> confirmDialog(BuildContext context, String content, GestureTapCallback runOnConfirmation) async {
   final shouldExit = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text("Are you sure!"),
+        title: const Text("Are you sure?"),
         content: Text(content),
         actions: [
           TextButton(

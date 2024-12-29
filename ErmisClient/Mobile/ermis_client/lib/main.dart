@@ -18,13 +18,12 @@ import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/main_ui/splash_screen.dart';
 import 'package:ermis_client/util/notifications_util.dart';
 import 'package:ermis_client/util/settings_json.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
-import 'main_ui/custom_textfield.dart';
+import 'main_ui/chats/chat_requests_screen.dart';
 import 'main_ui/settings/profile_settings.dart';
 import 'theme/app_theme.dart';
-import 'main_ui/chats/chat_interface.dart';
+import 'main_ui/chats/chats_interface.dart';
 import 'main_ui/settings/settings_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -66,7 +65,7 @@ void main() async {
   if (jsonSettings.useSystemDefaultTheme) {
     themeData = ThemeMode.system;
   } else {
-    if (jsonSettings.useDarkMode) {
+    if (jsonSettings.isDarkModeEnabled) {
       themeData = ThemeMode.dark;
     } else {
       themeData = ThemeMode.light;
@@ -107,11 +106,11 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.paused:
-        print("App is paused");
+        debugPrint("App is paused");
         // App is moved to the background
         break;
       case AppLifecycleState.resumed:
-        print("App is resumed");
+        debugPrint("App is resumed");
         // App is moved to the foreground (resumed)
         break;
       case AppLifecycleState.detached:
@@ -121,7 +120,7 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
         // App is inactive (e.g., a phone call or overlay)
         break;
       case AppLifecycleState.hidden:
-        print("App is hidden");
+        debugPrint("App is hidden");
         // App is hidden
         break;
     }
@@ -143,195 +142,6 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
     );
   }
 
-  ThemeData buildDarkThemeData() {
-    return ThemeData(
-      brightness: Brightness.dark,
-      extensions: [widget.darkAppColors],
-      visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts to platform
-      splashFactory: InkRipple.splashFactory, // Smooth ripple
-      primaryColor: widget.darkAppColors.primaryColor,
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: widget.darkAppColors.primaryColor,
-          textStyle: const TextStyle(fontSize: 15),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        hintStyle: const TextStyle(color: Colors.grey),
-        labelStyle: const TextStyle(color: Colors.green),
-        border: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.green),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.green, width: 2),
-        ),
-        enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.green),
-        ),
-      ),
-      dialogTheme: DialogTheme(
-        backgroundColor: widget.darkAppColors.tertiaryColor.withOpacity(1.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        titleTextStyle: TextStyle(
-          color: widget.darkAppColors.primaryColor,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-        contentTextStyle: TextStyle(
-          color: widget.darkAppColors.inferiorColor,
-          fontSize: 16,
-        ),
-      ),
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.green, // Color of the blinking text cursor
-        selectionColor: Colors.greenAccent.withOpacity(0.5), // Color of the selected text background
-        selectionHandleColor: Colors.green, // Color of the selection handles
-      ),
-      checkboxTheme: CheckboxThemeData(
-        checkColor: WidgetStateProperty.all(Colors.white), // Checkmark color
-        splashRadius: 20,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ButtonStyle(
-          foregroundColor: WidgetStateProperty.all(widget.darkAppColors.secondaryColor),
-          backgroundColor: WidgetStateProperty.all(Colors.green),
-          overlayColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.pressed)) {
-              return Colors.green.withOpacity(0.2); // Splash effect color
-            }
-            return null; // Default for other states
-          }),
-        )),
-        progressIndicatorTheme:
-            ProgressIndicatorThemeData(color: Colors.grey),
-        bottomSheetTheme: BottomSheetThemeData(
-            backgroundColor: widget.darkAppColors.tertiaryColor.withOpacity(1.0)),
-      popupMenuTheme: PopupMenuThemeData(
-        color: Colors.grey[900],
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        textStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-        ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color.fromARGB(195, 19, 19, 19),
-        contentTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-        ),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: const Color.fromARGB(195, 10, 10, 10), width: 1.25),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 1,
-          behavior: SnackBarBehavior.floating,
-        ),
-        switchTheme: SwitchThemeData(
-          trackColor: WidgetStateProperty.resolveWith<Color>((states) {
-            if (states.contains(WidgetState.selected)) {
-              return widget.darkAppColors.primaryColor; // Active color
-            }
-            return widget.darkAppColors.secondaryColor; // Inactive color
-          }),
-          thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
-            return widget.darkAppColors.quaternaryColor; // Thumb color
-          }),
-        ));
-  }
-
-  ThemeData buildWhiteThemeData() {
-    return ThemeData(
-      brightness: Brightness.light,
-      extensions: [widget.lightAppColors],
-      visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts to platform
-      splashFactory: InkRipple.splashFactory, // Smooth ripple
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.green,
-          textStyle: const TextStyle(fontSize: 15),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        hintStyle: TextStyle(color: widget.lightAppColors.tertiaryColor),
-        labelStyle: TextStyle(color: widget.lightAppColors.primaryColor),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: widget.lightAppColors.primaryColor),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: widget.lightAppColors.primaryColor, width: 2),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: widget.lightAppColors.primaryColor),
-        ),
-      ),
-      dialogTheme: DialogTheme(
-        backgroundColor: widget.lightAppColors.tertiaryColor.withOpacity(1.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        titleTextStyle: TextStyle(
-          color: widget.lightAppColors.primaryColor,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-        contentTextStyle: TextStyle(
-          color: widget.lightAppColors.inferiorColor,
-          fontSize: 16,
-        ),
-      ),
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.green, // Color of the blinking text cursor
-        selectionColor: Colors.greenAccent.withOpacity(0.5), // Color of the selected text background
-        selectionHandleColor: Colors.green, // Color of the selection handles
-      ),
-      checkboxTheme: CheckboxThemeData(
-        checkColor: WidgetStateProperty.all(Colors.white), // Checkmark color
-        splashRadius: 20,
-      ),
-      progressIndicatorTheme: ProgressIndicatorThemeData(color: Colors.grey),
-      bottomSheetTheme: BottomSheetThemeData(
-          backgroundColor:
-              widget.darkAppColors.tertiaryColor.withOpacity(1.0)),
-      popupMenuTheme: PopupMenuThemeData(
-        color: Colors.grey[400],
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        textStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-        ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: Colors.black87,
-        contentTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
 }
 
 class MainInterface extends StatefulWidget {
@@ -354,19 +164,32 @@ class MainInterfaceState extends State<MainInterface> {
   ];
 
   late List<BottomNavigationBarItem> _barItems;
+  late PageController _pageController;
+
+  int _selectedPageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _selectedPageIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   BottomNavigationBarItem _buildNavItem(IconData activeIcon, IconData inActiveIcon, String label, int index) {
     return BottomNavigationBarItem(
-      icon: _selectedIndex == index ? Icon(activeIcon) : Icon(inActiveIcon),
+      icon: _selectedPageIndex == index ? Icon(activeIcon) : Icon(inActiveIcon),
       label: label,
     );
   }
 
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
+  void _onItemTapped(int newPageIndex) {
     setState(() {
-      _selectedIndex = index;
+      _selectedPageIndex = newPageIndex;
     });
   }
 
@@ -384,8 +207,9 @@ class MainInterfaceState extends State<MainInterface> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onItemTapped,
         children: _widgetOptions,
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -393,8 +217,17 @@ class MainInterfaceState extends State<MainInterface> {
           backgroundColor: appColors.secondaryColor,
           unselectedItemColor: appColors.inferiorColor,
           type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
+          currentIndex: _selectedPageIndex,
+          onTap: (int newPageIndex) {
+            _onItemTapped(newPageIndex);
+
+            // Have to manually animate to next page
+            _pageController.animateToPage(
+              newPageIndex,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          },
           items: _barItems),
     );
   }

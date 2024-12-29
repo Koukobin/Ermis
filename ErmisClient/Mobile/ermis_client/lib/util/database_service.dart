@@ -16,18 +16,22 @@
 
 import 'dart:io';
 
+import 'package:ermis_client/client/common/message.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class ErmisDB {
+  static DBConnection? conn;
+
   ErmisDB._() {
     throw Exception(
         "Database cannot be constructed since it is statically initialized!");
   }
 
-  static DBConnection createConnection() {
-    return DBConnection._create();
+  static DBConnection getConnection() {
+    conn ??= DBConnection._create();
+    return conn!;
   }
 }
 
@@ -48,10 +52,10 @@ class DBConnection {
     // P.S. I don't know exactly why this is necessary, but the documentation said so
     WidgetsFlutterBinding.ensureInitialized();
     return openDatabase(
-      join(await getDatabasesPath(), 'ermis_sqlite_database_5.db'),
-      onCreate: (db, version) async {
-        // Create the 'servers' table
-        await db.execute('''
+        join(await getDatabasesPath(), 'ermis_sqlite_database_5.db'),
+        onCreate: (db, version) async {
+      // Create the 'servers' table
+      await db.execute('''
         CREATE TABLE IF NOT EXISTS servers (
           server_url TEXT NOT NULL,
           last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -59,19 +63,44 @@ class DBConnection {
         );
       ''');
 
-        // Create 'server_accounts' table
-        await db.execute('''
+      // Create 'server_accounts' table
+      await db.execute('''
         CREATE TABLE IF NOT EXISTS server_accounts (
-          server_url NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+          server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
           email TEXT NOT NULL,
           password_hash TEXT NOT NULL,
           last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
           PRIMARY KEY (server_url, email)
         );
       ''');
-      },
-      version: 1
-    );
+
+      // 'chat_sessions' table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS chat_sessions (
+          server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+          chat_session_id INTEGER NOT NULL,
+          PRIMARY KEY (server_url, chat_session_id)
+        );
+      ''');
+      // 'chat_messages' table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS chat_messages (
+          server_url TEXT NOT NULL,
+          chat_session_id INTEGER NOT NULL,
+          message_id INTEGER NOT NULL,
+          client_id INTEGER NOT NULL,
+          text TEXT,
+          file_name TEXT,
+          file_content_id TEXT,
+          content_type INTEGER NOT NULL,
+          ts_entered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (server_url, chat_session_id, message_id),
+          CHECK (text IS NOT NULL OR file_content_id IS NOT NULL),
+          FOREIGN KEY (server_url, chat_session_id) 
+              REFERENCES chat_sessions (server_url, chat_session_id) ON DELETE CASCADE
+        );
+      ''');
+    }, version: 1);
   }
 
   Future<void> addUserAccount(UserAccount userAccount, ServerInfo serverInfo) async {
@@ -91,7 +120,7 @@ class DBConnection {
   Future<UserAccount?> getLastUsedAccount(ServerInfo serverInfo) async {
     final db = await _database;
 
-    final List<Map<String, dynamic>> result = await db.query(
+    final List<Map<String, dynamic>> userAccounts = await db.query(
       'server_accounts',
       columns: ['email', 'password_hash', 'last_used'],
       where: 'server_url = ?',
@@ -101,7 +130,7 @@ class DBConnection {
     );
 
     // If the query returns a result, return the first row; otherwise, return null.
-    final firstRow = result.firstOrNull;
+    final firstRow = userAccounts.firstOrNull;
     if (firstRow == null) {
       return null;
     }
@@ -207,6 +236,65 @@ class DBConnection {
     });
 
     return servers;
+  }
+
+  Future<void> insertChatSession(String serverUrl, int chatSessionId) async {
+    final db = await _database;
+
+    await db.insert(
+      'chat_sessions',
+      {
+        'server_url': serverUrl,
+        'chat_session_id': chatSessionId,
+        'created_at':
+            DateTime.now().toIso8601String(), // Optional: Override default
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteChatSession(String serverUrl, int chatSessionId) async {
+    final db = await _database;
+
+    await db.delete(
+      'chat_sessions',
+      where: 'server_url = ? AND chat_session_id = ?',
+      whereArgs: [serverUrl, chatSessionId],
+    );
+  }
+
+  Future<void> insertChatMessage({required ServerInfo serverInfo, required Message message}) async {
+    final db = await _database;
+
+    await db.insert(
+      'chat_messages',
+      {
+        'server_url': serverInfo.toString(),
+        'chat_session_id': message.getChatSessionID,
+        'message_id': message.getMessageID,
+        'client_id': message.getClientID,
+        'text': message.getText,
+        'file_name': message.getFileName,
+        'content_type': message.getContentType,
+        'ts_entered':
+            DateTime.fromMicrosecondsSinceEpoch(message.getTimeWritten),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteChatMessage(
+    String serverUrl,
+    int chatSessionId,
+    int messageId,
+  ) async {
+    final db = await _database;
+
+    await db.delete(
+      'chat_messages',
+      where: 'server_url = ? AND chat_session_id = ? AND message_id = ?',
+      whereArgs: [serverUrl, chatSessionId, messageId],
+    );
   }
 }
 

@@ -37,118 +37,118 @@ import 'io/input_stream.dart';
 import 'common/message.dart';
 import 'io/output_stream.dart';
 
-typedef UsernameCallback = void Function(String username);
-typedef MessageCallback = void Function(Message message, int chatSessionIndex);
-typedef MessageSentCallback = void Function(ChatSession session, int messageId);
-typedef WrittenTextCallback = void Function(ChatSession chatSession);
-typedef ServerMessageCallback = void Function(String message);
-typedef FileDownloadedCallback = void Function(LoadedInMemoryFile file);
-typedef ImageDownloadedCallback = void Function(LoadedInMemoryFile image, int messageId);
-typedef DonationPageCallback = void Function(DonationHtmlPage donationPage);
-typedef ServerSourceCodeCallback = void Function(String serverSourceCodeUrl);
-typedef ClientIdCallback = void Function(int clientId);
-typedef ChatRequestsCallback = void Function(List<ChatRequest> chatRequests);
-typedef ChatSessionsCallback = void Function(List<ChatSession> chatSessions);
-typedef OtherAccountsCallback = void Function(List<Account> accounts);
-typedef VoiceCallIncomingCallback = bool Function(Member member);
-typedef MessageDeletedCallback = void Function(ChatSession chatSession, int deletedMessageId);
-typedef ProfilePhotoCallback = void Function(Uint8List iconBytes);
+typedef UsernameCallback              = void Function(String username);
+typedef MessageCallback               = void Function(Message message, int chatSessionIndex);
+typedef MessageSentCallback           = void Function(ChatSession session, int messageId);
+typedef WrittenTextCallback           = void Function(ChatSession chatSession);
+typedef ServerMessageCallback         = void Function(String message);
+typedef FileDownloadedCallback        = void Function(LoadedInMemoryFile file);
+typedef ImageDownloadedCallback       = void Function(LoadedInMemoryFile image, int messageId);
+typedef DonationPageCallback          = void Function(DonationHtmlPage donationPage);
+typedef ServerSourceCodeCallback      = void Function(String serverSourceCodeUrl);
+typedef ClientIdCallback              = void Function(int clientId);
+typedef ChatRequestsCallback          = void Function(List<ChatRequest> chatRequests);
+typedef ChatSessionsCallback          = void Function(List<ChatSession> chatSessions);
+typedef OtherAccountsCallback         = void Function(List<Account> accounts);
+typedef VoiceCallIncomingCallback     = bool Function(Member member);
+typedef MessageDeletedCallback        = void Function(ChatSession chatSession, int deletedMessageId);
+typedef ProfilePhotoCallback          = void Function(Uint8List iconBytes);
 typedef AddProfilePhotoResultCallback = void Function(bool success);
-typedef UserDevicesCallback = void Function(List<UserDeviceInfo> devices);
+typedef UserDevicesCallback           = void Function(List<UserDeviceInfo> devices);
 
 /// This class contains all the callbacks to call in certain responses of the server -
 /// e.g receiving the username.
 class EventCallbacks {
   EventCallbacks._();
 
-  final List<UsernameCallback> _usernameCallbacks = [];
+  UsernameCallback _usernameCallbacks = (e) {};
   void onUsernameReceived(UsernameCallback callback) {
-    _usernameCallbacks.add(callback);
+    _usernameCallbacks = callback;
   }
 
-  final List<MessageCallback> _messageCallbacks = [];
+  MessageCallback _messageCallbacks = (e,v) {};
   void onMessageReceived(MessageCallback callback) {
-    _messageCallbacks.add(callback);
+    _messageCallbacks = (callback);
   }
 
-  final List<MessageSentCallback> _messageSentCallbacks = [];
-  void onMessageSuccesfullySent(MessageSentCallback callback) {
-    _messageSentCallbacks.add(callback);
+  MessageSentCallback _messageSentCallbacks = (s, m) {};
+  void onMessageSuccessfullySent(MessageSentCallback callback) {
+    _messageSentCallbacks = callback;
   }
 
-  final List<WrittenTextCallback> _writtenTextCallbacks = [];
+   WrittenTextCallback _writtenTextCallbacks = (e) {};
   void onWrittenTextReceived(WrittenTextCallback callback) {
-    _writtenTextCallbacks.add(callback);
+    _writtenTextCallbacks = (callback);
   }
 
-  final List<ServerMessageCallback> _serverMessageCallbacks = [];
+   ServerMessageCallback _serverMessageCallbacks = (e) {};
   void onServerMessageReceived(ServerMessageCallback callback) {
-    _serverMessageCallbacks.add(callback);
+    _serverMessageCallbacks  = (callback);
   }
 
-  final List<FileDownloadedCallback> _fileDownloadedCallbacks = [];
+   FileDownloadedCallback _fileDownloadedCallbacks = (e) {};
   void onFileDownloaded(FileDownloadedCallback callback) {
-    _fileDownloadedCallbacks.add(callback);
+    _fileDownloadedCallbacks  = (callback);
   }
 
-  final List<ImageDownloadedCallback> _imageDownloadedCallbacks = [];
+   ImageDownloadedCallback _imageDownloadedCallbacks = (e,v) {};
   void onImageDownloaded(ImageDownloadedCallback callback) {
-    _imageDownloadedCallbacks.add(callback);
+    _imageDownloadedCallbacks  = (callback);
   }
 
-  final List<DonationPageCallback> _donationPageCallbacks = [];
+   DonationPageCallback _donationPageCallbacks = (e) {};
   void onDonationPageReceived(DonationPageCallback callback) {
-    _donationPageCallbacks.add(callback);
+    _donationPageCallbacks  =  (callback);
   }
 
-  final List<ServerSourceCodeCallback> _serverSourceCodeCallbacks = [];
+   ServerSourceCodeCallback _serverSourceCodeCallbacks = (e) {};
   void onServerSourceCodeReceived(ServerSourceCodeCallback callback) {
-    _serverSourceCodeCallbacks.add(callback);
+    _serverSourceCodeCallbacks = (callback);
   }
 
-  final List<ClientIdCallback> _clientIdCallbacks = [];
+   ClientIdCallback _clientIdCallbacks = (e) {};
   void onClientIdReceived(ClientIdCallback callback) {
-    _clientIdCallbacks.add(callback);
+    _clientIdCallbacks  = (callback);
   }
 
-  final List<ChatRequestsCallback> _chatRequestsCallbacks = [];
+   ChatRequestsCallback _chatRequestsCallbacks = (e) {};
   void onChatRequestsReceived(ChatRequestsCallback callback) {
-    _chatRequestsCallbacks.add(callback);
+    _chatRequestsCallbacks  = (callback);
   }
 
-  final List<ChatSessionsCallback> _chatSessionsCallbacks = [];
+   ChatSessionsCallback _chatSessionsCallbacks = (e) {};
   void onChatSessionsReceived(ChatSessionsCallback callback) {
-    _chatSessionsCallbacks.add(callback);
+    _chatSessionsCallbacks  = (callback);
   }
 
-  final List<OtherAccountsCallback> _otherAccountsCallbacks = [];
+   OtherAccountsCallback _otherAccountsCallbacks = (e) {};
   void onOtherAccountsReceived(OtherAccountsCallback callback) {
-    _otherAccountsCallbacks.add(callback);
+    _otherAccountsCallbacks  = (callback);
   }
 
-  final List<VoiceCallIncomingCallback> _voiceCallIncomingCallbacks = [];
+  VoiceCallIncomingCallback _voiceCallIncomingCallbacks = (e) => false;
   void onVoiceCallIncoming(VoiceCallIncomingCallback callback) {
-    _voiceCallIncomingCallbacks.add(callback);
+    _voiceCallIncomingCallbacks  = (callback);
   }
 
-  final List<MessageDeletedCallback> _messageDeletedCallbacks = [];
+  MessageDeletedCallback _messageDeletedCallbacks = (c, h) {};
   void onMessageDeleted(MessageDeletedCallback callback) {
-    _messageDeletedCallbacks.add(callback);
+    _messageDeletedCallbacks = callback;
   }
 
-  final List<ProfilePhotoCallback> _profilePhotoCallbacks = [];
+  ProfilePhotoCallback _profilePhotoCallbacks = (e) {};
   void onProfilePhotoReceived(ProfilePhotoCallback callback) {
-    _profilePhotoCallbacks.add(callback);
+    _profilePhotoCallbacks  = (callback);
   }
 
-  final List<AddProfilePhotoResultCallback> _addProfilePhotoResultCallbacks = [];
+  AddProfilePhotoResultCallback _addProfilePhotoResultCallbacks = (e) {};
   void onAddProfilePhotoResult(AddProfilePhotoResultCallback callback) {
-    _addProfilePhotoResultCallbacks.add(callback);
+    _addProfilePhotoResultCallbacks  = (callback);
   }
 
-  final List<UserDevicesCallback> _userDevicesCallback = [];
+  UserDevicesCallback _userDevicesCallback = (e) {};
   void onUserDevicesReceived(UserDevicesCallback callback) {
-    _userDevicesCallback.add(callback);
+    _userDevicesCallback  = (callback);
   }
 }
 
@@ -254,7 +254,10 @@ class MessageHandler {
 
   Future<void> startListeningToMessages() async {
     if (isListeningToMessages) {
-      throw StateError("Client is already listening to messages!");
+      if (kDebugMode) {
+        debugPrint("Already listening to messages");
+      }
+      return; // Do nothing
     }
 
     _isClientListeningToMessages = true;
@@ -286,12 +289,9 @@ class MessageHandler {
           var fileNameBytes = msg.readBytes(fileNameLength);
           var fileBytes = msg.readBytes(msg.readableBytes);
 
-          var file = LoadedInMemoryFile(
-              String.fromCharCodes(fileNameBytes), fileBytes);
+          var file = LoadedInMemoryFile(String.fromCharCodes(fileNameBytes), fileBytes);
 
-          for (final callback in callBacks._fileDownloadedCallbacks) {
-            callback(file);
-          }
+          callBacks._fileDownloadedCallbacks(file);
           break;
         case ClientCommandResultType.downloadImage:
           var messageID = msg.readInt32();
@@ -302,23 +302,17 @@ class MessageHandler {
           var file = LoadedInMemoryFile(
               String.fromCharCodes(fileNameBytes), fileBytes);
 
-          for (final callback in callBacks._imageDownloadedCallbacks) {
-            callback(file, messageID);
-          }
+          callBacks._imageDownloadedCallbacks(file, messageID);
           break;
         case ClientCommandResultType.getDisplayName:
           var usernameBytes = msg.readBytes(msg.readableBytes);
           _username = String.fromCharCodes(usernameBytes);
-          for (final callback in callBacks._usernameCallbacks) {
-            callback(username!);
-          }
+          callBacks._usernameCallbacks(username!);
           break;
 
         case ClientCommandResultType.getClientId:
           clientID = msg.readInt32();
-          for (final callback in callBacks._clientIdCallbacks) {
-            callback(clientID);
-          }
+          callBacks._clientIdCallbacks(clientID);
           break;
         case ClientCommandResultType.getChatSessions:
           _chatSessions = [];
@@ -348,9 +342,7 @@ class MessageHandler {
             _chatSessions?.insert(chatSessionIndex, chatSession);
             _chatSessionIDSToChatSessions[chatSessionID] = chatSession;
           }
-          for (final callback in callBacks._chatSessionsCallbacks) {
-            callback(chatSessions!);
-          }
+          callBacks._chatSessionsCallbacks(chatSessions!);
           break;
         case ClientCommandResultType.getChatRequests:
           _chatRequests = [];
@@ -359,9 +351,7 @@ class MessageHandler {
             int clientID = msg.readInt32();
             _chatRequests?.add(ChatRequest(clientID));
           }
-          for (final callback in callBacks._chatRequestsCallbacks) {
-            callback(chatRequests!);
-          }
+          callBacks._chatRequestsCallbacks(_chatRequests!);
           break;
         case ClientCommandResultType.getOtherAccountsAssociatedWithDevice:
           _otherAccounts = [];
@@ -379,9 +369,7 @@ class MessageHandler {
                 clientID: clientID));
           }
 
-          for (final callback in callBacks._otherAccountsCallbacks) {
-            callback(_otherAccounts!);
-          }
+          callBacks._otherAccountsCallbacks(otherAccounts!);
           break;
         case ClientCommandResultType.getWrittenText:
           int chatSessionIndex = msg.readInt32();
@@ -423,23 +411,17 @@ class MessageHandler {
 
           messages.sort((a, b) => a.messageID.compareTo(b.messageID));
           chatSession.setHaveChatMessagesBeenCached(true);
-          for (final callback in callBacks._writtenTextCallbacks) {
-            callback(chatSession);
-          }
+          callBacks._writtenTextCallbacks(chatSession);
           break;
         case ClientCommandResultType.deleteChatMessage:
           int chatSessionID = msg.readInt32();
           int messageID = msg.readInt32();
 
-          for (final callback in callBacks._messageDeletedCallbacks) {
-            callback(_chatSessionIDSToChatSessions[chatSessionID]!, messageID);
-          }
+          callBacks._messageDeletedCallbacks(_chatSessionIDSToChatSessions[chatSessionID]!, messageID);
           break;
         case ClientCommandResultType.fetchAccountIcon:
           _profilePhoto = msg.readBytes(msg.readableBytes);
-          for (final callback in callBacks._profilePhotoCallbacks) {
-            callback(_profilePhoto!);
-          }
+          callBacks._profilePhotoCallbacks(_profilePhoto!);
           break;
         case ClientCommandResultType.fetchUserDevices:
           _userDevices.clear();
@@ -449,9 +431,7 @@ class MessageHandler {
             String osName = utf8.decode(msg.readBytes(msg.readInt32()));
             _userDevices.add(UserDeviceInfo(address, deviceType, osName));
           }
-          for (final callback in callBacks._userDevicesCallback) {
-            callback(_userDevices);
-          }
+          callBacks._userDevicesCallback(_userDevices);
           break;
         case ClientCommandResultType.setAccountIcon:
           bool isSuccessful = msg.readBoolean();
@@ -460,9 +440,7 @@ class MessageHandler {
           }
           
           _profilePhoto = Commands.pendingAccountIcon;
-          for (final callback in callBacks._addProfilePhotoResultCallbacks) {
-            callback(isSuccessful);
-          }
+          callBacks._addProfilePhotoResultCallbacks(isSuccessful);
           break;
         case ClientCommandResultType.getDonationPage:
           Uint8List htmlBytes = msg.readBytes(msg.readInt32());
@@ -473,9 +451,7 @@ class MessageHandler {
               String.fromCharCodes(htmlBytes, 0),
               String.fromCharCodes(htmlFileName, 0));
 
-          for (final callback in callBacks._donationPageCallbacks) {
-            callback(htmlPage);
-          }
+          callBacks._donationPageCallbacks(htmlPage);
           break;
         case ClientCommandResultType.getSourceCodePage:
           // TODO: Handle this case.
@@ -489,9 +465,7 @@ class MessageHandler {
       switch (msgType) {
         case ServerMessageType.serverMessageInfo:
           Uint8List content = msg.readBytes(msg.readableBytes);
-          for (final callback in callBacks._serverMessageCallbacks) {
-            callback(String.fromCharCodes(content));
-          }
+          callBacks._serverMessageCallbacks(String.fromCharCodes(content));
           break;
         case ServerMessageType.voiceCallIncoming:
           int clientID = msg.readInt32();
@@ -507,16 +481,12 @@ class MessageHandler {
           Member? member = Member(username!, clientID, Uint8List(0), true);
           if (member == null) throw new Exception("What the fuck is this");
 
-          for (final callback in callBacks._voiceCallIncomingCallbacks) {
-            bool isAccepted = callback(member);
-          }
+          callBacks._voiceCallIncomingCallbacks(member);
           break;
         case ServerMessageType.messageSuccefullySent:
           int chatSessionID = msg.readInt32();
           int messageID = msg.readInt32();
-          for (final callback in callBacks._messageSentCallbacks) {
-            callback(_chatSessionIDSToChatSessions[chatSessionID]!, messageID);
-          }
+          callBacks._messageSentCallbacks(_chatSessionIDSToChatSessions[chatSessionID]!, messageID);
           break;
         case ServerMessageType.clientContent:
           Message message = Message.empty();
@@ -563,9 +533,7 @@ class MessageHandler {
             chatSession.getMessages.add(message);
           }
 
-          for (final callback in callBacks._messageCallbacks) {
-            callback(message, chatSession.chatSessionIndex);
-          }
+          callBacks._messageCallbacks(message, chatSession.chatSessionIndex);
           break;
         case ServerMessageType.commandResult:
           final commandResult = ClientCommandResultType.fromId(msg.readInt32());

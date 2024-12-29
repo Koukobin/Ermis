@@ -16,17 +16,19 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:ermis_client/main_ui/settings/theme_settings.dart';
 import 'package:ermis_client/util/settings_json.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:vibration/vibration.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../constants/app_constants.dart';
-import 'chat_interface.dart';
+import '../loading_state.dart';
 import '../../client/client.dart';
 import '../../client/common/chat_session.dart';
 import '../../client/common/file_heap.dart';
@@ -37,6 +39,7 @@ import '../../util/dialogs_utils.dart';
 import '../../util/file_utils.dart';
 import '../../util/notifications_util.dart';
 import '../../util/top_app_bar_utils.dart';
+import 'user_avatar.dart';
 
 class MessagingInterface extends StatefulWidget {
   final int chatSessionIndex;
@@ -49,7 +52,13 @@ class MessagingInterface extends StatefulWidget {
   State<MessagingInterface> createState() => MessagingInterfaceState();
 }
 
-class MessagingInterfaceState extends LoadingState<MessagingInterface> {
+class MessagingInterfaceState extends LoadingState<MessagingInterface> with WidgetsBindingObserver {
+  /// Used to determine whether to send push notification or not
+  bool isOnScreen = false;
+  AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+  /// Chat session user is currently active in
+  static late int _activeChatSessionIndex;
+
   late final int _chatSessionIndex;
   late final ChatSession _chatSession;
 
@@ -62,8 +71,17 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
   final List<Message> pendingMessagesQueue = [];
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      _appLifecycleState = state;
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     _chatSessionIndex = widget.chatSessionIndex;
     _chatSession = widget.chatSession;
 
@@ -71,7 +89,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
     if (!_chatSession.haveChatMessagesBeenCached) {
       Client.getInstance().commands.fetchWrittenText(_chatSessionIndex);
     } else {
-      _updateMessages(_chatSession.getMessages);
+      _setMessages(_chatSession.getMessages);
       setState(() {
         isLoading = false;
       });
@@ -83,26 +101,51 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
 
   void _setupListeners() {
     Client.getInstance().whenAlreadyWrittenTextReceived((chatSession) {
-      _updateMessages(chatSession.getMessages);
+      _setMessages(chatSession.getMessages);
       setState(() {
         isLoading = false;
       });
     });
 
-    Client.getInstance().whenMessageReceived((msg, chatSessionIndex) {
-      String body;
+    Client.getInstance().whenMessageReceived((msg, chatSessionIndex) async {
+      if (_chatSessionIndex != chatSessionIndex) return;
+      _addMessage(msg);
 
+      // If message originates from the active chat session and the app is in 
+      // the active state (resumed), abstain from showing the notification
+      if (_activeChatSessionIndex == chatSessionIndex &&
+          // isOnScreen &&
+          _appLifecycleState == AppLifecycleState.resumed) {
+        return;
+      }
+
+      SettingsJson settingsJson = SettingsJson();
+      settingsJson.loadSettingsJson();
+
+      if (settingsJson.vibrationEnabled) {
+        Vibration.vibrate();
+      }
+
+      if (!settingsJson.notificationsEnabled) {
+        return;
+      }
+
+      if (!settingsJson.showMessagePreview) {
+        NotificationService.showInstantNotification("Ermis!", "New message!");
+        return;
+      }
+
+      String body;
       switch (msg.contentType) {
         case ContentType.text:
           body = utf8.decode(msg.text!);
           break;
-        case ContentType.file || ContentType.image: 
-          body = utf8.decode(msg.fileName!);
+        case ContentType.file || ContentType.image:
+          body = "Send file ${utf8.decode(msg.fileName!)}";
           break;
-        }
-
+      }
+      
       NotificationService.showInstantNotification(msg.getUsername, body);
-      _addMessage(msg);
     });
 
     Client.getInstance().whenFileDownloaded((file) async {
@@ -124,7 +167,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
     Client.getInstance().whenMessageDeleted((session, messageID) {
       for (var i = 0; i < session.getMessages.length; i++) {
         if (session.getMessages[i].messageID == messageID) {
-          _chatSession.getMessages.removeAt(i);
+          _chatSession.getMessages.removeAt(i); // Remove given message id
 
           if (session.chatSessionID == _chatSession.chatSessionID) {
             setState(() {
@@ -154,7 +197,18 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
     });
   }
 
-  void _updateMessages(List<Message> messages) {
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  void _setMessages(List<Message> messages) {
     setState(() {
       _messages.clear();
       _messages.addAll(messages);
@@ -162,9 +216,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
   }
 
   void _addMessage(Message msg) {
-    setState(() {
+    if (mounted) {
+      setState(() {
+        _messages.add(msg);
+      });
+    } else {
       _messages.add(msg);
-    });
+    }
   }
 
   void _updateImageMessage(LoadedInMemoryFile file, int messageID) {
@@ -219,17 +277,30 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
   @override
   Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-    return Scaffold(
-      appBar: _isEditingMessage
-          ? _buildEditMessageAppBar(appColors)
-          : _buildMainAppBar(appColors),
-      body: Container(
-        decoration: _getDecoration(SettingsJson().chatsBackDrop),
-        child: Column(
-          children: [
-            _buildMessageList(appColors),
-            _buildInputField(appColors),
-          ],
+    _activeChatSessionIndex = _chatSessionIndex;
+    return VisibilityDetector(
+      key: Key('$_chatSessionIndex'),
+      onVisibilityChanged: (info) {
+        if (!mounted) {
+          isOnScreen = info.visibleFraction > 0.5;
+          return;
+        }
+        setState(() {
+          isOnScreen = info.visibleFraction > 0.5; // More than 50% visible
+        });
+      },
+      child: Scaffold(
+        appBar: _isEditingMessage
+            ? _buildEditMessageAppBar(appColors)
+            : _buildMainAppBar(appColors),
+        body: Container(
+          decoration: _getDecoration(SettingsJson().chatsBackDrop),
+          child: Column(
+            children: [
+              _buildMessageList(appColors),
+              _buildInputField(appColors),
+            ],
+          ),
         ),
       ),
     );
@@ -241,6 +312,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: appColors.inferiorColor),
         onPressed: () {
+          _activeChatSessionIndex = -1;
           Navigator.pop(context);
         },
       ),
@@ -471,38 +543,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> {
   }
 }
 
-class ErmisDoodlePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey.withOpacity(0.2) // Subtle doodle color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    // Draw Circles
-    for (double x = 0; x < size.width; x += 50) {
-      for (double y = 0; y < size.height; y += 50) {
-        canvas.drawCircle(Offset(x, y), 15, paint);
-      }
-    }
-
-    // Draw Wavy Lines
-    for (double y = 20; y < size.height; y += 100) {
-      final path = Path();
-      path.moveTo(0, y);
-      for (double x = 0; x < size.width; x += 50) {
-        path.quadraticBezierTo(x + 25, y + 20, x + 50, y);
-      }
-      canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false; // Redraw only if necessary
-  }
-}
-
 class MessageBubble extends StatelessWidget {
   final Message message;
   final AppColors appColors;
@@ -588,10 +628,9 @@ class MessageBubble extends StatelessWidget {
   Widget _buildMessageContent(BuildContext context, Message message) {
     switch (message.contentType) {
       case ContentType.text:
-        return Text(
-          utf8.decode(message.getText!.toList()),
+        return Text(message.getText!,
           softWrap: true, // Enable text wrapping
-          overflow: TextOverflow.clip, // Add ellipsis for overflow
+          overflow: TextOverflow.clip,
           maxLines: null,
         );
       case ContentType.file:
@@ -627,60 +666,109 @@ class MessageBubble extends StatelessWidget {
           child: Container(
             color: appColors.secondaryColor,
             child: image != null
-                ? Stack(
-                    children: [
-                      GestureDetector(
-                          onTap: () {
-                            // Display fullscreen image
-                            showDialog(
-                              context: context,
-                              builder: (context) => GestureDetector(
-                                onTap: () {
-                                  // Close the fullscreen view on tap
-                                  Navigator.of(context).pop();
-                                },
-                                child: Container(
-                                  color: Colors.black,
-                                  child: Center(
-                                    child: FittedBox(
-                                      fit: BoxFit.contain,
-                                      child: image,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                          child: FittedBox(
-                              fit: BoxFit.contain, child: image)),
-                      IconButton(
-                          onPressed: () {
-                            saveFileToDownloads(utf8.decode(message.fileName!), message.imageBytes!);
-                          },
-                          icon: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Manually add black outline
-                              Icon(
-                                Icons.download,
-                                color: Colors.black,
-                                size: 37,
-                              ),
-                              Icon(
-                                Icons.download,
-                                color: Colors.white,
-                                size: 30,
-                              )
-                            ],
-                          )),
-                    ],
-                  )
+                ? GestureDetector(
+                    onTap: () {
+                      // Display image fullscreen
+                      showImageDialog(context, image);
+                    },
+                    child: FittedBox(fit: BoxFit.contain, child: image))
                 : null,
           ),
         );
-      default:
-        return const Text("Unsupported message type");
-    }
+      }
+  }
+
+  void showImageDialog(BuildContext context, Image image) {
+    showDialog(
+      context: context,
+      builder: (context) => GestureDetector(
+        onTap: () {
+          Navigator.of(context).pop();
+        },
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                    onPressed: () {
+                      saveFileToDownloads(utf8.decode(message.fileName!), message.imageBytes!);
+                    },
+                    icon: Icon(Icons.download)),
+              ],
+            ),
+            bottom: DividerBottom(dividerColor: appColors.inferiorColor),
+            elevation: 0,
+          ),
+          body: Stack(
+            children: [
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                child: Container(
+                  color: Colors.transparent, 
+                ),
+              ),
+              Center(
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: InteractiveViewer(
+                      boundaryMargin: EdgeInsets.all(20),
+                      minScale: 1.0,
+                      maxScale: 8.0, // Allows zooming in up to 8x
+                      child: image,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BlurredDialog extends StatelessWidget {
+  final Widget content;
+
+  const BlurredDialog({super.key, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Blurred Background
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+          // Dialog Content
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(red: 0.8, alpha: 0.8, blue: 0.8, green: 0.8),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: content,
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -818,93 +906,6 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
           );
         },
         icon: Icon(Icons.attach_file));
-    // return PopupMenuButton<void Function()>(
-    //     color: appColors.secondaryColor,
-    //     onSelected: (value) {
-    //       value(); // Run the given function
-    //     },
-    //     itemBuilder: (context) => [
-    //           PopupMenuItem<void Function()>(
-    //             value: () async => await attachSingleFile(context,
-    //                 (String fileName, Uint8List fileBytes) {
-    //               _sendFile(fileName, fileBytes);
-    //             }),
-    //             child: Row(
-    //               children: [
-    //                 Icon(
-    //                   Icons.file_copy,
-    //                   color: appColors.primaryColor,
-    //                 ),
-    //                 const SizedBox(width: 10),
-    //                 Text(
-    //                   "Attach file",
-    //                   style: TextStyle(
-    //                     color: appColors.primaryColor,
-    //                     fontSize: 16,
-    //                   ),
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //           PopupMenuItem<void Function()>(
-    //             value: () {
-    //               attachSingleFile(context,
-    //                   (String fileName, Uint8List fileBytes) {
-    //                 _sendImageFile(fileName, fileBytes);
-    //               });
-    //             },
-    //             child: Row(
-    //               children: [
-    //                 Icon(
-    //                   Icons.image_outlined,
-    //                   color: appColors
-    //                       .primaryColor, // Consistent color with other items
-    //                 ),
-    //                 const SizedBox(width: 10),
-    //                 Text(
-    //                   "Attach image",
-    //                   style: TextStyle(
-    //                     color: appColors.primaryColor, // Consistent color
-    //                     fontSize: 16, // Readable font size
-    //                   ),
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //           PopupMenuItem<void Function()>(
-    //             value: () async {
-    //               XFile? file = await MyCamera.capturePhoto();
-
-    //               if (file == null) {
-    //                 return;
-    //               }
-
-    //               String fileName = file.name;
-    //               Uint8List fileBytes = await file.readAsBytes();
-
-    //               _sendImageFile(fileName, fileBytes);
-    //             },
-    //             child: Row(
-    //               children: [
-    //                 Icon(
-    //                   Icons.camera_alt_outlined,
-    //                   color: appColors
-    //                       .primaryColor, // Consistent color with other items
-    //                 ),
-    //                 const SizedBox(width: 10),
-    //                 Text(
-    //                   "Take photo",
-    //                   style: TextStyle(
-    //                     color: appColors.primaryColor, // Consistent color
-    //                     fontSize: 16, // Readable font size
-    //                   ),
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //         ],
-    //     position: PopupMenuPosition.under,
-    //     child: Icon(Icons.attach_file));
   }
 }
 

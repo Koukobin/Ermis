@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../main_ui/chats/chat_interface.dart';
+import '../main_ui/chats/user_avatar.dart';
 import '../theme/app_theme.dart';
 
 SizedBox createSimpleButton(BuildContext context, String text, IconData iconData, GestureTapCallback onTap) {
@@ -91,8 +91,7 @@ Container createOutlinedButton({
 }
 
 
-Widget createReallyNiceButton(
-    BuildContext context, String label, IconData icon, VoidCallback onPressed) {
+Widget createReallyNiceButton(BuildContext context, String label, IconData icon, VoidCallback onPressed) {
   final appColors = Theme.of(context).extension<AppColors>()!;
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

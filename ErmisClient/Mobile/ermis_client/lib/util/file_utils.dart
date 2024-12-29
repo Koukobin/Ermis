@@ -23,6 +23,7 @@ import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -147,6 +148,15 @@ Future<void> attachSingleFile(
   } else {
     // User canceled the file picker
   }
+}
+
+Future<String> readFileFromPath(String filePath) async {
+  final file = File(filePath);
+  return await file.readAsString();
+}
+
+Future<String> loadAssetFile(String assetPath) async {
+  return await rootBundle.loadString(assetPath);
 }
 
 /// This function checks for the given file's signature and allows

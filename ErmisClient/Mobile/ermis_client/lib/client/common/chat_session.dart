@@ -14,7 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:convert';
 import 'dart:typed_data';
+import 'package:ermis_client/client/common/message_types/content_type.dart';
+import 'package:intl/intl.dart';
+
 import 'message.dart';
 
 class ChatSession {
@@ -29,8 +33,8 @@ class ChatSession {
         _messages = [],
         _haveChatMessagesBeenCached = false;
 
-  ChatSession.withDetails(
-      this._chatSessionID, this._chatSessionIndex, this._messages, this._members, this._haveChatMessagesBeenCached);
+  ChatSession.withDetails(this._chatSessionID, this._chatSessionIndex,
+      this._messages, this._members, this._haveChatMessagesBeenCached);
 
   void setMembers(List<Member> members) => _members = members;
 
@@ -46,6 +50,39 @@ class ChatSession {
   List<Member> get getMembers => _members;
 
   List<Message> get getMessages => _messages;
+
+  String get lastMessageContent {
+    Message? message = _messages.lastOrNull;
+
+    if (message == null) {
+      return "";
+    }
+
+    switch (message.contentType) {
+      case ContentType.text:
+        return utf8.decode(message.text!.toList());
+      case ContentType.file || ContentType.image:
+        return utf8.decode(message.fileName!.toList());
+    }
+  }
+
+  String get lastMessageSentTime {
+    Message? message = _messages.lastOrNull;
+
+    if (message == null) {
+      return "";
+    }
+
+    DateTime localTime =
+        DateTime.fromMillisecondsSinceEpoch(message.getTimeWritten, isUtc: true)
+            .toLocal();
+
+    if (DateTime.now().difference(localTime).inDays >= 1) {
+      return DateFormat("dd/MM/yy").format(localTime);
+    }
+
+    return DateFormat("HH:mm").format(localTime);
+  }
 
   bool get haveChatMessagesBeenCached => _haveChatMessagesBeenCached;
 

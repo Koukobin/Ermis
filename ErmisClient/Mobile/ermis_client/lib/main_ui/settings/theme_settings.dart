@@ -70,7 +70,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   void _loadSettings() async {
     await _settingsJson.loadSettingsJson();
     setState(() {
-      _isDarkMode = _settingsJson.useDarkMode;
+      _isDarkMode = _settingsJson.isDarkModeEnabled;
       _useSystemDefault = _settingsJson.useSystemDefaultTheme;
       _selectedBackdrop = _settingsJson.chatsBackDrop;
       _gradientColors = _settingsJson.gradientColors;
@@ -88,7 +88,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Chat Theme Settings"),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: appColors.primaryColor,
         actions: [
           IconButton(
             onPressed: _saveSettingsJson,
@@ -109,7 +109,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             SwitchListTile(
               title: Text("System Default"),
               secondary: Icon(Icons.settings,
-                  color: Theme.of(context).primaryColor),
+                  color: appColors.primaryColor),
               value: _useSystemDefault,
               onChanged: (bool value) {
                 setState(() {

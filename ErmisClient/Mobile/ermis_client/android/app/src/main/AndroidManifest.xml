@@ -6,6 +6,9 @@
     <!-- Adds the Camera permission here -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Add Vibration permission -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
     <!-- Foreground service -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

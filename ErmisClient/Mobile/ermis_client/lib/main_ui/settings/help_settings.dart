@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,6 +22,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../constants/app_constants.dart';
 import '../../theme/app_theme.dart';
 import '../../util/dialogs_utils.dart';
+import '../../util/file_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 
 class HelpSettings extends StatefulWidget {
@@ -42,11 +44,12 @@ class HelpSettingsState extends State<HelpSettings> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-        backgroundColor: appColors.secondaryColor,
-        appBar: const GoBackBar(title: "Help & Settings"),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView(children: [
+      backgroundColor: appColors.secondaryColor,
+      appBar: const GoBackBar(title: "Help & Settings"),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView(
+          children: [
             ListTile(
                 leading: Icon(FontAwesomeIcons.github),
                 title: Text(
@@ -61,11 +64,6 @@ class HelpSettingsState extends State<HelpSettings> {
                     showErrorDialog(context, "Unable to open the URL: $url");
                   }
                 }),
-            Divider(
-              height: 1,
-              thickness: 0.5,
-              color: Colors.grey,
-            ),
             ListTile(
                 leading: Icon(Icons.attach_money_outlined),
                 title: Text(
@@ -80,22 +78,137 @@ class HelpSettingsState extends State<HelpSettings> {
                       content: "Functionality not implemented yet!");
                 }),
             ListTile(
-              leading: Icon(FontAwesomeIcons.listOl),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Version",
-                    style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                leading: Icon(FontAwesomeIcons.shieldHalved),
+                title: Text(
+                  "License Crux",
+                  style: const TextStyle(
+                    fontSize: 16,
                   ),
-                  Text(
-                    applicationVersion,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () async {
+                  final Uri url = Uri.parse(licenceURL);
+                  if (!await launchUrl(url)) {
+                    showErrorDialog(context, "Unable to open the URL: $url");
+                  }
+                }),
+            ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text(
+                  "App info",
+                  style: const TextStyle(
+                    fontSize: 16,
                   ),
-                ],
-              ),
-            ),
+                ),
+                onTap: () async {
+                  pushHorizontalTransition(context, const AppInfo());
+                }),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class AppInfo extends StatelessWidget {
+  const AppInfo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+    return Scaffold(
+      appBar: AppBar(),
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 96.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Ermis Messenger",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "Version: $applicationVersion",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF9E9E9E),
+                ),
+              ),
+              SizedBox(height: 25),
+              Image.asset(
+                appIconPath,
+                width: 125,
+                height: 125,
+              ),
+              SizedBox(height: 25),
+              Text(
+                "Ⓒ 2023-2024 Ilias Koukovinis",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF9E9E9E),
+                ),
+              ),
+              SizedBox(height: 25),
+              ElevatedButton(
+                onPressed: () {
+                  pushHorizontalTransition(context, const LicenceInfo());
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: appColors.inferiorColor, // Splash color
+                  backgroundColor: appColors.primaryColor,
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 32),
+                ),
+                child: Text("Licence",
+                    style:
+                        TextStyle(fontSize: 18, color: appColors.secondaryColor)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LicenceInfo extends StatefulWidget {
+  const LicenceInfo({super.key});
+
+  @override
+  State<LicenceInfo> createState() => _LicenceInfoState();
+}
+
+class _LicenceInfoState extends State<LicenceInfo> {
+
+  String _licenceContent = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _readLicenceFile();
+  }
+
+  void _readLicenceFile() async{
+    String content = await loadAssetFile(licencePath);
+    setState(() {
+      _licenceContent = content;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+    return Scaffold(
+      appBar: AppBar(title: Text("Licence"), backgroundColor: appColors.secondaryColor,),
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 5.0),
+        child: SingleChildScrollView(
+          child: Text(
+            _licenceContent,
+            style: TextStyle(fontSize: 14, color: Color(0xFF9E9E9E)),
+          ),
         ),
       ),
     );

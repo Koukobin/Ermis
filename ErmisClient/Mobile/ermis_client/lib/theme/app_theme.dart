@@ -95,9 +95,8 @@ class AppThemeState extends State<AppTheme> {
           borderRadius: BorderRadius.circular(15),
         ),
         titleTextStyle: TextStyle(
-          color: widget.darkAppColors.primaryColor,
+          color: widget.darkAppColors.inferiorColor,
           fontSize: 20,
-          fontWeight: FontWeight.bold,
         ),
         contentTextStyle: TextStyle(
           color: widget.darkAppColors.inferiorColor,

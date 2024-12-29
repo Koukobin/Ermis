@@ -107,7 +107,7 @@ class ChooseServerState extends State<ChooseServer> {
                         setState(() {
                           cachedServerUrls = cachedServerUrls..add(serverInfo);
                         });
-                        ErmisDB.createConnection().insertServerInfo(serverInfo);
+                        ErmisDB.getConnection().insertServerInfo(serverInfo);
           
                         // Feedback
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,7 +146,7 @@ class ChooseServerState extends State<ChooseServer> {
                   onPressed: () async {
                     Uri url = Uri.parse(serverUrl!);
 
-                    final DBConnection conn = ErmisDB.createConnection();
+                    final DBConnection conn = ErmisDB.getConnection();
                     conn.updateServerUrlLastUsed(ServerInfo(url));
                     UserAccount? userInfo = await conn.getLastUsedAccount(ServerInfo(url));
                     if (kDebugMode) {
@@ -259,7 +259,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
                       splashRadius: 20,
                       onPressed: () {
                         final serverInfo = ServerInfo(Uri.parse(url));
-                        ErmisDB.createConnection().removeServerInfo(serverInfo);
+                        ErmisDB.getConnection().removeServerInfo(serverInfo);
                         widget.cachedServerUrls = List.from(widget.cachedServerUrls)..remove(url);
                         setState(() {
                           _widgetKey = UniqueKey();

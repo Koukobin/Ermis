@@ -62,7 +62,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
       });
     });
 
-    Future.delayed(Duration(milliseconds: 150), _toggleSize);
+    Future.delayed(Duration(milliseconds: 25), _toggleSize);
   }
 
   @override
@@ -73,7 +73,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
       backgroundColor: appColors.secondaryColor,
       appBar: const ErmisAppBar(
           title: Text(
-        "Account Settings",
+        "Profile Settings",
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
       )),
       body: Padding(
@@ -89,8 +89,8 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 children: [
                   const PersonalProfilePhoto(radius: 80),
                   AnimatedPositioned(
-                    right: 110,
-                    bottom: 5,
+                    right: _isExpanded ? 105 : 120,
+                    bottom: _isExpanded ? 15 : 30,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                     child: AnimatedContainer(
@@ -103,10 +103,10 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                            Icons.camera_alt_outlined,
-                            size: _isExpanded ? null : 0,
-                            color: appColors.secondaryColor,
-                          ),
+                        Icons.camera_alt_outlined,
+                        size: _isExpanded ? null : 0,
+                        color: appColors.secondaryColor,
+                      ),
                     ),
                   )
                 ],

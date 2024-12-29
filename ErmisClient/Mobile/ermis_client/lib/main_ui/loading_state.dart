@@ -19,7 +19,7 @@
 import 'package:flutter/material.dart';
 
 /// Base state to manage loading screens in StatefulWidgets.
-abstract class LoadingState<T extends StatefulWidget> extends State<T> {
+abstract class LoadingState<T extends StatefulWidget> extends State<T> { 
   bool isLoading = true;
 
   @override
