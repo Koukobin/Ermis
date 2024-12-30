@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:ermis_client/client/app_event_bus.dart';
+import 'package:ermis_client/client/message_events.dart';
 import 'package:flutter/material.dart';
 
 import '../../client/client.dart';
@@ -29,8 +31,8 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
   @override
   void initState() {
     super.initState();
-    Client.getInstance().whenChatRequestsReceived((List<ChatRequest> chatRequests) {
-      updateChatRequests(chatRequests);
+    AppEventBus.instance.on<ChatRequestsEvent>().listen((event) async {
+      _updateChatRequests(event.requests);
     });
   }
 
@@ -127,7 +129,8 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
     });
   }
 
-  void updateChatRequests(List<ChatRequest> chatRequests) {
+  void _updateChatRequests(List<ChatRequest> chatRequests) {
+    if (!mounted) return;
     setState(() {
       _chatRequests = chatRequests;
       isLoading = false;

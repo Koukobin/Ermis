@@ -15,12 +15,15 @@
  */
 
 import 'package:camera/camera.dart';
+import 'package:ermis_client/client/app_event_bus.dart';
+import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../theme/app_theme.dart';
 import '../../client/client.dart';
+import '../../util/dialogs_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../../util/file_utils.dart';
 import '../user_profile.dart';
@@ -33,36 +36,47 @@ class ProfileSettings extends StatefulWidget {
   State<ProfileSettings> createState() => _ProfileSettingsState();
 }
 
-class _ProfileSettingsState extends State<ProfileSettings> {
+class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProviderStateMixin {
 
   int _clientID = Client.getInstance().clientID;
   String _displayName = Client.getInstance().displayName ?? "";
 
-  bool _isExpanded = false; // State to toggle animation
-
-  void _toggleSize() {
-    setState(() {
-      _isExpanded = !_isExpanded; // Toggle between small and large size
-    });
-  }
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
 
-    Client.getInstance().whenClientIDReceived((int id) {
+    AppEventBus.instance.on<ClientIdEvent>().listen((event) async {
+      if (!mounted) return;
       setState(() {
-        _clientID = id;
+        _clientID = event.clientId;
+      });
+    });
+    
+    AppEventBus.instance.on<UsernameReceivedEvent>().listen((event) async {
+      if (!mounted) return;
+      setState(() {
+        _displayName = event.displayName;
       });
     });
 
-    Client.getInstance().whenUsernameReceived((String displayName) {
-      setState(() {
-        _displayName = displayName;
-      });
-    });
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
 
-    Future.delayed(Duration(milliseconds: 25), _toggleSize);
+    // Tween for scaling
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
+      ),
+    );
+
+    // Start the animation
+    Future.delayed(Duration(milliseconds: 25), _controller.forward);
   }
 
   @override
@@ -88,27 +102,25 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 alignment: Alignment.center,
                 children: [
                   const PersonalProfilePhoto(radius: 80),
-                  AnimatedPositioned(
-                    right: _isExpanded ? 105 : 120,
-                    bottom: _isExpanded ? 15 : 30,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      width: _isExpanded ? 50 : 10,
-                      height: _isExpanded ? 50 : 10,
-                      decoration: BoxDecoration(
-                        color: Colors.green, // Online or offline color
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.camera_alt_outlined,
-                        size: _isExpanded ? null : 0,
-                        color: appColors.secondaryColor,
+                  Positioned(
+                    right: 105,
+                    bottom: 15,
+                    child: ScaleTransition(
+                      scale: _animation,
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.green, // Online or offline color
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.camera_alt_outlined,
+                          color: appColors.secondaryColor,
+                        ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -150,7 +162,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 ],
               ),
               onTap: () {
-                pushHorizontalTransition(context, const DisplayName());
+                showSnackBarDialog(context: context, content: "Functionality not implemented yet!");
               },
             ),
             ListTile(
@@ -166,7 +178,8 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 ],
               ),
               onTap: () {
-                pushHorizontalTransition(context, const DisplayName());
+                Clipboard.setData(ClipboardData(text: _clientID.toString()));
+                showSnackBarDialog(context: context, content: "Message copied to clipboard");
               },
             ),
           ],

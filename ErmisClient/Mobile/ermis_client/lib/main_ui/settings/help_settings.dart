@@ -145,7 +145,7 @@ class AppInfo extends StatelessWidget {
               ),
               SizedBox(height: 25),
               Text(
-                "Ⓒ 2023-2024 Ilias Koukovinis",
+                "Ⓒ 2023-2025 Ilias Koukovinis",
                 style: TextStyle(
                   fontSize: 16,
                   color: Color(0xFF9E9E9E),

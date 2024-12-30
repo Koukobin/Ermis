@@ -16,6 +16,8 @@
 
 import 'dart:async';
 
+import 'package:ermis_client/client/app_event_bus.dart';
+import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/chats/temp.dart';
 import 'package:ermis_client/main_ui/settings/linked_devices_settings.dart';
 import 'package:ermis_client/main_ui/settings/settings_interface.dart';
@@ -57,6 +59,8 @@ class ChatsState extends TempState<Chats> {
   late final Stream<int> _stream = Stream.periodic(Duration(seconds: 5), (x) => x).asBroadcastStream();
 
   ChatsState() : super(Task.normal);
+  
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -67,17 +71,21 @@ class ChatsState extends TempState<Chats> {
     if (_conversations == null) {
       task = Task.loading;
     }
-    Client.getInstance().whenChatSessionsReceived((List<ChatSession> chatSessions) {
-      updateChatSessions(chatSessions);
+
+    AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
+      _updateChatSessions(event.sessions);
     });
 
-    Client.getInstance().whenServerMessageReceived((String message) async {
-      await showSimpleAlertDialog(
-          context: context, title: "Server Message Info", content: message);
+    AppEventBus.instance.on<ServerMessageEvent>().listen((event) async {
+      final context = navigatorKey.currentState?.context;
+      if (context == null || !context.mounted) return;
+
+      showToastDialog(context, event.message);
     });
 
     // Whenever text changes performs search
     _searchController.addListener(() {
+      if (!mounted) return;
       performSearch();
     });
 
@@ -398,7 +406,8 @@ class ChatsState extends TempState<Chats> {
     });
   }
 
-  void updateChatSessions(List<ChatSession> chatSessions) {
+  void _updateChatSessions(List<ChatSession> chatSessions) {
+    if (!mounted) return;
     setState(() {
       _conversations = chatSessions;
       task = Task.normal;

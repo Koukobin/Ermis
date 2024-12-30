@@ -21,7 +21,7 @@ enum DirectionYAxis {
   bottomToTop;
 }
 
-Future<Object?> pushHorizontalTransition(BuildContext context, Widget newPage) async {
+Future<Object?> pushHorizontalTransition(BuildContext context, Widget newPage, [Widget? oldPage]) async {
   return await Navigator.push(
     context,
     PageRouteBuilder(
@@ -31,12 +31,23 @@ Future<Object?> pushHorizontalTransition(BuildContext context, Widget newPage) a
         const end = Offset.zero; // End position
         const curve = Curves.easeOutQuad;
 
-        final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        final offsetAnimation = animation.drive(tween);
+        final Animatable<Offset> tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final Animation<Offset> offsetAnimation = animation.drive(tween);
 
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
+        final Animatable<Offset> secondaryTween = Tween(begin: Offset(-0.1, 0.0), end: Offset(0.0, 0.0)).chain(CurveTween(curve: curve));
+        final Animation<Offset> secondaryOffsetAnimation = secondaryAnimation.drive(secondaryTween);
+        
+        return Stack(
+          children: [
+            SlideTransition(
+              position: secondaryOffsetAnimation,
+              child: oldPage,
+            ),
+            SlideTransition(
+              position: offsetAnimation,
+              child: newPage,
+            ),
+          ],
         );
       },
     ),

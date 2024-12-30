@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/settings/theme_settings.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ import 'package:intl/intl.dart';
 import 'package:vibration/vibration.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../client/app_event_bus.dart';
 import '../../constants/app_constants.dart';
 import '../loading_state.dart';
 import '../../client/client.dart';
@@ -60,7 +62,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   static late int _activeChatSessionIndex;
 
   late final int _chatSessionIndex;
-  late final ChatSession _chatSession;
+  late ChatSession _chatSession; // Not final because can be updated by server
 
   final List<Message> _messages = [];
   final TextEditingController _inputController = TextEditingController();
@@ -100,14 +102,20 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   }
 
   void _setupListeners() {
-    Client.getInstance().whenAlreadyWrittenTextReceived((chatSession) {
-      _setMessages(chatSession.getMessages);
+    AppEventBus.instance.on<WrittenTextEvent>().listen((event) {
+      if (!mounted) return;
+
+      _setMessages(event.chatSession.getMessages);
       setState(() {
         isLoading = false;
       });
     });
 
-    Client.getInstance().whenMessageReceived((msg, chatSessionIndex) async {
+    AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
+      if (!mounted) return;
+      Message msg = event.message;
+      int chatSessionIndex = event.chatSessionIndex;
+
       if (_chatSessionIndex != chatSessionIndex) return;
       _addMessage(msg);
 
@@ -148,8 +156,10 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       NotificationService.showInstantNotification(msg.getUsername, body);
     });
 
-    Client.getInstance().whenFileDownloaded((file) async {
-     
+    AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
+      if (!mounted) return; // Probably impossible but still check just in case
+      LoadedInMemoryFile file = event.file;
+      
       String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
 
       if (filePath != null) {
@@ -159,12 +169,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
       showExceptionDialog(context, "An error occured while trying to save file");
     });
-
-    Client.getInstance().whenImageDownloaded((file, messageID) async {
-      _updateImageMessage(file, messageID);
+    
+    AppEventBus.instance.on<ImageDownloadedEvent>().listen((event) async {
+      _updateImageMessage(event.file, event.messageID);
     });
-
-    Client.getInstance().whenMessageDeleted((session, messageID) {
+    
+    AppEventBus.instance.on<MessageDeletedEvent>().listen((event) async {
+      ChatSession session = event.chatSession;
+      int messageID = event.messageId;
       for (var i = 0; i < session.getMessages.length; i++) {
         if (session.getMessages[i].messageID == messageID) {
           _chatSession.getMessages.removeAt(i); // Remove given message id
@@ -179,8 +191,12 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         }
       }
     });
+    
+    AppEventBus.instance.on<MessageSentEvent>().listen((event) async {
+      if (!mounted) return;
+      ChatSession session = event.session;
+      int messageID = event.messageID;
 
-    Client.getInstance().whenSuccesfullySentMessageReceived((session, messageID) {
       session.getMessages.add(pendingMessagesQueue.last..setIsSent(true)..setMessageID(messageID));
       if (session.chatSessionID == _chatSession.chatSessionID) {
         Future.delayed(Duration(milliseconds: 100), () {
@@ -192,8 +208,16 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       pendingMessagesQueue.removeLast();
     });
 
-    Client.getInstance().whenVoiceCallIncoming((member) {
-      return true;
+    AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
+      if (!mounted) return;
+
+      setState(() {
+        _chatSession = event.sessions.firstWhere((ChatSession session) => session.chatSessionID == _chatSession.chatSessionID);
+      });
+    });
+
+    AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) async {
+      // TODO
     });
   }
 
@@ -554,15 +578,10 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isMessageOwner = message.clientID == Client.getInstance().clientID;
-    final formattedTime = DateFormat("HH:mm").format(
-      DateTime.fromMillisecondsSinceEpoch(message.getTimeWritten, isUtc: true)
-          .toLocal(),
-    );
 
     DateTime currentMessageDate =
         DateTime.fromMillisecondsSinceEpoch(message.getTimeWritten, isUtc: true)
             .toLocal();
-    DateTime now = DateTime.now();
 
     bool isNewDay = lastMessageDate.day != currentMessageDate.day;
     lastMessageDate = currentMessageDate;
@@ -573,7 +592,7 @@ class MessageBubble extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Center(
-                child: currentMessageDate.day == now.day
+                child: currentMessageDate.day == DateTime.now().day
                     ? Text("Today")
                     : Text(
                         DateFormat("yyyy-MM-dd").format(currentMessageDate))),
@@ -587,10 +606,11 @@ class MessageBubble extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (!isMessageOwner)
-                    Text(formattedTime,
+                    Text(DateFormat("HH:mm").format(currentMessageDate),
                         style: TextStyle(color: appColors.inferiorColor)),
                   Container(
-                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     padding: const EdgeInsets.all(10),
                     constraints: BoxConstraints(maxWidth: 225, maxHeight: 300),
                     decoration: BoxDecoration(
@@ -602,7 +622,7 @@ class MessageBubble extends StatelessWidget {
                     child: _buildMessageContent(context, message),
                   ),
                   if (isMessageOwner)
-                    Text(formattedTime,
+                    Text(DateFormat("HH:mm").format(currentMessageDate),
                         style: TextStyle(color: appColors.inferiorColor)),
                 ],
               ),

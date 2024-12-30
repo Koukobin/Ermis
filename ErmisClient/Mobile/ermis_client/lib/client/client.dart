@@ -23,6 +23,7 @@ import 'dart:typed_data';
 import 'package:ermis_client/client/common/account.dart';
 import 'package:ermis_client/client/common/entry/requirements.dart';
 import 'package:ermis_client/client/io/byte_buf.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
 
 import '../util/database_service.dart';
@@ -33,15 +34,12 @@ import 'common/entry/create_account_info.dart';
 import 'common/entry/entry_type.dart';
 import 'common/entry/login_info.dart';
 import 'common/entry/verification.dart';
-import 'common/file_heap.dart';
-import 'common/html_page.dart';
 import 'common/message_types/client_command_type.dart';
 import 'common/message_types/client_message_type.dart';
 import 'common/results/ResultHolder.dart';
 import 'common/results/entry_result.dart';
 import 'common/user_device.dart';
 import 'io/input_stream.dart';
-import 'common/message.dart';
 import 'message_handler.dart';
 import 'io/output_stream.dart';
 
@@ -162,71 +160,7 @@ class Client {
     _messageHandler.startListeningToMessages();
   }
 
-  void whenUsernameReceived(void Function(String username) runThis) {
-    _messageHandler.callBacks.onUsernameReceived(runThis);
-  }
-  
-  void whenMessageReceived(void Function(Message message, int chatSessionIndex) runThis) {
-    _messageHandler.callBacks.onMessageReceived(runThis);
-  }
-
-  void whenSuccesfullySentMessageReceived(void Function(ChatSession session, int messageID) runThis) {
-    _messageHandler.callBacks.onMessageSuccessfullySent(runThis);
-  }
-
-  void whenAlreadyWrittenTextReceived(void Function(ChatSession chatSession) runThis) {
-    _messageHandler.callBacks.onWrittenTextReceived(runThis);
-  }
-  
-  void whenServerMessageReceived(void Function(String message) runThis) {
-    _messageHandler.callBacks.onServerMessageReceived(runThis);
-  }
-  
-  void whenFileDownloaded(void Function(LoadedInMemoryFile file) runThis) {
-    _messageHandler.callBacks.onFileDownloaded(runThis);
-  }
-
-  void whenImageDownloaded(void Function(LoadedInMemoryFile file, int messageID) runThis) {
-    _messageHandler.callBacks.onImageDownloaded(runThis);
-  }
-
-  void whenDonationPageReceived(void Function(DonationHtmlPage donationPage) runThis) {
-    _messageHandler.callBacks.onDonationPageReceived(runThis);
-  }  
-
-  void whenServerSourceCodeReceived(void Function(String serverSourceCodeURL) runThis) {
-    _messageHandler.callBacks.onServerSourceCodeReceived(runThis);
-  }
-
-  void whenClientIDReceived(void Function(int clientID) runThis) {
-    _messageHandler.callBacks.onClientIdReceived(runThis);
-  }
-
-  void whenChatRequestsReceived(void Function(List<ChatRequest> chatRequests) runThis) {
-    _messageHandler.callBacks.onChatRequestsReceived(runThis);
-  }
-
-  void whenChatSessionsReceived(void Function(List<ChatSession> chatSessions) runThis) {
-    _messageHandler.callBacks.onChatSessionsReceived(runThis);
-  }
-
-  void whenVoiceCallIncoming(bool Function(Member member) runThis) {
-    _messageHandler.callBacks.onVoiceCallIncoming(runThis);
-  }
-
-  void whenMessageDeleted(void Function(ChatSession chatSession, int messageIDOfDeletedMessage) runThis) {
-    _messageHandler.callBacks.onMessageDeleted(runThis);
-  }
-
-  void whenProfilePhotoReceived(void Function(Uint8List iconBytes) runThis) {
-    _messageHandler.callBacks.onProfilePhotoReceived(runThis);
-  }
-
-  void whenUserDevicesReceived(void Function(List<UserDeviceInfo>) runThis) {
-    _messageHandler.callBacks.onUserDevicesReceived(runThis);
-  }
-
-  EventCallbacks get callbacks => _messageHandler.callBacks;
+  EventBus get eventBus => _messageHandler.eventBus;
   Commands get commands => _messageHandler.commands;
   int get clientID => _messageHandler.clientID;
   String? get displayName => _messageHandler.username;

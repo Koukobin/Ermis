@@ -14,7 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/common/user_device.dart';
+import 'package:ermis_client/client/message_events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -37,9 +39,9 @@ class LinkedDevicesState extends State<LinkedDevices> {
   void initState() {
     super.initState();
 
-    Client.getInstance().whenUserDevicesReceived((List<UserDeviceInfo> devices) {
+    AppEventBus.instance.on<UserDevicesEvent>().listen((event) async {
       setState(() {
-        this.devices = devices;
+        devices = event.devices;
       });
     });
   }

@@ -18,7 +18,9 @@ import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/main_ui/splash_screen.dart';
 import 'package:ermis_client/util/notifications_util.dart';
 import 'package:ermis_client/util/settings_json.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'main_ui/chats/chat_requests_screen.dart';
 import 'main_ui/settings/profile_settings.dart';
@@ -104,26 +106,39 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.paused:
-        debugPrint("App is paused");
-        // App is moved to the background
-        break;
-      case AppLifecycleState.resumed:
-        debugPrint("App is resumed");
-        // App is moved to the foreground (resumed)
-        break;
-      case AppLifecycleState.detached:
-        // App is being terminated
-        break;
-      case AppLifecycleState.inactive:
-        // App is inactive (e.g., a phone call or overlay)
+    if (kDebugMode) debugPrint("App is ${state.name}");
+  switch (state) {
+    case AppLifecycleState.paused:
+      // App is moved to the background
+      saveAppState("appState", "paused");
+      break;
+    case AppLifecycleState.resumed:
+      // App is brought back to the foreground
+      loadAppState("appState").then((value) {
+        debugPrint("State loaded: $value");
+      });
+      break;
+    case AppLifecycleState.detached:
+      // App is being terminated
+      saveAppState("appState", "detached");
+      break;
+    case AppLifecycleState.inactive:
+      // App is temporarily inactive
         break;
       case AppLifecycleState.hidden:
-        debugPrint("App is hidden");
         // App is hidden
         break;
     }
+  }
+
+  void saveAppState(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(key, value);
+  }
+
+  Future<String?> loadAppState(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
   }
 
   @override

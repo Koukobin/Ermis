@@ -14,6 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/client/app_event_bus.dart';
+import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/settings/account_settings.dart';
 import 'package:ermis_client/main_ui/settings/notification_settings.dart';
 import 'package:ermis_client/util/transitions_util.dart';
@@ -56,7 +58,7 @@ class SettingsState extends State<Settings> {
             title: const DisplayName(),
             subtitle: const Text('Profile, change name, ID'),
             onTap: () {
-              pushHorizontalTransition(context, const ProfileSettings());
+              pushHorizontalTransition(context, const ProfileSettings(), this.widget);
             },
           ),
           ListTile(
@@ -149,9 +151,11 @@ class DisplayNameState extends State<DisplayName> {
   void initState() {
     super.initState();
 
-    Client.getInstance().whenUsernameReceived((String displayName) {
+    AppEventBus.instance.on<UsernameReceivedEvent>().listen((event) {
+      if (!mounted) return;
+      
       setState(() {
-        _displayName = displayName;
+        _displayName = event.displayName;
       });
     });
   }

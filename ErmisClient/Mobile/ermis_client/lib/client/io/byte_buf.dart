@@ -29,10 +29,13 @@ class ByteBuf {
   int _markedWriterIndex = 0;
 
   ByteBuf(int capacity, {this.growable = false}) : _buffer = Uint8List(capacity);
+
   factory ByteBuf.wrap(Uint8List buffer, {growable = false}) {
     return ByteBuf(buffer.length, growable: growable)..writeBytes(buffer);
   }
+
   ByteBuf.smallBuffer({this.growable = false}) : _buffer = Uint8List(256);
+
   ByteBuf.empty({this.growable = false}) : _buffer = Uint8List(0);
 
   Uint8List readBytes(int length) {
@@ -40,7 +43,7 @@ class ByteBuf {
       throw Exception("Not enough readable bytes");
     }
     int newReaderIndex = _readerIndex + length;
-    var bytes = _buffer.sublist(_readerIndex, newReaderIndex);
+    Uint8List bytes = _buffer.sublist(_readerIndex, newReaderIndex);
     _readerIndex = newReaderIndex;
     return bytes;
   }
@@ -57,6 +60,7 @@ class ByteBuf {
       _buffer = tempBuffer;
     }
 
+    // Expand buffer if growable is true
     _buffer.setRange(_writerIndex, _writerIndex + bytes.length, bytes);
     _writerIndex += bytes.length;
     _writtenBytes += bytes.length;
@@ -67,7 +71,7 @@ class ByteBuf {
   }
 
   void writeInt(int value) {
-    var byteData = ByteData(4)..setInt32(0, value, Endian.big);
+    ByteData byteData = ByteData(4)..setInt32(0, value, Endian.big);
     writeBytes(byteData.buffer.asUint8List());
   }
 
@@ -76,19 +80,19 @@ class ByteBuf {
   }
 
   int readInt32() {
-    final byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 4);
+    ByteData byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 4);
     _readerIndex += 4;
     return byteData.getInt32(0, Endian.big);
   }
 
   int readInt64() {
-    final byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 8);
+    ByteData byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 8);
     _readerIndex += 8;
     return byteData.getInt64(0, Endian.big);
   }
 
   double readFloat64() {
-    final byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 8);
+    ByteData byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 8);
     _readerIndex += 8;
     return byteData.getFloat64(0, Endian.big);
   }
@@ -119,6 +123,7 @@ class ByteBuf {
   void markReaderIndex() {
     _markedReaderIndex = _readerIndex;
   }
+
   void resetReaderIndex() {
     _readerIndex = _markedReaderIndex;
   }
@@ -134,4 +139,5 @@ class ByteBuf {
   Uint8List get buffer => _buffer;
 
   int get readerIndex => _readerIndex;
+  int get writerIndex => _writerIndex;
 }

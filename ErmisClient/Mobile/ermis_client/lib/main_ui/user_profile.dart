@@ -16,6 +16,8 @@
 
 import 'dart:typed_data';
 
+import 'package:ermis_client/client/app_event_bus.dart';
+import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/loading_state.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
@@ -89,15 +91,17 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
     // Determine initial loading state based on availability of profile photo
     isLoading = _profileBytes == null;
 
-    Client.getInstance().whenProfilePhotoReceived((Uint8List photoBytes) {
+    AppEventBus.instance.on<ProfilePhotoEvent>().listen((event) async {
+      if (!mounted) return;
       setState(() {
-        _profileBytes = photoBytes;
+        _profileBytes = event.photoBytes;
         isLoading = false;
       });
     });
-
-    Client.getInstance().callbacks.onAddProfilePhotoResult((bool success) {
-      if (success) {
+    
+    AppEventBus.instance.on<AddProfilePhotoResultEvent>().listen((event) async {
+      if (!mounted) return;
+      if (event.success) {
         setState(() {
           _profileBytes = Client.getInstance().profilePhoto;
           isLoading = false;
