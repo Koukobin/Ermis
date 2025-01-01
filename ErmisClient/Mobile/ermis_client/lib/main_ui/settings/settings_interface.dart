@@ -23,11 +23,12 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_theme.dart';
 import '../../client/client.dart';
+import '../../util/dialogs_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../user_profile.dart';
-import 'profile_settings.dart';
 import 'help_settings.dart';
 import 'linked_devices_settings.dart';
+import 'profile_settings.dart';
 import 'theme_settings.dart';
 
 class Settings extends StatefulWidget {
@@ -170,28 +171,3 @@ class DisplayNameState extends State<DisplayName> {
   
 }
 
-void showLogoutConfirmationDialog(
-    BuildContext context, String content, VoidCallback onYes) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Logout?'),
-        content: Text(content),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              onYes();
-              Navigator.of(context).pop();
-            },
-            child: Text('Logout', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      );
-    },
-  );
-}

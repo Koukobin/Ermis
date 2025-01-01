@@ -40,7 +40,7 @@ class CreateAccountInterface extends StatefulWidget {
   
 }
 
-class CreateAccountInterfaceState extends State<CreateAccountInterface> with Registration {
+class CreateAccountInterfaceState extends State<CreateAccountInterface> with Verification {
   static bool isDisplaying = false;
 
   // Controllers for user input
@@ -187,7 +187,7 @@ class LoginInterface extends StatefulWidget {
   
 }
 
-class LoginInterfaceState extends State<LoginInterface> with Registration {
+class LoginInterfaceState extends State<LoginInterface> with Verification {
   static bool isDisplaying = false;
 
   // Controllers for user input
@@ -407,80 +407,82 @@ Future<void> _showVerificationDialog({
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
-          return AlertDialog(
-            title: Text(title),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(promptMessage),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: codeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Enter Verification Code',
-                    border: OutlineInputBorder(),
+          return WhatsAppPopupDialog(
+            child: AlertDialog(
+              title: Text(title),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(promptMessage),
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    controller: codeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Enter Verification Code',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: isSubmitting
-                          ? null
-                          : () {
-                              onResendCode();
-                            },
-                      child: const Text('Resend Code'),
-                    ),
-                    ElevatedButton(
-                      onPressed: isSubmitting
-                          ? null
-                          : () {
-                              final codeString = codeController.text.trim();
-                              if (codeString.isEmpty) {
-                                showSnackBarDialog(
-                                    context: context,
-                                    content:
-                                        'Please enter the verification code');
-                                return;
-                              }
-
-                              int? codeInt = int.tryParse(codeString);
-
-                              if (codeInt == null) {
-                                showSnackBarDialog(
-                                    context: context,
-                                    content:
-                                        "Verification code must be number");
-                                return;
-                              }
-
-                              setState(() {
-                                isSubmitting = true;
-                              });
-
-                              // Set a delay to close dialog
-                              Future.delayed(const Duration(seconds: 1), () {
-                                Navigator.of(context).pop();
-                                onSumbittedCode(codeInt);
-                              }).whenComplete(() {
+                  const SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: isSubmitting
+                            ? null
+                            : () {
+                                onResendCode();
+                              },
+                        child: const Text('Resend Code'),
+                      ),
+                      ElevatedButton(
+                        onPressed: isSubmitting
+                            ? null
+                            : () {
+                                final codeString = codeController.text.trim();
+                                if (codeString.isEmpty) {
+                                  showSnackBarDialog(
+                                      context: context,
+                                      content:
+                                          'Please enter the verification code');
+                                  return;
+                                }
+            
+                                int? codeInt = int.tryParse(codeString);
+            
+                                if (codeInt == null) {
+                                  showSnackBarDialog(
+                                      context: context,
+                                      content:
+                                          "Verification code must be number");
+                                  return;
+                                }
+            
                                 setState(() {
-                                  isSubmitting = false;
+                                  isSubmitting = true;
                                 });
-                              });
-                            },
-                      child: isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Submit'),
-                    ),
-                  ],
-                ),
-              ],
+            
+                                // Set a delay to close dialog
+                                Future.delayed(const Duration(seconds: 1), () {
+                                  Navigator.of(context).pop();
+                                  onSumbittedCode(codeInt);
+                                }).whenComplete(() {
+                                  setState(() {
+                                    isSubmitting = false;
+                                  });
+                                });
+                              },
+                        child: isSubmitting
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text('Submit'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -489,7 +491,7 @@ Future<void> _showVerificationDialog({
   ).then((_) => codeController.clear());
 }
 
-mixin Registration {
+mixin Verification {
 
   Future<bool> performVerification(BuildContext context, String email) async {
     Entry verificationEntry = Client.getInstance().createNewVerificationEntry();

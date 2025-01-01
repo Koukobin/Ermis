@@ -17,7 +17,6 @@
 import 'package:camera/camera.dart';
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
-import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -27,7 +26,6 @@ import '../../util/dialogs_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../../util/file_utils.dart';
 import '../user_profile.dart';
-import 'settings_interface.dart';
 
 class ProfileSettings extends StatefulWidget {
   const ProfileSettings({super.key});
@@ -76,7 +74,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
     );
 
     // Start the animation
-    Future.delayed(Duration(milliseconds: 25), _controller.forward);
+    Future.delayed(Duration(milliseconds: 250), _controller.forward);
   }
 
   @override
@@ -179,7 +177,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
               ),
               onTap: () {
                 Clipboard.setData(ClipboardData(text: _clientID.toString()));
-                showSnackBarDialog(context: context, content: "Message copied to clipboard");
+                showSnackBarDialog(context: context, content: "ID copied to clipboard");
               },
             ),
           ],

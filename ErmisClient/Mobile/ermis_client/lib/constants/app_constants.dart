@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 const String applicationTitle = "Ermis";
-const String applicationVersion = "0.7.0";
+const String applicationVersion = "0.8.0";
 const String appIconPath = 'assets/primary_application_icon.png';
 const String parthenonasPath = 'assets/parthenonas.png';
 const String sourceCodeURL = "https://github.com/Koukobin/Ermis";

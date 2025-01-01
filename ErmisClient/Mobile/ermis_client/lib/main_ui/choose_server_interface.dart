@@ -34,18 +34,19 @@ class ChooseServer extends StatefulWidget {
   final Set<ServerInfo> cachedServerUrls;
 
   ChooseServer(this.cachedServerUrls, {super.key}) {
-    if (cachedServerUrls.isEmpty) {
-      return;
-    }
-
-    serverUrl = cachedServerUrls.first.serverUrl.toString();
+    serverUrl = cachedServerUrls.firstOrNull?.toString();
+    // Above one-liner is equivalent to:
+    // `if (cachedServerUrls.isEmpty) {
+    //   return;
+    // }
+    // serverUrl = cachedServerUrls.first.serverUrl.toString();`
   }
 
   @override
   State<ChooseServer> createState() => ChooseServerState();
 }
 
-class ChooseServerState extends State<ChooseServer> {
+class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixin {
   Set<ServerInfo> cachedServerUrls = {};
   bool _checkServerCertificate = false;
 
@@ -90,6 +91,7 @@ class ChooseServerState extends State<ChooseServer> {
                       onPressed: () async {
                         String? url = await showInputDialog(
                           context: context,
+                          vsync: this,
                           title: "Enter Server URL",
                           hintText: "example.com",
                         );
@@ -189,17 +191,15 @@ class ChooseServerState extends State<ChooseServer> {
 }
 
 class DropdownMenu extends StatefulWidget {
-
-  List<String> cachedServerUrls;
-
-  DropdownMenu(this.cachedServerUrls, {super.key});
+  final List<String> cachedServerUrls;
+  const DropdownMenu(this.cachedServerUrls, {super.key});
 
   @override
   State<DropdownMenu> createState() => _DropdownMenuState();
 }
 
 class _DropdownMenuState extends State<DropdownMenu> {
-
+  /// UniqueKey used to refresh dropdown menu (i.e force rebuild) when a URL is deleted
   Key _widgetKey = UniqueKey();
 
   @override
@@ -260,7 +260,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
                       onPressed: () {
                         final serverInfo = ServerInfo(Uri.parse(url));
                         ErmisDB.getConnection().removeServerInfo(serverInfo);
-                        widget.cachedServerUrls = List.from(widget.cachedServerUrls)..remove(url);
+                        widget.cachedServerUrls.remove(url);
                         setState(() {
                           _widgetKey = UniqueKey();
                         });

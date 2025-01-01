@@ -44,11 +44,8 @@ class ChatSession {
       _haveChatMessagesBeenCached = haveChatMessagesBeenCached;
 
   int get chatSessionID => _chatSessionID;
-
   int get chatSessionIndex => _chatSessionIndex;
-
   List<Member> get getMembers => _members;
-
   List<Message> get getMessages => _messages;
 
   String get lastMessageContent {

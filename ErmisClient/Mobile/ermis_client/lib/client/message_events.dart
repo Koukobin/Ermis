@@ -21,8 +21,8 @@ class UsernameReceivedEvent {
 
 class MessageReceivedEvent {
   final Message message;
-  final int chatSessionIndex;
-  MessageReceivedEvent(this.message, this.chatSessionIndex);
+  final ChatSession chatSession;
+  MessageReceivedEvent(this.message, this.chatSession);
 }
 
 class MessageSentEvent {

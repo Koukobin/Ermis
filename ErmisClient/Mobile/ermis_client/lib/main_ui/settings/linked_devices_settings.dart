@@ -22,8 +22,8 @@ import 'package:flutter/services.dart';
 
 import '../../theme/app_theme.dart';
 import '../../client/client.dart';
+import '../../util/dialogs_utils.dart';
 import '../../util/top_app_bar_utils.dart';
-import 'settings_interface.dart';
 
 class LinkedDevices extends StatefulWidget {
   const LinkedDevices({super.key});

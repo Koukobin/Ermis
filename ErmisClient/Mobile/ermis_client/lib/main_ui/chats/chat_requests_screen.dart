@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import '../../client/client.dart';
 import '../../client/common/chat_request.dart';
 import '../../theme/app_theme.dart';
-import '../../util/buttons_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../loading_state.dart';
 import 'user_avatar.dart';
@@ -94,32 +93,63 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
   }
 
   Widget buildChatRequestButton(int index) {
-    return createOutlinedButton(
-        context: context,
-        text: Text(_chatRequests![index].toString()),
-        avatar: UserAvatar(
-            imageBytes: Uint8List.fromList(List.empty()), isOnline: false),
-        otherWidgets: [
-          GestureDetector(
-            onTap: () => Client.getInstance()
-                .commands
-                .acceptChatRequest(_chatRequests![index].clientID),
-            child: Icon(
-              Icons.check,
-              color: Colors.greenAccent,
+    final appColors = Theme.of(context).extension<AppColors>()!;
+    return Container(
+      height: 150,
+      decoration: BoxDecoration(
+        border: Border.all(color: appColors.primaryColor, width: 1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            UserAvatar(
+              imageBytes: Uint8List.fromList(List.empty()),
+              isOnline: false,
             ),
-          ),
-          GestureDetector(
-            onTap: () => Client.getInstance()
-                .commands
-                .declineChatRequest(_chatRequests![index].clientID),
-            child: Icon(
-              Icons.cancel_outlined,
-              color: Colors.redAccent,
+            const SizedBox(height: 5),
+            Text(
+              _chatRequests![index].toString(),
+              style: TextStyle(fontSize: 16),
             ),
-          ),
-        ],
-        onTap: () {});
+            const SizedBox(height: 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Client.getInstance()
+                      .commands
+                      .acceptChatRequest(_chatRequests![index].clientID),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.greenAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text("Accept"),
+                ),
+                SizedBox(width: 10), // Add space between buttons
+                OutlinedButton(
+                  onPressed: () => Client.getInstance()
+                      .commands
+                      .declineChatRequest(_chatRequests![index].clientID),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.redAccent,
+                    side: BorderSide(color: Colors.redAccent),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text("Decline"),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _refreshContent() async {

@@ -420,7 +420,7 @@ class MessageHandler {
             chatSession.getMessages.add(message);
           }
 
-          eventBus.fire(MessageReceivedEvent(message, chatSession.chatSessionIndex));
+          eventBus.fire(MessageReceivedEvent(message, chatSession));
           break;
         case ServerMessageType.commandResult:
           final commandResult = ClientCommandResultType.fromId(msg.readInt32());

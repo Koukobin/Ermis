@@ -16,14 +16,31 @@
 
 import 'dart:typed_data';
 
+import 'package:ermis_client/constants/app_constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../client/client.dart';
+
 class NotificationService {
-  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static int? chatSessionIndex;
 
   static Future<void> onDidReceiveNotification(NotificationResponse response) async {
-    // Not need for now
+    if (response.actionId == 'action_reply') {
+
+      if (chatSessionIndex == null) {
+        if (kDebugMode) debugPrint("ΓΑΜΩ ΤΟ ΣΠΙΤΙ ΜΟΥ ΚΑΙ ΤΑ ΠΑΝΤΑ. ΓΙΑΤΙ ΔΕΝ ΕΧΩ ΘΕΣΕΙ ΤΟ FUCKING INDEX");
+        return;
+      }
+
+      String? input = response.input;
+      if (input == null) {
+        return;
+      }
+
+      Client.getInstance().sendMessageToClient(input, chatSessionIndex!);
+    }
   }
 
   // Initialize the notification plugin
@@ -37,7 +54,6 @@ class NotificationService {
             android: androidInitializationSettings, iOS: null);
 
     // Initialize the plugin with the specified settings
-
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
         onDidReceiveNotificationResponse: onDidReceiveNotification);
@@ -79,19 +95,68 @@ class NotificationService {
     return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
   }
 
-  // Show an instant Notification
-  static Future<void> showInstantNotification(String title, String body) async {
+  static Future<void> showSimpleNotification({required String body}) async {
     // Define Notification Details
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: AndroidNotificationDetails(
-        "channelId",
-        "channelName",
-        importance: Importance.defaultImportance,
-        priority: Priority.defaultPriority,
-      ),
-    );
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: AndroidNotificationDetails(
+      'your_channel_id', // Channel ID
+      'your_channel_name', // Channel Name
+      channelDescription: 'Detailed notification example',
+      importance: Importance.high,
+      priority: Priority.high,
+      additionalFlags: Int32List.fromList(<int>[4]), // Optional, custom flags
+      ticker: 'ticker',
+    ));
 
-    return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
+    NotificationService.chatSessionIndex = chatSessionIndex;
+    return flutterLocalNotificationsPlugin.show(0, applicationTitle, body, platformChannelSpecifics);
+  }
+
+  // Show an instant Notification
+  static Future<void> showInstantNotification(
+      {required Uint8List icon,
+      required String body,
+      required String summaryText,
+      required String contentTitle,
+      required String contentText,
+      required int chatSessionIndex}) async {
+    // Define Notification Details
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: AndroidNotificationDetails(
+      'your_channel_id', // Channel ID
+      'your_channel_name', // Channel Name
+      channelDescription: 'Detailed notification example',
+      importance: Importance.high,
+      priority: Priority.high,
+      largeIcon: ByteArrayAndroidBitmap(icon),
+      additionalFlags: Int32List.fromList(<int>[4]), // Optional, custom flags
+      actions: [
+        AndroidNotificationAction(
+          'action_reply',
+          'Reply',
+          showsUserInterface: true,
+          icon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+          inputs: [
+            AndroidNotificationActionInput(
+              label: 'Type your reply...',
+            ),
+          ],
+        ),
+        AndroidNotificationAction(
+          'action_mark_read',
+          'Mark as Read',
+        ),
+      ],
+      styleInformation: BigTextStyleInformation(
+        contentText,
+        contentTitle: contentTitle,
+        summaryText: summaryText,
+      ),
+      ticker: 'ticker',
+    ));
+
+    NotificationService.chatSessionIndex = chatSessionIndex;
+    return flutterLocalNotificationsPlugin.show(0, applicationTitle, body, platformChannelSpecifics);
   }
 
 }

@@ -77,15 +77,14 @@ class ChatsState extends TempState<Chats> {
     });
 
     AppEventBus.instance.on<ServerMessageEvent>().listen((event) async {
-      final context = navigatorKey.currentState?.context;
-      if (context == null || !context.mounted) return;
-
-      showToastDialog(context, event.message);
+      showToastDialog(event.message);
     });
 
     // Whenever text changes performs search
     _searchController.addListener(() {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       performSearch();
     });
 
@@ -137,7 +136,8 @@ class ChatsState extends TempState<Chats> {
                 return [
                   PopupMenuItem(
                     value: () {
-                      SendChatRequestButton.showAddChatRequestDialog(context);
+                      // FUCK
+                      // SendChatRequestButton.showAddChatRequestDialog(context);
                     },
                     child: const Text('New chat'),
                   ),
@@ -239,34 +239,6 @@ class ChatsState extends TempState<Chats> {
       builder: (context, snapshot) {
         return Scaffold(
           appBar: appBar,
-            drawer: Drawer(
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        DrawerHeader(
-          decoration: BoxDecoration(color: Colors.blue),
-          child: Text(
-            'Menu',
-            style: TextStyle(color: Colors.white, fontSize: 24),
-          ),
-        ),
-        ListTile(
-          leading: Icon(Icons.home),
-          title: Text('Home'),
-          onTap: () {
-            // Handle navigation
-          },
-        ),
-        ListTile(
-          leading: Icon(Icons.settings),
-          title: Text('Settings'),
-          onTap: () {
-            // Handle navigation
-          },
-        ),
-      ],
-    ),
-  ),
           backgroundColor: appColors.secondaryColor,
           floatingActionButtonLocation:  FloatingActionButtonLocation.endFloat, // Position at the bottom right
           floatingActionButton: SendChatRequestButton(),
@@ -438,9 +410,10 @@ class SendChatRequestButton extends StatefulWidget {
   @override
   State<SendChatRequestButton> createState() => _SendChatRequestButtonState();
 
-  static void showAddChatRequestDialog(BuildContext context) async {
+  static void showAddChatRequestDialog(BuildContext context, TickerProvider vsync) async {
     final String? input = await showInputDialog(
         context: context,
+        vsync: vsync,
         title: "Send Chat Request",
         hintText: "Enter client id");
 
@@ -456,7 +429,7 @@ class SendChatRequestButton extends StatefulWidget {
   }
 }
 
-class _SendChatRequestButtonState extends State<SendChatRequestButton> {
+class _SendChatRequestButtonState extends State<SendChatRequestButton> with TickerProviderStateMixin {
 
   double _widgetOpacity = 0.0;
 
@@ -470,8 +443,8 @@ class _SendChatRequestButtonState extends State<SendChatRequestButton> {
     });
   }
 
-  static void showAddChatRequestDialog(BuildContext context) {
-    SendChatRequestButton.showAddChatRequestDialog(context);
+  static void showAddChatRequestDialog(BuildContext context, TickerProvider vsync) {
+    SendChatRequestButton.showAddChatRequestDialog(context, vsync);
   }
 
   @override
@@ -483,7 +456,7 @@ class _SendChatRequestButtonState extends State<SendChatRequestButton> {
         duration: Duration(milliseconds: 200),
         opacity: _widgetOpacity,
         child: FloatingActionButton(
-          onPressed: () => showAddChatRequestDialog(context),
+          onPressed: () => showAddChatRequestDialog(context, this),
           backgroundColor: appColors.primaryColor,
           child: Icon(Icons.add),
         ),

@@ -112,17 +112,17 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     });
 
     AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
-      if (!mounted) return;
-      Message msg = event.message;
-      int chatSessionIndex = event.chatSessionIndex;
+      ChatSession chatSession = event.chatSession;
 
-      if (_chatSessionIndex != chatSessionIndex) return;
+      // Since many app event bus listeners of these will exist for each unique chat session...too lazy to write rest
+      if (_chatSessionIndex != chatSession.chatSessionIndex) return;
+
+      Message msg = event.message;
       _addMessage(msg);
 
       // If message originates from the active chat session and the app is in 
       // the active state (resumed), abstain from showing the notification
-      if (_activeChatSessionIndex == chatSessionIndex &&
-          // isOnScreen &&
+      if (_activeChatSessionIndex == chatSession.chatSessionIndex &&
           _appLifecycleState == AppLifecycleState.resumed) {
         return;
       }
@@ -139,7 +139,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       }
 
       if (!settingsJson.showMessagePreview) {
-        NotificationService.showInstantNotification("Ermis!", "New message!");
+        NotificationService.showSimpleNotification(body: "New message!");
         return;
       }
 
@@ -152,8 +152,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           body = "Send file ${utf8.decode(msg.fileName!)}";
           break;
       }
-      
-      NotificationService.showInstantNotification(msg.getUsername, body);
+
+      NotificationService.showInstantNotification(
+        icon: chatSession.getMembers[0].getIcon,
+        body: "Message by ${msg.getUsername}",
+        contentText: body,
+          contentTitle: msg.getUsername,
+          summaryText: event.chatSession.toString(),
+          chatSessionIndex:  chatSession.chatSessionIndex);
     });
 
     AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
@@ -180,8 +186,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       for (var i = 0; i < session.getMessages.length; i++) {
         if (session.getMessages[i].messageID == messageID) {
           _chatSession.getMessages.removeAt(i); // Remove given message id
-
           if (session.chatSessionID == _chatSession.chatSessionID) {
+            if (!mounted) return;
             setState(() {
               _messages.removeAt(i);
             });
@@ -244,12 +250,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       setState(() {
         _messages.add(msg);
       });
-    } else {
-      _messages.add(msg);
+      return;
     }
+
+    _messages.add(msg);
   }
 
   void _updateImageMessage(LoadedInMemoryFile file, int messageID) {
+    if (!mounted) return;
     for (final message in _messages) {
       if (message.messageID == messageID) {
         setState(() {
