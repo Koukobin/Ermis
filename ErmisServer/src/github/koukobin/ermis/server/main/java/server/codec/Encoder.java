@@ -31,9 +31,9 @@ import io.netty.handler.codec.MessageToByteEncoder;
  */
 public final class Encoder extends MessageToByteEncoder<ByteBuf> {
 	
-	private static final Logger logger = LogManager.getLogger("server");
+	private static final Logger LOGGER = LogManager.getLogger("server");
 	
-    private static final int compressionLevel = 4; // 1 (fastest) to 22 (highest compression)
+    private static final int COMPRESSION_LEVEL = 4; // 1 (fastest) to 22 (highest compression)
 
 	@Override
 	protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
@@ -56,9 +56,9 @@ public final class Encoder extends MessageToByteEncoder<ByteBuf> {
 	
 	private static byte[] compress(byte[] data) {
 	    try {
-	        return Zstd.compress(data, compressionLevel);
+	        return Zstd.compress(data, COMPRESSION_LEVEL);
 	    } catch (Exception e) {
-	    	logger.debug(Throwables.getStackTraceAsString(e));
+	    	LOGGER.debug(Throwables.getStackTraceAsString(e));
 	    }
 		return data;
 	}

@@ -26,10 +26,12 @@ import java.util.concurrent.ExecutionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.github.luben.zstd.Zstd;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import github.koukobin.ermis.common.util.CompressionDetector;
 import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.UserFilesStorage;
 
 /**
@@ -38,6 +40,8 @@ import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.UserFi
  */
 public final class FilesStorage {
 
+	private static final int FILE_COMPRESSION_LEVEL = 4; // 1 (fastest) to 22 (highest compression)
+	
 	private static final Logger LOGGER = LogManager.getLogger("server");
 	private static final LoadingCache<String, byte[]> filesCache;
 	private static final LoadingCache<String, byte[]> profilePhotosCache;
@@ -99,34 +103,48 @@ public final class FilesStorage {
 	public static String createProfilePhoto(byte[] photoBytes) throws IOException {
 		String uuid = generateUUID();
 		String photoFilePath = UserFilesStorage.PROFILE_PHOTOS_DIRECTORY + uuid;
+		byte[] photoBytesCompressed = Zstd.compress(photoBytes, FILE_COMPRESSION_LEVEL);
 
 		Path path = Paths.get(photoFilePath);
 		Files.createFile(path);
-		Files.write(path, photoBytes);
+		Files.write(path, photoBytesCompressed);
 		return uuid;
 	}
 
 	public static String createUserFile(byte[] fileBytes) throws IOException {
 		String uuid = generateUUID();
 		String photoFilePath = UserFilesStorage.SENT_FILES_DIRECTORY + uuid;
+		byte[] fileBytesCompressed = Zstd.compress(fileBytes, FILE_COMPRESSION_LEVEL);
 
 		Path path = Paths.get(photoFilePath);
 		Files.createFile(path);
-		Files.write(path, fileBytes);
+		Files.write(path, fileBytesCompressed);
 		return uuid;
 	}
 
 	public static byte[] loadProfilePhoto(String photoUUID) throws IOException {
 		try {
-			return profilePhotosCache.get(photoUUID);
+			byte[] photoBytes = profilePhotosCache.get(photoUUID);
+
+			if (CompressionDetector.isZstdCompressed(photoBytes)) {
+				return Zstd.decompress(photoBytes, (int) Zstd.decompressedSize(photoBytes));
+			}
+
+			return photoBytes;
 		} catch (ExecutionException ee) {
 			throw new IOException(ee);
 		}
 	}
 
-	public static byte[] loadUserFile(String photoUUID) throws IOException {
+	public static byte[] loadUserFile(String fileUUID) throws IOException {
 		try {
-			return filesCache.get(photoUUID);
+			byte[] fileBytes = filesCache.get(fileUUID);
+
+			if (CompressionDetector.isZstdCompressed(fileBytes)) {
+				return Zstd.decompress(fileBytes, (int) Zstd.decompressedSize(fileBytes));
+			}
+
+			return fileBytes;
 		} catch (ExecutionException ee) {
 			throw new IOException(ee);
 		}

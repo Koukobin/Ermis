@@ -219,13 +219,12 @@ public final class Server {
 
 					ctx.fireChannelRead(msg);
 				} else {
-					ctx.pipeline().addLast(MessageRateLimiter.class.getName(), new MessageRateLimiter());
-
 					// Codec
 					ctx.pipeline().addLast("decoder", new PrimaryDecoder());
 					ctx.pipeline().addLast("encoder", new Encoder());
 
 					// Handlers
+					ctx.pipeline().addLast(MessageRateLimiter.class.getName(), new MessageRateLimiter());
 					ctx.pipeline().addLast(DispatcherHandler.class.getName(), new DispatcherHandler());
 					ctx.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 				}

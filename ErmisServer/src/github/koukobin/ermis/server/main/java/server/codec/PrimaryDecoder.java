@@ -70,7 +70,7 @@ public final class PrimaryDecoder extends Decoder {
 
 		return true;
 	}
-	
+
 	private static void decompress(ByteBuf in) {
 		int compressedLength = in.readInt();
 		byte[] compressedData = new byte[compressedLength];
@@ -122,8 +122,7 @@ public final class PrimaryDecoder extends Decoder {
 	private static int getMaxLengthForCommand(ChannelHandlerContext ctx, ByteBuf data) {
 		try {
 			ClientCommandType commandType = ClientCommandType.fromId(data.readInt());
-			return (commandType == ClientCommandType.ADD_ACCOUNT_ICON)
-					? ServerSettings.MAX_CLIENT_MESSAGE_FILE_BYTES
+			return (commandType == ClientCommandType.ADD_ACCOUNT_ICON) ? ServerSettings.MAX_CLIENT_MESSAGE_FILE_BYTES
 					: ServerSettings.MAX_CLIENT_MESSAGE_TEXT_BYTES;
 		} catch (IndexOutOfBoundsException iooe) {
 			LOGGER.debug(Throwables.getStackTraceAsString(iooe));
