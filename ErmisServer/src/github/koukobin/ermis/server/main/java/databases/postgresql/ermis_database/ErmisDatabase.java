@@ -213,16 +213,13 @@ public final class ErmisDatabase {
 		        String text = null;
 		        String fileName = null;
 		        
-		        if (message.getFileBytes() != null) {
-		        	fileID = FilesStorage.createUserFile(message.getFileBytes());
-		        }
-		        
 		        if (message.getText() != null) {
 		        	text = new String(message.getText());
 		        }
 		        
 		        if (message.getFileName() != null) {
 		        	fileName = new String(message.getFileName());
+		        	fileID = FilesStorage.createUserFile(message.getFileBytes());
 		        }
 		        
 				addMessage.setInt(1, chatSessionID);

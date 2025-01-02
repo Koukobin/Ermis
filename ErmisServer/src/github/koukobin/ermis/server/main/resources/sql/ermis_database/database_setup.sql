@@ -96,10 +96,9 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     file_name TEXT,
     file_content_id TEXT,
     content_type INTEGER NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (chat_session_id, message_id),
-    CHECK (text IS NOT NULL OR file_content_id IS NOT NULL),
-    CONSTRAINT fk_chat_session FOREIGN KEY (chat_session_id) REFERENCES chat_sessions (chat_session_id),
-    CONSTRAINT fk_sender_client FOREIGN KEY (client_id) REFERENCES users (client_id)
+    CHECK (text IS NOT NULL OR file_content_id IS NOT NULL)
 );
 
 CREATE INDEX IF NOT EXISTS message_id_index ON chat_messages (message_id);

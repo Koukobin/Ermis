@@ -33,7 +33,7 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 	public StartingEntryHandler() {
 		super(new ClientInfo());
 	}
-	
+
 //	public StartingEntryHandler(ClientInfo clientInfo) {
 //		super(clientInfo);
 //	}
@@ -61,13 +61,13 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 	}
 
 	private static void tryLogin(ChannelHandlerContext ctx, ByteBuf msg, ClientInfo clientInfo) {
-	    // If no readable bytes in buffer, transition to LoginHandler
+		// If no readable bytes in buffer, transition to LoginHandler
 		if (msg.readableBytes() == 0) {
 			getLogger().debug("Moving into login!");
 			ctx.pipeline().replace(ctx.handler(), LoginHandler.class.getName(), new LoginHandler(clientInfo));
 			return;
 		}
-		
+
 		// Otherwise, authenticate client via email and passwordHash
 		boolean isSuccessful = false;
 		try {
@@ -100,7 +100,7 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 			// Regardless of authentication outcome inform success to user
 			ctx.channel().writeAndFlush(Unpooled.copyBoolean(isSuccessful));
 		}
-		
+
 	}
 
 }

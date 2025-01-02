@@ -18,6 +18,7 @@ package github.koukobin.ermis.client.main.java.service.client.io_client;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.github.luben.zstd.Zstd;
 import com.google.common.primitives.Ints;
 
 import github.koukobin.ermis.common.util.CompressionDetector;
@@ -40,14 +41,14 @@ class ByteBufInputStream implements AutoCloseable {
 
 		byte[] lengthOfMsgBytes = new byte[Integer.BYTES];
 		read(lengthOfMsgBytes);
-		
+
 		int lengthOfMsg = Ints.fromByteArray(lengthOfMsgBytes);
 
 		byte[] msgBytes = new byte[lengthOfMsg];
 		read(msgBytes);
 
 		if (CompressionDetector.isZstdCompressed(msgBytes)) {
-			return ZstdDecompressor.decompress(msgBytes);
+			return zstdDecompress(msgBytes);
 		}
 
 		return Unpooled.wrappedBuffer(msgBytes);
@@ -63,6 +64,15 @@ class ByteBufInputStream implements AutoCloseable {
 			int numOfBytesToRead = len - readPos;
 			int count = in.read(b, readPos, numOfBytesToRead);
 			readPos += count;
+		}
+	}
+
+	private static ByteBuf zstdDecompress(byte[] compressedData) throws IOException {
+		try {
+			byte[] decompressedBytes = Zstd.decompress(compressedData, (int) Zstd.decompressedSize(compressedData));
+			return Unpooled.wrappedBuffer(decompressedBytes);
+		} catch (Exception e) {
+			throw new IOException("Failed to decompress data", e);
 		}
 	}
 

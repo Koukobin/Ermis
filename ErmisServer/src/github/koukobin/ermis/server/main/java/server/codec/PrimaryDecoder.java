@@ -28,6 +28,9 @@ import github.koukobin.ermis.common.util.CompressionDetector;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import net.jpountz.lz4.LZ4DecompressorWithLength;
+import net.jpountz.lz4.LZ4Factory;
+import net.jpountz.lz4.LZ4SafeDecompressor;
 
 /**
  * @author Ilias Koukovinis
@@ -39,14 +42,19 @@ public final class PrimaryDecoder extends Decoder {
 
 	@Override
 	public boolean handleMessage(ChannelHandlerContext ctx, int length, ByteBuf in) {
-		if (CompressionDetector.isZstdCompressed(in)) {
-			try {
-				decompress(in);
-			} catch (Exception e) {
-				LOGGER.debug(Throwables.getStackTraceAsString(e));
-				createErrorResponse(ctx, "Decompression failed");
-				return false; // Decompression failed, terminate the method early
+		try {
+			// Decoder supports both Zstd and Lz4 compression
+			if (CompressionDetector.isZstdCompressed(in)) {
+				zstdDecompress(in);
+			} else if (CompressionDetector.isLz4Compressed(in)) {
+				lz4Decompress(in);
+			} else {
+				LOGGER.debug("Message not compressed (or compression algorithm is not supported)");
 			}
+		} catch (Exception e) {
+			LOGGER.debug(Throwables.getStackTraceAsString(e));
+			createErrorResponse(ctx, "Decompression failed");
+			return false; // Decompression failed, terminate the method early
 		}
 
 		ClientMessageType messageType;
@@ -71,12 +79,30 @@ public final class PrimaryDecoder extends Decoder {
 		return true;
 	}
 
-	private static void decompress(ByteBuf in) {
+	private static void zstdDecompress(ByteBuf in) {
 		int compressedLength = in.readInt();
 		byte[] compressedData = new byte[compressedLength];
 		in.readBytes(compressedData);
 
 		byte[] decompressedData = Zstd.decompress(compressedData, (int) Zstd.decompressedSize(compressedData));
+
+		in.clear();
+		in.writeBytes(decompressedData);
+		in.capacity(decompressedData.length);
+	}
+
+	private static void lz4Decompress(ByteBuf in) {
+		int compressedLength = in.readInt();
+		byte[] compressedData = new byte[compressedLength];
+		in.readBytes(compressedData);
+
+		LZ4Factory factory = LZ4Factory.fastestInstance();
+		LZ4SafeDecompressor decompressor = factory.safeDecompressor();
+		
+		int decompressedLength = LZ4DecompressorWithLength.getDecompressedLength(compressedData);
+		
+		byte[] decompressedData = new byte[decompressedLength];
+		decompressor.decompress(compressedData, decompressedData);
 
 		in.clear();
 		in.writeBytes(decompressedData);

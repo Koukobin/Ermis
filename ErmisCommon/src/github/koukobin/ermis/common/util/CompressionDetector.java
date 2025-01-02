@@ -25,16 +25,22 @@ import io.netty.buffer.ByteBuf;
  *
  */
 public final class CompressionDetector {
-	
+
 	/**
-	 *  Signature of Zstandard
-	 *  
+	 * Signature of Zstandard
+	 * 
 	 */
 	private static final int ZSTD_MAGIC_NUMBER = 0xFD2FB528; // Zstandard magic number
 
+	/**
+	 * Signature of LZ4
+	 * 
+	 */
+	private static final int LZ4_MAGIC_NUMBER = 0x184D2204; // LZ4 magic number
+
 	private CompressionDetector() {}
-	
-    /**
+
+	/**
 	 * Determines if the data in the ByteBuf is Zstandard-compressed. This method
 	 * does not modify the ByteBuf's read index or content.
 	 *
@@ -51,7 +57,7 @@ public final class CompressionDetector {
 		return isZstdCompressed(array);
 	}
 
-    /**
+	/**
 	 * Determines if the byte array represents Zstandard-compressed data.
 	 *
 	 * @param data the byte array to check
@@ -64,17 +70,41 @@ public final class CompressionDetector {
 
 		// Read the first 4 bytes to check the magic number
 		int magicNumber = ByteBuffer.wrap(data, 0, Integer.BYTES).order(ByteOrder.LITTLE_ENDIAN).getInt();
-		return isZstdCompressed(magicNumber);
+		return magicNumber == ZSTD_MAGIC_NUMBER;
 	}
 
 	/**
-	 * Compares the given magic number to the Zstandard magic number.
+	 * Determines if the data in the ByteBuf is LZ4-compressed. This method does not
+	 * modify the ByteBuf's read index or content.
 	 *
-	 * @param magicNumber the magic number to check
-	 * @return true if the magic number matches Zstandard, false otherwise
+	 * @param data the ByteBuf to check
+	 * @return true if the data is LZ4-compressed, false otherwise
 	 */
-    private static boolean isZstdCompressed(int magicNumber) {
-        return magicNumber == ZSTD_MAGIC_NUMBER; 
-    }
+	public static boolean isLz4Compressed(ByteBuf data) {
+		if (data == null || data.readableBytes() < 4) {
+			return false; // Cannot be LZ4 if less than 4 bytes
+		}
+
+		byte[] array = new byte[Integer.BYTES];
+		data.getBytes(data.readerIndex(), array); // Preserve ByteBuf state
+		return isLz4Compressed(array);
+	}
+
+	/**
+	 * Determines if the byte array represents LZ4-compressed data.
+	 *
+	 * @param data the byte array to check
+	 * @return true if the data is LZ4-compressed, false otherwise
+	 */
+	public static boolean isLz4Compressed(byte[] data) {
+		if (data == null || data.length < 4) {
+			return false; // Cannot be LZ4 if less than 4 bytes
+		}
+
+		// Read the first 4 bytes to check the magic number
+		int magicNumber = ByteBuffer.wrap(data, 0, Integer.BYTES).order(ByteOrder.LITTLE_ENDIAN).getInt();
+		return magicNumber == LZ4_MAGIC_NUMBER;
+	}
+
 }
 
