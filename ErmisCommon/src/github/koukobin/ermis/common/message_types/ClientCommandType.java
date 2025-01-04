@@ -30,7 +30,7 @@ public enum ClientCommandType {
 	// Account Management 
 	CHANGE_USERNAME(CommandLevel.HEAVY, 100),
 	CHANGE_PASSWORD(CommandLevel.HEAVY, 101),
-	ADD_ACCOUNT_ICON(CommandLevel.HEAVY, 102),
+	SET_ACCOUNT_ICON(CommandLevel.HEAVY, 102),
 	LOGOUT_THIS_DEVICE(CommandLevel.HEAVY, 103),
 	LOGOUT_OTHER_DEVICE(CommandLevel.HEAVY, 104),
 	LOGOUT_ALL_DEVICES(CommandLevel.HEAVY, 105),
@@ -57,7 +57,8 @@ public enum ClientCommandType {
 	DOWNLOAD_FILE(CommandLevel.HEAVY, 308),
 	DOWNLOAD_IMAGE(CommandLevel.HEAVY, 309),
 	START_VOICE_CALL(CommandLevel.HEAVY, 310),
-
+	ACCEPT_VOICE_CALL(CommandLevel.HEAVY, 311),
+	
 	// External Pages
 	REQUEST_DONATION_PAGE(CommandLevel.LIGHT, 400),
 	REQUEST_SOURCE_CODE_PAGE(CommandLevel.LIGHT, 401);

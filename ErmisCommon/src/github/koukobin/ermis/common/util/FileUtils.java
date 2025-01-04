@@ -26,15 +26,19 @@ import java.util.Properties;
 import java.util.Scanner;
 
 /**
+ * 
+ * A utility class for performing common file operations such as reading files
+ * and managing properties files.
+ * 
  * @author Ilias Koukovinis
  *
  */
-public final class FileEditor {
+public final class FileUtils {
 
-	private FileEditor() {}
+	private FileUtils() {}
 
 	public static String readFile(String filePath) throws FileNotFoundException {
-		return readFile(new File(filePath));
+		return readFile(new FileInputStream(filePath));
 	}
 	
 	public static String readFile(File file) throws FileNotFoundException {
@@ -58,20 +62,34 @@ public final class FileEditor {
 	}
 	
 	public static Properties readPropertiesFile(String configFilePath) throws IOException {
-
 		Properties props = new Properties();
-
 		try (FileInputStream fis = new FileInputStream(configFilePath)) {
 			props.load(fis);
 		}
-
 		return props;
 	}
 
+	/**
+	 * Replaces a property value in a properties file.
+	 *
+	 * @param key        the property key to update
+	 * @param value      the new value for the property
+	 * @param configFile the file to update
+	 * @throws IOException if an I/O error occurs
+	 */
 	public static void replaceValueInPropertiesFile(String key, String value, File configFilePath) throws IOException {
 		replaceValueInPropertiesFile(key, value, configFilePath.getAbsolutePath());
 	}
-	
+
+	/**
+	 * Replaces a property value in a properties file located at the given file
+	 * path.
+	 *
+	 * @param key            the property key to update
+	 * @param value          the new value for the property
+	 * @param configFilePath the path to the properties file
+	 * @throws IOException if an I/O error occurs
+	 */
 	public static void replaceValueInPropertiesFile(String key, String value, String configFilePath) throws IOException {
 		Properties props = readPropertiesFile(configFilePath);
 		props.setProperty(key, value);

@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.util.FileEditor;
+import github.koukobin.ermis.common.util.FileUtils;
 
 /**
  * @author Ilias Koukovinis
@@ -39,7 +39,7 @@ public final class ServerSettings {
 
 	static {
 		try {
-			GENERAL_PROPERTIES = FileEditor.readPropertiesFile(ConfigurationsPaths.Server.GENERAL_SETTINGS);
+			GENERAL_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.Server.GENERAL_SETTINGS);
 		} catch (IOException ioe) {
 			logger.fatal(Throwables.getStackTraceAsString(ioe));
 			throw new RuntimeException(ioe);
@@ -76,7 +76,7 @@ public final class ServerSettings {
 
 		static {
 			try {
-				SSL_PROPERTIES = FileEditor.readPropertiesFile(ConfigurationsPaths.Server.SSL_SETTINGS);
+				SSL_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.Server.SSL_SETTINGS);
 			} catch (IOException ioe) {
 				logger.fatal(Throwables.getStackTraceAsString(ioe));
 				throw new RuntimeException(ioe);
@@ -113,7 +113,7 @@ public final class ServerSettings {
 		static {
 			try {
 				HTML_FILE_NAME = donationsHtmlFile.getName();
-				HTML_PAGE = FileEditor.readFile(donationsHtmlFile);
+				HTML_PAGE = FileUtils.readFile(donationsHtmlFile);
 			} catch (IOException ioe) {
 				logger.fatal(Throwables.getStackTraceAsString(ioe));
 				throw new RuntimeException(ioe);
@@ -142,13 +142,11 @@ public final class ServerSettings {
 
 			public static class Login {
 
-				private static final File verificationEmailBodyFile = new File(ConfigurationsPaths.Server.EmailCreator.Verification.Login.VERIFICATION_EMAIL_BODY_FILE_PATH);
-
 				public static final String VERIFICATION_EMAIL_BODY;
 
 				static {
 					try {
-						VERIFICATION_EMAIL_BODY = FileEditor.readFile(verificationEmailBodyFile);
+						VERIFICATION_EMAIL_BODY = FileUtils.readFile(ConfigurationsPaths.EmailCreator.Verification.LOGIN_VERIFICATION_EMAIL_BODY_FILE_PATH);
 					} catch (IOException ioe) {
 						logger.fatal(Throwables.getStackTraceAsString(ioe));
 						throw new RuntimeException(ioe);
@@ -164,13 +162,11 @@ public final class ServerSettings {
 			
 			public static class DeleteAccount {
 
-				private static final File verificationEmailBodyFile = new File(ConfigurationsPaths.Server.EmailCreator.Verification.DeleteAccount.VERIFICATION_EMAIL_BODY_FILE_PATH);
-
 				public static final String VERIFICATION_EMAIL_BODY;
 
 				static {
 					try {
-						VERIFICATION_EMAIL_BODY = FileEditor.readFile(verificationEmailBodyFile);
+						VERIFICATION_EMAIL_BODY = FileUtils.readFile(ConfigurationsPaths.EmailCreator.Verification.DELETE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH);
 					} catch (IOException ioe) {
 						logger.fatal(Throwables.getStackTraceAsString(ioe));
 						throw new RuntimeException(ioe);
@@ -186,13 +182,11 @@ public final class ServerSettings {
 
 			public static class CreateAccount {
 
-				private static final File verificationEmailBodyFile = new File(ConfigurationsPaths.Server.EmailCreator.Verification.CreateAccount.VERIFICATION_EMAIL_BODY_FILE_PATH);
-
 				public static final String VERIFICATION_EMAIL_BODY;
 
 				static {
 					try {
-						VERIFICATION_EMAIL_BODY = FileEditor.readFile(verificationEmailBodyFile);
+						VERIFICATION_EMAIL_BODY = FileUtils.readFile(ConfigurationsPaths.EmailCreator.Verification.CREATE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH);
 					} catch (IOException ioe) {
 						logger.fatal(Throwables.getStackTraceAsString(ioe));
 						throw new RuntimeException(ioe);

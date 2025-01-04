@@ -50,11 +50,10 @@ import github.koukobin.ermis.common.results.ChangeUsernameResult;
 import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EmptyArrays;
-import github.koukobin.ermis.common.util.FileEditor;
+import github.koukobin.ermis.common.util.FileUtils;
 import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.Database;
-import github.koukobin.ermis.server.main.Vulnerable;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
-import github.koukobin.ermis.server.main.java.databases.postgresql.PostgresqlDatabase;
+import github.koukobin.ermis.server.main.java.databases.postgresql.PostgreSQLDatabase;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.complexity_checker.PasswordComplexityChecker;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.complexity_checker.UsernameComplexityChecker;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.BackupVerificationCodesGenerator;
@@ -88,7 +87,7 @@ public final class ErmisDatabase {
 	
 	static {
 		try {
-			generalPurposeDataSource = new PostgresqlDatabase.HikariDataSourceBuilder()
+			generalPurposeDataSource = new PostgreSQLDatabase.HikariDataSourceBuilder()
 					.setUser(DatabaseSettings.USER)
 					.setServerNames(DatabaseSettings.DATABASE_ADDRESS)
 					.setDatabaseName(DatabaseSettings.DATABASE_NAME)
@@ -100,7 +99,7 @@ public final class ErmisDatabase {
 					.setConnectionTimeout(0)
 					.build();
 			
-			writeChatMessagesDataSource = new PostgresqlDatabase.HikariDataSourceBuilder()
+			writeChatMessagesDataSource = new PostgreSQLDatabase.HikariDataSourceBuilder()
 					.setUser(DatabaseSettings.USER)
 					.setServerNames(DatabaseSettings.DATABASE_ADDRESS)
 					.setDatabaseName(DatabaseSettings.DATABASE_NAME)
@@ -124,7 +123,7 @@ public final class ErmisDatabase {
 				int backupVerificationCodesCharactersLength = (DatabaseSettings.Client.BackupVerificationCodes.Hashing.HASH_LENGTH * 8 + 5) / 6;
 				int usernameMaxLength = DatabaseSettings.Client.Username.REQUIREMENTS.getMaxLength();
 
-				String setupSQL = FileEditor.readFile(Database.DATABASE_SETUP_FILE)
+				String setupSQL = FileUtils.readFile(ErmisDatabase.class.getResourceAsStream(Database.DATABASE_SETUP_FILE))
 						.replace("DISPLAY_LENGTH", Integer.toString(usernameMaxLength))
 						.replace("PASSWORD_HASH_LENGTH", Integer.toString(hashLength))
 						.replace("BACKUP_VERIFICATION_CODES_AMOUNT", Integer.toString(DatabaseSettings.Client.BackupVerificationCodes.AMOUNT_OF_CODES))
@@ -765,28 +764,6 @@ public final class ErmisDatabase {
 			}
 
 			return numberOfBackupVerificationCodesLeft;
-		}
-
-		@Vulnerable("Should not be used: prone to vulnerabilities since it yields the first address it finds")
-		@Deprecated
-		public int getClientID(InetAddress address) {
-
-			int clientID = -1;
-
-			String sql = "SELECT client_id FROM user_ips WHERE ip_address=?;";
-			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-				pstmt.setString(1, address.getHostName());
-				
-				ResultSet rs = pstmt.executeQuery();
-				if (rs.next()) {
-					clientID = rs.getInt(1);
-				}
-			} catch (SQLException sqle) {
-				logger.error(Throwables.getStackTraceAsString(sqle));
-			}
-
-			return clientID;
 		}
 
 		public int getClientID(String email) {

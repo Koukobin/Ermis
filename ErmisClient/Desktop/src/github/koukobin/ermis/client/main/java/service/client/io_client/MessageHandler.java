@@ -293,7 +293,7 @@ public abstract class MessageHandler implements AutoCloseable {
 			
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.COMMAND.id);
-			payload.writeInt(ClientCommandType.ADD_ACCOUNT_ICON.id);
+			payload.writeInt(ClientCommandType.SET_ACCOUNT_ICON.id);
 			payload.writeBytes(Files.toByteArray(accountIcon));
 			
 			out.write(payload);

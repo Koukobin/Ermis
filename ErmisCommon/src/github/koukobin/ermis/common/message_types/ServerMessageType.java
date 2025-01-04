@@ -26,10 +26,10 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public enum ServerMessageType {
-	CLIENT_CONTENT(0), 
-	MESSAGE_SUCCESFULLY_SENT(1), 
-	VOICE_CALL_INCOMING(2), 
-	SERVER_MESSAGE_INFO(3), 
+	CLIENT_CONTENT(0),
+	MESSAGE_SUCCESFULLY_SENT(1),
+	VOICE_CALL_INCOMING(2),
+	SERVER_MESSAGE_INFO(3),
 	COMMAND_RESULT(4);
 
 	private static final HashMap<Integer, ServerMessageType> values;

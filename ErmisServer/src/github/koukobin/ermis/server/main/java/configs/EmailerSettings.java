@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import github.koukobin.ermis.common.util.FileEditor;
+import github.koukobin.ermis.common.util.FileUtils;
 
 /**
  * @author Ilias Koukovinis
@@ -31,7 +31,7 @@ public final class EmailerSettings {
 
 	static {
 		try {
-			GENERAL_PROPERTIES = FileEditor.readPropertiesFile(ConfigurationsPaths.Emailer.GENERAL_SETTINGS_PATH);
+			GENERAL_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.Emailer.GENERAL_SETTINGS_PATH);
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
@@ -43,7 +43,7 @@ public final class EmailerSettings {
 	public static final String EMAIL_USERNAME = GENERAL_PROPERTIES.getProperty("emailUsername");
 	public static final String EMAIL_PASSWORD = new String(
 			GENERAL_PROPERTIES.getProperty("emailPassword")
-			.getBytes(StandardCharsets.ISO_8859_1 /* use this charset so password can contain latin characters */));
+			.getBytes(StandardCharsets.ISO_8859_1 /* This charset is used to ensure password can contain latin characters */));
 	
 	private EmailerSettings() {}
 }

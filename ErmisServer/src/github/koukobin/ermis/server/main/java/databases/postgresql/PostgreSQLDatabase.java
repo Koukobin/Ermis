@@ -23,9 +23,9 @@ import github.koukobin.ermis.server.main.java.databases.Database;
  * @author Ilias Koukovinis
  *
  */
-public interface PostgresqlDatabase {
+public interface PostgreSQLDatabase {
 
-	class HikariDataSourceBuilder extends Database.HikariDataSourceBuilder<PGSimpleDataSource, PostgresqlDatabase.HikariDataSourceBuilder> {
+	class HikariDataSourceBuilder extends Database.HikariDataSourceBuilder<PGSimpleDataSource, PostgreSQLDatabase.HikariDataSourceBuilder> {
 
 		public HikariDataSourceBuilder() {
 			dataSource = new PGSimpleDataSource();

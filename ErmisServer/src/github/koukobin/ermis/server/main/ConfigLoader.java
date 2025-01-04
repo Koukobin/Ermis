@@ -41,24 +41,30 @@ public class ConfigLoader {
 	}
     
     public void loadConfig() {
-        Field[] fields = ConfigurationsPaths.class.getFields();
+        Field[] fields = ConfigurationsPaths.class.getDeclaredFields();
 
         for (Field field : fields) {
+        	System.out.println("Field [");
+        	System.out.println(field.getName());
             if (field.isAnnotationPresent(ConfigProperty.class)) {
                 ConfigProperty annotation = field.getAnnotation(ConfigProperty.class);
-                String propertyKey = annotation.value();
-                String propertyValue = properties.getProperty(propertyKey);
+				String propertyKey = annotation.value();
+				String propertyValue = properties.getProperty(propertyKey);
 
-                System.out.println(propertyValue);
-                if (propertyValue != null) {
-                    try {
-                        field.set(null, propertyValue);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
+				System.out.println(propertyKey);
+				if (propertyValue != null) {
+					try {
+						// Make the field accessible, even if it's private
+						field.setAccessible(true);
+						field.set(null, propertyValue);
+					} catch (IllegalAccessException iae) {
+						iae.printStackTrace();
+					}
+				}
+			}
+            
+            System.out.println("]");
+		}
         
     }
 }

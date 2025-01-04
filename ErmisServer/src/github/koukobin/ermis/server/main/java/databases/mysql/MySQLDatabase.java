@@ -27,9 +27,9 @@ import github.koukobin.ermis.server.main.java.databases.Database;
  *
  *         Unused
  */
-public interface MysqlDatabase {
+public interface MySQLDatabase {
 
-	class HikariDataSourceBuilder extends Database.HikariDataSourceBuilder<MysqlDataSource, MysqlDatabase.HikariDataSourceBuilder> {
+	class HikariDataSourceBuilder extends Database.HikariDataSourceBuilder<MysqlDataSource, MySQLDatabase.HikariDataSourceBuilder> {
 
 		public HikariDataSourceBuilder() {
 			dataSource = new MysqlDataSource();

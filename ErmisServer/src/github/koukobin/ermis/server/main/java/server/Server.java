@@ -114,7 +114,6 @@ public final class Server {
 	}
 
 	public static void start() {
-
 		if (Server.isRunning.get()) {
 			throw new IllegalStateException("Server cannot start since the server is already running");
 		}
@@ -142,10 +141,10 @@ public final class Server {
 
 			Server.isRunning.set(true);
 
-			InetSocketAddress socketAddress = serverSocketChannel.localAddress();
+			InetSocketAddress serverAddress = serverSocketChannel.localAddress();
 
-			LOGGER.info("Server started succesfully on port {} and at address {}", socketAddress.getPort(),
-					socketAddress.getHostName());
+			LOGGER.info("Server started succesfully on port {} and at address {}", serverAddress.getPort(),
+					serverAddress.getHostName());
 			LOGGER.info("Waiting for new connections...");
 		} catch (Exception e) {
 			LOGGER.fatal(Throwables.getStackTraceAsString(e));
@@ -161,7 +160,6 @@ public final class Server {
 
 		static {
 			try {
-
 				char[] certificatePassword = ServerSettings.SSL.CERTIFICATE_PASSWORD.toCharArray();
 
 				KeyStore ks = KeyStore.getInstance(ServerSettings.SSL.CERTIFICATE_TYPE);
@@ -190,7 +188,6 @@ public final class Server {
 
 		@Override
 		public void initChannel(EpollSocketChannel ch) {
-
 			ChannelPipeline pipeline = ch.pipeline();
 
 			// If SSL is enabled we add SSL handler first to encrypt and decrypt everything.
@@ -241,7 +238,6 @@ public final class Server {
 	}
 
 	public static void stop() {
-
 		if (!Server.isRunning.get()) {
 			throw new IllegalStateException("Server has not started therefore cannot be stopped");
 		}

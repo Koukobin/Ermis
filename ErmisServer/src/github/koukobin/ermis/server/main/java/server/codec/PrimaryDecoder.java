@@ -148,7 +148,7 @@ public final class PrimaryDecoder extends Decoder {
 	private static int getMaxLengthForCommand(ChannelHandlerContext ctx, ByteBuf data) {
 		try {
 			ClientCommandType commandType = ClientCommandType.fromId(data.readInt());
-			return (commandType == ClientCommandType.ADD_ACCOUNT_ICON) ? ServerSettings.MAX_CLIENT_MESSAGE_FILE_BYTES
+			return (commandType == ClientCommandType.SET_ACCOUNT_ICON) ? ServerSettings.MAX_CLIENT_MESSAGE_FILE_BYTES
 					: ServerSettings.MAX_CLIENT_MESSAGE_TEXT_BYTES;
 		} catch (IndexOutOfBoundsException iooe) {
 			LOGGER.debug(Throwables.getStackTraceAsString(iooe));

@@ -16,6 +16,7 @@
 package github.koukobin.ermis.server.main.java.server;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -98,6 +99,10 @@ public final class ClientInfo {
 
 	public EpollSocketChannel getChannel() {
 		return channel;
+	}
+	
+	public InetSocketAddress getInetSocketAddress() {
+		return channel.remoteAddress();
 	}
 	
 	public InetAddress getInetAddress() {

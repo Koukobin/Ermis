@@ -17,6 +17,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
+import github.koukobin.ermis.server.main.java.server.ServerUDP;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
@@ -466,7 +468,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			});
 
 		}
-		case ADD_ACCOUNT_ICON -> {
+		case SET_ACCOUNT_ICON -> {
 			
 			byte[] icon = new byte[args.readableBytes()];
 			args.readBytes(icon);
@@ -652,11 +654,11 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				accounts = conn.getAccountsAssociatedWithDevice(clientInfo.getInetAddress());
 			}
-			
+
 			for (int i = 0; i < accounts.length; i++) {
-				
+
 				Account account = accounts[i];
-				
+
 				if (account.clientID() == clientInfo.getClientID()) {
 					continue;
 				}
@@ -678,25 +680,29 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			
 			channel.writeAndFlush(payload);
 		}
+		case ACCEPT_VOICE_CALL -> {
+
+			int chatSessionIndex = args.readInt();
+			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+
+			int id = ServerUDP.addClientToVoiceChat(chatSessionID, clientInfo.getInetSocketAddress());
+		}
 		case START_VOICE_CALL -> {
-			
-//			int chatSessionIndex = args.readInt();
-//			int clientID = args.readInt();
-//			InetSocketAddress address = null;
-//			for (var a : clientInfo.getChatSessions().get(chatSessionIndex).getActiveChannels()) {
-//				if (a.getClientID() == clientID) {
-//					address = a.getChannel().localAddress();
-//				}
-//			}
-//			
-//			ByteBuf payload = clientIDSToActiveClients.get(clientID).getChannel().alloc().ioBuffer();
-//			payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
-//			payload.writeInt(clientID);
-//
-//			clientIDSToActiveClients.get(clientID).getChannel().writeAndFlush(payload);
-//
-//			ServerUDP.addVoiceChat(address, clientInfo.getChannel().localAddress());
-//			logger.debug("Voice chat added");
+
+			int chatSessionIndex = args.readInt();
+			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
+			payload.writeInt(chatSessionID);
+			payload.writeInt(clientInfo.getClientID());
+
+			for (ClientInfo activeMember : clientInfo.getChatSessions().get(chatSessionIndex).getActiveMembers()) {
+				activeMember.getChannel().writeAndFlush(payload);
+			}
+
+			int id = ServerUDP.addVoiceChat(chatSessionID, clientInfo.getInetSocketAddress());
+			getLogger().debug("Voice chat added");
 		}
 		case REQUEST_DONATION_PAGE -> {
 			

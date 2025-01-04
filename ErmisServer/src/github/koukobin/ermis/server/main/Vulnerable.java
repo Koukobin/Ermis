@@ -41,7 +41,7 @@ import static java.lang.annotation.ElementType.*;
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)
-@Target(value={CONSTRUCTOR, FIELD, LOCAL_VARIABLE, METHOD, PACKAGE, MODULE, PARAMETER, TYPE})
+@Target(value={METHOD, TYPE})
 public @interface Vulnerable {
 
 	String value();
