@@ -20,9 +20,11 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:ermis_client/client/common/account.dart';
 import 'package:ermis_client/client/common/entry/requirements.dart';
 import 'package:ermis_client/client/io/byte_buf.dart';
+import 'package:ermis_client/util/file_utils.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
 
@@ -104,7 +106,7 @@ class Client {
     await _inputStream!.read(); // Message denoting server is ready for MESSAGES
   }
 
-  Future<bool> attemptShallowLogin(UserAccount userInfo) async {
+  Future<bool> attemptShallowLogin(LocalAccountInformation userInfo) async {
 
     ByteBuf buffer = ByteBuf.smallBuffer();
     buffer.writeInt(ClientMessageType.entry.id);    
@@ -185,7 +187,7 @@ class UDPSocket {
 
   UDPSocket();
 
-  Future<void> initialize(InternetAddress remoteAddress, int remotePort) async {
+  Future<void> initialize(InternetAddress remoteAddress, int remotePort, int chatSessionIndex) async {
     if (remotePort <= 0) {
       throw ArgumentError("Port cannot be below zero");
     }
@@ -193,8 +195,7 @@ class UDPSocket {
     ByteBuf buffer = ByteBuf.smallBuffer();
     buffer.writeInt(ClientMessageType.command.id);
     buffer.writeInt(ClientCommandType.startVoiceCall.id);
-    buffer.writeInt(0);
-    buffer.writeInt(3143);
+    buffer.writeInt(chatSessionIndex);
     Client.getInstance()._outputStream!.write(buffer);
 
     _udpSocket = await RawDatagramSocket.bind(
@@ -204,23 +205,35 @@ class UDPSocket {
     _remoteAddress = remoteAddress;
     _remotePort = remotePort;
 
-    _udpSocket!.listen((event) {
-      if (event == RawSocketEvent.read) {
-        final datagram = _udpSocket!.receive();
-        if (datagram != null) {
-          final message = String.fromCharCodes(datagram.data);
-          print("Received from server: $message");
-        }
+    _udpSocket!.listen((event) async {
+      Datagram? datagram = _udpSocket!.receive();
+      if (datagram != null) {
+        AudioPlayer audioPlayer = AudioPlayer();
+        await audioPlayer.play(BytesSource(await createWavFile(datagram.data)));
+        audioPlayer.onPlayerComplete.listen((event) {
+          print('Audio playback completed');
+        });
       }
     });
   }
 
-  void send(String message) {
-    if (_udpSocket != null) {
-      final data = Utf8Codec().encode(message);
-      _udpSocket!.send(data, _remoteAddress!, _remotePort!);
-      print("Sent to server: $message");
+  void send(int chatSessionID, Uint8List message) {
+    final payload = ByteBuf.smallBuffer(growable: true);
+    payload.writeInt(chatSessionID);
+    payload.writeBytes(message);
+
+    if (payload.capacity <= 4096) {
+      _udpSocket!.send(payload.buffer, _remoteAddress!, _remotePort!);
+    } else {
+
+      // ΕΔΩ ΕΓΚΕΙΤΑΙ ΤΟ ΠΡΟΒΛΗΜΑ
+      for (int i = 0; i < payload.capacity; i += 256) {
+        int end = (i + 256 < payload.capacity) ? i + 256 : payload.capacity;
+        _udpSocket!.send(payload.buffer.getRange(i, end).toList(),_remoteAddress!, _remotePort!);
+      }
     }
+
+    print("Sent to server");
   }
 
 }

@@ -518,7 +518,7 @@ mixin Verification {
             title: "Verification successful",
             content: resultMessage);
         ErmisDB.getConnection().addUserAccount(
-            UserAccount.fuck(
+            LocalAccountInformation.fuck(
                 email: email,
                 passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
             Client.getInstance().serverInfo);

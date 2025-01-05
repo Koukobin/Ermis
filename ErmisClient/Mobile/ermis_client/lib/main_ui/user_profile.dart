@@ -57,7 +57,7 @@ class UserProfilePhotoState extends State<UserProfilePhoto> {
       child: CircleAvatar(
         radius: widget.radius,
         backgroundColor: Colors.grey[200],
-        backgroundImage: MemoryImage(widget.profileBytes),
+        backgroundImage: widget.profileBytes.isNotEmpty ? MemoryImage(widget.profileBytes) : null,
         child: widget.profileBytes.isEmpty
             ? Icon(
                 Icons.person_rounded,

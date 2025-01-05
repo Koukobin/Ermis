@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the copyright header
-COPYRIGHT_HEADER="/* Copyright (C) 2024 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+COPYRIGHT_HEADER="/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -23,6 +23,16 @@ add_header() {
   
   # Check if the file already contains the copyright header
   if grep -q "Copyright (C) 2024 Ilias Koukovinis" "$file"; then
+    echo "Skipping: $file (header already exists)"
+    return
+  fi
+
+  if grep -q "Copyright (C) 2023 Ilias Koukovinis" "$file"; then
+    echo "Skipping: $file (header already exists)"
+    return
+  fi
+
+  if grep -q "Copyright (C) 2025 Ilias Koukovinis" "$file"; then
     echo "Skipping: $file (header already exists)"
     return
   fi

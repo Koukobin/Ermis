@@ -150,7 +150,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
 
                     final DBConnection conn = ErmisDB.getConnection();
                     conn.updateServerUrlLastUsed(ServerInfo(url));
-                    UserAccount? userInfo = await conn.getLastUsedAccount(ServerInfo(url));
+                    LocalAccountInformation? userInfo = await conn.getLastUsedAccount(ServerInfo(url));
                     if (kDebugMode) {
                       debugPrint(userInfo?.email);
                       debugPrint(userInfo?.passwordHash);
@@ -165,9 +165,16 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                       );
                     } catch (e) {
                       if (e is TlsException || e is SocketException) {
-                        showExceptionDialog(context, (e as dynamic).message);
+                        await showExceptionDialog(context, (e as dynamic).message);
                         return;
                       }
+
+                      // Navigator.pushAndRemoveUntil(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //       builder: (context) => MainInterface()),
+                      //   (route) => false, // Removes all previous routes.
+                      // );
 
                       rethrow;
                     }

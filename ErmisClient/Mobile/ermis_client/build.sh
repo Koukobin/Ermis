@@ -1,5 +1,6 @@
 #!/bin/bash
 
+flutter clean
 flutter pub get
 dart run flutter_launcher_icons
 

@@ -9,6 +9,9 @@
     <!-- Add Vibration permission -->
     <uses-permission android:name="android.permission.VIBRATE"/>
 
+    <!-- Audio recording -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <!-- Foreground service -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

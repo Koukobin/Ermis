@@ -19,8 +19,12 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:ermis_client/client/message_events.dart';
+import 'package:ermis_client/main_ui/chats/voice_call.dart';
 import 'package:ermis_client/main_ui/settings/theme_settings.dart';
+import 'package:ermis_client/util/database_service.dart';
+import 'package:ermis_client/util/microphone.dart';
 import 'package:ermis_client/util/settings_json.dart';
+import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -98,17 +102,34 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     }
 
     // Register message listeners
+    _retrieveLocalMessages();
     _setupListeners();
+  }
+
+  void _retrieveLocalMessages() async{
+    List<Message> messages = await ErmisDB.getConnection().retieveChatMessages(
+      Client.getInstance().serverInfo,
+      _chatSession.chatSessionID,
+    );
+
+    _setMessages(messages);
   }
 
   void _setupListeners() {
     AppEventBus.instance.on<WrittenTextEvent>().listen((event) {
       if (!mounted) return;
+      List<Message> messages = event.chatSession.getMessages;
 
-      _setMessages(event.chatSession.getMessages);
+      _setMessages(messages);
       setState(() {
         isLoading = false;
       });
+
+      ServerInfo serverInfo = Client.getInstance().serverInfo;
+      ErmisDB.getConnection().insertChatMessages(
+        serverInfo: serverInfo,
+        messages: messages,
+      );
     });
 
     AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
@@ -145,10 +166,10 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
       String body;
       switch (msg.contentType) {
-        case ContentType.text:
+        case MessageContentType.text:
           body = utf8.decode(msg.text!);
           break;
-        case ContentType.file || ContentType.image:
+        case MessageContentType.file || MessageContentType.image:
           body = "Send file ${utf8.decode(msg.fileName!)}";
           break;
       }
@@ -223,7 +244,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     });
 
     AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) async {
-      // TODO
+      Client.getInstance().commands.acceptVoiceCall(event.chatSessionID);
     });
   }
 
@@ -272,7 +293,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   void createPendingMessage(
       {Uint8List? text,
       Uint8List? fileName,
-      required ContentType contentType,
+      required MessageContentType contentType,
       required int chatSessionID,
       required int chatSessionIndex}) {
       
@@ -299,7 +320,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
     createPendingMessage(
         text: Uint8List.fromList(utf8.encode(_inputController.text)),
-        contentType: ContentType.text,
+        contentType: MessageContentType.text,
         chatSessionID: _chatSession.chatSessionID,
         chatSessionIndex: _chatSessionIndex);
 
@@ -367,14 +388,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           Flexible(
             child: IconButton(
                 onPressed: () async {
-                  final address = InternetAddress("192.168.10.103");
-                  final port = 8081;
-            
-                  final socket = UDPSocket();
-                  print("initializing");
-                  await socket.initialize(address, port);
-                  print("sending");
-                  socket.send("message");
+                  navigateWithFade(
+                      context,
+                      VoiceCallScreen(
+                          chatSessionIndex: _chatSessionIndex,
+                          chatSessionID: _chatSession.chatSessionID));
                 },
                 icon: Icon(Icons.phone)),
           )
@@ -440,10 +458,10 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
               onPressed: () {
                 Uint8List? data;
                 switch (_messageBeingEdited.contentType) {
-                  case ContentType.text:
+                  case MessageContentType.text:
                     data = _messageBeingEdited.text;
                     break;
-                  case ContentType.file || ContentType.image:
+                  case MessageContentType.file || MessageContentType.image:
                     data = _messageBeingEdited.fileName;
                     break;
                 }
@@ -490,7 +508,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
             fileCallBack: (String fileName, Uint8List fileContent) {
               createPendingMessage(
                   fileName: Uint8List.fromList(utf8.encode(fileName)),
-                  contentType: ContentType.file,
+                  contentType: MessageContentType.file,
                   chatSessionID: _chatSession.chatSessionID,
                   chatSessionIndex: _chatSessionIndex);
             },
@@ -655,13 +673,13 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildMessageContent(BuildContext context, Message message) {
     switch (message.contentType) {
-      case ContentType.text:
+      case MessageContentType.text:
         return Text(message.getText!,
           softWrap: true, // Enable text wrapping
           overflow: TextOverflow.clip,
           maxLines: null,
         );
-      case ContentType.file:
+      case MessageContentType.file:
         return Row(
           // Occupy as little space as possible
           mainAxisSize: MainAxisSize.min,
@@ -680,7 +698,7 @@ class MessageBubble extends StatelessWidget {
             ),
           ],
         );
-      case ContentType.image:
+      case MessageContentType.image:
         final image = message.imageBytes != null
             ? Image.memory(message.imageBytes!)
             : null;

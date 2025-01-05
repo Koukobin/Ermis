@@ -80,7 +80,7 @@ class MessageHandler {
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt(ClientMessageType.clientContent.id);
-    payload.writeInt(ContentType.text.id);
+    payload.writeInt(MessageContentType.text.id);
     payload.writeInt(chatSessionIndex);
     payload.writeInt(textBytes.length);
     payload.writeBytes(textBytes);
@@ -95,7 +95,7 @@ class MessageHandler {
     ByteBuf payload =
         ByteBuf(4 * 4 + fileNameBytes.length + fileContentBytes.length);
     payload.writeInt(ClientMessageType.clientContent.id);
-    payload.writeInt(ContentType.file.id);
+    payload.writeInt(MessageContentType.file.id);
     payload.writeInt(chatSessionIndex);
     payload.writeInt(fileNameBytes.length);
     payload.writeBytes(fileNameBytes);
@@ -111,7 +111,7 @@ class MessageHandler {
     ByteBuf payload =
         ByteBuf(4 * 4 + fileNameBytes.length + fileContentBytes.length);
     payload.writeInt(ClientMessageType.clientContent.id);
-    payload.writeInt(ContentType.image.id);
+    payload.writeInt(MessageContentType.image.id);
     payload.writeInt(chatSessionIndex);
     payload.writeInt(fileNameBytes.length);
     payload.writeBytes(fileNameBytes);
@@ -265,7 +265,7 @@ class MessageHandler {
           List<Message> messages = chatSession.getMessages;
 
           while (msg.readableBytes > 0) {
-            ContentType contentType = ContentType.fromId(msg.readInt32());
+            MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
             int clientID = msg.readInt32();
             int messageID = msg.readInt32();
             String username =
@@ -276,10 +276,10 @@ class MessageHandler {
             int timeWritten = msg.readInt64();
 
             switch (contentType) {
-              case ContentType.text:
+              case MessageContentType.text:
                 messageBytes = msg.readBytes(msg.readInt32());
                 break;
-              case ContentType.file || ContentType.image:
+              case MessageContentType.file || MessageContentType.image:
                 fileNameBytes = msg.readBytes(msg.readInt32());
                 break;
             }
@@ -355,20 +355,21 @@ class MessageHandler {
           eventBus.fire(ServerMessageEvent(String.fromCharCodes(content)));
           break;
         case ServerMessageType.voiceCallIncoming:
+          int chatSessionID = msg.readInt32();
           int clientID = msg.readInt32();
-          // Member? member;
-          // for (int i = 0; i < _chatSessions.length; i++) {
-          //   for (var j = 0; j < _chatSessions[i].getMembers.length; j++) {
-          //     if (_chatSessions[i].getMembers[j].clientID == clientID) {
-          //       member = _chatSessions[i].getMembers[j];
-          //     }
-          //   }
-          // }
+          
+          ChatSession session = _chatSessionIDSToChatSessions[chatSessionID]!;
 
-          Member? member = Member(username!, clientID, Uint8List(0), true);
+          Member? member;
+          for (var j = 0; j < session.getMembers.length; j++) {
+            if (session.getMembers[j].clientID == clientID) {
+              member = session.getMembers[j];
+            }
+          }
+
           if (member == null) throw new Exception("What the fuck is this");
 
-          eventBus.fire(VoiceCallIncomingEvent(member));
+          eventBus.fire(VoiceCallIncomingEvent(chatSessionID, member));
           break;
         case ServerMessageType.messageSuccefullySent:
           int chatSessionID = msg.readInt32();
@@ -378,17 +379,17 @@ class MessageHandler {
         case ServerMessageType.clientContent:
           Message message = Message.empty();
 
-          ContentType contentType = ContentType.fromId(msg.readInt32());
+          MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
           int timeWritten = msg.readInt64();
           Uint8List? text;
           Uint8List? fileNameBytes;
 
           switch (contentType) {
-            case ContentType.text:
+            case MessageContentType.text:
               var textLength = msg.readInt32();
               text = msg.readBytes(textLength);
               break;
-            case ContentType.file || ContentType.image:
+            case MessageContentType.file || MessageContentType.image:
               var fileNameLength = msg.readInt32();
               fileNameBytes = msg.readBytes(fileNameLength);
               break;
@@ -703,6 +704,14 @@ class Commands {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt(ClientMessageType.command.id);
     payload.writeInt(ClientCommandType.switchAccount.id);
+    out.write(payload);
+  }
+
+  void acceptVoiceCall(int chatSessionID) {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.command.id);
+    payload.writeInt(ClientCommandType.acceptVoiceCall.id);
+    payload.writeInt(chatSessionID);
     out.write(payload);
   }
 }

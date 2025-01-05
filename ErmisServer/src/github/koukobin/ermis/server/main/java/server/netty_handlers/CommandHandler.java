@@ -685,7 +685,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			int chatSessionIndex = args.readInt();
 			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
 
-			int id = ServerUDP.addClientToVoiceChat(chatSessionID, clientInfo.getInetSocketAddress());
+			int id = ServerUDP.addClientToVoiceChat(chatSessionID, clientInfo.getInetAddress());
 		}
 		case START_VOICE_CALL -> {
 
@@ -698,10 +698,14 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			payload.writeInt(clientInfo.getClientID());
 
 			for (ClientInfo activeMember : clientInfo.getChatSessions().get(chatSessionIndex).getActiveMembers()) {
+				if (activeMember.getClientID() == clientInfo.getClientID()) {
+					continue;
+				}
+
 				activeMember.getChannel().writeAndFlush(payload);
 			}
 
-			int id = ServerUDP.addVoiceChat(chatSessionID, clientInfo.getInetSocketAddress());
+			int id = ServerUDP.addVoiceChat(chatSessionID, clientInfo.getInetAddress());
 			getLogger().debug("Voice chat added");
 		}
 		case REQUEST_DONATION_PAGE -> {

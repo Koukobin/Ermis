@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image/image.dart' as img;
 
@@ -114,6 +115,7 @@ Future<bool> requestPermissions({BuildContext? context}) async {
       Permission.photos,
       Permission.audio,
       Permission.videos,
+      Permission.microphone
     ];
 
     for (Permission permission in permissions) {
@@ -255,4 +257,97 @@ Size getImageDimensions(Uint8List imageBytes) {
 
   if (image == null) return Size(0, 0);
   return Size(image.width.toDouble(), image.height.toDouble());
+}
+
+Future<Uint8List> createWavFile(Uint8List pcmData) async {
+  // WAV Header structure
+  int sampleRate = 44100; // Change if needed
+  int numChannels = 2;    // Stereo
+  int bitDepth = 16;      // 16-bit audio
+
+  // Calculate the size of the WAV file
+  int pcmDataSize = pcmData.lengthInBytes;
+  int headerSize = 44; // Standard WAV header size
+  int dataSize = pcmDataSize;
+  int fileSize = headerSize + dataSize;
+
+  // Create the WAV header (44 bytes)
+  List<int> header = List.filled(headerSize, 0);
+
+  // Chunk ID ("RIFF")
+  header[0] = 82;
+  header[1] = 73;
+  header[2] = 70;
+  header[3] = 70;
+
+  // File size (total size minus 8 bytes for the "RIFF" chunk descriptor)
+  header[4] = (fileSize - 8) & 0xFF;
+  header[5] = ((fileSize - 8) >> 8) & 0xFF;
+  header[6] = ((fileSize - 8) >> 16) & 0xFF;
+  header[7] = ((fileSize - 8) >> 24) & 0xFF;
+
+  // Format ("WAVE")
+  header[8] = 87;
+  header[9] = 65;
+  header[10] = 86;
+  header[11] = 69;
+
+  // Subchunk1 ID ("fmt ")
+  header[12] = 102;
+  header[13] = 109;
+  header[14] = 116;
+  header[15] = 32;
+
+  // Subchunk1 size (16 for PCM)
+  header[16] = 16;
+  header[17] = 0;
+  header[18] = 0;
+  header[19] = 0;
+
+  // Audio format (1 for PCM)
+  header[20] = 1;
+  header[21] = 0;
+
+  // Number of channels (2 for stereo)
+  header[22] = numChannels;
+  header[23] = 0;
+
+  // Sample rate
+  header[24] = sampleRate & 0xFF;
+  header[25] = (sampleRate >> 8) & 0xFF;
+  header[26] = (sampleRate >> 16) & 0xFF;
+  header[27] = (sampleRate >> 24) & 0xFF;
+
+  // Byte rate (sampleRate * numChannels * bitDepth / 8)
+  int byteRate = sampleRate * numChannels * (bitDepth ~/ 8);
+  header[28] = byteRate & 0xFF;
+  header[29] = (byteRate >> 8) & 0xFF;
+  header[30] = (byteRate >> 16) & 0xFF;
+  header[31] = (byteRate >> 24) & 0xFF;
+
+  // Block align (numChannels * bitDepth / 8)
+  int blockAlign = numChannels * (bitDepth ~/ 8);
+  header[32] = blockAlign & 0xFF;
+  header[33] = (blockAlign >> 8) & 0xFF;
+
+  // Bits per sample (16-bit)
+  header[34] = bitDepth;
+  header[35] = 0;
+
+  // Subchunk2 ID ("data")
+  header[36] = 100;
+  header[37] = 97;
+  header[38] = 116;
+  header[39] = 97;
+
+  // Subchunk2 size (size of the audio data)
+  header[40] = dataSize & 0xFF;
+  header[41] = (dataSize >> 8) & 0xFF;
+  header[42] = (dataSize >> 16) & 0xFF;
+  header[43] = (dataSize >> 24) & 0xFF;
+
+  // Write the WAV header and PCM data to a file
+  // Combine the header and PCM data
+  List<int> wavFileData = [...header, ...pcmData];
+  return Uint8List.fromList(wavFileData);
 }

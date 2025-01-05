@@ -106,10 +106,13 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 showLogoutConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
                                   ServerInfo serverInfo = Client.getInstance().serverInfo;
                                   final DBConnection conn = ErmisDB.getConnection();
-                                  List<UserAccount> userAccounts = await conn.getUserAccounts(serverInfo);
-                                  UserAccount a = userAccounts.firstWhere((UserAccount uaccount) {
-                                    return uaccount.email == account.email;
-                                  });
+                                  List<LocalAccountInformation> userAccounts = await conn.getUserAccounts(serverInfo);
+                                  LocalAccountInformation? a;
+                                  for (LocalAccountInformation uaccount in userAccounts) {
+                                    if (uaccount.email == account.email) {
+                                      a = uaccount;
+                                    }
+                                  }
                                   Client.getInstance().commands.switchAccount();
                                   setupClientSession(context, a);
                                 });

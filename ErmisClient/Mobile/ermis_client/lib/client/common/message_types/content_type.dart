@@ -16,18 +16,18 @@
 
 import '../exceptions/EnumNotFoundException.dart';
 
-enum ContentType {
+enum MessageContentType {
   text(0),
   file(1),
   image(2);
 
   final int id;
-  const ContentType(this.id);
+  const MessageContentType(this.id);
 
   // This function mimics the fromId functionality and throws an exception when no match is found.
-  static ContentType fromId(int id) {
+  static MessageContentType fromId(int id) {
     try {
-      return ContentType.values.firstWhere((type) => type.id == id);
+      return MessageContentType.values.firstWhere((type) => type.id == id);
     } catch (e) {
       throw EnumNotFoundException('No ContentType found for id $id');
     }

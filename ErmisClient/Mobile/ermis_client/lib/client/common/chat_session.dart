@@ -56,9 +56,9 @@ class ChatSession {
     }
 
     switch (message.contentType) {
-      case ContentType.text:
+      case MessageContentType.text:
         return utf8.decode(message.text!.toList());
-      case ContentType.file || ContentType.image:
+      case MessageContentType.file || MessageContentType.image:
         return utf8.decode(message.fileName!.toList());
     }
   }

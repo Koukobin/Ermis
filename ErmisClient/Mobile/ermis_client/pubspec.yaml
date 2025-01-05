@@ -41,20 +41,25 @@ dependencies:
   sqflite: ^2.4.1
   path: ^1.8.3
   path_provider: ^2.1.5
-  package_info_plus: ^8.1.2
 
   # File Handling
   flutter_file_dialog: ^3.0.2
   file_picker: ^8.0.7
   image_picker: ^1.1.2
+
+  # User input
   image: ^4.3.0
   camera: ^0.11.0+2
+  record: ^5.2.0
+  audioplayers: ^6.1.0
 
   # Permissions & Device Info
   permission_handler: ^11.3.1
+  package_info_plus: ^8.1.2
 
   # Background & Notifications
   flutter_background: ^1.3.0+1
+  flutter_background_service: ^5.1.0
   workmanager: ^0.5.2
   shared_preferences: ^2.3.4
   flutter_foreground_task: ^8.17.0
@@ -74,6 +79,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  synchronized: ^3.3.0+3
 
 dev_dependencies:
   flutter_test:
@@ -108,6 +114,7 @@ flutter:
     - assets/primary_application_icon.png
     - assets/parthenonas.png
     - assets/LICENCE.txt
+    - assets/untitled.wav
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

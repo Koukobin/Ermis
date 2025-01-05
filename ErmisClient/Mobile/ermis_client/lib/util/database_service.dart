@@ -15,14 +15,16 @@
  */
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ermis_client/client/common/message.dart';
+import 'package:ermis_client/client/common/message_types/content_type.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class ErmisDB {
-  static DBConnection? conn;
+  static DBConnection? _conn;
 
   ErmisDB._() {
     throw Exception(
@@ -30,8 +32,8 @@ class ErmisDB {
   }
 
   static DBConnection getConnection() {
-    conn ??= DBConnection._create();
-    return conn!;
+    _conn ??= DBConnection._create();
+    return _conn!;
   }
 }
 
@@ -52,7 +54,7 @@ class DBConnection {
     // P.S. I don't know exactly why this is necessary, but the documentation said so
     WidgetsFlutterBinding.ensureInitialized();
     return openDatabase(
-        join(await getDatabasesPath(), 'ermis_sqlite_database_5.db'),
+        join(await getDatabasesPath(), 'ermis_sqlite_database_6.db'),
         onCreate: (db, version) async {
       // Create the 'servers' table
       await db.execute('''
@@ -96,14 +98,14 @@ class DBConnection {
           ts_entered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
           PRIMARY KEY (server_url, chat_session_id, message_id),
           CHECK (text IS NOT NULL OR file_content_id IS NOT NULL),
-          FOREIGN KEY (server_url, chat_session_id) 
+          FOREIGN KEY (server_url, chat_session_id)
               REFERENCES chat_sessions (server_url, chat_session_id) ON DELETE CASCADE
         );
       ''');
     }, version: 1);
   }
 
-  Future<void> addUserAccount(UserAccount userAccount, ServerInfo serverInfo) async {
+  Future<void> addUserAccount(LocalAccountInformation userAccount, ServerInfo serverInfo) async {
     final db = await _database;
 
     await db.insert(
@@ -117,7 +119,7 @@ class DBConnection {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<UserAccount?> getLastUsedAccount(ServerInfo serverInfo) async {
+  Future<LocalAccountInformation?> getLastUsedAccount(ServerInfo serverInfo) async {
     final db = await _database;
 
     final List<Map<String, dynamic>> userAccounts = await db.query(
@@ -139,7 +141,7 @@ class DBConnection {
     final String passwordHash = firstRow['password_hash'] as String;
     final String lastUsed = firstRow['last_used'] as String;
 
-    return UserAccount(
+    return LocalAccountInformation(
         email: email,
         passwordHash: passwordHash,
         lastUsed: DateTime.parse(lastUsed));
@@ -148,7 +150,7 @@ class DBConnection {
   /// Retrieves the list of user accounts associated with a specified server.
   /// Each account includes the email, password hash, and the timestamp of last use.
   /// The accounts are sorted by the last used timestamp in descending order.
-  Future<List<UserAccount>> getUserAccounts(ServerInfo serverInfo) async {
+  Future<List<LocalAccountInformation>> getUserAccounts(ServerInfo serverInfo) async {
     final db = await _database;
 
     final List<Map<String, Object?>> userAccountMap = await db.query(
@@ -158,24 +160,24 @@ class DBConnection {
       whereArgs: [serverInfo.toString()],
     );
 
-    List<UserAccount> userAccount = userAccountMap.map((record) {
+    List<LocalAccountInformation> userAccounts = userAccountMap.map((record) {
       final String email = record['email'] as String;
       final String passwordHash = record['password_hash'] as String;
       final String lastUsed = record['last_used'] as String;
-      return UserAccount(
+      return LocalAccountInformation(
           email: email,
           passwordHash: passwordHash,
           lastUsed: DateTime.parse(lastUsed));
     }).toList();
 
-    userAccount.sort((a, b) {
+    userAccounts.sort((a, b) {
       final DateTime lastUsedA = a.lastUsed;
       final DateTime lastUsedB = b.lastUsed;
 
       return lastUsedB.compareTo(lastUsedA); // Most recent first
     });
 
-    return userAccount;
+    return userAccounts;
   }
 
   Future<void> updateServerUrlLastUsed(ServerInfo serverInfo) async {
@@ -263,6 +265,12 @@ class DBConnection {
     );
   }
 
+  Future<void> insertChatMessages({required ServerInfo serverInfo, required List<Message> messages}) async {
+    for (Message message in messages) {
+      await insertChatMessage(serverInfo: serverInfo, message: message);
+    }
+  }
+
   Future<void> insertChatMessage({required ServerInfo serverInfo, required Message message}) async {
     final db = await _database;
 
@@ -275,9 +283,9 @@ class DBConnection {
         'client_id': message.getClientID,
         'text': message.getText,
         'file_name': message.getFileName,
-        'content_type': message.getContentType,
+        'content_type': message.getContentType.id,
         'ts_entered':
-            DateTime.fromMicrosecondsSinceEpoch(message.getTimeWritten),
+            DateTime.fromMicrosecondsSinceEpoch(message.getTimeWritten).toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -296,21 +304,51 @@ class DBConnection {
       whereArgs: [serverUrl, chatSessionId, messageId],
     );
   }
+
+  Future<List<Message>> retieveChatMessages(ServerInfo serverInfo, int chatSessionID) async {
+    final db = await _database;
+
+    final List<Map<String, Object?>> messagesMap = await db.query(
+      'chat_messages',
+      where: 'server_url = ? AND chat_session_id = ?',
+      whereArgs: [serverInfo.toString(), chatSessionID],
+    );
+
+    List<Message> messages = messagesMap.map((record) {
+      final int clientID = record['client_id'] as int;
+      final int messageID = record['client_id'] as int;
+      final String timeWritten = record['ts_entered'] as String;
+      final MessageContentType contentType =MessageContentType.fromId(record['content_type'] as int);
+      final String? text = record['text'] as String?;
+      final String? fileName = record['text'] as String?;
+
+      return Message(
+          username: "",
+          clientID: clientID,
+          messageID: messageID,
+          chatSessionID: chatSessionID,
+          chatSessionIndex: -1,
+          timeWritten: DateTime.parse(timeWritten).millisecondsSinceEpoch,
+          text: text != null ? Uint8List.fromList(text.codeUnits) : null,
+          fileName: fileName != null ? Uint8List.fromList(fileName.codeUnits) : null,
+          contentType: contentType,
+          isSent: true);
+    }).toList();
+
+    return messages;
+  }
 }
 
-class UserAccount {
+class LocalAccountInformation {
   final String email;
   final String passwordHash;
   final DateTime lastUsed;
 
-  factory UserAccount.fuck({required String email, required String passwordHash}) {
-    return UserAccount(email: email, passwordHash: passwordHash, lastUsed: DateTime.now());
+  factory LocalAccountInformation.fuck({required String email, required String passwordHash}) {
+    return LocalAccountInformation(email: email, passwordHash: passwordHash, lastUsed: DateTime.now());
   }
 
-  UserAccount({required this.email, required this.passwordHash, required this.lastUsed});
-
-  // bool isValid() => email != null || passwordHash != null;
-  // bool isNotValid() => !isValid();
+  LocalAccountInformation({required this.email, required this.passwordHash, required this.lastUsed});
 
   Map<String, Object?> toMap() {
     return {

@@ -14,14 +14,29 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/main_ui/splash_screen.dart';
 import 'package:ermis_client/util/notifications_util.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vibration/vibration.dart';
 
+import 'client/app_event_bus.dart';
+import 'client/common/chat_session.dart';
+import 'client/common/message.dart';
+import 'client/common/message_types/content_type.dart';
+import 'client/message_events.dart';
 import 'main_ui/chats/chat_requests_screen.dart';
 import 'main_ui/settings/profile_settings.dart';
 import 'theme/app_theme.dart';
@@ -30,9 +45,74 @@ import 'main_ui/settings/settings_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
+void fucking(ServiceInstance instance) async {
+  for (;;) {
+    await AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
+      ChatSession chatSession = event.chatSession;
+
+      Message msg = event.message;
+
+      SettingsJson settingsJson = SettingsJson();
+      settingsJson.loadSettingsJson();
+
+      if (settingsJson.vibrationEnabled) {
+        Vibration.vibrate();
+      }
+
+      if (!settingsJson.notificationsEnabled) {
+        return;
+      }
+
+      if (!settingsJson.showMessagePreview) {
+        NotificationService.showSimpleNotification(body: "New message!");
+        return;
+      }
+
+      String body;
+      switch (msg.contentType) {
+        case MessageContentType.text:
+          body = utf8.decode(msg.text!);
+          break;
+        case MessageContentType.file || MessageContentType.image:
+          body = "Send file ${utf8.decode(msg.fileName!)}";
+          break;
+      }
+
+      NotificationService.showInstantNotification(
+        icon: chatSession.getMembers[0].getIcon,
+        body: "Message by ${msg.getUsername}",
+        contentText: body,
+          contentTitle: msg.getUsername,
+          summaryText: event.chatSession.toString(),
+          chatSessionIndex:  chatSession.chatSessionIndex);
+    }).asFuture();
+  }
+}
+
 void main() async {
   // Ensure that Flutter bindings are initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
+
+//   AudioRecorder audioRecord = AudioRecorder();
+//   String audioFilePath =
+//       '${(await getApplicationCacheDirectory()).path}/recording5.wav';
+//   await audioRecord.start(
+//     RecordConfig(encoder: AudioEncoder.wav),
+//     path: audioFilePath,
+//   );
+
+//   await Future.delayed(Duration(seconds: 3));
+
+//   await audioRecord.stop();
+
+//   File file = File(audioFilePath);
+//   Uint8List bytes = await file.readAsBytes();
+
+//   AudioPlayer _audioPlayer = AudioPlayer();
+//   await _audioPlayer.play(BytesSource(bytes));
+// _audioPlayer.onPlayerComplete.listen((event) {
+//   print('Audio playback completed');
+// });
 
   // Initialize the background service
   // Initialize the foreground task
@@ -48,13 +128,23 @@ void main() async {
       showNotification: true,
     ),
     foregroundTaskOptions: ForegroundTaskOptions(eventAction: ForegroundTaskEventAction.once()),
-  );  
+  );
 
   // Start the foreground task when the app runs
-  FlutterForegroundTask.startService(
-    notificationTitle: 'App is running in the background',
-      notificationText: 'Your background task is active',
-      callback: () => debugPrint("Flutter foreground service callback"));
+  await FlutterForegroundTask.startService(
+      notificationTitle: 'App is running in the background',
+      notificationText: 'Ermis is listening for messages in the background...',
+      callback: () => print("Flutter foreground service callback"));
+
+  // FlutterBackgroundService().configure(
+  //   androidConfiguration: AndroidConfiguration(
+  //     onStart: fucking,
+  //     autoStartOnBoot: true,
+  //     autoStart: true, // Automatically start the service when the app is launched
+  //     isForegroundMode: true, // Keep the service running in the background
+  //   ),
+  //   iosConfiguration: IosConfiguration(),
+  // );
 
   await NotificationService.init();
   tz.initializeTimeZones();
@@ -105,25 +195,27 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (kDebugMode) debugPrint("App is ${state.name}");
-  switch (state) {
-    case AppLifecycleState.paused:
-      // App is moved to the background
-      saveAppState("appState", "paused");
-      break;
-    case AppLifecycleState.resumed:
-      // App is brought back to the foreground
-      loadAppState("appState").then((value) {
-        debugPrint("State loaded: $value");
-      });
-      break;
-    case AppLifecycleState.detached:
-      // App is being terminated
-      saveAppState("appState", "detached");
-      break;
-    case AppLifecycleState.inactive:
-      // App is temporarily inactive
+    switch (state) {
+      case AppLifecycleState.paused:
+        // App is moved to the background
+        saveAppState("appState", "paused");
+        break;
+      case AppLifecycleState.resumed:
+        // App is brought back to the foreground
+        loadAppState("appState").then((value) {
+          debugPrint("State loaded: $value");
+        });
+        break;
+      case AppLifecycleState.detached:
+        // App is being terminated
+        print("i like thick booty latinas");
+        FlutterBackgroundService().startService();
+        saveAppState("appState", "detached");
+        break;
+      case AppLifecycleState.inactive:
+        // App is temporarily inactive
         break;
       case AppLifecycleState.hidden:
         // App is hidden
@@ -157,6 +249,30 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
     );
   }
 
+}
+
+class MyTaskHandler extends TaskHandler {
+  @override
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
+    print("Foreground task started at $timestamp");
+
+    // You can add the logic here that will run in the background
+    while (true) {
+      // Perform periodic tasks here
+      await Future.delayed(Duration(seconds: 5));
+      print("Running background task...");
+    }
+  }
+
+  @override
+  Future<void> onDestroy(DateTime timestamp) async {
+    print("i like sucking thick booty latinas");
+  }
+
+  @override
+  void onRepeatEvent(DateTime timestamp) {
+    print("repeating fucking of thick booty latinas");
+  }
 }
 
 class MainInterface extends StatefulWidget {

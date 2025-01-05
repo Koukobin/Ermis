@@ -49,6 +49,7 @@ enum ClientCommandType {
   downloadFile(CommandLevel.heavy, 308),
   downloadImage(CommandLevel.heavy, 309),
   startVoiceCall(CommandLevel.heavy, 310),
+  acceptVoiceCall(CommandLevel.heavy, 311),
 
   // External Pages
   requestDonationPage(CommandLevel.light, 400),

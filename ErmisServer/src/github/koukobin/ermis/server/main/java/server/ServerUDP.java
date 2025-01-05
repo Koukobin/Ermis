@@ -15,8 +15,19 @@
  */
 package github.koukobin.ermis.server.main.java.server;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.Collections;
@@ -200,33 +211,77 @@ public final class ServerUDP {
 		}
 	}
 	
-	private static class Test extends SimpleChannelInboundHandler<Packet> {
+	private static class Test extends SimpleChannelInboundHandler<DatagramPacket> {
     	
-    	private static final Map<Integer, List<InetSocketAddress>> calls = new ConcurrentHashMap<>();
+    	private static final Map<Integer, List<InetAddress>> calls = new ConcurrentHashMap<>();
     	
         @Override
-        public void channelRead0(ChannelHandlerContext ctx, Packet packet) throws Exception {
-        	LOGGER.debug("Packet received");
+        public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
+			LOGGER.debug("Packet received");
+			ByteBuf content = packet.content();
+			
+			int chatSessionID = content.readInt();
+			List<InetAddress> recipients = calls.get(chatSessionID);
+        	if (recipients == null || !recipients.contains(packet.sender().getAddress())) {
+        		return;
+        	}
         	
-        	List<InetSocketAddress> recipients = calls.get(packet.chatSessionID);
+        	ByteBuf contentBytes = content.slice();
+        	contentBytes.retain(recipients.size());
         	
-			ByteBuf responseContent = Unpooled.copiedBuffer("Hello, client!", CharsetUtil.UTF_8);
-			for (InetSocketAddress recipientAddress : recipients) {
-				DatagramPacket responsePacket = new DatagramPacket(responseContent.duplicate(), recipientAddress);
+        	contentBytes.markReaderIndex();
+        	byte[] contentBytes2 = new byte[contentBytes.readableBytes()];
+        	contentBytes.readBytes(contentBytes2);
+        	contentBytes.resetReaderIndex();
+        	
+            Path outputPath = Paths.get("/home/ilias/test.wav");
+        	if (!Files.exists(outputPath)) {
+        		// Write WAV header for the first time
+        		try (OutputStream os = Files.newOutputStream(outputPath, StandardOpenOption.CREATE)) {
+        			os.write(createWavHeader(44100, 2, 16)); // Adjust parameters as needed
+        		}
+        	}
+        	// Append raw PCM data
+        	Files.write(outputPath, contentBytes2, StandardOpenOption.APPEND);
+
+			for (InetAddress recipientAddress : recipients) {
+				LOGGER.debug("Transmitting UDP message to address: {}", packet.sender());
+				DatagramPacket responsePacket = new DatagramPacket(contentBytes.copy(), packet.sender());
 				ctx.channel().writeAndFlush(responsePacket);
 			}
-
 		}
 	}
 	
-	public static int addClientToVoiceChat(int chatSessionID, InetSocketAddress socketAddress) {
-		Test.calls.get(0).add(socketAddress);
-		return 0;
+	private static byte[] createWavHeader(int sampleRate, int channels, int bitsPerSample) {
+	    int byteRate = sampleRate * channels * bitsPerSample / 8;
+	    int blockAlign = channels * bitsPerSample / 8;
+
+	    ByteBuffer buffer = ByteBuffer.allocate(44).order(ByteOrder.LITTLE_ENDIAN);
+	    buffer.put("RIFF".getBytes());
+	    buffer.putInt(0); // Placeholder for file size
+	    buffer.put("WAVE".getBytes());
+	    buffer.put("fmt ".getBytes());
+	    buffer.putInt(16); // Subchunk1 size (PCM)
+	    buffer.putShort((short) 1); // Audio format (1 = PCM)
+	    buffer.putShort((short) channels);
+	    buffer.putInt(sampleRate);
+	    buffer.putInt(byteRate);
+	    buffer.putShort((short) blockAlign);
+	    buffer.putShort((short) bitsPerSample);
+	    buffer.put("data".getBytes());
+	    buffer.putInt(0); // Placeholder for data chunk size
+	    return buffer.array();
+	}
+
+	
+	public static int addClientToVoiceChat(int chatSessionID, InetAddress socketAddress) {
+		Test.calls.get(chatSessionID).add(socketAddress);
+		return chatSessionID;
 	}
 	
-	public static int addVoiceChat(int chatSessionID, InetSocketAddress socketAddress) {
-		Test.calls.put(0, Lists.newArrayList(socketAddress));
-		return 0;
+	public static int addVoiceChat(int chatSessionID, InetAddress socketAddress) {
+		Test.calls.put(chatSessionID, Lists.newArrayList(socketAddress));
+		return chatSessionID;
 	}
 	
 	public static void stop() {

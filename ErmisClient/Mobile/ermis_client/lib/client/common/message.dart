@@ -29,7 +29,7 @@ class Message {
   Uint8List? fileName;
   Uint8List? imageBytes;
   late int timeWritten;
-  late ContentType contentType;
+  late MessageContentType contentType;
   bool isSent = false;
 
   Message(
@@ -55,7 +55,7 @@ class Message {
   void setText(Uint8List? text) => this.text = text;
   void setFileName(Uint8List? fileName) => this.fileName = fileName;
   void setTimeWritten(int timeWritten) => this.timeWritten = timeWritten;
-  void setContentType(ContentType contentType) => this.contentType = contentType;
+  void setContentType(MessageContentType contentType) => this.contentType = contentType;
 
   String get getUsername => username;
   int get getClientID => clientID;
@@ -65,7 +65,7 @@ class Message {
   String? get getText => text == null ? null : utf8.decode(text!);
   Uint8List? get getFileName => fileName;
   int get getTimeWritten => timeWritten;
-  ContentType get getContentType => contentType;
+  MessageContentType get getContentType => contentType;
   bool get getIsSent => isSent;
 
   @override
