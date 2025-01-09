@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import com.google.common.primitives.Ints;
@@ -656,7 +657,6 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}
 
 			for (int i = 0; i < accounts.length; i++) {
-
 				Account account = accounts[i];
 
 				if (account.clientID() == clientInfo.getClientID()) {
@@ -681,31 +681,36 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			channel.writeAndFlush(payload);
 		}
 		case ACCEPT_VOICE_CALL -> {
-
-			int chatSessionIndex = args.readInt();
-			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
-
-			int id = ServerUDP.addClientToVoiceChat(chatSessionID, clientInfo.getInetAddress());
 		}
 		case START_VOICE_CALL -> {
-
 			int chatSessionIndex = args.readInt();
 			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+			int key = ServerUDP.createVoiceChat(chatSessionID);
 
+			{
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+				payload.writeInt(ClientCommandResultType.START_VOICE_CALL.id);
+				payload.writeInt(key);
+				payload.writeInt(ServerSettings.UDP_PORT);
+				channel.writeAndFlush(payload);
+			}
+			
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
 			payload.writeInt(chatSessionID);
+			payload.writeInt(key);
 			payload.writeInt(clientInfo.getClientID());
+			payload.writeInt(ServerSettings.UDP_PORT);
 
 			for (ClientInfo activeMember : clientInfo.getChatSessions().get(chatSessionIndex).getActiveMembers()) {
 				if (activeMember.getClientID() == clientInfo.getClientID()) {
 					continue;
 				}
-
+				
 				activeMember.getChannel().writeAndFlush(payload);
 			}
 
-			int id = ServerUDP.addVoiceChat(chatSessionID, clientInfo.getInetAddress());
 			getLogger().debug("Voice chat added");
 		}
 		case REQUEST_DONATION_PAGE -> {

@@ -34,7 +34,8 @@ import static java.lang.annotation.ElementType.*;
  * 
  * <p>
  * <strong>Note:</strong> This annotation is for informational purposes only and
- * is retained in the source code. It does not affect runtime behavior.
+ * is retained in the source code; i.e it is discarded by the compiler. It does
+ * not affect runtime behavior.
  * </p>
  * 
  * @author Ilias Koukovinis

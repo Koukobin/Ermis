@@ -54,7 +54,7 @@ public final class ServerSettings {
 	public static final int SERVER_PORT = Integer.parseInt(GENERAL_PROPERTIES.getProperty("port"));
 	public static final String SERVER_ADDRESS = GENERAL_PROPERTIES.getProperty("address");
 	
-	public static final int UDP_PORT = 8081;
+	public static final int UDP_PORT = 9090;
 
 	/**
 	 * Duration before inactive clients are kicked from the server

@@ -131,7 +131,7 @@ public final class Server {
 				.option(ChannelOption.SO_BACKLOG, ServerSettings.SERVER_BACKLOG)
 				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, ServerSettings.CONNECT_TIMEOUT_MILLIS)
 				.childOption(ChannelOption.SO_KEEPALIVE, true);
-			
+
 			// If server isn't production ready we add a logging handler for more detailed logging
 			if (!ServerSettings.IS_PRODUCTION_READY) {
 				bootstrapTCP.handler(new LoggingHandler(LogLevel.INFO));

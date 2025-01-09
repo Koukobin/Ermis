@@ -14,8 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:typed_data';
-
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -25,6 +23,7 @@ import '../client/client.dart';
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static int? chatSessionIndex;
+  static VoidCallback? voiceCall;
 
   static Future<void> onDidReceiveNotification(NotificationResponse response) async {
     if (response.actionId == 'action_reply') {
@@ -40,6 +39,10 @@ class NotificationService {
       }
 
       Client.getInstance().sendMessageToClient(input, chatSessionIndex!);
+    } else if (response.actionId == 'accept_voice_call') {
+      voiceCall!();
+    } else if (response.actionId == 'ignore_voice_call') {
+      // Do nothing
     }
   }
 
@@ -112,24 +115,64 @@ class NotificationService {
     return flutterLocalNotificationsPlugin.show(0, applicationTitle, body, platformChannelSpecifics);
   }
 
+  static Future<void> showVoiceCallNotification({
+    required Uint8List icon,
+    required String callerName,
+    required int chatSessionIndex,
+    required VoidCallback onAccept,
+  }) async {
+    voiceCall = onAccept;
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'your_channel_id',
+        'your_channel_name', 
+        channelDescription: 'Detailed notification example',
+        importance: Importance.high,
+        priority: Priority.high,
+        largeIcon: ByteArrayAndroidBitmap(icon),
+        ongoing: true, // Keeps the notification persistent
+        autoCancel: false, // Prevents swiping it away
+        fullScreenIntent: true, // Ensures it's shown prominently
+        additionalFlags: Int32List.fromList(<int>[4]), // Optional, custom flags
+        actions: [
+          AndroidNotificationAction(
+            'accept_voice_call',
+            'Accept',
+            showsUserInterface: true,
+          ),
+          AndroidNotificationAction(
+            'ignore_voice_call',
+            'Ignore',
+          ),
+        ],
+        ticker: 'Incoming Voice Call',
+      ),
+    );
+
+    // Store chatSessionIndex for future handling if needed
+    NotificationService.chatSessionIndex = chatSessionIndex;
+    return flutterLocalNotificationsPlugin.show(0, applicationTitle, '$callerName is calling...', platformChannelSpecifics);
+  }
+
+
   // Show an instant Notification
-  static Future<void> showInstantNotification(
-      {required Uint8List icon,
-      required String body,
-      required String summaryText,
-      required String contentTitle,
-      required String contentText,
-      required int chatSessionIndex}) async {
-    // Define Notification Details
+  static Future<void> showInstantNotification({
+    required Uint8List icon,
+    required String body,
+    required String summaryText,
+    required String contentTitle,
+    required String contentText,
+    required int chatSessionIndex,
+  }) async {
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
-      'your_channel_id', // Channel ID
-      'your_channel_name', // Channel Name
+      'your_channel_id',
+      'your_channel_name',
       channelDescription: 'Detailed notification example',
       importance: Importance.high,
       priority: Priority.high,
       largeIcon: ByteArrayAndroidBitmap(icon),
-      additionalFlags: Int32List.fromList(<int>[4]), // Optional, custom flags
+      additionalFlags: Int32List.fromList(<int>[4]),
       actions: [
         AndroidNotificationAction(
           'action_reply',

@@ -47,9 +47,12 @@ public enum ClientCommandResultType {
     DOWNLOAD_FILE(400),
     DOWNLOAD_IMAGE(401),
     
+    // Start voice call,
+    START_VOICE_CALL(500),
+    
     // External Pages
-    GET_DONATION_PAGE(500),
-    GET_SOURCE_CODE_PAGE(501);
+    GET_DONATION_PAGE(600),
+    GET_SOURCE_CODE_PAGE(601);
 	
 	private static final HashMap<Integer, ClientCommandResultType> values;
 

@@ -21,9 +21,9 @@ import io.netty.util.internal.ThreadLocalRandom;
  * @author Ilias Koukovinis
  *
  */
-public final class RandomNumberGenerator {
+public final class InsecureRandomNumberGenerator {
 
-	private RandomNumberGenerator() {}
+	private InsecureRandomNumberGenerator() {}
 
     /**
      * Generates random numbers with the specified number of digits and fills the provided array with the generated numbers.
@@ -64,7 +64,7 @@ public final class RandomNumberGenerator {
      * @param bound the upper bound (exclusive)
      * @return a random number between origin (inclusive) and bound (exclusive)
      */
-    public static int generateRandomNumber(int origin, int bound) {
+	public static int generateRandomNumber(int origin, int bound) {
         return ThreadLocalRandom.current().nextInt(origin, bound);
     }
     

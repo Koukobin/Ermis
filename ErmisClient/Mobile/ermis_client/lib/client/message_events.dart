@@ -100,8 +100,17 @@ class OtherAccountsEvent {
 
 class VoiceCallIncomingEvent {
   final int chatSessionID;
+  final int chatSessionIndex;
+  final int voiceCallKey;
+  final int udpServerPort;
   final Member member;
-  VoiceCallIncomingEvent(this.chatSessionID, this.member);
+  VoiceCallIncomingEvent({
+    required this.chatSessionID,
+    required this.chatSessionIndex,
+    required this.voiceCallKey,
+    required this.member,
+    required this.udpServerPort,
+  });
 }
 
 class MessageDeletedEvent {
@@ -118,6 +127,12 @@ class ProfilePhotoEvent {
 class AddProfilePhotoResultEvent {
   final bool success;
   AddProfilePhotoResultEvent(this.success);
+}
+
+class StartVoiceCallResultEvent {
+  final int key;
+  final int udpServerPort;
+  StartVoiceCallResultEvent(this.key, this.udpServerPort);
 }
 
 class UserDevicesEvent {

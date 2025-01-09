@@ -38,9 +38,12 @@ enum ClientCommandResultType {
   downloadFile(400),
   downloadImage(401),
 
+  // Start voice call
+  startVoiceCall(500),
+
   // External Pages
-  getDonationPage(500),
-  getSourceCodePage(501);
+  getDonationPage(600),
+  getSourceCodePage(601);
 
   final int id;
   const ClientCommandResultType(this.id);

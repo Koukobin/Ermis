@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.8.0
+version: 0.9.5
 
 environment:
   sdk: ^3.5.4
@@ -52,6 +52,7 @@ dependencies:
   camera: ^0.11.0+2
   record: ^5.2.0
   audioplayers: ^6.1.0
+  flutter_sound: ^9.17.8
 
   # Permissions & Device Info
   permission_handler: ^11.3.1
@@ -80,6 +81,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   synchronized: ^3.3.0+3
+  device_info_plus: ^11.2.0
 
 dev_dependencies:
   flutter_test:
@@ -114,7 +116,6 @@ flutter:
     - assets/primary_application_icon.png
     - assets/parthenonas.png
     - assets/LICENCE.txt
-    - assets/untitled.wav
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

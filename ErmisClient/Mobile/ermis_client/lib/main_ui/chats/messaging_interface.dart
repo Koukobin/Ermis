@@ -15,14 +15,12 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/chats/voice_call.dart';
 import 'package:ermis_client/main_ui/settings/theme_settings.dart';
 import 'package:ermis_client/util/database_service.dart';
-import 'package:ermis_client/util/microphone.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
@@ -175,12 +173,12 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       }
 
       NotificationService.showInstantNotification(
-        icon: chatSession.getMembers[0].getIcon,
-        body: "Message by ${msg.getUsername}",
-        contentText: body,
+          icon: chatSession.getMembers[0].getIcon,
+          body: "Message by ${msg.getUsername}",
+          contentText: body,
           contentTitle: msg.getUsername,
           summaryText: event.chatSession.toString(),
-          chatSessionIndex:  chatSession.chatSessionIndex);
+          chatSessionIndex: chatSession.chatSessionIndex);
     });
 
     AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
@@ -243,8 +241,22 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       });
     });
 
-    AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) async {
-      Client.getInstance().commands.acceptVoiceCall(event.chatSessionID);
+    AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
+      Member member = event.member;
+      NotificationService.showVoiceCallNotification(
+          icon: member.getIcon,
+          callerName: member.getUsername,
+          chatSessionIndex: event.chatSessionID,
+          onAccept: () {
+            navigateWithFade(
+                context,
+                VoiceCallScreen(
+                  chatSessionID: event.chatSessionID,
+                  chatSessionIndex: event.chatSessionIndex,
+                  voiceCallKey: event.voiceCallKey,
+                  callType: VoiceCall.accept,
+                ));
+          });
     });
   }
 
@@ -391,8 +403,10 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                   navigateWithFade(
                       context,
                       VoiceCallScreen(
-                          chatSessionIndex: _chatSessionIndex,
-                          chatSessionID: _chatSession.chatSessionID));
+                        chatSessionIndex: _chatSessionIndex,
+                        chatSessionID: _chatSession.chatSessionID,
+                        callType: VoiceCall.create,
+                      ));
                 },
                 icon: Icon(Icons.phone)),
           )

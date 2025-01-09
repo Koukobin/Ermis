@@ -18,7 +18,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
+import 'package:ermis_client/client/client.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/main_ui/splash_screen.dart';
 import 'package:ermis_client/util/notifications_util.dart';
@@ -26,8 +26,8 @@ import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
@@ -92,27 +92,62 @@ void fucking(ServiceInstance instance) async {
 void main() async {
   // Ensure that Flutter bindings are initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
+  print("object");
 
-//   AudioRecorder audioRecord = AudioRecorder();
-//   String audioFilePath =
-//       '${(await getApplicationCacheDirectory()).path}/recording5.wav';
-//   await audioRecord.start(
-//     RecordConfig(encoder: AudioEncoder.wav),
-//     path: audioFilePath,
-//   );
+  final address = InternetAddress("192.168.10.103");
+  final port = 9090;
 
-//   await Future.delayed(Duration(seconds: 3));
+  UDPSocket _udpSocket = UDPSocket();
+  await _udpSocket.initialize(address, port, 0);
+  _udpSocket.send(0, 0, Uint8List(5));
 
-//   await audioRecord.stop();
+  AudioRecorder audioRecord = AudioRecorder();
+  String audioFilePath =
+      '${(await getApplicationCacheDirectory()).path}/recording5.wav';
+  await audioRecord.start(
+    RecordConfig(encoder: AudioEncoder.wav),
+    path: audioFilePath,
+  );
 
-//   File file = File(audioFilePath);
-//   Uint8List bytes = await file.readAsBytes();
+  await Future.delayed(Duration(seconds: 3));
 
-//   AudioPlayer _audioPlayer = AudioPlayer();
-//   await _audioPlayer.play(BytesSource(bytes));
-// _audioPlayer.onPlayerComplete.listen((event) {
-//   print('Audio playback completed');
-// });
+  await audioRecord.stop();
+
+  File file = File(audioFilePath);
+  Uint8List bytes = await file.readAsBytes();
+
+  try {
+    FlutterSoundPlayer _player = FlutterSoundPlayer();
+    await _player.openPlayer();
+    await _player.startPlayerFromStream(
+      codec: Codec.pcm16,
+      sampleRate: 44100,
+      numChannels: 2,
+    );
+    print("IMMENSING");
+    await _player.feedFromStream(bytes);
+  } on Exception {
+    print("exception!");
+  }
+
+  // print("now second");
+
+  //   double calculateRMS(Uint8List audioChunk) {
+  //   Int16List audioSamples = audioChunk.buffer.asInt16List();
+  //   num sumOfSquares = audioSamples
+  //       .map((int sample) => pow(sample, 2))
+  //       .reduce((num a, num b) => a + b);
+  //   return sqrt(sumOfSquares / audioSamples.length);
+  // }
+
+  // print(Uint8List.fromList([...bytes, 5]).length);
+  // print(calculateRMS(Uint8List.fromList([...bytes, 5])));
+
+  // AudioPlayer _audioPlayer = AudioPlayer();
+  // await _audioPlayer.play(BytesSource(bytes));
+  // _audioPlayer.onPlayerComplete.listen((event) {
+  //   print('Audio playback completed');
+  // });
 
   // Initialize the background service
   // Initialize the foreground task

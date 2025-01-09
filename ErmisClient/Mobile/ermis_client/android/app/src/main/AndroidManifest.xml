@@ -2,6 +2,7 @@
 
     <!-- Adds the Internet permission here -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- Adds the Camera permission here -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -11,6 +12,9 @@
 
     <!-- Audio recording -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Foreground service -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

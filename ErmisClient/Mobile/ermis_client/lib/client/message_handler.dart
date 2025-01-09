@@ -330,6 +330,11 @@ class MessageHandler {
           _profilePhoto = Commands.pendingAccountIcon;
           eventBus.fire(AddProfilePhotoResultEvent(isSuccessful));
           break;
+        case ClientCommandResultType.startVoiceCall:
+          int voiceCallKey = msg.readInt32();
+          int udpServerPort = msg.readInt32();
+          eventBus.fire(StartVoiceCallResultEvent(voiceCallKey, udpServerPort));
+          break;
         case ClientCommandResultType.getDonationPage:
           Uint8List htmlBytes = msg.readBytes(msg.readInt32());
 
@@ -356,7 +361,9 @@ class MessageHandler {
           break;
         case ServerMessageType.voiceCallIncoming:
           int chatSessionID = msg.readInt32();
+          int voiceCallKey = msg.readInt32();
           int clientID = msg.readInt32();
+          int udpServerPort = msg.readInt32();
           
           ChatSession session = _chatSessionIDSToChatSessions[chatSessionID]!;
 
@@ -369,7 +376,13 @@ class MessageHandler {
 
           if (member == null) throw new Exception("What the fuck is this");
 
-          eventBus.fire(VoiceCallIncomingEvent(chatSessionID, member));
+          eventBus.fire(VoiceCallIncomingEvent(
+            chatSessionID: chatSessionID,
+            chatSessionIndex: session.chatSessionIndex,
+            voiceCallKey: voiceCallKey,
+            member: member,
+            udpServerPort: udpServerPort,
+          ));
           break;
         case ServerMessageType.messageSuccefullySent:
           int chatSessionID = msg.readInt32();
@@ -454,6 +467,7 @@ class Commands {
   /// In addition, while it could reduce boilerplate code, it may also potentially
   /// introduce subtle bugs which are very challenging to troubleshoot and debug.
   /// Use with caution.
+  // ignore: unused_element
   void _sendCommand(ClientCommandType commandType, ByteBuf payload) {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt(ClientMessageType.command.id);
@@ -707,11 +721,19 @@ class Commands {
     out.write(payload);
   }
 
-  void acceptVoiceCall(int chatSessionID) {
+  // void acceptVoiceCall(int chatSessionID) {
+  //   ByteBuf payload = ByteBuf.smallBuffer();
+  //   payload.writeInt(ClientMessageType.command.id);
+  //   payload.writeInt(ClientCommandType.acceptVoiceCall.id);
+  //   payload.writeInt(chatSessionID);
+  //   out.write(payload);
+  // }
+
+  void startVoiceCall(int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.acceptVoiceCall.id);
-    payload.writeInt(chatSessionID);
+    payload.writeInt(ClientCommandType.startVoiceCall.id);
+    payload.writeInt(chatSessionIndex);
     out.write(payload);
   }
 }
