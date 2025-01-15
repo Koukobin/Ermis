@@ -395,6 +395,10 @@ class ServerInfo {
 
   ServerInfo._(this._serverUrl, this._address, this._port, this.lastUsed);
 
+  Uri get serverUrl => _serverUrl;
+  InternetAddress get address => _address;
+  int get port => _port;
+
   Map<String, Object?> toMap() {
     return {
       'server_url': _serverUrl.toString(),
@@ -402,9 +406,14 @@ class ServerInfo {
     };
   }
 
-  Uri get serverUrl => _serverUrl;
-  InternetAddress get address => _address;
-  int get port => _port;
+  @override
+  bool operator ==(Object other) =>
+      other is ServerInfo &&
+      other.runtimeType == runtimeType &&
+      other.serverUrl == serverUrl;
+
+  @override
+  int get hashCode => serverUrl.hashCode;
 
   @override
   String toString() {

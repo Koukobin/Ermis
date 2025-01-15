@@ -113,6 +113,12 @@ class VoiceCallIncomingEvent {
   });
 }
 
+class StartVoiceCallResultEvent {
+  final int key;
+  final int udpServerPort;
+  StartVoiceCallResultEvent(this.key, this.udpServerPort);
+}
+
 class MessageDeletedEvent {
   final ChatSession chatSession;
   final int messageId;
@@ -127,12 +133,6 @@ class ProfilePhotoEvent {
 class AddProfilePhotoResultEvent {
   final bool success;
   AddProfilePhotoResultEvent(this.success);
-}
-
-class StartVoiceCallResultEvent {
-  final int key;
-  final int udpServerPort;
-  StartVoiceCallResultEvent(this.key, this.udpServerPort);
 }
 
 class UserDevicesEvent {

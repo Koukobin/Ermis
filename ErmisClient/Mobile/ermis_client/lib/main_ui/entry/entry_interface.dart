@@ -250,11 +250,9 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                         backgroundColor: appColors.secondaryColor,
                         textColor: appColors.primaryColor,
                         onPressed: () async {
-                          LoginEntry loginEntry =
-                              Client.getInstance().createNewLoginEntry();
+                          LoginEntry loginEntry = Client.getInstance().createNewLoginEntry();
                           loginEntry.sendEntryType();
-                          loginEntry.addDeviceInfo(
-                              await getDeviceType(), await getDeviceDetails());
+                          loginEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
 
                           if (_useBackupverificationCode) {
                             loginEntry.togglePasswordType();
@@ -513,10 +511,7 @@ mixin Verification {
       String resultMessage = entryResult.message;
 
       if (isSuccessful) {
-        showSimpleAlertDialog(
-            context: context,
-            title: "Verification successful",
-            content: resultMessage);
+        showToastDialog(resultMessage);
         ErmisDB.getConnection().addUserAccount(
             LocalAccountInformation.fuck(
                 email: email,
@@ -525,10 +520,7 @@ mixin Verification {
         break;
       }
 
-      showSimpleAlertDialog(
-          context: context,
-          title: "Verification Failed",
-          content: resultMessage);
+      showToastDialog(resultMessage);
     }
 
     return isSuccessful;

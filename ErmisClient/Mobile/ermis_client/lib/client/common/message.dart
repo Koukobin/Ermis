@@ -38,11 +38,11 @@ class Message {
       required this.messageID,
       required this.chatSessionID,
       required this.chatSessionIndex,
-      this.text,
+      Uint8List? text,
       this.fileName,
       required this.timeWritten,
       required this.contentType,
-      required this.isSent});
+      required this.isSent}) : text = text;
 
   Message.empty();
 
@@ -62,7 +62,13 @@ class Message {
   int get getMessageID => messageID;
   int get getChatSessionID => chatSessionID;
   int get getChatSessionIndex => chatSessionIndex;
-  String? get getText => text == null ? null : utf8.decode(text!);
+  String get getText {
+    if (text == null) {
+      return "";
+    }
+
+    return utf8.decode(text!.toList(), allowMalformed: true);
+  }
   Uint8List? get getFileName => fileName;
   int get getTimeWritten => timeWritten;
   MessageContentType get getContentType => contentType;

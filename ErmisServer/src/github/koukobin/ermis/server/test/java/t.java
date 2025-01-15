@@ -29,6 +29,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import github.koukobin.ermis.server.main.java.util.AESGCMCipher;
+import github.koukobin.ermis.server.main.java.util.AESKeyGenerator;
+
 /**
  * @author Ilias Koukovinis
  *
@@ -40,22 +43,24 @@ public class t {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+
+////		AESGCMCipher key = AESKeyGenerator.generateAESKey();
 //		prependWavHeader(
 //		        "/home/ilias/test.wav",  // Input raw PCM file
 //		        "/home/ilias/test2.wav"  // Output WAV file
 //		    );
 		
-        Path outputPath = Paths.get("/home/ilias/test.wav");
-    	if (!Files.exists(outputPath)) {
-    		// Write WAV header for the first time
-    		try (OutputStream os = Files.newOutputStream(outputPath, StandardOpenOption.CREATE)) {
-    			os.write(createWavHeader(44100, 2, 16)); // Adjust parameters as needed
-    		}
-    	}
-    	InputStream reader = Files.newInputStream(Paths.get("/home/ilias/untitled.wav"));
-    	while (reader.available() > 0) {
-    		Files.write(outputPath, reader.readNBytes(24), StandardOpenOption.APPEND);
-    	}
+//        Path outputPath = Paths.get("/home/ilias/test.wav");
+//    	if (!Files.exists(outputPath)) {
+//    		// Write WAV header for the first time
+//    		try (OutputStream os = Files.newOutputStream(outputPath, StandardOpenOption.CREATE)) {
+//    			os.write(createWavHeader(44100, 2, 16)); // Adjust parameters as needed
+//    		}
+//    	}
+//    	InputStream reader = Files.newInputStream(Paths.get("/home/ilias/untitled.wav"));
+//    	while (reader.available() > 0) {
+//    		Files.write(outputPath, reader.readNBytes(24), StandardOpenOption.APPEND);
+//    	}
 	}
 	
 	private static byte[] createWavHeader(int sampleRate, int channels, int bitsPerSample) {

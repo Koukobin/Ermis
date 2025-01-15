@@ -43,6 +43,7 @@ import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.ServerUDP;
+import github.koukobin.ermis.server.main.java.server.ServerUDP.VoiceChat;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
@@ -172,11 +173,10 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			payload.writeInt(fileNameBytes.length);
 			payload.writeBytes(fileNameBytes);
 			payload.writeBytes(fileBytes);
-			
+
 			channel.writeAndFlush(payload);
 		}
 		case DOWNLOAD_IMAGE -> {
-			
 			int chatSessionIndex = args.readInt();
 			int messageID = args.readInt();
 			
@@ -685,23 +685,25 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		case START_VOICE_CALL -> {
 			int chatSessionIndex = args.readInt();
 			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
-			int key = ServerUDP.createVoiceChat(chatSessionID);
+			VoiceChat voiceChat = ServerUDP.createVoiceChat(chatSessionID);
 
 			{
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 				payload.writeInt(ClientCommandResultType.START_VOICE_CALL.id);
-				payload.writeInt(key);
 				payload.writeInt(ServerSettings.UDP_PORT);
+				payload.writeInt(voiceChat.key());
+//				payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
 				channel.writeAndFlush(payload);
 			}
 			
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
-			payload.writeInt(chatSessionID);
-			payload.writeInt(key);
-			payload.writeInt(clientInfo.getClientID());
 			payload.writeInt(ServerSettings.UDP_PORT);
+			payload.writeInt(chatSessionID);
+			payload.writeInt(voiceChat.key());
+			payload.writeInt(clientInfo.getClientID());
+//			payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
 
 			for (ClientInfo activeMember : clientInfo.getChatSessions().get(chatSessionIndex).getActiveMembers()) {
 				if (activeMember.getClientID() == clientInfo.getClientID()) {
@@ -714,7 +716,6 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			getLogger().debug("Voice chat added");
 		}
 		case REQUEST_DONATION_PAGE -> {
-			
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.GET_DONATION_PAGE.id);
@@ -725,7 +726,6 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			channel.writeAndFlush(payload);
 		}
 		case REQUEST_SOURCE_CODE_PAGE -> {
-
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.GET_SOURCE_CODE_PAGE.id);
@@ -734,7 +734,6 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			channel.writeAndFlush(payload);
 		}
 		default -> {
-
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
 			payload.writeBytes(("Command:" + commandType.toString() + "not implemented!").getBytes());

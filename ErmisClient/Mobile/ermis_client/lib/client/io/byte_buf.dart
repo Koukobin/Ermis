@@ -63,7 +63,8 @@ class ByteBuf {
     // Expand buffer if growable is true
     _buffer.setRange(_writerIndex, _writerIndex + bytes.length, bytes);
     _writerIndex += bytes.length;
-    _writtenBytes += bytes.length;
+
+    if (_writerIndex > _writtenBytes) _writtenBytes += bytes.length;
   }
 
   void writeByteBuf(ByteBuf bytebuf) {
@@ -104,7 +105,7 @@ class ByteBuf {
   }
 
   void removeLeftOverData() {
-    _buffer = Uint8List.sublistView(_buffer, 0, _readerIndex);
+    _buffer = Uint8List.sublistView(_buffer, _readerIndex, capacity);
 
     _writerIndex = _writerIndex - _readerIndex;
     if (_writerIndex < 0) {

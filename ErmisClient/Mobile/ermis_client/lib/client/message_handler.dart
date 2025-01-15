@@ -331,8 +331,9 @@ class MessageHandler {
           eventBus.fire(AddProfilePhotoResultEvent(isSuccessful));
           break;
         case ClientCommandResultType.startVoiceCall:
-          int voiceCallKey = msg.readInt32();
           int udpServerPort = msg.readInt32();
+          int voiceCallKey = msg.readInt32();
+          // Uint8List aesKey = msg.readBytes(msg.readableBytes);
           eventBus.fire(StartVoiceCallResultEvent(voiceCallKey, udpServerPort));
           break;
         case ClientCommandResultType.getDonationPage:
@@ -360,10 +361,11 @@ class MessageHandler {
           eventBus.fire(ServerMessageEvent(String.fromCharCodes(content)));
           break;
         case ServerMessageType.voiceCallIncoming:
+          int udpServerPort = msg.readInt32();
           int chatSessionID = msg.readInt32();
           int voiceCallKey = msg.readInt32();
           int clientID = msg.readInt32();
-          int udpServerPort = msg.readInt32();
+          // Uint8List aesKey = msg.readBytes(msg.readableBytes);
           
           ChatSession session = _chatSessionIDSToChatSessions[chatSessionID]!;
 

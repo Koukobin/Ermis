@@ -30,7 +30,6 @@ import 't.dart';
 String? serverUrl;
 
 class ChooseServer extends StatefulWidget {
-
   final Set<ServerInfo> cachedServerUrls;
 
   ChooseServer(this.cachedServerUrls, {super.key}) {
@@ -46,7 +45,8 @@ class ChooseServer extends StatefulWidget {
   State<ChooseServer> createState() => ChooseServerState();
 }
 
-class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixin {
+class ChooseServerState extends State<ChooseServer>
+    with TickerProviderStateMixin {
   Set<ServerInfo> cachedServerUrls = {};
   bool _checkServerCertificate = false;
 
@@ -79,9 +79,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Dropdown Menu for Server URLs
-                DropdownMenu(
-                  [for (final item in cachedServerUrls) item.toString()],
-                ),
+                DropdownMenu(cachedServerUrls),
                 const SizedBox(height: 20),
                 // Add Server and Certificate Options
                 Row(
@@ -107,17 +105,18 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                         }
 
                         setState(() {
-                          cachedServerUrls = cachedServerUrls..add(serverInfo);
+                          cachedServerUrls.add(serverInfo);
                         });
                         ErmisDB.getConnection().insertServerInfo(serverInfo);
-          
+
                         // Feedback
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Server added successfully!")),
                         );
                       },
                       icon: const Icon(Icons.add),
-                      label: const Text("Add Server", style: TextStyle(fontSize: 16)),
+                      label: const Text("Add Server",
+                          style: TextStyle(fontSize: 16)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: appColors.primaryColor,
                         foregroundColor: appColors.tertiaryColor,
@@ -136,7 +135,8 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                         ),
                         Text(
                           "Check certificate",
-                          style: TextStyle(fontSize: 16, color: appColors.primaryColor),
+                          style: TextStyle(
+                              fontSize: 16, color: appColors.primaryColor),
                         ),
                       ],
                     ),
@@ -150,7 +150,8 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
 
                     final DBConnection conn = ErmisDB.getConnection();
                     conn.updateServerUrlLastUsed(ServerInfo(url));
-                    LocalAccountInformation? userInfo = await conn.getLastUsedAccount(ServerInfo(url));
+                    LocalAccountInformation? userInfo =
+                        await conn.getLastUsedAccount(ServerInfo(url));
                     if (kDebugMode) {
                       debugPrint(userInfo?.email);
                       debugPrint(userInfo?.passwordHash);
@@ -165,7 +166,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                       );
                     } catch (e) {
                       if (e is TlsException || e is SocketException) {
-                        await showExceptionDialog(context, (e as dynamic).message);
+                        await showToastDialog((e as dynamic).message);
                         return;
                       }
 
@@ -186,7 +187,9 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                     backgroundColor: appColors.secondaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text("Connect", style: TextStyle(fontSize: 18, color: appColors.primaryColor)),
+                  child: Text("Connect",
+                      style: TextStyle(
+                          fontSize: 18, color: appColors.primaryColor)),
                 ),
               ],
             ),
@@ -198,9 +201,8 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
 }
 
 class DropdownMenu extends StatefulWidget {
-  final List<String> cachedServerUrls;
+  final Set<ServerInfo> cachedServerUrls;
   const DropdownMenu(this.cachedServerUrls, {super.key});
-
   @override
   State<DropdownMenu> createState() => _DropdownMenuState();
 }
@@ -213,7 +215,6 @@ class _DropdownMenuState extends State<DropdownMenu> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final borderRadius = BorderRadius.circular(8.0);
-
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -224,6 +225,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
         ),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
+            key: _widgetKey,
             hint: Text(
               "Choose server URL",
               style: TextStyle(
@@ -248,15 +250,15 @@ class _DropdownMenuState extends State<DropdownMenu> {
               Icons.arrow_drop_down,
               color: appColors.primaryColor,
             ),
-            items: widget.cachedServerUrls.map((String url) {
+            items: widget.cachedServerUrls.map((ServerInfo server) {
               return DropdownMenuItem<String>(
-                value: url,
+                value: server.toString(),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(
                       child: Text(
-                        url,
+                        server.toString(),
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: appColors.primaryColor),
                       ),
@@ -265,10 +267,16 @@ class _DropdownMenuState extends State<DropdownMenu> {
                       icon: const Icon(Icons.delete, color: Colors.red),
                       splashRadius: 20,
                       onPressed: () {
-                        final serverInfo = ServerInfo(Uri.parse(url));
-                        ErmisDB.getConnection().removeServerInfo(serverInfo);
-                        widget.cachedServerUrls.remove(url);
+                        ErmisDB.getConnection().removeServerInfo(server);
                         setState(() {
+                          widget.cachedServerUrls.remove(server);
+
+                          // To ensure an error is not thrown by dropdown menu because
+                          // it cannot find selected item - i.e serverUrl - assign it to null
+                          if (serverUrl == server.toString()) {
+                            serverUrl = null;
+                          }
+
                           _widgetKey = UniqueKey();
                         });
                       },

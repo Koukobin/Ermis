@@ -53,7 +53,6 @@ enum ChatBackDrop {
 }
 
 class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
-
   final SettingsJson _settingsJson = SettingsJson();
 
   bool _isDarkMode = false;
@@ -68,7 +67,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   }
 
   void _loadSettings() async {
-    await _settingsJson.loadSettingsJson();
+    if (_settingsJson.isJsonNotLoaded) await _settingsJson.loadSettingsJson();
     setState(() {
       _isDarkMode = _settingsJson.isDarkModeEnabled;
       _useSystemDefault = _settingsJson.useSystemDefaultTheme;
@@ -115,14 +114,14 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 setState(() {
                   _useSystemDefault = value;
                 });
+                _settingsJson.setUseSystemDefaultTheme(_useSystemDefault);
+
                 if (_useSystemDefault) {
                   AppTheme.of(context).setThemeMode(ThemeMode.system);
                   return;
                 }
 
-                _settingsJson.setUseSystemDefaultTheme(_useSystemDefault);
-                AppTheme.of(context).setThemeMode(
-                    _isDarkMode ? ThemeMode.dark : ThemeMode.light);
+                AppTheme.of(context).setThemeMode(_isDarkMode ? ThemeMode.dark : ThemeMode.light);
               },
             ),
             Stack(

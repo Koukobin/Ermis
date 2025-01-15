@@ -46,7 +46,6 @@ public final class FileUtils {
 	}
 
 	public static String readFile(InputStream is) {
-
 		StringBuilder fileContentStringBuilder = new StringBuilder();
 		try (Scanner scanner = new Scanner(is)) {
 			while (scanner.hasNextLine()) {

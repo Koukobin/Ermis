@@ -22,7 +22,6 @@ import 'package:ermis_client/main_ui/chats/voice_call.dart';
 import 'package:ermis_client/main_ui/settings/theme_settings.dart';
 import 'package:ermis_client/util/database_service.dart';
 import 'package:ermis_client/util/settings_json.dart';
-import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -49,8 +48,11 @@ class MessagingInterface extends StatefulWidget {
   final int chatSessionIndex;
   final ChatSession chatSession;
 
-  const MessagingInterface(
-      {super.key, required this.chatSessionIndex, required this.chatSession});
+  const MessagingInterface({
+    super.key,
+    required this.chatSessionIndex,
+    required this.chatSession,
+  });
 
   @override
   State<MessagingInterface> createState() => MessagingInterfaceState();
@@ -66,7 +68,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   late final int _chatSessionIndex;
   late ChatSession _chatSession; // Not final because can be updated by server
 
-  final List<Message> _messages = [];
+  List<Message> _messages = []; // Not final because can be updated by server
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -88,6 +90,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
     _chatSessionIndex = widget.chatSessionIndex;
     _chatSession = widget.chatSession;
+    print("set $_chatSessionIndex");
 
     // Fetch cached messages or load from the server
     if (!_chatSession.haveChatMessagesBeenCached) {
@@ -104,13 +107,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     _setupListeners();
   }
 
-  void _retrieveLocalMessages() async{
-    List<Message> messages = await ErmisDB.getConnection().retieveChatMessages(
-      Client.getInstance().serverInfo,
-      _chatSession.chatSessionID,
-    );
+  void _retrieveLocalMessages() async {
+    // List<Message> messages = await ErmisDB.getConnection().retieveChatMessages(
+    //   Client.getInstance().serverInfo,
+    //   _chatSession.chatSessionID,
+    // );
 
-    _setMessages(messages);
+    // _setMessages(messages);
   }
 
   void _setupListeners() {
@@ -182,11 +185,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     });
 
     AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
-      if (!mounted) return; // Probably impossible but still check just in case
       LoadedInMemoryFile file = event.file;
       
       String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
 
+      if (!mounted) return; // Probably impossible but still check just in case
       if (filePath != null) {
         showSnackBarDialog(context: context, content: "Downloaded file");
         return;
@@ -241,28 +244,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       });
     });
 
-    AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
-      Member member = event.member;
-      NotificationService.showVoiceCallNotification(
-          icon: member.getIcon,
-          callerName: member.getUsername,
-          chatSessionIndex: event.chatSessionID,
-          onAccept: () {
-            navigateWithFade(
-                context,
-                VoiceCallScreen(
-                  chatSessionID: event.chatSessionID,
-                  chatSessionIndex: event.chatSessionIndex,
-                  voiceCallKey: event.voiceCallKey,
-                  callType: VoiceCall.accept,
-                ));
-          });
-    });
+    VoiceCallHandler.startListeningForIncomingCalls(context);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _chatSession.setMessages(_messages);
     super.dispose();
   }
 
@@ -273,8 +261,9 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
   void _setMessages(List<Message> messages) {
     setState(() {
-      _messages.clear();
-      _messages.addAll(messages);
+      _messages = messages; 
+      // _messages.clear();
+      // _messages.addAll(messages);
     });
   }
 
@@ -399,14 +388,12 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           ),
           Flexible(
             child: IconButton(
-                onPressed: () async {
-                  navigateWithFade(
-                      context,
-                      VoiceCallScreen(
-                        chatSessionIndex: _chatSessionIndex,
-                        chatSessionID: _chatSession.chatSessionID,
-                        callType: VoiceCall.create,
-                      ));
+                onPressed: () {
+                  VoiceCallHandler.initiateVoiceCall(
+                    context,
+                    chatSessionIndex: _chatSessionIndex,
+                    chatSessionID: _chatSession.chatSessionID,
+                  );
                 },
                 icon: Icon(Icons.phone)),
           )
@@ -612,8 +599,11 @@ class MessageBubble extends StatelessWidget {
   final AppColors appColors;
   static DateTime lastMessageDate = DateTime.fromMicrosecondsSinceEpoch(500000);
 
-  const MessageBubble(
-      {required this.message, required this.appColors, super.key});
+  const MessageBubble({
+    super.key,
+    required this.message,
+    required this.appColors,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -688,7 +678,7 @@ class MessageBubble extends StatelessWidget {
   Widget _buildMessageContent(BuildContext context, Message message) {
     switch (message.contentType) {
       case MessageContentType.text:
-        return Text(message.getText!,
+        return Text(message.getText,
           softWrap: true, // Enable text wrapping
           overflow: TextOverflow.clip,
           maxLines: null,
@@ -713,29 +703,30 @@ class MessageBubble extends StatelessWidget {
           ],
         );
       case MessageContentType.image:
-        final image = message.imageBytes != null
-            ? Image.memory(message.imageBytes!)
-            : null;
+        final image = message.imageBytes == null
+            ? null
+            : Image.memory(message.imageBytes!);
         return GestureDetector(
           onDoubleTap: () {
             if (image == null) {
-              Client.getInstance().commands.downloadImage(
-                  message.getMessageID, message.chatSessionIndex);
+              print(message.chatSessionIndex);
+              print(message.getMessageID);
+              Client.getInstance().commands.downloadImage(message.getMessageID, message.chatSessionIndex);
             }
           },
           child: Container(
             color: appColors.secondaryColor,
-            child: image != null
-                ? GestureDetector(
+            child: image == null
+                ? null
+                : GestureDetector(
                     onTap: () {
                       // Display image fullscreen
                       showImageDialog(context, image);
                     },
-                    child: FittedBox(fit: BoxFit.contain, child: image))
-                : null,
+                    child: FittedBox(fit: BoxFit.contain, child: image)),
           ),
         );
-      }
+    }
   }
 
   void showImageDialog(BuildContext context, Image image) {

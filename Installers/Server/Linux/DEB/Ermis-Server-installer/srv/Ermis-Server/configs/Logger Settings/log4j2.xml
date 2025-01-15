@@ -2,8 +2,8 @@
 <Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
 	
     <Properties>
-		<Property name="serverLogsPath">/var/log/ermis-server/server logs/</Property>
-        <Property name="databaseLogsPath">/var/log/ermis-server/database logs/</Property>
+		<Property name="serverLogsPath">/srv/Ermis-Server/logs/Server Logs/</Property>
+        <Property name="databaseLogsPath">/srv/Ermis-Server/logs/Database Logs/</Property>
 	</Properties>
 	
     <Appenders>
@@ -33,7 +33,8 @@
 
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout
-				pattern="%d{dd-MM-yyyy HH:mm} [%t] %highlight{%-5level}{FATAL=red blink, ERROR=red, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue} %style{%logger{36}}{magenta} - %msg%n" />
+				pattern="%style{%d{dd-MM-yyyy HH:mm}}{underline}  %style{[%t]}{bold}
+ %highlight{%-5level}{FATAL=bold red blink, ERROR=red blink, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue} %style{%logger{36}}{magenta} - %msg%n" />
 		</Console>
 	</Appenders>
 

@@ -15,7 +15,7 @@
  */
 package github.koukobin.ermis.server.main.java.util;
 
-import io.netty.util.internal.ThreadLocalRandom;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Ilias Koukovinis

@@ -15,7 +15,9 @@
  */
 package github.koukobin.ermis.server.main.java.server;
 
+import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -23,23 +25,37 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.KeyStore;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import javax.crypto.SecretKey;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
+import github.koukobin.ermis.common.message_types.ClientContentType;
+import github.koukobin.ermis.common.util.EnumIntConverter;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
+import github.koukobin.ermis.server.main.java.util.AESGCMCipher;
+import github.koukobin.ermis.server.main.java.util.AESKeyGenerator;
 import github.koukobin.ermis.server.main.java.util.InsecureRandomNumberGenerator;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
@@ -49,6 +65,15 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.SupportedCipherSuiteFilter;
+import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
+import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
+import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 
 /**
  * @author Ilias Koukovinis
@@ -105,7 +130,7 @@ public final class ServerUDP {
 
 			InetSocketAddress serverAddress = (InetSocketAddress) serverSocketChannel.localAddress();
 
-			LOGGER.info("UDP Server started succesfully on port {} and at address {}", serverAddress.getPort(),
+			LOGGER.info("UDP Server started successfully on port {} and at address {}", serverAddress.getPort(),
 					serverAddress.getHostName());
 			LOGGER.info("Waiting for incoming calls...");
 		} catch (Exception e) {
@@ -181,8 +206,86 @@ public final class ServerUDP {
 		}
 	}
 
-	record VoiceChat(int key, List<InetSocketAddress> members) {
+	public record VoiceChat(int key, List<InetSocketAddress> members, AESGCMCipher aesKey) {}
+	
+	enum ServerMessage {
+		VOICE(4),
+		USER_ADDED(0),
+		CALL_ENDED(1);
+		
+		private final int id;
+		ServerMessage(int id) {
+			this.id = id;
+		}
 	}
+	
+	enum ClientMessage {
+		VOICE(4),
+		END_CALL(1);
+		
+		private static final HashMap<Integer, ClientMessage> values;
+		
+		static {
+			values = new HashMap<>(
+					Arrays.stream(ClientMessage.values())
+					.collect(Collectors.toMap(type -> type.id, type -> type))
+					);
+		}
+
+		private final int id;
+
+		ClientMessage(int id) {
+			this.id = id;
+		}
+		
+		public static ClientMessage fromId(int id) {
+			return EnumIntConverter.fromId(values, id);
+		}
+	}
+	
+//	private static class Test0 extends SimpleChannelInboundHandler<DatagramPacket> {
+//
+//		private static final SslContext sslContext;
+//		
+//		static {
+//			try {
+//				char[] certificatePassword = ServerSettings.SSL.CERTIFICATE_PASSWORD.toCharArray();
+//				
+//				KeyStore ks = KeyStore.getInstance("DTLS");
+//				ks.load(new FileInputStream(ServerSettings.SSL.CERTIFICATE_LOCATION), certificatePassword);
+//				
+//				KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+//				kmf.init(ks, certificatePassword);
+//				
+//				TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+//				tmf.init(ks);
+//				
+//				sslContext = SslContextBuilder.forServer(kmf)
+//						.trustManager(tmf)
+//						.protocols(ServerSettings.SSL.getEnabledProtocols())
+//						.sslProvider(SslProvider.OPENSSL)
+//						.ciphers(Arrays.asList(ServerSettings.SSL.getEnabledCipherSuites()), SupportedCipherSuiteFilter.INSTANCE)
+//						.applicationProtocolConfig(
+//								new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
+//										SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_1_1))
+//						.build();
+//			} catch (Exception e) {
+//				LOGGER.fatal("Initializing SSLContext failed:", e);
+//				throw new RuntimeException(e);
+//			}
+//		}
+//
+//		@Override
+//		public void handlerAdded(ChannelHandlerContext ctx) {
+//			ctx.pipeline().addLast(new Test());
+//		}
+//
+//		@Override
+//		public void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
+//			
+//		}
+//		
+//	}
 
 	private static class Test extends SimpleChannelInboundHandler<DatagramPacket> {
 
@@ -192,11 +295,31 @@ public final class ServerUDP {
 		public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
 			LOGGER.debug("Packet received");
 			ByteBuf content = packet.content();
-
+			
 			int chatSessionID = content.readInt();
+//			ByteBuf encryptedContent;
+//			ByteBuf decryptedContent;
+//			{
+//				encryptedContent = content.slice();
+//				byte[] a = new byte[encryptedContent.readableBytes()];
+//				encryptedContent.readBytes(a);
+//				byte[] b = AESKeyGenerator.decrypt(calls.get(chatSessionID).aesKey.getSecretKey(), a);
+//
+//				decryptedContent = ctx.alloc().ioBuffer();
+//				decryptedContent.writeBytes(b);
+//			}
+
+			switch (ClientMessage.fromId(content.readInt())) {
+			case END_CALL:
+				calls.get(chatSessionID).members().remove(packet.sender());
+				return;
+			case VOICE:
+				break;
+			}
+
 			int distinguishingKey = content.readInt();
 
-			// Authorize
+			// Authorize using unique key
 			if (distinguishingKey != calls.get(chatSessionID).key()) {
 				LOGGER.debug("Incorrect key");
 				return;
@@ -204,11 +327,22 @@ public final class ServerUDP {
 
 			List<InetSocketAddress> recipients = calls.get(chatSessionID).members();
 			if (!recipients.contains(packet.sender())) {
+				LOGGER.debug("User joined chat session: {}", chatSessionID);
+
+				ByteBuf buffer = ctx.alloc().ioBuffer();
+				buffer.writeInt(ServerMessage.USER_ADDED.id);
+				for (InetSocketAddress recipientAddress : recipients) {
+					buffer.retain();
+					DatagramPacket responsePacket = new DatagramPacket(buffer, recipientAddress);
+					ctx.channel().writeAndFlush(responsePacket);
+				}
 				calls.get(chatSessionID).members().add(packet.sender());
 			}
 
-			ByteBuf contentBytes = content.slice();
-			contentBytes.retain(recipients.size());
+			ByteBuf contentBytes = ctx.alloc().ioBuffer(Integer.BYTES + content.readableBytes());
+			contentBytes.writeInt(ServerMessage.VOICE.id);
+			contentBytes.writeBytes(content.slice());
+			contentBytes.retain(recipients.size() - 1);
 
 			contentBytes.markReaderIndex();
 			byte[] contentBytes2 = new byte[contentBytes.readableBytes()];
@@ -234,6 +368,7 @@ public final class ServerUDP {
 				DatagramPacket responsePacket = new DatagramPacket(contentBytes, recipientAddress);
 				ctx.channel().writeAndFlush(responsePacket);
 			}
+			
 		}
 	}
 
@@ -258,10 +393,11 @@ public final class ServerUDP {
 		return buffer.array();
 	}
 
-	public static int createVoiceChat(int chatSessionID) {
+	public static VoiceChat createVoiceChat(int chatSessionID) {
 		int key = InsecureRandomNumberGenerator.generateRandomNumber(8);
-		Test.calls.put(chatSessionID, new VoiceChat(key, Lists.newArrayList()));
-		return key;
+//		AESGCMCipher aesKey = AESKeyGenerator.generateAESKey();
+		Test.calls.put(chatSessionID, new VoiceChat(key, Lists.newArrayList(), null));
+		return Test.calls.get(chatSessionID);
 	}
 
 	public static void stop() {

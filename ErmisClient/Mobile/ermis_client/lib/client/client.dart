@@ -60,7 +60,7 @@ class Client {
 
   bool _isLoggedIn = false;
 
-  final MessageHandler _messageHandler = MessageHandler();
+  late MessageHandler _messageHandler;
   
   Uri? uri;
 
@@ -72,10 +72,11 @@ class Client {
     }
 
     try {
-      final context = SecurityContext(withTrustedRoots: false);
+      final sslContext = SecurityContext(withTrustedRoots: false);
 
       _sslSocket = await SecureSocket.connect(uri.host, uri.port,
-          context: context,
+          context: sslContext,
+          timeout: Duration(seconds: 5),
           onBadCertificate: (X509Certificate cert) =>
               scv == ServerCertificateVerification.ignore);
 
@@ -86,6 +87,7 @@ class Client {
       _inputStream = ByteBufInputStream(broadcastStream: broadcastStream!);
       _outputStream = ByteBufOutputStream(secureSocket: _sslSocket!);
 
+      _messageHandler = MessageHandler();
       _messageHandler.setSecureSocket(_sslSocket!);
       _messageHandler.setByteBufInputStream(_inputStream!);
       _messageHandler.setByteBufOutputStream(_outputStream!);
@@ -176,65 +178,6 @@ class Client {
 
 }
 
-class UDPSocket {
-  RawDatagramSocket? _udpSocket;
-
-  InternetAddress? _remoteAddress;
-  int? _remotePort;
-
-  UDPSocket();
-
-  Future<void> initialize(InternetAddress remoteAddress, int remotePort, int chatSessionIndex) async {
-    if (remotePort <= 0) {
-      throw ArgumentError("Port cannot be below zero");
-    }
-
-    _udpSocket = await RawDatagramSocket.bind(
-      InternetAddress.anyIPv4,
-      9090,
-    );
-
-    _remoteAddress = remoteAddress;
-    _remotePort = remotePort;
-  }
-
-  void listen(void Function(RawSocketEvent event)? onData,
-      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
-    _udpSocket!.listen(onData, onError: onError, onDone: onDone, cancelOnError: cancelOnError);
-  }
-
-  Datagram? receive() {
-    return _udpSocket!.receive();
-  }
-  
-  void send(int chatSessionID, int key, Uint8List message) {
-    // If message greater than 4096 send message in chunks
-    if (message.length <= 32768) {
-      final payload = ByteBuf.smallBuffer(growable: true);
-      payload.writeInt(chatSessionID);
-      payload.writeInt(key);
-      payload.writeBytes(message);
-      _udpSocket!.send(payload.buffer, _remoteAddress!, _remotePort!);
-    } else {
-
-      // ΕΔΩ ΕΓΚΕΙΤΑΙ ΤΟ ΠΡΟΒΛΗΜΑ
-      for (int i = 0; i < message.length; i += 1024) {
-        int end = (i + 1024 < message.length) ? i + 1024 : message.length;
-        final payload = ByteBuf.smallBuffer(growable: true);
-        payload.writeInt(chatSessionID);
-        payload.writeInt(key);
-        payload.writeBytes(Uint8List.fromList(message.getRange(i, end).toList()));
-        _udpSocket!.send(payload.buffer, _remoteAddress!, _remotePort!);
-      }
-    }
-
-  }
-
-  void close() {
-    _udpSocket!.close();
-  }
-}
-
 class Entry<T extends CredentialInterface> {
   final EntryType entryType;
 
@@ -282,7 +225,7 @@ class Entry<T extends CredentialInterface> {
     return ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes));
   }
 
-  Future<void> sendEntryType() async {
+  void sendEntryType() {
     outputStream.write(ByteBuf.smallBuffer()..writeInt(ClientMessageType.entry.id)..writeInt(entryType.id));
   }
 
@@ -385,7 +328,7 @@ class LoginEntry extends Entry<LoginCredential> {
 
   /// Switches between authenticating via password or backup verification code.
   /// This is useful for users who have lost their primary password and need an alternative method.
-  Future<void> togglePasswordType() async {
+  void togglePasswordType() {
     bool isAction = true;
     int actionId = LoginAction.togglePasswordType.id;
 
@@ -397,7 +340,7 @@ class LoginEntry extends Entry<LoginCredential> {
     outputStream.write(payload);
   }
 
-  Future<void> addDeviceInfo(DeviceType deviceType, String osName) async {
+  void addDeviceInfo(DeviceType deviceType, String osName) {
     bool isAction = true;
     int actionId = LoginAction.addDeviceInfo.id;
 

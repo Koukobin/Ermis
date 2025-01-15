@@ -25,6 +25,7 @@ import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../../util/transitions_util.dart';
+import '../splash_screen.dart';
 import 'messaging_interface.dart';
 import '../../theme/app_theme.dart';
 import '../../client/common/chat_session.dart';
@@ -62,6 +63,8 @@ class ChatsState extends TempState<Chats> {
   
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+  final List<StreamSubscription<Object>> _subscriptions = [];
+
   @override
   void initState() {
     super.initState();
@@ -72,13 +75,13 @@ class ChatsState extends TempState<Chats> {
       task = Task.loading;
     }
 
-    AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
+    _subscriptions.add(AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
       _updateChatSessions(event.sessions);
-    });
+    }));
 
-    AppEventBus.instance.on<ServerMessageEvent>().listen((event) async {
+    _subscriptions.add(AppEventBus.instance.on<ServerMessageEvent>().listen((event) async {
       showToastDialog(event.message);
-    });
+    }));
 
     // Whenever text changes performs search
     _searchController.addListener(() {
@@ -95,7 +98,15 @@ class ChatsState extends TempState<Chats> {
   void dispose() {
     _searchController.dispose();
     _focusNode.dispose();
+    _removeSubscriptions();
     super.dispose();
+  }
+
+  void _removeSubscriptions() async {
+    for (final sub in _subscriptions) {
+      _subscriptions.remove(sub);
+      await sub.cancel();
+    }
   }
 
   @override
@@ -137,7 +148,7 @@ class ChatsState extends TempState<Chats> {
                   PopupMenuItem(
                     value: () {
                       // FUCK
-                      // SendChatRequestButton.showAddChatRequestDialog(context);
+                      SendChatRequestButton.showAddChatRequestDialog(context);
                     },
                     child: const Text('New chat'),
                   ),
@@ -152,6 +163,17 @@ class ChatsState extends TempState<Chats> {
                       pushHorizontalTransition(context, const Settings());
                     },
                     child: const Text('Settings'),
+                  ),
+                  PopupMenuItem(
+                    value: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SplashScreen()),
+                        (route) => false, // Removes all previous routes
+                      );
+                    },
+                    child: const Text('Sign out'),
                   ),
                 ];
               },
@@ -280,10 +302,18 @@ class ChatsState extends TempState<Chats> {
     );
   }
 
-  Widget buildChatButton(int index) {
-    ChatSession chatSession = _conversations![index];
+  Widget buildChatButton(int sessionIndex) {
+    ChatSession chatSession = _conversations![sessionIndex];
     int startingIndex = chatSession.toString().indexOf(_searchController.text);
-    int endIndex = startingIndex + _searchController.text.length;
+    int endIndex;
+
+    if (startingIndex == -1) {
+      startingIndex = 0;
+      endIndex = 0;
+    } else {
+      endIndex = startingIndex + _searchController.text.length;
+    }
+
     final appColors = Theme.of(context).extension<AppColors>()!;
     return ListTile(
       onLongPress: () {
@@ -324,7 +354,7 @@ class ChatsState extends TempState<Chats> {
                 Icons.check_circle,
                 color: Colors.green,
                 key: ValueKey(
-                    'selected_$index'), // Unique key for the selected state
+                    'selected_$sessionIndex'), // Unique key for the selected state
               )
             : Text(
                 chatSession.lastMessageSentTime,
@@ -410,17 +440,19 @@ class SendChatRequestButton extends StatefulWidget {
   @override
   State<SendChatRequestButton> createState() => _SendChatRequestButtonState();
 
-  static void showAddChatRequestDialog(BuildContext context, TickerProvider vsync) async {
+  static void showAddChatRequestDialog(BuildContext context) async {
     final String? input = await showInputDialog(
         context: context,
-        vsync: vsync,
+        vsync: _SendChatRequestButtonState._vsync,
         title: "Send Chat Request",
         hintText: "Enter client id");
 
     if (input == null) return;
     if (int.tryParse(input) == null) {
       showSnackBarDialog(
-          context: context, content: "Client id must be a number");
+        context: context,
+        content: "Client id must be a number",
+      );
       return;
     }
 
@@ -431,20 +463,19 @@ class SendChatRequestButton extends StatefulWidget {
 
 class _SendChatRequestButtonState extends State<SendChatRequestButton> with TickerProviderStateMixin {
 
+  static late TickerProvider _vsync;
+
   double _widgetOpacity = 0.0;
 
   @override
   void initState() {
     super.initState();
+    _vsync = this;
     Future.delayed(Duration(milliseconds: 400), () {
       if (mounted) {
         setState(() => _widgetOpacity = 1.0);
       }
     });
-  }
-
-  static void showAddChatRequestDialog(BuildContext context, TickerProvider vsync) {
-    SendChatRequestButton.showAddChatRequestDialog(context, vsync);
   }
 
   @override
@@ -456,7 +487,8 @@ class _SendChatRequestButtonState extends State<SendChatRequestButton> with Tick
         duration: Duration(milliseconds: 200),
         opacity: _widgetOpacity,
         child: FloatingActionButton(
-          onPressed: () => showAddChatRequestDialog(context, this),
+          onPressed: () =>
+              SendChatRequestButton.showAddChatRequestDialog(context),
           backgroundColor: appColors.primaryColor,
           child: Icon(Icons.add),
         ),

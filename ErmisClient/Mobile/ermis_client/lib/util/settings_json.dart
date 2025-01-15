@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 class SettingsJson {
-
   static SettingsJson? _instance;
 
   SettingsJson._internal();
@@ -32,10 +31,11 @@ class SettingsJson {
     return _instance!;
   }
 
+  bool _isJsonLoaded = false;
   late Map<String, dynamic> _settingsJson;
 
   Future<void> loadSettingsJson() async {
-    final path = await _getSettingsFilePath();
+    final path = await _getJsonSettingsFilePath();
     final file = File(path);
     if (!await file.exists()) {
       file.create();
@@ -44,6 +44,7 @@ class SettingsJson {
 
     final content = await file.readAsString();
     _settingsJson = jsonDecode(content);
+    _isJsonLoaded = true;
   }
 
   void setUseSystemDefaultTheme(bool useSystemDefaultTheme) {
@@ -84,13 +85,16 @@ class SettingsJson {
   bool get showMessagePreview => _settingsJson["showMessagePreview"];
   bool get vibrationEnabled => _settingsJson["vibrationEnabled"];
 
+  bool get isJsonLoaded => _isJsonLoaded;
+  bool get isJsonNotLoaded => !_isJsonLoaded;
+
   Future<void> saveSettingsJson() async {
-    final path = await _getSettingsFilePath();
+    final path = await _getJsonSettingsFilePath();
     final file = File(path);
     await file.writeAsString(jsonEncode(_settingsJson));
   }
 
-  Future<String> _getSettingsFilePath() async {
+  Future<String> _getJsonSettingsFilePath() async {
     final directory = await getApplicationDocumentsDirectory();
     final String settingsPath = '${directory.path}/settings.json';
     return settingsPath;

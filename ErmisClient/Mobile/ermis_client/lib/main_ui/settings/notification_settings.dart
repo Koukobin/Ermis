@@ -63,7 +63,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
   }
 
   void _loadSettings() async {
-    await _settingsJson.loadSettingsJson();
+    if (_settingsJson.isJsonNotLoaded) await _settingsJson.loadSettingsJson();
     setState(() {
       _notificationsEnabled = _settingsJson.notificationsEnabled;
       _messagePreviewEnabled = _settingsJson.showMessagePreview;

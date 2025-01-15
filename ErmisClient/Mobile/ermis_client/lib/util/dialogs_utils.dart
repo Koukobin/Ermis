@@ -110,7 +110,7 @@ Future<void> showWhatsAppDialog(BuildContext context, String content, VoidCallba
 }
 
 Future<void> confirmDialog(BuildContext context, String content, GestureTapCallback runOnConfirmation) async {
-  final shouldExit = await showDialog<bool>(
+  final bool? shouldExit = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
       return WhatsAppPopupDialog(
@@ -219,10 +219,6 @@ Future<void> showSimpleAlertDialog({
           backgroundColor: appColors.tertiaryColor,
           title: Text(
             title,
-            style: TextStyle(
-              color: appColors.primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
           ),
           content: Text(
             content,
@@ -341,10 +337,6 @@ Future<String?> showInputDialog({
           backgroundColor: appColors.tertiaryColor.withOpacity(0.95),
           title: Text(
             title,
-            style: TextStyle(
-              color: appColors.primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,

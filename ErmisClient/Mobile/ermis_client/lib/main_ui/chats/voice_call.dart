@@ -20,10 +20,13 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ermis_client/client/client.dart';
+import 'package:ermis_client/client/io/byte_buf.dart';
 import 'package:ermis_client/client/message_events.dart';
+import 'package:ermis_client/client/voice_call_udp_socket.dart';
 import 'package:ermis_client/main_ui/user_profile.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/top_app_bar_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
@@ -32,21 +35,73 @@ import 'package:record/record.dart';
 import 'package:synchronized/synchronized.dart';
 
 import '../../client/app_event_bus.dart';
+import '../../client/common/chat_session.dart';
+import '../../util/notifications_util.dart';
 import '../../util/permissions.dart';
+import '../../util/transitions_util.dart';
+
+class VoiceCallHandler {
+  static void startListeningForIncomingCalls(BuildContext context) {
+    AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
+      Member member = event.member;
+      NotificationService.showVoiceCallNotification(
+          icon: member.getIcon,
+          callerName: member.getUsername,
+          chatSessionIndex: event.chatSessionID,
+          onAccept: () {
+            navigateWithFade(
+                context,
+                VoiceCallScreen._(
+                    chatSessionID: event.chatSessionID,
+                    chatSessionIndex: event.chatSessionIndex,
+                    voiceCallKey: event.voiceCallKey,
+                    udpServerPort: event.udpServerPort,
+                    member: member));
+          });
+    });
+  }
+
+  static Future<void> initiateVoiceCall(
+    BuildContext context, {
+    required int chatSessionIndex,
+    required int chatSessionID,
+  }) async {
+    Client.getInstance().commands.startVoiceCall(chatSessionIndex);
+
+    late int voiceCallKey;
+    late int port;
+    Completer<void> completer = Completer();
+    AppEventBus.instance.on<StartVoiceCallResultEvent>().listen((event) {
+      voiceCallKey = event.key;
+      port = event.udpServerPort;
+      completer.complete();
+    });
+    await completer.future;
+    navigateWithFade(
+        context,
+        VoiceCallScreen._(
+          chatSessionIndex: chatSessionIndex,
+          chatSessionID: chatSessionID,
+          voiceCallKey: voiceCallKey,
+          udpServerPort: port,
+          member: null,
+        ));
+  }
+}
 
 class VoiceCallScreen extends StatefulWidget {
   final int chatSessionID;
   final int chatSessionIndex;
   final int voiceCallKey;
-  // final VoiceCallIncomingEvent event;
-  final VoiceCall callType;
-  const VoiceCallScreen({
+  final int udpServerPort;
+  final Member? member;
+  const VoiceCallScreen._({
     super.key,
     required this.chatSessionID,
     required this.chatSessionIndex,
-    this.voiceCallKey = 0,
-    // this.event,
-    required this.callType,
+    required this.voiceCallKey,
+    required this.udpServerPort,
+    required this.member,
   });
 
   @override
@@ -60,11 +115,11 @@ enum VoiceCall {
 enum CallStatus {
   connecting('Connecting...'),
   calling('Calling...'),
+  active('Active...'),
   ringing('Ringing...'), 
   ended('Ended');
 
   final String text;
-
   const CallStatus(this.text);
 }
 
@@ -72,33 +127,21 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
   final AudioRecorder audioRecord = AudioRecorder();
   late final String audioFilePath;
 
-  late final _udpSocket = UDPSocket();
-  late final int voiceCallKey;
+  late final _udpSocket = VoiceCallUDPSocket();
 
   double rms = 0.0;
 
   bool isMuted = false;
-  bool isClosed = false;
   bool isShowingVideo = false;
 
   int lastReadPosition = 0;
 
-  CallStatus callStatus = CallStatus.connecting;
+  CallStatus callStatus = CallStatus.calling;
 
   @override
   void initState() {
     super.initState();
-    if (widget.voiceCallKey != 0) voiceCallKey = widget.voiceCallKey;
-
-    void func() async {
-      try {
-        await _initiateCall();
-      } catch (e) {
-        showExceptionDialog(context, e.toString());
-      }
-    }
-
-    func();
+    _initiateCall();
   }
 
   static int index = 0;
@@ -107,72 +150,47 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
     await checkPermission(Permission.microphone);
     await checkPermission(Permission.camera);
 
-    switch (widget.callType) {
-      case VoiceCall.accept:
-        // Client.getInstance().commands.acceptVoiceCall(widget.chatSessionID);
-        break;
-      case VoiceCall.create:
-        Client.getInstance().commands.startVoiceCall(widget.chatSessionIndex);
-        
-        Completer<void> completer = Completer();
-        AppEventBus.instance.on<StartVoiceCallResultEvent>().listen((event) {
-          showExceptionDialog(context, "cheeks");
-          this.voiceCallKey = event.key;
-          completer.complete();
-        });
-        await completer.future;
-        
-        break;
-    }
+    final address = Client.getInstance().serverInfo.address;
 
+    await _udpSocket.initialize(address, widget.udpServerPort, widget.chatSessionIndex);
+    _udpSocket.chatSessionID = widget.chatSessionID;
+    _udpSocket.key = widget.voiceCallKey;
 
-    final address = InternetAddress("192.168.10.103");
-    final port = 9090;
+    _udpSocket.send(Uint8List(0)); // Test packet
 
-    await showExceptionDialog(context, "cheeks0");
-
-    await _udpSocket.initialize(address, port, widget.chatSessionIndex);
-
-    _udpSocket.send(widget.chatSessionID, voiceCallKey, Uint8List(5));
-
-    await showExceptionDialog(context, "cheeks1");
-
-    FlutterSoundPlayer _player = FlutterSoundPlayer();
-    await _player.openPlayer();
-    await _player.startPlayerFromStream(
+    FlutterSoundPlayer player = FlutterSoundPlayer();
+    await player.openPlayer();
+    await player.startPlayerFromStream(
       codec: Codec.pcm16,
       sampleRate: 44100,
       numChannels: 2,
     );
 
-    showExceptionDialog(context, "cheeks2");
+    _udpSocket.listen((datagram) async {
+      Uint8List data = datagram.data;
+      VoiceCallServerMessage type = VoiceCallServerMessage.fromId(ByteBuf.wrap(data).readInt32());
 
-    _udpSocket.listen((event) async {
-      Datagram? datagram = _udpSocket.receive();
-      if (datagram == null) {
-        return;
+      switch (type) {
+        case VoiceCallServerMessage.voice:
+          callStatus = CallStatus.active;
+          _lock.synchronized(() async {
+            await player.feedFromStream(data);
+            double rms = calculateRMS(data);
+            if (kDebugMode) debugPrint('RMS: $rms');
+            setState(() {
+              this.rms = rms;
+            });
+          });
+          break;
+        case VoiceCallServerMessage.userAdded:
+          setState(() => callStatus = CallStatus.connecting);
+          break;
+        case VoiceCallServerMessage.callEnded:
+          _endCall();
+          break;
       }
 
-      _lock.synchronized(() async {
-        print("listening");
-        Uint8List data = datagram.data;
-        await _player.feedFromStream(data);
-        double rms = calculateRMS(data);
-        print(rms);
-        setState(() {
-          this.rms = rms;
-        });
-        print(index++);
-        // AudioPlayer audioPlayer = AudioPlayer();
-        // await audioPlayer.play(
-        //     BytesSource(await createWavFile(input.readBytes(readableBytes))));
-        // audioPlayer.onPlayerComplete.listen((event) {
-        //   print('Audio playback completed');
-        // });
-      });
     });
-
-    await showExceptionDialog(context, "cheeks3");
 
     _startAudioRecording();
   }
@@ -191,14 +209,11 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
 
 
   Future<void> _startAudioRecording() async {
-    await showExceptionDialog(context, "cheeks5");
     audioFilePath = '${(await getApplicationCacheDirectory()).path}/recording.wav';
     await audioRecord.start(
       RecordConfig(encoder: AudioEncoder.wav),
       path: audioFilePath,
     );
-
-    await showExceptionDialog(context, "cheeks6");
 
     isMuted = false;
     _listenAndSendAudio();
@@ -210,13 +225,12 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
   Future<void> _listenAndSendAudio() async {
     Timer.periodic(Duration(milliseconds: 100), (timer) {
       _lock.synchronized(() async {
-        if (isClosed) {
+        if (callStatus == CallStatus.ended) {
           timer.cancel();
           return;
         }
 
         if (isMuted) {
-          print("Cancelled?");
           showExceptionDialog(context, "canceled?");
           return;
         }
@@ -236,7 +250,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
           lastReadPosition = currentLength;
 
           // Send the new audio data to the server
-          _udpSocket.send(widget.chatSessionID, voiceCallKey, audioData);
+          _udpSocket.send(audioData);
         }
 
         await raf.close();
@@ -255,6 +269,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
     return Scaffold(
       appBar: ErmisAppBar(
         title: Text('Voice Call'),
+        actions: [],
       ),
       body: Center(
         child: Padding(
@@ -343,8 +358,10 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
   void _endCall() {
     _udpSocket.close();
     setState(() {
-      isClosed = false;
       callStatus = CallStatus.ended;
     });
+    Navigator.pop(context);
   }
 }
+
+

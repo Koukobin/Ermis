@@ -119,7 +119,6 @@ public final class Server {
 		}
 		
 		try {
-			
 			InetSocketAddress localAddress = new InetSocketAddress(ServerSettings.SERVER_ADDRESS, ServerSettings.SERVER_PORT);
 			
 			ServerBootstrap bootstrapTCP = new ServerBootstrap();
@@ -143,7 +142,7 @@ public final class Server {
 
 			InetSocketAddress serverAddress = serverSocketChannel.localAddress();
 
-			LOGGER.info("Server started succesfully on port {} and at address {}", serverAddress.getPort(),
+			LOGGER.info("Server started successfully on port {} and at address {}", serverAddress.getPort(),
 					serverAddress.getHostName());
 			LOGGER.info("Waiting for new connections...");
 		} catch (Exception e) {
