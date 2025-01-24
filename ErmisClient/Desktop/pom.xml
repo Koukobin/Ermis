@@ -100,7 +100,7 @@
 	<build>
 
 		<sourceDirectory>src</sourceDirectory>
-		<finalName>ErmisClient</finalName>
+		<finalName>ermis-client</finalName>
 
 		<resources>
 			<resource>

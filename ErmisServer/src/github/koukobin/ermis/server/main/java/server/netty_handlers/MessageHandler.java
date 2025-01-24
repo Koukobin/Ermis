@@ -144,7 +144,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		
+		MessageByteBufCreator.sendMessageInfo(ctx, "Successfully decoded message!");
 		ClientContentType contentType = ClientContentType.fromId(msg.readInt());
 		ChatSession chatSession;
 		try {
@@ -163,12 +163,14 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 		byte[] fileNameBytes = null;
 		byte[] fileBytes = null;
-				
+		
+		long epochTime = System.currentTimeMillis();
+
 		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.CLIENT_CONTENT.id);
 		payload.writeInt(contentType.id);
 
-		payload.writeLong(System.currentTimeMillis());
+		payload.writeLong(epochTime);
 
 		switch (contentType) {
 		case TEXT -> {
@@ -192,7 +194,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 		}
 		}
 
-		int messageIDInDatabase = 0;
+		int messageID;
 		try (ErmisDatabase.WriteChatMessagesDBConnection conn = ErmisDatabase.getWriteChatMessagesConnection()) {
 
 			DatabaseChatMessage chatMessage = new DatabaseChatMessage(
@@ -203,7 +205,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 					fileBytes,
 					contentType);
 
-			messageIDInDatabase = conn.addMessage(chatMessage);
+			messageID = conn.addMessage(chatMessage);
 		}
 
 		payload.writeInt(usernameBytes.length);
@@ -211,11 +213,10 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 		payload.writeInt(clientInfo.getClientID());
 
-		payload.writeInt(messageIDInDatabase);
+		payload.writeInt(messageID);
 		payload.writeInt(chatSessionID);
 
-		broadcastMessageToChatSession(payload, messageIDInDatabase, chatSession);
-
+		broadcastMessageToChatSession(payload, messageID, chatSession);
 	}
 
 	private void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {

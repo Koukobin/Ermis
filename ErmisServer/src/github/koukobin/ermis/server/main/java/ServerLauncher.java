@@ -32,6 +32,19 @@ public class ServerLauncher {
 	
 	public static void main(String[] args) {
 		try (InputStream is = ServerLauncher.class.getResourceAsStream("/github/koukobin/ermis/server/main/resources/banner.txt")) {
+            if (is != null) {
+            	System.out.println(new String(is.readAllBytes())); // Print Ermis-Server banner
+            } else {
+            	System.out.println("Could not load Ermis-Server Banner!");
+				System.out.println();
+			}
+
+			final String UNDERLINE = "\u001B[4m"; // Underline text
+			final String ITALIC = "\u001B[3m"; // Italics text
+			final String RESET = "\u001B[0m"; // Reset text formatting
+
+			System.out.println(UNDERLINE + ITALIC + "Author: Ilias Koukovinis" + RESET);
+			System.out.println();
 			System.out.println(new String(is.readAllBytes())); // Print Ermis Server banner
 		} catch (IOException ioe) {
 			ioe.printStackTrace(); // Shouldn't happen

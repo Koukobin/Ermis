@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,11 +25,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.google.common.base.Throwables;
-
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.codec.Encoder;
@@ -38,6 +33,12 @@ import github.koukobin.ermis.server.main.java.server.netty_handlers.DispatcherHa
 import github.koukobin.ermis.server.main.java.server.netty_handlers.MessageRateLimiter;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.base.Throwables;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -252,4 +253,3 @@ public final class Server {
 		LOGGER.info("Stopped waiting for new connections...");
 	}
 }
-

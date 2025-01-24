@@ -36,12 +36,10 @@ public final class MessageByteBufCreator {
 		payload.writeBytes(text.getBytes());
 		ctx.channel().writeAndFlush(payload);
 	}
-	
 	public static void sendMessageInfo(EpollSocketChannel channel, String text) {
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
 		payload.writeBytes(text.getBytes());
 		channel.writeAndFlush(payload);
 	}
-	
 }

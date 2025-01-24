@@ -71,11 +71,11 @@ public final class PrimaryDecoder extends Decoder {
 			return false; // Invalid message type or content type
 		}
 
-		if (maxLength < length) {
-			sendMessageExceedsMaximumMessageLength(ctx, maxLength);
+		if (length > maxLength) {
+			Decoder.sendMessageExceedsMaximumMessageLength(ctx, maxLength);
 			return false;
 		}
-
+		
 		return true;
 	}
 

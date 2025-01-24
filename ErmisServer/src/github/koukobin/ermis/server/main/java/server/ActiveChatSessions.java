@@ -56,7 +56,6 @@ public class ActiveChatSessions {
 	}
 
 	public static void broadcastToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {
-
 		List<ClientInfo> members = chatSession.getActiveMembers();
 
 		/*

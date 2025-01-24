@@ -1,0 +1,50 @@
+server {
+    listen IP_ADDRESS:80;
+    server_name ermis-server.org;
+
+    # Redirect HTTP to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 192.168.69.116:443 ssl;
+	server_name ermis-server.org;
+	access_log /var/log/nginx/access.log;
+
+    ##
+    # SSL Settings
+    ##
+    ssl_certificate /opt/ermis-server/certificate/server_full.pem;
+    ssl_certificate_key /opt/ermis-server/certificate/server.key;
+
+    # SSL settings (recommended for security)
+    ssl_protocols TLSv1.2 TLSv1.3; # Disable SSLv3, TLSv1.0, and TLSv1.1
+    ssl_ciphers 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:ECDHE-RSA-AES128-GCM-SHA256';
+    ssl_prefer_server_ciphers on;
+
+    # SSL session settings
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+
+    # Serve static files
+    location ~ \.(html)$ {
+	    root /var/ermis-server/www/;
+	    try_files $uri $uri/ =404;
+    }
+
+    # Serve images
+    location ~ \.(gif|jpg|png|svg)$ {
+        root /var/ermis-server/images/;
+    }
+
+    # Reverse Proxy for Dynamic Content (Java Server)
+    location / {
+        proxy_pass http://192.168.69.116:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+

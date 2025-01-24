@@ -1,7 +1,0 @@
-#!/bin/sh
-
-echo 
-
-echo "You can find thorough instructions on configuring the server in the README FILE at /srv/Ermis-Server/"
-echo "Keep in mind that ermis-server by itself doesn't prevent DDoS attacks; I recommended to use something like IPTables to configure the IP packet filter rules of the Linux kernel firewall."
-echo "For better monitoring and performance tracking, consider integrating a monitoring toolkit - like Prometheus (not the one from Greek mythology) - to gather metrics from the server, such as resource usage, latency, and response times."

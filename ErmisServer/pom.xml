@@ -101,7 +101,7 @@
 	<build>
 
 		<sourceDirectory>src</sourceDirectory>
-		<finalName>ErmisServer</finalName>
+		<finalName>ermis-server</finalName>
 
 		<resources>
 

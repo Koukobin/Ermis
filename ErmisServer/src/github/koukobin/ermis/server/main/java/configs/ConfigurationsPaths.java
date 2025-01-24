@@ -119,7 +119,7 @@ public final class ConfigurationsPaths {
     }
 
 	public static class Database {
-		public static final String DATABASE_SETUP_FILE = "/github/koukobin/ermis/server/main/resources/sql/ermis_database/database_setup.sql";
+		public static final String DATABASE_SETUP_FILE = "/github/koukobin/ermis/server/main/resources/ermis_database/sql/database_setup.sql";
 		public static final String DATABASE_SETTINGS_PATH = getProperty("database.settings.path");
         public static final String GENERAL_SETTINGS_PATH = getProperty("database.general.settings.path");
         public static final String DRIVER_SETTINGS_PATH = getProperty("database.driver.settings.path");

@@ -192,10 +192,9 @@ public final class ErmisDatabase {
 		/**
 		 * 
 		 * @param message
-		 * @return the message's id in the database (if adding the message was unsuccesfull then returns -1)
+		 * @return the message's id in the database (if adding the message was unsuccessful then returns -1)
 		 */
 		public int addMessage(DatabaseChatMessage message) {
-
 			int messageID = -1;
 
 			String sql = """
