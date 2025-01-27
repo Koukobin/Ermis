@@ -441,32 +441,32 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				MessageByteBufCreator.sendMessageInfo(channel, "Incorrect email");
 			}
 			
-			channel.pipeline().addLast(VerificationHandler.class.getName(), new VerificationHandler(clientInfo, email) {
-				
-				@Override
-				public EntryResult executeWhenVerificationSuccessful() throws IOException {
-
-					String password = new String(passwordBytes);
-
-					int resultUpdate;
-					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-						resultUpdate = conn.deleteAccount(email, new String(password), clientInfo.getClientID());
-					}
-					
-					if (resultUpdate == 1) {
-						channel.close();
-						return null;
-					}
-					
-					MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account");
-					return null;
-				}
-				
-				@Override
-				public String createEmailMessage(String account, String generatedVerificationCode) {
-					return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(email, account, generatedVerificationCode);
-				}
-			});
+//			channel.pipeline().addLast(VerificationHandler.class.getName(), new VerificationHandler(clientInfo, email) {
+//				
+//				@Override
+//				public EntryResult executeWhenVerificationSuccessful() throws IOException {
+//
+//					String password = new String(passwordBytes);
+//
+//					int resultUpdate;
+//					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+//						resultUpdate = conn.deleteAccount(email, new String(password), clientInfo.getClientID());
+//					}
+//					
+//					if (resultUpdate == 1) {
+//						channel.close();
+//						return null;
+//					}
+//					
+//					MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account");
+//					return null;
+//				}
+//				
+//				@Override
+//				public String createEmailMessage(String account, String generatedVerificationCode) {
+//					return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(email, account, generatedVerificationCode);
+//				}
+//			});
 
 		}
 		case SET_ACCOUNT_ICON -> {

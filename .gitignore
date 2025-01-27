@@ -1,0 +1,11 @@
+# Eclipse specific
+.classpath
+.project
+.metadata
+.sonarlint
+.settings/
+
+# Build results
+bin/
+target/
+

@@ -30,6 +30,7 @@ import github.koukobin.ermis.common.entry.CreateAccountInfo.Credential;
 import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
+import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
@@ -169,7 +170,7 @@ final class CreateAccountHandler extends EntryHandler {
 
 			@Override
 			public String createEmailMessage(String account, String generatedVerificationCode) {
-				return createEmail(email, account, generatedVerificationCode);
+				return createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
 			}
 		};
 

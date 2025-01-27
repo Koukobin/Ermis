@@ -50,7 +50,7 @@ import github.koukobin.ermis.server.main.java.configs.ServerSettings;
  */
 public final class EmailerService {
 
-	private static final Logger logger = LogManager.getLogger("server");
+	private static final Logger LOGGER = LogManager.getLogger("server");
 	private static final Session session;
 	
 	private EmailerService() {}
@@ -65,7 +65,7 @@ public final class EmailerService {
 		properties.put("mail.smtp.starttls.required", "true");
 		properties.put("mail.smtp.ssl.protocols", "TLSv1.3");
 		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-		
+
 		session = Session.getDefaultInstance(properties, new Authenticator() {
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
@@ -74,7 +74,7 @@ public final class EmailerService {
 		});
 		session.setDebug(ServerSettings.IS_PRODUCTION_READY);
 	}
-	
+
 	public static void initialize() {
 		// Helper method to initialize class
 	}
@@ -90,7 +90,7 @@ public final class EmailerService {
 		message.addRecipients(Message.RecipientType.TO, toAddress);
 		message.setSubject(subject);
 		message.setText(body);
-		
+
 		sendAsyncMessage(message);
 	}
 
@@ -105,7 +105,7 @@ public final class EmailerService {
 		message.addRecipients(Message.RecipientType.TO, toAddress);
 		message.setSubject(subject);
 		message.setContent(text, "text/html");
-		
+
 		sendAsyncMessage(message);
 	}
 
@@ -145,7 +145,7 @@ public final class EmailerService {
 			InternetAddress emailAddr = new InternetAddress(email);
 			emailAddr.validate();
 		} catch (AddressException ex) {
-			logger.debug("Invalid email address", ex);
+			LOGGER.debug("Invalid email address", ex);
 			result = false;
 		}
 		return result;
@@ -156,7 +156,7 @@ public final class EmailerService {
 			try {
 				Transport.send(message);
 			} catch (MessagingException me) {
-				logger.debug(Throwables.getStackTraceAsString(me));
+				LOGGER.debug(Throwables.getStackTraceAsString(me));
 			}
 		});
 	}

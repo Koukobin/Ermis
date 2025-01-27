@@ -18,7 +18,10 @@ package github.koukobin.ermis.server.main.java.configs;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,8 +92,8 @@ public final class ServerSettings {
 				SSL_PROPERTIES.getProperty("key-store-password")
 				.getBytes(StandardCharsets.ISO_8859_1 /* use this charset so password can contain latin characters */));
 		
-		private static final String[] ENABLED_PROTOCOLS = SSL_PROPERTIES.getProperty("enabled-protocols").split(",");
-		private static final String[] ENABLED_CIPHER_SUITES = SSL_PROPERTIES.getProperty("ciphers").split(",");
+		private static final String[] ENABLED_PROTOCOLS = SSL_PROPERTIES.getProperty("enabled-protocols").replace(" ", "").split(",");
+		private static final String[] ENABLED_CIPHER_SUITES = SSL_PROPERTIES.getProperty("ciphers").replace(" ", "").split(",");
 		
 		private SSL() {}
 		
@@ -128,16 +131,52 @@ public final class ServerSettings {
 		public static class Verification {
 
 			private Verification() {}
+			
+			public static interface VerificationEmailTemplate {
 
-			private static String createEmail(
-					String verificationEmailBody,
-					String email,
-					String account,
-					String verificationCode) {
-				return verificationEmailBody.replace("USER_EMAIL", email)
-						.replace("USER_ACCOUNT", account)
-						.replace("VERIFICATION_CODE", verificationCode)
-						.replace("SERVER_ADDRESS", SERVER_ADDRESS);
+				public static VerificationEmailTemplate of(String userEmail, String account, String verificationCode) {
+					return new VerificationEmailTemplate() {
+
+						Map<String, String> replacements = Map.of(
+								"USER_EMAIL", userEmail,
+								"USER_ACCOUNT", account,
+								"VERIFICATION_CODE", verificationCode,
+								"SERVER_ADDRESS", SERVER_ADDRESS
+								);
+
+						@Override
+						public Set<Entry<String, String>> entrySet() {
+							return replacements.entrySet();
+						}
+
+						public String createEmail(String verificationEmailBody) {
+							StringBuilder sb = new StringBuilder(verificationEmailBody);
+
+							for (Map.Entry<String, String> entry : replacements.entrySet()) {
+								String placeholder = entry.getKey();
+								String replacementValue = entry.getValue();
+
+								int startIndex = sb.indexOf(placeholder);
+
+								if (startIndex == -1) {
+									logger.error("Attempted to formulate verification email body but placeholder {} not found", placeholder);
+									continue;
+								}
+
+								while (startIndex != -1) {
+									sb.replace(startIndex, startIndex + placeholder.length(), replacementValue);
+									startIndex = sb.indexOf(replacementValue, startIndex + replacementValue.length());
+								}
+							}
+
+							return sb.toString();
+						}
+
+					};
+				}
+
+				Set<Entry<String, String>> entrySet();
+				String createEmail(String verificationEmailBody);
 			}
 
 			public static class Login {
@@ -155,8 +194,8 @@ public final class ServerSettings {
 				
 				private Login() {}
 
-				public static String createEmail(String email, String account, String verificationCode) {
-					return Verification.createEmail(VERIFICATION_EMAIL_BODY, email, account, verificationCode);
+				public static String createEmail(VerificationEmailTemplate template) {
+					return template.createEmail(VERIFICATION_EMAIL_BODY);
 				}
 			}
 			
@@ -175,8 +214,8 @@ public final class ServerSettings {
 				
 				private DeleteAccount() {}
 
-				public static String createEmail(String email, String account, String verificationCode) {
-					return Verification.createEmail(VERIFICATION_EMAIL_BODY, email, account, verificationCode);
+				public static String createEmail(VerificationEmailTemplate template) {
+					return template.createEmail(VERIFICATION_EMAIL_BODY);
 				}
 			}
 
@@ -194,9 +233,9 @@ public final class ServerSettings {
 				}
 
 				private CreateAccount() {}
-				
-				public static String createEmail(String email, String account, String verificationCode) {
-					return Verification.createEmail(VERIFICATION_EMAIL_BODY, email, account, verificationCode);
+
+				public static String createEmail(VerificationEmailTemplate template) {
+					return template.createEmail(VERIFICATION_EMAIL_BODY);
 				}
 			}
 			

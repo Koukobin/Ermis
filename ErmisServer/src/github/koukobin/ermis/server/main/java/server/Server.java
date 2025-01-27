@@ -197,36 +197,50 @@ public final class Server {
 			pipeline.addLast("ssl", new SslHandler(engine));
 
 			// Add protocol detector (a custom handler to detect HTTP or custom protocol)
+			if (ServerSettings.IS_PRODUCTION_READY) {
+				addNormalPipeline(pipeline);
+				return;
+			}
+			
 			pipeline.addLast("protocolDetector", new ProtocolDetectorHandler());
 		}
 
-		public static class ProtocolDetectorHandler extends ChannelInboundHandlerAdapter {
+		private static void addNormalPipeline(ChannelPipeline pipeline) {
+			// Codec
+			pipeline.addLast("decoder", new PrimaryDecoder());
+			pipeline.addLast("encoder", new Encoder());
+
+			// Handlers
+			pipeline.addLast(MessageRateLimiter.class.getName(), new MessageRateLimiter());
+			pipeline.addLast(DispatcherHandler.class.getName(), new DispatcherHandler());
+			pipeline.addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
+		}
+
+		private static class ProtocolDetectorHandler extends ChannelInboundHandlerAdapter {
 			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-				ByteBuf byteBuf = (ByteBuf) msg;
-				String message = byteBuf.toString(CharsetUtil.UTF_8);
+				try {
+					ByteBuf byteBuf = (ByteBuf) msg;
+					String message = byteBuf.toString(CharsetUtil.UTF_8);
 
-				// Simple detection of HTTP request (e.g., starts with "GET" or "POST")
-				if (message.startsWith("GET") || message.startsWith("POST")) {
-					// If it's HTTP, pass it to the HTTP pipeline
-					ctx.pipeline().addLast("httpDecoder", new HttpRequestDecoder());
-					ctx.pipeline().addLast("httpAggregator", new HttpObjectAggregator(1048576));
-					ctx.pipeline().addLast("httpEncoder", new HttpResponseEncoder());
-					ctx.pipeline().addLast("httpHandler", new HttpStaticFileServerHandler());
+					// Simple detection of HTTP request (e.g., starts with "GET" or "POST")
+					if (message.startsWith("GET") || message.startsWith("POST")) {
+						// If it's HTTP, pass it to the HTTP pipeline
+						ctx.pipeline().addLast("httpDecoder", new HttpRequestDecoder());
+						ctx.pipeline().addLast("httpAggregator", new HttpObjectAggregator(1048576));
+						ctx.pipeline().addLast("httpEncoder", new HttpResponseEncoder());
 
-					ctx.fireChannelRead(msg);
-				} else {
-					// Codec
-					ctx.pipeline().addLast("decoder", new PrimaryDecoder());
-					ctx.pipeline().addLast("encoder", new Encoder());
+						// Handlers
+						ctx.pipeline().addLast("httpHandler", new HttpStaticFileServerHandler());
 
-					// Handlers
-					ctx.pipeline().addLast(MessageRateLimiter.class.getName(), new MessageRateLimiter());
-					ctx.pipeline().addLast(DispatcherHandler.class.getName(), new DispatcherHandler());
-					ctx.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
+						ctx.fireChannelRead(msg);
+						return;
+					}
+
+					addNormalPipeline(ctx.pipeline());
+				} finally {
+					ctx.pipeline().remove(this);
 				}
-
-				ctx.pipeline().remove(this);
 			}
 
 			@Override

@@ -25,6 +25,7 @@ import github.koukobin.ermis.common.entry.LoginInfo.Credential;
 import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
 import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
+import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
@@ -147,7 +148,6 @@ final class LoginHandler extends EntryHandler {
 
 				@Override
 				public EntryResult executeWhenVerificationSuccessful() {
-
 					String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
 					UserDeviceInfo deviceInfo = new UserDeviceInfo(address, deviceType, osName);
 
@@ -165,7 +165,7 @@ final class LoginHandler extends EntryHandler {
 
 				@Override
 				public String createEmailMessage(String account, String generatedVerificationCode) {
-					return createEmail(email, account, generatedVerificationCode);
+					return createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
 				}
 			};
 

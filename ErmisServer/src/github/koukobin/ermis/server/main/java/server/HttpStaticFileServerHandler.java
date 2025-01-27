@@ -73,12 +73,9 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
 /**
-<<<<<<< HEAD
  * 
  * TO BE REWRITTEN IN SOMETHING LIKE GO, OR USE A SERVICE LIKE NGINX
  * 
-=======
->>>>>>> 0c74aa7e80e490eb554aba98416b0a095873f561
  * @author Ilias Koukovinis
  *
  */
