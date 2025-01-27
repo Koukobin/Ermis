@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Welcome to Ermis-server</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #f1f1f1;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        a {
+            color: #4caf50;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #76ff03;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px;
+            text-align: center;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #121212;
+            padding: 15px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #76ff03;
+            margin: 0;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        /* Button to toggle dark/light mode */
+        .dark-mode-toggle {
+            background: transparent;
+            border: 2px solid #76ff03;
+            color: #76ff03;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            background-color: #76ff03;
+            color: #121212;
+        }
+
+        /* Main Section */
+        .main-section {
+            margin-top: 120px;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .main-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #4caf50;
+        }
+
+        .main-section p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #b0bec5;
+        }
+
+        /* Card for Links */
+        .card {
+            background: #2e2e2e;
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 1rem;
+            color: #b0bec5;
+            margin-bottom: 15px;
+        }
+
+        .card a {
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: #b0bec5;
+        }
+
+        .footer a {
+            color: #76ff03;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .main-section h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="https://192.168.69.116/server_logo.png" alt="Ermis-Server Logo">
+        </div>
+        <h1>Ermis-Server</h1>
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark/Light Mode</button>
+    </div>
+
+    <div class="container">
+        <div class="main-section">
+            <h2>Welcome to ermis-server!</h2>
+            <p>Your powerful and customizable Java-based chat server is up and running! Ermis-server is designed for easy deployment and rich configuration options. Follow the links below to start your journey.</p>
+        </div>
+
+        <div class="card">
+            <h3>Quick Start Guide</h3>
+            <p>Get started with the Ermis-server setup by following our easy-to-understand guide.</p>
+            <a href="/docs/setup">Read the Setup Guide</a>
+        </div>
+
+        <div class="card">
+            <h3>Configuration</h3>
+            <p>Customize your server's behavior and set preferences for user management, server settings, and more.</p>
+            <a href="/docs/configure">Configure Your Server</a>
+        </div>
+
+        <div class="card">
+            <h3>API Documentation</h3>
+            <p>Explore the comprehensive API documentation to integrate Ermis-server with your application.</p>
+            <a href="/docs/api">API Docs</a>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 Ermis-server. All Rights Reserved.</p>
+            <p>Need help? Visit the <a href="/support">Support Page</a>.</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
+</body>
+</html>
+

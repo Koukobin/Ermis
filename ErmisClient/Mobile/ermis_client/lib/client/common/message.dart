@@ -20,81 +20,112 @@ import 'dart:typed_data';
 import 'message_types/content_type.dart';
 
 class Message {
-  late String username;
-  late int clientID;
-  late int messageID;
-  late int chatSessionID;
-  late int chatSessionIndex;
-  Uint8List? text;
-  Uint8List? fileName;
-  Uint8List? imageBytes;
-  late int timeWritten;
-  late MessageContentType contentType;
-  bool isSent = false;
+  String _username;
+  int _clientID;
+  int _messageID;
+  int _chatSessionID;
+  int _chatSessionIndex;
+  Uint8List? _text;
+  Uint8List? _fileName;
+  Uint8List? _imageBytes;
+  int _timeWritten;
+  MessageContentType _contentType;
+  bool _isSent = false;
 
-  Message(
-      {required this.username,
-      required this.clientID,
-      required this.messageID,
-      required this.chatSessionID,
-      required this.chatSessionIndex,
-      Uint8List? text,
-      this.fileName,
-      required this.timeWritten,
-      required this.contentType,
-      required this.isSent}) : text = text;
+  Message({
+    required String username,
+    required int clientID,
+    required int messageID,
+    required int chatSessionID,
+    required int chatSessionIndex,
+    Uint8List? text,
+    Uint8List? fileName,
+    required int timeWritten,
+    required MessageContentType contentType,
+    required bool isSent,
+  })  : _isSent = isSent,
+        _contentType = contentType,
+        _timeWritten = timeWritten,
+        _fileName = fileName,
+        _clientID = clientID,
+        _messageID = messageID,
+        _chatSessionIndex = chatSessionIndex,
+        _text = text,
+        _chatSessionID = chatSessionID,
+        _username = username;
 
-  Message.empty();
+  Message.empty()
+      : _username = '',
+        _clientID = 0,
+        _messageID = 0,
+        _chatSessionID = 0,
+        _chatSessionIndex = 0,
+        _text = null,
+        _fileName = null,
+        _timeWritten = 0,
+        _contentType = MessageContentType.text, // Assuming a default value
+        _isSent = false;
 
-  void setUsername(String username) => this.username = username;
-  void setIsSent(bool isSent) => this.isSent = isSent;
-  void setClientID(int clientID) => this.clientID = clientID;
-  void setMessageID(int messageID) => this.messageID = messageID;
-  void setChatSessionID(int chatSessionID) => this.chatSessionID = chatSessionID;
-  void setChatSessionIndex(int chatSessionIndex) => this.chatSessionIndex = chatSessionIndex;
-  void setText(Uint8List? text) => this.text = text;
-  void setFileName(Uint8List? fileName) => this.fileName = fileName;
-  void setTimeWritten(int timeWritten) => this.timeWritten = timeWritten;
-  void setContentType(MessageContentType contentType) => this.contentType = contentType;
+  void setUsername(String username) => _username = username;
+  void setIsSent(bool isSent) => _isSent = isSent;
+  void setClientID(int clientID) => _clientID = clientID;
+  void setMessageID(int messageID) => _messageID = messageID;
+  void setChatSessionID(int chatSessionID) => _chatSessionID = chatSessionID;
+  void setChatSessionIndex(int chatSessionIndex) => _chatSessionIndex = chatSessionIndex;
+  void setText(Uint8List? text) => _text = text;
+  void setFileName(Uint8List? fileName) => _fileName = fileName;
+  set imageBytes(Uint8List? imageBytes) => _imageBytes = imageBytes;
+  void setTimeWritten(int timeWritten) => _timeWritten = timeWritten;
+  void setContentType(MessageContentType contentType) =>
+      _contentType = contentType;
 
-  String get getUsername => username;
-  int get getClientID => clientID;
-  int get getMessageID => messageID;
-  int get getChatSessionID => chatSessionID;
-  int get getChatSessionIndex => chatSessionIndex;
-  String get getText {
-    if (text == null) {
+  String get username => _username;
+  int get clientID => _clientID;
+  int get messageID => _messageID;
+  int get chatSessionID => _chatSessionID;
+  int get chatSessionIndex => _chatSessionIndex;
+  String get text {
+    if (_text == null) {
       return "";
     }
 
-    return utf8.decode(text!.toList(), allowMalformed: true);
+    return utf8.decode(_text!.toList(), allowMalformed: true);
   }
-  Uint8List? get getFileName => fileName;
-  int get getTimeWritten => timeWritten;
-  MessageContentType get getContentType => contentType;
-  bool get getIsSent => isSent;
+
+  String get fileName {
+    if (_fileName == null) {
+      return "";
+    }
+
+    return utf8.decode(_fileName!.toList(), allowMalformed: true);
+  }
+
+  Uint8List? get imageBytes => _imageBytes;
+  int get timeWritten => _timeWritten;
+  MessageContentType get contentType => _contentType;
+  bool get isSent => _isSent;
 
   @override
-  int get hashCode => messageID.hashCode;
+  int get hashCode => _messageID.hashCode;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Message) return false;
-    return chatSessionID == other.chatSessionID &&
-        chatSessionIndex == other.chatSessionIndex &&
-        clientID == other.clientID &&
-        contentType == other.contentType &&
-        messageID == other.messageID &&
-        text == other.text &&
-        fileName == other.fileName &&
-        timeWritten == other.timeWritten &&
-        username == other.username;
+    return _chatSessionID == other._chatSessionID &&
+        _chatSessionIndex == other._chatSessionIndex &&
+        _clientID == other._clientID &&
+        _contentType == other._contentType &&
+        _messageID == other._messageID &&
+        _text == other._text &&
+        _fileName == other._fileName &&
+        _timeWritten == other._timeWritten &&
+        _username == other._username;
   }
 
   @override
   String toString() {
-    return 'Message{username: $username, clientID: $clientID, messageID: $messageID, chatSessionID: $chatSessionID, '
-        'chatSessionIndex $chatSessionIndex, text: $text, fileName: $fileName, timeWritten: $timeWritten, contentType: $contentType}';
+    return 'Message{username: $_username, clientID: $_clientID, messageID: $_messageID, chatSessionID: $_chatSessionID, '
+        'chatSessionIndex $_chatSessionIndex, text: $_text, fileName: $_fileName, timeWritten: $_timeWritten, contentType: $_contentType}';
   }
 }

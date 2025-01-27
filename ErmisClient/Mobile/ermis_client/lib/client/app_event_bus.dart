@@ -14,7 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:event_bus/event_bus.dart';
+
+import 'event_bus.dart';
 
 class AppEventBus {
   static final EventBus _eventBus = EventBus();

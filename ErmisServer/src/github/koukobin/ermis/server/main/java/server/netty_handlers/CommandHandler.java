@@ -17,15 +17,14 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import com.google.common.primitives.Ints;
+import com.google.common.collect.Lists;
 
 import github.koukobin.ermis.common.Account;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
@@ -35,8 +34,8 @@ import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.UserMessage;
-import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
+import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
@@ -127,7 +126,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 				if (resultHolder.isSuccessful()) {
 					clientInfo.setUsername(newUsername);
-					
+
 					// Fetch username on behalf of the user
 					executeCommand(clientInfo, ClientCommandType.FETCH_USERNAME, Unpooled.EMPTY_BUFFER);
 				}
@@ -154,70 +153,76 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			payload.writeBytes(resultHolder.getResultMessage().getBytes());
 			channel.writeAndFlush(payload);
 		}
-		case DOWNLOAD_FILE -> {
-			
+		case DOWNLOAD_FILE, DOWNLOAD_IMAGE -> {
+
 			int chatSessionIndex = args.readInt();
 			int messageID = args.readInt();
-			
-			LoadedInMemoryFile file;
+
+			Optional<LoadedInMemoryFile> optionalFile;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				file = conn.getFile(messageID, clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID());
+				optionalFile = conn.getFile(messageID, clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID());
 			}
 
-			byte[] fileBytes = file.getFileBytes();
-			byte[] fileNameBytes = file.getFileName().getBytes();
+			optionalFile.ifPresentOrElse((LoadedInMemoryFile file) -> {
+				byte[] fileBytes = file.getFileBytes();
+				byte[] fileNameBytes = file.getFileName().getBytes();
 
-			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-			payload.writeInt(ClientCommandResultType.DOWNLOAD_FILE.id);
-			payload.writeInt(fileNameBytes.length);
-			payload.writeBytes(fileNameBytes);
-			payload.writeBytes(fileBytes);
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+				switch (commandType) {
+				case DOWNLOAD_IMAGE -> {
+					payload.writeInt(ClientCommandResultType.DOWNLOAD_IMAGE.id);
+					payload.writeInt(messageID); // Include the message ID of the image so the client can add it to the correct message
+				}
+				case DOWNLOAD_FILE -> {
+					payload.writeInt(ClientCommandResultType.DOWNLOAD_FILE.id);
+					// Unlike with downloading images, there is no need to specify message id for file
+					// downloads, since the client will save the file directly to the file system
+					// without needing to associate it to a specific message.
+				}
+				default -> {
+					final String log = """
+							How the fuck have we reached here. This log CANNOT happen. This log SHOULD NOT happen.
+							I have placed it here purely for debugging purposes (Additionally, because I have started to go insane).
+							It is virtually impossible for you to actually witness this log. In the astronomically rare instance that you do - you are fucked.
+							This indicates there is a significant flaw in the server's internal structure.
+							For more details: Unexpected value in switch statement - {} - where either DOWNLOAD_IMAGE or DOWNLOAD_FILE was expected.
+							Anyways... I am gonna go to sleep now.
+							""";
+					getLogger().fatal(log, commandType);
+				}
+				}
+				payload.writeInt(fileNameBytes.length);
+				payload.writeBytes(fileNameBytes);
+				payload.writeBytes(fileBytes);
 
-			channel.writeAndFlush(payload);
-		}
-		case DOWNLOAD_IMAGE -> {
-			int chatSessionIndex = args.readInt();
-			int messageID = args.readInt();
-			
-			LoadedInMemoryFile file;
-			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				file = conn.getFile(messageID, clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID());
-			}
+				channel.writeAndFlush(payload);
+			}, () -> {
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeBytes("An error occured while trying to fetch file from database!".getBytes());
+				channel.writeAndFlush(payload);
+			});
 
-			byte[] fileBytes = file.getFileBytes();
-			byte[] fileNameBytes = file.getFileName().getBytes();
-
-			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-			payload.writeInt(ClientCommandResultType.DOWNLOAD_IMAGE.id);
-			payload.writeInt(messageID);
-			payload.writeInt(fileNameBytes.length);
-			payload.writeBytes(fileNameBytes);
-			payload.writeBytes(fileBytes);
-			
-			channel.writeAndFlush(payload);
 		}
 		case SEND_CHAT_REQUEST -> {
 			
 			int receiverID = args.readInt();
 			int senderClientID = clientInfo.getClientID();
 			
-			int resultUpdate;
+			boolean success;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				resultUpdate = conn.sendChatRequest(receiverID, senderClientID);
+				success = conn.sendChatRequest(receiverID, senderClientID);
 			}
 			
-			boolean isSuccessful = resultUpdate == 1;
-			
-			if (!isSuccessful) {
+			if (!success) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
 				payload.writeBytes("An error occured while trying to send chat request!".getBytes());
 				channel.writeAndFlush(payload);
 				return;
 			}
-			
+
 			forActiveAccounts(receiverID, (ClientInfo ci) -> {
 				ci.getChatRequests().add(senderClientID);
 			});
@@ -242,37 +247,38 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				return;
 			}
 
-			List<Integer> members = Ints.asList(receiverClientID, senderClientID);
+			List<Integer> members = Lists.newArrayList(receiverClientID, senderClientID);
 			List<ClientInfo> activeMembers = new ArrayList<>(members.size());
 
 			ChatSession chatSession = new ChatSession(chatSessionID, activeMembers, members);
-			ActiveChatSessions.addChatSession(chatSessionID, chatSession);
+			ActiveChatSessions.addChatSession(chatSession);
 
 			clientInfo.getChatRequests().remove(Integer.valueOf(senderClientID));
 			clientInfo.getChatSessions().add(chatSession);
 
-			forActiveAccounts(senderClientID, (ClientInfo ci) -> ci.getChatSessions().add(chatSession));
+			Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> ci.getChatSessions().add(chatSession);
+			forActiveAccounts(receiverClientID, updateSessions);
+			forActiveAccounts(senderClientID, updateSessions);
 		}
 		case DECLINE_CHAT_REQUEST -> {
 			
 			int senderClientID = args.readInt();
 			int receiverClientID = clientInfo.getClientID();
 			
-			int resultUpdate;
+			boolean success;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				resultUpdate = conn.deleteChatRequest(receiverClientID, senderClientID);
+				success = conn.deleteChatRequest(receiverClientID, senderClientID);
 			}
-			
-			boolean isSuccessfull = resultUpdate == 1;
-			
-			if (!isSuccessfull) {
-				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
-				payload.writeBytes("Something went wrong while trying to decline chat request!".getBytes());
-				channel.writeAndFlush(payload);
-			} else {
+
+			if (success) {
 				clientInfo.getChatRequests().remove(Integer.valueOf(senderClientID));
+				return;
 			}
+
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+			payload.writeBytes("Something went wrong while trying to decline chat request!".getBytes());
+			channel.writeAndFlush(payload);
 		}
 		case DELETE_CHAT_SESSION -> {
 			
@@ -282,36 +288,32 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				int chatSessionIndex = args.readInt();
 				chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
 			}
-			
-			int resultUpdate;
-			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				resultUpdate = conn.deleteChatSession(chatSessionID);
-			}
-			
-			boolean isSuccessfull = resultUpdate == 1;
 
-			if (!isSuccessfull) {
-				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
-				payload.writeBytes("Something went wrong while trying delete chat session!".getBytes());
-				channel.writeAndFlush(payload);
-			} else {
-				
+			boolean success;
+			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+				success = conn.deleteChatSession(chatSessionID);
+			}
+
+			if (success) {
 				ChatSession chatSession = ActiveChatSessions.getChatSession(chatSessionID);
-				
+
 				if (chatSession != null) {
-					
+
 					List<ClientInfo> activeMembers = chatSession.getActiveMembers();
 					for (int i = 0; i < activeMembers.size(); i++) {
 						activeMembers.get(i).getChatSessions().remove(chatSession);
 					}
-					
+
 					ActiveChatSessions.removeChatSession(chatSessionID);
 				}
+			} else {
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeBytes("Something went wrong while trying delete chat session!".getBytes());
+				channel.writeAndFlush(payload);
 			}
 		}
 		case DELETE_CHAT_MESSAGE -> {
-
 			int chatSessionID;
 
 			{
@@ -321,15 +323,12 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			int messageID = args.readInt();
 
-			int resultUpdate;
+			boolean success;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				resultUpdate = conn.deleteChatMessage(chatSessionID, messageID);
+				success = conn.deleteChatMessage(chatSessionID, messageID);
 			}
 
-			boolean isSuccesfull = resultUpdate == 1;
-
-			if (isSuccesfull) {
-
+			if (success) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 				payload.writeInt(ClientCommandResultType.DELETE_CHAT_MESSAGE.id);
@@ -337,7 +336,13 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				payload.writeInt(messageID);
 				
 				ActiveChatSessions.broadcastToChatSession(payload, messageID, ActiveChatSessions.getChatSession(chatSessionID));
+			} else {
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeBytes("An error occured while trying to delete chat message".getBytes());
+				channel.writeAndFlush(payload);
 			}
+			
 		}
 		case LOGOUT_THIS_DEVICE -> {
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
@@ -477,7 +482,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			int resultUpdate;
 			
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				resultUpdate = conn.addUserIcon(clientInfo.getClientID(), icon);
+				resultUpdate = conn.setProfilePhoto(clientInfo.getClientID(), icon);
 			}
 			
 			ByteBuf payload = channel.alloc().ioBuffer();
@@ -499,19 +504,23 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		}
 		case FETCH_ACCOUNT_ICON -> {
 			
-			byte[] accountIcon;
+			Optional<byte[]> optionalIcon;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				accountIcon = conn.selectUserIcon(clientInfo.getClientID());
+				optionalIcon = conn.selectUserIcon(clientInfo.getClientID());
 			}
 			
-			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-			payload.writeInt(ClientCommandResultType.FETCH_ACCOUNT_ICON.id);
-			if (accountIcon != null) {
-				payload.writeBytes(accountIcon);
-			}
-			
-			channel.writeAndFlush(payload);
+			optionalIcon.ifPresentOrElse((byte[] icon) -> {
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+				payload.writeInt(ClientCommandResultType.FETCH_ACCOUNT_ICON.id);
+				payload.writeBytes(icon);
+				channel.writeAndFlush(payload);
+			}, () -> {
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeBytes("An error occured while trying to fetch profile photo from database!".getBytes());
+				channel.writeAndFlush(payload);
+			});
 		}
 		case FETCH_WRITTEN_TEXT -> {
 			
@@ -608,10 +617,10 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 							boolean isActive;
 							List<ClientInfo> member = ActiveClients.getClient(clientID);
-							
+
 							byte[] usernameBytes;
-							byte[] iconBytes = conn.selectUserIcon(clientID);
-							
+							byte[] iconBytes = conn.selectUserIcon(clientID).orElse(EmptyArrays.EMPTY_BYTE_ARRAY);
+
 							if (member == null) {
 								usernameBytes = conn.getUsername(clientID).getBytes();
 								isActive = false;

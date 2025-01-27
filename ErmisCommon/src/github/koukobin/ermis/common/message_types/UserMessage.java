@@ -23,18 +23,18 @@ import java.util.Objects;
  *
  */
 public final class UserMessage {
-	
+
 	private String username;
 	private int clientID;
-	
+
 	private int messageID;
 	private int chatSessionID;
 
 	private byte[] text;
 	private byte[] fileName;
-	
+
 	private long timeWritten;
-	
+
 	private ClientContentType contentType;
 
 	public UserMessage() {}
@@ -73,7 +73,7 @@ public final class UserMessage {
 	public void setFileName(byte[] fileName) {
 		this.fileName = fileName;
 	}
-	
+
 	public void setTimeWritten(long timeWritten) {
 		this.timeWritten = timeWritten;
 	}
@@ -81,7 +81,7 @@ public final class UserMessage {
 	public void setContentType(ClientContentType contentType) {
 		this.contentType = contentType;
 	}
-	
+
 	public String getUsername() {
 		return username;
 	}
@@ -105,7 +105,7 @@ public final class UserMessage {
 	public byte[] getFileName() {
 		return fileName;
 	}
-	
+
 	public long getTimeWritten() {
 		return timeWritten;
 	}
@@ -121,15 +121,15 @@ public final class UserMessage {
 
 	@Override
 	public boolean equals(Object obj) {
-		
+
 		if (this == obj) {
 			return true;
 		}
-		
+
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}

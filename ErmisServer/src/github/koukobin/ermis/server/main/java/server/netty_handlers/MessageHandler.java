@@ -16,10 +16,12 @@
 package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import com.google.common.collect.Lists;
 
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
@@ -88,22 +90,21 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 				if (chatSession == null) {
 
-					List<Integer> membersList;
+					List<Integer> chatMembers;
 
 					{
 						Integer[] members = conn.getMembersOfChatSession(chatSessionID);
-						membersList = new ArrayList<>(members.length);
-						Collections.addAll(membersList, members);
+						chatMembers = Lists.newArrayList(members);
 					}
 
 					// The client will become active in the chat session once he calls
 					// GET_CHAT_SESSIONS command. The reason that this happens is because if he
 					// hadn't gotten the chat session with FETCH_CHAT_SESSIONS command then if
 					// there was a message sent in the chat session, the server would send that to
-					// the client but the client would not know how to proccess it and in what chat
+					// the client but the client would not know how to process it and in what chat
 					// session the message belongs to
-					List<ClientInfo> activeMembers = new ArrayList<>(membersList.size());
-					chatSession = new ChatSession(chatSessionID, activeMembers, membersList);
+					List<ClientInfo> activeChatMembers = new ArrayList<>(chatMembers.size());
+					chatSession = new ChatSession(chatSessionID, activeChatMembers, chatMembers);
 					ActiveChatSessions.addChatSession(chatSessionID, chatSession);
 				}
 
@@ -111,8 +112,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 			}
 
 			Integer[] chatRequests = conn.getChatRequests(clientID);
-			List<Integer> chatRequestsList = new ArrayList<>(chatRequests.length);
-			Collections.addAll(chatRequestsList, chatRequests);
+			List<Integer> chatRequestsList = Lists.newArrayList(chatRequests);
 
 			clientInfo.setChatRequests(chatRequestsList);
 		}
@@ -127,16 +127,14 @@ final class MessageHandler extends AbstractChannelClientHandler {
 		ActiveClients.removeClient(clientInfo);
 
 		List<ChatSession> chatSessions = clientInfo.getChatSessions();
-		for (int i = 0; i < chatSessions.size(); i++) {
+		for (ChatSession chatSession : chatSessions) {
 
-			ChatSession chatSession = chatSessions.get(i);
 			chatSession.getActiveMembers().remove(clientInfo);
-
 			if (chatSession.getActiveMembers().isEmpty()) {
 				ActiveChatSessions.removeChatSession(chatSession.getChatSessionID());
 				continue;
 			}
-			
+
 			CommandHandler.refreshChatSession(chatSession);
 		}
 
@@ -144,7 +142,6 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		MessageByteBufCreator.sendMessageInfo(ctx, "Successfully decoded message!");
 		ClientContentType contentType = ClientContentType.fromId(msg.readInt());
 		ChatSession chatSession;
 		try {
@@ -163,8 +160,8 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 		byte[] fileNameBytes = null;
 		byte[] fileBytes = null;
-		
-		long epochTime = System.currentTimeMillis();
+
+		long epochTime = Instant.now().getEpochSecond();
 
 		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.CLIENT_CONTENT.id);

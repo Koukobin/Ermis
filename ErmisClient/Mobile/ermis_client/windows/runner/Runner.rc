@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "ermis_client" "\0"
+            VALUE "FileDescription", "ermisclient" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "ermis_client" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "ermis_client.exe" "\0"
-            VALUE "ProductName", "ermis_client" "\0"
+            VALUE "InternalName", "ermisclient" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
+            VALUE "OriginalFilename", "ermisclient.exe" "\0"
+            VALUE "ProductName", "ermisclient" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

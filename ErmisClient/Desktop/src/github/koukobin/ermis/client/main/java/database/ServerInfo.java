@@ -19,6 +19,7 @@ import java.net.InetAddress;
 import java.net.PortUnreachableException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -29,10 +30,9 @@ public final class ServerInfo {
 
 	private final URL serverURL;
 	private final InetAddress address;
-	private final int port;
+	private final Instant lastUsed;
 
 	public ServerInfo(URL serverURL) throws PortUnreachableException, UnknownHostException {
-
 		int port = serverURL.getPort();
 		if (port == -1) {
 
@@ -42,10 +42,10 @@ public final class ServerInfo {
 				throw new PortUnreachableException("Port not found");
 			}
 		}
-		
-		this.port = port;
-		this.address = InetAddress.getByName(serverURL.getHost());
+
 		this.serverURL = serverURL;
+		this.address = InetAddress.getByName(serverURL.getHost());
+		this.lastUsed = Instant.now();
 	}
 	
 	public InetAddress getAddress() {
@@ -53,36 +53,38 @@ public final class ServerInfo {
 	}
 
 	public int getPort() {
-		return port;
+		return serverURL.getPort();
 	}
-	
+
 	public URL getURL() {
 		return serverURL;
 	}
 
+	public Instant getLastUsed() {
+        return lastUsed;
+    }
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(address, port, serverURL);
+		return Objects.hash(serverURL, lastUsed);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		
 		if (this == obj) {
 			return true;
 		}
-		
+
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 
 		ServerInfo other = (ServerInfo) obj;
-		return Objects.equals(address, other.address) && port == other.port
-				&& Objects.equals(serverURL, other.serverURL);
+		return Objects.equals(serverURL, other.serverURL) && Objects.equals(lastUsed, other.lastUsed);
 	}
 
 	@Override

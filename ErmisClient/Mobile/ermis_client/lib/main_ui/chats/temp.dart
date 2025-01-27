@@ -14,21 +14,18 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 import 'package:flutter/material.dart';
 
-enum Task {
-  normal, loading, editing, searching
-}
-abstract class TempState<T extends StatefulWidget> extends State<T> {
+enum Task { normal, loading, editing, searching }
 
+abstract class TempState<T extends StatefulWidget> extends State<T> with AutomaticKeepAliveClientMixin<T> {
   Task task;
 
   TempState(this.task);
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Caches the state!
     switch (task) {
       case Task.normal:
         return normalBuild(context);
@@ -42,19 +39,22 @@ abstract class TempState<T extends StatefulWidget> extends State<T> {
   }
 
   Widget normalBuild(BuildContext context);
-  
-  /// By default return normal build
+
+  /// By default returns normal build
   Widget loadingBuild(BuildContext context) {
     return normalBuild(context);
   }
 
-  /// By default return normal build
+  /// By default returns normal build
   Widget editingBuild(BuildContext context) {
     return normalBuild(context);
   }
 
-  /// By default return normal build
+  /// By default returns normal build
   Widget searchingBuild(BuildContext context) {
     return normalBuild(context);
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

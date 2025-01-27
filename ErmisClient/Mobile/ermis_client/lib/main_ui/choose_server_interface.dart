@@ -25,7 +25,7 @@ import '../client/client.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_theme.dart';
 import '../util/top_app_bar_utils.dart';
-import 't.dart';
+import 'client_session_setup.dart';
 
 String? serverUrl;
 
@@ -45,8 +45,7 @@ class ChooseServer extends StatefulWidget {
   State<ChooseServer> createState() => ChooseServerState();
 }
 
-class ChooseServerState extends State<ChooseServer>
-    with TickerProviderStateMixin {
+class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixin {
   Set<ServerInfo> cachedServerUrls = {};
   bool _checkServerCertificate = false;
 
@@ -122,27 +121,44 @@ class ChooseServerState extends State<ChooseServer>
                         foregroundColor: appColors.tertiaryColor,
                       ),
                     ),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _checkServerCertificate,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              _checkServerCertificate = value!;
-                            });
-                          },
-                          activeColor: appColors.primaryColor,
-                        ),
-                        Text(
+                    Expanded(
+                      child: CheckboxListTile(
+                        value: _checkServerCertificate,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            _checkServerCertificate = value!;
+                          });
+                        },
+                        activeColor: appColors.primaryColor,
+                        title: Text(
                           "Check certificate",
-                          style: TextStyle(
-                              fontSize: 16, color: appColors.primaryColor),
+                          style: TextStyle(fontSize: 16, color: appColors.primaryColor),
                         ),
-                      ],
+                      ),
                     ),
+                    // Row(
+                    //   children: [
+                    //     Checkbox(
+                    //       value: _checkServerCertificate,
+                    //       onChanged: (bool? value) {
+                    //         setState(() {
+                    //           _checkServerCertificate = value!;
+                    //         });
+                    //       },
+                    //       activeColor: appColors.primaryColor,
+                    //     ),
+                    //     Text(
+                    //       "Check certificate hello world",
+                    //       style: TextStyle(
+                    //           fontSize: 16, color: appColors.primaryColor),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(
+                  height: 30,
+                ),
                 // "Connect" Button
                 ElevatedButton(
                   onPressed: () async {
@@ -150,7 +166,7 @@ class ChooseServerState extends State<ChooseServer>
 
                     final DBConnection conn = ErmisDB.getConnection();
                     conn.updateServerUrlLastUsed(ServerInfo(url));
-                    LocalAccountInformation? userInfo =
+                    LocalAccountInfo? userInfo =
                         await conn.getLastUsedAccount(ServerInfo(url));
                     if (kDebugMode) {
                       debugPrint(userInfo?.email);

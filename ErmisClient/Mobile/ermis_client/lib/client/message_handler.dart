@@ -19,7 +19,6 @@ import 'dart:io';
 
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
-import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -31,6 +30,7 @@ import 'common/message_types/server_message_type.dart';
 import 'common/message_types/content_type.dart';
 import 'common/results/client_command_result_type.dart';
 import 'common/user_device.dart';
+import 'event_bus.dart';
 import 'io/byte_buf.dart';
 import 'common/chat_request.dart';
 import 'common/chat_session.dart';
@@ -43,7 +43,7 @@ import 'io/output_stream.dart';
 class MessageHandler {
   late final ByteBufInputStream _inputStream;
   late final ByteBufOutputStream _outputStream;
-  late final SecureSocket _secureSocket;
+  late final Socket _socket;
 
   String? _username;
   int clientID = -1;
@@ -71,8 +71,8 @@ class MessageHandler {
     _commands = Commands(_outputStream);
   }
 
-  void setSecureSocket(SecureSocket secureSocket) {
-    _secureSocket = secureSocket;
+  void setSocket(Socket secureSocket) {
+    _socket = secureSocket;
   }
 
   void sendMessageToClient(String text, int chatSessionIndex) {
@@ -158,7 +158,7 @@ class MessageHandler {
         }
       },
       onDone: () {
-        _secureSocket.destroy();
+        _socket.destroy();
         SystemNavigator.pop();
       },
       onError: (e) {
@@ -358,7 +358,7 @@ class MessageHandler {
       switch (msgType) {
         case ServerMessageType.serverMessageInfo:
           Uint8List content = msg.readBytes(msg.readableBytes);
-          eventBus.fire(ServerMessageEvent(String.fromCharCodes(content)));
+          eventBus.fire(ServerMessageInfoEvent(String.fromCharCodes(content)));
           break;
         case ServerMessageType.voiceCallIncoming:
           int udpServerPort = msg.readInt32();

@@ -25,6 +25,7 @@ import java.util.ResourceBundle;
 
 import github.koukobin.ermis.client.main.java.info.entry.EntryInfo;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
+import github.koukobin.ermis.client.main.java.util.MemoryUtil;
 import github.koukobin.ermis.client.main.java.util.UITransitions;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.EntryType;
@@ -165,7 +166,6 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 	
 	@Override
 	public void register(ActionEvent event) throws IOException {
-
 		Client.CreateAccountEntry clientEntry = Client.createNewCreateAccountEntry();
 		clientEntry.sendEntryType();
 
@@ -174,15 +174,18 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 		accountCredentials.put(CreateAccountInfo.Credential.USERNAME, getUsername());
 		accountCredentials.put(CreateAccountInfo.Credential.PASSWORD, getPassword());
 
-		boolean isSuccesfull = sendAndValidateCredentials(clientEntry, accountCredentials);
+		boolean isSuccessful = sendAndValidateCredentials(clientEntry, accountCredentials);
 
-		if (!isSuccesfull) {
+		// Clear sensitive data from memory
+		MemoryUtil.freeStringFromMemory(accountCredentials.get(CreateAccountInfo.Credential.PASSWORD));
+
+		if (!isSuccessful) {
 			return;
 		}
-		
-		isSuccesfull = performVerification();
-		
-		if (!isSuccesfull) {
+
+		isSuccessful = performVerification(accountCredentials.get(CreateAccountInfo.Credential.EMAIL));
+
+		if (!isSuccessful) {
 			return;
 		}
 

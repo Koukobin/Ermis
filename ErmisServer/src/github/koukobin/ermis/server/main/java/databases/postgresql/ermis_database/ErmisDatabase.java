@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
@@ -112,11 +113,9 @@ public final class ErmisDatabase {
 					.build();
 
 			try (Connection conn = generalPurposeDataSource.getConnection(); Statement stmt = conn.createStatement()) {
-
-				// Create users table
 				/*
-				 * Since the hash and salt are encoded into base64 without padding we
-				 * calculate the base64 encoded data size using the formula (size * 8 + 5) / 6
+				 * Since the hash and salt are encoded into base64 without padding we calculate
+				 * the base64 encoded data size using the formula (size * 8 + 5) / 6
 				 */
 				int hashLength = (DatabaseSettings.Client.Password.Hashing.HASH_LENGTH * 8 + 5) / 6;
 				int saltLength = (DatabaseSettings.Client.General.SaltForHashing.SALT_LENGTH * 8 + 5) / 6;
@@ -135,7 +134,7 @@ public final class ErmisDatabase {
 				ChatSessionIDGenerator.generateAvailableChatSessionIDS(conn);
 				ClientIDGenerator.generateAvailableClientIDS(conn);
 			}
-			
+
 			FilesStorage.initialize();
 		} catch (Exception e) {
 			logger.fatal(Throwables.getStackTraceAsString(e));
@@ -151,8 +150,12 @@ public final class ErmisDatabase {
 		return new WriteChatMessagesDBConnection();
 	}
 
-	public enum Constant {
-	    NOT_FOUND, SUCCESSFUL_INSERT, DUPLICATE_ENTRY, NOTHING_CHANGED;
+	public enum Insert {
+		SUCCESSFUL_INSERT, DUPLICATE_ENTRY, NOTHING_CHANGED, INTERNAL_ERROR;
+	}
+
+	public enum Select {
+		NOT_FOUND
 	}
 	
 	private static class DBConnection implements AutoCloseable {
@@ -217,7 +220,7 @@ public final class ErmisDatabase {
 		        
 		        if (message.getFileName() != null) {
 		        	fileName = new String(message.getFileName());
-		        	fileID = FilesStorage.createUserFile(message.getFileBytes());
+		        	fileID = FilesStorage.storeSentFile(message.getFileBytes());
 		        }
 		        
 				addMessage.setInt(1, chatSessionID);
@@ -448,9 +451,9 @@ public final class ErmisDatabase {
 			}
 			
 			// Add address to user logged in ip addresses
-			Constant resultC = insertUserIp(email, deviceInfo);
+			Insert resultC = insertUserIp(email, deviceInfo);
 			
-			if (resultC == Constant.SUCCESSFUL_INSERT) {
+			if (resultC == Insert.SUCCESSFUL_INSERT) {
 				
 				ResultHolder result = LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder;
 				
@@ -484,9 +487,9 @@ public final class ErmisDatabase {
 			}
 
 			// Add address to user logged in ip addresses
-			Constant result = insertUserIp(email, deviceInfo);
+			Insert result = insertUserIp(email, deviceInfo);
 
-			if (result != Constant.NOTHING_CHANGED) {
+			if (result != Insert.NOTHING_CHANGED) {
 				Map<AddedInfo, String> info = new EnumMap<>(AddedInfo.class);
 				info.put(AddedInfo.PASSWORD_HASH, passwordHash);
 				return new EntryResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder, info);
@@ -495,11 +498,11 @@ public final class ErmisDatabase {
 			return new EntryResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN.resultHolder);
 		}
 
-		public Constant insertUserIp(String email, UserDeviceInfo deviceInfo) {
+		public Insert insertUserIp(String email, UserDeviceInfo deviceInfo) {
 			return insertUserIp(getClientID(email), deviceInfo);
 		}
 		
-		public Constant insertUserIp(int clientID, UserDeviceInfo deviceInfo) {
+		public Insert insertUserIp(int clientID, UserDeviceInfo deviceInfo) {
 			String sql = """
 					  INSERT INTO user_ips (client_id, ip_address, device_type, os_name)
 					  VALUES (?, ?, ?, ?)
@@ -513,12 +516,12 @@ public final class ErmisDatabase {
 				pstmt.setString(4, deviceInfo.osName());
 				
 		        int affectedRows = pstmt.executeUpdate();
-		        return affectedRows > 0 ? Constant.SUCCESSFUL_INSERT : Constant.DUPLICATE_ENTRY;
+		        return affectedRows > 0 ? Insert.SUCCESSFUL_INSERT : Insert.DUPLICATE_ENTRY;
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return Constant.NOTHING_CHANGED;
+			return Insert.NOTHING_CHANGED;
 		}
 
 		public ResultHolder changeDisplayName(int clientID, String newDisplayName) {
@@ -827,7 +830,7 @@ public final class ErmisDatabase {
 				resultUpdate = psmtp.executeUpdate();
 				
 				if (resultUpdate == 1) {
-					insertMemberToChatSession(chatSessionID, members);
+					insertMembersToChatSession(chatSessionID, members);
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
@@ -837,7 +840,7 @@ public final class ErmisDatabase {
 			return resultUpdate;
 		}
 		
-		public void insertMemberToChatSession(int chatSessionID, int... members) {
+		public void insertMembersToChatSession(int chatSessionID, int[] members) {
 			String insertMembers = "INSERT INTO chat_session_members (chat_session_id, member_id) VALUES(?, ?) ON CONFLICT DO NOTHING;";
 			try (PreparedStatement psmtp = conn.prepareStatement(insertMembers)){
 				
@@ -941,7 +944,7 @@ public final class ErmisDatabase {
 		    return chatSessionID;
 		}
 
-		public int deleteChatRequest(int receiverClientID, int senderClientID) {
+		public boolean deleteChatRequest(int receiverClientID, int senderClientID) {
 
 			int resultUpdate = 0;
 
@@ -955,10 +958,10 @@ public final class ErmisDatabase {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return resultUpdate;
+			return resultUpdate == 1;
 		}
 
-		public int sendChatRequest(int receiverClientID, int senderClientID) {
+		public boolean sendChatRequest(int receiverClientID, int senderClientID) {
 
 			int resultUpdate = 0;
 
@@ -973,7 +976,7 @@ public final class ErmisDatabase {
 					ResultSet rs = pstmt.executeQuery();
 					
 					if (rs.next()) {
-						return resultUpdate; // Chat request already exists
+						return false; // Chat request already exists
 					}
 				}
 				
@@ -987,7 +990,7 @@ public final class ErmisDatabase {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return resultUpdate;
+			return resultUpdate == 1;
 		}
 
 		public Integer[] getChatRequests(int clientID) {
@@ -1021,7 +1024,7 @@ public final class ErmisDatabase {
 			return friendRequests;
 		}
 
-		public int deleteChatSession(int chatSessionID) {
+		public boolean deleteChatSession(int chatSessionID) {
 
 			int resultUpdate = 0;
 
@@ -1033,10 +1036,10 @@ public final class ErmisDatabase {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return resultUpdate;
+			return resultUpdate == 1;
 		}
 
-		public int deleteChatMessage(int chatSessionID, int messageID) {
+		public boolean deleteChatMessage(int chatSessionID, int messageID) {
 
 			int resultUpdate = 0;
 
@@ -1054,7 +1057,7 @@ public final class ErmisDatabase {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return resultUpdate;
+			return resultUpdate == 1;
 		}
 
 		/**
@@ -1192,7 +1195,7 @@ public final class ErmisDatabase {
 			return accounts;
 		}
 		
-		public int logout(InetAddress address, int clientID) {
+		public boolean logout(InetAddress address, int clientID) {
 
 			int resultUpdate = 0;
 
@@ -1206,10 +1209,10 @@ public final class ErmisDatabase {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return resultUpdate;
+			return resultUpdate == 1;
 		}
 		
-		public int logoutAllDevices(int clientID) {
+		public boolean logoutAllDevices(int clientID) {
 
 			int resultUpdate = 0;
 
@@ -1222,7 +1225,7 @@ public final class ErmisDatabase {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return resultUpdate;
+			return resultUpdate == 1;
 		}
 
 		public boolean isLoggedIn(String email, InetAddress address) {
@@ -1286,13 +1289,13 @@ public final class ErmisDatabase {
 			return accountExists;
 		}
 
-		public int addUserIcon(int clientID, byte[] icon) {
+		public int setProfilePhoto(int clientID, byte[] icon) {
 
 			int resultUpdate = 0;
 
 			String profilePhotoID;
 			try {
-				profilePhotoID = FilesStorage.createProfilePhoto(icon);
+				profilePhotoID = FilesStorage.storeProfilePhoto(icon);
 			} catch (IOException ioe) {
 				logger.error("An error occured while trying to create profile photo file", ioe);
 				return resultUpdate;
@@ -1311,10 +1314,10 @@ public final class ErmisDatabase {
 			return resultUpdate;
 		}
 
-		public byte[] selectUserIcon(int clientID) {
+		public Optional<byte[]> selectUserIcon(int clientID) {
 
 			String iconID = null;
-			byte[] icon = EmptyArrays.EMPTY_BYTE_ARRAY;
+			byte[] icon = null;
 
 			String sql = "SELECT profile_photo_id FROM user_profiles WHERE client_id = ?;";
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -1330,7 +1333,7 @@ public final class ErmisDatabase {
 			}
 
 			if (iconID == null) {
-				return icon;
+				return Optional.empty();
 			}
 
 			try {
@@ -1339,10 +1342,10 @@ public final class ErmisDatabase {
 				logger.error("An error occured while trying to retrieve profile photo file", ioe);
 			}
 
-			return icon;
+			return Optional.ofNullable(icon);
 		}
 
-		public LoadedInMemoryFile getFile(int messageID, int chatSessionID) {
+		public Optional<LoadedInMemoryFile> getFile(int messageID, int chatSessionID) {
 
 			LoadedInMemoryFile file = null;
 
@@ -1354,14 +1357,14 @@ public final class ErmisDatabase {
 				ResultSet rs = pstmt.executeQuery();
 
 				if (!rs.next()) {
-					return file;
+					return Optional.empty();
 				}
 
 				String fileContentID = rs.getString(1);
 				String fileName = new String(rs.getBytes(2));
-				
+
 				byte[] fileContent = FilesStorage.loadUserFile(fileContentID);
-				
+
 				file = new LoadedInMemoryFile(fileName, fileContent);
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
@@ -1369,12 +1372,12 @@ public final class ErmisDatabase {
 				logger.error("An error occured while trying to retrieve file associated with message", ioe);
 			}
 
-			return file;
+			return Optional.ofNullable(file);
 		}
 
 		public UserMessage[] selectMessages(int chatSessionID, int numOfMessagesAlreadySelected, int numOfMessagesToSelect) {
 
-			UserMessage[] messages = new UserMessage[0];
+			UserMessage[] messages = EmptyArrays.EMPTY_USER_MESSAGES_ARRAY;
 
 			try (PreparedStatement selectMessages = conn.prepareStatement(
 					"SELECT message_id, client_id, text, file_name, ts_entered, content_type "

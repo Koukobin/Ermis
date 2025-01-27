@@ -40,7 +40,7 @@ import javafx.scene.input.MouseEvent;
  */
 public class ChooseServerDialog extends MFXDialog {
 
-	private ClientDatabase.DBConnection serverInfoDatabaseConnection = ClientDatabase.createDBConnection();
+	private ClientDatabase.DBConnection localDBConnection = ClientDatabase.getDBConnection();
 	private ServerInfo serverInfo;
 
 	private boolean checkServerCertificate = true;
@@ -56,7 +56,7 @@ public class ChooseServerDialog extends MFXDialog {
 		mfxComboBox.setFont(defaultFont);
 		mfxComboBox.setPrefHeight(50);
 		mfxComboBox.setPrefColumnCount(20);
-		mfxComboBox.getItems().addAll(serverInfoDatabaseConnection.getServerInfos());
+		mfxComboBox.getItems().addAll(localDBConnection.getServerInfos());
 		
 		{
 			MFXContextMenu contextMenu = mfxComboBox.getMFXContextMenu();
@@ -68,7 +68,7 @@ public class ChooseServerDialog extends MFXDialog {
 					ServerInfo serverInfo = mfxComboBox.getSelectedItem();
 
 					if (serverInfo != null) {
-						serverInfoDatabaseConnection.removeServerInfo(serverInfo);
+						localDBConnection.removeServerInfo(serverInfo);
 						mfxComboBox.getItems().remove(mfxComboBox.getSelectedIndex());
 					}
 				}
@@ -84,7 +84,7 @@ public class ChooseServerDialog extends MFXDialog {
 		dialogContent.addActions(
 				Map.entry(new MFXButton("Add"), (MouseEvent e) -> {
 					
-					AddServerDialog dialog = new AddServerDialog(this, super.getScene().getRoot(), serverInfoDatabaseConnection);
+					AddServerDialog dialog = new AddServerDialog(this, super.getScene().getRoot(), localDBConnection);
 					dialog.showAndWait();
 					
 					if (dialog.isCanceled()) {
@@ -123,11 +123,7 @@ public class ChooseServerDialog extends MFXDialog {
 
 	@Override
 	public void showAndWait() {
-		try {
-			super.showAndWait();
-		} finally {
-			serverInfoDatabaseConnection.close();
-		}
+		super.showAndWait();
 	}
 	
 	public boolean isCanceled() {

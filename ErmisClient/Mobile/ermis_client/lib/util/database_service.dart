@@ -105,7 +105,7 @@ class DBConnection {
     }, version: 1);
   }
 
-  Future<void> addUserAccount(LocalAccountInformation userAccount, ServerInfo serverInfo) async {
+  Future<void> addUserAccount(LocalAccountInfo userAccount, ServerInfo serverInfo) async {
     final db = await _database;
 
     await db.insert(
@@ -119,7 +119,7 @@ class DBConnection {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<LocalAccountInformation?> getLastUsedAccount(ServerInfo serverInfo) async {
+  Future<LocalAccountInfo?> getLastUsedAccount(ServerInfo serverInfo) async {
     final db = await _database;
 
     final List<Map<String, dynamic>> userAccounts = await db.query(
@@ -141,7 +141,7 @@ class DBConnection {
     final String passwordHash = firstRow['password_hash'] as String;
     final String lastUsed = firstRow['last_used'] as String;
 
-    return LocalAccountInformation(
+    return LocalAccountInfo(
         email: email,
         passwordHash: passwordHash,
         lastUsed: DateTime.parse(lastUsed));
@@ -150,7 +150,7 @@ class DBConnection {
   /// Retrieves the list of user accounts associated with a specified server.
   /// Each account includes the email, password hash, and the timestamp of last use.
   /// The accounts are sorted by the last used timestamp in descending order.
-  Future<List<LocalAccountInformation>> getUserAccounts(ServerInfo serverInfo) async {
+  Future<List<LocalAccountInfo>> getUserAccounts(ServerInfo serverInfo) async {
     final db = await _database;
 
     final List<Map<String, Object?>> userAccountMap = await db.query(
@@ -160,11 +160,11 @@ class DBConnection {
       whereArgs: [serverInfo.toString()],
     );
 
-    List<LocalAccountInformation> userAccounts = userAccountMap.map((record) {
+    List<LocalAccountInfo> userAccounts = userAccountMap.map((record) {
       final String email = record['email'] as String;
       final String passwordHash = record['password_hash'] as String;
       final String lastUsed = record['last_used'] as String;
-      return LocalAccountInformation(
+      return LocalAccountInfo(
           email: email,
           passwordHash: passwordHash,
           lastUsed: DateTime.parse(lastUsed));
@@ -278,14 +278,14 @@ class DBConnection {
       'chat_messages',
       {
         'server_url': serverInfo.toString(),
-        'chat_session_id': message.getChatSessionID,
-        'message_id': message.getMessageID,
-        'client_id': message.getClientID,
-        'text': message.getText,
-        'file_name': message.getFileName,
-        'content_type': message.getContentType.id,
+        'chat_session_id': message.chatSessionID,
+        'message_id': message.messageID,
+        'client_id': message.clientID,
+        'text': message.text,
+        'file_name': message.fileName,
+        'content_type': message.contentType.id,
         'ts_entered':
-            DateTime.fromMicrosecondsSinceEpoch(message.getTimeWritten).toIso8601String(),
+            DateTime.fromMicrosecondsSinceEpoch(message.timeWritten).toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -339,16 +339,16 @@ class DBConnection {
   }
 }
 
-class LocalAccountInformation {
+class LocalAccountInfo {
   final String email;
   final String passwordHash;
   final DateTime lastUsed;
 
-  factory LocalAccountInformation.fuck({required String email, required String passwordHash}) {
-    return LocalAccountInformation(email: email, passwordHash: passwordHash, lastUsed: DateTime.now());
+  factory LocalAccountInfo.fuck({required String email, required String passwordHash}) {
+    return LocalAccountInfo(email: email, passwordHash: passwordHash, lastUsed: DateTime.now());
   }
 
-  LocalAccountInformation({required this.email, required this.passwordHash, required this.lastUsed});
+  LocalAccountInfo({required this.email, required this.passwordHash, required this.lastUsed});
 
   Map<String, Object?> toMap() {
     return {

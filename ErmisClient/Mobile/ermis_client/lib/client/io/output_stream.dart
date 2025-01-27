@@ -24,9 +24,9 @@ import 'byte_buf.dart';
 class ByteBufOutputStream {
   static final zstandard = Zstandard();
   static const int _compressionLevel = 4; // 1 (fastest) to 22 (highest compression)
-  SecureSocket secureSocket;
+  final Socket _socket;
 
-  ByteBufOutputStream({required this.secureSocket});
+  ByteBufOutputStream({required Socket socket}) : _socket = socket;
 
   void write(ByteBuf msg) async {
     int msgLength = msg.readableBytes;
@@ -48,6 +48,6 @@ class ByteBufOutputStream {
     payload.setRange(0, 4, lengthOfMsgBytes); // Copy length bytes
     payload.setRange(4, 4 + msgLength, msgBytes); // Copy message bytes
 
-    secureSocket.add(payload);
+    _socket.add(payload);
   }
 }

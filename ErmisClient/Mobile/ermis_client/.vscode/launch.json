@@ -8,21 +8,21 @@
       "name": "ermis_client",
       "request": "launch",
       "type": "dart",
-      "toolArgs": ["--enable-experiment=native-assets"]
+      "toolArgs": []
     },
     {
       "name": "ermis_client (profile mode)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
-      "toolArgs": ["--enable-experiment=native-assets"]
+      "toolArgs": []
     },
     {
       "name": "ermis_client (release mode)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
-      "toolArgs": ["--enable-experiment=native-assets"]
+      "toolArgs": []
     }
   ]
 }

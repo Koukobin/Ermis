@@ -22,10 +22,5 @@
   <string>1.0</string>
   <key>MinimumOSVersion</key>
   <string>12.0</string>
-  <key>NSAppTransportSecurity</key>
-<dict>
-    <key>NSAllowsArbitraryLoads</key>
-    <true/>
-</dict>
 </dict>
 </plist>

@@ -44,9 +44,8 @@ public class ChatInterface {
 	private FXMLLoader loaderFXML;
 
 	public ChatInterface(Stage primaryStage) throws IOException {
-		
 		this.stage = primaryStage;
-		
+
 		loaderFXML = new FXMLLoader(ChatInterfaceInfo.FXML_LOCATION);
 		Parent root = loaderFXML.load();
 
@@ -73,18 +72,17 @@ public class ChatInterface {
 		st.setToY(1.0);
 		st.play();
 	}
-	
+
 	public void start() {
-		
 		ChatInterfaceController controller = loaderFXML.getController();
 		controller.setStage(stage);
-		
-		stage.setOnCloseRequest((WindowEvent e) -> {
+
+		stage.setOnCloseRequest((WindowEvent we) -> {
 			controller.closeClient();
 			stage.close();
 		});
 		stage.show();
 		stage.requestFocus();
 	}
-	
+
 }

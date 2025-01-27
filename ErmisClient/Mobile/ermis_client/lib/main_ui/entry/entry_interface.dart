@@ -513,7 +513,7 @@ mixin Verification {
       if (isSuccessful) {
         showToastDialog(resultMessage);
         ErmisDB.getConnection().addUserAccount(
-            LocalAccountInformation.fuck(
+            LocalAccountInfo.fuck(
                 email: email,
                 passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
             Client.getInstance().serverInfo);

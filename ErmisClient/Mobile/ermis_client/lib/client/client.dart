@@ -23,7 +23,6 @@ import 'dart:typed_data';
 import 'package:ermis_client/client/common/account.dart';
 import 'package:ermis_client/client/common/entry/requirements.dart';
 import 'package:ermis_client/client/io/byte_buf.dart';
-import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
 
 import '../util/database_service.dart';
@@ -38,6 +37,7 @@ import 'common/message_types/client_message_type.dart';
 import 'common/results/ResultHolder.dart';
 import 'common/results/entry_result.dart';
 import 'common/user_device.dart';
+import 'event_bus.dart';
 import 'io/input_stream.dart';
 import 'message_handler.dart';
 import 'io/output_stream.dart';
@@ -45,7 +45,6 @@ import 'io/output_stream.dart';
 enum ServerCertificateVerification { verify, ignore }
 
 class Client {
-
   static final Client _instance = Client._();
 
   static Client getInstance() {
@@ -55,13 +54,13 @@ class Client {
   ByteBufInputStream? _inputStream;
   ByteBufOutputStream? _outputStream;
 
-  SecureSocket? _sslSocket;
+  Socket? _sslSocket;
   Stream<Uint8List>? broadcastStream;
 
   bool _isLoggedIn = false;
 
   late MessageHandler _messageHandler;
-  
+
   Uri? uri;
 
   Client._();
@@ -72,8 +71,7 @@ class Client {
     }
 
     try {
-      final sslContext = SecurityContext(withTrustedRoots: false);
-
+      final sslContext = SecurityContext.defaultContext;
       _sslSocket = await SecureSocket.connect(uri.host, uri.port,
           context: sslContext,
           timeout: Duration(seconds: 5),
@@ -85,10 +83,10 @@ class Client {
       this.uri = uri;
 
       _inputStream = ByteBufInputStream(broadcastStream: broadcastStream!);
-      _outputStream = ByteBufOutputStream(secureSocket: _sslSocket!);
+      _outputStream = ByteBufOutputStream(socket: _sslSocket!);
 
       _messageHandler = MessageHandler();
-      _messageHandler.setSecureSocket(_sslSocket!);
+      _messageHandler.setSocket(_sslSocket!);
       _messageHandler.setByteBufInputStream(_inputStream!);
       _messageHandler.setByteBufOutputStream(_outputStream!);
 
@@ -105,12 +103,18 @@ class Client {
     await _inputStream!.read(); // Message denoting server is ready for MESSAGES
   }
 
-  Future<bool> attemptShallowLogin(LocalAccountInformation userInfo) async {
-
+  /// Attempts to authenticate user by sending their email and password hash
+  /// over the network to the server for validation.
+  ///
+  /// * `userInfo` The local account information containing the user's email
+  ///                 and password hash.
+  /// * A Future that resolves to a boolean indicating whether the login
+  ///          attempt was successful.
+  Future<bool> attemptHashedLogin(LocalAccountInfo userInfo) async {
     ByteBuf buffer = ByteBuf.smallBuffer();
-    buffer.writeInt(ClientMessageType.entry.id);    
+    buffer.writeInt(ClientMessageType.entry.id);
     buffer.writeInt(EntryType.login.id);
-    
+
     buffer.writeInt(userInfo.email.length);
     buffer.writeBytes(utf8.encode(userInfo.email));
     buffer.writeBytes(utf8.encode(userInfo.passwordHash));
@@ -124,12 +128,15 @@ class Client {
     _messageHandler.sendMessageToClient(text, chatSessionIndex);
   }
 
-  void sendImageToClient(String fileName, Uint8List fileBytes, int chatSessionIndex) {
+  void sendImageToClient(
+      String fileName, Uint8List fileBytes, int chatSessionIndex) {
     _messageHandler.sendImageToClient(fileName, fileBytes, chatSessionIndex);
   }
 
-  void sendFileToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
-    _messageHandler.sendFileToClient(fileName, fileContentBytes, chatSessionIndex);
+  void sendFileToClient(
+      String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
+    _messageHandler.sendFileToClient(
+        fileName, fileContentBytes, chatSessionIndex);
   }
 
   Entry createNewVerificationEntry() {
@@ -139,21 +146,21 @@ class Client {
   Entry createNewBackupVerificationEntry() {
     return Entry(EntryType.login, _outputStream!, _inputStream!);
   }
-	
-	CreateAccountEntry createNewCreateAccountEntry() {
-		return CreateAccountEntry(_outputStream!, _inputStream!);
-	}
-	
-	LoginEntry createNewLoginEntry() {
-		return LoginEntry(_outputStream!, _inputStream!);
-	}
+
+  CreateAccountEntry createNewCreateAccountEntry() {
+    return CreateAccountEntry(_outputStream!, _inputStream!);
+  }
+
+  LoginEntry createNewLoginEntry() {
+    return LoginEntry(_outputStream!, _inputStream!);
+  }
 
   Future<void> fetchUserInformation() async {
     if (!isLoggedIn()) {
       throw StateError(
           "User can't start writing to the server if they aren't logged in");
     }
-    
+
     await _messageHandler.fetchUserInformation();
   }
 
@@ -175,7 +182,6 @@ class Client {
   bool isLoggedIn() {
     return _isLoggedIn;
   }
-
 }
 
 class Entry<T extends CredentialInterface> {
@@ -219,14 +225,16 @@ class Entry<T extends CredentialInterface> {
 
     isLoggedIn = payload.readBoolean();
     Client.getInstance()._isLoggedIn = isLoggedIn;
-    
+
     Uint8List resultMessageBytes = payload.readBytes(payload.readableBytes);
 
     return ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes));
   }
 
   void sendEntryType() {
-    outputStream.write(ByteBuf.smallBuffer()..writeInt(ClientMessageType.entry.id)..writeInt(entryType.id));
+    outputStream.write(ByteBuf.smallBuffer()
+      ..writeInt(ClientMessageType.entry.id)
+      ..writeInt(entryType.id));
   }
 
   Future<void> sendVerificationCode(int verificationCode) async {
@@ -250,7 +258,9 @@ class Entry<T extends CredentialInterface> {
     List<int> resultMessageBytes = msg.readBytes(msg.readInt32());
 
     Map<AddedInfo, String> map = HashMap();
-    EntryResult result = EntryResult(ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes)), map);
+    EntryResult result = EntryResult(
+        ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes)),
+        map);
 
     while (msg.readableBytes > 0) {
       AddedInfo addedInfo = AddedInfo.fromId(msg.readInt32());
@@ -274,7 +284,6 @@ class Entry<T extends CredentialInterface> {
 }
 
 class CreateAccountEntry extends Entry<CreateAccountCredential> {
-
   late final Requirements usernameRequirements;
   late final Requirements passwordRequirements;
 
@@ -312,7 +321,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
     int actionId = CreateAccountAction.addDeviceInfo.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.entry.id);    
+    payload.writeInt(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
     payload.writeInt(actionId);
     payload.writeInt(deviceType.id);
@@ -323,8 +332,8 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
 }
 
 class LoginEntry extends Entry<LoginCredential> {
-
-  LoginEntry(ByteBufOutputStream outputStream, ByteBufInputStream inputStream) : super(EntryType.login, outputStream, inputStream);
+  LoginEntry(ByteBufOutputStream outputStream, ByteBufInputStream inputStream)
+      : super(EntryType.login, outputStream, inputStream);
 
   /// Switches between authenticating via password or backup verification code.
   /// This is useful for users who have lost their primary password and need an alternative method.
@@ -354,4 +363,3 @@ class LoginEntry extends Entry<LoginCredential> {
     outputStream.write(payload);
   }
 }
-

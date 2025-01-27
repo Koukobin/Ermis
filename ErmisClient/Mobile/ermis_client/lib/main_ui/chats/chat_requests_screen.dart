@@ -37,6 +37,8 @@ class ChatRequests extends StatefulWidget {
 class ChatRequestsState extends LoadingState<ChatRequests> {
   List<ChatRequest>? _chatRequests = Client.getInstance().chatRequests;
 
+  bool _isInitialized = false; // Flag to check if it's initialized
+
   ChatRequestsState() {
     if (_chatRequests != null) {
       super.isLoading = false;
@@ -46,9 +48,13 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
   @override
   void initState() {
     super.initState();
+    if (_isInitialized) return;
+
     AppEventBus.instance.on<ChatRequestsEvent>().listen((event) async {
       _updateChatRequests(event.requests);
     });
+
+    _isInitialized = true;
   }
 
   @override
@@ -88,7 +94,8 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
                   ListView(
                       children: [
                         SizedBox(
-                          height: MediaQuery.of(context).size.height - 150, // Substract number to center
+                          height: MediaQuery.of(context).size.height -
+                              150, // Substract number to center
                           child: Center(
                             child: Text(
                               "No chat requests available",

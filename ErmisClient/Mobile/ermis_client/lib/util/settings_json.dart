@@ -38,7 +38,7 @@ class SettingsJson {
     final path = await _getJsonSettingsFilePath();
     final file = File(path);
     if (!await file.exists()) {
-      file.create();
+      await file.create();
       _initializeDefaultSettings(file);
     }
 
@@ -60,7 +60,8 @@ class SettingsJson {
   }
 
   void setGradientColors(List<Color> colors) {
-    _settingsJson["gradientColors"] = colors.map((color) => color.value).toList();
+    _settingsJson["gradientColors"] =
+        colors.map((color) => color.value).toList();
   }
 
   void setNotificationsEnabled(bool enabled) {
@@ -77,7 +78,8 @@ class SettingsJson {
 
   bool get useSystemDefaultTheme => _settingsJson["useSystemDefaultTheme"];
   bool get isDarkModeEnabled => _settingsJson["darkMode"];
-  ChatBackDrop get chatsBackDrop => ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
+  ChatBackDrop get chatsBackDrop =>
+      ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
   List<Color> get gradientColors => (_settingsJson['gradientColors'] as List)
       .map((colorInt) => Color(colorInt))
       .toList();
@@ -113,3 +115,107 @@ class SettingsJson {
     await file.writeAsString(jsonEncode(_settingsJson));
   }
 }
+
+// Similar to the code above, but instead of manually storing the json 
+// to a file, it utilizes a plugin called 'shared_preferences' to do so.
+
+// import 'dart:convert';
+
+// import 'package:ermis_client/main_ui/settings/theme_settings.dart';
+// import 'package:flutter/material.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+
+// class SettingsJson {
+//   static SettingsJson? _instance;
+
+//   SettingsJson._internal();
+
+//   factory SettingsJson() {
+//     _instance ??= SettingsJson._internal();
+//     return _instance!;
+//   }
+
+//   bool _isJsonLoaded = false;
+//   late Map<String, dynamic> _settingsJson;
+
+//   Future<void> loadSettingsJson() async {
+//     Map<String, dynamic>? json = await getJsonFromSharedPreferences();
+//     json ??= await _retrieveDefaultSettings();
+
+//     _settingsJson = json;
+//     _isJsonLoaded = true;
+//   }
+
+//   void setUseSystemDefaultTheme(bool useSystemDefaultTheme) {
+//     _settingsJson["useSystemDefaultTheme"] = useSystemDefaultTheme;
+//   }
+
+//   void setDarkMode(bool darkMode) {
+//     _settingsJson["darkMode"] = darkMode;
+//   }
+
+//   void setChatBackDrop(int backdropId) {
+//     _settingsJson["chatsBackDrop"] = backdropId;
+//   }
+
+//   void setGradientColors(List<Color> colors) {
+//     _settingsJson["gradientColors"] =
+//         colors.map((color) => color.value).toList();
+//   }
+
+//   void setNotificationsEnabled(bool enabled) {
+//     _settingsJson["notificationsEnabled"] = enabled;
+//   }
+
+//   void setShowMessagePreview(bool showPreview) {
+//     _settingsJson["showMessagePreview"] = showPreview;
+//   }
+
+//   void setVibrationEnabled(bool enabled) {
+//     _settingsJson["vibrationEnabled"] = enabled;
+//   }
+
+//   bool get useSystemDefaultTheme => _settingsJson["useSystemDefaultTheme"];
+//   bool get isDarkModeEnabled => _settingsJson["darkMode"];
+//   ChatBackDrop get chatsBackDrop =>
+//       ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
+//   List<Color> get gradientColors => (_settingsJson['gradientColors'] as List)
+//       .map((colorInt) => Color(colorInt))
+//       .toList();
+//   bool get notificationsEnabled => _settingsJson["notificationsEnabled"];
+//   bool get showMessagePreview => _settingsJson["showMessagePreview"];
+//   bool get vibrationEnabled => _settingsJson["vibrationEnabled"];
+
+//   bool get isJsonLoaded => _isJsonLoaded;
+//   bool get isJsonNotLoaded => !_isJsonLoaded;
+
+//   Future<void> saveSettingsJson() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     prefs.setString("jsonData", jsonEncode(_settingsJson));
+//   }
+
+//   Future<Map<String, dynamic>?> getJsonFromSharedPreferences() async {
+//     final prefs = await SharedPreferences.getInstance();
+
+//     // Retrieve the JSON string from SharedPreferences
+//     String? jsonString = prefs.getString('jsonData');
+
+//     if (jsonString != null) {
+//       return jsonDecode(jsonString);
+//     }
+
+//     return null;
+//   }
+
+//   Future<Map<String, Object>> _retrieveDefaultSettings() async {
+//     return {
+//       "useSystemDefaultTheme": true,
+//       "darkMode": false,
+//       "chatsBackDrop": 0,
+//       "gradientColors": [Colors.blue.value, Colors.green.value],
+//       "notificationsEnabled": true,
+//       "showMessagePreview": true,
+//       "vibrationEnabled": false,
+//     };
+//   }
+// }

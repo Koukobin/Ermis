@@ -88,7 +88,6 @@ public class MessagingController extends GeneralController {
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-
 		// This basically retrieves more messages from the conversation once user scrolls to the top
 		chatBoxScrollpane.setOnScroll(new EventHandler<ScrollEvent>() {
 
@@ -227,22 +226,21 @@ public class MessagingController extends GeneralController {
 		
 		return hbox;
 	}
-	
+
 	private void printDateLabelIfNeeded(UserMessage msg) {
-
 		class MessageDateTracker {
-			
-		    private static String lastMessageDate = null;
 
-		    private MessageDateTracker() {}
-		    
-		    public static void updatelastMessageDate(String date) {
-		        lastMessageDate = date;
-		    }
-		    
-		    public static String getLastMessageDate() {
-		        return lastMessageDate;
-		    }
+			private static String lastMessageDate = null;
+
+			private MessageDateTracker() {}
+
+			public static void updatelastMessageDate(String date) {
+				lastMessageDate = date;
+			}
+
+			public static String getLastMessageDate() {
+				return lastMessageDate;
+			}
 		}
 
 		// Retrieve current date
@@ -255,14 +253,13 @@ public class MessagingController extends GeneralController {
 		if (!currentMessageDate.equals(MessageDateTracker.getLastMessageDate())) {
 
 			Label labelDenotingDifferentDay = new Label();
-			
-			if(currentMessageDate.equals(ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE))) {
+
+			if (currentMessageDate.equals(ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE))) {
 				labelDenotingDifferentDay.setText("Today");
 			} else {
 				labelDenotingDifferentDay.setText(currentMessageDate);
 			}
 
-			
 			HBox hbox = new HBox();
 
 			hbox.setAlignment(Pos.CENTER);
@@ -273,7 +270,7 @@ public class MessagingController extends GeneralController {
 		// current messageMessageDate becomes previousMessageDate for next iteration
 		MessageDateTracker.updatelastMessageDate(currentMessageDate);
 	}
-	
+
 	public void printToMessageArea(UserMessage msg, int chatSessionIndex, int activeChatSessionIndex) {
 
 		if (chatSessionIndex != activeChatSessionIndex) {
@@ -335,9 +332,9 @@ public class MessagingController extends GeneralController {
 
 		setVvalue(chatBoxScrollpane.getVmax());
 	}
-	
+
 	public void notifyUser(UserMessage message, int chatSessionIndex, int activeChatSessionIndex) {
-		
+
 		/*
 		 * Skip notification if the user is focused on the app and the message received
 		 * originates from the chat session he is currently active in.*
@@ -346,29 +343,28 @@ public class MessagingController extends GeneralController {
 			return;
 		}
 
-
 		byte[] messageContent;
-		
+
 		if (message.getContentType() == ClientContentType.FILE) {
 			messageContent = message.getFileName();
 		} else {
 			messageContent = message.getText();
 		}
-		
+
 		NotificationsUtil.createMessageNotification(message.getUsername(), new String(messageContent));
 	}
-	
+
 	public void clearMessages() {
 		messagingBox.getChildren().clear();
 		setVvalue(1.0); // Reset vValue to the newest message
 	}
-	
+
 	private void setVvalue(double vvalue) {
-		
+
 		// No idea why you gotta call these two methods before changing the vValue
 		chatBoxScrollpane.applyCss();
 		chatBoxScrollpane.layout();
-		
+
 		chatBoxScrollpane.setVvalue(vvalue);
 	}
 
@@ -405,7 +401,7 @@ public class MessagingController extends GeneralController {
 	public void sendMessageTextByAction(ActionEvent event) {
 		sendMessageText();
 	}
-	
+
 	private void sendMessageText() {
 
 		inputField.requestFocus();
@@ -427,8 +423,8 @@ public class MessagingController extends GeneralController {
 	}
 	
 	void addPendingMessage(byte[] text, byte[] fileName, ClientContentType contentType) {
-
-		UserMessage pendingMessage = new UserMessage(Client.getDisplayName(),
+		UserMessage pendingMessage = new UserMessage(
+				Client.getDisplayName(),
 				Client.getClientID(), -1,
 				RootReferences.getChatsController().getActiveChatSession().getChatSessionID(),
 				text,

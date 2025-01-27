@@ -39,6 +39,10 @@ public class ActiveChatSessions {
 		return chatSessionIDSToActiveChatSessions.get(chatSessionID);
 	}
 
+	public static void addChatSession(ChatSession chatSession) {
+		chatSessionIDSToActiveChatSessions.put(chatSession.getChatSessionID(), chatSession);
+	}
+
 	public static void addChatSession(int chatSessionID, ChatSession chatSession) {
 		chatSessionIDSToActiveChatSessions.put(chatSessionID, chatSession);
 	}

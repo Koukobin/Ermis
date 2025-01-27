@@ -26,33 +26,32 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public enum EntryType {
-    CREATE_ACCOUNT(1),
-    LOGIN(2);
+	CREATE_ACCOUNT(1), LOGIN(2);
 
-    private static final Map<Integer, EntryType> valuesById = new HashMap<>();
-    
-    static {
-        for (EntryType entryType : EntryType.values()) {
-            valuesById.put(entryType.id, entryType);
-        }
-    }
+	private static final Map<Integer, EntryType> valuesById = new HashMap<>();
 
-    public final int id;
+	static {
+		for (EntryType entryType : EntryType.values()) {
+			valuesById.put(entryType.id, entryType);
+		}
+	}
 
-    EntryType(int id) {
-        this.id = id;
-    }
+	public final int id;
 
-    public static EntryType fromId(int id) {
-        return EnumIntConverter.fromId(valuesById, id);
-    }
-	
+	EntryType(int id) {
+		this.id = id;
+	}
+
+	public static EntryType fromId(int id) {
+		return EnumIntConverter.fromId(valuesById, id);
+	}
+
 	/**
 	 * A tagging interface that all credential enums must extend.
+	 * 
 	 * @param <V>
 	 */
 	public sealed interface CredentialInterface permits CreateAccountInfo.Credential, LoginInfo.Credential {
-		
 		int id();
 	}
 }

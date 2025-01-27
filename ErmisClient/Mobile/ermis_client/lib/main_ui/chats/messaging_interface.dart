@@ -58,10 +58,12 @@ class MessagingInterface extends StatefulWidget {
   State<MessagingInterface> createState() => MessagingInterfaceState();
 }
 
-class MessagingInterfaceState extends LoadingState<MessagingInterface> with WidgetsBindingObserver {
+class MessagingInterfaceState extends LoadingState<MessagingInterface>
+    with WidgetsBindingObserver {
   /// Used to determine whether to send push notification or not
   bool isOnScreen = false;
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+
   /// Chat session user is currently active in
   static late int _activeChatSessionIndex;
 
@@ -142,7 +144,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       Message msg = event.message;
       _addMessage(msg);
 
-      // If message originates from the active chat session and the app is in 
+      // If message originates from the active chat session and the app is in
       // the active state (resumed), abstain from showing the notification
       if (_activeChatSessionIndex == chatSession.chatSessionIndex &&
           _appLifecycleState == AppLifecycleState.resumed) {
@@ -168,26 +170,27 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       String body;
       switch (msg.contentType) {
         case MessageContentType.text:
-          body = utf8.decode(msg.text!);
+          body = msg.text;
           break;
         case MessageContentType.file || MessageContentType.image:
-          body = "Send file ${utf8.decode(msg.fileName!)}";
+          body = "Send file ${msg.fileName}";
           break;
       }
 
       NotificationService.showInstantNotification(
           icon: chatSession.getMembers[0].getIcon,
-          body: "Message by ${msg.getUsername}",
+          body: "Message by ${msg.username}",
           contentText: body,
-          contentTitle: msg.getUsername,
+          contentTitle: msg.username,
           summaryText: event.chatSession.toString(),
           chatSessionIndex: chatSession.chatSessionIndex);
     });
 
     AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
       LoadedInMemoryFile file = event.file;
-      
-      String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
+
+      String? filePath =
+          await saveFileToDownloads(file.fileName, file.fileBytes);
 
       if (!mounted) return; // Probably impossible but still check just in case
       if (filePath != null) {
@@ -195,13 +198,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         return;
       }
 
-      showExceptionDialog(context, "An error occured while trying to save file");
+      showExceptionDialog(
+          context, "An error occured while trying to save file");
     });
-    
+
     AppEventBus.instance.on<ImageDownloadedEvent>().listen((event) async {
       _updateImageMessage(event.file, event.messageID);
     });
-    
+
     AppEventBus.instance.on<MessageDeletedEvent>().listen((event) async {
       ChatSession session = event.chatSession;
       int messageID = event.messageId;
@@ -219,13 +223,15 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         }
       }
     });
-    
+
     AppEventBus.instance.on<MessageSentEvent>().listen((event) async {
       if (!mounted) return;
       ChatSession session = event.session;
       int messageID = event.messageID;
 
-      session.getMessages.add(pendingMessagesQueue.last..setIsSent(true)..setMessageID(messageID));
+      session.getMessages.add(pendingMessagesQueue.last
+        ..setIsSent(true)
+        ..setMessageID(messageID));
       if (session.chatSessionID == _chatSession.chatSessionID) {
         Future.delayed(Duration(milliseconds: 100), () {
           setState(() {
@@ -240,7 +246,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       if (!mounted) return;
 
       setState(() {
-        _chatSession = event.sessions.firstWhere((ChatSession session) => session.chatSessionID == _chatSession.chatSessionID);
+        _chatSession = event.sessions.firstWhere((ChatSession session) =>
+            session.chatSessionID == _chatSession.chatSessionID);
       });
     });
 
@@ -261,7 +268,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
   void _setMessages(List<Message> messages) {
     setState(() {
-      _messages = messages; 
+      _messages = messages;
       // _messages.clear();
       // _messages.addAll(messages);
     });
@@ -283,7 +290,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     for (final message in _messages) {
       if (message.messageID == messageID) {
         setState(() {
-          message.fileName = Uint8List.fromList(utf8.encode(file.fileName));
+          message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
           message.imageBytes = file.fileBytes;
         });
         break;
@@ -297,7 +304,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       required MessageContentType contentType,
       required int chatSessionID,
       required int chatSessionIndex}) {
-      
     Message pendingMessage = Message(
         text: text,
         fileName: fileName,
@@ -317,7 +323,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   void _sendTextMessage() {
     if (_inputController.text.trim().isEmpty) return;
 
-    Client.getInstance().sendMessageToClient(_inputController.text, _chatSessionIndex);
+    Client.getInstance()
+        .sendMessageToClient(_inputController.text, _chatSessionIndex);
 
     createPendingMessage(
         text: Uint8List.fromList(utf8.encode(_inputController.text)),
@@ -389,6 +396,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           Flexible(
             child: IconButton(
                 onPressed: () {
+                  // navigateWithFade(context, const VoicCall());
                   VoiceCallHandler.initiateVoiceCall(
                     context,
                     chatSessionIndex: _chatSessionIndex,
@@ -431,10 +439,12 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                           ? BoxDecoration(
                               color: appColors.secondaryColor.withOpacity(0.4),
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.white, width: 1.5),
+                              border:
+                                  Border.all(color: Colors.white, width: 1.5),
                             )
                           : null,
-                      child: MessageBubble(message: message, appColors: appColors)));
+                      child: MessageBubble(
+                          message: message, appColors: appColors)));
             },
           ),
         ),
@@ -457,7 +467,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         children: [
           IconButton(
               onPressed: () {
-                Uint8List? data;
+                String data;
                 switch (_messageBeingEdited.contentType) {
                   case MessageContentType.text:
                     data = _messageBeingEdited.text;
@@ -466,16 +476,17 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                     data = _messageBeingEdited.fileName;
                     break;
                 }
-                if (data == null) {
-                  showSnackBarDialog(
-                      context: context,
-                      content:
-                          "An error occured while trying to copy message to clipboard");
-                  return;
-                }
+                // if (data == null) {
+                //   showSnackBarDialog(
+                //       context: context,
+                //       content:
+                //           "An error occured while trying to copy message to clipboard");
+                //   return;
+                // }
 
-                Clipboard.setData(ClipboardData(text: utf8.decode(data)));
-                showSnackBarDialog(context: context, content: "Message copied to clipboard");
+                Clipboard.setData(ClipboardData(text: data));
+                showSnackBarDialog(
+                    context: context, content: "Message copied to clipboard");
                 setState(() {
                   _isEditingMessage = false;
                 });
@@ -607,10 +618,11 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isMessageOwner = message.clientID == Client.getInstance().clientID;
+    final bool isMessageOwner =
+        message.clientID == Client.getInstance().clientID;
 
     DateTime currentMessageDate =
-        DateTime.fromMillisecondsSinceEpoch(message.getTimeWritten, isUtc: true)
+        DateTime.fromMillisecondsSinceEpoch(message.timeWritten, isUtc: true)
             .toLocal();
 
     bool isNewDay = lastMessageDate.day != currentMessageDate.day;
@@ -660,7 +672,8 @@ class MessageBubble extends StatelessWidget {
             if (!message.isSent)
               Positioned.fill(
                 child: Container(
-                  color: Colors.black.withOpacity(0.3), // Semi-transparent overlay
+                  color:
+                      Colors.black.withOpacity(0.3), // Semi-transparent overlay
                   child: Center(
                     child: CircularProgressIndicator(
                       color: appColors.inferiorColor,
@@ -678,7 +691,8 @@ class MessageBubble extends StatelessWidget {
   Widget _buildMessageContent(BuildContext context, Message message) {
     switch (message.contentType) {
       case MessageContentType.text:
-        return Text(message.getText,
+        return Text(
+          message.text,
           softWrap: true, // Enable text wrapping
           overflow: TextOverflow.clip,
           maxLines: null,
@@ -690,12 +704,14 @@ class MessageBubble extends StatelessWidget {
           children: [
             Flexible(
               child: Text(
-                utf8.decode(message.getFileName!.toList()),
+                message.fileName,
               ),
             ),
             GestureDetector(
               onTap: () {
-                Client.getInstance().commands.downloadFile(message.getMessageID, message.chatSessionIndex);
+                Client.getInstance()
+                    .commands
+                    .downloadFile(message.messageID, message.chatSessionIndex);
               },
               child: Icon(Icons.download,
                   size: 20, color: appColors.inferiorColor),
@@ -710,8 +726,10 @@ class MessageBubble extends StatelessWidget {
           onDoubleTap: () {
             if (image == null) {
               print(message.chatSessionIndex);
-              print(message.getMessageID);
-              Client.getInstance().commands.downloadImage(message.getMessageID, message.chatSessionIndex);
+              print(message.messageID);
+              Client.getInstance()
+                  .commands
+                  .downloadImage(message.messageID, message.chatSessionIndex);
             }
           },
           child: Container(
@@ -744,7 +762,8 @@ class MessageBubble extends StatelessWidget {
               children: [
                 IconButton(
                     onPressed: () {
-                      saveFileToDownloads(utf8.decode(message.fileName!), message.imageBytes!);
+                      saveFileToDownloads(
+                          message.fileName, message.imageBytes!);
                     },
                     icon: Icon(Icons.download)),
               ],
@@ -757,7 +776,7 @@ class MessageBubble extends StatelessWidget {
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
                 child: Container(
-                  color: Colors.transparent, 
+                  color: Colors.transparent,
                 ),
               ),
               Center(
@@ -805,7 +824,8 @@ class BlurredDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(red: 0.8, alpha: 0.8, blue: 0.8, green: 0.8),
+              color: Colors.white
+                  .withValues(red: 0.8, alpha: 0.8, blue: 0.8, green: 0.8),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -826,7 +846,8 @@ class BlurredDialog extends StatelessWidget {
 class SendFilePopupMenu extends StatefulWidget {
   final int chatSessionIndex;
   final FileCallBack fileCallBack;
-  const SendFilePopupMenu({required this.fileCallBack, required this.chatSessionIndex, super.key});
+  const SendFilePopupMenu(
+      {required this.fileCallBack, required this.chatSessionIndex, super.key});
 
   @override
   State<StatefulWidget> createState() => SendFilePopupMenuState();
@@ -839,12 +860,14 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
   }
 
   void _sendFile(String fileName, Uint8List fileBytes) async {
-    Client.getInstance().sendFileToClient(fileName, fileBytes, widget.chatSessionIndex);
+    Client.getInstance()
+        .sendFileToClient(fileName, fileBytes, widget.chatSessionIndex);
     widget.fileCallBack(fileName, fileBytes);
   }
 
   void _sendImageFile(String fileName, Uint8List fileBytes) async {
-    Client.getInstance().sendImageToClient(fileName, fileBytes, widget.chatSessionIndex);
+    Client.getInstance()
+        .sendImageToClient(fileName, fileBytes, widget.chatSessionIndex);
     widget.fileCallBack(fileName, fileBytes);
   }
 
@@ -916,7 +939,9 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                             });
                           },
                         ),
-                        SizedBox(width: 5,),
+                        SizedBox(
+                          width: 5,
+                        ),
                         _buildPopupOption(
                           context,
                           icon: Icons.camera_alt,
@@ -935,7 +960,9 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                             _sendImageFile(fileName, fileBytes);
                           },
                         ),
-                        SizedBox(width: 5,),
+                        SizedBox(
+                          width: 5,
+                        ),
                         _buildPopupOption(
                           context,
                           icon: Icons.insert_drive_file,

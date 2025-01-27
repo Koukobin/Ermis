@@ -34,8 +34,8 @@ class ProfileSettings extends StatefulWidget {
   State<ProfileSettings> createState() => _ProfileSettingsState();
 }
 
-class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProviderStateMixin {
-
+class _ProfileSettingsState extends State<ProfileSettings>
+    with SingleTickerProviderStateMixin {
   int _clientID = Client.getInstance().clientID;
   String _displayName = Client.getInstance().displayName ?? "";
 
@@ -52,7 +52,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
         _clientID = event.clientId;
       });
     });
-    
+
     AppEventBus.instance.on<UsernameReceivedEvent>().listen((event) async {
       if (!mounted) return;
       setState(() {
@@ -94,16 +94,14 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Profile Image Section
-            GestureDetector(
-              onTap: onChangeProfileImage,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const PersonalProfilePhoto(radius: 80),
-                  Positioned(
-                    right: 105,
-                    bottom: 15,
-                    child: ScaleTransition(
+            Center(
+              child: GestureDetector(
+                onTap: onChangeProfileImage,
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    const PersonalProfilePhoto(radius: 80),
+                    ScaleTransition(
                       scale: _animation,
                       child: Container(
                         width: 50,
@@ -118,8 +116,8 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -151,7 +149,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
               ),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [ 
+                children: [
                   Text(
                     'About',
                     style: TextStyle(color: Colors.grey[500]),
@@ -160,7 +158,9 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                 ],
               ),
               onTap: () {
-                showSnackBarDialog(context: context, content: "Functionality not implemented yet!");
+                showSnackBarDialog(
+                    context: context,
+                    content: "Functionality not implemented yet!");
               },
             ),
             ListTile(
@@ -177,7 +177,8 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
               ),
               onTap: () {
                 Clipboard.setData(ClipboardData(text: _clientID.toString()));
-                showSnackBarDialog(context: context, content: "ID copied to clipboard");
+                showSnackBarDialog(
+                    context: context, content: "ID copied to clipboard");
               },
             ),
           ],
@@ -246,7 +247,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
     );
   }
 
-    Widget _buildPopupOption(
+  Widget _buildPopupOption(
     BuildContext context, {
     required IconData icon,
     required String label,
@@ -335,7 +336,9 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                   TextButton(
                       onPressed: () {
                         String newDisplayName = displayNameController.text;
-                        Client.getInstance().commands.changeDisplayName(newDisplayName);
+                        Client.getInstance()
+                            .commands
+                            .changeDisplayName(newDisplayName);
                         Navigator.of(context).pop();
                       },
                       child: Text(

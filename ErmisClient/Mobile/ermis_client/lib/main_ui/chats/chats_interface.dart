@@ -41,7 +41,6 @@ class Chats extends StatefulWidget {
 }
 
 class ChatsState extends TempState<Chats> {
-
   List<ChatSession>? _conversations;
   Set<ChatSession> selectedConversations = {}; // Set instead of list to prevent duplicates
 
@@ -49,10 +48,10 @@ class ChatsState extends TempState<Chats> {
   late FocusNode _focusNode;
 
   /// A periodic stream that triggers a rebuild every five seconds.
-  /// This ensures the chat sessions ListView displays the latest message sent. 
+  /// This ensures the chat sessions ListView displays the latest message sent.
   /// Without this stream, the UI would not update. Fairly lazy, but it works,
   /// with minimal performance overhead as well. For now, it will suffice.
-  /// 
+  ///
   /// The stream is set as a broadcast stream to allow multiple listeners.
   /// Even though it's only referenced once in the code, using the refresh indicator
   /// to refresh the chat session will trigger the stream again. If you wish to see
@@ -60,7 +59,7 @@ class ChatsState extends TempState<Chats> {
   late final Stream<int> _stream = Stream.periodic(Duration(seconds: 5), (x) => x).asBroadcastStream();
 
   ChatsState() : super(Task.normal);
-  
+
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   final List<StreamSubscription<Object>> _subscriptions = [];
@@ -77,10 +76,6 @@ class ChatsState extends TempState<Chats> {
 
     _subscriptions.add(AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
       _updateChatSessions(event.sessions);
-    }));
-
-    _subscriptions.add(AppEventBus.instance.on<ServerMessageEvent>().listen((event) async {
-      showToastDialog(event.message);
     }));
 
     // Whenever text changes performs search
@@ -139,7 +134,8 @@ class ChatsState extends TempState<Chats> {
             ),
             PopupMenuButton<VoidCallback>(
               position: PopupMenuPosition.under,
-              menuPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+              menuPadding:
+                  const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
               onSelected: (callback) {
                 callback();
               },
@@ -195,7 +191,7 @@ class ChatsState extends TempState<Chats> {
         ));
   }
 
-    @override
+  @override
   Widget editingBuild(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return _buildMainScaffold(
@@ -219,7 +215,8 @@ class ChatsState extends TempState<Chats> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text("Delete this chat?"),
-                        content: Text("Deleting this chat will permanently delete all prior messages"),
+                        content: Text(
+                            "Deleting this chat will permanently delete all prior messages"),
                         actions: [
                           TextButton(
                             onPressed: Navigator.of(context).pop, // Cancel
@@ -229,7 +226,9 @@ class ChatsState extends TempState<Chats> {
                             onPressed: () {
                               Navigator.of(context).pop();
                               for (ChatSession cs in selectedConversations) {
-                                Client.getInstance().commands.deleteChatSession(cs.chatSessionIndex);
+                                Client.getInstance()
+                                    .commands
+                                    .deleteChatSession(cs.chatSessionIndex);
                               }
                             }, // Confirm
                             child: const Text("Delete chat"),
@@ -257,49 +256,49 @@ class ChatsState extends TempState<Chats> {
   Widget _buildMainScaffold(BuildContext context, PreferredSizeWidget appBar) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return StreamBuilder<Object>(
-      stream: _stream,
-      builder: (context, snapshot) {
-        return Scaffold(
-          appBar: appBar,
-          backgroundColor: appColors.secondaryColor,
-          floatingActionButtonLocation:  FloatingActionButtonLocation.endFloat, // Position at the bottom right
-          floatingActionButton: SendChatRequestButton(),
-          body: RefreshIndicator(
-            // if user scrolls downwards refresh chat requests
-            onRefresh: _refreshContent,
-            child: _conversations!.isNotEmpty
-                ? ListView.separated(
-                  itemCount: _conversations!.length,
-                  itemBuilder: (context, index) => buildChatButton(index),
-                  separatorBuilder: (context, index) => Divider(
-                    color: appColors.primaryColor.withOpacity(0.0),
-                    thickness: 1,
-                    height: 10,
-                  ),
-                )
-                : // Wrap in a list view to ensure it is scrollable for refresh indicator
-                ListView(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - 150,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(
-                          child: Text(
-                            "No conversations available",
-                            style: TextStyle(
-                              color: appColors.inferiorColor,
-                              fontSize: 16,
-                              fontStyle: FontStyle.italic,
+        stream: _stream,
+        builder: (context, snapshot) {
+          return Scaffold(
+            appBar: appBar,
+            backgroundColor: appColors.secondaryColor,
+            floatingActionButtonLocation: FloatingActionButtonLocation
+                .endFloat, // Position at the bottom right
+            floatingActionButton: SendChatRequestButton(),
+            body: RefreshIndicator(
+              // if user scrolls downwards refresh chat requests
+              onRefresh: _refreshContent,
+              child: _conversations!.isNotEmpty
+                  ? ListView.separated(
+                      itemCount: _conversations!.length,
+                      itemBuilder: (context, index) => buildChatButton(index),
+                      separatorBuilder: (context, index) => Divider(
+                        color: appColors.primaryColor.withOpacity(0.0),
+                        thickness: 1,
+                        height: 10,
+                      ),
+                    )
+                  : // Wrap in a list view to ensure it is scrollable for refresh indicator
+                  ListView(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height - 150,
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                            child: Text(
+                              "No conversations available",
+                              style: TextStyle(
+                                color: appColors.inferiorColor,
+                                fontSize: 16,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    ],
-                  ),
-          ),
-        );
-      }
-    );
+                        )
+                      ],
+                    ),
+            ),
+          );
+        });
   }
 
   Widget buildChatButton(int sessionIndex) {
@@ -329,7 +328,7 @@ class ChatsState extends TempState<Chats> {
             selectedConversations.remove(chatSession);
           });
         }
-        
+
         if (selectedConversations.isEmpty) {
           setState(() {
             task = Task.normal;
@@ -337,7 +336,9 @@ class ChatsState extends TempState<Chats> {
         }
       },
       onTap: () {
-        pushHorizontalTransition(context, MessagingInterface(
+        pushHorizontalTransition(
+            context,
+            MessagingInterface(
                 chatSessionIndex: chatSession.chatSessionIndex,
                 chatSession: chatSession));
       },
@@ -431,11 +432,10 @@ class ChatsState extends TempState<Chats> {
       }
     }
   }
-
 }
 
 class SendChatRequestButton extends StatefulWidget {
-   const SendChatRequestButton({super.key});
+  const SendChatRequestButton({super.key});
 
   @override
   State<SendChatRequestButton> createState() => _SendChatRequestButtonState();
@@ -461,8 +461,8 @@ class SendChatRequestButton extends StatefulWidget {
   }
 }
 
-class _SendChatRequestButtonState extends State<SendChatRequestButton> with TickerProviderStateMixin {
-
+class _SendChatRequestButtonState extends State<SendChatRequestButton>
+    with TickerProviderStateMixin {
   static late TickerProvider _vsync;
 
   double _widgetOpacity = 0.0;
@@ -500,15 +500,15 @@ class _SendChatRequestButtonState extends State<SendChatRequestButton> with Tick
 class SearchField extends StatefulWidget {
   final TextEditingController searchController;
   final FocusNode focusNode;
-  const SearchField({required this.searchController, required this.focusNode, super.key});
+  const SearchField(
+      {required this.searchController, required this.focusNode, super.key});
 
   @override
   State<SearchField> createState() => _SearchFieldState();
 }
 
 class _SearchFieldState extends State<SearchField> {
-
- double _opacity = 0.0;
+  double _opacity = 0.0;
 
   @override
   void initState() {
@@ -624,97 +624,97 @@ class _AnimatedDropdownMenuState extends State<AnimatedDropdownMenu>
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: GestureDetector(
-          onTap: toggleDropdown,
-          child: Container(
-            width: 250,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6,
-                  offset: Offset(0, 2),
+      child: GestureDetector(
+        onTap: toggleDropdown,
+        child: Container(
+          width: 250,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Selected item
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Selected item
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        selectedValue ?? "Select an option",
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                      Icon(
-                        isOpen
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        color: Colors.grey,
-                      ),
-                    ],
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      selectedValue ?? "Select an option",
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                    Icon(
+                      isOpen
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: Colors.grey,
+                    ),
+                  ],
                 ),
-                // Animated Dropdown Options
-                SizeTransition(
-                  sizeFactor: _expandAnimation,
-                  axisAlignment: -1.0,
-                  child: Container(
-                    color: Colors.grey.shade200,
-                    child: Column(
-                      children: options.map((option) {
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              selectedValue = option;
-                              isOpen = false;
-                              _controller.reverse();
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 16,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
+              ),
+              // Animated Dropdown Options
+              SizeTransition(
+                sizeFactor: _expandAnimation,
+                axisAlignment: -1.0,
+                child: Container(
+                  color: Colors.grey.shade200,
+                  child: Column(
+                    children: options.map((option) {
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            selectedValue = option;
+                            isOpen = false;
+                            _controller.reverse();
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: selectedValue == option
+                                    ? Colors.blue
+                                    : Colors.transparent,
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                option,
+                                style: TextStyle(
+                                  fontSize: 16,
                                   color: selectedValue == option
                                       ? Colors.blue
-                                      : Colors.transparent,
+                                      : Colors.black,
                                 ),
-                                SizedBox(width: 10),
-                                Text(
-                                  option,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: selectedValue == option
-                                        ? Colors.blue
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        );
-                      }).toList(),
-                    ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }

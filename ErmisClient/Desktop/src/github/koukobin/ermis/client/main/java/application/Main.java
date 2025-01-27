@@ -24,6 +24,8 @@ import github.koukobin.ermis.client.main.java.application.decide_server_to_conne
 import github.koukobin.ermis.client.main.java.application.entry.EntryInterface;
 import github.koukobin.ermis.client.main.java.application.loading_screen.LoadingScreen;
 import github.koukobin.ermis.client.main.java.application.starting_screen.StartingScreenInterface;
+import github.koukobin.ermis.client.main.java.database.ClientDatabase;
+import github.koukobin.ermis.client.main.java.database.LocalAccountInfo;
 import github.koukobin.ermis.client.main.java.database.ServerInfo;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
 import github.koukobin.ermis.client.main.java.service.client.io_client.ClientInitializationException;
@@ -49,72 +51,70 @@ public class Main extends Application {
 	public void start(Stage primaryStage) throws IOException {
 		System.setProperty("prism.lcdtext", "false"); // Disable LCD anti-aliasing to improve text clarity
 		HostServicesUtil.inititalize(getHostServices()); // Initialize HostServicesUtil
-		
+
 		// Show the starting screen and wait for it to close
 		{
 			StartingScreenInterface startingScreen = new StartingScreenInterface();
 			startingScreen.showAndWait();
 		}
-		
+
 		// Select server to connect to
 		{
-	    	boolean retry = true;
-	    	LoadingScreen loadingScreen = new LoadingScreen();
+			boolean retry = true;
+			LoadingScreen loadingScreen = new LoadingScreen();
 
 			while (retry) {
-				
 				try {
-
 					ChooseServerDialog dialog = new ChooseServerDialog();
 					dialog.showAndWait();
 
 					if (dialog.isCanceled()) {
 						return;
 					}
-	    			
-	    			ServerInfo serverInfo = dialog.getResult();
-	    			if (serverInfo == null) {
-	    				DialogsUtil.showErrorDialog("Server information cannot be empty!");
-	    				continue;
-	    			}
-	    			
+
+					ServerInfo serverInfo = dialog.getResult();
+					if (serverInfo == null) {
+						DialogsUtil.showErrorDialog("Server information cannot be empty!");
+						continue;
+					}
+
 					Client.ServerCertificateVerification verify = dialog.shouldCheckServerCertificate()
 							? Client.ServerCertificateVerification.VERIFY
 							: Client.ServerCertificateVerification.IGNORE;
 
 					CompletableFuture<ClientInitializationException> clientInitialization = CompletableFuture.supplyAsync(() -> {
 	    				try {
-	    					Client.initialize(serverInfo.getAddress(), serverInfo.getPort(), verify);
-	    				} catch (ClientInitializationException cie) {
-	    					return cie;
-	    				} finally {
-	    					Platform.runLater(loadingScreen::close); // close loading screen
-	    				}
-	    				return null;
-	    			});
-	    			
-	    			// Display loading screen while connecting
-	    			loadingScreen.showAndWait();
-	    			
-	    			ClientInitializationException cie = clientInitialization.get();
-	    			
+	    					Client.initialize(serverInfo, verify);
+	    					Client.syncWithServer();
+	    					Optional<LocalAccountInfo> optionalInfo = ClientDatabase.getDBConnection().getLastUsedAccount(serverInfo);
+							optionalInfo.ifPresent(Client::attemptHashedLogin);
+						} catch (ClientInitializationException cie) {
+							return cie;
+						} finally {
+							Platform.runLater(loadingScreen::close); // close loading screen
+						}
+						return null;
+					});
+
+					// Display loading screen while connecting
+					loadingScreen.showAndWait();
+
+					ClientInitializationException cie = clientInitialization.get();
+
 					if (cie != null) {
 						throw cie;
 					}
-					
+
 					retry = false;
-	    		} catch (Exception e) {
-	    			
-	    			Optional<ButtonType> exceptionDialogResult = DialogsUtil.showExceptionDialog(e);
-	    			
+				} catch (Exception e) {
+
+					Optional<ButtonType> exceptionDialogResult = DialogsUtil.showExceptionDialog(e);
+
 	    			if (!exceptionDialogResult.isPresent() || exceptionDialogResult.get() == CustomDialogButtonTypes.EXIT_BUTTON) {
-	    				return;
-	    			}
-	    			
-	    		}
-				
-	    	}
-			
+						return;
+					}
+				}
+			}
 		}
 
 		while (!Client.isLoggedIn()) {
@@ -123,14 +123,9 @@ public class Main extends Application {
 		}
 
 		// Start the chat interface
-		{
-			ChatInterface chatInterface = new ChatInterface(primaryStage);
-			chatInterface.start();
-		}
+		ChatInterface chatInterface = new ChatInterface(primaryStage);
+		chatInterface.start();
 	}
-	
-	
+
 }
-
-
 

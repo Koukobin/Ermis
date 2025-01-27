@@ -26,8 +26,8 @@ public class ResultHolder {
 	private boolean isSuccessful;
 	private String resultMessage;
 
-	public ResultHolder(boolean isSuccesfull, String resultMessage) {
-		this.isSuccessful = isSuccesfull;
+	public ResultHolder(boolean success, String resultMessage) {
+		this.isSuccessful = success;
 		this.resultMessage = resultMessage;
 	}
 
@@ -54,7 +54,6 @@ public class ResultHolder {
 
 	@Override
 	public boolean equals(Object obj) {
-
 		if (this == obj) {
 			return true;
 		}

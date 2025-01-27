@@ -1,6 +1,6 @@
 {
-    "name": "ermis_client",
-    "short_name": "ermis_client",
+    "name": "ermisclient",
+    "short_name": "ermisclient",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # State Management & UI
+ # State Management & UI
   animations: ^2.0.6
   flutter_colorpicker: ^1.1.0
   font_awesome_flutter: ^10.8.0
@@ -50,8 +50,6 @@ dependencies:
   # User input
   image: ^4.3.0
   camera: ^0.11.0+2
-  record: ^5.2.0
-  flutter_sound: ^9.17.8
 
   # Permissions & Device Info
   permission_handler: ^11.3.1
@@ -60,22 +58,26 @@ dependencies:
   # Background & Notifications
   flutter_background: ^1.3.0+1
   flutter_background_service: ^5.1.0
-  workmanager: ^0.5.2
-  shared_preferences: ^2.3.4
+  # workmanager: ^0.5.2
+  # shared_preferences: ^2.3.4
   flutter_foreground_task: ^8.17.0
   flutter_local_notifications: ^18.0.1
   fluttertoast: ^8.2.10
   vibration: ^2.0.1
 
   # Utilities & Networking
+  intl: ^0.19.0
   url_launcher: ^6.3.1
-  intl: ^0.20.0
   timezone: ^0.10.0
-  event_bus: ^2.0.1
+  # flutter_webrtc: ^0.12.0
+  # web_socket_channel: ^3.0.1
+  # stream_video: ^0.7.1
+  # stream_video_flutter: ^0.7.1
+  # stream_video_push_notification: ^0.7.1
 
   # Encryption/Decryption
-  encrypt: ^5.0.3
-  pointycastle: ^3.9.1
+  # encrypt: ^5.0.3
+  # pointycastle: ^3.9.1
 
   # Compression
   zstandard: ^1.3.27
@@ -84,11 +86,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   synchronized: ^3.3.0+3
-  device_info_plus: ^11.2.0
   logging: ^1.1.1
 
-  ffi: ^2.1.3
-  native_toolchain_c: ^0.7.0
+  # ffi: ^2.1.3
+  # native_toolchain_c: ^0.7.0
+  # native_assets_cli: ^0.10.0
 
 dev_dependencies:
   flutter_test:
@@ -160,3 +162,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+

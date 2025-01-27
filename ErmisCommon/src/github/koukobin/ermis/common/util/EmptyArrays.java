@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 
 import github.koukobin.ermis.common.Account;
 import github.koukobin.ermis.common.UserDeviceInfo;
+import github.koukobin.ermis.common.message_types.UserMessage;
 
 /**
  * Utility class providing immutable empty arrays for various types.
@@ -55,6 +56,7 @@ public final class EmptyArrays {
     public static final String[] EMPTY_STRING_ARRAY = {};
     public static final UserDeviceInfo[] EMPTY_DEVICE_INFO_ARRAY = {};
     public static final Account[] EMPTY_ACCOUNT_ARRAY = {};
+    public static final UserMessage[] EMPTY_USER_MESSAGES_ARRAY = {};
 
 	/**
 	 * Index value representing "not found" in a list or array.

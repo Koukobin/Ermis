@@ -69,7 +69,6 @@ public abstract class MessageHandler implements AutoCloseable {
 	}
 	
 	public void sendMessageToClient(String text, int chatSessionIndex) throws IOException {
-
 		if (chatSessionIndex < 0) {
 			return;
 		}
@@ -87,7 +86,6 @@ public abstract class MessageHandler implements AutoCloseable {
 	}
 	
 	public void sendFile(File file, int chatSessionIndex) throws IOException {
-
 		if (chatSessionIndex < 0) {
 			return;
 		}

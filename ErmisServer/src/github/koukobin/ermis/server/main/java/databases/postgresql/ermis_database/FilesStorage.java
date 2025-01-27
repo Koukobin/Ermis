@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -100,7 +100,7 @@ public final class FilesStorage {
 		return UUID.randomUUID().toString();
 	}
 
-	public static String createProfilePhoto(byte[] photoBytes) throws IOException {
+	public static String storeProfilePhoto(byte[] photoBytes) throws IOException {
 		String uuid = generateUUID();
 		String photoFilePath = UserFilesStorage.PROFILE_PHOTOS_DIRECTORY + uuid;
 		byte[] photoBytesCompressed = Zstd.compress(photoBytes, FILE_COMPRESSION_LEVEL);
@@ -111,7 +111,7 @@ public final class FilesStorage {
 		return uuid;
 	}
 
-	public static String createUserFile(byte[] fileBytes) throws IOException {
+	public static String storeSentFile(byte[] fileBytes) throws IOException {
 		String uuid = generateUUID();
 		String photoFilePath = UserFilesStorage.SENT_FILES_DIRECTORY + uuid;
 		byte[] fileBytesCompressed = Zstd.compress(fileBytes, FILE_COMPRESSION_LEVEL);

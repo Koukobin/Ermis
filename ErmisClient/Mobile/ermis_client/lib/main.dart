@@ -15,8 +15,6 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/main_ui/splash_screen.dart';
@@ -25,9 +23,7 @@ import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'client/app_event_bus.dart';
 import 'client/common/chat_session.dart';
@@ -41,6 +37,8 @@ import 'main_ui/chats/chats_interface.dart';
 import 'main_ui/settings/settings_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
+
+import 'util/dialogs_utils.dart';
 
 void fucking(ServiceInstance instance) async {
   for (;;) {
@@ -68,20 +66,20 @@ void fucking(ServiceInstance instance) async {
       String body;
       switch (msg.contentType) {
         case MessageContentType.text:
-          body = utf8.decode(msg.text!);
+          body = msg.text;
           break;
         case MessageContentType.file || MessageContentType.image:
-          body = "Send file ${utf8.decode(msg.fileName!)}";
+          body = "Sent file ${msg.fileName}";
           break;
       }
 
       NotificationService.showInstantNotification(
-        icon: chatSession.getMembers[0].getIcon,
-        body: "Message by ${msg.getUsername}",
-        contentText: body,
-          contentTitle: msg.getUsername,
+          icon: chatSession.getMembers[0].getIcon,
+          body: "Message by ${msg.username}",
+          contentText: body,
+          contentTitle: msg.username,
           summaryText: event.chatSession.toString(),
-          chatSessionIndex:  chatSession.chatSessionIndex);
+          chatSessionIndex: chatSession.chatSessionIndex);
     }).asFuture();
   }
 }
@@ -96,14 +94,16 @@ void main() async {
     androidNotificationOptions: AndroidNotificationOptions(
       channelId: 'foreground_service_channel',
       channelName: 'Foreground Service Channel',
-      channelDescription: 'This channel is used for the foreground service notification.',
+      channelDescription:
+          'This channel is used for the foreground service notification.',
       channelImportance: NotificationChannelImportance.LOW,
       priority: NotificationPriority.LOW,
     ),
     iosNotificationOptions: IOSNotificationOptions(
       showNotification: true,
     ),
-    foregroundTaskOptions: ForegroundTaskOptions(eventAction: ForegroundTaskEventAction.once()),
+    foregroundTaskOptions:
+        ForegroundTaskOptions(eventAction: ForegroundTaskEventAction.once()),
   );
 
   // Start the foreground task when the app runs
@@ -112,15 +112,16 @@ void main() async {
       notificationText: 'Ermis is listening for messages in the background...',
       callback: () => print("Flutter foreground service callback"));
 
-  // FlutterBackgroundService().configure(
-  //   androidConfiguration: AndroidConfiguration(
-  //     onStart: fucking,
-  //     autoStartOnBoot: true,
-  //     autoStart: true, // Automatically start the service when the app is launched
-  //     isForegroundMode: true, // Keep the service running in the background
-  //   ),
-  //   iosConfiguration: IosConfiguration(),
-  // );
+  FlutterBackgroundService().configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: fucking,
+      autoStartOnBoot: true,
+      autoStart:
+          true, // Automatically start the service when the app is launched
+      isForegroundMode: true, // Keep the service running in the background
+    ),
+    iosConfiguration: IosConfiguration(),
+  );
 
   await NotificationService.init();
   tz.initializeTimeZones();
@@ -140,6 +141,7 @@ void main() async {
     }
   }
 
+  // runApp(VoiceMyApp());
   runApp(_MyApp(
     lightAppColors: lightAppColors,
     darkAppColors: darkAppColors,
@@ -157,13 +159,12 @@ class _MyApp extends StatefulWidget {
     required this.darkAppColors,
     required this.themeMode,
   });
-  
+
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<_MyApp> with WidgetsBindingObserver { 
-
+class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -200,13 +201,15 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
   }
 
   void saveAppState(String key, String value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, value);
+    // final prefs = await SharedPreferences.getInstance();
+    // prefs.setString(key, value);
   }
 
   Future<String?> loadAppState(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
+    return null;
+  
+    // final prefs = await SharedPreferences.getInstance();
+    // // return prefs.getString(key);
   }
 
   @override
@@ -224,7 +227,6 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
       home: SplashScreen(),
     );
   }
-
 }
 
 class MyTaskHandler extends TaskHandler {
@@ -252,7 +254,6 @@ class MyTaskHandler extends TaskHandler {
 }
 
 class MainInterface extends StatefulWidget {
-
   const MainInterface({super.key});
 
   @override
@@ -260,8 +261,8 @@ class MainInterface extends StatefulWidget {
 }
 
 class MainInterfaceState extends State<MainInterface> {
-  
-  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   static const List<Widget> _widgetOptions = <Widget>[
     Chats(),
@@ -275,6 +276,15 @@ class MainInterfaceState extends State<MainInterface> {
 
   int _selectedPageIndex = 0;
 
+  // Static final variable with lazy initialization
+  static final void initialize = _initialize();
+  // Private static method to perform the initialization
+  static void _initialize() {
+    AppEventBus.instance.on<ServerMessageInfoEvent>().listen((event) {
+      showToastDialog(event.message);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -287,9 +297,14 @@ class MainInterfaceState extends State<MainInterface> {
     super.dispose();
   }
 
-  BottomNavigationBarItem _buildNavItem(IconData activeIcon, IconData inActiveIcon, String label, int index) {
+  BottomNavigationBarItem _buildNavItem(
+    IconData activeIcon,
+    IconData inactiveIcon,
+    String label,
+    int index,
+  ) {
     return BottomNavigationBarItem(
-      icon: _selectedPageIndex == index ? Icon(activeIcon) : Icon(inActiveIcon),
+      icon: _selectedPageIndex == index ? Icon(activeIcon) : Icon(inactiveIcon),
       label: label,
     );
   }
@@ -303,7 +318,7 @@ class MainInterfaceState extends State<MainInterface> {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-    
+
     _barItems = <BottomNavigationBarItem>[
       _buildNavItem(Icons.chat, Icons.chat_outlined, "Chats", 0),
       _buildNavItem(Icons.person_add_alt_1, Icons.person_add_alt_1_outlined,
@@ -315,10 +330,9 @@ class MainInterfaceState extends State<MainInterface> {
 
     return Scaffold(
       body: PageView(
-        controller: _pageController,
-        onPageChanged: _onItemTapped,
-        children: _widgetOptions,
-      ),
+          controller: _pageController,
+          onPageChanged: _onItemTapped,
+          children: _widgetOptions),
       bottomNavigationBar: BottomNavigationBar(
           fixedColor: appColors.primaryColor,
           backgroundColor: appColors.secondaryColor,
@@ -326,8 +340,6 @@ class MainInterfaceState extends State<MainInterface> {
           type: BottomNavigationBarType.fixed,
           currentIndex: _selectedPageIndex,
           onTap: (int newPageIndex) {
-            _onItemTapped(newPageIndex);
-
             // Have to manually animate to next page
             _pageController.animateToPage(
               newPageIndex,

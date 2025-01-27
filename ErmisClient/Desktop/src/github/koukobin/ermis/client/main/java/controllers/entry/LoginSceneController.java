@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 import github.koukobin.ermis.client.main.java.info.entry.EntryInfo;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client.BackupVerificationEntry;
+import github.koukobin.ermis.client.main.java.util.MemoryUtil;
 import github.koukobin.ermis.client.main.java.util.UITransitions;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.common.entry.EntryType;
@@ -67,7 +68,6 @@ public final class LoginSceneController extends GeneralEntryController {
 	
 	@FXML
 	public void flipPasswordType(ActionEvent event) {
-
 		passwordType = switch (passwordType) {
 		case PASSWORD -> PasswordType.BACKUP_VERIFICATION_CODE;
 		case BACKUP_VERIFICATION_CODE -> PasswordType.PASSWORD;
@@ -89,7 +89,6 @@ public final class LoginSceneController extends GeneralEntryController {
 	
 	@Override
 	public void register(ActionEvent event) throws IOException {
-		
 		Client.LoginEntry loginEntry = Client.createNewLoginEntry();
 		loginEntry.sendEntryType();
 
@@ -101,30 +100,32 @@ public final class LoginSceneController extends GeneralEntryController {
 			loginEntry.togglePasswordType();
 		}
 		
-		boolean isSuccesfull = sendAndValidateCredentials(loginEntry, loginCredentials);
+		boolean isSuccessful = sendAndValidateCredentials(loginEntry, loginCredentials);
 		
-		if (!isSuccesfull) {
+		// Clear sensitive data from memory
+		MemoryUtil.freeStringFromMemory(loginCredentials.get(LoginInfo.Credential.PASSWORD));
+		
+		if (!isSuccessful) {
 			return;
 		}
 		
 		if (getPasswordType() == PasswordType.PASSWORD) {
-			isSuccesfull = performVerification();
+			isSuccessful = performVerification(loginCredentials.get(LoginInfo.Credential.EMAIL));
 		} else {
-			
 			BackupVerificationEntry backupVerificationEntry = Client.createNewBackupVerificationEntry();
-			
+
 			ResultHolder entryResult = backupVerificationEntry.getResult();
-			isSuccesfull = entryResult.isSuccessful();
+			isSuccessful = entryResult.isSuccessful();
 			String resultMessage = entryResult.getResultMessage();
-			
-			if (isSuccesfull) {
+
+			if (isSuccessful) {
 				DialogsUtil.showSuccessDialog(resultMessage);
 			} else {
 				DialogsUtil.showErrorDialog(resultMessage);
 			}
 		}
 
-		if (!isSuccesfull) {
+		if (!isSuccessful) {
 			return;
 		}
 		
@@ -133,7 +134,6 @@ public final class LoginSceneController extends GeneralEntryController {
 	
 	@Override
 	public void switchScene(ActionEvent event) throws IOException {
-
 		FXMLLoader loader = new FXMLLoader(EntryInfo.CreateAccount.FXML_LOCATION);
 		final Parent root = loader.load();
 		

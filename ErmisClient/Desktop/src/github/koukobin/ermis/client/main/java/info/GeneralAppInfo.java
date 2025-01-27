@@ -38,9 +38,9 @@ public final class GeneralAppInfo {
 	public static final String SOURCE_CODE_HTML_PAGE_URL = "https://github.com/Koukobin/Ermis";
 
 	public static final String MAIN_PROJECT_PATH = "/github/koukobin/ermis/client/main/";
+	public static final String CLIENT_DATABASE_SETUP_FILE_PATH = MAIN_PROJECT_PATH + "resources/local_database/sql/database_setup.sql";
 
 	static {
-
 		String appDataFolder;
 
 		if (SystemUtils.IS_OS_WINDOWS) {
@@ -62,8 +62,9 @@ public final class GeneralAppInfo {
 			ioe.printStackTrace();
 		}
 
-		CLIENT_DATABASE_PATH = appDataFolder + "Client.db";
+		CLIENT_DATABASE_PATH = appDataFolder + "local-ermis-database.db";
 	}
 
 	private GeneralAppInfo() {}
 }
+

@@ -173,7 +173,7 @@ public class ChatsController extends GeneralController {
 		List<ChatSession> items = chatSessionsListView.getItems();
 
 		for (int i = 0; i < items.size(); i++) {
-			if (items.get(i).toString().contains(search)) {
+			if (items.get(i).toString().contains(search) && i > 0) {
 				ChatSession temp = items.get(i);
 				items.set(i, items.get(i - 1));
 				items.set(i - 1, temp);

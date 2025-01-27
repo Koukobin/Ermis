@@ -94,9 +94,9 @@ public final class ConfigurationsPaths {
 
     public static class EmailCreator {
         public static class Verification {
-            public static final String LOGIN_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.creator.verification.login.body.path");
-            public static final String CREATE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.creator.verification.createaccount.body.path");
-			public static final String DELETE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH = Server.SETTINGS + "DeleteAccount-Verification-Message.html";
+            public static final String LOGIN_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.login.body.path");
+            public static final String CREATE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.create_account.body.path");
+			public static final String DELETE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.delete_account.body.path");
 
             
             private Verification() {}

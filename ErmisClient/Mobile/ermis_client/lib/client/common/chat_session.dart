@@ -14,7 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:ermis_client/client/common/message_types/content_type.dart';
 import 'package:intl/intl.dart';
@@ -57,9 +56,9 @@ class ChatSession {
 
     switch (message.contentType) {
       case MessageContentType.text:
-        return utf8.decode(message.text!.toList());
+        return message.text;
       case MessageContentType.file || MessageContentType.image:
-        return utf8.decode(message.fileName!.toList());
+        return message.fileName;
     }
   }
 
@@ -71,7 +70,7 @@ class ChatSession {
     }
 
     DateTime localTime =
-        DateTime.fromMillisecondsSinceEpoch(message.getTimeWritten, isUtc: true)
+        DateTime.fromMillisecondsSinceEpoch(message.timeWritten, isUtc: true)
             .toLocal();
 
     if (DateTime.now().difference(localTime).inDays >= 1) {

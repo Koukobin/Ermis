@@ -18,11 +18,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:ermis_client/client/io/byte_buf.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
-import 'dart:ffi' as ffi;
-import 'package:path/path.dart' as path;
-
-import 'package:ffi/ffi.dart';
+// import 'dart:ffi' as ffi;
+// import 'package:path/path.dart' as path;
 
 enum VoiceCallServerMessage {
   voice(4),
@@ -63,7 +60,8 @@ class VoiceCallUDPSocket {
   set key(int key) => _key = key;
   set aesKey(Uint8List aesKey) => _aesKey = aesKey;
 
-  Future<void> initialize(InternetAddress remoteAddress, int remotePort, int chatSessionIndex) async {
+  Future<void> initialize(InternetAddress remoteAddress, int remotePort,
+      int chatSessionIndex) async {
     if (remotePort <= 0) {
       throw ArgumentError("Port cannot be below zero");
     }
@@ -99,11 +97,11 @@ class VoiceCallUDPSocket {
     if (message.length <= 32768) {
       _sendSingleMessage(message);
     } else {
-
       // ΕΔΩ ΕΓΚΕΙΤΑΙ ΤΟ ΠΡΟΒΛΗΜΑ
       for (int i = 0; i < message.length; i += 1024) {
         int end = (i + 1024 < message.length) ? i + 1024 : message.length;
-        _sendSingleMessage(Uint8List.fromList(message.getRange(i, end).toList()));
+        _sendSingleMessage(
+            Uint8List.fromList(message.getRange(i, end).toList()));
       }
     }
   }
@@ -127,39 +125,41 @@ class VoiceCallUDPSocket {
 }
 
 // Secure UDP socket
-class SecureDatagramSocket {
-  late ffi.DynamicLibrary dtlsLib;
+// class SecureDatagramSocket {
+//   late ffi.DynamicLibrary dtlsLib;
 
-  SecureDatagramSocket() {
-    dtlsLib = ffi.DynamicLibrary.open("path/to/libdtls.so");
+//   SecureDatagramSocket() {
+//     dtlsLib = ffi.DynamicLibrary.open("path/to/libdtls.so");
 
-    var libraryPath = path.join(Directory.current.path, 'hello_library', 'libhello.so');
-    if (Platform.isMacOS) {
-      libraryPath = path.join(Directory.current.path, 'hello_library', 'libhello.dylib');
-    } else if (Platform.isWindows) {
-      libraryPath = path.join(
-          Directory.current.path, 'hello_library', 'Debug', 'hello.dll');
-    }
-  }
+//     var libraryPath =
+//         path.join(Directory.current.path, 'hello_library', 'libhello.so');
+//     if (Platform.isMacOS) {
+//       libraryPath =
+//           path.join(Directory.current.path, 'hello_library', 'libhello.dylib');
+//     } else if (Platform.isWindows) {
+//       libraryPath = path.join(
+//           Directory.current.path, 'hello_library', 'Debug', 'hello.dll');
+//     }
+//   }
 
-  @ffi.Native<ffi.Void Function(Uint8List)>(symbol: 'send')
-  external void send(
-    Uint8List data,
-  );
+  // @ffi.Native<ffi.Void Function(Uint8List)>(symbol: 'send')
+  // external void send(
+  //   Uint8List data,
+  // );
 
-  // FFI binding to send method from Rust
-  void send(Uint8List data) {
-    final sendFunc = dtlsLib.lookupFunction<
-        void Function(ffi.Pointer<Utf8>, Uint8List),
-        void Function(ffi.Pointer<Utf8>, Uint8List)>('send');
+  // // FFI binding to send method from Rust
+  // void send(Uint8List data) {
+  //   final sendFunc = dtlsLib.lookupFunction<
+  //       void Function(ffi.Pointer<Utf8>, Uint8List),
+  //       void Function(ffi.Pointer<Utf8>, Uint8List)>('send');
 
-    // Convert data to a pointer (ensure correct memory allocation)
-    final myString = 'Hello';
-    final pointer = myString.toNativeUtf8();
-    sendFunc(pointer, data);
-  }
-}
-
+  // Convert data to a pointer (ensure correct memory allocation)
+  //   final myString = 'Hello';
+  //   final pointer = myString.toNativeUtf8();
+  //   sendFunc(pointer, data);
+  // }
+// }
+// 
 // class SecureUdpSocket {
 //   final RawDatagramSocket _socket;
 //   final Uint8List _key;

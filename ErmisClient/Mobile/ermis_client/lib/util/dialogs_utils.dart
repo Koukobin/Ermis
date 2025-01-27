@@ -14,9 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -41,7 +38,8 @@ class WhatsAppPopupDialog extends StatefulWidget {
   State<WhatsAppPopupDialog> createState() => _WhatsAppPopupDialogState();
 }
 
-class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog> with SingleTickerProviderStateMixin {
+class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _opacityAnimation;
@@ -89,7 +87,8 @@ class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog> with SingleTi
   }
 }
 
-Future<void> showWhatsAppDialog(BuildContext context, String content, VoidCallback onPressed) async {
+Future<void> showWhatsAppDialog(
+    BuildContext context, String content, VoidCallback onPressed) async {
   await showDialog(
     context: context,
     barrierDismissible: true,
@@ -109,7 +108,8 @@ Future<void> showWhatsAppDialog(BuildContext context, String content, VoidCallba
   );
 }
 
-Future<void> confirmDialog(BuildContext context, String content, GestureTapCallback runOnConfirmation) async {
+Future<void> confirmDialog(BuildContext context, String content,
+    GestureTapCallback runOnConfirmation) async {
   final bool? shouldExit = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
@@ -137,7 +137,8 @@ Future<void> confirmDialog(BuildContext context, String content, GestureTapCallb
   }
 }
 
-Future<void> showLogoutConfirmationDialog(BuildContext context, String content, VoidCallback onYes) async {
+Future<void> showLogoutConfirmationDialog(
+    BuildContext context, String content, VoidCallback onYes) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -172,7 +173,8 @@ Future<void> showExceptionDialog(BuildContext context, String exception) async {
   );
 }
 
-Future<T> showLoadingDialog<T>(BuildContext context, Future<T> executeWhileLoading) async {
+Future<T> showLoadingDialog<T>(
+    BuildContext context, Future<T> executeWhileLoading) async {
   showDialog(
     context: context,
     barrierDismissible: false, // Prevent dismissal by tapping outside
@@ -241,7 +243,8 @@ Future<void> showSimpleAlertDialog({
   );
 }
 
-Widget createSimpleAlertDialog(BuildContext context, String title, String content) {
+Widget createSimpleAlertDialog(
+    BuildContext context, String title, String content) {
   return WhatsAppPopupDialog(
     child: AlertDialog(
       title: Text(title),
@@ -314,24 +317,33 @@ Future<String?> showInputDialog({
     builder: (BuildContext context) {
       final appColors = Theme.of(context).extension<AppColors>()!;
 
-      final AnimationController focusedBorderAnimationController = AnimationController(
+      final AnimationController focusedBorderAnimationController =
+          AnimationController(
         duration: const Duration(milliseconds: 700),
         vsync: vsync,
       );
 
-      final Animation<double> focusedBorderAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: focusedBorderAnimationController, curve: Curves.easeOutCubic),
+      final Animation<double> focusedBorderAnimation =
+          Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+            parent: focusedBorderAnimationController,
+            curve: Curves.easeOutCubic),
       );
 
-      final AnimationController unfocusedBorderAnimationController = AnimationController(
+      final AnimationController unfocusedBorderAnimationController =
+          AnimationController(
         duration: const Duration(milliseconds: 700),
         vsync: vsync,
       );
-      final Animation<double> unfocusedBorderanimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: unfocusedBorderAnimationController, curve: Curves.easeOutCubic),
+      final Animation<double> unfocusedBorderanimation =
+          Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+            parent: unfocusedBorderAnimationController,
+            curve: Curves.easeOutCubic),
       );
 
-      Future.delayed(Duration(milliseconds: 100), unfocusedBorderAnimationController.forward);
+      Future.delayed(Duration(milliseconds: 100),
+          unfocusedBorderAnimationController.forward);
       return WhatsAppPopupDialog(
         child: AlertDialog(
           backgroundColor: appColors.tertiaryColor.withOpacity(0.95),
@@ -346,9 +358,11 @@ Future<String?> showInputDialog({
                 focusNode: FocusNode()
                   ..addListener(() {
                     if (focusedBorderAnimationController.isCompleted) {
-                      focusedBorderAnimationController.reverse().whenComplete(unfocusedBorderAnimationController.forward);
+                      focusedBorderAnimationController.reverse().whenComplete(
+                          unfocusedBorderAnimationController.forward);
                     } else if (unfocusedBorderAnimationController.isCompleted) {
-                      unfocusedBorderAnimationController.reverse().whenComplete(focusedBorderAnimationController.forward);
+                      unfocusedBorderAnimationController.reverse().whenComplete(
+                          focusedBorderAnimationController.forward);
                     }
                   }),
                 cursorColor: appColors.primaryColor,
@@ -366,7 +380,8 @@ Future<String?> showInputDialog({
                 builder: (context, child) {
                   return CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, 2),
-                    painter: UnderlinePainter(unfocusedBorderanimation, appColors.inferiorColor),
+                    painter: UnderlinePainter(
+                        unfocusedBorderanimation, appColors.inferiorColor),
                   );
                 },
               ),
@@ -375,7 +390,8 @@ Future<String?> showInputDialog({
                 builder: (context, child) {
                   return CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, 2),
-                    painter: UnderlinePainter(focusedBorderAnimation, appColors.primaryColor),
+                    painter: UnderlinePainter(
+                        focusedBorderAnimation, appColors.primaryColor),
                   );
                 },
               ),

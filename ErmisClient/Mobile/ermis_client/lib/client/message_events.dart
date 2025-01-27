@@ -52,9 +52,9 @@ class WrittenTextEvent {
   WrittenTextEvent(this.chatSession);
 }
 
-class ServerMessageEvent {
+class ServerMessageInfoEvent {
   final String message;
-  ServerMessageEvent(this.message);
+  ServerMessageInfoEvent(this.message);
 }
 
 class FileDownloadedEvent {

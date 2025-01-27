@@ -28,7 +28,7 @@ import '../../util/database_service.dart';
 import '../../util/dialogs_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../entry/entry_interface.dart';
-import '../t.dart';
+import '../client_session_setup.dart';
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -104,17 +104,19 @@ class _AccountSettingsState extends State<AccountSettings> {
                               title: Text(account.name(), style: TextStyle(fontSize: 18)),
                               onTap: () {
                                 showLogoutConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
-                                  ServerInfo serverInfo = Client.getInstance().serverInfo;
-                                  final DBConnection conn = ErmisDB.getConnection();
-                                  List<LocalAccountInformation> userAccounts = await conn.getUserAccounts(serverInfo);
-                                  LocalAccountInformation? a;
-                                  for (LocalAccountInformation uaccount in userAccounts) {
-                                    if (uaccount.email == account.email) {
-                                      a = uaccount;
-                                    }
+                                ServerInfo serverDetails = Client.getInstance().serverInfo;
+                                final DBConnection conn = ErmisDB.getConnection();
+                                List<LocalAccountInfo> allUserAccounts = await conn.getUserAccounts(serverDetails);
+                                LocalAccountInfo? matchingAccount;
+
+                                for (LocalAccountInfo userAccount in allUserAccounts) {
+                                  if (userAccount.email == account.email) {
+                                    matchingAccount = userAccount;
                                   }
-                                  Client.getInstance().commands.switchAccount();
-                                  setupClientSession(context, a);
+                                }
+
+                                Client.getInstance().commands.switchAccount();
+                                setupClientSession(context, matchingAccount);
                                 });
                               },
                             ),

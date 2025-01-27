@@ -15,14 +15,18 @@
  */
 package github.koukobin.ermis.client.main.java.controllers.entry;
 
+import github.koukobin.ermis.client.main.java.database.ClientDatabase;
+import github.koukobin.ermis.client.main.java.database.LocalAccountInfo;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
-import github.koukobin.ermis.client.main.java.util.MemoryUtil;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
+import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
+import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import com.jfoenix.controls.JFXCheckBox;
@@ -66,7 +70,6 @@ public abstract sealed class GeneralEntryController implements Initializable per
 
 	@FXML
 	public void changePasswordVisibility(ActionEvent event) {
-
 		if (changePasswordVisibilityCheckBox.isSelected()) {
 			passwordFieldTextVisible.setText(passwordFieldTextHidden.getText());
 			passwordFieldTextHidden.setVisible(false);
@@ -87,13 +90,7 @@ public abstract sealed class GeneralEntryController implements Initializable per
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected boolean sendAndValidateCredentials(Client.Entry clientEntry, Map<? extends CredentialInterface, String> credentials) throws IOException {
-
 		clientEntry.sendCredentials(credentials);
-
-		// Clear sensitive data from memory
-		for (Map.Entry<?, String> entry : credentials.entrySet()) {
-			MemoryUtil.freeStringFromMemory(entry.getValue());
-		}
 
 		ResultHolder entryResult = clientEntry.getResult();
 		boolean isSuccessful = entryResult.isSuccessful();
@@ -105,52 +102,53 @@ public abstract sealed class GeneralEntryController implements Initializable per
 	
 		return isSuccessful;
 	}
-	
-	protected boolean performVerification() throws IOException {
-		
+
+	protected boolean performVerification(String email) throws IOException {
 		Client.VerificationEntry verificationEntry = Client.createNewVerificationEntry();
 		VerificationDialog verificationDialog = new VerificationDialog(verificationEntry);
-		ResultHolder entryResult = null;
-		
-		boolean isSuccessful = false;
-		
-		while (!verificationEntry.isVerificationComplete()) {
+		EntryResult entryResult;
 
+		boolean success = false;
+
+		while (!verificationEntry.isVerificationComplete()) {
 			verificationDialog.showAndWait();
 			verificationEntry.sendVerificationCode(verificationDialog.getVerificationCode());
 
 			entryResult = verificationEntry.getResult();
-			isSuccessful = entryResult.isSuccessful();
+			success = entryResult.isSuccessful();
 			String resultMessage = entryResult.getResultMessage();
 
-			if (isSuccessful) {
+			if (success) {
 				DialogsUtil.showSuccessDialog(resultMessage);
+				
+				String passwordHash = entryResult.getAddedInfo().get(AddedInfo.PASSWORD_HASH);
+				ClientDatabase.getDBConnection().addUserAccount(Client.getServerInfo(), new LocalAccountInfo(email, passwordHash, LocalDateTime.now()));
 				break;
 			}
 
 			DialogsUtil.showErrorDialog(resultMessage);
 		}
 
-		return isSuccessful;
+		return success;
 	}
-	
+
 	public void setFXMLLoader(FXMLLoader loader) {
 		this.originalFXMLLoader = loader;
 	}
-	
+
 	public String getEmail() {
 		return emailTextField.getText();
 	}
-	
+
 	public String getPassword() {
 		return changePasswordVisibilityCheckBox.isSelected() ? passwordFieldTextVisible.getText()
 				: passwordFieldTextHidden.getText();
 	}
-	
+
 	public EntryType getRegistrationType() {
 		return registrationType;
 	}
-	
+
 	public GeneralEntryController getController() {
 		return originalFXMLLoader.getController();
 	}
