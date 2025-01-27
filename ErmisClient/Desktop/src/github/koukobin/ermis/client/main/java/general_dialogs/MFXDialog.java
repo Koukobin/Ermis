@@ -66,7 +66,7 @@ public class MFXDialog extends MFXStageDialog {
 
 		super.setOnCloseRequest((e) -> this.close());
 		super.setContent(dialogContent);
-		super.getIcons().add(Icons.PRIMARY_APPLICATION_ICON_92);
+		super.getIcons().add(Icons.PRIMARY_APPLICATION_ICON_256);
 	}
 
 	@SafeVarargs

@@ -53,7 +53,7 @@ public class EntryInterface {
 		
 		stage = new Stage();
 		stage.setOnCloseRequest((event) -> System.exit(0));
-		stage.getIcons().add(Icons.PRIMARY_APPLICATION_ICON_92);
+		stage.getIcons().add(Icons.PRIMARY_APPLICATION_ICON_256);
 		stage.setTitle(GeneralAppInfo.TITLE);
 		stage.setResizable(false);
 		stage.setScene(scene);

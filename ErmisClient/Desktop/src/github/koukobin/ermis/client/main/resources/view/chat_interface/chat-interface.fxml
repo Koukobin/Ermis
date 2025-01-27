@@ -38,7 +38,7 @@
                      <children>
                         <ImageView fitHeight="50.0" fitWidth="66.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../icons/primary-application-icon-256.png" />
+                              <Image url="@../../icons/primary-application-icon-92.png" />
                            </image>
                            <VBox.margin>
                               <Insets top="10.0" />

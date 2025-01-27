@@ -71,7 +71,7 @@ public class StartingScreenInterface {
 
 		stage = new Stage();
 		stage.initStyle(StageStyle.TRANSPARENT); // Removes window decorations
-		stage.getIcons().add(Icons.PRIMARY_APPLICATION_ICON_92);
+		stage.getIcons().add(Icons.PRIMARY_APPLICATION_ICON_256);
 		stage.setScene(scene);
 		stage.setOpacity(1.0f);
 	}

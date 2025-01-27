@@ -181,7 +181,7 @@ public class DialogsUtil {
 	}
 	
 	private static void addPrimaryApplicationIon(Dialog<?> dialog) {
-		addIcon(dialog, Icons.PRIMARY_APPLICATION_ICON_92);
+		addIcon(dialog, Icons.PRIMARY_APPLICATION_ICON_256);
 	}
 	
 	private static void addIcon(Dialog<?> dialog, Image image) {
