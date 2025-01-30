@@ -104,9 +104,9 @@ final class LoginHandler extends EntryHandler {
 			ctx.channel().writeAndFlush(payload);
 
 			if (resultHolder.isSuccessful()) {
-				registrationSuccessful(ctx);
+				super.registrationSuccessful(ctx);
 			} else {
-				registrationFailed(ctx);
+				EntryHandler.registrationFailed(ctx);
 			}
 
 		}

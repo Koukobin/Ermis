@@ -22,28 +22,31 @@ import java.util.Map;
  *
  */
 public final class EnumIntConverter {
-	
+
 	private EnumIntConverter() {}
-	
+
 	/**
 	 * Retrieves an enum constant from a map by its ID.
 	 *
 	 * @param <T> the type of enum
 	 * @param map the map containing enum values, with the ID as the key
-	 * @param id the ID to look up
+	 * @param id  the ID to look up
 	 * @return the enum constant corresponding to the provided ID
-	 * @throws IllegalArgumentException if the ID does not exist in the map
+	 * @throws IndexOutOfBoundsException if the ID does not exist in the map (I do
+	 *                                   know why I initially chose
+	 *                                   IndexOutOfBoundsException instead of
+	 *                                   IllegalArgumentException)
 	 */
 	public static <V, T extends Enum<T>> T fromId(Map<V, T> map, int id) {
-		
 		T result = map.get(id);
 
 		if (result == null) {
-			throw new IllegalArgumentException(
+			// TODO refactor; instead of throwing IndexOutOfBoundsException to throw
+			// IllegalArgumentException
+			throw new IndexOutOfBoundsException(
 					"No enum constant with ID " + id + " exists for " + map.getClass().getTypeName());
 		}
 
 		return result;
 	}
-
 }

@@ -16,6 +16,7 @@
 package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
@@ -46,7 +47,6 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-
 		EntryType entryType = EntryType.fromId(msg.readInt());
 
 		switch (entryType) {
@@ -67,7 +67,7 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 			ctx.pipeline().replace(ctx.handler(), LoginHandler.class.getName(), new LoginHandler(clientInfo));
 			return;
 		}
-
+		
 		// Otherwise, authenticate client via email and passwordHash
 		boolean isSuccessful = false;
 		try {
@@ -80,8 +80,9 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 
 			String email = new String(emailBytes);
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				if (!conn.isLoggedIn(email, clientInfo.getInetAddress())) {
-					getLogger().debug("Client not logged in: {}", clientInfo);
+				InetAddress address = clientInfo.getInetAddress();
+				if (!conn.isLoggedIn(email, address)) {
+					getLogger().debug("IP: {}, not logged in to email: {}, in order to login via password hash", address, email);
 					return;
 				}
 

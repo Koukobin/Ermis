@@ -101,7 +101,7 @@
 	<build>
 
 		<sourceDirectory>src</sourceDirectory>
-		<finalName>ermis-server</finalName>
+		<finalName>ermis-server-${version}</finalName>
 
 		<resources>
 
@@ -145,6 +145,9 @@
 							<mainClass>${mainClass}</mainClass>
 						</manifest>
 					</archive>
+					<excludes>
+						<exclude>test/**</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 

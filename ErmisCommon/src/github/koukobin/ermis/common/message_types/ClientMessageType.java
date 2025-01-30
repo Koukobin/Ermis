@@ -33,7 +33,7 @@ public enum ClientMessageType {
 	static {
 		values = new HashMap<>(
 				Arrays.stream(ClientMessageType.values())
-				.collect(Collectors.toMap(type -> type.id, type -> type))
+				.collect(Collectors.toUnmodifiableMap(type -> type.id, type -> type))
 				);
 	}
 	

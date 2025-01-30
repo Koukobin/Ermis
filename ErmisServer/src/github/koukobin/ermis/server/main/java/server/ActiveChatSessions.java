@@ -19,8 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
+import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
  * @author Ilias Koukovinis
@@ -59,9 +60,39 @@ public class ActiveChatSessions {
 		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveMembers().remove(member);
 	}
 
-	public static void broadcastToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {
+	public static void broadcastToChatSession(ByteBuf payload, ChatSession chatSession) {
 		List<ClientInfo> members = chatSession.getActiveMembers();
 
+		assessReferenceCount(members.size(), payload);
+
+		for (int i = 0; i < members.size(); i++) {
+			EpollSocketChannel channel = members.get(i).getChannel();
+			channel.writeAndFlush(payload.duplicate());
+		}
+	}
+	
+	public static void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession, ClientInfo sender) {
+		List<ClientInfo> membersOfChatSession = chatSession.getActiveMembers();
+		
+		assessReferenceCount(membersOfChatSession.size(), payload);
+
+		for (int i = 0; i < membersOfChatSession.size(); i++) {
+			EpollSocketChannel channel = membersOfChatSession.get(i).getChannel();
+
+			if (channel.equals(sender.getChannel())) {
+				ByteBuf messageSent = channel.alloc().ioBuffer();
+				messageSent.writeInt(ServerMessageType.MESSAGE_SUCCESFULLY_SENT.id);
+				messageSent.writeInt(chatSession.getChatSessionID());
+				messageSent.writeInt(messageID);
+				channel.writeAndFlush(messageSent);
+				continue;
+			}
+
+			channel.writeAndFlush(payload.duplicate());
+		}
+	}
+
+	private static void assessReferenceCount(int numberOfSends, ByteBuf payload) {
 		/*
 		 * Increase reference count by the amount of clients that this message is gonna
 		 * be sent to.
@@ -76,13 +107,8 @@ public class ActiveChatSessions {
 		 * Note: We cannot directly use (membersOfChatSession.size() - 1) because it
 		 * would throw an IllegalArgumentException if the size is 0.
 		 */
-		payload.retain(members.size());
+		payload.retain(numberOfSends);
 		payload.release();
-
-		for (int i = 0; i < members.size(); i++) {
-			Channel channel = members.get(i).getChannel();
-			channel.writeAndFlush(payload.duplicate());
-		}
 	}
 
 }

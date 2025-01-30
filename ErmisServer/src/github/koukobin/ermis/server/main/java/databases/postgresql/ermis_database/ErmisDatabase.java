@@ -52,6 +52,7 @@ import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.common.util.FileUtils;
+import github.koukobin.ermis.server.main.java.WhatTheFuckIsGoingOnException;
 import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.Database;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.PostgreSQLDatabase;
@@ -376,7 +377,7 @@ public final class ErmisDatabase {
 			int resultUpdate = 0;
 
 			// Verify that the entered email is associated with the provided client ID
-			int associatedClientID = getClientID(enteredEmail);
+			int associatedClientID = getClientID(enteredEmail).orElseThrow();
 			if (associatedClientID != clientID) {
 				return resultUpdate;
 			}
@@ -499,7 +500,7 @@ public final class ErmisDatabase {
 		}
 
 		public Insert insertUserIp(String email, UserDeviceInfo deviceInfo) {
-			return insertUserIp(getClientID(email), deviceInfo);
+			return insertUserIp(getClientID(email).orElseThrow(), deviceInfo);
 		}
 		
 		public Insert insertUserIp(int clientID, UserDeviceInfo deviceInfo) {
@@ -547,7 +548,6 @@ public final class ErmisDatabase {
 		}
 		
 		public ResultHolder changePassword(String emailAddress, String newPassword) {
-
 			if (!passwordComplexityChecker.estimate(newPassword)) {
 				return passwordComplexityChecker.getResultWhenUnsuccesfull();
 			}
@@ -573,11 +573,8 @@ public final class ErmisDatabase {
 
 			return ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD.resultHolder;
 		}
-		
-		public String getUsername(int clientID) {
 
-			String username = null;
-
+		public Optional<String> getUsername(int clientID) {
 			try (PreparedStatement pstmt = conn
 					.prepareStatement("SELECT display_name FROM user_profiles WHERE client_id=?;")) {
 
@@ -585,17 +582,16 @@ public final class ErmisDatabase {
 				ResultSet rs = pstmt.executeQuery();
 
 				if (rs.next()) {
-					username = rs.getString(1);
+					return Optional.of(rs.getString(1));
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return username;
+			return Optional.empty();
 		}
 
 		public String getPasswordHash(String email) {
-
 			String passwordHash = null;
 
 			try (PreparedStatement pstmt = conn.prepareStatement("SELECT password_hash FROM users WHERE email=?")) {
@@ -768,23 +764,20 @@ public final class ErmisDatabase {
 			return numberOfBackupVerificationCodesLeft;
 		}
 
-		public int getClientID(String email) {
-
-			int clientID = -1;
-
+		public Optional<Integer> getClientID(String email) {
 			try (PreparedStatement pstmt = conn.prepareStatement("SELECT client_id FROM users WHERE email=?;")) {
 
 				pstmt.setString(1, email);
 				ResultSet rs = pstmt.executeQuery();
 
 				if (rs.next()) {
-					clientID = rs.getInt(1);
+					return Optional.of(rs.getInt(1));
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return clientID;
+			return Optional.empty();
 		}
 
 		public UserDeviceInfo[] getUserIPS(int clientID) {
@@ -1229,7 +1222,6 @@ public final class ErmisDatabase {
 		}
 
 		public boolean isLoggedIn(String email, InetAddress address) {
-
 			boolean isLoggedIn = false;
 
 			String query = """
@@ -1316,33 +1308,29 @@ public final class ErmisDatabase {
 
 		public Optional<byte[]> selectUserIcon(int clientID) {
 
-			String iconID = null;
-			byte[] icon = null;
-
 			String sql = "SELECT profile_photo_id FROM user_profiles WHERE client_id = ?;";
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 				pstmt.setInt(1, clientID);
 
-				ResultSet rs = pstmt.executeQuery();
+				try (ResultSet rs = pstmt.executeQuery()) {
+					if (rs.next()) {
+						String iconID = rs.getString(1);
+						if (iconID == null) {
+							return Optional.of(EmptyArrays.EMPTY_BYTE_ARRAY);
+						}
 
-				if (rs.next()) {
-					iconID = rs.getString(1);
+						byte[] icon = FilesStorage.loadProfilePhoto(iconID);
+						return Optional.ofNullable(icon).or(() -> Optional.of(EmptyArrays.EMPTY_BYTE_ARRAY));
+					}
 				}
 			} catch (SQLException sqle) {
-				logger.error(Throwables.getStackTraceAsString(sqle));
-			}
-
-			if (iconID == null) {
-				return Optional.empty();
-			}
-
-			try {
-				icon = FilesStorage.loadProfilePhoto(iconID);
+				logger.error("Error while trying to retrieve profile photo id from database", sqle); // Shouldn't happen
 			} catch (IOException ioe) {
 				logger.error("An error occured while trying to retrieve profile photo file", ioe);
+				return Optional.of(EmptyArrays.EMPTY_BYTE_ARRAY);
 			}
 
-			return Optional.ofNullable(icon);
+			return Optional.empty();
 		}
 
 		public Optional<LoadedInMemoryFile> getFile(int messageID, int chatSessionID) {
@@ -1421,7 +1409,7 @@ public final class ErmisDatabase {
 					String username = clientIDSToUsernames.get(clientID);
 
 					if (username == null) {
-						username = getUsername(clientID);
+						username = getUsername(clientID).orElse("null");
 						clientIDSToUsernames.put(clientID, username);
 					}
 

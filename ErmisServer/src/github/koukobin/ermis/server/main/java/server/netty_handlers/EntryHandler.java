@@ -89,10 +89,10 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 		// If a message handler already exists, simply remove this handler instead of
 		// replacing with new one. This predicament would occur, in an instance, when a
 		// client, already authenticated, attempts to add a new account while logged in.
-		if (ctx.pipeline().get(MessageHandler.class) != null) {
-			ctx.pipeline().remove(ctx.handler());
-			return;
-		}
+//		if (ctx.pipeline().get(MessageHandler.class) != null) {
+//			ctx.pipeline().remove(ctx.handler());
+//			return;
+//		}
 		ctx.pipeline().replace(ctx.handler(), StartingEntryHandler.class.getName(), new StartingEntryHandler());
 	}
 }

@@ -303,9 +303,17 @@ class MessageHandler {
           break;
         case ClientCommandResultType.deleteChatMessage:
           int chatSessionID = msg.readInt32();
-          int messageID = msg.readInt32();
+          while (msg.readableBytes > 0) {
+            int messageID = msg.readInt32();
+            bool success = msg.readBoolean();
 
-          eventBus.fire(MessageDeletedEvent(_chatSessionIDSToChatSessions[chatSessionID]!, messageID));
+            if (!success) {
+              eventBus.fire(MessageDeletionUnsuccessfulEvent());
+              continue;
+            }
+
+            eventBus.fire(MessageDeletedEvent(_chatSessionIDSToChatSessions[chatSessionID]!, messageID));
+          }
           break;
         case ClientCommandResultType.fetchAccountIcon:
           _profilePhoto = msg.readBytes(msg.readableBytes);
@@ -611,6 +619,17 @@ class Commands {
     payload.writeInt(ClientCommandType.deleteChatMessage.id);
     payload.writeInt(chatSessionIndex);
     payload.writeInt(messageID);
+
+    out.write(payload);
+  }
+  void deleteMessages(int chatSessionIndex, [List<int> otherMessageIDs = const []]) {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt(ClientMessageType.command.id);
+    payload.writeInt(ClientCommandType.deleteChatMessage.id);
+    payload.writeInt(chatSessionIndex);
+    for (int i = 0; i < otherMessageIDs.length; i++) {
+      payload.writeInt(otherMessageIDs[i]);
+    }
 
     out.write(payload);
   }

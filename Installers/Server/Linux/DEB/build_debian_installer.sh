@@ -13,7 +13,7 @@ TARGET_JAR="$SOURCE_FOLDER/target/ErmisServer.jar"
 LIB_FOLDER="$SOURCE_FOLDER/target/lib"
 DOC_FILES=("README.md" "LICENSE" "NOTICE")
 
-INSTALL_FOLDER="Ermis-Server-installer/srv/Ermis-Server"
+INSTALL_FOLDER="ermis-server-installer/opt/ermis-server"
 BIN="$INSTALL_FOLDER/bin"
 
 # Create necessary directories

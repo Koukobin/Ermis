@@ -67,10 +67,9 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		
 		ClientCommandType commandType = ClientCommandType.fromId(msg.readInt());
 		getLogger().debug(commandType);
-		
+
 		switch (commandType.getCommandLevel()) {
 		case HEAVY -> {
 			msg.retain(); // increase reference count by 1 for executeCommand since autoRelease is true
@@ -92,14 +91,13 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 	private void executeCommand(ClientCommandType commandType, ByteBuf args) {
 		executeCommand(clientInfo, commandType, args);
 	}
-	
+
 	/**
 	 * This method can be used by the client to execute various commands, such as to
 	 * change his username or to get his clientID
 	 * 
 	 */
 	private static void executeCommand(ClientInfo clientInfo, ClientCommandType commandType, ByteBuf args) {
-		
 		EpollSocketChannel channel = clientInfo.getChannel();
 		
 		switch (commandType) {
@@ -321,28 +319,63 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
 			}
 
-			int messageID = args.readInt();
+			final int messagesAmount = args.readableBytes() / Integer.BYTES;
 
-			boolean success;
+			if (messagesAmount == 0) {
+				break;
+			}
+
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+			payload.writeInt(ClientCommandResultType.DELETE_CHAT_MESSAGE.id);
+			payload.writeInt(chatSessionID);
+
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				success = conn.deleteChatMessage(chatSessionID, messageID);
+				for (int i = 0; i < messagesAmount; i++) {
+					int messagesID = args.readInt();
+					boolean success = conn.deleteChatMessage(chatSessionID, messagesID);
+					payload.writeInt(messagesID);
+					payload.writeBoolean(success);
+				}
 			}
 
-			if (success) {
-				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-				payload.writeInt(ClientCommandResultType.DELETE_CHAT_MESSAGE.id);
-				payload.writeInt(chatSessionID);
-				payload.writeInt(messageID);
-				
-				ActiveChatSessions.broadcastToChatSession(payload, messageID, ActiveChatSessions.getChatSession(chatSessionID));
-			} else {
-				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
-				payload.writeBytes("An error occured while trying to delete chat message".getBytes());
-				channel.writeAndFlush(payload);
-			}
-			
+			/**
+			 * 
+			 * Alternative approach:
+			 * 
+			 * The following approach is perhaps more efficient from certain aspects but
+			 * still unsure. Specifically, it is more efficient in terms of database
+			 * connection usage (releasing connection sooner), but, on the other hand, it
+			 * requires more memory for storing results in arrays before transmitting.
+			 * 
+			 * <pre>
+			 * int[] messages = new int[messagesAmount];
+			 * boolean[] success = new boolean[messagesAmount];
+			 * 
+			 * // Process deletions first, release DB connection ASAP try
+			 * try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+			 * 	for (int i = 0; i < messagesAmount; i++) {
+			 * 		messages[i] = args.readInt();
+			 * 		success[i] = conn.deleteChatMessage(chatSessionID, messages[i]);
+			 * 	}
+			 * }
+			 * // Connection is now freed
+			 * 
+			 * // Allocate buffer only after DB connection is released
+			 * ByteBuf payload = channel.alloc().ioBuffer();
+			 * payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+			 * payload.writeInt(ClientCommandResultType.DELETE_CHAT_MESSAGE.id);
+			 * payload.writeInt(chatSessionID);
+			 * 
+			 * for (int i = 0; i < messagesAmount; i++) {
+			 * 	payload.writeInt(messages[i]);
+			 * 	payload.writeBoolean(success[i]);
+			 * }
+			 * </pre>
+			 * 
+			 */
+
+			ActiveChatSessions.broadcastToChatSession(payload, ActiveChatSessions.getChatSession(chatSessionID));
 		}
 		case LOGOUT_THIS_DEVICE -> {
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
@@ -622,7 +655,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 							byte[] iconBytes = conn.selectUserIcon(clientID).orElse(EmptyArrays.EMPTY_BYTE_ARRAY);
 
 							if (member == null) {
-								usernameBytes = conn.getUsername(clientID).getBytes();
+								usernameBytes = conn.getUsername(clientID).orElse("null").getBytes();
 								isActive = false;
 							} else {
 								ClientInfo random = member.get(0);

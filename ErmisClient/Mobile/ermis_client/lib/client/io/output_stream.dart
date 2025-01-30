@@ -30,7 +30,6 @@ class ByteBufOutputStream {
 
   void write(ByteBuf msg) async {
     int msgLength = msg.readableBytes;
-
     Uint8List msgBytes = msg.readBytes(msgLength);
 
     if (msgLength > 262144) {

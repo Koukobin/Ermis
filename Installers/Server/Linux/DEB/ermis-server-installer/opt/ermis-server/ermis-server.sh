@@ -1,5 +1,13 @@
 #!/bin/sh
-ERMIS_SERVER="$(dirname "$0")/bin/ermis-server-1.0.0-rc1.jar"
+
+ERMIS_SERVER_JAR_FILE=$(find bin -maxdepth 1 -name "*.jar" -print -quit)
+
+# Check if a JAR file was found
+if [ -z "$ERMIS_SERVER_JAR_FILE" ]; then
+  echo "No JAR file found in the directory!"
+  exit 1
+fi
+
 VM_ARGUMENTS="
 -Djava.security.egd=file:/dev/./urandom 
 -server 
@@ -12,8 +20,8 @@ VM_ARGUMENTS="
 PROGRAM_ARGUMENTS=""
 
 if [ -n "$JAVA_HOME" ]; then
-  sudo $JAVA_HOME/bin/java -jar $VM_ARGUMENTS $ERMIS_SERVER $PROGRAM_ARGUMENTS
+  sudo $JAVA_HOME/bin/java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
 else
-  sudo java -jar $VM_ARGUMENTS $ERMIS_SERVER $PROGRAM_ARGUMENTS
+  sudo java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
 fi
 

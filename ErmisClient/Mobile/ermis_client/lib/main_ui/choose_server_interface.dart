@@ -166,8 +166,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
 
                     final DBConnection conn = ErmisDB.getConnection();
                     conn.updateServerUrlLastUsed(ServerInfo(url));
-                    LocalAccountInfo? userInfo =
-                        await conn.getLastUsedAccount(ServerInfo(url));
+                    LocalAccountInfo? userInfo = await conn.getLastUsedAccount(ServerInfo(url));
                     if (kDebugMode) {
                       debugPrint(userInfo?.email);
                       debugPrint(userInfo?.passwordHash);

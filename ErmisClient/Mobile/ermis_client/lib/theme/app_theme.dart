@@ -137,15 +137,15 @@ class AppThemeState extends State<AppTheme> {
           color: Colors.white,
           fontSize: 16,
         ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color.fromARGB(195, 19, 19, 19),
-        contentTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 16,
         ),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: const Color.fromARGB(195, 10, 10, 10), width: 1.25),
+        snackBarTheme: SnackBarThemeData(
+          backgroundColor: const Color(0xFF333333),
+          contentTextStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+          shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Color.fromARGB(195, 10, 10, 10), width: 1.25),
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 1,

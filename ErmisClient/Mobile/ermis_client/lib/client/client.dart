@@ -89,8 +89,6 @@ class Client {
       _messageHandler.setSocket(_sslSocket!);
       _messageHandler.setByteBufInputStream(_inputStream!);
       _messageHandler.setByteBufOutputStream(_outputStream!);
-
-      _outputStream!.write(ByteBuf.empty()); // Denotes connection
     } on HandshakeException {
       if (scv == ServerCertificateVerification.verify) {
         throw HandshakeException("Could not verify server certificate");
@@ -205,7 +203,7 @@ class Entry<T extends CredentialInterface> {
   }
 
   Future<void> sendCredentials(Map<T, String> credentials) async {
-    for (var credential in credentials.entries) {
+    for (final MapEntry<T,String> credential in credentials.entries) {
       bool isAction = false;
       int credentialInt = credential.key.id;
       String credentialValue = credential.value;

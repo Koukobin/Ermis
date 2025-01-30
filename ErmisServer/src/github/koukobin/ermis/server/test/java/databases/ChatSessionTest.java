@@ -47,13 +47,13 @@ public class ChatSessionTest {
 
 	@Test
 	void testCreateChatSessionSuccess() throws Exception {
-		int result = conn.sendChatRequest(1, 2);
+		boolean result = conn.sendChatRequest(1, 2);
 		
-		assert result == 1;
+		assert result;
 		
 		result = conn.sendChatRequest(1, 2);
 		
-		assert result == 0;
+		assert !result;
     }
 
     @Test

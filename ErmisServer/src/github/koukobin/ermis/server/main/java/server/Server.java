@@ -40,19 +40,13 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.base.Throwables;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
@@ -65,7 +59,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
-import io.netty.util.CharsetUtil;
+import io.netty.util.ResourceLeakDetector;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
 
@@ -135,6 +129,7 @@ public final class Server {
 			// If server isn't production ready we add a logging handler for more detailed logging
 			if (!ServerSettings.IS_PRODUCTION_READY) {
 				bootstrapTCP.handler(new LoggingHandler(LogLevel.INFO));
+				ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 			}
 
 			serverSocketChannel = (EpollServerSocketChannel) bootstrapTCP.bind().sync().channel();
@@ -196,13 +191,7 @@ public final class Server {
 			engine.setUseClientMode(false);
 			pipeline.addLast("ssl", new SslHandler(engine));
 
-			// Add protocol detector (a custom handler to detect HTTP or custom protocol)
-			if (ServerSettings.IS_PRODUCTION_READY) {
-				addNormalPipeline(pipeline);
-				return;
-			}
-			
-			pipeline.addLast("protocolDetector", new ProtocolDetectorHandler());
+			addNormalPipeline(pipeline);
 		}
 
 		private static void addNormalPipeline(ChannelPipeline pipeline) {
@@ -215,40 +204,6 @@ public final class Server {
 			pipeline.addLast(DispatcherHandler.class.getName(), new DispatcherHandler());
 			pipeline.addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 		}
-
-		private static class ProtocolDetectorHandler extends ChannelInboundHandlerAdapter {
-			@Override
-			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-				try {
-					ByteBuf byteBuf = (ByteBuf) msg;
-					String message = byteBuf.toString(CharsetUtil.UTF_8);
-
-					// Simple detection of HTTP request (e.g., starts with "GET" or "POST")
-					if (message.startsWith("GET") || message.startsWith("POST")) {
-						// If it's HTTP, pass it to the HTTP pipeline
-						ctx.pipeline().addLast("httpDecoder", new HttpRequestDecoder());
-						ctx.pipeline().addLast("httpAggregator", new HttpObjectAggregator(1048576));
-						ctx.pipeline().addLast("httpEncoder", new HttpResponseEncoder());
-
-						// Handlers
-						ctx.pipeline().addLast("httpHandler", new HttpStaticFileServerHandler());
-
-						ctx.fireChannelRead(msg);
-						return;
-					}
-
-					addNormalPipeline(ctx.pipeline());
-				} finally {
-					ctx.pipeline().remove(this);
-				}
-			}
-
-			@Override
-			public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-				LOGGER.debug(Throwables.getStackTraceAsString(cause));
-			}
-		}
-
 	}
 
 	public static void stop() {

@@ -56,7 +56,6 @@ final class CreateAccountHandler extends EntryHandler {
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
-		
 		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeInt(DatabaseSettings.Client.Username.REQUIREMENTS.getMaxLength());
 		payload.writeInt(DatabaseSettings.Client.Username.REQUIREMENTS.getInvalidCharacters().length());
@@ -125,9 +124,9 @@ final class CreateAccountHandler extends EntryHandler {
 			ctx.channel().writeAndFlush(payload);
 			
 			if (resultHolder.isSuccessful()) {
-				registrationSuccessful(ctx);
+				super.registrationSuccessful(ctx);
 			} else {
-				registrationFailed(ctx);
+				EntryHandler.registrationFailed(ctx);
 			}
 		}
 	}

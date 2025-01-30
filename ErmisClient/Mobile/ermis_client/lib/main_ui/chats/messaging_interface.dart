@@ -75,7 +75,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
   final ScrollController _scrollController = ScrollController();
 
   bool _isEditingMessage = false;
-  late Message _messageBeingEdited;
+  final Set<Message> _messagesBeingEdited = {};
   final List<Message> pendingMessagesQueue = [];
 
   @override
@@ -92,7 +92,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
 
     _chatSessionIndex = widget.chatSessionIndex;
     _chatSession = widget.chatSession;
-    print("set $_chatSessionIndex");
 
     // Fetch cached messages or load from the server
     if (!_chatSession.haveChatMessagesBeenCached) {
@@ -206,22 +205,23 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       _updateImageMessage(event.file, event.messageID);
     });
 
+    AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>().listen((event) {
+      showToastDialog("Message deletion was unsuccessful");
+    });
+
     AppEventBus.instance.on<MessageDeletedEvent>().listen((event) async {
       ChatSession session = event.chatSession;
       int messageID = event.messageId;
-      for (var i = 0; i < session.getMessages.length; i++) {
-        if (session.getMessages[i].messageID == messageID) {
-          _chatSession.getMessages.removeAt(i); // Remove given message id
-          if (session.chatSessionID == _chatSession.chatSessionID) {
-            if (!mounted) return;
-            setState(() {
-              _messages.removeAt(i);
-            });
-          }
 
-          break;
-        }
+      // If mounted, remove message from session and call rebuild
+      if (session.chatSessionID == _chatSession.chatSessionID && mounted) {
+        setState(() {
+          _messagesBeingEdited.removeWhere((Message message) => message.messageID == messageID);
+        });
+        return;
       }
+      // Else, simply remove message from session
+      _messages.removeWhere((Message message) => message.messageID == messageID);
     });
 
     AppEventBus.instance.on<MessageSentEvent>().listen((event) async {
@@ -229,13 +229,10 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       ChatSession session = event.session;
       int messageID = event.messageID;
 
-      session.getMessages.add(pendingMessagesQueue.last
-        ..setIsSent(true)
-        ..setMessageID(messageID));
       if (session.chatSessionID == _chatSession.chatSessionID) {
         Future.delayed(Duration(milliseconds: 100), () {
           setState(() {
-            _messages.last.setIsSent(true);
+            _messages.last..setIsSent(true)..setMessageID(messageID);
           });
         });
       }
@@ -430,12 +427,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
                   onLongPress: () {
                     setState(() {
                       _isEditingMessage = true;
-                      _messageBeingEdited = message;
+                      if (!_messagesBeingEdited.add(message)) {
+                        _messagesBeingEdited.remove(message);
+                      }
                     });
                   },
                   child: Container(
                       decoration: _isEditingMessage &&
-                              message == _messageBeingEdited
+                              _messagesBeingEdited.contains(message)
                           ? BoxDecoration(
                               color: appColors.secondaryColor.withOpacity(0.4),
                               borderRadius: BorderRadius.circular(10),
@@ -454,57 +453,63 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
 
   AppBar _buildEditMessageAppBar(AppColors appColors) {
     return AppBar(
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: appColors.inferiorColor),
-        onPressed: () {
-          setState(() {
-            _isEditingMessage = false;
-          });
-        },
-      ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+      leading: Row(
         children: [
           IconButton(
+            icon: Icon(Icons.arrow_back, color: appColors.inferiorColor),
+            onPressed: () {
+              setState(() {
+                _isEditingMessage = false;
+                _messagesBeingEdited.clear();
+              });
+            },
+          ),
+        ],
+      ),
+      title: Row(
+        children: [
+          Text("${_messagesBeingEdited.length}"),
+        ],
+      ),
+      actions: [
+        if (_messagesBeingEdited.length == 1) ...[
+          IconButton(
               onPressed: () {
+                Message message = _messagesBeingEdited.single;
+
                 String data;
-                switch (_messageBeingEdited.contentType) {
+                switch (message.contentType) {
                   case MessageContentType.text:
-                    data = _messageBeingEdited.text;
+                    data = message.text;
                     break;
                   case MessageContentType.file || MessageContentType.image:
-                    data = _messageBeingEdited.fileName;
+                    data = message.fileName;
                     break;
                 }
-                // if (data == null) {
-                //   showSnackBarDialog(
-                //       context: context,
-                //       content:
-                //           "An error occured while trying to copy message to clipboard");
-                //   return;
-                // }
 
                 Clipboard.setData(ClipboardData(text: data));
                 showSnackBarDialog(
                     context: context, content: "Message copied to clipboard");
                 setState(() {
                   _isEditingMessage = false;
+                  _messagesBeingEdited.clear();
                 });
               },
               icon: Icon(Icons.copy)),
-          IconButton(
-              onPressed: () {
-                Client.getInstance().commands.deleteMessage(
-                    _chatSessionIndex, _messageBeingEdited.messageID);
-                showSnackBarDialog(
-                    context: context, content: "Message deleted");
-                setState(() {
-                  _isEditingMessage = false;
-                });
-              },
-              icon: Icon(Icons.delete_outline)),
         ],
-      ),
+        IconButton(
+            onPressed: () {
+              List<int> messageIDs = _messagesBeingEdited.map((Message message) => message.messageID).toList();
+              Client.getInstance().commands.deleteMessages(_chatSessionIndex, messageIDs);
+              showSnackBarDialog(context: context, content: "Attempting to delete message");
+              setState(() {
+                _isEditingMessage = false;
+                _messagesBeingEdited.clear();
+              });
+            },
+            icon: Icon(Icons.delete_outline)),
+        const SizedBox(width: 15),
+      ],
       bottom: DividerBottom(dividerColor: appColors.inferiorColor),
     );
   }

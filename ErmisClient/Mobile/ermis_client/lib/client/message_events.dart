@@ -119,6 +119,10 @@ class StartVoiceCallResultEvent {
   StartVoiceCallResultEvent(this.key, this.udpServerPort);
 }
 
+class MessageDeletionUnsuccessfulEvent {
+  MessageDeletionUnsuccessfulEvent();
+}
+
 class MessageDeletedEvent {
   final ChatSession chatSession;
   final int messageId;

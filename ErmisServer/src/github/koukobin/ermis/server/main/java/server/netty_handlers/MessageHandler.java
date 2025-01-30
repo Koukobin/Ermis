@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
+import github.koukobin.ermis.server.main.java.WhatTheFuckIsGoingOnException;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.DatabaseChatMessage;
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
@@ -68,14 +69,21 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 			int clientID = clientInfo.getClientID();
 
-			clientID = conn.getClientID(email);
+			clientID = conn.getClientID(email).orElseThrow();
 			clientInfo.setClientID(clientID);
 
 			String username = clientInfo.getUsername();
 
 			if (username == null) {
-				username = conn.getUsername(clientID);
+				username = conn.getUsername(clientID).orElseThrow(() -> {
+					throw new WhatTheFuckIsGoingOnException("Username should not be null in this case");
+				});
 				clientInfo.setUsername(username);
+//				conn.getUsername(clientID).ifPresentOrElse((String username0) -> {
+//					clientInfo.setUsername(username0);
+//				}, () -> {
+//					throw new WhatTheFuckIsGoingOnException("Username should not be null in this case");
+//				});
 			}
 
 			Integer[] chatSessionsIDS = conn.getChatSessionsUserBelongsTo(clientID);
@@ -118,7 +126,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 		}
 
 		ActiveClients.addClient(clientInfo);
-		
+
 		latch.countDown(); // Signal that handlerAdded is complete
 	}
 
@@ -145,8 +153,8 @@ final class MessageHandler extends AbstractChannelClientHandler {
 		ClientContentType contentType = ClientContentType.fromId(msg.readInt());
 		ChatSession chatSession;
 		try {
-			int indexOfChatSession = msg.readInt();
-			chatSession = clientInfo.getChatSessions().get(indexOfChatSession);
+			int chatSessionIndex = msg.readInt();
+			chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
 		} catch (IndexOutOfBoundsException ioobe) {
 			getLogger().debug("Chat session index does not exist:", ioobe);
 			MessageByteBufCreator.sendMessageInfo(ctx, "Chat session selected doesn't exist. (May have been deleted by the other user)");
@@ -217,7 +225,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 	}
 
 	private void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {
-		ActiveClients.broadcastMessageToChatSession(payload, messageID, chatSession, clientInfo);
+		ActiveChatSessions.broadcastMessageToChatSession(payload, messageID, chatSession, clientInfo);
 	}
 
 }
