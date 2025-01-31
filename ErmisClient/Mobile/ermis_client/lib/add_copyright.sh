@@ -22,17 +22,7 @@ add_header() {
   local file="$1"
   
   # Check if the file already contains the copyright header
-  if grep -q "Copyright (C) 2024 Ilias Koukovinis" "$file"; then
-    echo "Skipping: $file (header already exists)"
-    return
-  fi
-
-  if grep -q "Copyright (C) 2023 Ilias Koukovinis" "$file"; then
-    echo "Skipping: $file (header already exists)"
-    return
-  fi
-
-  if grep -q "Copyright (C) 2025 Ilias Koukovinis" "$file"; then
+  if grep -q "Copyright (C)" "$file"; then
     echo "Skipping: $file (header already exists)"
     return
   fi
