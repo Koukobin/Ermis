@@ -738,7 +738,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 //				payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
 				channel.writeAndFlush(payload);
 			}
-			
+
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
 			payload.writeInt(ServerSettings.UDP_PORT);

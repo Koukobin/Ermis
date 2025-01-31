@@ -1,70 +1,100 @@
-<!-- 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="refresh" content="0; url=http://example.com/" />
-    <title>Redirecting...</title> <!-- Optional title -->
-    <!-- You can redirect users to your donation website here -->
-<!-- </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Ermis</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        .container2 {
+            display: flex;
+            max-width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            color: green;
+        }
+        hr {
+            border: 1px solid #333;
+        }
+        .crypto {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            text-align: center;
+        }
+        #paypal-button-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
 <body>
-    <p>If you are not redirected, <a href="http://example.com/">click here</a>.</p>
+    <div class="container">
+        <div class="container2"> 
+            <h1>Support Ermis</h1>
+            <img
+                src="https://SERVER_ADDRESS/server_logo.svg"
+                width="52"
+                height="52"s
+            />
+        </div>
+        <p>Your support helps keep Ermis secure and running.</p>
+        <hr>
+        <div class="crypto">
+            <p><strong>Bitcoin:</strong> [Your BTC Address]</p>
+            <p><strong>Monero:</strong> [Your XMR Address]</p>
+        </div>
+        <hr>
+        <p>Donate via PayPal:</p>
+        <input type="number" min="0" id="amount" placeholder="Enter amount (USD)">
+        <div id="paypal-button-container"></div>
+    </div>
+
+    <script>
+        const element = document.getElementById('amount');
+
+        paypal.Buttons({
+            createOrder: (data, actions) => {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: element.value || '5' // Default to $5 if no input
+                        }
+                    }]
+                });
+            },
+            onApprove: (data, actions) => {
+                return actions.order.capture().then(orderData => {
+                    const transaction = orderData.purchase_units[0].payments.captures[0];
+                    alert(`Transaction ${transaction.status}: ${transaction.id}\n\nThank you for your support!`);
+                });
+            }
+        }).render('#paypal-button-container');
+    </script>
 </body>
 </html>
--->
 
-<!DOCTYPE html>
-<html>
-  <head>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-   
-    <!-- Replace "test" with your own sandbox Business account app client ID -->
-    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
-    <!-- Set up a container element for the button -->
-   
-    <div style="text-align:center">
-    <p>BITCOIN: ---------</p>
-    <p>MANARO: ---------</p>
-    <hr style="width: 760px;">
-    <input type="number" id="amount" style="width: 740px;">
-    </div>
-
-    <div id="paypal-button-container" style="
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;">
-    </div>
-
-    <script type="text/javascript">
-
-    const element = document.getElementById('amount')
-
-    paypal.Buttons({
-      // Sets up the transaction when a payment button is clicked
-      createOrder: (data, actions) => {
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: element.value
-            }
-          }]
-        });
-      },
-      // Finalize the transaction after payer approval
-      onApprove: (data, actions) => {
-        return actions.order.capture().then(function(orderData) {
-          // Successful capture! For dev/demo purposes:
-          console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-          const transaction = orderData.purchase_units[0].payments.captures[0];
-          alert(`Transaction ${transaction.status}: ${transaction.id}\n\nSee console for all available details`);
-
-          alert("Thank you for your payment!")
-        });
-      }
-    }).render('#paypal-button-container');
-
-    </script>
-
-  </head>
-</html>
