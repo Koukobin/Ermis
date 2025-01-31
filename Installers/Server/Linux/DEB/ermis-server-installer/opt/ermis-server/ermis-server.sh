@@ -1,5 +1,8 @@
 #!/bin/sh
 
+sudo ./apply_server_settings.pl
+
+# Attempt to find server JAR file
 ERMIS_SERVER_JAR_FILE=$(find bin -maxdepth 1 -name "*.jar" -print -quit)
 
 # Check if a JAR file was found
