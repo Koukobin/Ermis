@@ -195,7 +195,7 @@ public abstract class MessageHandler implements AutoCloseable {
 
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.COMMAND.id);
-			payload.writeInt(ClientCommandType.REQUEST_DONATION_PAGE.id);
+			payload.writeInt(ClientCommandType.REQUEST_DONATION_PAGE_URL.id);
 			
 			out.write(payload);
 		}
@@ -204,7 +204,7 @@ public abstract class MessageHandler implements AutoCloseable {
 			
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.COMMAND.id);
-			payload.writeInt(ClientCommandType.REQUEST_SOURCE_CODE_PAGE.id);
+			payload.writeInt(ClientCommandType.REQUEST_SOURCE_CODE_PAGE_URL.id);
 			
 			out.write(payload);
 		}

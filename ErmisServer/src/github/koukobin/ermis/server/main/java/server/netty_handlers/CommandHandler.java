@@ -757,17 +757,15 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			getLogger().debug("Voice chat added");
 		}
-		case REQUEST_DONATION_PAGE -> {
+		case REQUEST_DONATION_PAGE_URL -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.GET_DONATION_PAGE.id);
-			payload.writeInt(ServerSettings.Donations.HTML_PAGE.length());
-			payload.writeBytes(ServerSettings.Donations.HTML_PAGE.getBytes());
-			payload.writeBytes(ServerSettings.Donations.HTML_FILE_NAME.getBytes());
+			payload.writeBytes(ServerSettings.Donations.DONATION_HTML_PAGE_URL.getBytes());
 
 			channel.writeAndFlush(payload);
 		}
-		case REQUEST_SOURCE_CODE_PAGE -> {
+		case REQUEST_SOURCE_CODE_PAGE_URL -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.GET_SOURCE_CODE_PAGE.id);

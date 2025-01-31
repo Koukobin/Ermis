@@ -29,6 +29,7 @@ import github.koukobin.ermis.client.main.java.util.SystemUtils;
  */
 public final class GeneralAppInfo {
 
+	
 	public static final String GENERAL_NAME = "Ermis";
 	public static final String TITLE = GENERAL_NAME + "-Client";
 

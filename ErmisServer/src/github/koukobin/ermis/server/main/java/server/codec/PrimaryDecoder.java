@@ -15,8 +15,6 @@
  */
 package github.koukobin.ermis.server.main.java.server.codec;
 
-import java.nio.charset.StandardCharsets;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +27,6 @@ import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.util.CompressionDetector;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import net.jpountz.lz4.LZ4DecompressorWithLength;
 import net.jpountz.lz4.LZ4Factory;
@@ -55,7 +52,6 @@ public final class PrimaryDecoder extends Decoder {
 				LOGGER.debug("Message not compressed (or compression algorithm is not supported)");
 			}
 		} catch (Exception e) {
-			System.out.println("bullshit0");
 			byte[] fuck = new byte[length];
 			in.readBytes(fuck);
 			LOGGER.debug("{} thrown for message {}; details: {}",
@@ -70,7 +66,7 @@ public final class PrimaryDecoder extends Decoder {
 		try {
 			messageType = ClientMessageType.fromId(in.readInt());
 		} catch (IndexOutOfBoundsException iobe) {
-			System.out.println("bullshit");
+			System.out.println("BOOBS");
 			byte[] fuck = new byte[length];
 			in.readBytes(fuck);
 			LOGGER.debug("{} thrown for message \"{}\"; details: {}",

@@ -7,7 +7,7 @@ port= ------
 backlog= ------
 
 # in millis (1 min = 60,000)
-connectTimeoutMillis=90000
+connectTimeoutMillis=30000
 
 # the amount of threads that are gonna handle clients
 workerThreads=5

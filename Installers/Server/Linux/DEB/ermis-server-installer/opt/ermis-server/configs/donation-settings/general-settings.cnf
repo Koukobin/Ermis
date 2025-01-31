@@ -1,0 +1,5 @@
+paypal-link= ------
+bitcon= ------
+monero= ------
+
+Note that you can also directly modify the donation html page at /var/ermis-server/www/

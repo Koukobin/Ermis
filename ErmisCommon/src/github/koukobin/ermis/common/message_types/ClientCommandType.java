@@ -60,8 +60,8 @@ public enum ClientCommandType {
 	ACCEPT_VOICE_CALL(CommandLevel.HEAVY, 311),
 	
 	// External Pages
-	REQUEST_DONATION_PAGE(CommandLevel.LIGHT, 400),
-	REQUEST_SOURCE_CODE_PAGE(CommandLevel.LIGHT, 401);
+	REQUEST_DONATION_PAGE_URL(CommandLevel.LIGHT, 400),
+	REQUEST_SOURCE_CODE_PAGE_URL(CommandLevel.LIGHT, 401);
 
 	
 	/*
