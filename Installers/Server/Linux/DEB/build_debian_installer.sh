@@ -2,7 +2,7 @@
 
 # Define variables for folder and file paths
 TARGET_FOLDER="$(git rev-parse --show-toplevel)/ErmisServer"
-JAR_FILE="$TARGET_FOLDER/target/ermis-server.jar"
+JAR_FILE=$(find "$TARGET_FOLDER/target" -maxdepth 1 -name "*.jar") # Search for JAR file
 LIB_FOLDER="$TARGET_FOLDER/target/lib"
 DOC_FILES=("README.md" "LICENSE" "NOTICE")
 
