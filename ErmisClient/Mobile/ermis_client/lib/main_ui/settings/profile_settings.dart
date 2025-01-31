@@ -36,8 +36,8 @@ class ProfileSettings extends StatefulWidget {
 
 class _ProfileSettingsState extends State<ProfileSettings>
     with SingleTickerProviderStateMixin {
-  int _clientID = Client.getInstance().clientID;
-  String _displayName = Client.getInstance().displayName ?? "";
+  int _clientID = Client.instance().clientID;
+  String _displayName = Client.instance().displayName ?? "";
 
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -215,7 +215,7 @@ class _ProfileSettingsState extends State<ProfileSettings>
                       Navigator.pop(context);
                       attachSingleFile(context,
                           (String fileName, Uint8List fileBytes) {
-                        Client.getInstance().commands.setAccountIcon(fileBytes);
+                        Client.instance().commands.setAccountIcon(fileBytes);
                       });
                     },
                   ),
@@ -235,7 +235,7 @@ class _ProfileSettingsState extends State<ProfileSettings>
                       }
 
                       Uint8List fileBytes = await file.readAsBytes();
-                      Client.getInstance().commands.setAccountIcon(fileBytes);
+                      Client.instance().commands.setAccountIcon(fileBytes);
                     },
                   ),
                 ],
@@ -282,7 +282,7 @@ class _ProfileSettingsState extends State<ProfileSettings>
   Future createModalBottomSheet() {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final TextEditingController displayNameController = TextEditingController();
-    displayNameController.text = Client.getInstance().displayName!;
+    displayNameController.text = Client.instance().displayName!;
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -336,7 +336,7 @@ class _ProfileSettingsState extends State<ProfileSettings>
                   TextButton(
                       onPressed: () {
                         String newDisplayName = displayNameController.text;
-                        Client.getInstance()
+                        Client.instance()
                             .commands
                             .changeDisplayName(newDisplayName);
                         Navigator.of(context).pop();

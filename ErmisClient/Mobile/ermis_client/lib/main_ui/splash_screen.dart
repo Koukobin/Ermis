@@ -71,7 +71,7 @@ class SplashScreenState extends State<SplashScreen> {
                 opacity: 1.0,
                 duration: const Duration(seconds: 1),
                 child: Image.asset(
-                  appIconPath,
+                  AppConstants.appIconPath,
                   height: 120,
                   width: 120,
                 ),

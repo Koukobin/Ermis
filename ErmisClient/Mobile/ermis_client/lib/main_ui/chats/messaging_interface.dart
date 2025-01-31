@@ -95,7 +95,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
 
     // Fetch cached messages or load from the server
     if (!_chatSession.haveChatMessagesBeenCached) {
-      Client.getInstance().commands.fetchWrittenText(_chatSessionIndex);
+      Client.instance().commands.fetchWrittenText(_chatSessionIndex);
     } else {
       _setMessages(_chatSession.getMessages);
       setState(() {
@@ -127,7 +127,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
         isLoading = false;
       });
 
-      ServerInfo serverInfo = Client.getInstance().serverInfo;
+      ServerInfo serverInfo = Client.instance().serverInfo;
       ErmisDB.getConnection().insertChatMessages(
         serverInfo: serverInfo,
         messages: messages,
@@ -304,8 +304,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
     Message pendingMessage = Message(
         text: text,
         fileName: fileName,
-        username: Client.getInstance().displayName!,
-        clientID: Client.getInstance().clientID,
+        username: Client.instance().displayName!,
+        clientID: Client.instance().clientID,
         messageID: -1,
         chatSessionID: chatSessionID,
         chatSessionIndex: chatSessionIndex,
@@ -320,7 +320,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
   void _sendTextMessage() {
     if (_inputController.text.trim().isEmpty) return;
 
-    Client.getInstance()
+    Client.instance()
         .sendMessageToClient(_inputController.text, _chatSessionIndex);
 
     createPendingMessage(
@@ -413,7 +413,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       child: RefreshIndicator(
         onRefresh: () async {
           // If user reaches top of conversation retrieve more messages
-          Client.getInstance().commands.fetchWrittenText(_chatSessionIndex);
+          Client.instance().commands.fetchWrittenText(_chatSessionIndex);
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -500,7 +500,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
         IconButton(
             onPressed: () {
               List<int> messageIDs = _messagesBeingEdited.map((Message message) => message.messageID).toList();
-              Client.getInstance().commands.deleteMessages(_chatSessionIndex, messageIDs);
+              Client.instance().commands.deleteMessages(_chatSessionIndex, messageIDs);
               showSnackBarDialog(context: context, content: "Attempting to delete message");
               setState(() {
                 _isEditingMessage = false;
@@ -598,7 +598,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       case ChatBackDrop.abstract:
         return BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(parthenonasPath),
+            image: AssetImage(AppConstants.parthenonasPath),
             fit: BoxFit.cover,
           ),
         );
@@ -624,7 +624,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isMessageOwner =
-        message.clientID == Client.getInstance().clientID;
+        message.clientID == Client.instance().clientID;
 
     DateTime currentMessageDate =
         DateTime.fromMillisecondsSinceEpoch(message.timeWritten, isUtc: true)
@@ -714,7 +714,7 @@ class MessageBubble extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Client.getInstance()
+                Client.instance()
                     .commands
                     .downloadFile(message.messageID, message.chatSessionIndex);
               },
@@ -732,7 +732,7 @@ class MessageBubble extends StatelessWidget {
             if (image == null) {
               print(message.chatSessionIndex);
               print(message.messageID);
-              Client.getInstance()
+              Client.instance()
                   .commands
                   .downloadImage(message.messageID, message.chatSessionIndex);
             }
@@ -865,13 +865,13 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
   }
 
   void _sendFile(String fileName, Uint8List fileBytes) async {
-    Client.getInstance()
+    Client.instance()
         .sendFileToClient(fileName, fileBytes, widget.chatSessionIndex);
     widget.fileCallBack(fileName, fileBytes);
   }
 
   void _sendImageFile(String fileName, Uint8List fileBytes) async {
-    Client.getInstance()
+    Client.instance()
         .sendImageToClient(fileName, fileBytes, widget.chatSessionIndex);
     widget.fileCallBack(fileName, fileBytes);
   }

@@ -47,7 +47,7 @@ enum ServerCertificateVerification { verify, ignore }
 class Client {
   static final Client _instance = Client._();
 
-  static Client getInstance() {
+  static Client instance() {
     return _instance;
   }
 
@@ -222,7 +222,7 @@ class Entry<T extends CredentialInterface> {
     ByteBuf payload = await inputStream.read();
 
     isLoggedIn = payload.readBoolean();
-    Client.getInstance()._isLoggedIn = isLoggedIn;
+    Client.instance()._isLoggedIn = isLoggedIn;
 
     Uint8List resultMessageBytes = payload.readBytes(payload.readableBytes);
 
@@ -252,7 +252,7 @@ class Entry<T extends CredentialInterface> {
     isVerificationComplete = msg.readBoolean();
     isLoggedIn = msg.readBoolean();
 
-    Client.getInstance()._isLoggedIn = isLoggedIn;
+    Client.instance()._isLoggedIn = isLoggedIn;
     List<int> resultMessageBytes = msg.readBytes(msg.readInt32());
 
     Map<AddedInfo, String> map = HashMap();

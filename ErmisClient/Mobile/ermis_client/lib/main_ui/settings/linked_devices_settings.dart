@@ -33,7 +33,7 @@ class LinkedDevices extends StatefulWidget {
 }
 
 class LinkedDevicesState extends State<LinkedDevices> {
-  List<UserDeviceInfo> devices = Client.getInstance().userDevices;
+  List<UserDeviceInfo> devices = Client.instance().userDevices;
 
   @override
   void initState() {
@@ -81,7 +81,7 @@ class LinkedDevicesState extends State<LinkedDevices> {
                             showLogoutConfirmationDialog(context,
                                 'Are you sure you want to logout from ${device.formattedInfo()}?',
                                 () {
-                              Client.getInstance()
+                              Client.instance()
                                   .commands
                                   .logoutOtherDevice(device.ipAddress);
                             });
@@ -104,7 +104,7 @@ class LinkedDevicesState extends State<LinkedDevices> {
                         showLogoutConfirmationDialog(context,
                             'Are you sure you want to logout from ${device.formattedInfo()}?',
                             () {
-                          Client.getInstance()
+                          Client.instance()
                               .commands
                               .logoutOtherDevice(device.ipAddress);
                         });
@@ -136,7 +136,7 @@ class LinkedDevicesState extends State<LinkedDevices> {
             onTap: () {
               showLogoutConfirmationDialog(context, "Are you sure you would like to logout from all devices?",
                   () {
-                Client.getInstance().commands.logoutAllDevices();
+                Client.instance().commands.logoutAllDevices();
                 SystemNavigator.pop();
               });
             },

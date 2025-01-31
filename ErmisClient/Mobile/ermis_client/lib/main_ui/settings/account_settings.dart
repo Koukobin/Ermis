@@ -39,7 +39,7 @@ class AccountSettings extends StatefulWidget {
 
 class _AccountSettingsState extends State<AccountSettings> {
 
-  List<Account> accounts = Client.getInstance().otherAccounts ?? [];
+  List<Account> accounts = Client.instance().otherAccounts ?? [];
 
   @override
   void initState() {
@@ -95,7 +95,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                           SizedBox(height: 20),
                           ListTile(
                             leading: const PersonalProfilePhoto(),
-                            title: Text(Client.getInstance().displayName!, style: TextStyle(fontSize: 18)),
+                            title: Text(Client.instance().displayName!, style: TextStyle(fontSize: 18)),
                             trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
                           ),
                           for (final Account account in accounts)
@@ -104,7 +104,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               title: Text(account.name(), style: TextStyle(fontSize: 18)),
                               onTap: () {
                                 showLogoutConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
-                                ServerInfo serverDetails = Client.getInstance().serverInfo;
+                                ServerInfo serverDetails = Client.instance().serverInfo;
                                 final DBConnection conn = ErmisDB.getConnection();
                                 List<LocalAccountInfo> allUserAccounts = await conn.getUserAccounts(serverDetails);
                                 LocalAccountInfo? matchingAccount;
@@ -115,7 +115,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   }
                                 }
 
-                                Client.getInstance().commands.switchAccount();
+                                Client.instance().commands.switchAccount();
                                 setupClientSession(context, matchingAccount);
                                 });
                               },
@@ -134,7 +134,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               TextButton(
                                   onPressed: () {
                                     Navigator.of(context).pop();
-                                    Client.getInstance().commands.addNewAccount();
+                                    Client.instance().commands.addNewAccount();
                                     pushHorizontalTransition(context,
                                         const CreateAccountInterface());
                                   },
@@ -166,7 +166,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   Future createModalBottomSheet() {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final TextEditingController displayNameController = TextEditingController();
-    displayNameController.text = Client.getInstance().displayName!;
+    displayNameController.text = Client.instance().displayName!;
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -220,7 +220,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                   TextButton(
                       onPressed: () {
                         String newDisplayName = displayNameController.text;
-                        Client.getInstance().commands.changeDisplayName(newDisplayName);
+                        Client.instance().commands.changeDisplayName(newDisplayName);
                         Navigator.of(context).pop();
                       },
                       child: Text(
@@ -340,7 +340,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
             // Button to delete the account
             ElevatedButton(
               onPressed: () {
-                Client.getInstance().commands.deleteAccount(emailController.text, passwordController.text);
+                Client.instance().commands.deleteAccount(emailController.text, passwordController.text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -385,7 +385,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
   Future createModalBottomSheet() {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final TextEditingController displayNameController = TextEditingController();
-    displayNameController.text = Client.getInstance().displayName!;
+    displayNameController.text = Client.instance().displayName!;
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -439,7 +439,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                   TextButton(
                       onPressed: () {
                         String newDisplayName = displayNameController.text;
-                        Client.getInstance().commands.changeDisplayName(newDisplayName);
+                        Client.instance().commands.changeDisplayName(newDisplayName);
                         Navigator.of(context).pop();
                       },
                       child: Text(

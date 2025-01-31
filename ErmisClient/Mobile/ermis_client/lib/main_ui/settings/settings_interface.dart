@@ -128,7 +128,7 @@ class SettingsState extends State<Settings> {
               showLogoutConfirmationDialog(
                   context,
                   "Are you sure you want to logout?",
-                  () => Client.getInstance().commands.logoutThisDevice());
+                  () => Client.instance().commands.logoutThisDevice());
             },
           )
         ],
@@ -146,7 +146,7 @@ class DisplayName extends StatefulWidget {
 }
 
 class DisplayNameState extends State<DisplayName> {
-  static String _displayName = Client.getInstance().displayName ?? "";
+  static String _displayName = Client.instance().displayName ?? "";
 
   @override
   void initState() {

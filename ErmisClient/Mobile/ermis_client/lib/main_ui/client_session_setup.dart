@@ -24,7 +24,7 @@ import '../util/dialogs_utils.dart';
 import 'entry/entry_interface.dart';
 
 Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo) async {
-  await Client.getInstance().syncWithServer();
+  await Client.instance().syncWithServer();
   
   if (userInfo == null) {
     // Navigate to the Registration interface
@@ -35,7 +35,7 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
     );
     return;
   }
-  bool success = await showLoadingDialog(context, Client.getInstance().attemptHashedLogin(userInfo));
+  bool success = await showLoadingDialog(context, Client.instance().attemptHashedLogin(userInfo));
 
   if (!success) {
     Navigator.pushAndRemoveUntil(
@@ -46,8 +46,8 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
     return;
   }
 
-  Client.getInstance().startMessageHandler();
-  await showLoadingDialog(context, Client.getInstance().fetchUserInformation());
+  Client.instance().startMessageHandler();
+  await showLoadingDialog(context, Client.instance().fetchUserInformation());
   // Navigate to the main interface
   Navigator.pushAndRemoveUntil(
     context,

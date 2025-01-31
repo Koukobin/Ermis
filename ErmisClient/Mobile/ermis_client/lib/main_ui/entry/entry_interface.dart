@@ -76,7 +76,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
           children: [
             // App icon display
             Image.asset(
-              appIconPath,
+              AppConstants.appIconPath,
               width: 100,
               height: 100,
             ),
@@ -108,7 +108,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                         textColor: appColors.primaryColor,
                         onPressed: () async {
                           CreateAccountEntry createAccountEntry =
-                              Client.getInstance()
+                              Client.instance()
                                   .createNewCreateAccountEntry();
                           createAccountEntry.sendEntryType();
                           createAccountEntry.addDeviceInfo(
@@ -137,9 +137,9 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                           isSuccessful = await performVerification(context, _emailController.text);
 
                           if (isSuccessful) {
-                            Client.getInstance().startMessageHandler();
+                            Client.instance().startMessageHandler();
                             await showLoadingDialog(context,
-                                Client.getInstance().fetchUserInformation());
+                                Client.instance().fetchUserInformation());
                             // Navigate to the main interface
                             Navigator.pushAndRemoveUntil(
                               context,
@@ -223,7 +223,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
           children: [
             // App icon display
             Image.asset(
-              appIconPath,
+              AppConstants.appIconPath,
               width: 100,
               height: 100,
             ),
@@ -250,7 +250,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                         backgroundColor: appColors.secondaryColor,
                         textColor: appColors.primaryColor,
                         onPressed: () async {
-                          LoginEntry loginEntry = Client.getInstance().createNewLoginEntry();
+                          LoginEntry loginEntry = Client.instance().createNewLoginEntry();
                           loginEntry.sendEntryType();
                           loginEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
 
@@ -283,9 +283,9 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                           }
 
                           if (isSuccessful) {
-                            Client.getInstance().startMessageHandler();
+                            Client.instance().startMessageHandler();
                             await showLoadingDialog(context,
-                                Client.getInstance().fetchUserInformation());
+                                Client.instance().fetchUserInformation());
                             // Navigate to the main interface
                             Navigator.pushAndRemoveUntil(
                               context,
@@ -492,7 +492,7 @@ Future<void> _showVerificationDialog({
 mixin Verification {
 
   Future<bool> performVerification(BuildContext context, String email) async {
-    Entry verificationEntry = Client.getInstance().createNewVerificationEntry();
+    Entry verificationEntry = Client.instance().createNewVerificationEntry();
     EntryResult entryResult;
 
     bool isSuccessful = false;
@@ -516,7 +516,7 @@ mixin Verification {
             LocalAccountInfo.fuck(
                 email: email,
                 passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
-            Client.getInstance().serverInfo);
+            Client.instance().serverInfo);
         break;
       }
 

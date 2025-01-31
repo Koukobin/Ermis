@@ -35,7 +35,6 @@ import 'io/byte_buf.dart';
 import 'common/chat_request.dart';
 import 'common/chat_session.dart';
 import 'common/file_heap.dart';
-import 'common/html_page.dart';
 import 'io/input_stream.dart';
 import 'common/message.dart';
 import 'io/output_stream.dart';
@@ -344,18 +343,13 @@ class MessageHandler {
           // Uint8List aesKey = msg.readBytes(msg.readableBytes);
           eventBus.fire(StartVoiceCallResultEvent(voiceCallKey, udpServerPort));
           break;
-        case ClientCommandResultType.getDonationPage:
-          Uint8List htmlBytes = msg.readBytes(msg.readInt32());
-
-          Uint8List htmlFileName = msg.readBytes(msg.readableBytes);
-
-          DonationHtmlPage htmlPage = DonationHtmlPage(
-              String.fromCharCodes(htmlBytes, 0),
-              String.fromCharCodes(htmlFileName, 0));
-          eventBus.fire(DonationPageEvent(htmlPage));
+        case ClientCommandResultType.getDonationPageURL:
+          Uint8List donationPageURL = msg.readBytes(msg.readableBytes);
+          eventBus.fire(DonationPageEvent(utf8.decode(donationPageURL)));
           break;
-        case ClientCommandResultType.getSourceCodePage:
-          // TODO: Handle this case.
+        case ClientCommandResultType.getSourceCodePageURL:
+          Uint8List sourceCodePageURL = msg.readBytes(msg.readableBytes);
+          eventBus.fire(SourceCodePageEvent(utf8.decode(sourceCodePageURL)));
           break;
       }
     }
@@ -530,7 +524,7 @@ class Commands {
     payload.writeInt(ClientMessageType.command.id);
     payload.writeInt(ClientCommandType.fetchWrittenText.id);
     payload.writeInt(chatSessionIndex);
-    payload.writeInt(Client.getInstance()
+    payload.writeInt(Client.instance()
         .chatSessions![chatSessionIndex]
         .getMessages
         .length /* Number of messages client already has */);

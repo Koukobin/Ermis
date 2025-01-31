@@ -68,7 +68,7 @@ class ChatsState extends TempState<Chats> {
   void initState() {
     super.initState();
 
-    _conversations = Client.getInstance().chatSessions;
+    _conversations = Client.instance().chatSessions;
     // If conversations is equal to null, set task to loading
     if (_conversations == null) {
       task = Task.loading;
@@ -226,7 +226,7 @@ class ChatsState extends TempState<Chats> {
                             onPressed: () {
                               Navigator.of(context).pop();
                               for (ChatSession cs in selectedConversations) {
-                                Client.getInstance()
+                                Client.instance()
                                     .commands
                                     .deleteChatSession(cs.chatSessionIndex);
                               }
@@ -403,7 +403,7 @@ class ChatsState extends TempState<Chats> {
   }
 
   Future<void> _refreshContent() async {
-    Client.getInstance().commands.fetchChatSessions();
+    Client.instance().commands.fetchChatSessions();
     setState(() {
       task = Task.loading;
     });
@@ -457,7 +457,7 @@ class SendChatRequestButton extends StatefulWidget {
     }
 
     final int clientID = int.parse(input);
-    Client.getInstance().commands.sendChatRequest(clientID);
+    Client.instance().commands.sendChatRequest(clientID);
   }
 }
 

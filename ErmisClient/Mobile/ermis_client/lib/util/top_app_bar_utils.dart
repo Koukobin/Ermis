@@ -26,7 +26,7 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const ErmisAppBar(
       {this.title = const Text(
-        applicationTitle,
+        AppConstants.applicationTitle,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
       ),
       this.actions = const [],

@@ -68,7 +68,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Image.asset(
-              appIconPath,
+              AppConstants.appIconPath,
               width: 100,
               height: 100,
             ),
@@ -173,7 +173,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                     }
 
                     try {
-                      await Client.getInstance().initialize(
+                      await Client.instance().initialize(
                         url,
                         _checkServerCertificate
                             ? ServerCertificateVerification.verify

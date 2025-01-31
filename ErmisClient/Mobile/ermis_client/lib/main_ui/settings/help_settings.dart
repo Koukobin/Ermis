@@ -14,14 +14,16 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/client/client.dart';
 import 'package:ermis_client/util/transitions_util.dart';
+import 'package:ermis_client/util/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../client/app_event_bus.dart';
+import '../../client/message_events.dart';
 import '../../constants/app_constants.dart';
 import '../../theme/app_theme.dart';
-import '../../util/dialogs_utils.dart';
 import '../../util/file_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 
@@ -38,6 +40,16 @@ class HelpSettingsState extends State<HelpSettings> {
   @override
   void initState() {
     super.initState();
+
+    AppEventBus.instance.on<DonationPageEvent>().listen((event) {
+      if (!mounted) return;
+      UrlLauncher.launchURL(context, event.donationPageURL);
+    });
+
+    AppEventBus.instance.on<SourceCodePageEvent>().listen((event) {
+      if (!mounted) return;
+      UrlLauncher.launchURL(context, event.sourceCodePageURL);
+    });
   }
 
   @override
@@ -58,11 +70,19 @@ class HelpSettingsState extends State<HelpSettings> {
                     fontSize: 16,
                   ),
                 ),
-                onTap: () async {
-                  final Uri url = Uri.parse(sourceCodeURL);
-                  if (!await launchUrl(url)) {
-                    showErrorDialog(context, "Unable to open the URL: $url");
-                  }
+                onTap: () {
+                  UrlLauncher.launchURL(context, AppConstants.sourceCodeURL);
+                }),
+            ListTile(
+                leading: Icon(Icons.code),
+                title: Text(
+                  "Server Source Code",
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                onTap: () {
+                  Client.instance().commands.requestServerSourceCodeHTMLPage();
                 }),
             ListTile(
                 leading: Icon(Icons.attach_money_outlined),
@@ -72,10 +92,8 @@ class HelpSettingsState extends State<HelpSettings> {
                     fontSize: 16,
                   ),
                 ),
-                onTap: () async {
-                  showSnackBarDialog(
-                      context: context,
-                      content: "Functionality not implemented yet!");
+                onTap: () {
+                  Client.instance().commands.requestDonationHTMLPage();
                 }),
             ListTile(
                 leading: Icon(FontAwesomeIcons.shieldHalved),
@@ -86,10 +104,7 @@ class HelpSettingsState extends State<HelpSettings> {
                   ),
                 ),
                 onTap: () async {
-                  final Uri url = Uri.parse(licenceURL);
-                  if (!await launchUrl(url)) {
-                    showErrorDialog(context, "Unable to open the URL: $url");
-                  }
+                  UrlLauncher.launchURL(context, AppConstants.licenceURL);
                 }),
             ListTile(
                 leading: Icon(Icons.info_outline),
@@ -131,7 +146,7 @@ class AppInfo extends StatelessWidget {
                 ),
               ),
               Text(
-                "Version: $applicationVersion",
+                "Version: ${AppConstants.applicationVersion}",
                 style: TextStyle(
                   fontSize: 16,
                   color: Color(0xFF9E9E9E),
@@ -139,7 +154,7 @@ class AppInfo extends StatelessWidget {
               ),
               SizedBox(height: 25),
               Image.asset(
-                appIconPath,
+                AppConstants.appIconPath,
                 width: 125,
                 height: 125,
               ),
@@ -191,7 +206,7 @@ class _LicenceInfoState extends State<LicenceInfo> {
   }
 
   void _readLicenceFile() async{
-    String content = await loadAssetFile(licencePath);
+    String content = await loadAssetFile(AppConstants.licencePath);
     setState(() {
       _licenceContent = content;
     });

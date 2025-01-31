@@ -38,7 +38,7 @@ class NotificationService {
         return;
       }
 
-      Client.getInstance().sendMessageToClient(input, chatSessionIndex!);
+      Client.instance().sendMessageToClient(input, chatSessionIndex!);
     } else if (response.actionId == 'accept_voice_call') {
       voiceCall!();
     } else if (response.actionId == 'ignore_voice_call') {
@@ -112,7 +112,7 @@ class NotificationService {
     ));
 
     NotificationService.chatSessionIndex = chatSessionIndex;
-    return flutterLocalNotificationsPlugin.show(0, applicationTitle, body, platformChannelSpecifics);
+    return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, body, platformChannelSpecifics);
   }
 
   static Future<void> showVoiceCallNotification({
@@ -151,7 +151,7 @@ class NotificationService {
 
     // Store chatSessionIndex for future handling if needed
     NotificationService.chatSessionIndex = chatSessionIndex;
-    return flutterLocalNotificationsPlugin.show(0, applicationTitle, '$callerName is calling...', platformChannelSpecifics);
+    return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, '$callerName is calling...', platformChannelSpecifics);
   }
 
 
@@ -199,7 +199,7 @@ class NotificationService {
     ));
 
     NotificationService.chatSessionIndex = chatSessionIndex;
-    return flutterLocalNotificationsPlugin.show(0, applicationTitle, body, platformChannelSpecifics);
+    return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, body, platformChannelSpecifics);
   }
 
 }

@@ -42,8 +42,8 @@ enum ClientCommandResultType {
   startVoiceCall(500),
 
   // External Pages
-  getDonationPage(600),
-  getSourceCodePage(601);
+  getDonationPageURL(600),
+  getSourceCodePageURL(601);
 
   final int id;
   const ClientCommandResultType(this.id);

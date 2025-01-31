@@ -35,7 +35,7 @@ class ChatRequests extends StatefulWidget {
 }
 
 class ChatRequestsState extends LoadingState<ChatRequests> {
-  List<ChatRequest>? _chatRequests = Client.getInstance().chatRequests;
+  List<ChatRequest>? _chatRequests = Client.instance().chatRequests;
 
   bool _isInitialized = false; // Flag to check if it's initialized
 
@@ -153,7 +153,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () => Client.getInstance()
+                  onPressed: () => Client.instance()
                       .commands
                       .acceptChatRequest(_chatRequests![index].clientID),
                   style: ElevatedButton.styleFrom(
@@ -166,7 +166,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
                 ),
                 SizedBox(width: 10), // Add space between buttons
                 OutlinedButton(
-                  onPressed: () => Client.getInstance()
+                  onPressed: () => Client.instance()
                       .commands
                       .declineChatRequest(_chatRequests![index].clientID),
                   style: OutlinedButton.styleFrom(
@@ -187,7 +187,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
   }
 
   Future<void> _refreshContent() async {
-    Client.getInstance().commands.fetchChatRequests();
+    Client.instance().commands.fetchChatRequests();
     setState(() {
       isLoading = true;
     });

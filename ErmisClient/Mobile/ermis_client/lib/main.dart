@@ -123,6 +123,8 @@ void main() async {
     iosConfiguration: IosConfiguration(),
   );
 
+  await AppConstants.initialize();
+
   await NotificationService.init();
   tz.initializeTimeZones();
 
@@ -130,7 +132,6 @@ void main() async {
   await jsonSettings.loadSettingsJson();
 
   ThemeMode themeData;
-
   if (jsonSettings.useSystemDefaultTheme) {
     themeData = ThemeMode.system;
   } else {
@@ -143,8 +144,8 @@ void main() async {
 
   // runApp(VoiceMyApp());
   runApp(_MyApp(
-    lightAppColors: lightAppColors,
-    darkAppColors: darkAppColors,
+    lightAppColors: AppConstants.lightAppColors,
+    darkAppColors: AppConstants.darkAppColors,
     themeMode: themeData,
   ));
 }
@@ -276,9 +277,8 @@ class MainInterfaceState extends State<MainInterface> {
 
   int _selectedPageIndex = 0;
 
-  // Static final variable with lazy initialization
+  /// TODO: refactor this crap into [AppEventBus]
   static final void initialize = _initialize();
-  // Private static method to perform the initialization
   static void _initialize() {
     AppEventBus.instance.on<ServerMessageInfoEvent>().listen((event) {
       showToastDialog(event.message);
@@ -321,11 +321,9 @@ class MainInterfaceState extends State<MainInterface> {
 
     _barItems = <BottomNavigationBarItem>[
       _buildNavItem(Icons.chat, Icons.chat_outlined, "Chats", 0),
-      _buildNavItem(Icons.person_add_alt_1, Icons.person_add_alt_1_outlined,
-          "Requests", 1),
+      _buildNavItem(Icons.person_add_alt_1, Icons.person_add_alt_1_outlined, "Requests", 1),
       _buildNavItem(Icons.settings, Icons.settings_outlined, "Settings", 2),
-      _buildNavItem(
-          Icons.account_circle, Icons.account_circle_outlined, "Account", 3),
+      _buildNavItem(Icons.account_circle, Icons.account_circle_outlined, "Account", 3),
     ];
 
     return Scaffold(

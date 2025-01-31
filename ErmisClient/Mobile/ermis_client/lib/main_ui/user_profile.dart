@@ -82,7 +82,7 @@ class PersonalProfilePhoto extends StatefulWidget {
 
 class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
 
-  Uint8List? _profileBytes = Client.getInstance().profilePhoto;
+  Uint8List? _profileBytes = Client.instance().profilePhoto;
 
   @override
   void initState() {
@@ -103,7 +103,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
       if (!mounted) return;
       if (event.success) {
         setState(() {
-          _profileBytes = Client.getInstance().profilePhoto;
+          _profileBytes = Client.instance().profilePhoto;
           isLoading = false;
         });
         return;

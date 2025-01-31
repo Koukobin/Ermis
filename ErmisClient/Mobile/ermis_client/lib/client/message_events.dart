@@ -28,7 +28,6 @@ import 'package:ermis_client/client/common/user_device.dart';
 import 'common/account.dart';
 import 'common/chat_session.dart';
 import 'common/file_heap.dart';
-import 'common/html_page.dart';
 
 class UsernameReceivedEvent {
   final String displayName;
@@ -69,8 +68,13 @@ class ImageDownloadedEvent {
 }
 
 class DonationPageEvent {
-  final DonationHtmlPage page;
-  DonationPageEvent(this.page);
+  final String donationPageURL;
+  DonationPageEvent(this.donationPageURL);
+}
+
+class SourceCodePageEvent {
+  final String sourceCodePageURL;
+  SourceCodePageEvent(this.sourceCodePageURL);
 }
 
 class ServerSourceCodeEvent {
