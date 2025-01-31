@@ -15,7 +15,6 @@
  */
 package github.koukobin.ermis.server.main.java.configs;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -105,24 +104,11 @@ public final class ServerSettings {
 			return ENABLED_CIPHER_SUITES.clone();
 		}
 	}
-	
+
 	public static class Donations {
-	
-		private static final File donationsHtmlFile = new File(ConfigurationsPaths.Donations.HTML_FILE_PATH);
 
-		public static final String HTML_PAGE;
-		public static final String HTML_FILE_NAME;
+		public static final String DONATION_HTML_PAGE_URL = String.format("https://%s/donation", SERVER_ADDRESS);
 
-		static {
-			try {
-				HTML_FILE_NAME = donationsHtmlFile.getName();
-				HTML_PAGE = FileUtils.readFile(donationsHtmlFile);
-			} catch (IOException ioe) {
-				logger.fatal(Throwables.getStackTraceAsString(ioe));
-				throw new RuntimeException(ioe);
-			}
-		}
-		
 		private Donations() {}
 	}
 	
@@ -132,9 +118,9 @@ public final class ServerSettings {
 
 			private Verification() {}
 			
-			public static interface VerificationEmailTemplate {
+			public interface VerificationEmailTemplate {
 
-				public static VerificationEmailTemplate of(String userEmail, String account, String verificationCode) {
+				static VerificationEmailTemplate of(String userEmail, String account, String verificationCode) {
 					return new VerificationEmailTemplate() {
 
 						Map<String, String> replacements = Map.of(
