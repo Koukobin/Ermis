@@ -108,31 +108,40 @@ class InteractiveUserAvatar extends StatelessWidget {
   void _showAvatarDialog(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    Size dimensions = ImageUtils.getImageDimensions(imageBytes);
-    double width = dimensions.width;
-    double height = dimensions.height;
+    Size calculateImageDimensions() {
+      Size dimensions = ImageUtils.getImageDimensions(imageBytes);
+      double width = dimensions.width;
+      double height = dimensions.height;
 
-    // Iterations variable ensures while loop never causes a crash even if done wrong
-    int iterations = 100;
-    while (iterations > 0) {
-      iterations--;
-      if (width > 450) {
-        width -= 100;
-        height = (1 / dimensions.aspectRatio) * width;
+      // Iterations variable ensures while loop never causes a crash even if done wrong
+      int iterations = 100;
+      while (iterations > 0) {
+        iterations--;
+        if (width > 450) {
+          width -= 100;
+          height = (1 / dimensions.aspectRatio) * width;
 
-        if (height > 450) continue;
+          if (height > 450) continue;
 
-        break;
+          break;
+        }
+
+        if (height > 450) {
+          height -= 100;
+          width = dimensions.aspectRatio * height;
+
+          if (width > 450) continue;
+
+          break;
+        }
       }
 
-      if (height > 450) {
-        height -= 100;
-        width = dimensions.aspectRatio * height;
+      return Size(width, height);
+    }
 
-        if (width > 450) continue;
-
-        break;
-      }
+    Size? imageDimensions;
+    if (imageBytes.isNotEmpty) {
+      imageDimensions = calculateImageDimensions();
     }
 
     Navigator.of(context).push(
@@ -150,11 +159,16 @@ class InteractiveUserAvatar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
                       child: InteractiveViewer(
-                          boundaryMargin: EdgeInsets.all(20),
-                          minScale: 1.0,
-                          maxScale: 8.0,
+                        boundaryMargin: EdgeInsets.all(20),
+                        minScale: 1.0,
+                        maxScale: 8.0,
+                        child: Container(
+                          color: appColors.tertiaryColor,
                           child: imageBytes.isEmpty
                               ? CircleAvatar(
                                   radius: 180,
@@ -167,11 +181,12 @@ class InteractiveUserAvatar extends StatelessWidget {
                                   ))
                               : Image.memory(
                                   imageBytes,
-                                  width: width,
-                                  height: height,
+                                  width: imageDimensions?.width,
+                                  height: imageDimensions?.height,
                                   fit: BoxFit.cover,
                                 ),
                         ),
+                      ),
                     ),
                     Container(
                       color: appColors.tertiaryColor,
@@ -281,6 +296,11 @@ class ChatsState extends TempState<Chats> {
     _subscriptions.add(AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
       _updateChatSessions(event.sessions);
     }));
+
+    AppEventBus.instance.on<ServerMessageInfoEvent>().listen((event) {
+      if (!mounted) return;
+      showToastDialog(event.message);
+    });
 
     // Whenever text changes performs search
     _searchController.addListener(() {

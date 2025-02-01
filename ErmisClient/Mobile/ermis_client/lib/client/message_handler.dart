@@ -360,7 +360,7 @@ class MessageHandler {
       switch (msgType) {
         case ServerMessageType.serverMessageInfo:
           Uint8List content = msg.readBytes(msg.readableBytes);
-          eventBus.fire(ServerMessageInfoEvent(String.fromCharCodes(content)));
+          eventBus.fire(ServerMessageInfoEvent(utf8.decode(content)));
           break;
         case ServerMessageType.voiceCallIncoming:
           int udpServerPort = msg.readInt32();
