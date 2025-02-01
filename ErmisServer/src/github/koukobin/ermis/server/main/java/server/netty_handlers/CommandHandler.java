@@ -777,7 +777,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		default -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
-			payload.writeBytes(("Command:" + commandType.name() + "not implemented!").getBytes());
+			payload.writeBytes("Command \"%s\" not implemented!".formatted(commandType.name()).getBytes());
 
 			channel.writeAndFlush(payload);
 		}
