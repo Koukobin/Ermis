@@ -48,13 +48,13 @@ if ($port eq " ------") {
     die "Error: Port is invalid!\n";
 }
 
-my $paypal_link;
+my $paypal_client_id;
 my $bitcoin_address;
 my $monero_address;
 open $fh, '<', '/opt/ermis-server/configs/donation-settings/general-settings.cnf' or die "Cannot open config file: $!\n";
 while (my $line = <$fh>) {
-    if ($line =~ /^paypal-link=(.*)$/) {
- 	$paypal_link= $1;
+    if ($line =~ /^paypal-client-id=(.*)$/) {
+ 	$paypal_client_id= $1;
     }
     if ($line =~ /^bitcoin-address=(.*)$/) {
         $bitcoin_address = $1;
@@ -80,7 +80,7 @@ find(sub {
         $line =~ s/IP_ADDRESS/$address/g;
         $line =~ s/SERVER_PORT/$port/g;
         $line =~ s/PORT/$port/g;
-        $line =~ s/PAYPAL_LINK/$paypal_link/g;
+        $line =~ s/PAYPAL_CLIENT_ID/$paypal_client_id/g;
         $line =~ s/BTC_ADDRESS/$bitcoin_address/g;
         $line =~ s/XMR_ADDRESS/$monero_address/g;
         print $out $line;
