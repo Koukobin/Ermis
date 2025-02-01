@@ -37,8 +37,8 @@ class UserAvatar extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundImage: imageBytes.isEmpty ? null : MemoryImage(imageBytes),
           backgroundColor: Colors.grey[200],
+          backgroundImage: imageBytes.isEmpty ? null : MemoryImage(imageBytes),
           child: imageBytes.isEmpty
               ? Icon(
                   Icons.person,
@@ -69,4 +69,5 @@ class UserAvatar extends StatelessWidget {
       ],
     );
   }
+
 }

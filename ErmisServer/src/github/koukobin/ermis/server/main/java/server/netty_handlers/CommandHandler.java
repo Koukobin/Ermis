@@ -230,20 +230,22 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			int senderClientID = args.readInt();
 			int receiverClientID = clientInfo.getClientID();
 
-			int chatSessionID;
+			Optional<Integer> optionalChatSessionID;
 			synchronized (clientInfo.getChatRequests()) {
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-					chatSessionID = conn.acceptChatRequest(receiverClientID, senderClientID);
+					optionalChatSessionID = conn.acceptChatRequest(receiverClientID, senderClientID);
 				}
 			}
-
-			if (chatSessionID == -1) {
+			
+			optionalChatSessionID.ifPresentOrElse(null, null);
+			if (optionalChatSessionID.isEmpty()) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
 				payload.writeBytes("Something went wrong while trying accept chat request!".getBytes());
 				channel.writeAndFlush(payload);
 				return;
 			}
+			int chatSessionID = optionalChatSessionID.get();
 
 			List<Integer> members = Lists.newArrayList(receiverClientID, senderClientID);
 			List<ClientInfo> activeMembers = new ArrayList<>(members.size());
@@ -252,14 +254,13 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			ActiveChatSessions.addChatSession(chatSession);
 
 			clientInfo.getChatRequests().remove(Integer.valueOf(senderClientID));
-			clientInfo.getChatSessions().add(chatSession);
 
 			Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> ci.getChatSessions().add(chatSession);
 			forActiveAccounts(receiverClientID, updateSessions);
 			forActiveAccounts(senderClientID, updateSessions);
 		}
 		case DECLINE_CHAT_REQUEST -> {
-			
+
 			int senderClientID = args.readInt();
 			int receiverClientID = clientInfo.getClientID();
 			
@@ -776,7 +777,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		default -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
-			payload.writeBytes(("Command:" + commandType.toString() + "not implemented!").getBytes());
+			payload.writeBytes(("Command:" + commandType.name() + "not implemented!").getBytes());
 
 			channel.writeAndFlush(payload);
 		}

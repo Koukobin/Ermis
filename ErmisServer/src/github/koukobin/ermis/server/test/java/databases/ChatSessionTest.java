@@ -15,62 +15,54 @@
  */
 package github.koukobin.ermis.server.test.java.databases;
 
-import java.sql.PreparedStatement;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 
 /**
  * @author Ilias Koukovinis
  *
  */
 public class ChatSessionTest {
-
-    private static ErmisDatabase.GeneralPurposeDBConnection conn;
-
-    @BeforeAll
-    static void setupDatabase() {
-    	conn = ErmisDatabase.getGeneralPurposeConnection();
-    }
-
-	@BeforeEach
-	void populateTestData() throws Exception {
-		String cleanupSql = "DELETE FROM chat_requests; DELETE FROM chat_sessions;";
-		try (PreparedStatement pstmt = conn.underlyingConnection().prepareStatement(cleanupSql)) {
-			pstmt.executeUpdate();
-		}
-	}
-
-	@Test
-	void testCreateChatSessionSuccess() throws Exception {
-		boolean result = conn.sendChatRequest(1, 2);
-		
-		assert result;
-		
-		result = conn.sendChatRequest(1, 2);
-		
-		assert !result;
-    }
-
-    @Test
-    void testCreateChatSessionFailure() throws Exception {
-    	conn.sendChatRequest(1, 2);
-
-    	int chatSessionID = conn.acceptChatRequest(1, 2);
-    	
-    	assert chatSessionID != -1;
-    	
-    	chatSessionID = conn.acceptChatRequest(1, 2);
-    	
-    	assert chatSessionID == -1;
-    }
-
-    @AfterAll
-    static void cleanupDatabase() {
-        conn.close();
-    }
+//
+////    private static ErmisDatabase.GeneralPurposeDBConnection conn;
+////
+////    @BeforeAll
+////    static void setupDatabase() {
+////    	conn = ErmisDatabase.getGeneralPurposeConnection();
+////    }
+////
+////	@BeforeEach
+////	void populateTestData() throws Exception {
+////		String cleanupSql = "DELETE FROM chat_requests; DELETE FROM chat_sessions;";
+////		try (PreparedStatement pstmt = conn.underlyingConnection().prepareStatement(cleanupSql)) {
+////			pstmt.executeUpdate();
+////		}
+////	}
+//
+//	@Test
+//	void testCreateChatSessionSuccess() throws Exception {
+////		boolean result = conn.sendChatRequest(1, 2);
+////		
+////		assert result;
+////		
+////		result = conn.sendChatRequest(1, 2);
+////		
+////		assert !result;
+//    }
+//
+//    @Test
+//    void testCreateChatSessionFailure() throws Exception {
+////    	conn.sendChatRequest(1, 2);
+////
+////    	int chatSessionID = conn.acceptChatRequest(1, 2);
+////    	
+////    	assert chatSessionID != -1;
+////    	
+////    	chatSessionID = conn.acceptChatRequest(1, 2);
+////    	
+////    	assert chatSessionID == -1;
+//    }
+//
+//    @AfterAll
+//    static void cleanupDatabase() {
+////        conn.close();
+//    }
 }

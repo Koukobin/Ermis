@@ -60,8 +60,7 @@ Future<bool> requestPermissions({BuildContext? context}) async {
     ];
 
     for (Permission permission in permissions) {
-      bool individualPermissionSuccess = await checkPermission(permission);
-      if (!individualPermissionSuccess) success = false;
+      success |= await checkPermission(permission);
     }
   }
 

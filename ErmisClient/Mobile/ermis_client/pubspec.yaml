@@ -54,6 +54,7 @@ dependencies:
   # Permissions & Device Info
   permission_handler: ^11.3.1
   package_info_plus: ^8.1.2
+  device_info_plus: ^11.2.2
 
   # Background & Notifications
   flutter_background: ^1.3.0+1

@@ -15,6 +15,7 @@
  */
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
@@ -24,6 +25,7 @@ import 'package:ermis_client/main_ui/settings/settings_interface.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
 
+import '../../util/image_utils.dart';
 import '../../util/transitions_util.dart';
 import '../splash_screen.dart';
 import 'messaging_interface.dart';
@@ -31,7 +33,209 @@ import '../../theme/app_theme.dart';
 import '../../client/common/chat_session.dart';
 import '../../client/client.dart';
 import '../../util/top_app_bar_utils.dart';
-import 'user_avatar.dart';
+
+void pushMessageInterface(BuildContext context, ChatSession chatSession) {
+        pushHorizontalTransition(
+            context,
+            MessagingInterface(
+                chatSessionIndex: chatSession.chatSessionIndex,
+                chatSession: chatSession));
+}
+
+class InteractiveUserAvatar extends StatelessWidget {
+  final Uint8List imageBytes;
+  final bool isOnline;
+
+  static int _lastAvatarID = 0;
+  final int _avatarID;
+
+  final ChatSession chatSession;
+
+  InteractiveUserAvatar({
+    super.key,
+    required this.imageBytes,
+    required this.isOnline,
+    required this.chatSession,
+  }) : _avatarID = _lastAvatarID += 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+    return InkWell(
+      splashColor: Colors.grey.withOpacity(0.3),
+      borderRadius: BorderRadius.circular(24),
+      onTap: () => _showAvatarDialog(context),
+      child: Stack(
+        children: [
+          Hero(
+            tag: "avarar-hero-$_avatarID",
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.grey[200],
+              backgroundImage: imageBytes.isEmpty ? null : MemoryImage(imageBytes),
+              child: imageBytes.isEmpty
+                  ? Icon(
+                      Icons.person,
+                      color: Colors.grey,
+                    )
+                  : null,
+            ),
+          ),
+          // Online/Offline Indicator
+          Positioned(
+            bottom: 0,
+            left: 30,
+            child: Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: isOnline
+                    ? Colors.green
+                    : Colors.red, // Online or offline color
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: appColors.secondaryColor, // Border to separate the indicator from the avatar
+                  width: 1,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAvatarDialog(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
+    Size dimensions = ImageUtils.getImageDimensions(imageBytes);
+    double width = dimensions.width;
+    double height = dimensions.height;
+
+    // Iterations variable ensures while loop never causes a crash even if done wrong
+    int iterations = 100;
+    while (iterations > 0) {
+      iterations--;
+      if (width > 450) {
+        width -= 100;
+        height = (1 / dimensions.aspectRatio) * width;
+
+        if (height > 450) continue;
+
+        break;
+      }
+
+      if (height > 450) {
+        height -= 100;
+        width = dimensions.aspectRatio * height;
+
+        if (width > 450) continue;
+
+        break;
+      }
+    }
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierDismissible: true,
+        pageBuilder: (context, _, __) => GestureDetector(
+          onTap: Navigator.of(context).pop,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 48.0),
+            child: Center(
+              child: Hero(
+                tag: "avarar-hero-$_avatarID",
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                      child: InteractiveViewer(
+                          boundaryMargin: EdgeInsets.all(20),
+                          minScale: 1.0,
+                          maxScale: 8.0,
+                          child: imageBytes.isEmpty
+                              ? CircleAvatar(
+                                  radius: 180,
+                                  backgroundColor: Colors.grey[200],
+                                  backgroundImage: null,
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 180,
+                                    color: Colors.grey,
+                                  ))
+                              : Image.memory(
+                                  imageBytes,
+                                  width: width,
+                                  height: height,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                    ),
+                    Container(
+                      color: appColors.tertiaryColor,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                pushMessageInterface(context, chatSession);
+                              },
+                              icon: Icon(
+                                Icons.chat_outlined,
+                                color: appColors.primaryColor,
+                              )),
+                          IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                showSnackBarDialog(
+                                    context: context,
+                                    content:
+                                        "Functionality not implemented yet!");
+                              },
+                              icon: Icon(
+                                Icons.phone_outlined,
+                                color: appColors.primaryColor,
+                              )),
+                          IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                showSnackBarDialog(
+                                    context: context,
+                                    content:
+                                        "Functionality not implemented yet!");
+                              },
+                              icon: Icon(
+                                Icons.video_call_outlined,
+                                color: appColors.primaryColor,
+                              )),
+                          IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                showSnackBarDialog(
+                                    context: context,
+                                    content:
+                                        "Functionality not implemented yet!");
+                              },
+                              icon: Icon(
+                                Icons.info_outline,
+                                color: appColors.primaryColor,
+                              )),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class Chats extends StatefulWidget {
   const Chats({super.key});
@@ -99,7 +303,6 @@ class ChatsState extends TempState<Chats> {
 
   void _removeSubscriptions() async {
     for (final sub in _subscriptions) {
-      _subscriptions.remove(sub);
       await sub.cancel();
     }
   }
@@ -335,13 +538,7 @@ class ChatsState extends TempState<Chats> {
           });
         }
       },
-      onTap: () {
-        pushHorizontalTransition(
-            context,
-            MessagingInterface(
-                chatSessionIndex: chatSession.chatSessionIndex,
-                chatSession: chatSession));
-      },
+      onTap: () => pushMessageInterface(context, chatSession),
       trailing: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         transitionBuilder: (Widget child, Animation<double> animation) {
@@ -362,9 +559,10 @@ class ChatsState extends TempState<Chats> {
                 style: TextStyle(fontSize: 14),
               ),
       ),
-      leading: UserAvatar(
+      leading: InteractiveUserAvatar(
           imageBytes: chatSession.getMembers[0].getIcon,
-          isOnline: chatSession.getMembers[0].isActive),
+          isOnline: chatSession.getMembers[0].isActive,
+          chatSession: chatSession),
       subtitle: Text(
         chatSession.lastMessageContent,
         maxLines: 3,

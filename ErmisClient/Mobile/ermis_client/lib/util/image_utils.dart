@@ -23,7 +23,7 @@ class ImageUtils {
   /// This function checks for the given file's signature and allows
   /// you to identify whether the byte data is valid for a particular
   /// image format.
-  bool isImage(Uint8List bytes) {
+  static bool isImage(Uint8List bytes) {
     // Check for JPEG signature
     if (bytes.length >= 3 &&
         bytes[0] == 0xFF &&
@@ -110,7 +110,7 @@ class ImageUtils {
     return false;
   }
 
-  Size getImageDimensions(Uint8List imageBytes) {
+  static Size getImageDimensions(Uint8List imageBytes) {
     // Decode the image bytes to an image object
     img.Image? image = img.decodeImage(imageBytes);
 

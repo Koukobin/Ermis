@@ -52,7 +52,6 @@ import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.common.util.FileUtils;
-import github.koukobin.ermis.server.main.java.WhatTheFuckIsGoingOnException;
 import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.Database;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.PostgreSQLDatabase;
@@ -862,7 +861,7 @@ public final class ErmisDatabase {
 		 *          concurrency externally.
 		 * 
 		 */
-		public int acceptChatRequest(int receiverClientID, int senderClientID) {
+		public Optional<Integer> acceptChatRequest(int receiverClientID, int senderClientID) {
 			// This method probably should be refactored in the future...
 			String sql = """
 					-- Check for an existing chat session
@@ -907,10 +906,10 @@ public final class ErmisDatabase {
 			int generatedChatSessionID = ChatSessionIDGenerator.retrieveAndDelete(conn);
 
 			if (generatedChatSessionID == -1) {
-				return generatedChatSessionID; // Return if failed
+				return Optional.empty(); // Return if failed
 			}
 
-			int chatSessionID = -1;
+			Integer chatSessionID = null;
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 				pstmt.setInt(1, senderClientID);
 				pstmt.setInt(2, receiverClientID);
@@ -934,7 +933,7 @@ public final class ErmisDatabase {
 				logger.debug("Error accepting chat request", sqle);
 			}
 
-		    return chatSessionID;
+			return Optional.ofNullable(chatSessionID);
 		}
 
 		public boolean deleteChatRequest(int receiverClientID, int senderClientID) {

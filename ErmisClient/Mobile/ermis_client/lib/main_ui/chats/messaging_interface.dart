@@ -656,8 +656,7 @@ class MessageBubble extends StatelessWidget {
                     Text(DateFormat("HH:mm").format(currentMessageDate),
                         style: TextStyle(color: appColors.inferiorColor)),
                   Container(
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     padding: const EdgeInsets.all(10),
                     constraints: BoxConstraints(maxWidth: 225, maxHeight: 300),
                     decoration: BoxDecoration(

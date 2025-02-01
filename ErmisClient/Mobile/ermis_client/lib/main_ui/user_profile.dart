@@ -26,7 +26,6 @@ import '../client/client.dart';
 import '../theme/app_theme.dart';
 
 class UserProfilePhoto extends StatefulWidget {
-
   final double? radius;
   final Uint8List profileBytes;
 

@@ -134,12 +134,10 @@ void main() async {
   ThemeMode themeData;
   if (jsonSettings.useSystemDefaultTheme) {
     themeData = ThemeMode.system;
+  } else if (jsonSettings.isDarkModeEnabled) {
+    themeData = ThemeMode.dark;
   } else {
-    if (jsonSettings.isDarkModeEnabled) {
-      themeData = ThemeMode.dark;
-    } else {
-      themeData = ThemeMode.light;
-    }
+    themeData = ThemeMode.light;
   }
 
   // runApp(VoiceMyApp());
