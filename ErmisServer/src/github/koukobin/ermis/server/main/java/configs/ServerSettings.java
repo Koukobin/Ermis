@@ -107,7 +107,7 @@ public final class ServerSettings {
 
 	public static class Donations {
 
-		public static final String DONATION_HTML_PAGE_URL = String.format("https://%s/donation", SERVER_ADDRESS);
+		public static final String DONATION_HTML_PAGE_URL = String.format("https://%s/donation.html", SERVER_ADDRESS);
 
 		private Donations() {}
 	}
