@@ -399,9 +399,9 @@ Future<void> _showVerificationDialog({
 }) async {
   final TextEditingController codeController = TextEditingController();
   bool isSubmitting = false;
-
   await showDialog(
     context: context,
+    barrierDismissible: false, // Prevents exiting dialog from tapping out of it
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
@@ -503,8 +503,7 @@ mixin Verification {
           title: "Verification",
           promptMessage: "Enter verification code sent to your email",
           onResendCode: () => verificationEntry.resendVerificationCode(),
-          onSumbittedCode: (int code) =>
-              verificationEntry.sendVerificationCode(code));
+          onSumbittedCode: verificationEntry.sendVerificationCode);
 
       entryResult = await verificationEntry.getResult();
       isSuccessful = entryResult.isSuccessful;

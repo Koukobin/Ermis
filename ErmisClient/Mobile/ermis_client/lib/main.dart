@@ -275,18 +275,15 @@ class MainInterfaceState extends State<MainInterface> {
 
   int _selectedPageIndex = 0;
 
-  /// TODO: refactor this crap into [AppEventBus]
-  static final void initialize = _initialize();
-  static void _initialize() {
-    AppEventBus.instance.on<ServerMessageInfoEvent>().listen((event) {
-      showToastDialog(event.message);
-    });
-  }
-
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedPageIndex);
+
+    AppEventBus.instance.on<ServerMessageInfoEvent>().listen((event) {
+      if (!mounted) return;
+      showToastDialog(event.message);
+    });
   }
 
   @override

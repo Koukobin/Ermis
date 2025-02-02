@@ -108,17 +108,17 @@ class VoiceCallUDPSocket {
 
   void _sendSingleMessage(Uint8List message) {
     final payload = ByteBuf.smallBuffer(growable: true);
-    payload.writeInt(_chatSessionID);
-    payload.writeInt(VoiceCallClientMessage.voice.id);
-    payload.writeInt(_key);
+    payload.writeInt32(_chatSessionID);
+    payload.writeInt32(VoiceCallClientMessage.voice.id);
+    payload.writeInt32(_key);
     payload.writeBytes(message);
     _udpSocket.send(payload.buffer, _remoteAddress, _remotePort);
   }
 
   void close() {
     ByteBuf buffer = ByteBuf.smallBuffer();
-    buffer.writeInt(_chatSessionID);
-    buffer.writeInt(VoiceCallClientMessage.endCall.id);
+    buffer.writeInt32(_chatSessionID);
+    buffer.writeInt32(VoiceCallClientMessage.endCall.id);
     send(buffer.buffer);
     _udpSocket.close();
   }

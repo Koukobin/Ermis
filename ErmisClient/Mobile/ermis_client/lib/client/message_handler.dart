@@ -78,10 +78,10 @@ class MessageHandler {
     Uint8List textBytes = utf8.encode(text);
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.clientContent.id);
-    payload.writeInt(MessageContentType.text.id);
-    payload.writeInt(chatSessionIndex);
-    payload.writeInt(textBytes.length);
+    payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(MessageContentType.text.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(textBytes.length);
     payload.writeBytes(textBytes);
 
     _outputStream.write(payload);
@@ -93,10 +93,10 @@ class MessageHandler {
 
     ByteBuf payload =
         ByteBuf(4 * 4 + fileNameBytes.length + fileContentBytes.length);
-    payload.writeInt(ClientMessageType.clientContent.id);
-    payload.writeInt(MessageContentType.file.id);
-    payload.writeInt(chatSessionIndex);
-    payload.writeInt(fileNameBytes.length);
+    payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(MessageContentType.file.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(fileNameBytes.length);
     payload.writeBytes(fileNameBytes);
     payload.writeBytes(fileContentBytes);
 
@@ -109,10 +109,10 @@ class MessageHandler {
 
     ByteBuf payload =
         ByteBuf(4 * 4 + fileNameBytes.length + fileContentBytes.length);
-    payload.writeInt(ClientMessageType.clientContent.id);
-    payload.writeInt(MessageContentType.image.id);
-    payload.writeInt(chatSessionIndex);
-    payload.writeInt(fileNameBytes.length);
+    payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(MessageContentType.image.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(fileNameBytes.length);
     payload.writeBytes(fileNameBytes);
     payload.writeBytes(fileContentBytes);
 
@@ -474,8 +474,8 @@ class Commands {
   // ignore: unused_element
   void _sendCommand(ClientCommandType commandType, ByteBuf payload) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(commandType.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(commandType.id);
     payload.writeByteBuf(payload);
 
     out.write(payload);
@@ -485,8 +485,8 @@ class Commands {
     var newUsernameBytes = utf8.encode(newDisplayName);
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.changeUsername.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.changeUsername.id);
     payload.writeBytes(newUsernameBytes);
 
     out.write(payload);
@@ -496,8 +496,8 @@ class Commands {
     var newPasswordBytes = utf8.encode(newPassword);
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.changePassword.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.changePassword.id);
     payload.writeBytes(newPasswordBytes);
 
     out.write(payload);
@@ -505,26 +505,26 @@ class Commands {
 
   void fetchUsername() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.fetchUsername.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchUsername.id);
 
     out.write(payload);
   }
 
   void fetchClientID() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.fetchClientId.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchClientId.id);
 
     out.write(payload);
   }
 
   void fetchWrittenText(int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.fetchWrittenText.id);
-    payload.writeInt(chatSessionIndex);
-    payload.writeInt(Client.instance()
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchWrittenText.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(Client.instance()
         .chatSessions![chatSessionIndex]
         .getMessages
         .length /* Number of messages client already has */);
@@ -534,50 +534,50 @@ class Commands {
 
   void fetchChatRequests() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.fetchChatRequests.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchChatRequests.id);
 
     out.write(payload);
   }
 
   void fetchChatSessions() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.fetchChatSessions.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchChatSessions.id);
 
     out.write(payload);
   }
 
   void requestDonationHTMLPage() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.requestDonationPage.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.requestDonationPage.id);
 
     out.write(payload);
   }
 
   void requestServerSourceCodeHTMLPage() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.requestSourceCodePage.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.requestSourceCodePage.id);
 
     out.write(payload);
   }
 
   void sendChatRequest(int userClientID) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.sendChatRequest.id);
-    payload.writeInt(userClientID);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.sendChatRequest.id);
+    payload.writeInt32(userClientID);
 
     out.write(payload);
   }
 
   void acceptChatRequest(int userClientID) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.acceptChatRequest.id);
-    payload.writeInt(userClientID);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.acceptChatRequest.id);
+    payload.writeInt32(userClientID);
 
     out.write(payload);
 
@@ -587,9 +587,9 @@ class Commands {
 
   void declineChatRequest(int userClientID) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.declineChatRequest.id);
-    payload.writeInt(userClientID);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.declineChatRequest.id);
+    payload.writeInt32(userClientID);
 
     out.write(payload);
 
@@ -598,9 +598,9 @@ class Commands {
 
   void deleteChatSession(int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.deleteChatSession.id);
-    payload.writeInt(chatSessionIndex);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.deleteChatSession.id);
+    payload.writeInt32(chatSessionIndex);
 
     out.write(payload);
 
@@ -609,20 +609,20 @@ class Commands {
 
   void deleteMessage(int chatSessionIndex, int messageID) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.deleteChatMessage.id);
-    payload.writeInt(chatSessionIndex);
-    payload.writeInt(messageID);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.deleteChatMessage.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(messageID);
 
     out.write(payload);
   }
   void deleteMessages(int chatSessionIndex, [List<int> otherMessageIDs = const []]) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.deleteChatMessage.id);
-    payload.writeInt(chatSessionIndex);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.deleteChatMessage.id);
+    payload.writeInt32(chatSessionIndex);
     for (int i = 0; i < otherMessageIDs.length; i++) {
-      payload.writeInt(otherMessageIDs[i]);
+      payload.writeInt32(otherMessageIDs[i]);
     }
 
     out.write(payload);
@@ -630,36 +630,36 @@ class Commands {
 
   void downloadFile(int messageID, int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.downloadFile.id);
-    payload.writeInt(chatSessionIndex);
-    payload.writeInt(messageID);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.downloadFile.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(messageID);
 
     out.write(payload);
   }
 
   void downloadImage(int messageID, int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.downloadImage.id);
-    payload.writeInt(chatSessionIndex);
-    payload.writeInt(messageID);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.downloadImage.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(messageID);
 
     out.write(payload);
   }
 
   void logoutThisDevice() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.logoutThisDevice.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.logoutThisDevice.id);
 
     out.write(payload);
   }
 
   void logoutOtherDevice(String ipAddress) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.logoutOtherDevice.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.logoutOtherDevice.id);
     payload.writeBytes(Uint8List.fromList(ipAddress.codeUnits));
 
     out.write(payload);
@@ -667,8 +667,8 @@ class Commands {
 
   void logoutAllDevices() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.logoutAllDevices.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.logoutAllDevices.id);
 
     out.write(payload);
   }
@@ -677,8 +677,8 @@ class Commands {
 
   Future<void> setAccountIcon(Uint8List accountIconBytes) async {
     ByteBuf payload = ByteBuf.smallBuffer(growable: true);
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.addAccountIcon.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.addAccountIcon.id);
     payload.writeBytes(accountIconBytes);
     pendingAccountIcon = accountIconBytes;
 
@@ -687,36 +687,36 @@ class Commands {
 
   void fetchDevices() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.fetchUserDevices.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchUserDevices.id);
     out.write(payload);
   }
 
   void fetchOtherAccountsAssociatedWithDevice() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.fetchOtherAccountsAssociatedWithDevice.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchOtherAccountsAssociatedWithDevice.id);
     out.write(payload);
   }
 
   void fetchAccountIcon() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.fetchAccountIcon.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchAccountIcon.id);
     out.write(payload);
   }
 
   void deleteAccount(String emailAddress, String password) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.deleteAccount.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.deleteAccount.id);
 
     // Write email
-    payload.writeInt(emailAddress.length);
+    payload.writeInt32(emailAddress.length);
     payload.writeBytes(utf8.encode(emailAddress));
 
     // Write password
-    payload.writeInt(password.length);
+    payload.writeInt32(password.length);
     payload.writeBytes(utf8.encode(password));
 
     out.write(payload);
@@ -724,15 +724,15 @@ class Commands {
 
   void addNewAccount() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.addNewAccount.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.addNewAccount.id);
     out.write(payload);
   }
 
   void switchAccount() {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.switchAccount.id);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.switchAccount.id);
     out.write(payload);
   }
 
@@ -746,9 +746,9 @@ class Commands {
 
   void startVoiceCall(int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.command.id);
-    payload.writeInt(ClientCommandType.startVoiceCall.id);
-    payload.writeInt(chatSessionIndex);
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.startVoiceCall.id);
+    payload.writeInt32(chatSessionIndex);
     out.write(payload);
   }
 }

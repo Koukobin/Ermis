@@ -23,7 +23,9 @@ import 'package:ermis_client/main_ui/chats/temp.dart';
 import 'package:ermis_client/main_ui/settings/linked_devices_settings.dart';
 import 'package:ermis_client/main_ui/settings/settings_interface.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../util/image_utils.dart';
 import '../../util/transitions_util.dart';
@@ -109,32 +111,52 @@ class InteractiveUserAvatar extends StatelessWidget {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
     Size calculateImageDimensions() {
+      const double maxWidth = 550;
+      const double maxHeight = 550;
+
       Size dimensions = ImageUtils.getImageDimensions(imageBytes);
       double width = dimensions.width;
       double height = dimensions.height;
 
-      // Iterations variable ensures while loop never causes a crash even if done wrong
-      int iterations = 100;
-      while (iterations > 0) {
-        iterations--;
-        if (width > 450) {
-          width -= 100;
-          height = (1 / dimensions.aspectRatio) * width;
+      if (width > height) {
+        width = maxWidth;
 
-          if (height > 450) continue;
-
-          break;
+        if (height > maxHeight) {
+          width = width / dimensions.aspectRatio;
+          height = dimensions.aspectRatio * width;
         }
-
-        if (height > 450) {
-          height -= 100;
-          width = dimensions.aspectRatio * height;
-
-          if (width > 450) continue;
-
-          break;
-        }
+      } else {
+        height = maxHeight;
+        width = dimensions.aspectRatio * height;
       }
+
+      /**
+       * Initial shitty calculation of the images' dimensions kept here for science purposes
+       * 
+			 * double width = maxWidth;
+			 * double height = dimensions.height;
+			 * 
+			 * // Iterations flag ensures while loop never causes a crash even
+			 * // if done wrong
+			 * int iterations = 100;
+			 * while (iterations > 0) {
+			 * 	iterations--;
+			 * 	if (width > maxWidth) {
+			 * 		width -= 100;
+			 * 		height = (1 / dimensions.aspectRatio) * width;
+			 * 	}
+			 * 
+			 * 	if (height > maxHeight) {
+			 * 		height -= 100;
+			 * 		width = dimensions.aspectRatio * height;
+			 * 	}
+			 * 
+			 * 	if (width > maxWidth || height > maxHeight)
+			 * 		continue;
+			 * 
+			 * 	break;
+			 * }
+			 */
 
       return Size(width, height);
     }
@@ -142,12 +164,17 @@ class InteractiveUserAvatar extends StatelessWidget {
     Size? imageDimensions;
     if (imageBytes.isNotEmpty) {
       imageDimensions = calculateImageDimensions();
+
+      if (kDebugMode) {
+        debugPrint(imageDimensions.width.toString());
+        debugPrint(imageDimensions.height.toString());
+      }
     }
 
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
-        barrierDismissible: true,
+        barrierDismissible: false,
         pageBuilder: (context, _, __) => GestureDetector(
           onTap: Navigator.of(context).pop,
           child: Padding(
@@ -297,11 +324,6 @@ class ChatsState extends TempState<Chats> {
       _updateChatSessions(event.sessions);
     }));
 
-    AppEventBus.instance.on<ServerMessageInfoEvent>().listen((event) {
-      if (!mounted) return;
-      showToastDialog(event.message);
-    });
-
     // Whenever text changes performs search
     _searchController.addListener(() {
       if (!mounted) {
@@ -357,8 +379,7 @@ class ChatsState extends TempState<Chats> {
             ),
             PopupMenuButton<VoidCallback>(
               position: PopupMenuPosition.under,
-              menuPadding:
-                  const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+              menuPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
               onSelected: (callback) {
                 callback();
               },
@@ -484,8 +505,7 @@ class ChatsState extends TempState<Chats> {
           return Scaffold(
             appBar: appBar,
             backgroundColor: appColors.secondaryColor,
-            floatingActionButtonLocation: FloatingActionButtonLocation
-                .endFloat, // Position at the bottom right
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Position at the bottom right
             floatingActionButton: SendChatRequestButton(),
             body: RefreshIndicator(
               // if user scrolls downwards refresh chat requests
@@ -679,8 +699,7 @@ class SendChatRequestButton extends StatefulWidget {
   }
 }
 
-class _SendChatRequestButtonState extends State<SendChatRequestButton>
-    with TickerProviderStateMixin {
+class _SendChatRequestButtonState extends State<SendChatRequestButton> with TickerProviderStateMixin {
   static late TickerProvider _vsync;
 
   double _widgetOpacity = 0.0;
@@ -689,26 +708,35 @@ class _SendChatRequestButtonState extends State<SendChatRequestButton>
   void initState() {
     super.initState();
     _vsync = this;
-    Future.delayed(Duration(milliseconds: 400), () {
-      if (mounted) {
-        setState(() => _widgetOpacity = 1.0);
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: AnimatedOpacity(
-        duration: Duration(milliseconds: 200),
-        opacity: _widgetOpacity,
-        child: FloatingActionButton(
-          onPressed: () =>
-              SendChatRequestButton.showAddChatRequestDialog(context),
-          backgroundColor: appColors.primaryColor,
-          child: Icon(Icons.add),
+    return VisibilityDetector(
+      key: Key('send-chat-request-button'),
+      onVisibilityChanged: (VisibilityInfo info) {
+        if (info.visibleFraction > 0) {
+          setState(() {
+            _widgetOpacity = 1.0;
+          });
+          return;
+        }
+
+        setState(() {
+          _widgetOpacity = 0.0;
+        });
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: AnimatedOpacity(
+          duration: Duration(milliseconds: 200),
+          opacity: _widgetOpacity,
+          child: FloatingActionButton(
+            onPressed: () => SendChatRequestButton.showAddChatRequestDialog(context),
+            backgroundColor: appColors.primaryColor,
+            child: Icon(Icons.add),
+          ),
         ),
       ),
     );
@@ -718,8 +746,11 @@ class _SendChatRequestButtonState extends State<SendChatRequestButton>
 class SearchField extends StatefulWidget {
   final TextEditingController searchController;
   final FocusNode focusNode;
-  const SearchField(
-      {required this.searchController, required this.focusNode, super.key});
+  const SearchField({
+    super.key,
+    required this.searchController,
+    required this.focusNode,
+  });
 
   @override
   State<SearchField> createState() => _SearchFieldState();

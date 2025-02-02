@@ -34,8 +34,7 @@ class ProfileSettings extends StatefulWidget {
   State<ProfileSettings> createState() => _ProfileSettingsState();
 }
 
-class _ProfileSettingsState extends State<ProfileSettings>
-    with SingleTickerProviderStateMixin {
+class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProviderStateMixin {
   int _clientID = Client.instance().clientID;
   String _displayName = Client.instance().displayName ?? "";
 

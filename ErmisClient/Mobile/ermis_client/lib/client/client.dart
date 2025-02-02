@@ -110,10 +110,10 @@ class Client {
   ///          attempt was successful.
   Future<bool> attemptHashedLogin(LocalAccountInfo userInfo) async {
     ByteBuf buffer = ByteBuf.smallBuffer();
-    buffer.writeInt(ClientMessageType.entry.id);
-    buffer.writeInt(EntryType.login.id);
+    buffer.writeInt32(ClientMessageType.entry.id);
+    buffer.writeInt32(EntryType.login.id);
 
-    buffer.writeInt(userInfo.email.length);
+    buffer.writeInt32(userInfo.email.length);
     buffer.writeBytes(utf8.encode(userInfo.email));
     buffer.writeBytes(utf8.encode(userInfo.passwordHash));
 
@@ -209,9 +209,9 @@ class Entry<T extends CredentialInterface> {
       String credentialValue = credential.value;
 
       ByteBuf payload = ByteBuf.smallBuffer();
-      payload.writeInt(ClientMessageType.entry.id);
+      payload.writeInt32(ClientMessageType.entry.id);
       payload.writeBoolean(isAction);
-      payload.writeInt(credentialInt);
+      payload.writeInt32(credentialInt);
       payload.writeBytes(Uint8List.fromList(credentialValue.codeUnits));
 
       outputStream.write(payload);
@@ -231,17 +231,17 @@ class Entry<T extends CredentialInterface> {
 
   void sendEntryType() {
     outputStream.write(ByteBuf.smallBuffer()
-      ..writeInt(ClientMessageType.entry.id)
-      ..writeInt(entryType.id));
+      ..writeInt32(ClientMessageType.entry.id)
+      ..writeInt32(entryType.id));
   }
 
   Future<void> sendVerificationCode(int verificationCode) async {
     bool isAction = false;
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.entry.id);
+    payload.writeInt32(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
-    payload.writeInt(verificationCode);
+    payload.writeInt32(verificationCode);
 
     outputStream.write(payload);
   }
@@ -273,9 +273,9 @@ class Entry<T extends CredentialInterface> {
     bool isAction = true;
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.entry.id);
+    payload.writeInt32(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
-    payload.writeInt(VerificationAction.resendCode.id);
+    payload.writeInt32(VerificationAction.resendCode.id);
 
     outputStream.write(payload);
   }
@@ -319,10 +319,10 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
     int actionId = CreateAccountAction.addDeviceInfo.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.entry.id);
+    payload.writeInt32(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
-    payload.writeInt(actionId);
-    payload.writeInt(deviceType.id);
+    payload.writeInt32(actionId);
+    payload.writeInt32(deviceType.id);
     payload.writeBytes(utf8.encode(osName));
 
     outputStream.write(payload);
@@ -340,9 +340,9 @@ class LoginEntry extends Entry<LoginCredential> {
     int actionId = LoginAction.togglePasswordType.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.entry.id);
+    payload.writeInt32(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
-    payload.writeInt(actionId);
+    payload.writeInt32(actionId);
 
     outputStream.write(payload);
   }
@@ -352,10 +352,10 @@ class LoginEntry extends Entry<LoginCredential> {
     int actionId = LoginAction.addDeviceInfo.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt(ClientMessageType.entry.id);
+    payload.writeInt32(ClientMessageType.entry.id);
     payload.writeBoolean(isAction);
-    payload.writeInt(actionId);
-    payload.writeInt(deviceType.id);
+    payload.writeInt32(actionId);
+    payload.writeInt32(deviceType.id);
     payload.writeBytes(utf8.encode(osName));
 
     outputStream.write(payload);

@@ -62,7 +62,7 @@ class ByteBufInputStream {
           messageLength = message.length;
         }
 
-        buffer.removeLeftOverData();
+        buffer.discardReadBytes();
         return ByteBuf.wrap(message);
       }
 
