@@ -17,8 +17,8 @@
 import '../exceptions/EnumNotFoundException.dart';
 
 enum ServerMessageType {
-  clientContent(0),
-  messageSuccefullySent(1),
+  clientMessage(0),
+  messageDeliveryStatus(1),
   voiceCallIncoming(2),
   serverMessageInfo(3),
   commandResult(4);

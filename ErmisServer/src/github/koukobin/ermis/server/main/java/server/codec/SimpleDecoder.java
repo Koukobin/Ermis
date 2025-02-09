@@ -19,8 +19,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * Simple decoder intended for lightweight operations with small message sizes.
- * This decoder is typically replaced with the main decoder after registration.
+ * This decoder is intended for lightweight operations with small message sizes.
+ * It should typically be replaced with the {@link PrimaryDecoder} after
+ * registration/authentication.
  *
  * @author Ilias Koukovinis
  *
@@ -42,11 +43,10 @@ public final class SimpleDecoder extends Decoder {
      * @return {@code true} if the message is valid and within length limits; {@code false} otherwise
      */
 	@Override
-	public boolean handleMessage(ChannelHandlerContext ctx, int length, ByteBuf in) {
-
+	public boolean decodeMessage(ChannelHandlerContext ctx, int length, ByteBuf in) {
 		// Validate message length
 		if (MAX_LENGTH < length) {
-			sendMessageExceedsMaximumMessageLength(ctx, MAX_LENGTH);
+			Decoder.sendMessageExceedsMaximumMessageLength(ctx, MAX_LENGTH);
 			return false; // Failure
 		}
 

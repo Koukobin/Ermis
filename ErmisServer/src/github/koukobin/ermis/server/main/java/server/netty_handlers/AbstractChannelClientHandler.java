@@ -20,8 +20,6 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.common.base.Throwables;
-
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -101,7 +99,7 @@ abstract sealed class AbstractChannelClientHandler extends ChannelInboundHandler
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		LOGGER.error("Exception caught: {}", Throwables.getStackTraceAsString(cause));
+		LOGGER.error("Exception caught: {}", cause);
 	}
 	
 	public static final Logger getLogger() {

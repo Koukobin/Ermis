@@ -34,12 +34,13 @@ public final class UserMessage {
 	private byte[] fileName;
 
 	private long timeWritten;
-
+	private boolean isRead;
+	
 	private ClientContentType contentType;
 
 	public UserMessage() {}
 
-	public UserMessage(String username, int clientID, int messageID, int chatSessionID, byte[] text, byte[] fileName, long timeWritten, ClientContentType contentType) {
+	public UserMessage(String username, int clientID, int messageID, int chatSessionID, byte[] text, byte[] fileName, long timeWritten, boolean isRead, ClientContentType contentType) {
 		this.username = username;
 		this.clientID = clientID;
 		this.messageID = messageID;
@@ -47,6 +48,7 @@ public final class UserMessage {
 		this.text = text;
 		this.fileName = fileName;
 		this.timeWritten = timeWritten;
+		this.isRead = isRead;
 		this.contentType = contentType;
 	}
 
@@ -109,6 +111,10 @@ public final class UserMessage {
 	public long getTimeWritten() {
 		return timeWritten;
 	}
+	
+	public boolean isRead() {
+		return isRead;
+	}
 
 	public ClientContentType getContentType() {
 		return contentType;
@@ -142,6 +148,7 @@ public final class UserMessage {
 				&& messageID == other.messageID
 				&& Arrays.equals(text, other.text) 
 				&& Objects.equals(timeWritten, other.getTimeWritten())
+				&& isRead == other.isRead
 				&& Objects.equals(username, other.username);
 	}
 

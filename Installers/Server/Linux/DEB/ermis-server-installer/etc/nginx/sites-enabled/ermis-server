@@ -31,6 +31,12 @@ server {
 	    root /var/ermis-server/www/;
 	    try_files $uri $uri/ =404;
     }
+    
+    # Support/Donation page
+    location /support {
+        root /var/ermis-server/www/;
+        try_files donation.html =404;
+    }
 
     # Serve static images
     location ~ \.(gif|jpg|png|svg)$ {

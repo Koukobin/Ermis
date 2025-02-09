@@ -110,7 +110,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			String currentUsername = clientInfo.getUsername();
 			
 			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+			payload.writeInt(ServerMessageType.SERVER_INFO.id);
 			
 			if (newUsername.equals(currentUsername)) {
 				payload.writeBytes("Username cannot be the same as old username!".getBytes());
@@ -147,7 +147,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}
 
 			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+			payload.writeInt(ServerMessageType.SERVER_INFO.id);
 			payload.writeBytes(resultHolder.getResultMessage().getBytes());
 			channel.writeAndFlush(payload);
 		}
@@ -197,7 +197,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				channel.writeAndFlush(payload);
 			}, () -> {
 				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeInt(ServerMessageType.SERVER_INFO.id);
 				payload.writeBytes("An error occured while trying to fetch file from database!".getBytes());
 				channel.writeAndFlush(payload);
 			});
@@ -215,7 +215,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			
 			if (!success) {
 				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeInt(ServerMessageType.SERVER_INFO.id);
 				payload.writeBytes("An error occured while trying to send chat request!".getBytes());
 				channel.writeAndFlush(payload);
 				return;
@@ -237,10 +237,9 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				}
 			}
 			
-			optionalChatSessionID.ifPresentOrElse(null, null);
 			if (optionalChatSessionID.isEmpty()) {
 				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeInt(ServerMessageType.SERVER_INFO.id);
 				payload.writeBytes("Something went wrong while trying accept chat request!".getBytes());
 				channel.writeAndFlush(payload);
 				return;
@@ -275,7 +274,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}
 
 			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+			payload.writeInt(ServerMessageType.SERVER_INFO.id);
 			payload.writeBytes("Something went wrong while trying to decline chat request!".getBytes());
 			channel.writeAndFlush(payload);
 		}
@@ -307,7 +306,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				}
 			} else {
 				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeInt(ServerMessageType.SERVER_INFO.id);
 				payload.writeBytes("Something went wrong while trying delete chat session!".getBytes());
 				channel.writeAndFlush(payload);
 			}
@@ -391,7 +390,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			args.readBytes(addressBytes);
 
 			InetAddress address;
-			
+
 			try {
 				address = InetAddress.getByName(new String(addressBytes));
 			} catch (UnknownHostException uhe) {
@@ -551,38 +550,39 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				channel.writeAndFlush(payload);
 			}, () -> {
 				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+				payload.writeInt(ServerMessageType.SERVER_INFO.id);
 				payload.writeBytes("An error occured while trying to fetch profile photo from database!".getBytes());
 				channel.writeAndFlush(payload);
 			});
 		}
 		case FETCH_WRITTEN_TEXT -> {
-			
 			int chatSessionIndex = args.readInt();
 			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
 
 			int numOfMessagesAlreadySelected = args.readInt();
-			
+
 			UserMessage[] messages;
-			
+
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				messages = conn.selectMessages(chatSessionID, numOfMessagesAlreadySelected, ServerSettings.NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME);
+				messages = conn.selectMessages(chatSessionID, 
+						numOfMessagesAlreadySelected,
+						ServerSettings.NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME,
+						clientInfo.getClientID());
 			}
-			
+
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.GET_WRITTEN_TEXT.id);
 			payload.writeInt(chatSessionIndex);
 
 			for (int i = 0; i < messages.length; i++) {
-
 				UserMessage message = messages[i];
 				byte[] messageBytes = message.getText();
 				byte[] fileNameBytes = message.getFileName();
 				byte[] usernameBytes = message.getUsername().getBytes();
 				long timeWritten = message.getTimeWritten();
 				ClientContentType contentType = message.getContentType();
-				
+
 				payload.writeInt((contentType.id));
 				payload.writeInt(message.getClientID());
 				payload.writeInt(message.getMessageID());
@@ -591,7 +591,8 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				payload.writeBytes(usernameBytes);
 
 				payload.writeLong(timeWritten);
-				
+				payload.writeBoolean(message.isRead());
+
 				switch (contentType) {
 				case TEXT -> {
 					payload.writeInt(messageBytes.length);
@@ -776,7 +777,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		}
 		default -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+			payload.writeInt(ServerMessageType.SERVER_INFO.id);
 			payload.writeBytes("Command \"%s\" not implemented!".formatted(commandType.name()).getBytes());
 
 			channel.writeAndFlush(payload);

@@ -52,7 +52,7 @@ void main() {
 
     test('Write and read int', () {
       ByteBuf buf = ByteBuf(10);
-      buf.writeInt(0x12345678);
+      buf.writeInt32(0x12345678);
       expect(buf.readInt32(), 0x12345678);
     });
 
@@ -90,11 +90,11 @@ void main() {
       expect(buf.readBytes(buf.readableBytes), [1, 2, 1]);
     });
 
-    test('Remove leftover data', () {
+    test('Discarding already read bytes', () {
       ByteBuf buf = ByteBuf(10);
       buf.writeBytes(Uint8List.fromList([1, 2, 3, 4, 5]));
       buf.readBytes(3); // Read [1, 2, 3]
-      buf.removeLeftOverData();
+      buf.discardReadBytes();
       expect(buf.readableBytes, 2); // Only [4, 5] remain
       expect(buf.readBytes(buf.readableBytes), [4, 5]);
     });

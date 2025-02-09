@@ -20,7 +20,6 @@ import 'dart:async';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'dialogs_utils.dart';
@@ -33,15 +32,12 @@ Future<bool> checkPermission(Permission permission) async {
   return true;
 }
 
-Future<bool> requestPermissions({BuildContext? context}) async {
+Future<bool> requestPermissions() async {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
-  if (kDebugMode && context != null) {
-    showSimpleAlertDialog(
-        context: context,
-        title: "Debug Mode",
-        content: "Android Version:${androidInfo.version.sdkInt.toString()}");
+  if (kDebugMode) {
+    showToastDialog("Android Version:${androidInfo.version.sdkInt.toString()}");
   }
 
   // WARNING: very shitty code
@@ -60,7 +56,7 @@ Future<bool> requestPermissions({BuildContext? context}) async {
     ];
 
     for (Permission permission in permissions) {
-      success |= await checkPermission(permission);
+      success &= await checkPermission(permission);
     }
   }
 

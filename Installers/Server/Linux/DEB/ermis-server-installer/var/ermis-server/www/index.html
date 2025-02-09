@@ -47,48 +47,8 @@
             text-align: center;
         }
 
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #121212;
-            padding: 15px 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            transition: background-color 0.3s ease;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            color: green;
-            margin: 0;
-        }
-
         .logo img {
             height: 50px;
-        }
-
-        /* Button to toggle dark/light mode */
-        .dark-mode-toggle {
-            background: transparent;
-            border: 2px solid #76ff03;
-            color: green;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .dark-mode-toggle:hover {
-            background-color: #76ff03;
-            color: green;
         }
 
         /* Main Section */
@@ -174,39 +134,149 @@
                 font-size: 2rem;
             }
         }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+
+
+.sticky-header {
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 5px 5px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+    background: #0F0F0E;
+    color: white;
+}
+        .sticky-header h1 {
+            font-size: 2.5rem;
+            color: green;
+            margin: 0;
+        }
+
+.sticky-header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.sticky-header nav ul li {
+    margin-right: 20px;
+}
+
+.sticky-header nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Hide header by moving it up */
+.hide-header {
+    transform: translateY(-100%);
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 40px; /* Adjust size as needed */
+    height: auto;
+}
+
+.nav-title {
+    flex: 2;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.nav-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.nav-right ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.nav-right ul li {
+    margin-left: 20px;
+}
+
+.nav-right ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+main {
+    padding-top: 60px;
+}
+
+/* Extra content for scrolling */
+.spacer {
+    height: 200vh;
+    background: linear-gradient(to bottom, #f0f0f0, #ddd);
+}
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">
-            <img src="https://SERVER_ADDRESS/server_logo.png" alt="Ermis-Server Logo">
+    <div class="sticky-header">
+        <div class="nav-left">
+            <img src="https://SERVER_ADDRESS/server_logo.png" alt="Ermis Logo" class="logo"> <!-- Your icon -->
         </div>
-        <h1>Ermis-Server</h1>
-        <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark/Light Mode</button>
+        <h1 class="nav-title">Ermis</h1>
     </div>
 
     <div class="container">
         <div class="main-section">
-            <h2>Welcome to ermis-server!</h2>
-            <p>Your powerful and customizable Java-based chat server is up and running! Ermis-server is designed for easy deployment and rich configuration options. Follow the links below to start your journey.</p>
+            <h2>Welcome To Ermis Server SERVER_ADDRESS!</h2>
+            <p>This Ermis server instance provides reliable and secure messaging - ensured by its cutting-edge encryption and cybersecurity - in conjuction with the Ermis client applications. Below, you'll find useful resources related to this server.</p>
         </div>
 
         <div class="card">
-            <h3>Quick Start Guide</h3>
-            <p>Get started with the Ermis-server setup by following our easy-to-understand guide.</p>
-            <a href="/docs/setup">Read the Setup Guide</a>
+            <h3>How to Connect</h3>
+            <p>Learn how to connect to this server from the Ermis app.</p>
+            <a href="/docs/connect">View Connection Guide</a>
         </div>
 
         <div class="card">
-            <h3>Configuration</h3>
-            <p>Customize your server's behavior and set preferences for user management, server settings, and more.</p>
-            <a href="/docs/configure">Configure Your Server</a>
+            <h3>Server Rules & Policies</h3>
+            <p>Read the guidelines for using this server responsibly.</p>
+            <a href="/docs/rules">View Rules</a>
         </div>
 
         <div class="card">
-            <h3>API Documentation</h3>
-            <p>Explore the comprehensive API documentation to integrate Ermis-server with your application.</p>
-            <a href="/docs/api">API Docs</a>
+            <h3>Troubleshooting</h3>
+            <p>Having issues? Check out solutions to common problems.</p>
+            <a href="/docs/help">Get Help</a>
+        </div>
+
+        <div class="card">
+            <h3>Support</h3>
+            <p>The server is kept running through donations. Every ounce of contribution is greatly appreciated.</p>
+            <a href="/support">Support</a>
         </div>
 
         <div class="footer">
@@ -216,9 +286,22 @@
     </div>
 
     <script>
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-        }
+   let lastScrollTop = 0;
+const header = document.querySelector('.sticky-header');
+
+window.addEventListener('scroll', () => {
+    let currentScroll = window.scrollY;
+
+    if (currentScroll > lastScrollTop) {
+        // Scrolling down
+        header.classList.add('hide-header');
+    } else {
+        // Scrolling up
+        header.classList.remove('hide-header');
+    }
+
+    lastScrollTop = currentScroll;
+});
     </script>
 </body>
 </html>

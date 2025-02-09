@@ -151,7 +151,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               },
             ),
             ListTile(
-              leading: Icon(FontAwesomeIcons.trash),
+              leading: Icon(FontAwesomeIcons.solidTrashCan, color: Colors.redAccent,),
               title: Text('Delete account'),
               onTap: () {
                 pushHorizontalTransition(context, const DeleteAccountSettings());

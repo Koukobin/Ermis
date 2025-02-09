@@ -33,6 +33,7 @@ import 'common/entry/create_account_info.dart';
 import 'common/entry/entry_type.dart';
 import 'common/entry/login_info.dart';
 import 'common/entry/verification.dart';
+import 'common/message.dart';
 import 'common/message_types/client_message_type.dart';
 import 'common/results/ResultHolder.dart';
 import 'common/results/entry_result.dart';
@@ -122,19 +123,16 @@ class Client {
     return _isLoggedIn = (await _inputStream!.read()).readBoolean();
   }
 
-  void sendMessageToClient(String text, int chatSessionIndex) {
-    _messageHandler.sendMessageToClient(text, chatSessionIndex);
+  Message sendMessageToClient(String text, int chatSessionIndex) {
+    return _messageHandler.sendMessageToClient(text, chatSessionIndex);
   }
 
-  void sendImageToClient(
-      String fileName, Uint8List fileBytes, int chatSessionIndex) {
-    _messageHandler.sendImageToClient(fileName, fileBytes, chatSessionIndex);
+  Message sendImageToClient(String fileName, Uint8List fileBytes, int chatSessionIndex) {
+    return _messageHandler.sendImageToClient(fileName, fileBytes, chatSessionIndex);
   }
 
-  void sendFileToClient(
-      String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
-    _messageHandler.sendFileToClient(
-        fileName, fileContentBytes, chatSessionIndex);
+  Message sendFileToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
+    return _messageHandler.sendFileToClient(fileName, fileContentBytes, chatSessionIndex);
   }
 
   Entry createNewVerificationEntry() {
@@ -176,6 +174,7 @@ class Client {
   ServerInfo get serverInfo => ServerInfo(uri!);
   List<UserDeviceInfo> get userDevices => _messageHandler.usesDevices;
   List<Account>? get otherAccounts => _messageHandler.otherAccounts;
+  MessageHandler get messageHandler => _messageHandler;
 
   bool isLoggedIn() {
     return _isLoggedIn;

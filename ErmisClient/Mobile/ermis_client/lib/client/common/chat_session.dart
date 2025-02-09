@@ -70,7 +70,7 @@ class ChatSession {
     }
 
     DateTime localTime =
-        DateTime.fromMillisecondsSinceEpoch(message.timeWritten, isUtc: true)
+        DateTime.fromMillisecondsSinceEpoch(message.epochSecond, isUtc: true)
             .toLocal();
 
     if (DateTime.now().difference(localTime).inDays >= 1) {

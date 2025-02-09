@@ -43,7 +43,7 @@ public final class EnumIntConverter {
 		if (result == null) {
 			// TODO refactor; instead of throwing IndexOutOfBoundsException to throw
 			// IllegalArgumentException
-			throw new IndexOutOfBoundsException(
+			throw new IllegalArgumentException(
 					"No enum constant with ID " + id + " exists for " + map.getClass().getTypeName());
 		}
 

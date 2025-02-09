@@ -17,6 +17,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
+
 import 'message_types/content_type.dart';
 
 class Message {
@@ -27,10 +29,10 @@ class Message {
   int _chatSessionIndex;
   Uint8List? _text;
   Uint8List? _fileName;
-  Uint8List? _imageBytes;
-  int _timeWritten;
+  Uint8List? imageBytes;
+  int _epochSecond;
   MessageContentType _contentType;
-  bool _isSent = false;
+  MessageDeliveryStatus _deliveryStatus;
 
   Message({
     required String username,
@@ -40,12 +42,12 @@ class Message {
     required int chatSessionIndex,
     Uint8List? text,
     Uint8List? fileName,
-    required int timeWritten,
+    required int epochSecond,
     required MessageContentType contentType,
-    required bool isSent,
-  })  : _isSent = isSent,
+    required MessageDeliveryStatus deliveryStatus,
+  })  : _deliveryStatus = deliveryStatus,
         _contentType = contentType,
-        _timeWritten = timeWritten,
+        _epochSecond = epochSecond,
         _fileName = fileName,
         _clientID = clientID,
         _messageID = messageID,
@@ -62,22 +64,20 @@ class Message {
         _chatSessionIndex = 0,
         _text = null,
         _fileName = null,
-        _timeWritten = 0,
+        _epochSecond = 0,
         _contentType = MessageContentType.text, // Assuming a default value
-        _isSent = false;
+        _deliveryStatus = MessageDeliveryStatus.sending;
 
   void setUsername(String username) => _username = username;
-  void setIsSent(bool isSent) => _isSent = isSent;
+  void setDeliveryStatus(MessageDeliveryStatus deliveryStatus) => _deliveryStatus = deliveryStatus;
   void setClientID(int clientID) => _clientID = clientID;
   void setMessageID(int messageID) => _messageID = messageID;
   void setChatSessionID(int chatSessionID) => _chatSessionID = chatSessionID;
   void setChatSessionIndex(int chatSessionIndex) => _chatSessionIndex = chatSessionIndex;
   void setText(Uint8List? text) => _text = text;
   void setFileName(Uint8List? fileName) => _fileName = fileName;
-  set imageBytes(Uint8List? imageBytes) => _imageBytes = imageBytes;
-  void setTimeWritten(int timeWritten) => _timeWritten = timeWritten;
-  void setContentType(MessageContentType contentType) =>
-      _contentType = contentType;
+  void setEpochSecond(int epochSecond) => _epochSecond = epochSecond;
+  void setContentType(MessageContentType contentType) => _contentType = contentType;
 
   String get username => _username;
   int get clientID => _clientID;
@@ -99,11 +99,9 @@ class Message {
 
     return utf8.decode(_fileName!.toList(), allowMalformed: true);
   }
-
-  Uint8List? get imageBytes => _imageBytes;
-  int get timeWritten => _timeWritten;
+  int get epochSecond => _epochSecond;
   MessageContentType get contentType => _contentType;
-  bool get isSent => _isSent;
+  MessageDeliveryStatus get deliveryStatus => _deliveryStatus;
 
   @override
   int get hashCode => _messageID.hashCode;
@@ -119,13 +117,13 @@ class Message {
         _messageID == other._messageID &&
         _text == other._text &&
         _fileName == other._fileName &&
-        _timeWritten == other._timeWritten &&
+        _epochSecond == other._epochSecond &&
         _username == other._username;
   }
 
   @override
   String toString() {
     return 'Message{username: $_username, clientID: $_clientID, messageID: $_messageID, chatSessionID: $_chatSessionID, '
-        'chatSessionIndex $_chatSessionIndex, text: $_text, fileName: $_fileName, timeWritten: $_timeWritten, contentType: $_contentType}';
+        'chatSessionIndex $_chatSessionIndex, text: $_text, fileName: $_fileName, timeWritten: $_epochSecond, contentType: $_contentType}';
   }
 }

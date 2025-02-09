@@ -43,7 +43,6 @@ public class t {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-
 ////		AESGCMCipher key = AESKeyGenerator.generateAESKey();
 //		prependWavHeader(
 //		        "/home/ilias/test.wav",  // Input raw PCM file

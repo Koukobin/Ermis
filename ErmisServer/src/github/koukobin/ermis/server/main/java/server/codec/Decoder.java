@@ -33,14 +33,14 @@ public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 	private int length;
 
 	protected Decoder() {}
-	
+
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		if (!hasReadLength) {
 			length = in.readInt();
 
 			int readerIndex = in.readerIndex();
-			isDecodingSuccessful = handleMessage(ctx, length, in);
+			isDecodingSuccessful = decodeMessage(ctx, length, in);
 			in.readerIndex(readerIndex);
 
 			checkpoint();
@@ -59,7 +59,7 @@ public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 		hasReadLength = false;
 		checkpoint();
 	}
-	
+
 	/**
 	 * 
 	 * @param ctx
@@ -67,12 +67,12 @@ public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 	 * @param in
 	 * @return Whether or not handling message was successful
 	 */
-	public abstract boolean handleMessage(ChannelHandlerContext ctx, int length, ByteBuf in);
+	public abstract boolean decodeMessage(ChannelHandlerContext ctx, int length, ByteBuf in);
 
 	protected static void sendMessageExceedsMaximumMessageLength(ChannelHandlerContext ctx, int maxLength) {
-		MessageByteBufCreator.sendMessageInfo(ctx, "Message length exceeds maximum length (%d characters)".formatted(maxLength));
+		MessageByteBufCreator.sendMessageExceedsMaximumMessageLength(ctx, maxLength);
 	}
-	
+
 	protected static void createErrorResponse(ChannelHandlerContext ctx, String message) {
 		MessageByteBufCreator.sendMessageInfo(ctx, message);
 	}

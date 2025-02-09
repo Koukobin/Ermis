@@ -120,7 +120,6 @@ class _NotificationSettingsState extends State<NotificationSettings> {
             },
           ),
 
-          // Additional Settings (if any)
           const Divider(),
           const Text(
             "Other Settings",

@@ -34,16 +34,19 @@ public class DatabaseChatMessage {
 	private byte[] fileName;
 	private byte[] fileBytes;
 	
+	private boolean isRead;
+	
 	private ClientContentType contentType;
 	
 	public DatabaseChatMessage() {}
 
-	public DatabaseChatMessage(int clientID, int chatSessionID, byte[] text, byte[] fileName, byte[] fileBytes, ClientContentType contentType) {
+	public DatabaseChatMessage(int clientID, int chatSessionID, byte[] text, byte[] fileName, byte[] fileBytes, boolean isRead, ClientContentType contentType) {
 		this.clientID = clientID;
 		this.chatSessionID = chatSessionID;
 		this.text = text;
 		this.fileName = fileName;
 		this.fileBytes = fileBytes;
+		this.isRead = isRead;
 		this.contentType = contentType;
 	}
 
@@ -65,6 +68,10 @@ public class DatabaseChatMessage {
 	
 	public void setFileBytes(byte[] fileBytes) {
 		this.fileBytes = fileBytes;
+	}
+	
+	public void setIsRead(boolean isRead) {
+		this.isRead = isRead;
 	}
 	
 	public void setContentType(ClientContentType contentType) {
@@ -91,6 +98,10 @@ public class DatabaseChatMessage {
 		return fileBytes;
 	}
 	
+	public boolean isRead() {
+		return isRead;
+	}
+	
 	public ClientContentType getContentType() {
 		return contentType;
 	}
@@ -102,21 +113,20 @@ public class DatabaseChatMessage {
 		result = prime * result + Arrays.hashCode(fileBytes);
 		result = prime * result + Arrays.hashCode(fileName);
 		result = prime * result + Arrays.hashCode(text);
-		result = prime * result + Objects.hash(chatSessionID, clientID, contentType);
+		result = prime * result + Objects.hash(chatSessionID, clientID, contentType, isRead);
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		
 		if (this == obj) {
 			return true;
 		}
-		
+
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
@@ -127,17 +137,21 @@ public class DatabaseChatMessage {
 				&& contentType == other.contentType
 				&& Arrays.equals(fileBytes, other.fileBytes) 
 				&& Arrays.equals(fileName, other.fileName)
+				&& isRead == other.isRead 
 				&& Arrays.equals(text, other.text);
 	}
 
 	@Override
 	public String toString() {
-		return "DatabaseChatMessage [clientID=" + clientID 
-				+ ", chatSessionID=" + chatSessionID 
-				+ ", text=" + Arrays.toString(text) 
-				+ ", fileName=" + Arrays.toString(fileName) 
-				+ ", fileBytes=" + Arrays.toString(fileBytes) 
-				+ ", contentType=" 
-				+ contentType + "]";
+		return "DatabaseChatMessage ["
+				+ "clientID=" + clientID +
+				", chatSessionID=" + chatSessionID +
+				", text=" + Arrays.toString(text)
+				+ ", fileName=" + Arrays.toString(fileName)
+				+ ", fileBytes=" + Arrays.toString(fileBytes)
+				+ ", isRead=" + isRead
+				+ ", contentType=" + contentType
+				+ "]";
 	}
+	
 }

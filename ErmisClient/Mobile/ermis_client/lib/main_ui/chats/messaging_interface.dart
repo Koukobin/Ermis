@@ -17,6 +17,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/chats/voice_call.dart';
 import 'package:ermis_client/main_ui/settings/theme_settings.dart';
@@ -76,7 +77,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
 
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
-  final List<Message> pendingMessagesQueue = [];
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -224,19 +224,16 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       _messages.removeWhere((Message message) => message.messageID == messageID);
     });
 
-    AppEventBus.instance.on<MessageSentEvent>().listen((event) async {
+    AppEventBus.instance.on<MessageDeliveryStatusEvent>().listen((event) async {
       if (!mounted) return;
-      ChatSession session = event.session;
-      int messageID = event.messageID;
+      Message message = event.message;
 
-      if (session.chatSessionID == _chatSession.chatSessionID) {
-        Future.delayed(Duration(milliseconds: 100), () {
-          setState(() {
-            _messages.last..setIsSent(true)..setMessageID(messageID);
-          });
-        });
+      if (message.chatSessionID == _chatSession.chatSessionID) {
+        // Simply recall build since message delivery status
+        // has already been updated by the message handler.
+        // Yeah, I know. Extremely shitty code.
+        setState(() {});
       }
-      pendingMessagesQueue.removeLast();
     });
 
     AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
@@ -295,39 +292,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
     }
   }
 
-  void createPendingMessage(
-      {Uint8List? text,
-      Uint8List? fileName,
-      required MessageContentType contentType,
-      required int chatSessionID,
-      required int chatSessionIndex}) {
-    Message pendingMessage = Message(
-        text: text,
-        fileName: fileName,
-        username: Client.instance().displayName!,
-        clientID: Client.instance().clientID,
-        messageID: -1,
-        chatSessionID: chatSessionID,
-        chatSessionIndex: chatSessionIndex,
-        timeWritten: DateTime.now().millisecondsSinceEpoch,
-        contentType: contentType,
-        isSent: false);
-
-    pendingMessagesQueue.add(pendingMessage);
-    _addMessage(pendingMessage);
-  }
-
   void _sendTextMessage() {
     if (_inputController.text.trim().isEmpty) return;
 
-    Client.instance()
-        .sendMessageToClient(_inputController.text, _chatSessionIndex);
-
-    createPendingMessage(
-        text: Uint8List.fromList(utf8.encode(_inputController.text)),
-        contentType: MessageContentType.text,
-        chatSessionID: _chatSession.chatSessionID,
-        chatSessionIndex: _chatSessionIndex);
+    Message pendingMessage = Client.instance().sendMessageToClient(_inputController.text, _chatSessionIndex);
+    _addMessage(pendingMessage);
 
     _inputController.clear();
   }
@@ -438,12 +407,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
                           ? BoxDecoration(
                               color: appColors.secondaryColor.withOpacity(0.4),
                               borderRadius: BorderRadius.circular(10),
-                              border:
-                                  Border.all(color: Colors.white, width: 1.5),
+                              border: Border.all(color: Colors.white, width: 1.5),
                             )
                           : null,
                       child: MessageBubble(
-                          message: message, appColors: appColors)));
+                        message: message,
+                        appColors: appColors,
+                      )));
             },
           ),
         ),
@@ -523,11 +493,12 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
           SendFilePopupMenu(
             chatSessionIndex: _chatSessionIndex,
             fileCallBack: (String fileName, Uint8List fileContent) {
-              createPendingMessage(
-                  fileName: Uint8List.fromList(utf8.encode(fileName)),
-                  contentType: MessageContentType.file,
-                  chatSessionID: _chatSession.chatSessionID,
-                  chatSessionIndex: _chatSessionIndex);
+              Message pendingMessage = Client.instance().sendFileToClient(fileName, fileContent, widget.chatSessionIndex);
+              _addMessage(pendingMessage);
+            },
+            imageCallBack: (String fileName, Uint8List fileContent) {
+              Message pendingMessage = Client.instance().sendImageToClient(fileName, fileContent, widget.chatSessionIndex);
+              _addMessage(pendingMessage);
             },
           ),
           SizedBox(width: 15),
@@ -613,7 +584,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
 class MessageBubble extends StatelessWidget {
   final Message message;
   final AppColors appColors;
-  static DateTime lastMessageDate = DateTime.fromMicrosecondsSinceEpoch(500000);
+  static DateTime lastMessageDate = DateTime.fromMicrosecondsSinceEpoch(0);
 
   const MessageBubble({
     super.key,
@@ -623,14 +594,15 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isMessageOwner =
-        message.clientID == Client.instance().clientID;
+    final bool isMessageOwner = message.clientID == Client.instance().clientID;
 
-    DateTime currentMessageDate =
-        DateTime.fromMillisecondsSinceEpoch(message.timeWritten, isUtc: true)
-            .toLocal();
+    const int millisPerSecond = 1000;
+    DateTime currentMessageDate = DateTime.fromMillisecondsSinceEpoch(
+            message.epochSecond * millisPerSecond /* Convert seconds to millis */,
+            isUtc: true)
+        .toLocal();
 
-    bool isNewDay = lastMessageDate.day != currentMessageDate.day;
+    bool isNewDay = lastMessageDate.difference(currentMessageDate).inDays != 0;
     lastMessageDate = currentMessageDate;
 
     return Column(
@@ -639,58 +611,122 @@ class MessageBubble extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Center(
-                child: currentMessageDate.day == DateTime.now().day
+                child: !isNewDay
                     ? Text("Today")
                     : Text(
                         DateFormat("yyyy-MM-dd").format(currentMessageDate))),
           ),
-        Stack(
-          children: [
-            Align(
-              alignment:
-                  isMessageOwner ? Alignment.centerRight : Alignment.centerLeft,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (!isMessageOwner)
-                    Text(DateFormat("HH:mm").format(currentMessageDate),
-                        style: TextStyle(color: appColors.inferiorColor)),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    padding: const EdgeInsets.all(10),
-                    constraints: BoxConstraints(maxWidth: 225, maxHeight: 300),
-                    decoration: BoxDecoration(
-                      color: isMessageOwner
-                          ? appColors.primaryColor
-                          : const Color.fromARGB(100, 100, 100, 100),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: _buildMessageContent(context, message),
-                  ),
-                  if (isMessageOwner)
-                    Text(DateFormat("HH:mm").format(currentMessageDate),
-                        style: TextStyle(color: appColors.inferiorColor)),
-                ],
-              ),
-            ),
-            if (!message.isSent)
-              Positioned.fill(
+        Align(
+          alignment:
+              isMessageOwner ? Alignment.centerRight : Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: 250, // Limit max width to prevent overly wide messages
+                  minWidth: 100, // Ensure small messages don't shrink too much
+                ),
                 child: Container(
-                  color:
-                      Colors.black.withOpacity(0.3), // Semi-transparent overlay
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: appColors.inferiorColor,
-                      strokeWidth: 2.0,
-                    ),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  padding: const EdgeInsets.all(10),
+                  constraints:
+                      const BoxConstraints(maxWidth: 225, maxHeight: 300),
+                  decoration: BoxDecoration(
+                    gradient: isMessageOwner
+                        ? LinearGradient(
+                            colors: [Color.fromARGB(255, 30, 155, 25), Color.fromARGB(255, 68, 136, 66)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    color: isMessageOwner
+                        ? null
+                        : const Color.fromARGB(100, 100, 100, 100),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Stack(
+                    clipBehavior:
+                        Clip.none, // Enable positioning outside bounds
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _buildMessageContent(context, message),
+                      ),
+                      Positioned(
+                        bottom: -10,
+                        right: -10,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              DateFormat("HH:mm").format(currentMessageDate),
+                              style: TextStyle(
+                                  color: appColors.inferiorColor, fontSize: 12),
+                            ),
+                            const SizedBox(width: 3), // Small spacing
+                            if (isMessageOwner)
+                              _buildDeliveryIcon(message.deliveryStatus),
+                          ],
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ),
-          ],
+              // if (isMessageOwner)
+              //   Row(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: [
+              //       Text(
+              //         DateFormat("HH:mm").format(currentMessageDate),
+              //         style: TextStyle(color: appColors.inferiorColor),
+              //       ),
+              //       const SizedBox(width: 5), // Space between time and checkmarks
+              //       _buildDeliveryIcon(message.deliveryStatus),
+              //     ],
+              //   ),
+            ],
+          ),
         ),
       ],
     );
   }
+
+  Widget _buildDeliveryIcon(MessageDeliveryStatus status) {
+    IconData icon;
+    Color color = Colors.white;
+
+    switch (status) {
+      case MessageDeliveryStatus.sending:
+        return SizedBox(
+          height: 12,
+          width: 12,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: appColors.inferiorColor,
+          ),
+        );
+      case MessageDeliveryStatus.serverReceived:
+        icon = Icons.check; // ✅ Single checkmark
+        break;
+      case MessageDeliveryStatus.delivered:
+        icon = Icons.done_all; // ✅✅ Double checkmarks
+        color = Color(0xFF34B7F1); // Apparently the color used by WhatsApp for read messages (According to ChatGPT)
+        break;
+      case MessageDeliveryStatus.failed:
+        icon = Icons.sms_failed_rounded;
+        color = Colors.redAccent;
+        break;
+      case MessageDeliveryStatus.rejected:
+        icon = Icons.block;
+        color = Colors.redAccent;
+    }
+
+    return Icon(icon, size: 16, color: color);
+  }
+
 
   Widget _buildMessageContent(BuildContext context, Message message) {
     switch (message.contentType) {
@@ -729,8 +765,6 @@ class MessageBubble extends StatelessWidget {
         return GestureDetector(
           onDoubleTap: () {
             if (image == null) {
-              print(message.chatSessionIndex);
-              print(message.messageID);
               Client.instance()
                   .commands
                   .downloadImage(message.messageID, message.chatSessionIndex);
@@ -850,8 +884,14 @@ class BlurredDialog extends StatelessWidget {
 class SendFilePopupMenu extends StatefulWidget {
   final int chatSessionIndex;
   final FileCallBack fileCallBack;
-  const SendFilePopupMenu(
-      {required this.fileCallBack, required this.chatSessionIndex, super.key});
+  final ImageCallBack imageCallBack;
+
+  const SendFilePopupMenu({
+    required this.chatSessionIndex,
+    required this.fileCallBack,
+    required this.imageCallBack,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => SendFilePopupMenuState();
@@ -863,16 +903,12 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
     super.initState();
   }
 
-  void _sendFile(String fileName, Uint8List fileBytes) async {
-    Client.instance()
-        .sendFileToClient(fileName, fileBytes, widget.chatSessionIndex);
+  void _sendFile(String fileName, Uint8List fileBytes) {
     widget.fileCallBack(fileName, fileBytes);
   }
 
-  void _sendImageFile(String fileName, Uint8List fileBytes) async {
-    Client.instance()
-        .sendImageToClient(fileName, fileBytes, widget.chatSessionIndex);
-    widget.fileCallBack(fileName, fileBytes);
+  void _sendImageFile(String fileName, Uint8List fileBytes) {
+    widget.imageCallBack(fileName, fileBytes);
   }
 
   Widget _buildPopupOption(
@@ -937,8 +973,7 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                           label: "Gallery",
                           onTap: () async {
                             Navigator.pop(context);
-                            attachSingleFile(context,
-                                (String fileName, Uint8List fileBytes) {
+                            attachSingleFile(context, (String fileName, Uint8List fileBytes) {
                               _sendImageFile(fileName, fileBytes);
                             });
                           },

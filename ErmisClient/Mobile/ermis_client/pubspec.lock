@@ -182,6 +182,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dart_webrtc:
+    dependency: transitive
+    description:
+      name: dart_webrtc
+      sha256: e65506edb452148220efab53d8d2f8bb9d827bd8bcd53cf3a3e6df70b27f3d86
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.10"
   dbus:
     dependency: transitive
     description:
@@ -397,6 +405,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_webrtc:
+    dependency: "direct main"
+    description:
+      name: flutter_webrtc
+      sha256: e917067abeef2400e6a7a03db53a6e1418551e54809f18ab80447ac323eb77e4
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.8"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -430,13 +446,13 @@ packages:
     source: hosted
     version: "2.1.2"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
-      sha256: b9c29a161230ee03d3ccf545097fccd9b87a5264228c5d348202e0f0c28f9010
+      sha256: fe7ab022b76f3034adc518fb6ea04a82387620e19977665ea18d30a1cf43442f
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.2"
+    version: "1.3.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -789,6 +805,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.6"
+  platform_detect:
+    dependency: transitive
+    description:
+      name: platform_detect
+      sha256: a62f99417fc4fa2d099ce0ccdbb1bd3977920f2a64292c326271f049d4bc3a4f
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -1195,18 +1219,26 @@ packages:
     source: hosted
     version: "0.1.6"
   web_socket_channel:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: "9f187088ed104edd8662ca07af4b124465893caf063ba29758f97af57e61da8f"
+      sha256: "0b8e2457400d8a859b7b2030786835a28a8e80836ef64402abef392ff4f1d0e5"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   webkit_inspection_protocol:
     dependency: transitive
     description:
       name: webkit_inspection_protocol
       sha256: "87d3f2333bb240704cd3f1c6b5b7acd8a10e7f0bc28c28dcf14e782014f4a572"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
+  webrtc_interface:
+    dependency: transitive
+    description:
+      name: webrtc_interface
+      sha256: "10fc6dc0ac16f909f5e434c18902415211d759313c87261f1e4ec5b4f6a04c26"
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"

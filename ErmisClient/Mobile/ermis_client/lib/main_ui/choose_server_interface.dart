@@ -59,10 +59,18 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      backgroundColor: appColors.tertiaryColor,
-      appBar: const ErmisAppBar(),
-      body: Padding(
+      body: Container(
         padding: const EdgeInsets.fromLTRB(16.0, 100.0, 16.0, 200.0),
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+          colors: [
+            appColors.secondaryColor,
+            Color(0xFF002200), // Very dark green
+            Color(0xFF00FF00), // Neon green glow
+          ],
+          begin: Alignment.topRight,
+          end: Alignment.bottomCenter,
+        )),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.stretch,

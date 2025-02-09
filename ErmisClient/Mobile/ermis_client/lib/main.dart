@@ -40,6 +40,12 @@ import 'package:timezone/data/latest.dart' as tz;
 
 import 'util/dialogs_utils.dart';
 
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'web_rtc/main.dart';
+
 void fucking(ServiceInstance instance) async {
   for (;;) {
     await AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
@@ -140,12 +146,157 @@ void main() async {
     themeData = ThemeMode.light;
   }
 
-  // runApp(VoiceMyApp());
   runApp(_MyApp(
     lightAppColors: AppConstants.lightAppColors,
     darkAppColors: AppConstants.darkAppColors,
     themeMode: themeData,
   ));
+}
+
+// void main() {
+//   runApp(MaterialApp(home: VoiceMyApp()));
+// }
+
+class VoiceCallApp extends StatefulWidget {
+  @override
+  _VoiceCallAppState createState() => _VoiceCallAppState();
+}
+
+class _VoiceCallAppState extends State<VoiceCallApp> {
+  RTCPeerConnection? _peerConnection;
+  MediaStream? _localStream;
+  final _localRenderer = RTCVideoRenderer();
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  // Initialize WebRTC and media stream
+  Future<void> _initialize() async {
+    await _localRenderer.initialize();
+    await _setupPeerConnection();
+    await _startLocalAudio();
+  }
+
+  // Setup the peer connection with STUN server
+  Future<void> _setupPeerConnection() async {
+    final Map<String, dynamic> configuration = {
+      'iceServers': [
+        {'url': 'stun:stun.l.google.com:19302'},
+      ],
+      'sdpSemantics': 'unified-plan',
+    };
+
+    try {
+      _peerConnection = await createPeerConnection(configuration);
+      _peerConnection!.onIceCandidate = (candidate) async {
+        print("ICE Candidate: ${jsonEncode(candidate.toMap())}");
+        // await _sendSignal({'candidate': candidate.toMap()});
+      };
+      _peerConnection!.onAddStream = (stream) {
+        setState(() {
+          _localStream = stream;
+        });
+      };
+    } catch (e) {
+      print("Error setting up peer connection: $e");
+    }
+  }
+
+  // Start capturing local audio
+  Future<void> _startLocalAudio() async {
+    try {
+      final stream = await navigator.mediaDevices.getUserMedia({'audio': true, 'video': false});
+      _localStream = stream;
+
+      for (var track in _localStream!.getTracks()) {
+        _peerConnection!.addTrack(track, _localStream!);
+      }
+    } catch (e) {
+      print("Error accessing media devices: $e");
+    }
+  }
+
+  // Create an offer to start the call
+  Future<void> _createOffer() async {
+    try {
+      RTCSessionDescription offer = await _peerConnection!.createOffer();
+      await _peerConnection!.setLocalDescription(offer);
+      // await _sendSignal({'offer': offer.toMap()});
+    } catch (e) {
+      print("Error creating offer: $e");
+    }
+  }
+
+  // Set remote session description (offer, answer, or candidate)
+  // Future<void> _setRemoteDescription(Map<String, dynamic> session) async {
+  //   try {
+  //     if (session['offer'] != null) {
+  //       await _peerConnection!.setRemoteDescription(RTCSessionDescription(session['offer']['sdp'], session['offer']['type']));
+  //       RTCSessionDescription answer = await _peerConnection!.createAnswer();
+  //       await _peerConnection!.setLocalDescription(answer);
+  //       await _sendSignal({'answer': answer.toMap()});
+  //     } else if (session['answer'] != null) {
+  //       await _peerConnection!.setRemoteDescription(RTCSessionDescription(session['answer']['sdp'], session['answer']['type']));
+  //     } else if (session['candidate'] != null) {
+  //       _peerConnection!.addCandidate(RTCIceCandidate(
+  //           session['candidate']['candidate'], session['candidate']['sdpMid'], session['candidate']['sdpMLineIndex']));
+  //     }
+  //   } catch (e) {
+  //     print("Error setting remote description: $e");
+  //   }
+  // }
+
+  // // Send signaling data (offer, answer, candidate) to the server
+  // Future<void> _sendSignal(Map<String, dynamic> data) async {
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('ws://192.168.10.103:8085/ws'),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(data),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       final responseData = jsonDecode(response.body);
+  //       await _setRemoteDescription(responseData);
+  //     } else {
+  //       print("Error sending signal: ${response.statusCode}");
+  //     }
+  //   } catch (e) {
+  //     print("Error during signaling: $e");
+  //   }
+  // }
+
+  @override
+  void dispose() {
+    _peerConnection?.close();
+    _localStream?.dispose();
+    _localRenderer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('WebRTC Voice Call')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _localStream != null
+                ? RTCVideoView(_localRenderer)
+                : Text("No local video stream"),
+            ElevatedButton(
+              onPressed: _createOffer,
+              child: Text('Start Call'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _MyApp extends StatefulWidget {

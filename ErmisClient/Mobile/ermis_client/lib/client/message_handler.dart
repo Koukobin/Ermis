@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ermis_client/client/app_event_bus.dart';
+import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/client/message_events.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -43,6 +44,9 @@ class MessageHandler {
   late final ByteBufInputStream _inputStream;
   late final ByteBufOutputStream _outputStream;
   late final Socket _socket;
+
+  final Map<int /* temporary message id */, Message> pendingMessagesQueue = {};
+  int lastPendingMessageID = 0;
 
   String? _username;
   int clientID = -1;
@@ -74,26 +78,37 @@ class MessageHandler {
     _socket = secureSocket;
   }
 
-  void sendMessageToClient(String text, int chatSessionIndex) {
+  Message sendMessageToClient(String text, int chatSessionIndex) {
     Uint8List textBytes = utf8.encode(text);
 
-    ByteBuf payload = ByteBuf.smallBuffer();
+    ByteBuf payload = ByteBuf.smallBuffer(growable: true);
     payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(++lastPendingMessageID);
     payload.writeInt32(MessageContentType.text.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(textBytes.length);
     payload.writeBytes(textBytes);
 
     _outputStream.write(payload);
+
+    return createPendingMessage(
+      text: Uint8List.fromList(utf8.encode(text)),
+      contentType: MessageContentType.text,
+      chatSessionID: _chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionIndex: chatSessionIndex,
+      tempMessageID: lastPendingMessageID,
+    );
   }
 
-  void sendFileToClient(
-      String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
+  Message sendFileToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
     Uint8List fileNameBytes = utf8.encode(fileName);
 
-    ByteBuf payload =
-        ByteBuf(4 * 4 + fileNameBytes.length + fileContentBytes.length);
+    // Calculate the payload size in advance for efficiency
+    int payloadSize = 20 + fileNameBytes.length + fileContentBytes.length;
+
+    ByteBuf payload = ByteBuf(payloadSize);
     payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(++lastPendingMessageID);
     payload.writeInt32(MessageContentType.file.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(fileNameBytes.length);
@@ -101,15 +116,25 @@ class MessageHandler {
     payload.writeBytes(fileContentBytes);
 
     _outputStream.write(payload);
+
+    return createPendingMessage(
+      fileName: Uint8List.fromList(utf8.encode(fileName)),
+      contentType: MessageContentType.file,
+      chatSessionID: _chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionIndex: chatSessionIndex,
+      tempMessageID: lastPendingMessageID,
+    );
   }
 
-  void sendImageToClient(
-      String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
+  Message sendImageToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
     Uint8List fileNameBytes = utf8.encode(fileName);
 
-    ByteBuf payload =
-        ByteBuf(4 * 4 + fileNameBytes.length + fileContentBytes.length);
+    // Calculate the payload size in advance for efficiency
+    int payloadSize = 20 + fileNameBytes.length + fileContentBytes.length;
+    
+    ByteBuf payload = ByteBuf(payloadSize);
     payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(++lastPendingMessageID);
     payload.writeInt32(MessageContentType.image.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(fileNameBytes.length);
@@ -117,6 +142,38 @@ class MessageHandler {
     payload.writeBytes(fileContentBytes);
 
     _outputStream.write(payload);
+
+    return createPendingMessage(
+      fileName: Uint8List.fromList(utf8.encode(fileName)),
+      contentType: MessageContentType.image,
+      chatSessionID: _chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionIndex: chatSessionIndex,
+      tempMessageID: lastPendingMessageID,
+    );
+  }
+
+    Message createPendingMessage({
+    Uint8List? text,
+    Uint8List? fileName,
+    required MessageContentType contentType,
+    required int chatSessionID,
+    required int chatSessionIndex,
+    required int tempMessageID,
+  }) {
+    final m = Message(
+        text: text,
+        fileName: fileName,
+        username: Client.instance().displayName!,
+        clientID: Client.instance().clientID,
+        messageID: -1,
+        chatSessionID: chatSessionID,
+        chatSessionIndex: chatSessionIndex,
+        epochSecond: (DateTime.now().millisecondsSinceEpoch / 1000).toInt(),
+        contentType: contentType,
+        deliveryStatus: MessageDeliveryStatus.sending);
+    
+    pendingMessagesQueue[lastPendingMessageID] = m;
+    return m;
   }
 
   Future<void> fetchUserInformation() async {
@@ -267,12 +324,12 @@ class MessageHandler {
             MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
             int clientID = msg.readInt32();
             int messageID = msg.readInt32();
-            String username =
-                String.fromCharCodes(msg.readBytes(msg.readInt32()));
+            String username = utf8.decode(msg.readBytes(msg.readInt32()));
 
             Uint8List? messageBytes;
             Uint8List? fileNameBytes;
-            int timeWritten = msg.readInt64();
+            int epochSecond = msg.readInt64();
+            bool isRead = msg.readBoolean();
 
             switch (contentType) {
               case MessageContentType.text:
@@ -291,9 +348,11 @@ class MessageHandler {
                 chatSessionIndex: chatSessionIndex,
                 text: messageBytes,
                 fileName: fileNameBytes,
-                timeWritten: timeWritten,
+                epochSecond: epochSecond,
                 contentType: contentType,
-                isSent: true));
+                deliveryStatus: isRead
+                    ? MessageDeliveryStatus.delivered
+                    : MessageDeliveryStatus.serverReceived));
           }
 
           messages.sort((a, b) => a.messageID.compareTo(b.messageID));
@@ -388,19 +447,33 @@ class MessageHandler {
             udpServerPort: udpServerPort,
           ));
           break;
-        case ServerMessageType.messageSuccefullySent:
-          int chatSessionID = msg.readInt32();
-          int messageID = msg.readInt32();
-          eventBus.fire(MessageSentEvent(_chatSessionIDSToChatSessions[chatSessionID]!, messageID));
+        case ServerMessageType.messageDeliveryStatus:
+          int temporaryMessageID = msg.readInt32();
+          
+          Message pendingMessage = pendingMessagesQueue[temporaryMessageID]!;
+          MessageDeliveryStatus status = MessageDeliveryStatus.fromId(msg.readInt32());
+          int? generatedMessageID;
+          if (status == MessageDeliveryStatus.delivered) {
+            generatedMessageID = msg.readInt32();
+            pendingMessage.setMessageID(generatedMessageID);
+            pendingMessagesQueue.remove(temporaryMessageID);
+          }
+          pendingMessage.setDeliveryStatus(status);
+
+          eventBus.fire(MessageDeliveryStatusEvent(
+            deliveryStatus: status,
+            message: pendingMessage,
+            temporaryMessageID: temporaryMessageID,
+          ));
           break;
-        case ServerMessageType.clientContent:
+        case ServerMessageType.clientMessage:
           Message message = Message.empty();
 
           MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
-          int timeWritten = msg.readInt64();
+          int epochSecond = msg.readInt64();
+
           Uint8List? text;
           Uint8List? fileNameBytes;
-
           switch (contentType) {
             case MessageContentType.text:
               var textLength = msg.readInt32();
@@ -414,7 +487,7 @@ class MessageHandler {
 
           var usernameLength = msg.readInt32();
           var usernameBytes = msg.readBytes(usernameLength);
-          String username = String.fromCharCodes(usernameBytes);
+          String username = utf8.decode(usernameBytes);
 
           int clientID = msg.readInt32();
           int messageID = msg.readInt32();
@@ -429,8 +502,8 @@ class MessageHandler {
               _chatSessionIDSToChatSessions[chatSessionID]!.chatSessionIndex);
           message.setText(text);
           message.setFileName(fileNameBytes);
-          message.setTimeWritten(timeWritten);
-          message.setIsSent(true);
+          message.setEpochSecond(epochSecond);
+          message.setDeliveryStatus(MessageDeliveryStatus.delivered);
 
           ChatSession chatSession =
               _chatSessionIDSToChatSessions[chatSessionID]!;

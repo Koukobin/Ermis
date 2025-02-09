@@ -23,6 +23,8 @@ import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../client/common/message_types/message_delivery_status.dart';
+
 class ErmisDB {
   static DBConnection? _conn;
 
@@ -285,7 +287,7 @@ class DBConnection {
         'file_name': message.fileName,
         'content_type': message.contentType.id,
         'ts_entered':
-            DateTime.fromMicrosecondsSinceEpoch(message.timeWritten).toIso8601String(),
+            DateTime.fromMicrosecondsSinceEpoch(message.epochSecond).toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -328,11 +330,11 @@ class DBConnection {
           messageID: messageID,
           chatSessionID: chatSessionID,
           chatSessionIndex: -1,
-          timeWritten: DateTime.parse(timeWritten).millisecondsSinceEpoch,
+          epochSecond: DateTime.parse(timeWritten).millisecondsSinceEpoch,
           text: text != null ? Uint8List.fromList(text.codeUnits) : null,
           fileName: fileName != null ? Uint8List.fromList(fileName.codeUnits) : null,
           contentType: contentType,
-          isSent: true);
+          deliveryStatus: MessageDeliveryStatus.delivered);
     }).toList();
 
     return messages;

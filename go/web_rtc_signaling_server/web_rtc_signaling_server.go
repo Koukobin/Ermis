@@ -24,7 +24,7 @@ var peers = make(map[string][]*Peer) // RoomID -> List of peers
 
 func main() {
 	http.HandleFunc("/ws", handleWebSocket)
-	http.ListenAndServe(":8085", nil)
+	http.ListenAndServe("192.168.10.103:8085", nil)
 }
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +65,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		} else {
-			fmt.Println("Creating new room entry...");
+			fmt.Println("Creating new room entry...")
 			// If the room does not exist, create a new room entry
 			peers[roomID] = append(peers[roomID], &Peer{
 				Connection: conn,

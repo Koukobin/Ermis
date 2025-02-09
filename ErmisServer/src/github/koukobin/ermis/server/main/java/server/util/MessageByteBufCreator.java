@@ -29,17 +29,23 @@ import io.netty.channel.epoll.EpollSocketChannel;
 public final class MessageByteBufCreator {
 
 	private MessageByteBufCreator() {}
-	
+
+	public static void sendMessageExceedsMaximumMessageLength(ChannelHandlerContext ctx, int maxLength) {
+		sendMessageInfo(ctx, "Message length exceeds maximum length (%d characters)".formatted(maxLength));
+	}
+
 	public static void sendMessageInfo(ChannelHandlerContext ctx, String text) {
 		ByteBuf payload = ctx.alloc().ioBuffer();
-		payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+		payload.writeInt(ServerMessageType.SERVER_INFO.id);
 		payload.writeBytes(text.getBytes());
 		ctx.channel().writeAndFlush(payload);
 	}
+
 	public static void sendMessageInfo(EpollSocketChannel channel, String text) {
 		ByteBuf payload = channel.alloc().ioBuffer();
-		payload.writeInt(ServerMessageType.SERVER_MESSAGE_INFO.id);
+		payload.writeInt(ServerMessageType.SERVER_INFO.id);
 		payload.writeBytes(text.getBytes());
 		channel.writeAndFlush(payload);
 	}
+
 }

@@ -14,9 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
 class ImageUtils {
@@ -108,6 +108,59 @@ class ImageUtils {
     }
 
     return false;
+  }
+
+  static Size resizeImage({
+    required Uint8List imageBytes,
+    required double maxWidth,
+    required double maxHeight,
+  }) {
+    Size dimensions = ImageUtils.getImageDimensions(imageBytes);
+    double width = dimensions.width;
+    double height = dimensions.height;
+
+    height = maxHeight;
+    width = dimensions.aspectRatio * height;
+    if (width > maxWidth) {
+      double difference = maxWidth / width;
+      height = height * difference;
+      width = dimensions.aspectRatio * height;
+    }
+
+    if (kDebugMode) {
+      debugPrint('Width: ${width.toString()}');
+      debugPrint('Height: ${height.toString()}');
+    }
+
+    /**
+      * Initial shitty calculation of the images' dimensions kept here for science purposes
+      * 
+      * double width = maxWidth;
+      * double height = dimensions.height;
+      * 
+      * // Iterations flag ensures while loop never causes a crash even
+      * // if done wrong
+      * int iterations = 100;
+      * while (iterations > 0) {
+      * 	iterations--;
+      * 	if (width > maxWidth) {
+      * 		width -= 100;
+      * 		height = (1 / dimensions.aspectRatio) * width;
+      * 	}
+      * 
+      * 	if (height > maxHeight) {
+      * 		height -= 100;
+      * 		width = dimensions.aspectRatio * height;
+      * 	}
+      * 
+      * 	if (width > maxWidth || height > maxHeight)
+      * 		continue;
+      * 
+      * 	break;
+      * }
+    */
+
+    return Size(width, height);
   }
 
   static Size getImageDimensions(Uint8List imageBytes) {

@@ -202,8 +202,8 @@ public final class ErmisDatabase {
 
 			String sql = """
 					    INSERT INTO chat_messages
-					    (chat_session_id, message_id, client_id, text, file_name, file_content_id, content_type)
-					    VALUES (?, ?, ?, ?, ?, ?, ?)
+					    (chat_session_id, message_id, client_id, text, file_name, file_content_id, is_read, content_type)
+					    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 					    RETURNING message_id;
 					""";
 
@@ -229,7 +229,8 @@ public final class ErmisDatabase {
 				addMessage.setString(4, text);
 				addMessage.setString(5, fileName);
 				addMessage.setString(6, fileID);
-				addMessage.setInt(7, ContentTypeConverter.getContentTypeAsDatabaseInt(message.getContentType()));
+				addMessage.setBoolean(7, message.isRead());
+				addMessage.setInt(8, ContentTypeConverter.getContentTypeAsDatabaseInt(message.getContentType()));
 
 				try (ResultSet rs = addMessage.executeQuery()) {
 					rs.next();
@@ -241,6 +242,25 @@ public final class ErmisDatabase {
 
 			return messageID;
 		}
+
+		public void updateMessageReadStatus(int messageID) {
+			String sql = """
+					    UPDATE chat_messages
+					    (is_read)
+					    VALUES (?)
+					    WHERE message_id = ?;
+					""";
+
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setBoolean(1, true);
+				pstmt.setInt(2, messageID);
+
+				pstmt.executeUpdate();
+			} catch (SQLException sqle) {
+				logger.error(Throwables.getStackTraceAsString(sqle));
+			}
+		}
+
 	}
 
 	public static class GeneralPurposeDBConnection extends DBConnection {
@@ -1362,27 +1382,48 @@ public final class ErmisDatabase {
 			return Optional.ofNullable(file);
 		}
 
-		public UserMessage[] selectMessages(int chatSessionID, int numOfMessagesAlreadySelected, int numOfMessagesToSelect) {
-
+		/**
+		 * Fetches chat messages for a given chat session. Additionally, it updates the
+		 * delivery status of the messages - i.e it sets is_read = true - except
+		 * messages written by the requesting client id. Supports pagination using
+		 * offset and limit.
+		 *
+		 * @param chatSessionId      The ID of the chat session.
+		 * 
+		 * @param offset             The number of messages to skip (for pagination).
+		 * @param limit              The maximum number of messages to retrieve.
+		 * @param requestingClientId The ID of the client requesting the messages
+		 *                           (messages from this client are excluded).
+		 * @return A list of UserMessage objects matching the criteria.
+		 */
+		public UserMessage[] selectMessages(int chatSessionID, int offset, int limit, int requestingClientID) {
 			UserMessage[] messages = EmptyArrays.EMPTY_USER_MESSAGES_ARRAY;
 
-			try (PreparedStatement selectMessages = conn.prepareStatement(
-					"SELECT message_id, client_id, text, file_name, ts_entered, content_type "
-							+ "FROM chat_messages "
-							+ "WHERE chat_session_id=? "
-							+ "AND message_id <= ? "
-							+ "ORDER BY message_id DESC LIMIT ?;",
+			String sql = """
+					WITH updated AS (
+					    UPDATE chat_messages
+					    SET is_read = TRUE
+					    WHERE chat_session_id = ?
+					    AND client_id <> ?
+					    RETURNING message_id
+					)
+					SELECT message_id, client_id, text, file_name, ts_entered, content_type, is_read
+					FROM chat_messages
+					WHERE chat_session_id = ?
+					ORDER BY message_id DESC
+					LIMIT ? OFFSET ?;
+					""";
+			try (PreparedStatement selectMessages = conn.prepareStatement(sql,
 					ResultSet.TYPE_SCROLL_SENSITIVE,
 					ResultSet.CONCUR_UPDATABLE /*
 												 * Pass these parameters so ResultSets can move forwards and backwards
 												 */)) {
 
-				int messageIDOfLatestMessage = MessageIDGenerator.getMessageIDCount(chatSessionID, conn);
-				int messageIDToReadFrom = messageIDOfLatestMessage - numOfMessagesAlreadySelected;
-				
 				selectMessages.setInt(1, chatSessionID);
-				selectMessages.setInt(2, messageIDToReadFrom);
-				selectMessages.setInt(3, numOfMessagesToSelect);
+				selectMessages.setInt(2, requestingClientID);
+				selectMessages.setInt(3, chatSessionID);
+				selectMessages.setInt(4, limit);
+				selectMessages.setInt(5, offset);
 				ResultSet rs = selectMessages.executeQuery();
 
 				if (!rs.next()) {
@@ -1401,7 +1442,6 @@ public final class ErmisDatabase {
 
 				// reverse messages order from newest to oldest to oldest to newest
 				for (int i = rowCount - 1; i >= 0; i--, rs.next()) {
-
 					int messageID = rs.getInt(1);
 					int clientID = rs.getInt(2);
 
@@ -1418,8 +1458,17 @@ public final class ErmisDatabase {
 					Timestamp timeWritten = rs.getTimestamp(5);
 					
 					ClientContentType contentType = ContentTypeConverter.getDatabaseIntAsContentType(rs.getInt(6));
-					
-					messages[i] = new UserMessage(username, clientID, messageID, chatSessionID, textBytes, fileNameBytes, timeWritten.getTime(), contentType);
+					final boolean isRead = rs.getBoolean(7);
+					messages[i] = new UserMessage(
+							username,
+							clientID,
+							messageID,
+							chatSessionID,
+							textBytes,
+							fileNameBytes,
+							timeWritten.toInstant().getEpochSecond(),
+							isRead,
+							contentType);
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));

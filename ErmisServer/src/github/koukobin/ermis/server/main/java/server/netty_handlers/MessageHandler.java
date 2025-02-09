@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import com.google.common.collect.Lists;
 
 import github.koukobin.ermis.common.message_types.ClientContentType;
+import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.WhatTheFuckIsGoingOnException;
@@ -34,6 +35,8 @@ import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -41,21 +44,21 @@ import io.netty.channel.ChannelHandlerContext;
  * 
  */
 final class MessageHandler extends AbstractChannelClientHandler {
-	
+
 	private final CountDownLatch latch = new CountDownLatch(1);
-	
+
 	public MessageHandler(ClientInfo clientInfo) {
 		super(clientInfo);
 	}
-	
-    public void awaitInitialization() {
-        try {
+
+	public void awaitInitialization() {
+		try {
 			latch.await(); // Block until handlerAdded is complete
 		} catch (InterruptedException ie) {
 			getLogger().error("Thread interrupted");
 			Thread.currentThread().interrupt();
 		}
-    }
+	}
 
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) {
@@ -150,7 +153,10 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
+		final int tempMessageID = msg.readInt();
+
 		ClientContentType contentType = ClientContentType.fromId(msg.readInt());
+
 		ChatSession chatSession;
 		try {
 			int chatSessionIndex = msg.readInt();
@@ -169,13 +175,13 @@ final class MessageHandler extends AbstractChannelClientHandler {
 		byte[] fileNameBytes = null;
 		byte[] fileBytes = null;
 
-		long epochTime = Instant.now().getEpochSecond();
+		long epochSecond = Instant.now().getEpochSecond();
 
 		ByteBuf payload = ctx.alloc().ioBuffer();
-		payload.writeInt(ServerMessageType.CLIENT_CONTENT.id);
+		payload.writeInt(ServerMessageType.CLIENT_MESSAGE.id);
 		payload.writeInt(contentType.id);
 
-		payload.writeLong(epochTime);
+		payload.writeLong(epochSecond);
 
 		switch (contentType) {
 		case TEXT -> {
@@ -200,14 +206,15 @@ final class MessageHandler extends AbstractChannelClientHandler {
 		}
 
 		int messageID;
+		final boolean isRead = false;
 		try (ErmisDatabase.WriteChatMessagesDBConnection conn = ErmisDatabase.getWriteChatMessagesConnection()) {
-
 			DatabaseChatMessage chatMessage = new DatabaseChatMessage(
 					clientInfo.getClientID(),
 					chatSessionID,
 					textBytes,
 					fileNameBytes,
 					fileBytes,
+					isRead,
 					contentType);
 
 			messageID = conn.addMessage(chatMessage);
@@ -221,12 +228,52 @@ final class MessageHandler extends AbstractChannelClientHandler {
 		payload.writeInt(messageID);
 		payload.writeInt(chatSessionID);
 
-		broadcastMessageToChatSession(payload, messageID, chatSession);
+		receivedMessage(ctx, tempMessageID, messageID);
+		broadcastMessageToChatSession(payload, tempMessageID, messageID, chatSession);
 	}
 
-	private void broadcastMessageToChatSession(ByteBuf payload, int messageID, ChatSession chatSession) {
-		ActiveChatSessions.broadcastMessageToChatSession(payload, messageID, chatSession, clientInfo);
+	private void broadcastMessageToChatSession(ByteBuf payload, int tempMessageID, int messageID, ChatSession chatSession) {
+		ActiveChatSessions.broadcastToChatSessionExcept(payload, chatSession, clientInfo.getChannel(), (ChannelFuture cf) -> {
+			Channel channel = cf.channel();
+			if (cf.isSuccess()) {
+
+				ByteBuf s = channel.alloc().ioBuffer();
+				s.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
+				s.writeInt(tempMessageID);
+				s.writeInt(MessageDeliveryStatus.DELIVERED.id);
+				s.writeInt(messageID);
+				clientInfo.getChannel().writeAndFlush(s);
+				
+				try (ErmisDatabase.WriteChatMessagesDBConnection conn = ErmisDatabase.getWriteChatMessagesConnection()) {
+					conn.updateMessageReadStatus(messageID);
+				}
+
+				getLogger().debug("Client message by {} successfully transferred to {}",
+						clientInfo.getInetAddress(),
+						cf.channel().remoteAddress());
+				return;
+			}
+
+			ByteBuf f = channel.alloc().ioBuffer();
+			f.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
+			f.writeInt(tempMessageID);
+			f.writeInt(MessageDeliveryStatus.FAILED.id);
+			f.writeInt(messageID);
+			clientInfo.getChannel().writeAndFlush(f);
+
+			getLogger().debug("An error occured while attempting to forward client message by {} to {}",
+					clientInfo.getInetAddress(),
+					cf.channel().remoteAddress());
+		});
+	}
+
+	private static void receivedMessage(ChannelHandlerContext channel, int tempMessageID, int messageID) {
+		ByteBuf payload = channel.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
+		payload.writeInt(tempMessageID);
+		payload.writeInt(MessageDeliveryStatus.SERVER_RECEIVED.id);
+		payload.writeInt(messageID);
+		channel.writeAndFlush(payload);
 	}
 
 }
-

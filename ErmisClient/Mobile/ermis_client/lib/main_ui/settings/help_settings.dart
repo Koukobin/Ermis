@@ -15,6 +15,7 @@
  */
 
 import 'package:ermis_client/client/client.dart';
+import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:ermis_client/util/url_launcher.dart';
 import 'package:flutter/material.dart';
@@ -59,67 +60,86 @@ class HelpSettingsState extends State<HelpSettings> {
       backgroundColor: appColors.secondaryColor,
       appBar: const GoBackBar(title: "Help & Settings"),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: [
-            ListTile(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView(
+            children: [
+              // Section 1: Source Code
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Source Code",
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              ListTile(
                 leading: Icon(FontAwesomeIcons.github),
-                title: Text(
-                  "Source Code",
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
+                title: Text("Source Code", style: TextStyle(fontSize: 16)),
                 onTap: () {
                   UrlLauncher.launchURL(context, AppConstants.sourceCodeURL);
-                }),
-            ListTile(
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.code),
-                title: Text(
-                  "Server Source Code",
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
+                title:
+                    Text("Server Source Code", style: TextStyle(fontSize: 16)),
                 onTap: () {
                   Client.instance().commands.requestServerSourceCodeHTMLPage();
-                }),
-            ListTile(
-                leading: Icon(Icons.attach_money_outlined),
-                title: Text(
-                  "Donation Page",
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
+                },
+              ),
+
+              Divider(thickness: 2),
+
+              // Section 2: Donations
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Donations",
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              ListTile(
+                leading: Icon(Icons.favorite),
+                title:
+                    Text("Donate To Hoster", style: TextStyle(fontSize: 16)),
                 onTap: () {
                   Client.instance().commands.requestDonationHTMLPage();
-                }),
-            ListTile(
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.favorite),
+                title: Text("Donate To The Ermis Project",
+                    style: TextStyle(fontSize: 16)),
+                onTap: () {
+                  showSnackBarDialog(
+                    context: context,
+                    content: "Functionality not implemented yet",
+                  );
+                },
+              ),
+
+              Divider(thickness: 2),
+
+              // Section 3: Other
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Other",
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              ListTile(
                 leading: Icon(FontAwesomeIcons.shieldHalved),
-                title: Text(
-                  "License Crux",
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
+                title: Text("License Crux", style: TextStyle(fontSize: 16)),
                 onTap: () async {
                   UrlLauncher.launchURL(context, AppConstants.licenceURL);
-                }),
-            ListTile(
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.info_outline),
-                title: Text(
-                  "App info",
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
+                title: Text("App info", style: TextStyle(fontSize: 16)),
                 onTap: () async {
                   pushHorizontalTransition(context, const AppInfo());
-                }),
-          ],
-        ),
-      ),
+                },
+              ),
+            ],
+          )),
     );
   }
 }

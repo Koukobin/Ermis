@@ -342,8 +342,10 @@ Future<String?> showInputDialog({
             curve: Curves.easeOutCubic),
       );
 
-      Future.delayed(Duration(milliseconds: 100),
-          unfocusedBorderAnimationController.forward);
+      Future.delayed(
+        Duration(milliseconds: 100),
+        unfocusedBorderAnimationController.forward,
+      );
       return WhatsAppPopupDialog(
         child: AlertDialog(
           backgroundColor: appColors.tertiaryColor.withOpacity(0.95),

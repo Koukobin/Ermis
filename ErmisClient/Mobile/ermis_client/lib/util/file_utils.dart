@@ -28,6 +28,7 @@ import 'package:image_picker/image_picker.dart';
 import 'permissions.dart';
 
 typedef FileCallBack = void Function(String fileName, Uint8List fileContent);
+typedef ImageCallBack = FileCallBack;
 
 class MyCamera {
   static Future<CameraController> initializeCamera() async {
@@ -81,9 +82,8 @@ Future<void> writeFile(Uint8List fileData, String filePath) async {
   await file.writeAsBytes(fileData, mode: FileMode.write, flush: true);
 }
 
-Future<void> attachSingleFile(
-    BuildContext context, FileCallBack onFinished) async {
-  bool isSuccessful = await requestPermissions(context: context);
+Future<void> attachSingleFile(BuildContext context /* Unused; should remove */, FileCallBack onFinished) async {
+  bool isSuccessful = await requestPermissions();
 
   if (!isSuccessful) {
     return;

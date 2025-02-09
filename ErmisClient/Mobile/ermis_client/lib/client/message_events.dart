@@ -23,6 +23,7 @@ import 'dart:typed_data';
 
 import 'package:ermis_client/client/common/chat_request.dart';
 import 'package:ermis_client/client/common/message.dart';
+import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/client/common/user_device.dart';
 
 import 'common/account.dart';
@@ -40,10 +41,15 @@ class MessageReceivedEvent {
   MessageReceivedEvent(this.message, this.chatSession);
 }
 
-class MessageSentEvent {
-  final ChatSession session;
-  final int messageID;
-  MessageSentEvent(this.session, this.messageID);
+class MessageDeliveryStatusEvent {
+  final MessageDeliveryStatus deliveryStatus;
+  final Message message;
+  final int temporaryMessageID;
+  MessageDeliveryStatusEvent({
+    required this.deliveryStatus,
+    required this.message,
+    required this.temporaryMessageID,
+  });
 }
 
 class WrittenTextEvent {
