@@ -49,7 +49,7 @@ class SettingsState extends State<Settings> {
       appBar: const ErmisAppBar(
         title: Text(
           'Settings',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(fontSize: 20),
         ),
       ),
       body: ListView(

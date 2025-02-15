@@ -30,153 +30,153 @@ public final class LoginInfo {
     
     private LoginInfo() {}
 
-    public enum Credential implements EntryType.CredentialInterface {
-        EMAIL(1), PASSWORD(2);
+	public enum Credential implements EntryType.CredentialInterface {
+		EMAIL(1), PASSWORD(2);
 
-        private static final Map<Integer, Credential> valuesById = new HashMap<>();
-        
-        static {
-            for (Credential credential : Credential.values()) {
-                valuesById.put(credential.id, credential);
-            }
-        }
+		private static final Map<Integer, Credential> valuesById = new HashMap<>();
 
-        public final int id;
+		static {
+			for (Credential credential : Credential.values()) {
+				valuesById.put(credential.id, credential);
+			}
+		}
 
-        Credential(int id) {
-            this.id = id;
-        }
-        
+		public final int id;
+
+		Credential(int id) {
+			this.id = id;
+		}
+
 		public int id() {
 			return id;
 		}
 
-        public static Credential fromId(int id) {
-            return valuesById.get(id);
-        }
-    }
+		public static Credential fromId(int id) {
+			return valuesById.get(id);
+		}
+	}
 
-    public enum PasswordType {
-        PASSWORD(1), BACKUP_VERIFICATION_CODE(2);
+	public enum PasswordType {
+		PASSWORD(1), BACKUP_VERIFICATION_CODE(2);
 
-        private static final Map<Integer, PasswordType> valuesById = new HashMap<>();
-        
-        static {
-            for (PasswordType passwordType : PasswordType.values()) {
-                valuesById.put(passwordType.id, passwordType);
-            }
-        }
+		private static final Map<Integer, PasswordType> valuesById = new HashMap<>();
 
-        public final int id;
+		static {
+			for (PasswordType passwordType : PasswordType.values()) {
+				valuesById.put(passwordType.id, passwordType);
+			}
+		}
 
-        PasswordType(int id) {
-            this.id = id;
-        }
+		public final int id;
 
-        public static PasswordType fromId(int id) {
-            return valuesById.get(id);
-        }
-    }
+		PasswordType(int id) {
+			this.id = id;
+		}
 
-    public enum Action {
-        TOGGLE_PASSWORD_TYPE(1), ADD_DEVICE_INFO(2);
+		public static PasswordType fromId(int id) {
+			return valuesById.get(id);
+		}
+	}
 
-        private static final Map<Integer, Action> valuesById = new HashMap<>();
-        
-        static {
-            for (Action action : Action.values()) {
-                valuesById.put(action.id, action);
-            }
-        }
+	public enum Action {
+		TOGGLE_PASSWORD_TYPE(1), ADD_DEVICE_INFO(2);
 
-        public final int id;
+		private static final Map<Integer, Action> valuesById = new HashMap<>();
 
-        Action(int id) {
-            this.id = id;
-        }
+		static {
+			for (Action action : Action.values()) {
+				valuesById.put(action.id, action);
+			}
+		}
 
-        public static Action fromId(int id) {
-            return EnumIntConverter.fromId(valuesById, id);
-        }
-    }
+		public final int id;
 
-    public enum AuthenticationStage {
-        CREDENTIALS_EXCHANGE(1), LOGIN(2);
+		Action(int id) {
+			this.id = id;
+		}
 
-        private static final Map<Integer, AuthenticationStage> valuesById = new HashMap<>();
-        
-        static {
-            for (AuthenticationStage stage : AuthenticationStage.values()) {
-                valuesById.put(stage.id, stage);
-            }
-        }
+		public static Action fromId(int id) {
+			return EnumIntConverter.fromId(valuesById, id);
+		}
+	}
 
-        public final int id;
+	public enum AuthenticationStage {
+		CREDENTIALS_EXCHANGE(1), LOGIN(2);
 
-        AuthenticationStage(int id) {
-            this.id = id;
-        }
+		private static final Map<Integer, AuthenticationStage> valuesById = new HashMap<>();
 
-        public static AuthenticationStage fromId(int id) {
-            return EnumIntConverter.fromId(valuesById, id);
-        }
-    }
+		static {
+			for (AuthenticationStage stage : AuthenticationStage.values()) {
+				valuesById.put(stage.id, stage);
+			}
+		}
 
-    public static class CredentialsExchange {
-        public enum Result {
+		public final int id;
+
+		AuthenticationStage(int id) {
+			this.id = id;
+		}
+
+		public static AuthenticationStage fromId(int id) {
+			return EnumIntConverter.fromId(valuesById, id);
+		}
+	}
+
+	public static class CredentialsExchange {
+		public enum Result {
             SUCCESFULLY_EXCHANGED_CREDENTIALS(1, true, "Succesfully exchanged credentials!"),
             INCORRECT_EMAIL(2, false, "Incorrect email!"),
-            ACCOUNT_DOESNT_EXIST(3, false, "Account doesn't exist!");
+			ACCOUNT_DOESNT_EXIST(3, false, "Account doesn't exist!");
 
-            private static final Map<Integer, Result> valuesById = new HashMap<>();
-            
-            static {
-                for (Result result : Result.values()) {
-                    valuesById.put(result.id, result);
-                }
-            }
+			private static final Map<Integer, Result> valuesById = new HashMap<>();
 
-            public final int id;
-            public final ResultHolder resultHolder;
+			static {
+				for (Result result : Result.values()) {
+					valuesById.put(result.id, result);
+				}
+			}
 
-            Result(int id, boolean isSuccessful, String message) {
-                this.id = id;
-                this.resultHolder = new ResultHolder(isSuccessful, message);
-            }
+			public final int id;
+			public final ResultHolder resultHolder;
 
-            public static Result fromId(int id) {
-                return EnumIntConverter.fromId(valuesById, id);
-            }
-        }
-    }
+			Result(int id, boolean isSuccessful, String message) {
+				this.id = id;
+				this.resultHolder = new ResultHolder(isSuccessful, message);
+			}
 
-    public static class Login {
-        public enum Result {
+			public static Result fromId(int id) {
+				return EnumIntConverter.fromId(valuesById, id);
+			}
+		}
+	}
+
+	public static class Login {
+		public enum Result {
             SUCCESFULLY_LOGGED_IN(1, true, "Succesfully logged into your account!"),
             ERROR_WHILE_LOGGING_IN(2, false, "An error occurred while logging into your account! Please contact the server administrator and let them know that their server is broken."),
             INCORRECT_PASSWORD(3, false, "Incorrect password."),
-            INCORRECT_BACKUP_VERIFICATION_CODE(4, false, "Incorrect backup verification code.");
+			INCORRECT_BACKUP_VERIFICATION_CODE(4, false, "Incorrect backup verification code.");
 
-            private static final Map<Integer, Result> valuesById = new HashMap<>();
-            
-            static {
-                for (Result result : Result.values()) {
-                    valuesById.put(result.id, result);
-                }
-            }
+			private static final Map<Integer, Result> valuesById = new HashMap<>();
 
-            public final int id;
-            public final ResultHolder resultHolder;
+			static {
+				for (Result result : Result.values()) {
+					valuesById.put(result.id, result);
+				}
+			}
 
-            Result(int id, boolean isSuccessful, String message) {
-                this.id = id;
-                this.resultHolder = new ResultHolder(isSuccessful, message);
-            }
+			public final int id;
+			public final ResultHolder resultHolder;
 
-            public static Result fromId(int id) {
-                return EnumIntConverter.fromId(valuesById, id);
-            }
-        }
-    }
+			Result(int id, boolean isSuccessful, String message) {
+				this.id = id;
+				this.resultHolder = new ResultHolder(isSuccessful, message);
+			}
+
+			public static Result fromId(int id) {
+				return EnumIntConverter.fromId(valuesById, id);
+			}
+		}
+	}
 }
 

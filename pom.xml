@@ -10,7 +10,7 @@
 
     <modules>
         <module>ErmisCommon</module>
-        <module>ErmisClient/Desktop</module>
         <module>ErmisServer</module>
+        <module>ErmisClient/Desktop</module>
     </modules>
 </project>

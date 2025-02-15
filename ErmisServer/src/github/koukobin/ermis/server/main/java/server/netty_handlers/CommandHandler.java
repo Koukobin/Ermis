@@ -32,6 +32,7 @@ import github.koukobin.ermis.common.UserDeviceInfo;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
+import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.results.ResultHolder;
@@ -279,9 +280,9 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			channel.writeAndFlush(payload);
 		}
 		case DELETE_CHAT_SESSION -> {
-			
+
 			int chatSessionID;
-			
+
 			{
 				int chatSessionIndex = args.readInt();
 				chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
@@ -577,6 +578,8 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			for (int i = 0; i < messages.length; i++) {
 				UserMessage message = messages[i];
+				int messageSenderClientID = message.getClientID();
+				int messageID = message.getMessageID();
 				byte[] messageBytes = message.getText();
 				byte[] fileNameBytes = message.getFileName();
 				byte[] usernameBytes = message.getUsername().getBytes();
@@ -584,14 +587,30 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				ClientContentType contentType = message.getContentType();
 
 				payload.writeInt((contentType.id));
-				payload.writeInt(message.getClientID());
-				payload.writeInt(message.getMessageID());
+				payload.writeInt(messageSenderClientID);
+				payload.writeInt(messageID);
 
 				payload.writeInt(usernameBytes.length);
 				payload.writeBytes(usernameBytes);
 
 				payload.writeLong(timeWritten);
-				payload.writeBoolean(message.isRead());
+				if (messageSenderClientID == clientInfo.getClientID()) {
+					payload.writeBoolean(message.isRead());
+				} else {
+					if (!message.isRead()) {
+						ByteBuf s = channel.alloc().ioBuffer();
+						s.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
+						s.writeInt(MessageDeliveryStatus.LATE_DELIVERED.id);
+						s.writeInt(chatSessionID);
+						s.writeInt(messageID);
+						forActiveAccounts(messageSenderClientID, (ClientInfo ci) -> {
+							s.retain();
+							clientInfo.getChannel().writeAndFlush(s);
+						});
+						s.release();
+						assert s.refCnt() == 0;
+					}
+				}
 
 				switch (contentType) {
 				case TEXT -> {
@@ -737,7 +756,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				payload.writeInt(ClientCommandResultType.START_VOICE_CALL.id);
 				payload.writeInt(ServerSettings.UDP_PORT);
 				payload.writeInt(voiceChat.key());
-//				payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
+				payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
 				channel.writeAndFlush(payload);
 			}
 
@@ -747,13 +766,13 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			payload.writeInt(chatSessionID);
 			payload.writeInt(voiceChat.key());
 			payload.writeInt(clientInfo.getClientID());
-//			payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
+			payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
 
 			for (ClientInfo activeMember : clientInfo.getChatSessions().get(chatSessionIndex).getActiveMembers()) {
 				if (activeMember.getClientID() == clientInfo.getClientID()) {
 					continue;
 				}
-				
+
 				activeMember.getChannel().writeAndFlush(payload);
 			}
 

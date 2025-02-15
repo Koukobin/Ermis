@@ -27,6 +27,7 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -1400,18 +1401,21 @@ public final class ErmisDatabase {
 			UserMessage[] messages = EmptyArrays.EMPTY_USER_MESSAGES_ARRAY;
 
 			String sql = """
-					WITH updated AS (
+					with messages AS (
+						SELECT message_id, client_id, text, file_name, ts_entered, content_type, is_read
+						FROM chat_messages
+						WHERE chat_session_id = ?
+						ORDER BY message_id DESC
+						LIMIT ? OFFSET ?
+					),
+					updated AS (
 					    UPDATE chat_messages
 					    SET is_read = TRUE
 					    WHERE chat_session_id = ?
 					    AND client_id <> ?
 					    RETURNING message_id
 					)
-					SELECT message_id, client_id, text, file_name, ts_entered, content_type, is_read
-					FROM chat_messages
-					WHERE chat_session_id = ?
-					ORDER BY message_id DESC
-					LIMIT ? OFFSET ?;
+					SELECT * FROM messages;
 					""";
 			try (PreparedStatement selectMessages = conn.prepareStatement(sql,
 					ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -1420,10 +1424,10 @@ public final class ErmisDatabase {
 												 */)) {
 
 				selectMessages.setInt(1, chatSessionID);
-				selectMessages.setInt(2, requestingClientID);
-				selectMessages.setInt(3, chatSessionID);
-				selectMessages.setInt(4, limit);
-				selectMessages.setInt(5, offset);
+				selectMessages.setInt(2, limit);
+				selectMessages.setInt(3, offset);
+				selectMessages.setInt(4, chatSessionID);
+				selectMessages.setInt(5, requestingClientID);
 				ResultSet rs = selectMessages.executeQuery();
 
 				if (!rs.next()) {
@@ -1456,7 +1460,7 @@ public final class ErmisDatabase {
 					byte[] fileNameBytes = rs.getBytes(4);
 
 					Timestamp timeWritten = rs.getTimestamp(5);
-					
+
 					ClientContentType contentType = ContentTypeConverter.getDatabaseIntAsContentType(rs.getInt(6));
 					final boolean isRead = rs.getBoolean(7);
 					messages[i] = new UserMessage(

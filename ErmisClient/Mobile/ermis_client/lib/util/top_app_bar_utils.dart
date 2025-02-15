@@ -23,14 +23,21 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final List<Widget> actions;
   final Widget title;
+  final Color? color;
+  final bool? centerTitle;
+  final bool removeDivider;
 
-  const ErmisAppBar(
-      {this.title = const Text(
-        AppConstants.applicationTitle,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      ),
-      this.actions = const [],
-      super.key});
+  const ErmisAppBar({
+    super.key,
+    this.title = const Text(
+      AppConstants.applicationTitle,
+      style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20, letterSpacing: 1.2),
+    ),
+    this.actions = const [],
+    this.color,
+    this.removeDivider = false,
+    this.centerTitle,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -39,14 +46,13 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return AppBar(
-      backgroundColor: appColors.secondaryColor,
+      backgroundColor: color ?? appColors.secondaryColor,
       foregroundColor: appColors.primaryColor,
       title: title,
       actions: actions,
-      centerTitle: // Could be simplified but I find this much more intuitive
-          actions.isEmpty ? true : false,
+      centerTitle: centerTitle ?? actions.isEmpty ? true : false,  // Could be simplified but I find this much more intuitive
       elevation: 0, // Removes AppBar shadow for a flat, modern appearance
-      bottom: DividerBottom(dividerColor: appColors.primaryColor),
+      bottom: removeDivider ? null : DividerBottom(dividerColor: appColors.primaryColor),
     );
   }
 }

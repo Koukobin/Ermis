@@ -13,42 +13,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.common.message_types;
+package github.koukobin.ermis.server.test.java.databases;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.stream.Collectors;
+import java.util.Iterator;
 
-import github.koukobin.ermis.common.util.EnumIntConverter;
+import github.koukobin.ermis.common.message_types.UserMessage;
+import github.koukobin.ermis.server.main.java.configs.ServerSettings;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public enum MessageDeliveryStatus {
-	LATE_DELIVERED(0),
-	DELIVERED(1),
-    SERVER_RECEIVED(2),
-    FAILED(3),
-    REJECTED(4),
-    SENDING(5);
+public class A {
 
-	private static final HashMap<Integer, MessageDeliveryStatus> values;
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		UserMessage[] messages;
 
-	static {
-		values = new HashMap<>(
-				Arrays.stream(MessageDeliveryStatus.values())
-				.collect(Collectors.toMap(type -> type.id, type -> type))
-		);
+		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+			messages = conn.selectMessages(210, 
+					0,
+					ServerSettings.NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME,
+					0);
+			for (UserMessage userMessage : messages) {
+				System.out.println(userMessage);
+			}
+		}
 	}
 
-	public final int id;
-
-	MessageDeliveryStatus(int id) {
-		this.id = id;
-	}
-
-	public static MessageDeliveryStatus fromId(int id) {
-		return EnumIntConverter.fromId(values, id);
-	}
 }

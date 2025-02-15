@@ -239,8 +239,8 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 				ByteBuf s = channel.alloc().ioBuffer();
 				s.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
-				s.writeInt(tempMessageID);
 				s.writeInt(MessageDeliveryStatus.DELIVERED.id);
+				s.writeInt(tempMessageID);
 				s.writeInt(messageID);
 				clientInfo.getChannel().writeAndFlush(s);
 				
@@ -256,8 +256,8 @@ final class MessageHandler extends AbstractChannelClientHandler {
 
 			ByteBuf f = channel.alloc().ioBuffer();
 			f.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
-			f.writeInt(tempMessageID);
 			f.writeInt(MessageDeliveryStatus.FAILED.id);
+			f.writeInt(tempMessageID);
 			f.writeInt(messageID);
 			clientInfo.getChannel().writeAndFlush(f);
 
@@ -270,8 +270,8 @@ final class MessageHandler extends AbstractChannelClientHandler {
 	private static void receivedMessage(ChannelHandlerContext channel, int tempMessageID, int messageID) {
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
-		payload.writeInt(tempMessageID);
 		payload.writeInt(MessageDeliveryStatus.SERVER_RECEIVED.id);
+		payload.writeInt(tempMessageID);
 		payload.writeInt(messageID);
 		channel.writeAndFlush(payload);
 	}

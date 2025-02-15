@@ -24,12 +24,18 @@ import 'package:ermis_client/client/voice_call_udp_socket.dart';
 import 'package:ermis_client/main_ui/user_profile.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/top_app_bar_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:record/record.dart';
 import 'package:synchronized/synchronized.dart';
 
 import '../../client/app_event_bus.dart';
+import '../../client/client.dart';
 import '../../client/common/chat_session.dart';
+import '../../client/io/byte_buf.dart';
 import '../../util/notifications_util.dart';
 import '../../util/permissions.dart';
 import '../../util/transitions_util.dart';
@@ -41,7 +47,6 @@ class VoiceCallHandler {
       NotificationService.showVoiceCallNotification(
           icon: member.getIcon,
           callerName: member.getUsername,
-          chatSessionIndex: event.chatSessionID,
           onAccept: () {
             navigateWithFade(
                 context,
@@ -119,7 +124,7 @@ enum CallStatus {
 }
 
 class VoiceCallScreenState extends State<VoiceCallScreen> {
-  // final AudioRecorder audioRecord = AudioRecorder();
+  final AudioRecorder audioRecord = AudioRecorder();
   late final String audioFilePath;
 
   late final _udpSocket = VoiceCallUDPSocket();
@@ -145,50 +150,48 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
     await checkPermission(Permission.microphone);
     await checkPermission(Permission.camera);
 
-    // final address = Client.getInstance().serverInfo.address;
+    final address = Client.instance().serverInfo.address;
 
-    // await _udpSocket.initialize(
-    //     address, widget.udpServerPort, widget.chatSessionIndex);
-    // _udpSocket.chatSessionID = widget.chatSessionID;
-    // _udpSocket.key = widget.voiceCallKey;
+    await _udpSocket.initialize(address, widget.udpServerPort, widget.chatSessionIndex);
+    _udpSocket.chatSessionID = widget.chatSessionID;
+    _udpSocket.key = widget.voiceCallKey;
 
-    // _udpSocket.send(Uint8List(0)); // Test packet
+    _udpSocket.send(Uint8List(0)); // Test packet
 
-    // FlutterSoundPlayer player = FlutterSoundPlayer();
-    // await player.openPlayer();
-    // await player.startPlayerFromStream(
-    //   codec: Codec.pcm16,
-    //   sampleRate: 44100,
-    //   numChannels: 2,
-    // );
+    FlutterSoundPlayer player = FlutterSoundPlayer();
+    await player.openPlayer();
+    await player.startPlayerFromStream(
+      codec: Codec.pcm16,
+      sampleRate: 44100,
+      numChannels: 2,
+    );
 
-    // _udpSocket.listen((datagram) async {
-    //   Uint8List data = datagram.data;
-    //   VoiceCallServerMessage type =
-    //       VoiceCallServerMessage.fromId(ByteBuf.wrap(data).readInt32());
+    _udpSocket.listen((data) async {
+      VoiceCallServerMessage type =
+          VoiceCallServerMessage.fromId(ByteBuf.wrap(data).readInt32());
 
-    //   switch (type) {
-    //     case VoiceCallServerMessage.voice:
-    //       callStatus = CallStatus.active;
-    //       _lock.synchronized(() async {
-    //         await player.feedFromStream(data);
-    //         double rms = calculateRMS(data);
-    //         if (kDebugMode) debugPrint('RMS: $rms');
-    //         setState(() {
-    //           this.rms = rms;
-    //         });
-    //       });
-    //       break;
-    //     case VoiceCallServerMessage.userAdded:
-    //       setState(() => callStatus = CallStatus.connecting);
-    //       break;
-    //     case VoiceCallServerMessage.callEnded:
-    //       _endCall();
-    //       break;
-    //   }
-    // });
+      switch (type) {
+        case VoiceCallServerMessage.voice:
+          callStatus = CallStatus.active;
+          _lock.synchronized(() async {
+            await player.feedFromStream(data);
+            double rms = calculateRMS(data);
+            if (kDebugMode) debugPrint('RMS: $rms');
+            setState(() {
+              this.rms = rms;
+            });
+          });
+          break;
+        case VoiceCallServerMessage.userAdded:
+          setState(() => callStatus = CallStatus.connecting);
+          break;
+        case VoiceCallServerMessage.callEnded:
+          _endCall();
+          break;
+      }
+    });
 
-    // _startAudioRecording();
+    _startAudioRecording();
   }
 
   double calculateRMS(Uint8List audioChunk) {
@@ -204,15 +207,14 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
   }
 
   Future<void> _startAudioRecording() async {
-    // audioFilePath =
-    //     '${(await getApplicationCacheDirectory()).path}/recording.wav';
-    // await audioRecord.start(
-    //   RecordConfig(encoder: AudioEncoder.wav),
-    //   path: audioFilePath,
-    // );
+    audioFilePath = '${(await getApplicationCacheDirectory()).path}/recording.wav';
+    await audioRecord.start(
+      RecordConfig(encoder: AudioEncoder.wav),
+      path: audioFilePath,
+    );
 
-    // isMuted = false;
-    // _listenAndSendAudio();
+    isMuted = false;
+    _listenAndSendAudio();
   }
 
   static final _lock = Lock();
@@ -359,143 +361,3 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
     Navigator.pop(context);
   }
 }
-
-
-// class _WebRTCExampleState extends State<WebRTCExample> {
-//   late CallState _callState;
-//   late Call call;
-//   bool microphoneEnabled = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-
-//     StreamVideo(
-//       'mmhfdzb5evj2',
-//       user: const User(
-//         info: UserInfo(
-//           name: 'John Doe',
-//           id: 'Ki-Adi-Mundi',
-//         ),
-//       ),
-//       userToken:
-//           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0tpLUFkaS1NdW5kaSIsInVzZXJfaWQiOiJLaS1BZGktTXVuZGkiLCJ2YWxpZGl0eV9pbl9zZWNvbmRzIjo2MDQ4MDAsImlhdCI6MTczNzE0NjgxMSwiZXhwIjoxNzM3NzUxNjExfQ.qHYZyMyFjkgJaKWsjcqn8igtlJzMmK195YHWxs22DD4',
-//     );
-
-//     _createAudioRoom();
-//   }
-
-//   Future<void> _createAudioRoom() async {
-//     // Set up our call object
-//     call = StreamVideo.instance.makeCall(
-//       callType: StreamCallType.audioRoom(),
-//       id: 'REPLACE_WITH_CALL_ID',
-//     );
-
-//     final result = await call.getOrCreate(); // Call object is created
-
-//     if (result.isSuccess) {
-//       await call.join(); // Our local app user can join and receive events
-//       await call
-//           .goLive(); // Allow others to see and join the call (exit backstage mode)
-//     }
-
-//     call.onPermissionRequest = (permissionRequest) {
-//       call.grantPermissions(
-//         userId: permissionRequest.user.id,
-//         permissions: permissionRequest.permissions.toList(),
-//       );
-//     };
-
-//     _callState = call.state.value;
-//   }
-
-//   @override
-//   void dispose() {
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Audio Room: ${_callState.callId}'),
-//         leading: IconButton(
-//           onPressed: () async {
-//             await call.leave();
-//             Navigator.of(context).pop();
-//           },
-//           icon: const Icon(
-//             Icons.close,
-//           ),
-//         ),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         child: microphoneEnabled
-//             ? const Icon(Icons.mic)
-//             : const Icon(Icons.mic_off),
-//         onPressed: () {
-//           if (microphoneEnabled) {
-//             call.setMicrophoneEnabled(enabled: false);
-//             setState(() {
-//               microphoneEnabled = false;
-//             });
-//           } else {
-//             if (!call.hasPermission(CallPermission.sendAudio)) {
-//               call.requestPermissions(
-//                 [CallPermission.sendAudio],
-//               );
-//             }
-//             call.setMicrophoneEnabled(enabled: true);
-//             setState(() {
-//               microphoneEnabled = true;
-//             });
-//           }
-//         },
-//       ),
-//       body: StreamBuilder<CallState>(
-//         initialData: _callState,
-//         stream: call.state.valueStream,
-//         builder: (context, snapshot) {
-//           if (snapshot.hasError) {
-//             return const Center(
-//               child: Text('Cannot fetch call state.'),
-//             );
-//           }
-//           if (snapshot.hasData && !snapshot.hasError) {
-//             var callState = snapshot.data!;
-
-//             return GridView.builder(
-//               itemBuilder: (BuildContext context, int index) {
-//                 return Align(
-//                   widthFactor: 0.8,
-//                   child: StreamCallParticipant(
-//                     call: call,
-//                     backgroundColor: Colors.transparent,
-//                     participant: callState.callParticipants[index],
-//                     showParticipantLabel: true,
-//                     showConnectionQualityIndicator: false,
-//                     userAvatarTheme: const StreamUserAvatarThemeData(
-//                       constraints: BoxConstraints.expand(
-//                         height: 100,
-//                         width: 100,
-//                       ),
-//                     ),
-//                   ),
-//                 );
-//               },
-//               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//                 crossAxisCount: 3,
-//               ),
-//               itemCount: callState.callParticipants.length,
-//             );
-//           }
-
-//           return const Center(
-//             child: CircularProgressIndicator(),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }

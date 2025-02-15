@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:ermis_client/client/io/byte_buf.dart';
 // import 'dart:ffi' as ffi;
 // import 'package:path/path.dart' as path;
@@ -52,16 +53,16 @@ class VoiceCallUDPSocket {
 
   late int _chatSessionID;
   late int _key;
-  late Uint8List _aesKey;
+  late encrypt.Key _aesKey;
 
   VoiceCallUDPSocket();
 
   set chatSessionID(int chatSessionID) => _chatSessionID = chatSessionID;
   set key(int key) => _key = key;
-  set aesKey(Uint8List aesKey) => _aesKey = aesKey;
+  set aesKey(Uint8List aesKey) => _aesKey = encrypt.Key(aesKey);
 
   Future<void> initialize(InternetAddress remoteAddress, int remotePort,
-      int chatSessionIndex) async {
+      int chatSessionIndex,) async {
     if (remotePort <= 0) {
       throw ArgumentError("Port cannot be below zero");
     }
@@ -75,8 +76,12 @@ class VoiceCallUDPSocket {
     _remotePort = remotePort;
   }
 
-  void listen(void Function(Datagram datagram)? onData,
-      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
+  void listen(
+    void Function(Uint8List data)? onData, {
+    void Function()? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
     _udpSocket.listen(
       (event) {
         Datagram? datagram = _udpSocket.receive();
@@ -84,7 +89,7 @@ class VoiceCallUDPSocket {
           return;
         }
 
-        onData?.call(datagram);
+        onData?.call(aesGcmDecrypt(datagram.data));
       },
       onError: onError,
       onDone: onDone,
@@ -112,7 +117,7 @@ class VoiceCallUDPSocket {
     payload.writeInt32(VoiceCallClientMessage.voice.id);
     payload.writeInt32(_key);
     payload.writeBytes(message);
-    _udpSocket.send(payload.buffer, _remoteAddress, _remotePort);
+    _udpSocket.send(aesGcmEncrypt(payload.buffer), _remoteAddress, _remotePort);
   }
 
   void close() {
@@ -122,151 +127,39 @@ class VoiceCallUDPSocket {
     send(buffer.buffer);
     _udpSocket.close();
   }
+
+  Uint8List aesGcmEncrypt(Uint8List plainText) {
+    final iv = encrypt.IV.fromSecureRandom(12);
+    final encrypter = encrypt.Encrypter(
+      encrypt.AES(
+        _aesKey,
+        mode: encrypt.AESMode.gcm,
+        padding: null,
+      ),
+    );
+
+    final encrypted = encrypter.encryptBytes(
+      plainText,
+      iv: iv,
+    );
+
+    return encrypted.bytes;
+  }
+
+  Uint8List aesGcmDecrypt(Uint8List ciphertext) {
+    final encrypter = encrypt.Encrypter(
+      encrypt.AES(
+        _aesKey,
+        mode: encrypt.AESMode.gcm,
+        padding: null,
+      ),
+    );
+
+    final List<int> decrypted = encrypter.decryptBytes(
+      encrypt.Encrypted(ciphertext),
+      iv: encrypt.IV.allZerosOfLength(12),
+    );
+
+    return Uint8List.fromList(decrypted);
+  }
 }
-
-// Secure UDP socket
-// class SecureDatagramSocket {
-//   late ffi.DynamicLibrary dtlsLib;
-
-//   SecureDatagramSocket() {
-//     dtlsLib = ffi.DynamicLibrary.open("path/to/libdtls.so");
-
-//     var libraryPath =
-//         path.join(Directory.current.path, 'hello_library', 'libhello.so');
-//     if (Platform.isMacOS) {
-//       libraryPath =
-//           path.join(Directory.current.path, 'hello_library', 'libhello.dylib');
-//     } else if (Platform.isWindows) {
-//       libraryPath = path.join(
-//           Directory.current.path, 'hello_library', 'Debug', 'hello.dll');
-//     }
-//   }
-
-  // @ffi.Native<ffi.Void Function(Uint8List)>(symbol: 'send')
-  // external void send(
-  //   Uint8List data,
-  // );
-
-  // // FFI binding to send method from Rust
-  // void send(Uint8List data) {
-  //   final sendFunc = dtlsLib.lookupFunction<
-  //       void Function(ffi.Pointer<Utf8>, Uint8List),
-  //       void Function(ffi.Pointer<Utf8>, Uint8List)>('send');
-
-  // Convert data to a pointer (ensure correct memory allocation)
-  //   final myString = 'Hello';
-  //   final pointer = myString.toNativeUtf8();
-  //   sendFunc(pointer, data);
-  // }
-// }
-// 
-// class SecureUdpSocket {
-//   final RawDatagramSocket _socket;
-//   final Uint8List _key;
-
-//   SecureUdpSocket(this._socket, this._key);
-
-//   Future<void> sendSecure(String message, InternetAddress address, int port) async {
-//     Uint8List encrypted = aesGcmEncrypt(Uint8List.fromList(message.codeUnits));
-//     _socket.send(encrypted, address, port);
-//   }
-
-//   Stream<Uint8List> receiveSecure1() async* {
-//     await for (final RawSocketEvent event in _socket) {
-//       switch (event) {
-//         case RawSocketEvent.read:
-//           Datagram? datagram = _socket.receive();
-//           if (datagram == null) break;
-          
-//           Uint8List decrypted = aesGcmDecrypt(datagram.data);
-//           yield decrypted;
-//           break;
-//         case RawSocketEvent.closed:
-//           // TODO: Handle this case.
-//           break;
-//         case RawSocketEvent.readClosed:
-//           // TODO: Handle this case.
-//           break;
-//         case RawSocketEvent.write:
-//           // TODO: Handle this case.
-//           break;
-//       }
-
-//     }
-//   }
-
-
-//   static Future<SecureUdpSocket> bind(String host, int port, Uint8List key, Uint8List iv) async {
-//     RawDatagramSocket socket = await RawDatagramSocket.bind(host, port);
-//     return SecureUdpSocket(socket, key, iv);
-//   }
-// }
-// void main() {
-//   // Example plaintext
-//   final plaintext = 'Hello, AES-GCM in Dart!';
-  
-//   // Key and IV
-//   final key = encrypt.Key.fromSecureRandom(32); // 256-bit key
-//   final iv = encrypt.IV.fromSecureRandom(12);   // 96-bit IV (standard for AES-GCM)
-
-//   // Encrypt
-//   final encrypted = aesGcmEncrypt(plaintext, key, iv);
-
-//   print('Encrypted: ${base64.encode(encrypted.ciphertext)}');
-//   print('IV: ${base64.encode(iv.bytes)}');
-
-//   // Decrypt
-//   final decrypted = aesGcmDecrypt(
-//     encrypted.ciphertext,
-//     key,
-//     iv
-//   );
-
-//   print('Decrypted: $decrypted');
-// }
-
-// class EncryptedData {
-//   final Uint8List ciphertext;
-
-//   EncryptedData(this.ciphertext);
-// }
-
-
-// EncryptedData aesGcmEncrypt(String plaintext, encrypt.Key key, encrypt.IV iv) {
-//   final encrypter = encrypt.Encrypter(
-//     encrypt.AES(
-//       key,
-//       mode: encrypt.AESMode.gcm,
-//       padding: null,
-//     ),
-//   );
-
-//   final encrypted = encrypter.encryptBytes(
-//     utf8.encode(plaintext),
-//     iv: iv,
-//   );
-
-//   return EncryptedData(encrypted.bytes);
-// }
-
-// String aesGcmDecrypt(
-//   Uint8List ciphertext,
-//   encrypt.Key key,
-//   encrypt.IV iv,
-// ) {
-//   final encrypter = encrypt.Encrypter(
-//     encrypt.AES(
-//       key,
-//       mode: encrypt.AESMode.gcm,
-//       padding: null,
-//     ),
-//   );
-
-
-//   final decrypted = encrypter.decryptBytes(
-//     encrypt.Encrypted.from64(base64.encode(ciphertext)),
-//     iv: iv,
-//   );
-
-//   return utf8.decode(decrypted);
-// }

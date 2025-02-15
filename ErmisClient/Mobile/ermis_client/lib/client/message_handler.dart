@@ -329,7 +329,12 @@ class MessageHandler {
             Uint8List? messageBytes;
             Uint8List? fileNameBytes;
             int epochSecond = msg.readInt64();
-            bool isRead = msg.readBoolean();
+            bool isRead;
+            if (clientID == this.clientID) {
+              isRead = msg.readBoolean();
+            } else {
+              isRead = true;
+            }
 
             switch (contentType) {
               case MessageContentType.text:
@@ -448,22 +453,37 @@ class MessageHandler {
           ));
           break;
         case ServerMessageType.messageDeliveryStatus:
-          int temporaryMessageID = msg.readInt32();
-          
-          Message pendingMessage = pendingMessagesQueue[temporaryMessageID]!;
           MessageDeliveryStatus status = MessageDeliveryStatus.fromId(msg.readInt32());
-          int? generatedMessageID;
-          if (status == MessageDeliveryStatus.delivered) {
-            generatedMessageID = msg.readInt32();
+
+          Message pendingMessage;
+          
+          if (status == MessageDeliveryStatus.lateDelivered) {
+            int chatSessionID = msg.readInt32();
+            int generatedMessageID = msg.readInt32();
+
+            pendingMessage = _chatSessionIDSToChatSessions[chatSessionID]!
+                .getMessages
+                .firstWhere((m) => m.messageID == generatedMessageID);
+          } else if (status == MessageDeliveryStatus.rejected) {
+            int tempMessageID = msg.readInt32();
+            pendingMessage = pendingMessagesQueue.remove(tempMessageID)!;
+          } else {
+            int tempMessageID = msg.readInt32();
+            int generatedMessageID = msg.readInt32();
+
+            pendingMessage = pendingMessagesQueue[tempMessageID]!;
+            if (status == MessageDeliveryStatus.delivered) {
+              pendingMessagesQueue.remove(tempMessageID)!;
+            }
+
             pendingMessage.setMessageID(generatedMessageID);
-            pendingMessagesQueue.remove(temporaryMessageID);
           }
+
           pendingMessage.setDeliveryStatus(status);
 
           eventBus.fire(MessageDeliveryStatusEvent(
             deliveryStatus: status,
             message: pendingMessage,
-            temporaryMessageID: temporaryMessageID,
           ));
           break;
         case ServerMessageType.clientMessage:

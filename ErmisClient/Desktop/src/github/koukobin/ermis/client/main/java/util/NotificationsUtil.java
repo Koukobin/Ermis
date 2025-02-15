@@ -38,7 +38,6 @@ public final class NotificationsUtil {
 	private static final Consumer<String> popupNotificationer;
 
 	static {
-		
 		Media media = new Media(ChatInterfaceInfo.NOTIFICATION_SOUND_LOCATION);
 		notificationPlayer = new MediaPlayer(media);
 		notificationPlayer.setCycleCount(Integer.MAX_VALUE); // Playable infinite times

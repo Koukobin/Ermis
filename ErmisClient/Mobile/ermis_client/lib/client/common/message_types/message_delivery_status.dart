@@ -1,11 +1,12 @@
 import '../exceptions/EnumNotFoundException.dart';
 
 enum MessageDeliveryStatus {
-  delivered(0),
-  serverReceived(1),
-  failed(2),
-  rejected(3),
-  sending(4);
+  lateDelivered(0),
+  delivered(1),
+  serverReceived(2),
+  failed(3),
+  rejected(4),
+  sending(5);
 
   final int id;
   const MessageDeliveryStatus(this.id);

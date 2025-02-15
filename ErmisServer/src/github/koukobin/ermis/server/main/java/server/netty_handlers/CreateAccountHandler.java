@@ -70,7 +70,6 @@ final class CreateAccountHandler extends EntryHandler {
 
 	@Override
 	public void executeEntryAction(ChannelHandlerContext ctx, ByteBuf msg) {
-
 		int readerIndex = msg.readerIndex();
 
 		Action action = Action.fromId(msg.readInt());
@@ -90,7 +89,6 @@ final class CreateAccountHandler extends EntryHandler {
 
 	@Override
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-
 		{
 			Credential credential = Credential.fromId(msg.readInt());
 

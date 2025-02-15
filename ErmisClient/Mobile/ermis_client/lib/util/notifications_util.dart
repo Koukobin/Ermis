@@ -18,31 +18,53 @@ import 'package:ermis_client/constants/app_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import '../client/client.dart';
+typedef ReplyCallBack = void Function(String message);
+
+enum NotificationAction {
+  actionReply("action_reply"),
+  acceptVoiceCall("accept_voice_call"),
+  ignoreVoiceCall("ignore_voice_call"),
+  markAsRead("mark_as_read");
+
+  final String id;
+  const NotificationAction(this.id);
+
+  // This function mimics the fromId functionality and throws an exception when no match is found.
+  static NotificationAction fromId(String id) {
+    return NotificationAction.values.firstWhere((type) => type.id == id);
+  }
+}
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  static int? chatSessionIndex;
+  static ReplyCallBack? replyCallBack;
   static VoidCallback? voiceCall;
 
   static Future<void> onDidReceiveNotification(NotificationResponse response) async {
-    if (response.actionId == 'action_reply') {
+    String? actionId = response.actionId;
+    if (actionId == null) {
+      return;
+    }
 
-      if (chatSessionIndex == null) {
-        if (kDebugMode) debugPrint("ΓΑΜΩ ΤΟ ΣΠΙΤΙ ΜΟΥ ΚΑΙ ΤΑ ΠΑΝΤΑ. ΓΙΑΤΙ ΔΕΝ ΕΧΩ ΘΕΣΕΙ ΤΟ FUCKING INDEX");
-        return;
-      }
+    NotificationAction na = NotificationAction.fromId(actionId);
+    switch (na) {
+      case NotificationAction.acceptVoiceCall:
+        voiceCall!();
+        break;
+      case NotificationAction.ignoreVoiceCall:
+        // Do nothing
+        break;
+      case NotificationAction.actionReply:
+        String? input = response.input;
+        if (input == null) {
+          return;
+        }
 
-      String? input = response.input;
-      if (input == null) {
-        return;
-      }
-
-      Client.instance().sendMessageToClient(input, chatSessionIndex!);
-    } else if (response.actionId == 'accept_voice_call') {
-      voiceCall!();
-    } else if (response.actionId == 'ignore_voice_call') {
-      // Do nothing
+        replyCallBack!(input);
+        break;
+      case NotificationAction.markAsRead:
+        // To be implemented in the future
+        break;
     }
   }
 
@@ -54,12 +76,16 @@ class NotificationService {
 
     const InitializationSettings initializationSettings =
         InitializationSettings(
-            android: androidInitializationSettings, iOS: null);
+      android: androidInitializationSettings,
+      iOS: null,
+    );
 
     // Initialize the plugin with the specified settings
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
-        onDidReceiveNotificationResponse: onDidReceiveNotification);
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
+      onDidReceiveNotificationResponse: onDidReceiveNotification,
+    );
 
     // Request notification permission for android
     await flutterLocalNotificationsPlugin
@@ -111,14 +137,12 @@ class NotificationService {
       ticker: 'ticker',
     ));
 
-    NotificationService.chatSessionIndex = chatSessionIndex;
     return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, body, platformChannelSpecifics);
   }
 
   static Future<void> showVoiceCallNotification({
     required Uint8List icon,
     required String callerName,
-    required int chatSessionIndex,
     required VoidCallback onAccept,
   }) async {
     voiceCall = onAccept;
@@ -136,12 +160,12 @@ class NotificationService {
         additionalFlags: Int32List.fromList(<int>[4]), // Optional, custom flags
         actions: [
           AndroidNotificationAction(
-            'accept_voice_call',
+            NotificationAction.acceptVoiceCall.id,
             'Accept',
             showsUserInterface: true,
           ),
           AndroidNotificationAction(
-            'ignore_voice_call',
+            NotificationAction.ignoreVoiceCall.id,
             'Ignore',
           ),
         ],
@@ -149,8 +173,6 @@ class NotificationService {
       ),
     );
 
-    // Store chatSessionIndex for future handling if needed
-    NotificationService.chatSessionIndex = chatSessionIndex;
     return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, '$callerName is calling...', platformChannelSpecifics);
   }
 
@@ -162,8 +184,9 @@ class NotificationService {
     required String summaryText,
     required String contentTitle,
     required String contentText,
-    required int chatSessionIndex,
+    required ReplyCallBack replyCallBack,
   }) async {
+    NotificationService.replyCallBack = replyCallBack;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
       'your_channel_id',
@@ -175,7 +198,7 @@ class NotificationService {
       additionalFlags: Int32List.fromList(<int>[4]),
       actions: [
         AndroidNotificationAction(
-          'action_reply',
+          NotificationAction.actionReply.id,
           'Reply',
           showsUserInterface: true,
           icon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
@@ -186,7 +209,7 @@ class NotificationService {
           ],
         ),
         AndroidNotificationAction(
-          'action_mark_read',
+          NotificationAction.markAsRead.id,
           'Mark as Read',
         ),
       ],
@@ -198,7 +221,6 @@ class NotificationService {
       ticker: 'ticker',
     ));
 
-    NotificationService.chatSessionIndex = chatSessionIndex;
     return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, body, platformChannelSpecifics);
   }
 

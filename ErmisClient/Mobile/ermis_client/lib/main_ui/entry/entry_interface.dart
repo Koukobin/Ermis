@@ -193,6 +193,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
   // Controllers for user input
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _backupVerificationController = TextEditingController();
 
   bool _useBackupverificationCode = false;
 
@@ -212,8 +213,8 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: const ErmisAppBar(),
-      backgroundColor: appColors.tertiaryColor,
+      appBar: const ErmisAppBar(centerTitle: false, removeDivider: true,),
+      backgroundColor: appColors.secondaryColor,
       resizeToAvoidBottomInset: false, // Prevent resizing when keyboard opens
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),
@@ -229,20 +230,42 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
             ),
 
             // Form section for login
-            Expanded(
+            Flexible(
               child: Padding(
-                padding: const EdgeInsets.only(top: 60),
+                padding: const EdgeInsets.only(top: 40),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      CustomTextField(
-                          controller: _emailController, hint: "Email"),
-                      SizedBox(height: 8),
-                      CustomTextField(
-                          controller: _passwordController,
-                          hint: "Password",
-                          obscureText: true),
+                      CustomTextField(controller: _emailController, hint: "Email"),
+                      const SizedBox(height: 8),
+                      AnimatedSwitcher(
+                        duration: Duration(milliseconds: 600),
+                        switchInCurve: Curves.easeInOut,
+                        switchOutCurve: Curves.easeInOut,
+                        child: _useBackupverificationCode
+                            ? CustomTextField(
+                                key: ValueKey('backupCode'), // Unique key for backup verification code
+                                controller: _backupVerificationController,
+                                hint: "Backup-Verification Code",
+                                obscureText: true)
+                            : CustomTextField(
+                                key: ValueKey('password'),
+                                controller: _passwordController,
+                                hint: "Password",
+                                obscureText: true),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          // return ScaleTransition(scale: animation, child: child,);
+                          // return SizeTransition(sizeFactor: animation, child: child,);
+                          return SlideTransition(
+                            position: Tween<Offset>(
+                              begin: _useBackupverificationCode ? Offset(1, 0) : Offset(-1, 0),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          );
+                        },
+                      ),
                       SizedBox(height: 8),
                       _buildButton(
                         label: "Login",
@@ -250,6 +273,16 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                         backgroundColor: appColors.secondaryColor,
                         textColor: appColors.primaryColor,
                         onPressed: () async {
+                          if (_emailController.text.isEmpty) {
+                            showToastDialog("Email is empty!");
+                            return;
+                          }
+
+                          if (_passwordController.text.isEmpty) {
+                            showToastDialog("Password is empty!");
+                            return;
+                          }
+
                           LoginEntry loginEntry = Client.instance().createNewLoginEntry();
                           loginEntry.sendEntryType();
                           loginEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
@@ -263,8 +296,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                             LoginCredential.password: _passwordController.text,
                           });
 
-                          ResultHolder entryResult =
-                              await loginEntry.getCredentialsExchangeResult();
+                          ResultHolder entryResult = await loginEntry.getCredentialsExchangeResult();
 
                           bool isSuccessful = entryResult.isSuccessful;
                           String resultMessage = entryResult.message;
@@ -278,6 +310,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                             return;
                           }
 
+                          // If password is used, further verification/authentication is required
                           if (!_useBackupverificationCode) {
                             isSuccessful = await performVerification(context, _emailController.text);
                           }
@@ -296,21 +329,62 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                           }
                         },
                       ),
-                      SizedBox(height: 8),
-                      _buildTextButton(
-                          label:
-                              "${_useBackupverificationCode ? "Unuse" : "Use"} backup verification code",
-                          icon: null,
-                          backgroundColor: appColors.tertiaryColor,
-                          textColor: appColors.primaryColor,
-                          onPressed: () {
-                            setState(() {
-                              _useBackupverificationCode =
-                                  !_useBackupverificationCode;
-                            });
-                          }),
-                    ]
-                ),
+                      const SizedBox(height: 10),
+                      Center(
+                          child: Text(
+                        "OR",
+                        style: TextStyle(color: appColors.primaryColor, fontSize: 16),
+                      )),
+                      const SizedBox(height: 10),
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _useBackupverificationCode = !_useBackupverificationCode;
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: appColors.quaternaryColor,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          textStyle: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        label: AnimatedSwitcher(duration: Duration(milliseconds: 400), child: _useBackupverificationCode ? Text(
+                          key: ValueKey("sex"),
+                          "Use Password",
+                          style: TextStyle(
+                              fontSize: 18, color: appColors.inferiorColor),
+                        ) : Text(
+                          key: ValueKey("anal"),
+                          "Use Backup-Verification Code",
+                          style: TextStyle(
+                              fontSize: 18, color: appColors.inferiorColor),
+                        ),
+                        
+                        switchInCurve: Curves.easeInOut,
+                        switchOutCurve: Curves.easeInOut,
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                                return ScaleTransition(scale: animation, child: child,);
+                              },
+                        ),
+                      ),
+                      // _buildTextButton(
+                      //     label:
+                      //         "${_useBackupverificationCode ? "Unuse" : "Use"} backup verification code",
+                      //     icon: null,
+                      //     backgroundColor: appColors.quaternaryColor,
+                      //     textColor: appColors.inferiorColor,
+                      //     onPressed: () {
+                      //       setState(() {
+                      //         _useBackupverificationCode =
+                      //             !_useBackupverificationCode;
+                      //       });
+                      //     }),
+                    ]),
               ),
             ),
 
@@ -346,8 +420,9 @@ Widget _buildButton({
     onPressed: onPressed,
     style: ElevatedButton.styleFrom(
       backgroundColor: backgroundColor,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 17),
       shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.white30, width: 2),
         borderRadius: BorderRadius.circular(10),
       ),
     ),
@@ -373,8 +448,8 @@ Widget _buildTextButton({
     onPressed: onPressed,
     style: TextButton.styleFrom(
       backgroundColor: backgroundColor,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      textStyle: TextStyle(fontStyle: FontStyle.italic),
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      textStyle: TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.bold),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),

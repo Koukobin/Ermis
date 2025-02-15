@@ -53,7 +53,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Row(
       children: [
         Expanded(
-          child: TextField(
+          child: TextFormField(
             controller: widget.controller,
             onChanged: (String input) {
               if (!StringValidator.validate(input, widget.illegalCharacters)) {
@@ -64,18 +64,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
             },
             obscureText: _obscureText,
             decoration: InputDecoration(
-              hintText: widget.hint,
+              labelText: widget.hint,
               errorText: _errorMessage,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               filled: true,
-              fillColor: appColors.inferiorColor,
-              suffixIcon: widget.obscureText
+              fillColor: appColors.tertiaryColor,
+              suffixIcon: widget.obscureText && widget.controller.text.isNotEmpty
                   ? IconButton(
                       icon: Icon(
                         _obscureText ? Icons.visibility : Icons.visibility_off,
-                        color: Colors.black54,
+                        color: appColors.primaryColor,
                       ),
                       onPressed: () {
                         setState(() {
@@ -85,7 +85,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     )
                   : null,
             ),
-            style: TextStyle(color: appColors.secondaryColor),
+            style: TextStyle(
+              color: appColors.inferiorColor,
+            ),
           ),
         ),
       ],

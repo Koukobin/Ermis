@@ -51,7 +51,6 @@ final class LoginHandler extends EntryHandler {
 	
 	@Override
 	public void executeEntryAction(ChannelHandlerContext ctx, ByteBuf msg) {
-
 		int readerIndex = msg.readerIndex();
 
 		Action action = Action.fromId(msg.readInt());
@@ -86,7 +85,7 @@ final class LoginHandler extends EntryHandler {
 			
 			credentials.put(credential, new String(msgBytes));
 		}
-
+		
 		if (credentials.size() == Credential.values().length) {
 
 			String email = credentials.get(Credential.EMAIL);

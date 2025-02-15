@@ -177,12 +177,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       }
 
       NotificationService.showInstantNotification(
-          icon: chatSession.getMembers[0].getIcon,
-          body: "Message by ${msg.username}",
-          contentText: body,
-          contentTitle: msg.username,
-          summaryText: event.chatSession.toString(),
-          chatSessionIndex: chatSession.chatSessionIndex);
+        icon: event.chatSession.getMembers[0].getIcon,
+        body: "Message by ${msg.username}",
+        contentText: body,
+        contentTitle: msg.username,
+        summaryText: event.chatSession.toString(),
+        replyCallBack: _sendTextMessage,
+      );
     });
 
     AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
@@ -292,13 +293,9 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
     }
   }
 
-  void _sendTextMessage() {
-    if (_inputController.text.trim().isEmpty) return;
-
-    Message pendingMessage = Client.instance().sendMessageToClient(_inputController.text, _chatSessionIndex);
+  void _sendTextMessage(String text) {
+    Message pendingMessage = Client.instance().sendMessageToClient(text, _chatSessionIndex);
     _addMessage(pendingMessage);
-
-    _inputController.clear();
   }
 
   @override
@@ -519,7 +516,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
             ),
           ),
           IconButton(
-            onPressed: _sendTextMessage,
+            onPressed: () {
+              if (_inputController.text.trim().isEmpty) return;
+              _sendTextMessage(_inputController.text);
+              _inputController.clear();
+            },
             icon: Icon(Icons.send, color: appColors.inferiorColor),
           ),
         ],
@@ -711,7 +712,7 @@ class MessageBubble extends StatelessWidget {
       case MessageDeliveryStatus.serverReceived:
         icon = Icons.check; // ✅ Single checkmark
         break;
-      case MessageDeliveryStatus.delivered:
+      case MessageDeliveryStatus.delivered || MessageDeliveryStatus.lateDelivered:
         icon = Icons.done_all; // ✅✅ Double checkmarks
         color = Color(0xFF34B7F1); // Apparently the color used by WhatsApp for read messages (According to ChatGPT)
         break;

@@ -18,6 +18,7 @@ package github.koukobin.ermis.server.main.java.server;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -289,25 +290,27 @@ public final class ServerUDP {
 
 	private static class Test extends SimpleChannelInboundHandler<DatagramPacket> {
 
+		private static final Map<InetAddress, Integer> socks = new ConcurrentHashMap<>();
 		private static final Map<Integer, VoiceChat> calls = new ConcurrentHashMap<>();
 
 		@Override
 		public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
 			LOGGER.debug("Packet received");
 			ByteBuf content = packet.content();
-			
+
+			SecretKey secretKey = calls.get(socks.get(packet.sender().getAddress())).aesKey.getSecretKey();
 			int chatSessionID = content.readInt();
-//			ByteBuf encryptedContent;
-//			ByteBuf decryptedContent;
-//			{
-//				encryptedContent = content.slice();
-//				byte[] a = new byte[encryptedContent.readableBytes()];
-//				encryptedContent.readBytes(a);
-//				byte[] b = AESKeyGenerator.decrypt(calls.get(chatSessionID).aesKey.getSecretKey(), a);
-//
-//				decryptedContent = ctx.alloc().ioBuffer();
-//				decryptedContent.writeBytes(b);
-//			}
+			ByteBuf encryptedContent;
+			ByteBuf decryptedContent;
+			{
+				encryptedContent = content.slice();
+				byte[] a = new byte[encryptedContent.readableBytes()];
+				encryptedContent.readBytes(a);
+				byte[] b = AESKeyGenerator.decrypt(secretKey, a);
+
+				decryptedContent = ctx.alloc().ioBuffer();
+				decryptedContent.writeBytes(b);
+			}
 
 			switch (ClientMessage.fromId(content.readInt())) {
 			case END_CALL:
@@ -368,7 +371,7 @@ public final class ServerUDP {
 				DatagramPacket responsePacket = new DatagramPacket(contentBytes, recipientAddress);
 				ctx.channel().writeAndFlush(responsePacket);
 			}
-			
+
 		}
 	}
 
@@ -395,8 +398,9 @@ public final class ServerUDP {
 
 	public static VoiceChat createVoiceChat(int chatSessionID) {
 		int key = InsecureRandomNumberGenerator.generateRandomNumber(8);
-//		AESGCMCipher aesKey = AESKeyGenerator.generateAESKey();
-		Test.calls.put(chatSessionID, new VoiceChat(key, Lists.newArrayList(), null));
+		AESGCMCipher aesKey = AESKeyGenerator.generateAESKey1();
+		Test.calls.put(chatSessionID, new VoiceChat(key, Lists.newArrayList(), aesKey));
+//		Test.socks.put(address, chatSessionID);
 		return Test.calls.get(chatSessionID);
 	}
 

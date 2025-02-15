@@ -44,11 +44,9 @@ class MessageReceivedEvent {
 class MessageDeliveryStatusEvent {
   final MessageDeliveryStatus deliveryStatus;
   final Message message;
-  final int temporaryMessageID;
   MessageDeliveryStatusEvent({
     required this.deliveryStatus,
     required this.message,
-    required this.temporaryMessageID,
   });
 }
 

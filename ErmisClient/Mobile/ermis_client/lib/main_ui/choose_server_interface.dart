@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import '../client/client.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_theme.dart';
-import '../util/top_app_bar_utils.dart';
 import 'client_session_setup.dart';
 
 String? serverUrl;

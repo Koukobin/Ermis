@@ -15,33 +15,29 @@
  */
 package github.koukobin.ermis.server.main.java.util;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 public final class AESGCMCipher {
-	
+
 	private final SecretKey secretKey;
 	private final Cipher encryptionCipher;
-	
+
 	public AESGCMCipher(SecretKey secretKey, Cipher encryptionCipher) {
 		this.secretKey = secretKey;
 		this.encryptionCipher = encryptionCipher;
 	}
-	
+
 	public byte[] encrypt(String message) throws IllegalBlockSizeException, BadPaddingException {
-        return encrypt(message.getBytes());
+		return encrypt(message.getBytes());
 	}
-	
+
 	public byte[] encrypt(byte[] message) throws IllegalBlockSizeException, BadPaddingException {
-        return encryptionCipher.doFinal(message);
+		return encryptionCipher.doFinal(message);
 	}
-	
+
 //	public byte[] decrypt(String encryptedMessage) throws IllegalBlockSizeException, BadPaddingException {
 //        return encrypt(encryptedMessage.getBytes());
 //	}
@@ -49,11 +45,11 @@ public final class AESGCMCipher {
 //	public byte[] decrypt(byte[] encryptedMessage) throws IllegalBlockSizeException, BadPaddingException {
 //        return decryptionCipher.doFinal(encryptedMessage);
 //	}
-	
+
 	public byte[] getSecretKeyEncoded() {
 		return secretKey.getEncoded();
 	}
-	
+
 	public SecretKey getSecretKey() {
 		return secretKey;
 	}

@@ -167,6 +167,7 @@ class ByteBuf {
 
   /// Returns the number of readable bytes.
   int get readableBytes => _writtenBytes - _readerIndex;
+  double get readableInt32s => (_writtenBytes - _readerIndex) / 4;
 
   /// Returns the total buffer capacity.
   int get capacity => buffer.length;
