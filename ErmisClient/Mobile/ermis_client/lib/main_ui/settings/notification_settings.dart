@@ -74,12 +74,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ErmisAppBar(
-        title: const Text(
-          "Notification Settings",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-      ),
+      appBar: ErmisAppBar(titleText: 'Notification Settings'),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [

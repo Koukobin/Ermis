@@ -82,11 +82,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
-      appBar: const ErmisAppBar(
-          title: Text(
-        "Profile Settings",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      )),
+      appBar: ErmisAppBar(titleText: "Profile Settings"),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20.0),
         child: Column(

@@ -1,0 +1,2 @@
+/opt/flutter-apps/ermis_client/android/app/.cxx/RelWithDebInfo/1ur1x6y1/x86_64/CMakeFiles/edit_cache.dir
+/opt/flutter-apps/ermis_client/android/app/.cxx/RelWithDebInfo/1ur1x6y1/x86_64/CMakeFiles/rebuild_cache.dir

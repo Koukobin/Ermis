@@ -16,42 +16,28 @@
 
 import 'package:flutter/material.dart';
 
+Future<Object?> pushHorizontalTransition(BuildContext context, Widget newPage) async {
+  return await Navigator.push(context, MaterialPageRoute(
+    builder: (context) => newPage,
+  ));
+}
+
+void navigateWithFade(BuildContext context, Widget newScreen) {
+  Navigator.of(context).push(PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => newScreen,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
+    transitionDuration: const Duration(milliseconds: 300),
+  ));
+}
+
 enum DirectionYAxis {
   topToBottom,
   bottomToTop;
-}
-
-Future<Object?> pushHorizontalTransition(BuildContext context, Widget newPage, [Widget? oldPage]) async {
-  return await Navigator.push(
-    context,
-    PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => newPage,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0); // Start position
-        const end = Offset.zero; // End position
-        const curve = Curves.easeOutQuad;
-
-        final Animatable<Offset> tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        final Animation<Offset> offsetAnimation = animation.drive(tween);
-
-        final Animatable<Offset> secondaryTween = Tween(begin: Offset(-0.1, 0.0), end: Offset(0.0, 0.0)).chain(CurveTween(curve: curve));
-        final Animation<Offset> secondaryOffsetAnimation = secondaryAnimation.drive(secondaryTween);
-        
-        return Stack(
-          children: [
-            SlideTransition(
-              position: secondaryOffsetAnimation,
-              child: oldPage,
-            ),
-            SlideTransition(
-              position: offsetAnimation,
-              child: newPage,
-            ),
-          ],
-        );
-      },
-    ),
-  );
 }
 
 Route createVerticalTransition(Widget newPage, DirectionYAxis direction) {
@@ -75,29 +61,19 @@ Route createVerticalTransition(Widget newPage, DirectionYAxis direction) {
   );
 }
 
-void navigateWithFade(BuildContext context, Widget newScreen) {
-  Navigator.of(context).push(PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => newScreen,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: animation,
-        child: child,
-      );
-    },
-    transitionDuration: const Duration(milliseconds: 300),
-  ));
-}
-
-
 PageRouteBuilder buildSlideTransition(DirectionYAxis direction, Widget newPage, [Widget? oldPage]) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => newPage,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final offsetAnimation = Tween<Offset>(
-        begin: Offset(direction == DirectionYAxis.bottomToTop ? 0.5 : -0.5,
-            direction == DirectionYAxis.bottomToTop ? 1.0 : -1.0),
-        end: Offset.zero,
-      ).animate(animation);
+      final double beginX = direction == DirectionYAxis.bottomToTop ? 0.5 : -0.5;
+      final double beginY = direction == DirectionYAxis.bottomToTop ? 1.0 : -1.0;
+
+      final begin = Offset(beginX, beginY);
+      const end = Offset.zero; // End position
+      const curve = Curves.easeOutQuad;
+
+      final Animatable<Offset> tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      final Animation<Offset> offsetAnimation = animation.drive(tween);
 
       return SlideTransition(
         position: offsetAnimation,

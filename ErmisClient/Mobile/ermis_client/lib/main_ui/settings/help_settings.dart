@@ -58,7 +58,7 @@ class HelpSettingsState extends State<HelpSettings> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
-      appBar: const GoBackBar(title: "Help & Settings"),
+      appBar: ErmisAppBar(titleText: "Help & Settings"),
       body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(

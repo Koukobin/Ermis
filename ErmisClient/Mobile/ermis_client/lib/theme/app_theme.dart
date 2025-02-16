@@ -128,15 +128,11 @@ class AppThemeState extends State<AppTheme> {
         bottomSheetTheme: BottomSheetThemeData(
             backgroundColor: widget.darkAppColors.tertiaryColor.withOpacity(1.0)),
       popupMenuTheme: PopupMenuThemeData(
-        color: Colors.grey[900],
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        textStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-        ),
+          color: const Color.fromARGB(255, 25, 25, 25),
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
         snackBarTheme: SnackBarThemeData(
           backgroundColor: const Color(0xFF333333),
@@ -161,7 +157,14 @@ class AppThemeState extends State<AppTheme> {
           thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
             return widget.darkAppColors.quaternaryColor; // Thumb color
           }),
-        ));
+        ),
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
+          TargetPlatform.values,
+          value: (_) => const FadeForwardsPageTransitionsBuilder(),
+        ),
+      ),
+    );
   }
 
   ThemeData buildLightThemeData() {

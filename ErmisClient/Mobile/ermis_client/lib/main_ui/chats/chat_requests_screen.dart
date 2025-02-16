@@ -62,7 +62,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
-      appBar: const ErmisAppBar(),
+      appBar: ErmisAppBar(),
       body: CustomScrollView(
         // Must wrap RefreshIndicator in a CustomScrollView to enable slivers,
         // allowing the AppBar to be independent from the body and
@@ -120,7 +120,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
   Widget buildLoadingScreen() {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: const ErmisAppBar(),
+      appBar: ErmisAppBar(),
       backgroundColor: appColors.secondaryColor,
       body: Center(child: CircularProgressIndicator()),
     );

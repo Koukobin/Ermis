@@ -363,44 +363,58 @@ class ChatsState extends TempState<Chats> {
             ),
             PopupMenuButton<VoidCallback>(
               position: PopupMenuPosition.under,
-              menuPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-              onSelected: (callback) {
+              menuPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+              onSelected: (VoidCallback callback) {
                 callback();
               },
-              itemBuilder: (BuildContext context) {
-                return [
-                  PopupMenuItem(
-                    value: () {
-                      // FUCK
-                      SendChatRequestButton.showAddChatRequestDialog(context);
-                    },
-                    child: const Text('New chat'),
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  value: () {
+                    // FUCK
+                    SendChatRequestButton.showAddChatRequestDialog(context);
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  child: const Text(
+                    'New chat',
+                    style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
                   ),
-                  PopupMenuItem(
-                    value: () {
-                      pushHorizontalTransition(context, const LinkedDevices());
-                    },
-                    child: const Text('Linked devices'),
+                ),
+                PopupMenuItem(
+                  value: () {
+                    pushHorizontalTransition(context, const LinkedDevicesScreen());
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  child: const Text(
+                    'Linked devices',
+                    style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15)
                   ),
-                  PopupMenuItem(
-                    value: () {
-                      pushHorizontalTransition(context, const Settings());
-                    },
-                    child: const Text('Settings'),
+                ),
+                PopupMenuItem(
+                  value: () {
+                    pushHorizontalTransition(context, const SettingsScreen());
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  child: const Text(
+                    'Settings',
+                    style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
                   ),
-                  PopupMenuItem(
-                    value: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SplashScreen()),
-                        (route) => false, // Removes all previous routes
-                      );
-                    },
-                    child: const Text('Sign out'),
+                ),
+                PopupMenuItem(
+                  value: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SplashScreen()),
+                      (route) => false, // Removes all previous routes
+                    );
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  child: const Text(
+                    'Sign out',
+                    style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
                   ),
-                ];
-              },
+                ),
+              ],
             ),
             SizedBox(width: 15),
           ],
@@ -475,7 +489,7 @@ class ChatsState extends TempState<Chats> {
   Widget loadingBuild(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: const ErmisAppBar(),
+      appBar: ErmisAppBar(),
       backgroundColor: appColors.secondaryColor,
       body: Center(child: CircularProgressIndicator()),
     );

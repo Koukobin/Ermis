@@ -65,7 +65,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
     final appColors = Theme.of(context).extension<AppColors>()!;
 
     return Scaffold(
-      appBar: const ErmisAppBar(),
+      appBar: ErmisAppBar(),
       backgroundColor: appColors.tertiaryColor,
       resizeToAvoidBottomInset: false, // Prevent resizing when keyboard opens
       body: Padding(
@@ -213,7 +213,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: const ErmisAppBar(centerTitle: false, removeDivider: true,),
+      appBar: ErmisAppBar(centerTitle: false, removeDivider: true),
       backgroundColor: appColors.secondaryColor,
       resizeToAvoidBottomInset: false, // Prevent resizing when keyboard opens
       body: Padding(

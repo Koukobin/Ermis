@@ -31,26 +31,23 @@ import 'linked_devices_settings.dart';
 import 'profile_settings.dart';
 import 'theme_settings.dart';
 
-class Settings extends StatefulWidget {
+class SettingsScreen extends StatefulWidget {
 
-  const Settings({super.key});
+  const SettingsScreen({super.key});
 
   @override
-  State<Settings> createState() => SettingsState();
+  State<SettingsScreen> createState() => SettingsScreenState();
 }
 
-class SettingsState extends State<Settings> {
+class SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
-      appBar: const ErmisAppBar(
-        title: Text(
-          'Settings',
-          style: TextStyle(fontSize: 20),
-        ),
+      appBar: ErmisAppBar(
+        titleText: 'Settings',
       ),
       body: ListView(
         children: [
@@ -59,7 +56,7 @@ class SettingsState extends State<Settings> {
             title: const DisplayName(),
             subtitle: const Text('Profile, change name, ID'),
             onTap: () {
-              pushHorizontalTransition(context, const ProfileSettings(), this.widget);
+              pushHorizontalTransition(context, const ProfileSettings());
             },
           ),
           ListTile(
@@ -107,7 +104,7 @@ class SettingsState extends State<Settings> {
             leading: const Icon(Icons.link),
             title: const Text('Linked Devices'),
             onTap: () {
-              pushHorizontalTransition(context, const LinkedDevices());
+              pushHorizontalTransition(context, const LinkedDevicesScreen());
             },
           ),
           ListTile(

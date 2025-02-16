@@ -59,11 +59,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
-      appBar: const ErmisAppBar(
-          title: Text(
-        "Account Settings",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      )),
+      appBar: ErmisAppBar(titleText: "Account Settings"),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ListView(
@@ -259,11 +255,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
-      appBar: const ErmisAppBar(
-          title: Text(
-        "Delete Account",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      )),
+      appBar: ErmisAppBar(titleText: "Delete Account"),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 16.0),
         child: Column(

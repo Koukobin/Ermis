@@ -25,14 +25,14 @@ import '../../client/client.dart';
 import '../../util/dialogs_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 
-class LinkedDevices extends StatefulWidget {
-  const LinkedDevices({super.key});
+class LinkedDevicesScreen extends StatefulWidget {
+  const LinkedDevicesScreen({super.key});
 
   @override
-  State<LinkedDevices> createState() => LinkedDevicesState();
+  State<LinkedDevicesScreen> createState() => LinkedDevicesScreenState();
 }
 
-class LinkedDevicesState extends State<LinkedDevices> {
+class LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
   List<UserDeviceInfo> devices = Client.instance().userDevices;
 
   @override
@@ -50,9 +50,7 @@ class LinkedDevicesState extends State<LinkedDevices> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: ErmisAppBar(
-          title: Text('Linked Devices',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20))),
+      appBar: ErmisAppBar(titleText: 'Linked Devices',),
       body: Column(
         children: [
           Flexible(

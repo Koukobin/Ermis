@@ -137,8 +137,7 @@ Future<void> confirmDialog(BuildContext context, String content,
   }
 }
 
-Future<void> showLogoutConfirmationDialog(
-    BuildContext context, String content, VoidCallback onYes) async {
+Future<void> showLogoutConfirmationDialog(BuildContext context, String content, VoidCallback onYes) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -173,8 +172,7 @@ Future<void> showExceptionDialog(BuildContext context, String exception) async {
   );
 }
 
-Future<T> showLoadingDialog<T>(
-    BuildContext context, Future<T> executeWhileLoading) async {
+Future<T> showLoadingDialog<T>(BuildContext context, Future<T> executeWhileLoading) async {
   showDialog(
     context: context,
     barrierDismissible: false, // Prevent dismissal by tapping outside

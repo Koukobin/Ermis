@@ -267,7 +267,7 @@ class MainInterfaceState extends State<MainInterface> {
   static const List<Widget> _widgetOptions = <Widget>[
     Chats(),
     ChatRequests(),
-    Settings(),
+    SettingsScreen(),
     ProfileSettings()
   ];
 

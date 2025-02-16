@@ -20,19 +20,48 @@ import '../constants/app_constants.dart';
 import '../theme/app_theme.dart';
 
 class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
-
   final List<Widget> actions;
   final Widget title;
   final Color? color;
   final bool? centerTitle;
   final bool removeDivider;
 
-  const ErmisAppBar({
+  factory ErmisAppBar({
+    Key? key,
+    String? titleText,
+    Widget? title,
+    List<Widget> actions = const [],
+    Color? color,
+    bool? centerTitle,
+    bool removeDivider = false,
+  }) {
+    assert((title == null || titleText == null));
+
+    title ??= Text(
+          titleText ?? AppConstants.applicationTitle,
+          style: TextStyle(
+            fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w500,
+            fontSize: 20,
+            letterSpacing: 1.2,
+          ),
+        );
+
+    return ErmisAppBar._(
+      key: key,
+      titleText: titleText,
+      title: title,
+      actions: actions,
+      color: color,
+      removeDivider: removeDivider,
+      centerTitle: centerTitle,
+    );
+  }
+
+  const ErmisAppBar._({
     super.key,
-    this.title = const Text(
-      AppConstants.applicationTitle,
-      style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20, letterSpacing: 1.2),
-    ),
+    String? titleText,
+    required this.title,
     this.actions = const [],
     this.color,
     this.removeDivider = false,
@@ -58,7 +87,6 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class DividerBottom extends StatelessWidget implements PreferredSizeWidget {
-
   final Color dividerColor;
 
   const DividerBottom({required this.dividerColor, super.key});
@@ -77,7 +105,7 @@ class DividerBottom extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class GoBackBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title; // Allows customizable titles with "Go Back" default
+  final String title; // Allows customizable titles with "Go Back" defaults
 
   const GoBackBar({super.key, this.title = "Go Back"});
 
@@ -92,8 +120,8 @@ class GoBackBar extends StatelessWidget implements PreferredSizeWidget {
       foregroundColor: appColors.primaryColor,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.pop(context); // Navigate back to the previous screen
+        onPressed: () => {
+          Navigator.pop(context) // Navigate back to the previous screen
         },
       ),
       centerTitle: true, // Like before, we center the title for a clean look

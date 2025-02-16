@@ -330,7 +330,7 @@ public abstract class MessageHandler implements AutoCloseable {
 						ServerMessageType msgType = ServerMessageType.fromId(msg.readInt());
 
 						switch (msgType) {
-						case SERVER_MESSAGE_INFO -> {
+						case SERVER_INFO -> {
 							
 							byte[] content = new byte[msg.readableBytes()];
 							msg.readBytes(content);
@@ -345,7 +345,7 @@ public abstract class MessageHandler implements AutoCloseable {
 				          int messageID = msg.readInt();
 				          messageSuccesfullySentReceived(chatSessionIDSToChatSessions.get(chatSessionID), messageID);
 						}
-						case CLIENT_CONTENT -> {
+						case CLIENT_MESSAGE -> {
 
 							UserMessage message = new UserMessage();
 							
