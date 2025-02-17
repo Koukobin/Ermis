@@ -247,8 +247,7 @@ public final class ErmisDatabase {
 		public void updateMessageReadStatus(int messageID) {
 			String sql = """
 					    UPDATE chat_messages
-					    (is_read)
-					    VALUES (?)
+					    SET is_read = ?
 					    WHERE message_id = ?;
 					""";
 

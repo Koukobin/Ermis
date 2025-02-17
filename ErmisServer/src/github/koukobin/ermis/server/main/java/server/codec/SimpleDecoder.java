@@ -43,9 +43,9 @@ public final class SimpleDecoder extends Decoder {
      * @return {@code true} if the message is valid and within length limits; {@code false} otherwise
      */
 	@Override
-	public boolean decodeMessage(ChannelHandlerContext ctx, int length, ByteBuf in) {
+	public boolean decodeMessage(ChannelHandlerContext ctx, ByteBuf in) {
 		// Validate message length
-		if (MAX_LENGTH < length) {
+		if (MAX_LENGTH < in.capacity()) {
 			Decoder.sendMessageExceedsMaximumMessageLength(ctx, MAX_LENGTH);
 			return false; // Failure
 		}

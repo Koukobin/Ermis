@@ -32,7 +32,7 @@ class ByteBufOutputStream {
     int msgLength = msg.readableBytes;
     Uint8List msgBytes = msg.readBytes(msgLength);
 
-    if (msgLength > 262144) {
+    if (msgLength > 100) {
       msgBytes = (await zstandard.compress(msgBytes, _compressionLevel))!;
       msgLength = msgBytes.length;
     }

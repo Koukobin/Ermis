@@ -44,11 +44,12 @@ public final class PrimaryDecoder extends Decoder {
 	private static final Logger LOGGER = LogManager.getLogger("server");
 
 	@Override
-	public boolean decodeMessage(ChannelHandlerContext ctx, int length, ByteBuf in) {
+	public boolean decodeMessage(ChannelHandlerContext ctx, ByteBuf in) {
+		int length = in.capacity();
 		try {
 			// Decoder supports both Zstd and Lz4 compression
 			if (CompressionDetector.isZstdCompressed(in)) {
-				zstdDecompress(in);
+				length = zstdDecompress(in, length);
 			} else if (CompressionDetector.isLz4Compressed(in)) {
 				lz4Decompress(in);
 			} else {
@@ -81,7 +82,6 @@ public final class PrimaryDecoder extends Decoder {
 
 		int maxLength = determineMaxLength(ctx, in, messageType);
 		if (maxLength == -1) {
-			
 			return false; // Invalid message type or content type
 		}
 
@@ -89,23 +89,24 @@ public final class PrimaryDecoder extends Decoder {
 			Decoder.sendMessageExceedsMaximumMessageLength(ctx, maxLength);
 			return false;
 		}
-		
+
 		return true;
 	}
 
-	private static void zstdDecompress(ByteBuf in) {
-		int compressedLength = in.readInt();
+	private static int zstdDecompress(ByteBuf in, int compressedLength) {
+		in.markReaderIndex();
 		byte[] compressedData = new byte[compressedLength];
 		in.readBytes(compressedData);
+		in.resetReaderIndex();
 
+		in.writerIndex(0);
 		byte[] decompressedData = Zstd.decompress(compressedData, (int) Zstd.decompressedSize(compressedData));
 
-		in.clear();
 		in.writeBytes(decompressedData);
-		in.capacity(decompressedData.length);
+		return decompressedData.length;
 	}
 
-	private static void lz4Decompress(ByteBuf in) {
+	private static ByteBuf lz4Decompress(ByteBuf in) {
 		int compressedLength = in.readInt();
 		byte[] compressedData = new byte[compressedLength];
 		in.readBytes(compressedData);
@@ -121,6 +122,8 @@ public final class PrimaryDecoder extends Decoder {
 		in.clear();
 		in.writeBytes(decompressedData);
 		in.capacity(decompressedData.length);
+		
+		return null;
 	}
 
 	private static int determineMaxLength(ChannelHandlerContext ctx, ByteBuf data, ClientMessageType messageType) {
@@ -142,9 +145,9 @@ public final class PrimaryDecoder extends Decoder {
 				ctx.channel().writeAndFlush(messageFailure);
 				return -1;
 			}
-			int statusCode = getMaxLengthForContentType(ctx, contentType);
 
-			if (statusCode == -1) {
+			int maxLength = getMaxLengthForContentType(ctx, contentType);
+			if (maxLength == -1) {
 				ByteBuf messageRejected = ctx.alloc().ioBuffer();
 				messageRejected.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
 				messageRejected.writeInt(MessageDeliveryStatus.REJECTED.id);
@@ -152,7 +155,7 @@ public final class PrimaryDecoder extends Decoder {
 				ctx.channel().writeAndFlush(messageRejected);
 			}
 
-			return statusCode;
+			return maxLength;
 		case ENTRY:
 			return SimpleDecoder.MAX_LENGTH; // Kinda shitty code but for now this will suffice
 		case COMMAND:

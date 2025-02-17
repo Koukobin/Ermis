@@ -16,6 +16,10 @@
 package github.koukobin.ermis.server.main.java.server.codec;
 
 import java.util.List;
+import java.util.Objects;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
@@ -28,38 +32,53 @@ import io.netty.handler.codec.ReplayingDecoder;
  */
 public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 
+	private static final Logger LOGGER = LogManager.getLogger("server");
+	
 	private boolean isDecodingSuccessful;
 	private boolean hasReadLength = false;
 	private int length;
-
+	
 	protected Decoder() {}
+	
+	protected record DecodingResult(boolean isDecodingSuccessful, int length) {
+	}
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+		ByteBuf payload = null;
 		if (!hasReadLength) {
 			length = in.readInt();
+			ByteBuf retainedSlice = in.readRetainedSlice(length);
 
-			int readerIndex = in.readerIndex();
-			isDecodingSuccessful = decodeMessage(ctx, length, in);
-			in.readerIndex(readerIndex);
+			// Allocate another ByteBuf since the one obtained through readRetainedSlice has
+			// a maximum capacity the exact length provided; and will consequently overflow
+			// if capacity is exceeded (By decompressing payload, for instance).
+			payload = ctx.alloc().ioBuffer(length);
+			payload.writeBytes(retainedSlice);
+
+			int readerIndex = payload.readerIndex();
+			isDecodingSuccessful = decodeMessage(ctx, payload);
+			payload.readerIndex(readerIndex);
 
 			checkpoint();
 			hasReadLength = true;
 		}
 
 		if (isDecodingSuccessful) {
-			ByteBuf payload = in.readRetainedSlice(length);
-			out.add(payload);
-		} else {
-			in.skipBytes(length);
+			assert payload != null;
+			out.add(Objects.requireNonNull(payload));
 		}
 
 		isDecodingSuccessful = false;
-
 		hasReadLength = false;
 		checkpoint();
 	}
 
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+		LOGGER.debug("An error occured during decoding: ", cause);
+	}
+	
 	/**
 	 * 
 	 * @param ctx
@@ -67,7 +86,7 @@ public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 	 * @param in
 	 * @return Whether or not handling message was successful
 	 */
-	public abstract boolean decodeMessage(ChannelHandlerContext ctx, int length, ByteBuf in);
+	public abstract boolean decodeMessage(ChannelHandlerContext ctx, ByteBuf in);
 
 	protected static void sendMessageExceedsMaximumMessageLength(ChannelHandlerContext ctx, int maxLength) {
 		MessageByteBufCreator.sendMessageExceedsMaximumMessageLength(ctx, maxLength);
