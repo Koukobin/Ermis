@@ -1,17 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>github.ermis.common</groupId>
+	
+    <groupId>io.github.koukobin.ermis</groupId>
 	<artifactId>ermis.common</artifactId>
-	<version>1.0-rc</version>
-	<name>ErmisCommon</name>
 	<packaging>jar</packaging>
+	<version>1.0-rc</version>
 
-	<parent>
-		<groupId>github.ermis</groupId>
-		<artifactId>ermis-parent</artifactId>
-		<version>1.0-rc</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+	<name>ermis-common</name>
+    <url>https://github.com/Koukobin/Ermis</url>
+	<inceptionYear>2023</inceptionYear>
 
 	<licenses>
 		<license>
@@ -19,7 +16,26 @@
 			<url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
 		</license>
 	</licenses>
-	<inceptionYear>2023</inceptionYear>
+
+    <developers>
+        <developer>
+            <name>Ilias Koukovinis</name>
+            <email>ilias.koukovinis@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/Koukobin/Ermis.git</connection>
+        <developerConnection>scm:git:ssh://github.com/Koukobin/Ermis.git</developerConnection>
+        <url>https://github.com/Koukobin/Ermis.git</url>
+    </scm>
+
+	<parent>
+		<groupId>github.ermis</groupId>
+		<artifactId>ermis-parent</artifactId>
+		<version>1.0-rc</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
 	<dependencies>
 
@@ -61,7 +77,6 @@
 	</dependencies>
 
 	<build>
-
 		<sourceDirectory>src</sourceDirectory>
 
 		<plugins>

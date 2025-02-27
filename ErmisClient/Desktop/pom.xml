@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>github.ermis.client</groupId>
+
+	<groupId>io.github.koukobin.ermis</groupId>
 	<artifactId>ermis.client</artifactId>
-	<name>ErmisClient</name>
-	<version>1.0-rc</version>
 	<packaging>jar</packaging>
+	<version>1.0-rc</version>
+
+	<name>ermis-client</name>
+    <url>https://github.com/Koukobin/Ermis</url>
+    <inceptionYear>2023</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>GNU Affero General Public Licence, Version 3.0</name>
+			<url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
+		</license>
+	</licenses>
+
+    <developers>
+        <developer>
+            <name>Ilias Koukovinis</name>
+            <email>ilias.koukovinis@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/Koukobin/Ermis.git</connection>
+        <developerConnection>scm:git:ssh://github.com/Koukobin/Ermis.git</developerConnection>
+        <url>https://github.com/Koukobin/Ermis.git</url>
+    </scm>
 
 	<parent>
 		<groupId>github.ermis</groupId>
@@ -16,18 +40,10 @@
 
 	<properties>
 		<mainClass>github.koukobin.ermis.client.main.java.application.ClientLauncher</mainClass>
-		<target>${project.build.directory}</target>
 		<src.resources>src/github/koukobin/ermis/client/main/resources</src.resources>
+		<target>${project.build.directory}</target>
 		<target.resources>${target}/classes/github/koukobin/ermis/client/main/resources/</target.resources>
 	</properties>
-
-	<licenses>
-		<license>
-			<name>GNU Affero General Public Licence, Version 3.0</name>
-			<url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
-		</license>
-	</licenses>
-	<inceptionYear>2023</inceptionYear>
 
 	<dependencies>
 

@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>github.ermis.server</groupId>
+	
+    <groupId>io.github.koukobin.ermis</groupId>
 	<artifactId>ermis.server</artifactId>
-	<name>ErmisServer</name>
-	<version>1.0-rc</version>
 	<packaging>jar</packaging>
+	<version>1.0-rc</version>
+
+	<name>ermis-server</name>
+    <url>https://github.com/Koukobin/Ermis</url>
+	<inceptionYear>2023</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>GNU Affero General Public Licence, Version 3.0</name>
+			<url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
+		</license>
+	</licenses>
+
+    <developers>
+        <developer>
+            <name>Ilias Koukovinis</name>
+            <email>ilias.koukovinis@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/Koukobin/Ermis.git</connection>
+        <developerConnection>scm:git:ssh://github.com/Koukobin/Ermis.git</developerConnection>
+        <url>https://github.com/Koukobin/Ermis.git</url>
+    </scm>
 
 	<parent>
 		<groupId>github.ermis</groupId>
@@ -15,18 +39,11 @@
 	</parent>
 
 	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<mainClass>github.koukobin.ermis.server.main.java.ServerLauncher</mainClass>
 		<src.resources>src/github/koukobin/ermis/server/main/resources</src.resources>
 		<target.resources>${project.build.directory}/classes/github/koukobin/ermis/server/main/resources/</target.resources>
 	</properties>
-
-	<licenses>
-		<license>
-			<name>GNU Affero General Public Licence, Version 3.0</name>
-			<url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
-		</license>
-	</licenses>
-	<inceptionYear>2023</inceptionYear>
 
 	<dependencies>
 
@@ -43,7 +60,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>github.ermis.common</groupId>
+			<groupId>io.github.koukobin.ermis</groupId>
 			<artifactId>ermis.common</artifactId>
 			<version>1.0-rc</version>
 		</dependency>
@@ -99,7 +116,6 @@
 	</dependencies>
 
 	<build>
-
 		<sourceDirectory>src</sourceDirectory>
 		<finalName>ermis-server-${version}</finalName>
 
@@ -156,6 +172,8 @@
 				<version>3.8.1</version>
 				<configuration>
 					<release>17</release>
+                    <source>17</source>
+                    <target>17</target>
 				</configuration>
 			</plugin>
 
@@ -169,6 +187,7 @@
 						<argument>-Djava.security.egd=file:/dev/./urandom</argument>
 						<argument>-server</argument>
 						<argument>-XX:+UseZGC</argument>
+						<argument>-ea</argument>
 						<argument>--add-opens</argument>
 						<argument>java.base/java.lang=ALL-UNNAMED</argument>
 						<argument>--add-opens</argument>
@@ -183,6 +202,9 @@
 					</arguments>
 				</configuration>
 			</plugin>
+
 		</plugins>
+
 	</build>
+
 </project>
