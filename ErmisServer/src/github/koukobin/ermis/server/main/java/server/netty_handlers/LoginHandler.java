@@ -23,6 +23,7 @@ import github.koukobin.ermis.common.UserDeviceInfo;
 import github.koukobin.ermis.common.entry.LoginInfo.Action;
 import github.koukobin.ermis.common.entry.LoginInfo.Credential;
 import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
+import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
@@ -76,7 +77,6 @@ final class LoginHandler extends EntryHandler {
 	
 	@Override
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) {
-		
 		{
 			Credential credential = Credential.fromId(msg.readInt());
 			
@@ -98,6 +98,7 @@ final class LoginHandler extends EntryHandler {
 			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
 			
 			ByteBuf payload = ctx.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.ENTRY.id);
 			payload.writeBoolean(resultHolder.isSuccessful());
 			payload.writeBytes(resultMessageBytes);
 			ctx.channel().writeAndFlush(payload);
@@ -105,7 +106,7 @@ final class LoginHandler extends EntryHandler {
 			if (resultHolder.isSuccessful()) {
 				super.registrationSuccessful(ctx);
 			} else {
-				EntryHandler.registrationFailed(ctx);
+//				EntryHandler.registrationFailed(ctx);
 			}
 
 		}
@@ -118,7 +119,6 @@ final class LoginHandler extends EntryHandler {
 
 		switch (passwordType) {
 		case BACKUP_VERIFICATION_CODE -> {
-
 			ResultHolder entryResult;
 
 			String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
@@ -131,12 +131,13 @@ final class LoginHandler extends EntryHandler {
 				login(ctx, clientInfo);
 				clientInfo.setEmail(email);
 			} else {
-				registrationFailed(ctx);
+//				EntryHandler.registrationFailed(ctx);
 			}
 
 			byte[] resultMessageBytes = entryResult.getResultMessage().getBytes();
 
 			ByteBuf payload = ctx.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.ENTRY.id);
 			payload.writeBoolean(entryResult.isSuccessful());
 			payload.writeBytes(resultMessageBytes);
 

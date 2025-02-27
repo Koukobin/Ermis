@@ -31,8 +31,16 @@ enum AuthenticationStage {
   static AuthenticationStage? fromId(int id) => _valuesById[id];
 }
 
+/// This enum indicates/signifies to the server that the message is an action and not a credential
+enum GeneralEntryAction {
+  action(117 /* Number chosen arbitrarily... */);
+
+  final int id;
+  const GeneralEntryAction(this.id);
+}
+
 enum CreateAccountAction {
-  addDeviceInfo(1);
+  addDeviceInfo(1), fetchRequirements(3);
 
   final int id;
   const CreateAccountAction(this.id);

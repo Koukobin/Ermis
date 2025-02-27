@@ -14,9 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/client/common/entry/requirements.dart';
 import 'package:ermis_client/main_ui/custom_textfield.dart';
 import 'package:ermis_client/util/device_utils.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
+import 'package:ermis_client/util/entropy_calculator.dart';
 import 'package:flutter/material.dart';
 
 import '../../client/common/entry/added_info.dart';
@@ -48,13 +50,31 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  late final CreateAccountEntry createAccountEntry;
+
+  Requirements _passwordRequirements = Requirements.empty(); // By default empty
+  Requirements _usernameRequirements = Requirements.empty(); // By default empty
+
+  double _passwordEntropy = 0.0;
+
   @override
   void initState() {
     super.initState();
     isDisplaying = true;
+    createAccountEntry = Client.instance().createNewCreateAccountEntry();
+    createAccountEntry.sendEntryType();
+    createAccountEntry.fetchCredentialRequirements().whenComplete(() {
+      _passwordRequirements = createAccountEntry.passwordRequirements!;
+      _usernameRequirements = createAccountEntry.usernameRequirements!;
+      setState(() {});
+    });
+    _passwordController.addListener(() {
+      _passwordEntropy = EntropyCalculator.calculateEntropy(_passwordController.text);
+      setState(() {});
+    }); 
   }
 
-    @override
+  @override
   void dispose() {
     super.dispose();
     isDisplaying = false;
@@ -63,7 +83,6 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-
     return Scaffold(
       appBar: ErmisAppBar(),
       backgroundColor: appColors.tertiaryColor,
@@ -84,35 +103,65 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
             // Form section for login
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 60),
+                padding: const EdgeInsets.only(top: 30),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       CustomTextField(
-                          controller: _emailController, hint: "Email"),
-                      SizedBox(height: 8),
+                          keyboardType: TextInputType.emailAddress,
+                          controller: _emailController,
+                          hint: "Email"),
+                      const SizedBox(height: 8),
                       CustomTextField(
+                          maxLength: _usernameRequirements.maxLength,
+                          illegalCharacters: _usernameRequirements.invalidCharacters,
+                          keyboardType: TextInputType.name,
                           controller: _usernameController,
                           hint: "Display Name"),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       CustomTextField(
+                          maxLength: _passwordRequirements.maxLength,
+                          illegalCharacters: _passwordRequirements.invalidCharacters,
+                          keyboardType: TextInputType.twitter,
                           controller: _passwordController,
                           hint: "Password",
                           obscureText: true),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Entropy: ${double.parse((_passwordEntropy).toStringAsFixed(3))} (Rough estimate)",
+                            style: const TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          Text(
+                            'Min Entropy: ${_passwordRequirements.minEntropy}',
+                            style: const TextStyle(fontStyle: FontStyle.italic),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      LinearProgressIndicator(
+                        value: (_passwordEntropy / 100),
+                        minHeight: 8,
+                        borderRadius: BorderRadius.circular(3.25),
+                        backgroundColor: Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color.lerp(
+                                  Colors.red, Colors.green, _passwordEntropy / 100) ??
+                              Colors.blue,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
                       _buildButton(
                         label: "Create Account",
                         icon: Icons.account_circle,
                         backgroundColor: appColors.secondaryColor,
                         textColor: appColors.primaryColor,
                         onPressed: () async {
-                          CreateAccountEntry createAccountEntry =
-                              Client.instance()
-                                  .createNewCreateAccountEntry();
                           createAccountEntry.sendEntryType();
-                          createAccountEntry.addDeviceInfo(
-                              await getDeviceType(), await getDeviceDetails());
+                          createAccountEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
                           createAccountEntry.sendCredentials({
                             CreateAccountCredential.email:
                                 _emailController.text,
@@ -122,15 +171,13 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                                 _passwordController.text,
                           });
 
-                          ResultHolder entryResult = await createAccountEntry
-                              .getCredentialsExchangeResult();
+                          ResultHolder entryResult = await createAccountEntry.getCredentialsExchangeResult();
 
                           bool isSuccessful = entryResult.isSuccessful;
                           String resultMessage = entryResult.message;
 
                           if (!isSuccessful) {
-                            showSnackBarDialog(
-                                context: context, content: resultMessage);
+                            showSnackBarDialog(context: context, content: resultMessage);
                             return;
                           }
 
@@ -148,6 +195,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                               (route) => false, // Removes all previous routes.
                             );
                           }
+
                         },
                       )
                     ]
@@ -197,6 +245,8 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
 
   bool _useBackupverificationCode = false;
 
+  LoginEntry loginEntry = Client.instance().createNewLoginEntry();
+
   @override
   void initState() {
     super.initState();
@@ -237,7 +287,11 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                   mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      CustomTextField(controller: _emailController, hint: "Email"),
+                      CustomTextField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        hint: "Email",
+                      ),
                       const SizedBox(height: 8),
                       AnimatedSwitcher(
                         duration: Duration(milliseconds: 600),
@@ -248,9 +302,9 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                                 key: ValueKey('backupCode'), // Unique key for backup verification code
                                 controller: _backupVerificationController,
                                 hint: "Backup-Verification Code",
-                                obscureText: true)
+                              )
                             : CustomTextField(
-                                key: ValueKey('password'),
+                                keyboardType: TextInputType.twitter,
                                 controller: _passwordController,
                                 hint: "Password",
                                 obscureText: true),
@@ -283,7 +337,6 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                             return;
                           }
 
-                          LoginEntry loginEntry = Client.instance().createNewLoginEntry();
                           loginEntry.sendEntryType();
                           loginEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
 
@@ -399,6 +452,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                     Navigator.of(context).pop();
                     return;
                   }
+
                   Navigator.of(context).push(createVerticalTransition(
                       CreateAccountInterface(), DirectionYAxis.bottomToTop));
                 })

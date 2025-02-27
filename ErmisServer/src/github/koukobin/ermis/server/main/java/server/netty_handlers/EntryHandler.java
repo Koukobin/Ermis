@@ -17,6 +17,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
 
+import github.koukobin.ermis.common.entry.GeneralEntryAction;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -28,7 +29,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Ilias Koukovinis
  *
  */
-abstract sealed class EntryHandler extends AbstractChannelClientHandler permits LoginHandler, CreateAccountHandler, VerificationHandler {
+abstract sealed class EntryHandler extends AbstractChannelClientHandler permits LoginHandler, CreateAccountHandler, VerificationHandler, DeleteAccountVerificationHandler {
 
 	protected EntryHandler(ClientInfo clientInfo) {
 		super(clientInfo);
@@ -43,12 +44,15 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 
 	@Override
 	public final void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		boolean isAction = msg.readBoolean();
-
-		if (isAction) {
+		msg.markReaderIndex();
+		int isAction = msg.readInt();
+		System.out.println(isAction);
+		
+		if (isAction == GeneralEntryAction.action.id) {
 			executeEntryAction(ctx, msg);
 			return;
 		}
+		msg.resetReaderIndex();
 
 		channelRead1(ctx, msg);
 	}
@@ -75,8 +79,13 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 			ctx.pipeline().remove(MessageHandler.class);
 			ctx.pipeline().remove(CommandHandler.class);
 		}
-		MessageHandler messageHandler =  new MessageHandler(clientInfo);
-		ctx.pipeline().replace(ctx.handler(), MessageHandler.class.getName(), messageHandler);
+
+		if (ctx.pipeline().get(StartingEntryHandler.class) != null) {
+			ctx.pipeline().remove(StartingEntryHandler.class);
+		}
+
+		MessageHandler messageHandler = new MessageHandler(clientInfo);
+		ctx.pipeline().addLast(MessageHandler.class.getName(), messageHandler);
 		messageHandler.awaitInitialization();
 		ctx.pipeline().addLast(CommandHandler.class.getName(), new CommandHandler(clientInfo));
 	}
@@ -86,13 +95,12 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 	 *
 	 */
 	protected static void registrationFailed(ChannelHandlerContext ctx) {
-		// If a message handler already exists, simply remove this handler instead of
-		// replacing with new one. This predicament would occur, in an instance, when a
-		// client, already authenticated, attempts to add a new account while logged in.
-//		if (ctx.pipeline().get(MessageHandler.class) != null) {
-//			ctx.pipeline().remove(ctx.handler());
-//			return;
-//		}
-		ctx.pipeline().replace(ctx.handler(), StartingEntryHandler.class.getName(), new StartingEntryHandler());
+		ctx.pipeline().remove(ctx.handler());
+
+		// Ensure StartingEntryHandler exists
+		if (ctx.pipeline().get(StartingEntryHandler.class) == null) {
+			ctx.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
+		}
+
 	}
 }

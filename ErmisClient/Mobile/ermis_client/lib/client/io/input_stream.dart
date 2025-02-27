@@ -14,36 +14,63 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:synchronized/synchronized.dart';
 import 'package:zstandard/zstandard.dart';
 import 'byte_buf.dart';
 
-bool _isZstdCompressed(Uint8List data) {
-  if (data.length < 4) {
-    return false;
-  }
-
-  // Signature of ZTSD decompression
-  return data[0] == 0x28 &&
-      data[1] == 0xB5 &&
-      data[2] == 0x2F &&
-      data[3] == 0xFD;
-}
-
 class ByteBufInputStream {
-  static final zstandard = Zstandard();
-  Stream<Uint8List> broadcastStream;
+  final Socket socket;
+  final Stream<Future<ByteBuf>> _stream;
 
-  ByteBufInputStream({required this.broadcastStream});
+  ByteBufInputStream({required this.socket, required Stream<Uint8List> stream})
+      : _stream = stream.map(ByteBufInputStreamDecoder.decodeSimple);
 
   Future<ByteBuf> read() async {
-    Uint8List data = await broadcastStream.first;
-    return await decodeSimple(data);
+    Future<ByteBuf> data = await _stream.first;
+    return data;
   }
 
+  void listen(
+    void Function(ByteBuf event)? onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
+    _stream.listen(
+      (Future<ByteBuf> data) async {
+        if (onData == null) {
+          return;
+        }
+        onData(await data);
+      },
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
+  }
+}
+
+class ByteBufInputStreamDecoder {
+  static final zstandard = Zstandard();
   static ByteBuf buffer = ByteBuf.empty(growable: true);
   static final _lock = Lock();
+
+  ByteBufInputStreamDecoder._();
+
+  static bool _isZstdCompressed(Uint8List data) {
+    if (data.length < 4) {
+      return false;
+    }
+
+    // Signature of ZSTD decompression
+    return data[0] == 0x28 &&
+        data[1] == 0xB5 &&
+        data[2] == 0x2F &&
+        data[3] == 0xFD;
+  }
 
   static Future<ByteBuf> decodeSimple(Uint8List data) {
     return _lock.synchronized(() async {
@@ -71,6 +98,4 @@ class ByteBufInputStream {
       return ByteBuf.empty();
     });
   }
-
-  Stream<Uint8List> get stream => broadcastStream;
 }

@@ -13,50 +13,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package github.koukobin.ermis.common.entry;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import github.koukobin.ermis.common.util.EnumIntConverter;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public enum EntryType {
-	CREATE_ACCOUNT(1000), LOGIN(1001);
-
-	private static final Map<Integer, EntryType> valuesById = new HashMap<>();
-
-	static {
-		for (EntryType entryType : EntryType.values()) {
-			valuesById.put(entryType.id, entryType);
-		}
-	}
+public enum GeneralEntryAction {
+	action(117 /* Number chosen arbitrarily... */);
 
 	public final int id;
 
-	EntryType(int id) {
+	GeneralEntryAction(int id) {
 		this.id = id;
-	}
-
-	public static EntryType fromIdOrThrow(int id) {
-		return EnumIntConverter.fromIdOrThrow(valuesById, id);
-	}
-
-	public static Optional<EntryType> fromId(int id) {
-		return EnumIntConverter.fromId2(valuesById, id);
-	}
-
-	/**
-	 * A tagging interface that all credential enums must extend.
-	 * 
-	 * @param <V>
-	 */
-	public sealed interface CredentialInterface permits CreateAccountInfo.Credential, LoginInfo.Credential {
-		int id();
 	}
 }

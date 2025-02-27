@@ -20,9 +20,12 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/common/account.dart';
 import 'package:ermis_client/client/common/entry/requirements.dart';
 import 'package:ermis_client/client/io/byte_buf.dart';
+import 'package:ermis_client/client/message_dispatcher.dart';
+import 'package:ermis_client/client/message_events.dart';
 import 'package:flutter/foundation.dart';
 
 import '../util/database_service.dart';
@@ -83,7 +86,7 @@ class Client {
 
       this.uri = uri;
 
-      _inputStream = ByteBufInputStream(broadcastStream: broadcastStream!);
+      _inputStream = ByteBufInputStream(socket: _sslSocket!, stream: broadcastStream!);
       _outputStream = ByteBufOutputStream(socket: _sslSocket!);
 
       _messageHandler = MessageHandler();
@@ -98,8 +101,9 @@ class Client {
     }
   }
 
-  Future<void> syncWithServer() async {
-    await _inputStream!.read(); // Message denoting server is ready for MESSAGES
+  Future<String> readServerVersion() async {
+    ByteBuf payload = await _inputStream!.read();
+    return String.fromCharCodes(payload.readAllBytes().toList());
   }
 
   /// Attempts to authenticate user by sending their email and password hash
@@ -160,6 +164,14 @@ class Client {
     await _messageHandler.fetchUserInformation();
   }
 
+  bool isMessageDispatcherRunning = false;
+  void startMessageDispatcher() {
+    if (isMessageDispatcherRunning) return;
+
+    MessageDispatcher(inputStream: _inputStream!).debute();
+    isMessageDispatcherRunning = true;
+  }
+
   void startMessageHandler() {
     _messageHandler.startListeningToMessages();
   }
@@ -193,23 +205,26 @@ class Entry<T extends CredentialInterface> {
   Entry(this.entryType, this.outputStream, this.inputStream);
 
   Future<ResultHolder> getCredentialsExchangeResult() async {
-    ByteBuf msg = await inputStream.read();
+    ByteBuf? buffer;
+    await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
+      buffer= msg.buffer;
+    });
 
-    bool isSuccessful = msg.readBoolean();
-    Uint8List resultMessageBytes = msg.readBytes(msg.readableBytes);
+    if (buffer == null) throw Exception("Buffer is null");
+
+    bool isSuccessful = buffer!.readBoolean();
+    Uint8List resultMessageBytes = buffer!.readBytes(buffer!.readableBytes);
 
     return ResultHolder(isSuccessful, utf8.decode(resultMessageBytes));
   }
 
   Future<void> sendCredentials(Map<T, String> credentials) async {
     for (final MapEntry<T,String> credential in credentials.entries) {
-      bool isAction = false;
       int credentialInt = credential.key.id;
       String credentialValue = credential.value;
 
       ByteBuf payload = ByteBuf.smallBuffer();
       payload.writeInt32(ClientMessageType.entry.id);
-      payload.writeBoolean(isAction);
       payload.writeInt32(credentialInt);
       payload.writeBytes(Uint8List.fromList(credentialValue.codeUnits));
 
@@ -218,18 +233,23 @@ class Entry<T extends CredentialInterface> {
   }
 
   Future<ResultHolder> getBackupVerificationCodeResult() async {
-    ByteBuf payload = await inputStream.read();
+    ByteBuf? payload;
+    await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
+      payload = msg.buffer;
+    });
 
-    isLoggedIn = payload.readBoolean();
+    if (payload == null) throw Exception("Buffer is null");
+
+    isLoggedIn = payload!.readBoolean();
     Client.instance()._isLoggedIn = isLoggedIn;
 
-    Uint8List resultMessageBytes = payload.readBytes(payload.readableBytes);
+    Uint8List resultMessageBytes = payload!.readBytes(payload!.readableBytes);
 
     return ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes));
   }
 
   void sendEntryType() {
-    outputStream.write(ByteBuf.smallBuffer()
+    outputStream.write(ByteBuf(8)
       ..writeInt32(ClientMessageType.entry.id)
       ..writeInt32(entryType.id));
   }
@@ -239,29 +259,34 @@ class Entry<T extends CredentialInterface> {
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
-    payload.writeBoolean(isAction);
     payload.writeInt32(verificationCode);
 
     outputStream.write(payload);
   }
 
   Future<EntryResult> getResult() async {
-    ByteBuf msg = await inputStream.read();
+    ByteBuf? buffer;
+    await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
+      buffer = msg.buffer;
+    });
 
-    isVerificationComplete = msg.readBoolean();
-    isLoggedIn = msg.readBoolean();
+    if (buffer == null) throw Exception("Buffer is null");
+    ByteBuf payload = buffer!;
+
+    isVerificationComplete = payload.readBoolean();
+    isLoggedIn = payload.readBoolean();
 
     Client.instance()._isLoggedIn = isLoggedIn;
-    List<int> resultMessageBytes = msg.readBytes(msg.readInt32());
+    List<int> resultMessageBytes = payload.readBytes(payload.readInt32());
 
     Map<AddedInfo, String> map = HashMap();
     EntryResult result = EntryResult(
         ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes)),
         map);
 
-    while (msg.readableBytes > 0) {
-      AddedInfo addedInfo = AddedInfo.fromId(msg.readInt32());
-      Uint8List message = msg.readBytes(msg.readInt32());
+    while (payload.readableBytes > 0) {
+      AddedInfo addedInfo = AddedInfo.fromId(payload.readInt32());
+      Uint8List message = payload.readBytes(payload.readInt32());
       map[addedInfo] = utf8.decode(message.toList());
     }
 
@@ -273,7 +298,7 @@ class Entry<T extends CredentialInterface> {
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
-    payload.writeBoolean(isAction);
+    payload.writeInt32(GeneralEntryAction.action.id);
     payload.writeInt32(VerificationAction.resendCode.id);
 
     outputStream.write(payload);
@@ -281,36 +306,47 @@ class Entry<T extends CredentialInterface> {
 }
 
 class CreateAccountEntry extends Entry<CreateAccountCredential> {
-  late final Requirements usernameRequirements;
-  late final Requirements passwordRequirements;
+  Requirements? usernameRequirements;
+  Requirements? passwordRequirements;
 
-  CreateAccountEntry(
-      ByteBufOutputStream outputStream, ByteBufInputStream inputStream)
-      : super(EntryType.createAccount, outputStream, inputStream) {
-    // void fetch() async {
-    //   ByteBuf payload = await inputStream.read();
+  CreateAccountEntry(ByteBufOutputStream outputStream, ByteBufInputStream inputStream)
+      : super(EntryType.createAccount, outputStream, inputStream);
 
-    //   {
-    //     int usernameMaxLength = payload.readInt32();
-    //     String invalidCharacters =
-    //         utf8.decode(payload.readBytes(payload.readInt32()));
-    //     usernameRequirements = Requirements(
-    //         maxLength: usernameMaxLength, invalidCharacters: invalidCharacters);
-    //   }
+  Future<void> fetchCredentialRequirements() async {
+    {
+      ByteBuf payload = ByteBuf.smallBuffer();
+      payload.writeInt32(ClientMessageType.entry.id);
+      payload.writeInt32(GeneralEntryAction.action.id);
+      payload.writeInt32(CreateAccountAction.fetchRequirements.id);
 
-    //   {
-    //     int passwordMaxLength = payload.readInt32();
-    //     double minEntropy = payload.readFloat64();
-    //     String invalidCharacters =
-    //         utf8.decode(payload.readBytes(payload.readableBytes));
-    //     passwordRequirements = Requirements(
-    //         minEntropy: minEntropy,
-    //         maxLength: passwordMaxLength,
-    //         invalidCharacters: invalidCharacters);
-    //   }
-    // }
+      outputStream.write(payload);
+    }
 
-    // fetch();
+    ByteBuf? payload;
+    await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
+      payload = msg.buffer;
+    });
+
+    {
+      int usernameMaxLength = payload!.readInt32();
+      String invalidCharacters = utf8.decode(payload!.readBytes(payload!.readInt32()));
+      usernameRequirements = Requirements(
+        maxLength: usernameMaxLength,
+        invalidCharacters: invalidCharacters,
+      );
+      if (kDebugMode) debugPrint(invalidCharacters);
+    }
+
+    {
+      int passwordMaxLength = payload!.readInt32();
+      double minEntropy = payload!.readFloat32();
+      String invalidCharacters = utf8.decode(payload!.readBytes(payload!.readableBytes));
+      passwordRequirements = Requirements(
+        minEntropy: minEntropy,
+        maxLength: passwordMaxLength,
+        invalidCharacters: invalidCharacters,
+      );
+    }
   }
 
   Future<void> addDeviceInfo(DeviceType deviceType, String osName) async {
@@ -319,7 +355,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
-    payload.writeBoolean(isAction);
+    payload.writeInt32(GeneralEntryAction.action.id);
     payload.writeInt32(actionId);
     payload.writeInt32(deviceType.id);
     payload.writeBytes(utf8.encode(osName));
@@ -340,7 +376,7 @@ class LoginEntry extends Entry<LoginCredential> {
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
-    payload.writeBoolean(isAction);
+    payload.writeInt32(GeneralEntryAction.action.id);
     payload.writeInt32(actionId);
 
     outputStream.write(payload);
@@ -352,7 +388,7 @@ class LoginEntry extends Entry<LoginCredential> {
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
-    payload.writeBoolean(isAction);
+    payload.writeInt32(GeneralEntryAction.action.id);
     payload.writeInt32(actionId);
     payload.writeInt32(deviceType.id);
     payload.writeBytes(utf8.encode(osName));

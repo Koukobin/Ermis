@@ -21,15 +21,19 @@ import '../theme/app_theme.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
+  final TextInputType keyboardType;
   final String hint;
-  final String illegalCharacters;
+  final String? illegalCharacters;
+  final int? maxLength;
   final bool obscureText;
 
   const CustomTextField({
     super.key,
     required this.controller,
+    this.keyboardType = TextInputType.text,
     required this.hint,
-    this.illegalCharacters = "",
+    this.illegalCharacters,
+    this.maxLength,
     this.obscureText = false,
   });
 
@@ -55,8 +59,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
         Expanded(
           child: TextFormField(
             controller: widget.controller,
+            keyboardType: widget.keyboardType,
+            maxLength: widget.maxLength,
             onChanged: (String input) {
-              if (!StringValidator.validate(input, widget.illegalCharacters)) {
+              if (widget.illegalCharacters == null) return;
+              if (!StringValidator.validate(input, widget.illegalCharacters!)) {
                 setState(() => _errorMessage = "Invalid character entered!");
                 return;
               }
@@ -66,12 +73,16 @@ class _CustomTextFieldState extends State<CustomTextField> {
             decoration: InputDecoration(
               labelText: widget.hint,
               errorText: _errorMessage,
+              suffixText: widget.maxLength == null
+                  ? null
+                  : "${widget.controller.text.length} / ${widget.maxLength}",
+              counterText: "", // Hide default maxLength counter
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               filled: true,
               fillColor: appColors.tertiaryColor,
-              suffixIcon: widget.obscureText && widget.controller.text.isNotEmpty
+              suffixIcon: widget.obscureText
                   ? IconButton(
                       icon: Icon(
                         _obscureText ? Icons.visibility : Icons.visibility_off,
@@ -86,7 +97,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   : null,
             ),
             style: TextStyle(
-              color: appColors.inferiorColor,
+              color: appColors.inferiorColor
             ),
           ),
         ),

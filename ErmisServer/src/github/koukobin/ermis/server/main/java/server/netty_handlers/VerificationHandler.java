@@ -24,6 +24,7 @@ import javax.mail.MessagingException;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.Verification.Action;
 import github.koukobin.ermis.common.entry.Verification.Result;
+import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
@@ -64,7 +65,6 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 	}
 
 	private void sendVerificationCode() {
-		
 		String codeString = Integer.toString(generatedVerificationCode);
 
 		pendingEmailsQueue.thenRunAsync(() -> {
@@ -78,7 +78,6 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 	
 	@Override
 	public void executeEntryAction(ChannelHandlerContext ctx, ByteBuf msg) {
-		
 		Action action = Action.fromId(msg.readInt());
 
 		switch (action) {
@@ -88,7 +87,6 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 
 	@Override
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		
 		EntryResult entryResult = new EntryResult(Result.WRONG_CODE.resultHolder);
 		attemptsRemaining--;
 
@@ -112,6 +110,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 		byte[] resultMessageBytes = entryResult.getResultMessage().getBytes();
 
 		ByteBuf payload = ctx.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.ENTRY.id);
 		payload.writeBoolean(isVerificationComplete);
 		payload.writeBoolean(entryResult.isSuccessful());
 		payload.writeInt(resultMessageBytes.length);
@@ -128,6 +127,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 		if (isVerificationComplete) {
 			if (entryResult.isSuccessful()) {
 				registrationSuccessful(ctx);
+				ctx.pipeline().remove(ctx.handler());
 				return;
 			}
 			registrationFailed(ctx);

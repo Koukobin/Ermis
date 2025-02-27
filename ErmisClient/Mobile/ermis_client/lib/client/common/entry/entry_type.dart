@@ -15,8 +15,8 @@
  */
 
 enum EntryType {
-  createAccount(1),
-  login(2);
+  createAccount(1000),
+  login(1001);
 
   final int id;
   const EntryType(this.id);

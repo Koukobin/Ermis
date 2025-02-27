@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import github.koukobin.ermis.common.entry.EntryType;
+import github.koukobin.ermis.server.main.java.configs.GeneralServerInfo;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
@@ -31,43 +32,63 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public final class StartingEntryHandler extends AbstractChannelClientHandler {
 
+	private static final ByteBuf versionBuffer = Unpooled.unreleasableBuffer(Unpooled.wrappedBuffer(GeneralServerInfo.VERSION.getBytes()));
+	
 	public StartingEntryHandler() {
 		super(new ClientInfo());
 	}
 
-//	public StartingEntryHandler(ClientInfo clientInfo) {
-//		super(clientInfo);
-//	}
-
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) {
-		ctx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER); // Message denoting server is ready for messages
+		ctx.channel().writeAndFlush(versionBuffer.duplicate());
 		clientInfo.setChannel(ctx.channel());
 	}
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		EntryType entryType = EntryType.fromId(msg.readInt());
+		msg.markReaderIndex();
+		EntryType.fromId(msg.readInt()).ifPresentOrElse((EntryType entryType) -> {
+			switch (entryType) {
+			case LOGIN -> tryToLogin(ctx, msg, clientInfo);
+			case CREATE_ACCOUNT -> {
+				getLogger().debug("Moving into account creation!");
 
-		switch (entryType) {
-		case LOGIN -> tryLogin(ctx, msg, clientInfo);
-		case CREATE_ACCOUNT -> {
-			getLogger().debug("Moving into account creation!");
-			ctx.pipeline().replace(this, CreateAccountHandler.class.getName(), new CreateAccountHandler(clientInfo));
-		}
-		default -> getLogger().debug("Unknown registration type");
-		}
+				if (ctx.pipeline().get(CreateAccountHandler.class) != null) {
+					return;
+				}
 
+				if (ctx.pipeline().get(LoginHandler.class) != null) {
+					ctx.pipeline().replace(LoginHandler.class, CreateAccountHandler.class.getName(), new CreateAccountHandler(clientInfo));
+				} else {
+					ctx.pipeline().addLast(CreateAccountHandler.class.getName(), new CreateAccountHandler(clientInfo));
+				}
+			}
+			default -> getLogger().debug("Unknown registration type");
+			}
+		}, () -> {
+			msg.resetReaderIndex();
+			ctx.fireChannelRead(msg);
+		});
 	}
 
-	private static void tryLogin(ChannelHandlerContext ctx, ByteBuf msg, ClientInfo clientInfo) {
+	private static void tryToLogin(ChannelHandlerContext ctx, ByteBuf msg, ClientInfo clientInfo) {
 		// If no readable bytes in buffer, transition to LoginHandler
 		if (msg.readableBytes() == 0) {
 			getLogger().debug("Moving into login!");
-			ctx.pipeline().replace(ctx.handler(), LoginHandler.class.getName(), new LoginHandler(clientInfo));
+
+			if (ctx.pipeline().get(LoginHandler.class) != null) {
+				return;
+			}
+
+			if (ctx.pipeline().get(CreateAccountHandler.class) != null) {
+				ctx.pipeline().replace(CreateAccountHandler.class, LoginHandler.class.getName(), new LoginHandler(clientInfo));
+			} else {
+				ctx.pipeline().addLast(LoginHandler.class.getName(), new LoginHandler(clientInfo));
+			}
+
 			return;
 		}
-		
+
 		// Otherwise, authenticate client via email and passwordHash
 		boolean isSuccessful = false;
 		try {
@@ -82,7 +103,7 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				InetAddress address = clientInfo.getInetAddress();
 				if (!conn.isLoggedIn(email, address)) {
-					getLogger().debug("IP: {}, not logged in to email: {}, in order to login via password hash", address, email);
+					getLogger().debug("IP: {}, failed to login into email: {}, via password hash", address, email);
 					return;
 				}
 
