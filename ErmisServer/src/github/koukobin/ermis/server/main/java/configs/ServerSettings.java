@@ -119,7 +119,7 @@ public final class ServerSettings {
 			private Verification() {}
 			
 			public interface VerificationEmailTemplate {
-
+				
 				static VerificationEmailTemplate of(String userEmail, String account, String verificationCode) {
 					return new VerificationEmailTemplate() {
 

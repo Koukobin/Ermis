@@ -13,42 +13,36 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.common.message_types;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
-import github.koukobin.ermis.common.util.EnumIntConverter;
+package github.koukobin.ermis.server.main.java.util;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public enum ServerMessageType {
-    CLIENT_MESSAGE(0),
-    MESSAGE_DELIVERY_STATUS(1),
-    VOICE_CALL_INCOMING(2),
-    SERVER_INFO(3),
-    ENTRY(4),
-    COMMAND_RESULT(5);
+public final class ConsoleFormatter {
 
-	private static final HashMap<Integer, ServerMessageType> values;
+	private ConsoleFormatter() {}
 
-	static {
-		values = new HashMap<>(
-				Arrays.stream(ServerMessageType.values())
-				.collect(Collectors.toMap(type -> type.id, type -> type))
-				);
+	public enum TextStyle {
+		UNDERLINED("\u001B[4m"), ITALICS("\u001B[3m"), RED("\u001B[31m"), YELLOW("\u001B[33m");
+
+		private final String ansiCode;
+
+		TextStyle(String ansiCode) {
+			this.ansiCode = ansiCode;
+		}
 	}
-	
-    public final int id;
 
-    ServerMessageType(int id) {
-        this.id = id;
-    }
+	public static void styledPrint(String message, TextStyle... settings) {
+		final String ANSI_RESET = "\u001B[0m"; // Reset text formatting
 
-	public static ServerMessageType fromId(int id) {
-		return EnumIntConverter.fromId(values, id);
+		StringBuilder builder = new StringBuilder();
+		for (TextStyle setting : settings) {
+			builder.append(setting.ansiCode);
+		}
+		builder.append(message).append(ANSI_RESET);
+
+		String finalMessage = builder.toString();
+		System.out.println(finalMessage);
 	}
 }

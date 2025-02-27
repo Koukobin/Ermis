@@ -26,23 +26,22 @@ final class ComplexityCheckerUtil {
 	private ComplexityCheckerUtil() {}
 	
 	public static boolean estimate(Requirements requirements, String string) {
-
 		// Check if username has exceeded minimum required entropy
 		boolean hasStringExceededMaxLength = string.length() > requirements.getMaxLength();
-		
+
 		if (hasStringExceededMaxLength) {
 			return false;
 		}
 
 		if (requirements.getInvalidCharacters() != null) {
-			
+
 			boolean doesStringMatchInvalidCharacters = CharMatcher.anyOf(requirements.getInvalidCharacters()).matchesAnyOf(string);
 
 			if (doesStringMatchInvalidCharacters) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 }

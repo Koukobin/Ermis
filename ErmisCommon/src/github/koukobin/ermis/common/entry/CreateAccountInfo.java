@@ -57,7 +57,7 @@ public final class CreateAccountInfo {
 	}
 	
     public enum Action {
-        ADD_DEVICE_INFO(1);
+        ADD_DEVICE_INFO(1), FETCH_REQUIREMENTS(3);
 
         private static final Map<Integer, Action> valuesById = new HashMap<>();
         

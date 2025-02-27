@@ -14,10 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
-Future<Object?> pushHorizontalTransition(BuildContext context, Widget newPage) async {
-  return await Navigator.push(context, MaterialPageRoute(
+Future<Object?> pushSlideTransition(BuildContext context, Widget newPage) async {
+  // CupertinoPageRoute adds a very nice slide transition between pages
+  return await Navigator.push(context, CupertinoPageRoute(
     builder: (context) => newPage,
   ));
 }

@@ -158,12 +158,6 @@ class AppThemeState extends State<AppTheme> {
             return widget.darkAppColors.quaternaryColor; // Thumb color
           }),
         ),
-      pageTransitionsTheme: PageTransitionsTheme(
-        builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
-          TargetPlatform.values,
-          value: (_) => const FadeForwardsPageTransitionsBuilder(),
-        ),
-      ),
     );
   }
 

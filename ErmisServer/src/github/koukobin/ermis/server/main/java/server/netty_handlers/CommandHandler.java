@@ -38,6 +38,7 @@ import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
+import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
@@ -46,6 +47,8 @@ import github.koukobin.ermis.server.main.java.server.ServerUDP;
 import github.koukobin.ermis.server.main.java.server.ServerUDP.VoiceChat;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase.DeleteAccountSuccess;
+import github.koukobin.ermis.common.results.EntryResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
@@ -445,85 +448,89 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.FETCH_LINKED_DEVICES.id);
-			
+
 			UserDeviceInfo[] devices;
-			
+
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				devices = conn.getUserIPS(clientInfo.getClientID());
 			}
 
 			for (int i = 0; i < devices.length; i++) {
 				payload.writeInt(devices[i].deviceType().id);
-				
+
 				String ipAddress = devices[i].ipAddress();
 				payload.writeInt(ipAddress.length());
 				payload.writeBytes(ipAddress.getBytes());
-				
+
 				String osName = devices[i].osName();
 				payload.writeInt(osName.length());
 				payload.writeBytes(osName.getBytes());
 			}
-			
+
 			channel.writeAndFlush(payload);
 		}
 		case DELETE_ACCOUNT -> {
-			
 			byte[] emailAddress = new byte[args.readInt()];
 			args.readBytes(emailAddress);
-			
+
 			byte[] passwordBytes = new byte[args.readInt()];
 			args.readBytes(passwordBytes);
-			
+
 			String email = new String(emailAddress);
-			
-			if (email.equals(clientInfo.getEmail())) {
-				MessageByteBufCreator.sendMessageInfo(channel, "Incorrect email");
-			}
-			
-//			channel.pipeline().addLast(VerificationHandler.class.getName(), new VerificationHandler(clientInfo, email) {
-//				
-//				@Override
-//				public EntryResult executeWhenVerificationSuccessful() throws IOException {
-//
-//					String password = new String(passwordBytes);
-//
-//					int resultUpdate;
-//					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-//						resultUpdate = conn.deleteAccount(email, new String(password), clientInfo.getClientID());
-//					}
-//					
-//					if (resultUpdate == 1) {
-//						channel.close();
-//						return null;
-//					}
-//					
-//					MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account");
-//					return null;
-//				}
-//				
-//				@Override
-//				public String createEmailMessage(String account, String generatedVerificationCode) {
-//					return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(email, account, generatedVerificationCode);
-//				}
-//			});
+
+			channel.pipeline().addLast(DeleteAccountVerificationHandler.class.getName(),
+					new DeleteAccountVerificationHandler(clientInfo, clientInfo.getEmail()) {
+
+						@Override
+						public EntryResult executeWhenVerificationSuccessful() throws IOException {
+							String password = new String(passwordBytes);
+
+							DeleteAccountSuccess result;
+							try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+								result = conn.deleteAccount(email, password, clientInfo.getClientID());
+							}
+
+							switch (result) {
+							case SUCCESS -> {
+								channel.close();
+							}
+							case EMAIL_ENTERED_DOES_NOT_MATCH_ACCOUNT -> {
+								MessageByteBufCreator.sendMessageInfo(channel, "Email entered does not match actual email!");
+							}
+							case AUTHENTICATION_FAILED -> {
+								MessageByteBufCreator.sendMessageInfo(channel, "Authentication Failed!");
+							}
+							case FAILURE -> {
+								MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account!");
+							}
+							}
+		
+							return null;
+				}
+				
+				@Override
+				public String createEmailMessage(String account, String generatedVerificationCode) {
+					return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
+				}
+			});
 
 		}
 		case SET_ACCOUNT_ICON -> {
-			
+
 			byte[] icon = new byte[args.readableBytes()];
 			args.readBytes(icon);
-			
+
 			int resultUpdate;
-			
+
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				resultUpdate = conn.setProfilePhoto(clientInfo.getClientID(), icon);
 			}
-			
+
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.SET_ACCOUNT_ICON.id);
 			payload.writeBoolean(resultUpdate == 1);
-			
+
 			channel.writeAndFlush(payload);
 		}
 		case ADD_NEW_ACCOUNT, SWITCH_ACCOUNT -> {
@@ -537,12 +544,12 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 		}
 		case FETCH_ACCOUNT_ICON -> {
-			
+
 			Optional<byte[]> optionalIcon;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				optionalIcon = conn.selectUserIcon(clientInfo.getClientID());
 			}
-			
+
 			optionalIcon.ifPresentOrElse((byte[] icon) -> {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);

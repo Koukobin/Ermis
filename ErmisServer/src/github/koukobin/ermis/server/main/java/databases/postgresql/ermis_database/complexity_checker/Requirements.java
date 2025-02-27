@@ -22,20 +22,20 @@ import java.util.Objects;
  * 
  */
 public class Requirements {
-	
-	private double minEntropy;
+
+	private float minEntropy;
 	private int maxLength;
 	private String invalidCharacters;
-	
+
 	public Requirements() {}
 
-	public Requirements(double minEntropy, int maxLength, String invalidCharacters) {
+	public Requirements(float minEntropy, int maxLength, String invalidCharacters) {
 		this.minEntropy = minEntropy;
 		this.maxLength = maxLength;
 		this.invalidCharacters = invalidCharacters;
 	}
 
-	public void setMinEntropy(double minEntropy) {
+	public void setMinEntropy(float minEntropy) {
 		this.minEntropy = minEntropy;
 	}
 
@@ -47,7 +47,7 @@ public class Requirements {
 		this.invalidCharacters = invalidCharacters;
 	}
 
-	public double getMinEntropy() {
+	public float getMinEntropy() {
 		return minEntropy;
 	}
 
@@ -61,23 +61,21 @@ public class Requirements {
 
 	@Override
 	public boolean equals(Object obj) {
-		
 		if (this == obj) {
 			return true;
 		}
-		
+
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		
+
 		Requirements other = (Requirements) obj;
 
 		final double THRESHOLD = .0001;
-		
 		return this.maxLength == other.maxLength
 				&& Math.abs(this.minEntropy - other.minEntropy) < THRESHOLD
 				&& Objects.equals(this.invalidCharacters, other.invalidCharacters);

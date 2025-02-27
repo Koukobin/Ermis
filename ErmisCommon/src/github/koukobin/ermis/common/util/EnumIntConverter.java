@@ -16,6 +16,8 @@
 package github.koukobin.ermis.common.util;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * @author Ilias Koukovinis
@@ -32,21 +34,32 @@ public final class EnumIntConverter {
 	 * @param map the map containing enum values, with the ID as the key
 	 * @param id  the ID to look up
 	 * @return the enum constant corresponding to the provided ID
-	 * @throws IndexOutOfBoundsException if the ID does not exist in the map (I do
-	 *                                   know why I initially chose
-	 *                                   IndexOutOfBoundsException instead of
-	 *                                   IllegalArgumentException)
+	 * @throws NoSuchElementException if the ID does not exist in the map
 	 */
+	public static <V, T extends Enum<T>> T fromIdOrThrow(Map<V, T> map, int id) {
+		T result = map.get(id);
+
+		if (result == null) {
+			throw new NoSuchElementException(
+					"No enum constant with ID " + id + " exists for " + map.getClass().getTypeName());
+		}
+
+		return result;
+	}
+
+	public static <V, T extends Enum<T>> Optional<T> fromId2(Map<V, T> map, int id) {
+		return Optional.ofNullable(map.get(id));
+	}
+
 	public static <V, T extends Enum<T>> T fromId(Map<V, T> map, int id) {
 		T result = map.get(id);
 
 		if (result == null) {
-			// TODO refactor; instead of throwing IndexOutOfBoundsException to throw
-			// IllegalArgumentException
-			throw new IllegalArgumentException(
+			throw new IndexOutOfBoundsException(
 					"No enum constant with ID " + id + " exists for " + map.getClass().getTypeName());
 		}
 
 		return result;
 	}
 }
+

@@ -20,6 +20,7 @@ import java.io.InputStream;
 
 import github.koukobin.ermis.server.main.java.configs.LoggerSettings;
 import github.koukobin.ermis.server.main.java.server.Server;
+import github.koukobin.ermis.server.main.java.util.ConsoleFormatter;
 
 /**
  * @author Ilias Koukovinis
@@ -39,13 +40,10 @@ public class ServerLauncher {
 				System.out.println();
 			}
 
-			final String UNDERLINE = "\u001B[4m"; // Underline text
-			final String ITALIC = "\u001B[3m"; // Italics text
-			final String RESET = "\u001B[0m"; // Reset text formatting
-
-			System.out.println(UNDERLINE + ITALIC + "Author: Ilias Koukovinis" + RESET);
+			ConsoleFormatter.styledPrint("Author: Ilias Koukovinis",
+					ConsoleFormatter.TextStyle.ITALICS,
+					ConsoleFormatter.TextStyle.UNDERLINED);
 			System.out.println();
-			System.out.println(new String(is.readAllBytes())); // Print Ermis Server banner
 		} catch (IOException ioe) {
 			ioe.printStackTrace(); // Shouldn't happen
 		} finally {

@@ -129,7 +129,7 @@ public final class DatabaseSettings {
 			public static final Requirements REQUIREMENTS = new Requirements();
 			
 			static {
-				REQUIREMENTS.setMinEntropy(Double.parseDouble(CLIENT_PASSWORD_PROPERTIES.getProperty("minEntropy")));
+				REQUIREMENTS.setMinEntropy(Float.parseFloat(CLIENT_PASSWORD_PROPERTIES.getProperty("minEntropy")));
 				REQUIREMENTS.setMaxLength(Integer.parseInt(CLIENT_PASSWORD_PROPERTIES.getProperty("passwordMaxLength")));
 				REQUIREMENTS.setInvalidCharacters(CLIENT_PASSWORD_PROPERTIES.getProperty("passwordInvalidCharacters"));
 			}

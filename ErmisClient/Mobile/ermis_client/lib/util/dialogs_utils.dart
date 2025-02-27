@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -27,6 +28,17 @@ Future<void> showToastDialog(String msg) async {
       timeInSecForIosWeb: 1,
       textColor: Colors.white,
       fontSize: 16.0);
+}
+
+/// This method must be used for dialogs that utilize the Hero animation to work correctly.
+/// It ensures the dialog is displayed using a transparent `PageRouteBuilder`,
+/// allowing Hero animations to function properly.
+Future<T?> showHeroDialog<T extends Object?>(BuildContext context, {required RoutePageBuilder pageBuilder}) async {
+  return await Navigator.of(context).push(PageRouteBuilder(
+    opaque: false,
+    barrierDismissible: false,
+    pageBuilder: pageBuilder,
+  ));
 }
 
 class WhatsAppPopupDialog extends StatefulWidget {
@@ -96,7 +108,7 @@ Future<void> showWhatsAppDialog(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("This is a smooth dialog!", style: TextStyle(fontSize: 18)),
+          Text("Dialog!", style: TextStyle(fontSize: 18)),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: onPressed,
@@ -305,6 +317,7 @@ Future<String?> showInputDialog({
   required BuildContext context,
   required TickerProvider vsync,
   required String title,
+  TextInputType keyboardType = TextInputType.text,
   String hintText = "",
 }) async {
   final TextEditingController controller = TextEditingController();
@@ -355,6 +368,7 @@ Future<String?> showInputDialog({
             children: [
               TextField(
                 controller: controller,
+                keyboardType: keyboardType,
                 focusNode: FocusNode()
                   ..addListener(() {
                     if (focusedBorderAnimationController.isCompleted) {

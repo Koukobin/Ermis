@@ -21,7 +21,8 @@ enum ServerMessageType {
   messageDeliveryStatus(1),
   voiceCallIncoming(2),
   serverMessageInfo(3),
-  commandResult(4);
+  entry(4),
+  commandResult(5);
 
   final int id;
   const ServerMessageType(this.id);

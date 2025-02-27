@@ -134,3 +134,41 @@ class GoBackBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
+
+class AnimatedAppBar extends StatefulWidget implements PreferredSizeWidget {
+  final AppBar appBar;
+
+  const AnimatedAppBar({super.key, required this.appBar});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  State<AnimatedAppBar> createState() => _AnimatedAppBarState();
+}
+
+class _AnimatedAppBarState extends State<AnimatedAppBar> {
+  double _opacity = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(Duration(milliseconds: 100), toggleOpacity);
+  }
+
+  void toggleOpacity() {
+    setState(() {
+      _opacity = _opacity == 1.0 ? 0.0 : 1.0;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 250),
+      opacity: _opacity,
+      child: widget.appBar,
+    );
+  }
+}

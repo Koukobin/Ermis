@@ -47,6 +47,7 @@ class ChooseServer extends StatefulWidget {
 class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixin {
   Set<ServerInfo> cachedServerUrls = {};
   bool _checkServerCertificate = false;
+  bool _isConnectingToServer = false;
 
   @override
   void initState() {
@@ -168,8 +169,9 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                 ),
                 // "Connect" Button
                 ElevatedButton(
-                  onPressed: () async {
+                  onPressed: _isConnectingToServer ? null : () async {
                     Uri url = Uri.parse(serverUrl!);
+                    setState(() => _isConnectingToServer = true);
 
                     final DBConnection conn = ErmisDB.getConnection();
                     conn.updateServerUrlLastUsed(ServerInfo(url));
@@ -187,6 +189,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                             : ServerCertificateVerification.ignore,
                       );
                     } catch (e) {
+                      setState(() => _isConnectingToServer = false);
                       if (e is TlsException || e is SocketException) {
                         await showToastDialog((e as dynamic).message);
                         return;

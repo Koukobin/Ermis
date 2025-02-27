@@ -16,6 +16,7 @@
 
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/top_app_bar_utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 
@@ -120,26 +121,25 @@ class _NotificationSettingsState extends State<NotificationSettings> {
             "Other Settings",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          ListTile(
-            title: const Text("Vibration"),
-            trailing: Switch(
-              value: _vibrationEnabled,
-              onChanged: (bool newValue) async {
-                // Check if vibration is available on this device
-                if (!(await Vibration.hasVibrator() ?? false)) {
-                  showSnackBarDialog(context: context, content: "Vibration is not available on this device");
-                  return;
-                }
-                
-                Vibration.vibrate();
 
-                setState(() {
-                  _vibrationEnabled = newValue;
-                });
-                _settingsJson.setVibrationEnabled(_vibrationEnabled);
-                _settingsJson.saveSettingsJson();
-              },
-            ),
+          SwitchListTile(
+            title: const Text("Vibration"),
+            value: _vibrationEnabled,
+            onChanged: (bool newValue) async {
+              // Check if vibration is available on this device
+              if (!(await Vibration.hasVibrator())) {
+                showSnackBarDialog(context: context, content: "Vibration is not available on this device");
+                return;
+              }
+
+              Vibration.vibrate();
+
+              setState(() {
+                _vibrationEnabled = newValue;
+              });
+              _settingsJson.setVibrationEnabled(_vibrationEnabled);
+              _settingsJson.saveSettingsJson();
+            },
           ),
         ],
       ),

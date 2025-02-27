@@ -16,7 +16,6 @@
 package github.koukobin.ermis.server.main.java.server.codec;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,9 +39,6 @@ public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 	
 	protected Decoder() {}
 	
-	protected record DecodingResult(boolean isDecodingSuccessful, int length) {
-	}
-
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		ByteBuf payload = null;
@@ -66,7 +62,7 @@ public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 
 		if (isDecodingSuccessful) {
 			assert payload != null;
-			out.add(Objects.requireNonNull(payload));
+			out.add(payload);
 		}
 
 		isDecodingSuccessful = false;

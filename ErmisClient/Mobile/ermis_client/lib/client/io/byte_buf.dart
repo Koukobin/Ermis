@@ -48,6 +48,15 @@ class ByteBuf {
   /// Creates an empty buffer.
   ByteBuf.empty({this.growable = false}) : _buffer = Uint8List(0);
 
+  /// Reads all readable bytes from the buffer.
+  ///
+  Uint8List readAllBytes() {
+    int newReaderIndex = _readerIndex + readableBytes;
+    Uint8List bytes = _buffer.sublist(_readerIndex, newReaderIndex);
+    _readerIndex = newReaderIndex;
+    return bytes;
+  }
+
   /// Reads a specified number of bytes from the buffer.
   ///
   /// Throws an exception if there are not enough readable bytes.
@@ -95,7 +104,7 @@ class ByteBuf {
   }
 
   /// Writes a boolean value (1 byte: 1 for `true`, 0 for `false`).
-  void writeBoolean(bool boolean) {
+  void writeBoolean1(bool boolean) {
     writeBytes(Uint8List.fromList([boolean ? 1 : 0]));
   }
 
@@ -111,6 +120,13 @@ class ByteBuf {
     ByteData byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 8);
     _readerIndex += 8;
     return byteData.getInt64(0, Endian.big);
+  }
+
+  /// Reads a 32-bit floating-point number in big-endian order.
+  double readFloat32() {
+    ByteData byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 4);
+    _readerIndex += 4;
+    return byteData.getFloat32(0, Endian.big);
   }
 
   /// Reads a 64-bit floating-point number in big-endian order.

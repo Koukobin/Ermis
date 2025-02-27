@@ -19,44 +19,41 @@ import 'dart:io';
 
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
-import 'package:ermis_client/client/message_events.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 import 'client.dart';
 import 'common/account.dart';
 import 'common/message_types/client_command_type.dart';
 import 'common/message_types/client_message_type.dart';
-import 'common/message_types/server_message_type.dart';
 import 'common/message_types/content_type.dart';
-import 'common/results/client_command_result_type.dart';
 import 'common/user_device.dart';
 import 'event_bus.dart';
 import 'io/byte_buf.dart';
 import 'common/chat_request.dart';
 import 'common/chat_session.dart';
-import 'common/file_heap.dart';
 import 'io/input_stream.dart';
 import 'common/message.dart';
 import 'io/output_stream.dart';
+
+class Info {
+  static String? username;
+  static int clientID = -1;
+  static Uint8List? profilePhoto;
+  static final List<UserDeviceInfo> userDevices = [];
+
+  static final Map<int, ChatSession> chatSessionIDSToChatSessions = {};
+  static List<ChatSession>? chatSessions;
+  static List<ChatRequest>? chatRequests;
+  static List<Account>? otherAccounts;
+
+  static final Map<int /* temporary message id */, Message> pendingMessagesQueue = {};
+  static int lastPendingMessageID = 0;
+}
 
 class MessageHandler {
   late final ByteBufInputStream _inputStream;
   late final ByteBufOutputStream _outputStream;
   late final Socket _socket;
-
-  final Map<int /* temporary message id */, Message> pendingMessagesQueue = {};
-  int lastPendingMessageID = 0;
-
-  String? _username;
-  int clientID = -1;
-  Uint8List? _profilePhoto;
-  final List<UserDeviceInfo> _userDevices = [];
-
-  final Map<int, ChatSession> _chatSessionIDSToChatSessions = {};
-  List<ChatSession>? _chatSessions;
-  List<ChatRequest>? _chatRequests;
-  List<Account>? _otherAccounts;
 
   bool _isClientListeningToMessages = false;
 
@@ -83,7 +80,7 @@ class MessageHandler {
 
     ByteBuf payload = ByteBuf.smallBuffer(growable: true);
     payload.writeInt32(ClientMessageType.clientContent.id);
-    payload.writeInt32(++lastPendingMessageID);
+    payload.writeInt32(++Info.lastPendingMessageID);
     payload.writeInt32(MessageContentType.text.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(textBytes.length);
@@ -94,9 +91,9 @@ class MessageHandler {
     return createPendingMessage(
       text: Uint8List.fromList(utf8.encode(text)),
       contentType: MessageContentType.text,
-      chatSessionID: _chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
-      tempMessageID: lastPendingMessageID,
+      tempMessageID: Info.lastPendingMessageID,
     );
   }
 
@@ -108,7 +105,7 @@ class MessageHandler {
 
     ByteBuf payload = ByteBuf(payloadSize);
     payload.writeInt32(ClientMessageType.clientContent.id);
-    payload.writeInt32(++lastPendingMessageID);
+    payload.writeInt32(++Info.lastPendingMessageID);
     payload.writeInt32(MessageContentType.file.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(fileNameBytes.length);
@@ -120,9 +117,9 @@ class MessageHandler {
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
       contentType: MessageContentType.file,
-      chatSessionID: _chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
-      tempMessageID: lastPendingMessageID,
+      tempMessageID: Info.lastPendingMessageID,
     );
   }
 
@@ -134,7 +131,7 @@ class MessageHandler {
     
     ByteBuf payload = ByteBuf(payloadSize);
     payload.writeInt32(ClientMessageType.clientContent.id);
-    payload.writeInt32(++lastPendingMessageID);
+    payload.writeInt32(++Info.lastPendingMessageID);
     payload.writeInt32(MessageContentType.image.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(fileNameBytes.length);
@@ -146,9 +143,9 @@ class MessageHandler {
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
       contentType: MessageContentType.image,
-      chatSessionID: _chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
-      tempMessageID: lastPendingMessageID,
+      tempMessageID: Info.lastPendingMessageID,
     );
   }
 
@@ -172,7 +169,7 @@ class MessageHandler {
         contentType: contentType,
         deliveryStatus: MessageDeliveryStatus.sending);
     
-    pendingMessagesQueue[lastPendingMessageID] = m;
+    Info.pendingMessagesQueue[Info.lastPendingMessageID] = m;
     return m;
   }
 
@@ -189,7 +186,7 @@ class MessageHandler {
     await Future.doWhile(() async {
       return await Future.delayed(Duration(milliseconds: 100), () {
         return (username == null ||
-            _profilePhoto == null ||
+            Info.profilePhoto == null ||
             chatRequests == null ||
             chatSessions == null);
       });
@@ -205,354 +202,17 @@ class MessageHandler {
     }
 
     _isClientListeningToMessages = true;
-
-    _inputStream.stream.listen(
-      (Uint8List data) async {
-        ByteBuf message = await ByteBufInputStream.decodeSimple(data);
-        if (message.capacity > 0) {
-          handleMessage(message);
-        }
-      },
-      onDone: () {
-        _socket.destroy();
-        SystemNavigator.pop();
-      },
-      onError: (e) {
-        if (kDebugMode) {
-          debugPrint(e.toString());
-        }
-      },
-    );
-  }
-
-  void handleMessage(ByteBuf msg) {
-    void handleCommandResult(ClientCommandResultType commandResult) {
-      switch (commandResult) {
-        case ClientCommandResultType.downloadFile:
-          var fileNameLength = msg.readInt32();
-          var fileNameBytes = msg.readBytes(fileNameLength);
-          var fileBytes = msg.readBytes(msg.readableBytes);
-
-          final file = LoadedInMemoryFile(String.fromCharCodes(fileNameBytes), fileBytes);
-
-          eventBus.fire(FileDownloadedEvent(file));
-          break;
-        case ClientCommandResultType.downloadImage:
-          var messageID = msg.readInt32();
-          var fileNameLength = msg.readInt32();
-          var fileNameBytes = msg.readBytes(fileNameLength);
-          var fileBytes = msg.readBytes(msg.readableBytes);
-
-          var file = LoadedInMemoryFile(
-              String.fromCharCodes(fileNameBytes), fileBytes);
-
-          eventBus.fire(ImageDownloadedEvent(file, messageID));
-          break;
-        case ClientCommandResultType.getDisplayName:
-          var usernameBytes = msg.readBytes(msg.readableBytes);
-          _username = String.fromCharCodes(usernameBytes);
-          eventBus.fire(UsernameReceivedEvent(_username!));
-          break;
-
-        case ClientCommandResultType.getClientId:
-          clientID = msg.readInt32();
-          eventBus.fire(ClientIdEvent(clientID));
-          break;
-        case ClientCommandResultType.getChatSessions:
-          _chatSessions = [];
-          int chatSessionsSize = msg.readInt32();
-          for (int i = 0; i < chatSessionsSize; i++) {
-            int chatSessionIndex = i;
-            int chatSessionID = msg.readInt32();
-
-            ChatSession chatSession =
-                ChatSession(chatSessionID, chatSessionIndex);
-
-            int membersSize = msg.readInt32();
-            List<Member> members = <Member>[];
-            for (int j = 0; j < membersSize; j++) {
-              int memberClientID = msg.readInt32();
-              bool isActive = msg.readBoolean();
-              int usernameLength = msg.readInt32();
-              String username =
-                  String.fromCharCodes(msg.readBytes(usernameLength));
-              Uint8List iconBytes = msg.readBytes(msg.readInt32());
-
-              members
-                  .add(Member(username, memberClientID, iconBytes, isActive));
-            }
-
-            chatSession.setMembers(members);
-            _chatSessions?.insert(chatSessionIndex, chatSession);
-            _chatSessionIDSToChatSessions[chatSessionID] = chatSession;
-          }
-          eventBus.fire(ChatSessionsEvent(chatSessions!));
-          break;
-        case ClientCommandResultType.getChatRequests:
-          _chatRequests = [];
-          int friendRequestsLength = msg.readInt32();
-          for (int i = 0; i < friendRequestsLength; i++) {
-            int clientID = msg.readInt32();
-            _chatRequests?.add(ChatRequest(clientID));
-          }
-          eventBus.fire(ChatRequestsEvent(_chatRequests!));
-          break;
-        case ClientCommandResultType.getOtherAccountsAssociatedWithDevice:
-          _otherAccounts = [];
-
-          while (msg.readableBytes > 0) {
-            int clientID = msg.readInt32();
-            String email = utf8.decode(msg.readBytes(msg.readInt32()));
-            String displayName = utf8.decode(msg.readBytes(msg.readInt32()));
-            Uint8List profilePhoto = msg.readBytes(msg.readInt32());
-
-            _otherAccounts!.add(Account(
-                profilePhoto: profilePhoto,
-                displayName: displayName,
-                email: email,
-                clientID: clientID));
-          }
-
-          eventBus.fire(OtherAccountsEvent(otherAccounts!));
-          break;
-        case ClientCommandResultType.getWrittenText:
-          int chatSessionIndex = msg.readInt32();
-          ChatSession chatSession = _chatSessions![chatSessionIndex];
-          List<Message> messages = chatSession.getMessages;
-
-          while (msg.readableBytes > 0) {
-            MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
-            int clientID = msg.readInt32();
-            int messageID = msg.readInt32();
-            String username = utf8.decode(msg.readBytes(msg.readInt32()));
-
-            Uint8List? messageBytes;
-            Uint8List? fileNameBytes;
-            int epochSecond = msg.readInt64();
-            bool isRead;
-            if (clientID == this.clientID) {
-              isRead = msg.readBoolean();
-            } else {
-              isRead = true;
-            }
-
-            switch (contentType) {
-              case MessageContentType.text:
-                messageBytes = msg.readBytes(msg.readInt32());
-                break;
-              case MessageContentType.file || MessageContentType.image:
-                fileNameBytes = msg.readBytes(msg.readInt32());
-                break;
-            }
-
-            messages.add(Message(
-                username: username,
-                clientID: clientID,
-                messageID: messageID,
-                chatSessionID: chatSession.chatSessionID,
-                chatSessionIndex: chatSessionIndex,
-                text: messageBytes,
-                fileName: fileNameBytes,
-                epochSecond: epochSecond,
-                contentType: contentType,
-                deliveryStatus: isRead
-                    ? MessageDeliveryStatus.delivered
-                    : MessageDeliveryStatus.serverReceived));
-          }
-
-          messages.sort((a, b) => a.messageID.compareTo(b.messageID));
-          chatSession.setHaveChatMessagesBeenCached(true);
-          eventBus.fire(WrittenTextEvent(chatSession));
-          break;
-        case ClientCommandResultType.deleteChatMessage:
-          int chatSessionID = msg.readInt32();
-          while (msg.readableBytes > 0) {
-            int messageID = msg.readInt32();
-            bool success = msg.readBoolean();
-
-            if (!success) {
-              eventBus.fire(MessageDeletionUnsuccessfulEvent());
-              continue;
-            }
-
-            eventBus.fire(MessageDeletedEvent(_chatSessionIDSToChatSessions[chatSessionID]!, messageID));
-          }
-          break;
-        case ClientCommandResultType.fetchAccountIcon:
-          _profilePhoto = msg.readBytes(msg.readableBytes);
-          eventBus.fire(ProfilePhotoEvent(_profilePhoto!));
-          break;
-        case ClientCommandResultType.fetchUserDevices:
-          _userDevices.clear();
-          while (msg.readableBytes > 0) {
-            DeviceType deviceType = DeviceType.fromId(msg.readInt32());
-            String address = utf8.decode(msg.readBytes(msg.readInt32()));
-            String osName = utf8.decode(msg.readBytes(msg.readInt32()));
-            _userDevices.add(UserDeviceInfo(address, deviceType, osName));
-          }
-          eventBus.fire(UserDevicesEvent(_userDevices));
-          break;
-        case ClientCommandResultType.setAccountIcon:
-          bool isSuccessful = msg.readBoolean();
-          if (!isSuccessful) {
-            break;
-          }
-          
-          _profilePhoto = Commands.pendingAccountIcon;
-          eventBus.fire(AddProfilePhotoResultEvent(isSuccessful));
-          break;
-        case ClientCommandResultType.startVoiceCall:
-          int udpServerPort = msg.readInt32();
-          int voiceCallKey = msg.readInt32();
-          // Uint8List aesKey = msg.readBytes(msg.readableBytes);
-          eventBus.fire(StartVoiceCallResultEvent(voiceCallKey, udpServerPort));
-          break;
-        case ClientCommandResultType.getDonationPageURL:
-          Uint8List donationPageURL = msg.readBytes(msg.readableBytes);
-          eventBus.fire(DonationPageEvent(utf8.decode(donationPageURL)));
-          break;
-        case ClientCommandResultType.getSourceCodePageURL:
-          Uint8List sourceCodePageURL = msg.readBytes(msg.readableBytes);
-          eventBus.fire(SourceCodePageEvent(utf8.decode(sourceCodePageURL)));
-          break;
-      }
-    }
-
-    try {
-      ServerMessageType msgType = ServerMessageType.fromId(msg.readInt32());
-
-      switch (msgType) {
-        case ServerMessageType.serverMessageInfo:
-          Uint8List content = msg.readBytes(msg.readableBytes);
-          eventBus.fire(ServerMessageInfoEvent(utf8.decode(content)));
-          break;
-        case ServerMessageType.voiceCallIncoming:
-          int udpServerPort = msg.readInt32();
-          int chatSessionID = msg.readInt32();
-          int voiceCallKey = msg.readInt32();
-          int clientID = msg.readInt32();
-          // Uint8List aesKey = msg.readBytes(msg.readableBytes);
-          
-          ChatSession session = _chatSessionIDSToChatSessions[chatSessionID]!;
-
-          Member? member;
-          for (var j = 0; j < session.getMembers.length; j++) {
-            if (session.getMembers[j].clientID == clientID) {
-              member = session.getMembers[j];
-            }
-          }
-
-          if (member == null) throw new Exception("What the fuck is this");
-
-          eventBus.fire(VoiceCallIncomingEvent(
-            chatSessionID: chatSessionID,
-            chatSessionIndex: session.chatSessionIndex,
-            voiceCallKey: voiceCallKey,
-            member: member,
-            udpServerPort: udpServerPort,
-          ));
-          break;
-        case ServerMessageType.messageDeliveryStatus:
-          MessageDeliveryStatus status = MessageDeliveryStatus.fromId(msg.readInt32());
-
-          Message pendingMessage;
-          
-          if (status == MessageDeliveryStatus.lateDelivered) {
-            int chatSessionID = msg.readInt32();
-            int generatedMessageID = msg.readInt32();
-
-            pendingMessage = _chatSessionIDSToChatSessions[chatSessionID]!
-                .getMessages
-                .firstWhere((m) => m.messageID == generatedMessageID);
-          } else if (status == MessageDeliveryStatus.rejected) {
-            int tempMessageID = msg.readInt32();
-            pendingMessage = pendingMessagesQueue.remove(tempMessageID)!;
-          } else {
-            int tempMessageID = msg.readInt32();
-            int generatedMessageID = msg.readInt32();
-
-            pendingMessage = pendingMessagesQueue[tempMessageID]!;
-            if (status == MessageDeliveryStatus.delivered) {
-              pendingMessagesQueue.remove(tempMessageID)!;
-            }
-
-            pendingMessage.setMessageID(generatedMessageID);
-          }
-
-          pendingMessage.setDeliveryStatus(status);
-
-          eventBus.fire(MessageDeliveryStatusEvent(
-            deliveryStatus: status,
-            message: pendingMessage,
-          ));
-          break;
-        case ServerMessageType.clientMessage:
-          Message message = Message.empty();
-
-          MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
-          int epochSecond = msg.readInt64();
-
-          Uint8List? text;
-          Uint8List? fileNameBytes;
-          switch (contentType) {
-            case MessageContentType.text:
-              var textLength = msg.readInt32();
-              text = msg.readBytes(textLength);
-              break;
-            case MessageContentType.file || MessageContentType.image:
-              var fileNameLength = msg.readInt32();
-              fileNameBytes = msg.readBytes(fileNameLength);
-              break;
-          }
-
-          var usernameLength = msg.readInt32();
-          var usernameBytes = msg.readBytes(usernameLength);
-          String username = utf8.decode(usernameBytes);
-
-          int clientID = msg.readInt32();
-          int messageID = msg.readInt32();
-          int chatSessionID = msg.readInt32();
-
-          message.setContentType(contentType);
-          message.setUsername(username);
-          message.setClientID(clientID);
-          message.setMessageID(messageID);
-          message.setChatSessionID(chatSessionID);
-          message.setChatSessionIndex(
-              _chatSessionIDSToChatSessions[chatSessionID]!.chatSessionIndex);
-          message.setText(text);
-          message.setFileName(fileNameBytes);
-          message.setEpochSecond(epochSecond);
-          message.setDeliveryStatus(MessageDeliveryStatus.delivered);
-
-          ChatSession chatSession =
-              _chatSessionIDSToChatSessions[chatSessionID]!;
-          if (chatSession.haveChatMessagesBeenCached) {
-            chatSession.getMessages.add(message);
-          }
-
-          eventBus.fire(MessageReceivedEvent(message, chatSession));
-          break;
-        case ServerMessageType.commandResult:
-          final commandResult = ClientCommandResultType.fromId(msg.readInt32());
-          handleCommandResult(commandResult);
-          break;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint(e.toString());
-      }
-    }
   }
 
   bool get isListeningToMessages => _isClientListeningToMessages;
   Commands get commands => _commands;
-  String? get username => _username;
-  Uint8List? get profilePhoto => _profilePhoto;
-  List<ChatSession>? get chatSessions => _chatSessions;
-  List<ChatRequest>? get chatRequests => _chatRequests;
-  get usesDevices => _userDevices;
-  List<Account>? get otherAccounts => _otherAccounts;
+  String? get username => Info.username;
+  int get clientID => Info.clientID;
+  Uint8List? get profilePhoto => Info.profilePhoto;
+  List<ChatSession>? get chatSessions => Info.chatSessions;
+  List<ChatRequest>? get chatRequests => Info.chatRequests;
+  get usesDevices => Info.userDevices;
+  List<Account>? get otherAccounts => Info.otherAccounts;
 }
 
 class Commands {

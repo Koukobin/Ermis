@@ -131,7 +131,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                     Client.instance().commands.addNewAccount();
-                                    pushHorizontalTransition(context,
+                                    pushSlideTransition(context,
                                         const CreateAccountInterface());
                                   },
                                   child: Text(
@@ -150,7 +150,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               leading: Icon(FontAwesomeIcons.solidTrashCan, color: Colors.redAccent,),
               title: Text('Delete account'),
               onTap: () {
-                pushHorizontalTransition(context, const DeleteAccountSettings());
+                pushSlideTransition(context, const DeleteAccountSettings());
               },
             ),
           ],

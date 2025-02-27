@@ -135,7 +135,7 @@ class HelpSettingsState extends State<HelpSettings> {
                 leading: Icon(Icons.info_outline),
                 title: Text("App info", style: TextStyle(fontSize: 16)),
                 onTap: () async {
-                  pushHorizontalTransition(context, const AppInfo());
+                  pushSlideTransition(context, const AppInfo());
                 },
               ),
             ],
@@ -189,7 +189,7 @@ class AppInfo extends StatelessWidget {
               SizedBox(height: 25),
               ElevatedButton(
                 onPressed: () {
-                  pushHorizontalTransition(context, const LicenceInfo());
+                  pushSlideTransition(context, const LicenceInfo());
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: appColors.inferiorColor, // Splash color

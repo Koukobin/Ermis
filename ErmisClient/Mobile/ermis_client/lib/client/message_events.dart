@@ -25,26 +25,32 @@ import 'package:ermis_client/client/common/chat_request.dart';
 import 'package:ermis_client/client/common/message.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/client/common/user_device.dart';
+import 'package:ermis_client/client/io/byte_buf.dart';
 
 import 'common/account.dart';
 import 'common/chat_session.dart';
 import 'common/file_heap.dart';
 
+class EntryMessage {
+  final ByteBuf buffer;
+  const EntryMessage(this.buffer);
+}
+
 class UsernameReceivedEvent {
   final String displayName;
-  UsernameReceivedEvent(this.displayName);
+  const UsernameReceivedEvent(this.displayName);
 }
 
 class MessageReceivedEvent {
   final Message message;
   final ChatSession chatSession;
-  MessageReceivedEvent(this.message, this.chatSession);
+  const MessageReceivedEvent(this.message, this.chatSession);
 }
 
 class MessageDeliveryStatusEvent {
   final MessageDeliveryStatus deliveryStatus;
   final Message message;
-  MessageDeliveryStatusEvent({
+  const MessageDeliveryStatusEvent({
     required this.deliveryStatus,
     required this.message,
   });
@@ -52,58 +58,58 @@ class MessageDeliveryStatusEvent {
 
 class WrittenTextEvent {
   final ChatSession chatSession;
-  WrittenTextEvent(this.chatSession);
+  const WrittenTextEvent(this.chatSession);
 }
 
 class ServerMessageInfoEvent {
   final String message;
-  ServerMessageInfoEvent(this.message);
+  const ServerMessageInfoEvent(this.message);
 }
 
 class FileDownloadedEvent {
   final LoadedInMemoryFile file;
-  FileDownloadedEvent(this.file);
+  const FileDownloadedEvent(this.file);
 }
 
 class ImageDownloadedEvent {
   final LoadedInMemoryFile file;
   final int messageID;
-  ImageDownloadedEvent(this.file, this.messageID);
+  const ImageDownloadedEvent(this.file, this.messageID);
 }
 
 class DonationPageEvent {
   final String donationPageURL;
-  DonationPageEvent(this.donationPageURL);
+  const DonationPageEvent(this.donationPageURL);
 }
 
 class SourceCodePageEvent {
   final String sourceCodePageURL;
-  SourceCodePageEvent(this.sourceCodePageURL);
+  const SourceCodePageEvent(this.sourceCodePageURL);
 }
 
 class ServerSourceCodeEvent {
   final String sourceCodeUrl;
-  ServerSourceCodeEvent(this.sourceCodeUrl);
+  const ServerSourceCodeEvent(this.sourceCodeUrl);
 }
 
 class ClientIdEvent {
   final int clientId;
-  ClientIdEvent(this.clientId);
+  const ClientIdEvent(this.clientId);
 }
 
 class ChatRequestsEvent {
   final List<ChatRequest> requests;
-  ChatRequestsEvent(this.requests);
+  const ChatRequestsEvent(this.requests);
 }
 
 class ChatSessionsEvent {
   final List<ChatSession> sessions;
-  ChatSessionsEvent(this.sessions);
+  const ChatSessionsEvent(this.sessions);
 }
 
 class OtherAccountsEvent {
   final List<Account> accounts;
-  OtherAccountsEvent(this.accounts);
+  const OtherAccountsEvent(this.accounts);
 }
 
 class VoiceCallIncomingEvent {
@@ -112,7 +118,7 @@ class VoiceCallIncomingEvent {
   final int voiceCallKey;
   final int udpServerPort;
   final Member member;
-  VoiceCallIncomingEvent({
+  const VoiceCallIncomingEvent({
     required this.chatSessionID,
     required this.chatSessionIndex,
     required this.voiceCallKey,
@@ -124,32 +130,32 @@ class VoiceCallIncomingEvent {
 class StartVoiceCallResultEvent {
   final int key;
   final int udpServerPort;
-  StartVoiceCallResultEvent(this.key, this.udpServerPort);
+  const StartVoiceCallResultEvent(this.key, this.udpServerPort);
 }
 
 class MessageDeletionUnsuccessfulEvent {
-  MessageDeletionUnsuccessfulEvent();
+  const MessageDeletionUnsuccessfulEvent();
 }
 
 class MessageDeletedEvent {
   final ChatSession chatSession;
   final int messageId;
-  MessageDeletedEvent(this.chatSession, this.messageId);
+  const MessageDeletedEvent(this.chatSession, this.messageId);
 }
 
 class ProfilePhotoEvent {
   final Uint8List photoBytes;
-  ProfilePhotoEvent(this.photoBytes);
+  const ProfilePhotoEvent(this.photoBytes);
 }
 
 class AddProfilePhotoResultEvent {
   final bool success;
-  AddProfilePhotoResultEvent(this.success);
+  const AddProfilePhotoResultEvent(this.success);
 }
 
 class UserDevicesEvent {
   final List<UserDeviceInfo> devices;
-  UserDevicesEvent(this.devices);
+  const UserDevicesEvent(this.devices);
 }
 
 

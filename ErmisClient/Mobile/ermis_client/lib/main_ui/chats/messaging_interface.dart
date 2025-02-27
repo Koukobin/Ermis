@@ -214,15 +214,17 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       ChatSession session = event.chatSession;
       int messageID = event.messageId;
 
-      // If mounted, remove message from session and call rebuild
-      if (session.chatSessionID == _chatSession.chatSessionID && mounted) {
-        setState(() {
-          _messagesBeingEdited.removeWhere((Message message) => message.messageID == messageID);
-        });
+      if (session.chatSessionID != _chatSession.chatSessionID) {
         return;
       }
-      // Else, simply remove message from session
+
+      _messagesBeingEdited.removeWhere((Message message) => message.messageID == messageID);
       _messages.removeWhere((Message message) => message.messageID == messageID);
+
+      // If mounted, rebuild UI
+      if (mounted) {
+        setState(() {});
+      }
     });
 
     AppEventBus.instance.on<MessageDeliveryStatusEvent>().listen((event) async {
@@ -645,7 +647,11 @@ class MessageBubble extends StatelessWidget {
                     color: isMessageOwner
                         ? null
                         : const Color.fromARGB(100, 100, 100, 100),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(isMessageOwner ? 10 : 2),
+                        topRight: Radius.circular(isMessageOwner ? 2 : 10),
+                        bottomLeft: const Radius.circular(10),
+                        bottomRight: const  Radius.circular(10)),
                   ),
                   child: Stack(
                     clipBehavior:
@@ -676,18 +682,6 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
               ),
-              // if (isMessageOwner)
-              //   Row(
-              //     mainAxisSize: MainAxisSize.min,
-              //     children: [
-              //       Text(
-              //         DateFormat("HH:mm").format(currentMessageDate),
-              //         style: TextStyle(color: appColors.inferiorColor),
-              //       ),
-              //       const SizedBox(width: 5), // Space between time and checkmarks
-              //       _buildDeliveryIcon(message.deliveryStatus),
-              //     ],
-              //   ),
             ],
           ),
         ),
@@ -762,7 +756,10 @@ class MessageBubble extends StatelessWidget {
       case MessageContentType.image:
         final image = message.imageBytes == null
             ? null
-            : Image.memory(message.imageBytes!);
+            : Hero(
+                tag: '${message.messageID}',
+                child: Image.memory(message.imageBytes!),
+              );
         return GestureDetector(
           onDoubleTap: () {
             if (image == null) {
@@ -786,57 +783,52 @@ class MessageBubble extends StatelessWidget {
     }
   }
 
-  void showImageDialog(BuildContext context, Image image) {
-    showDialog(
-      context: context,
-      builder: (context) => GestureDetector(
-        onTap: () {
-          Navigator.of(context).pop();
-        },
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                    onPressed: () {
-                      saveFileToDownloads(
-                          message.fileName, message.imageBytes!);
-                    },
-                    icon: Icon(Icons.download)),
-              ],
+  void showImageDialog(BuildContext context, Widget image) {
+    showHeroDialog(context,
+        pageBuilder: (context, Animation<double> _, Animation<double> __) {
+      return GestureDetector(
+        onTap: Navigator.of(context).pop,
+        child: Stack(
+          children: [
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+              child: Container(
+                color: Colors.transparent,
+              ),
             ),
-            bottom: DividerBottom(dividerColor: appColors.inferiorColor),
-            elevation: 0,
-          ),
-          body: Stack(
-            children: [
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                child: Container(
-                  color: Colors.transparent,
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        saveFileToDownloads(
+                            message.fileName, message.imageBytes!);
+                      },
+                      icon: Icon(Icons.download),
+                    ),
+                  ],
                 ),
               ),
-              Center(
+              body: InteractiveViewer(
+              child: Center(
                 child: Container(
                   padding: EdgeInsets.all(16),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: InteractiveViewer(
-                      boundaryMargin: EdgeInsets.all(20),
-                      minScale: 1.0,
-                      maxScale: 8.0, // Allows zooming in up to 8x
-                      child: image,
-                    ),
+                    child: image,
                   ),
                 ),
               ),
-            ],
+            ),
           ),
+              ],
         ),
-      ),
-    );
+      );
+    });
   }
 }
 

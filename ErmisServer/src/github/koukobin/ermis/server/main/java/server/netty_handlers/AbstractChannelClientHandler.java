@@ -24,7 +24,7 @@ import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.ReferenceCountUtil;
+import io.netty.util.ReferenceCounted;
 
 /**
  * Abstract base class for handling client-specific messages and requests over a
@@ -74,18 +74,26 @@ abstract sealed class AbstractChannelClientHandler extends ChannelInboundHandler
 	
 	@Override
 	// Finaly ensures this method is not ovveridable
-	public final void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	public final void channelRead(ChannelHandlerContext ctx, Object msg) {
 		boolean release = true;
         try {
             if (msg instanceof ByteBuf imsg) {
                 channelRead0(ctx, imsg);
             } else {
-                release = false;
-                ctx.fireChannelRead(msg);
-            }
+				release = false;
+				ctx.fireChannelRead(msg);
+			}
+		} catch (Exception ioe) {
+			exceptionCaught(ctx, ioe);
 		} finally {
 			if (autoRelease && release) {
-				ReferenceCountUtil.release(msg);
+				if (msg instanceof ReferenceCounted referenceCounted) {
+					if (referenceCounted.refCnt() > 0) {
+						referenceCounted.release();
+					} else {
+						LOGGER.error("Illegal reference count");
+					}
+				}
 			}
 		}
 	}
@@ -99,7 +107,7 @@ abstract sealed class AbstractChannelClientHandler extends ChannelInboundHandler
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		LOGGER.error("Exception caught: {}", cause);
+		LOGGER.error("Exception caught",  cause);
 	}
 	
 	public static final Logger getLogger() {

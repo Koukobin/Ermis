@@ -151,14 +151,18 @@ public final class ErmisDatabase {
 		return new WriteChatMessagesDBConnection();
 	}
 
+	public enum DeleteAccountSuccess {
+		SUCCESS, EMAIL_ENTERED_DOES_NOT_MATCH_ACCOUNT, AUTHENTICATION_FAILED, FAILURE;
+	}
+
 	public enum Insert {
 		SUCCESSFUL_INSERT, DUPLICATE_ENTRY, NOTHING_CHANGED, INTERNAL_ERROR;
 	}
 
 	public enum Select {
-		NOT_FOUND
+		NOT_FOUND;
 	}
-	
+
 	private static class DBConnection implements AutoCloseable {
 
 		protected final Connection conn;
@@ -391,19 +395,20 @@ public final class ErmisDatabase {
 		/**
 		 * Authenticates client and deletes account
 		 */
-		public int deleteAccount(String enteredEmail, String enteredPassword, int clientID) {
-
+		public DeleteAccountSuccess deleteAccount(String enteredEmail, String enteredPassword, int clientID) {
 			int resultUpdate = 0;
 
 			// Verify that the entered email is associated with the provided client ID
 			int associatedClientID = getClientID(enteredEmail).orElseThrow();
 			if (associatedClientID != clientID) {
-				return resultUpdate;
+				return DeleteAccountSuccess.EMAIL_ENTERED_DOES_NOT_MATCH_ACCOUNT;
 			}
 
 			// Perform authentication to ensure email and password match
-			if (checkAuthentication(enteredEmail, enteredPassword) == null) {
-				return resultUpdate;
+			Optional<String> passwordHash = checkAuthentication(enteredEmail, enteredPassword);
+
+			if (passwordHash.isEmpty()) {
+				return DeleteAccountSuccess.AUTHENTICATION_FAILED;
 			}
 
 			try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM users WHERE client_id=?;")) {
@@ -412,14 +417,15 @@ public final class ErmisDatabase {
 				resultUpdate = pstmt.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
+				return DeleteAccountSuccess.FAILURE;
 			}
 
-			return resultUpdate;
+			return DeleteAccountSuccess.SUCCESS;
 		}
 
 		public boolean checkAuthenticationViaHash(String email, String enteredPasswordpasswordHash) {
 			String passwordHash = getPasswordHash(email);
-			
+
 			if (passwordHash != null) {
 				return passwordHash.equals(enteredPasswordpasswordHash);
 			}
@@ -427,10 +433,12 @@ public final class ErmisDatabase {
 			return false;
 		}
 		
-		public String checkAuthentication(String email, String enteredPassword) {
+		public Optional<String> checkAuthentication(String email, String enteredPassword) {
 			String passwordHash = getPasswordHash(email);
 			SimpleHash enteredPasswordHash = HashUtil.createHash(enteredPassword, getSalt(email), DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
-			return Arrays.equals(passwordHash.getBytes(), enteredPasswordHash.getHashBytes()) ? passwordHash : null;
+			return passwordHash.equals(enteredPasswordHash.getHashString()) 
+					? Optional.of(passwordHash)
+					: Optional.ofNullable(null);
 		}
 		
 		public ResultHolder checkIfUserMeetsRequirementsToLogin(String emailAddress) {
@@ -500,11 +508,11 @@ public final class ErmisDatabase {
 		}
 		
 		public EntryResult loginUsingPassword(String email, String password, UserDeviceInfo deviceInfo) {
-
-			String passwordHash = checkAuthentication(email, password);
-			if (passwordHash == null) {
+			Optional<String> passwordHashOptional = checkAuthentication(email, password);
+			if (passwordHashOptional.isEmpty()) {
 				return new EntryResult(LoginInfo.Login.Result.INCORRECT_PASSWORD.resultHolder);
 			}
+			String passwordHash = passwordHashOptional.get();
 
 			// Add address to user logged in ip addresses
 			Insert result = insertUserIp(email, deviceInfo);

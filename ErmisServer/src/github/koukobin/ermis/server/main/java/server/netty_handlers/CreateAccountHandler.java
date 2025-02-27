@@ -27,6 +27,7 @@ import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo.Action;
 import github.koukobin.ermis.common.entry.CreateAccountInfo.Credential;
+import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
@@ -55,17 +56,8 @@ final class CreateAccountHandler extends EntryHandler {
 	}
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) {
-		ByteBuf payload = ctx.alloc().ioBuffer();
-		payload.writeInt(DatabaseSettings.Client.Username.REQUIREMENTS.getMaxLength());
-		payload.writeInt(DatabaseSettings.Client.Username.REQUIREMENTS.getInvalidCharacters().length());
-		payload.writeBytes(DatabaseSettings.Client.Username.REQUIREMENTS.getInvalidCharacters().getBytes());
-		
-		payload.writeInt(DatabaseSettings.Client.Password.REQUIREMENTS.getMaxLength());
-		payload.writeDouble(DatabaseSettings.Client.Password.REQUIREMENTS.getMinEntropy());
-		payload.writeBytes(DatabaseSettings.Client.Password.REQUIREMENTS.getInvalidCharacters().getBytes());
-		
-		ctx.channel().writeAndFlush(ctx);
+	public void handlerAdded(ChannelHandlerContext ctx) {
+		// Do nothing.
 	}
 
 	@Override
@@ -81,6 +73,21 @@ final class CreateAccountHandler extends EntryHandler {
 			byte[] osNameBytes = new byte[msg.readableBytes()];
 			msg.readBytes(osNameBytes);
 			osName = new String(osNameBytes);
+		}
+		case FETCH_REQUIREMENTS -> {
+			ByteBuf payload = ctx.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.ENTRY.id);
+			payload.writeInt(DatabaseSettings.Client.Username.REQUIREMENTS.getMaxLength());
+			payload.writeInt(DatabaseSettings.Client.Username.REQUIREMENTS.getInvalidCharacters().length());
+			payload.writeBytes(DatabaseSettings.Client.Username.REQUIREMENTS.getInvalidCharacters().getBytes());
+
+			payload.writeInt(DatabaseSettings.Client.Password.REQUIREMENTS.getMaxLength());
+			payload.writeFloat(DatabaseSettings.Client.Password.REQUIREMENTS.getMinEntropy());
+			payload.writeBytes(DatabaseSettings.Client.Password.REQUIREMENTS.getInvalidCharacters().getBytes());
+
+			ctx.channel().writeAndFlush(payload);
+
+			getLogger().debug("Sending credential requirements!");
 		}
 		}
 
@@ -117,15 +124,17 @@ final class CreateAccountHandler extends EntryHandler {
 			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
 
 			ByteBuf payload = ctx.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.ENTRY.id);
 			payload.writeBoolean(resultHolder.isSuccessful());
 			payload.writeBytes(resultMessageBytes);
 			ctx.channel().writeAndFlush(payload);
-			
+
 			if (resultHolder.isSuccessful()) {
 				super.registrationSuccessful(ctx);
 			} else {
-				EntryHandler.registrationFailed(ctx);
+//				EntryHandler.registrationFailed(ctx);
 			}
+
 		}
 	}
 

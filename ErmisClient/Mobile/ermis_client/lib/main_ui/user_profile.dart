@@ -80,7 +80,6 @@ class PersonalProfilePhoto extends StatefulWidget {
 }
 
 class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
-
   Uint8List? _profileBytes = Client.instance().profilePhoto;
 
   @override

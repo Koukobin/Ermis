@@ -37,9 +37,9 @@ public final class PasswordComplexityChecker {
 	 * Password entropy estimator
 	 */
 	private static final Nbvcxz nbvcxz;
-	
+
 	static {
-		
+
 		/*
 		 * A map of excluded words on a per-user basis using a hypothetical "User"
 		 * object that contains this info
@@ -60,7 +60,7 @@ public final class PasswordComplexityChecker {
 	private Requirements requirements;
 
 	public PasswordComplexityChecker() {}
-	
+
 	public PasswordComplexityChecker(Requirements requirements) {
 		this.requirements = requirements;
 	}
@@ -75,22 +75,21 @@ public final class PasswordComplexityChecker {
 	public void setRequirements(Requirements requirements) {
 		this.requirements = requirements;
 	}
-	
+
 	public boolean estimate(String password) {
 		return estimate(requirements, password);
 	}
-	
+
 	public static boolean estimate(Requirements requirements, String password) {
-		
 		// Check if password has exceeded minimum required entropy
 		Result result = nbvcxz.estimate(password);
-		
+
 		boolean hasPasswordExceededMinEntropy = requirements.getMinEntropy() > result.getEntropy();
-		
+
 		if (hasPasswordExceededMinEntropy) {
 			return false;
 		}
-		
+
 		return ComplexityCheckerUtil.estimate(requirements, password);
 	}
 
@@ -101,7 +100,6 @@ public final class PasswordComplexityChecker {
 
 	@Override
 	public boolean equals(Object obj) {
-		
 		if (this == obj) {
 			return true;
 		}
@@ -109,11 +107,11 @@ public final class PasswordComplexityChecker {
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-	
+
 		PasswordComplexityChecker other = (PasswordComplexityChecker) obj;
 		return Objects.equals(requirements, other.requirements);
 	}

@@ -15,6 +15,7 @@
  */
 
 
+import 'package:ermis_client/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 
 import '../client/client.dart';
@@ -24,7 +25,16 @@ import '../util/dialogs_utils.dart';
 import 'entry/entry_interface.dart';
 
 Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo) async {
-  await Client.instance().syncWithServer();
+  String serverVersion = await Client.instance().readServerVersion();
+
+  // Check if the first digit of the application version - which is also the most significant -
+  // matches the server version. For instance, app version 1.x.x should be compatible
+  // (theoretically at least) with server version 1.y.z; but not with server version 2.0.0! (Using "!" to avoid ambiguity with version dots)
+  if (AppConstants.applicationVersion.codeUnitAt(0) != serverVersion.codeUnitAt(0)) {
+    showToastDialog("Incompatible server version! Some things many not work as expected!");
+  }
+  
+  Client.instance().startMessageDispatcher();
   
   if (userInfo == null) {
     // Navigate to the Registration interface

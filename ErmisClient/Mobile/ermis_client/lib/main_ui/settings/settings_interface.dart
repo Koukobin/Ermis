@@ -56,7 +56,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             title: const DisplayName(),
             subtitle: const Text('Profile, change name, ID'),
             onTap: () {
-              pushHorizontalTransition(context, const ProfileSettings());
+              pushSlideTransition(context, const ProfileSettings());
             },
           ),
           ListTile(
@@ -64,7 +64,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Account'),
             subtitle: const Text('Privacy, security, change number'),
             onTap: () {
-              pushHorizontalTransition(context, const AccountSettings());
+              pushSlideTransition(context, const AccountSettings());
             },
           ),
           ListTile(
@@ -72,7 +72,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Chats'),
             subtitle: const Text('Theme, wallpapers, chat history'),
             onTap: () {
-              pushHorizontalTransition(context, const ThemeSettingsPage());
+              pushSlideTransition(context, const ThemeSettingsPage());
             },
           ),
           ListTile(
@@ -80,7 +80,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Notifications'),
             subtitle: const Text('Message, group, and call tones'),
             onTap: () {
-               pushHorizontalTransition(context, const NotificationSettings());
+               pushSlideTransition(context, const NotificationSettings());
             },
           ),
           ListTile(
@@ -96,7 +96,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Help'),
             subtitle: const Text('FAQ, contact us, terms and privacy policy'),
             onTap: () {
-              pushHorizontalTransition(context, const HelpSettings());
+              pushSlideTransition(context, const HelpSettings());
             },
           ),
           Divider(),
@@ -104,7 +104,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.link),
             title: const Text('Linked Devices'),
             onTap: () {
-              pushHorizontalTransition(context, const LinkedDevicesScreen());
+              pushSlideTransition(context, const LinkedDevicesScreen());
             },
           ),
           ListTile(

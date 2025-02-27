@@ -18,11 +18,11 @@ import 'dart:async';
 
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
+import 'package:ermis_client/main_ui/chats/interactive_user_avatar.dart';
 import 'package:ermis_client/main_ui/chats/temp.dart';
 import 'package:ermis_client/main_ui/settings/linked_devices_settings.dart';
 import 'package:ermis_client/main_ui/settings/settings_interface.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -35,7 +35,7 @@ import '../../client/client.dart';
 import '../../util/top_app_bar_utils.dart';
 
 void _pushMessageInterface(BuildContext context, ChatSession chatSession) {
-  pushHorizontalTransition(
+  pushSlideTransition(
       context,
       MessagingInterface(
         chatSessionIndex: chatSession.chatSessionIndex,
@@ -43,224 +43,59 @@ void _pushMessageInterface(BuildContext context, ChatSession chatSession) {
       ));
 }
 
-class InteractiveUserAvatar extends StatelessWidget {
-  final Uint8List imageBytes;
-  final bool isOnline;
-
-  static int _lastAvatarID = 0;
-  final int _avatarID;
-
-  final ChatSession chatSession;
-
-  InteractiveUserAvatar({
+class ChatUserAvatar extends InteractiveUserAvatar {
+  ChatUserAvatar({
     super.key,
-    required this.imageBytes,
-    required this.isOnline,
-    required this.chatSession,
-  }) : _avatarID = _lastAvatarID += 1;
-
-  @override
-  Widget build(BuildContext context) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
-    return InkWell(
-      splashColor: Colors.grey.withOpacity(0.3),
-      borderRadius: BorderRadius.circular(24),
-      onTap: () => _showAvatarDialog(context),
-      child: Stack(
-        children: [
-          Hero(
-            tag: "avarar-hero-$_avatarID",
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.grey[200],
-              backgroundImage: imageBytes.isEmpty ? null : MemoryImage(imageBytes),
-              child: imageBytes.isEmpty
-                  ? Icon(
-                      Icons.person,
-                      color: Colors.grey,
-                    )
-                  : null,
-            ),
-          ),
-          // Online/Offline Indicator
-          Positioned(
-            bottom: 0,
-            left: 30,
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: isOnline
-                    ? Colors.green
-                    : Colors.red, // Online or offline color
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: appColors.secondaryColor, // Border to separate the indicator from the avatar
-                  width: 1,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAvatarDialog(BuildContext context) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
-
-    Image? image;
-    if (imageBytes.isNotEmpty) {
-      Size imageDimensions = Size(550, 300);
-
-      image = Image.memory(
-        imageBytes,
-        width: imageDimensions.width,
-        height: imageDimensions.height,
-        fit: BoxFit.cover,
-      );
-    }
-
-    Navigator.of(context).push(
-      PageRouteBuilder(
-          opaque: false,
-          barrierDismissible: false,
-          pageBuilder: (context, _, __) {
-            bool isVisible = false;
-            bool isInitialized = false;
-            return StatefulBuilder(
-              builder: (context, void Function(VoidCallback) setState) {
-                if (!isInitialized) {
-                  isInitialized = true;
-                  Future.delayed(Duration(milliseconds: 50), () {
-                    setState(() {
-                      isVisible = true; // Trigger the animation after build
-                    });
-                  });
-                }
-
-                void popContext() {
-                  setState(() {
-                    isVisible = false;
-                    Future.delayed(
-                      Duration(milliseconds: 300),
-                      Navigator.of(context).pop,
-                    );
-                  });
-                }
-
-                return GestureDetector(
-                  onTap: popContext,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16.0, horizontal: 48.0),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                            child: InteractiveViewer(
-                              boundaryMargin: EdgeInsets.all(20),
-                              minScale: 1.0,
-                              maxScale: 8.0,
-                              child: Hero(
-                                tag: "avarar-hero-$_avatarID",
-                                child: Container(
-                                  color: appColors.tertiaryColor,
-                                  child: imageBytes.isEmpty
-                                      ? CircleAvatar(
-                                          radius: 180,
-                                          backgroundColor: Colors.grey[200],
-                                          backgroundImage: null,
-                                          child: Icon(
-                                            Icons.person,
-                                            size: 180,
-                                            color: Colors.grey,
-                                          ))
-                                      : image,
-                                ),
-                              ),
-                            ),
-                          ),
-                          AnimatedOpacity(
-                            opacity: isVisible ? 1.0 : 0.0,
-                            duration: Duration(milliseconds: 250),
-                            curve: Curves.easeIn,
-                            child: AnimatedSlide(
-                              offset: isVisible ? Offset.zero : Offset(0, 1),
-                              duration: Duration(milliseconds: 350),
-                              curve: Curves.easeIn,
-                              child: Container(
-                                color: appColors.tertiaryColor,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    IconButton(
-                                        onPressed: () {
-                                          popContext();
-                                          _pushMessageInterface(
-                                              context, chatSession);
-                                        },
-                                        icon: Icon(
-                                          Icons.chat_outlined,
-                                          color: appColors.primaryColor,
-                                        )),
-                                    IconButton(
-                                        onPressed: () {
-                                          popContext();
-                                          showSnackBarDialog(
-                                              context: context,
-                                              content:
-                                                  "Functionality not implemented yet!");
-                                        },
-                                        icon: Icon(
-                                          Icons.phone_outlined,
-                                          color: appColors.primaryColor,
-                                        )),
-                                    IconButton(
-                                        onPressed: () {
-                                          popContext();
-                                          showSnackBarDialog(
-                                              context: context,
-                                              content:
-                                                  "Functionality not implemented yet!");
-                                        },
-                                        icon: Icon(
-                                          Icons.video_call_outlined,
-                                          color: appColors.primaryColor,
-                                        )),
-                                    IconButton(
-                                        onPressed: () {
-                                          popContext();
-                                          showSnackBarDialog(
-                                              context: context,
-                                              content:
-                                                  "Functionality not implemented yet!");
-                                        },
-                                        icon: Icon(
-                                          Icons.info_outline,
-                                          color: appColors.primaryColor,
-                                        )),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          }),
-    );
-  }
+    required super.imageBytes,
+    required super.isOnline,
+    required super.chatSession,
+  }) : super(a: (BuildContext context, VoidCallback popContext) {
+          final appColors = Theme.of(context).extension<AppColors>()!;
+          return [
+            IconButton(
+                onPressed: () {
+                  popContext();
+                  _pushMessageInterface(context, chatSession);
+                },
+                icon: Icon(
+                  Icons.chat_outlined,
+                  color: appColors.primaryColor,
+                )),
+            IconButton(
+                onPressed: () {
+                  popContext();
+                  showSnackBarDialog(
+                      context: context,
+                      content: "Functionality not implemented yet!");
+                },
+                icon: Icon(
+                  Icons.phone_outlined,
+                  color: appColors.primaryColor,
+                )),
+            IconButton(
+                onPressed: () {
+                  popContext();
+                  showSnackBarDialog(
+                      context: context,
+                      content: "Functionality not implemented yet!");
+                },
+                icon: Icon(
+                  Icons.video_call_outlined,
+                  color: appColors.primaryColor,
+                )),
+            IconButton(
+                onPressed: () {
+                  popContext();
+                  showSnackBarDialog(
+                      context: context,
+                      content: "Functionality not implemented yet!");
+                },
+                icon: Icon(
+                  Icons.info_outline,
+                  color: appColors.primaryColor,
+                )),
+          ];
+        });
 }
 
 class Chats extends StatefulWidget {
@@ -320,6 +155,11 @@ class ChatsState extends TempState<Chats> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     _focusNode.dispose();
@@ -347,7 +187,7 @@ class ChatsState extends TempState<Chats> {
                 });
                 // Variable to skip first call of focusNode which will be by textfield
                 bool hasSkippedInitialFocus = false;
-                listener() {
+                void listener() {
                   if (!hasSkippedInitialFocus) {
                     hasSkippedInitialFocus = true;
                     return;
@@ -381,7 +221,7 @@ class ChatsState extends TempState<Chats> {
                 ),
                 PopupMenuItem(
                   value: () {
-                    pushHorizontalTransition(context, const LinkedDevicesScreen());
+                    pushSlideTransition(context, const LinkedDevicesScreen());
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
                   child: const Text(
@@ -391,7 +231,7 @@ class ChatsState extends TempState<Chats> {
                 ),
                 PopupMenuItem(
                   value: () {
-                    pushHorizontalTransition(context, const SettingsScreen());
+                    pushSlideTransition(context, const SettingsScreen());
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
                   child: const Text(
@@ -416,7 +256,7 @@ class ChatsState extends TempState<Chats> {
                 ),
               ],
             ),
-            SizedBox(width: 15),
+            const SizedBox(width: 15),
           ],
         ));
   }
@@ -597,7 +437,7 @@ class ChatsState extends TempState<Chats> {
                 style: TextStyle(fontSize: 14),
               ),
       ),
-      leading: InteractiveUserAvatar(
+      leading: ChatUserAvatar(
           imageBytes: chatSession.getMembers[0].getIcon,
           isOnline: chatSession.getMembers[0].isActive,
           chatSession: chatSession),
@@ -679,6 +519,7 @@ class SendChatRequestButton extends StatefulWidget {
   static void showAddChatRequestDialog(BuildContext context) async {
     final String? input = await showInputDialog(
         context: context,
+        keyboardType: TextInputType.number,
         vsync: _SendChatRequestButtonState._vsync,
         title: "Send Chat Request",
         hintText: "Enter client id");

@@ -45,22 +45,21 @@ public final class PrimaryDecoder extends Decoder {
 
 	@Override
 	public boolean decodeMessage(ChannelHandlerContext ctx, ByteBuf in) {
-		int length = in.capacity();
+		LOGGER.debug("Message received");
+		int length;
 		try {
 			// Decoder supports both Zstd and Lz4 compression
 			if (CompressionDetector.isZstdCompressed(in)) {
-				length = zstdDecompress(in, length);
+				length = zstdDecompress(in);
 			} else if (CompressionDetector.isLz4Compressed(in)) {
-				lz4Decompress(in);
+				length = lz4Decompress(in);
 			} else {
+				length = in.capacity();
 				LOGGER.debug("Message not compressed (or compression algorithm is not supported)");
 			}
 		} catch (Exception e) {
-			byte[] fuck = new byte[length];
-			in.readBytes(fuck);
-			LOGGER.debug("{} thrown for message {}; details: {}",
+			LOGGER.debug("{} thrown for message; details: {}",
 					e.getClass().getSimpleName(),
-					ByteBufUtil.hexDump(fuck),
 					Throwables.getStackTraceAsString(e));
 			Decoder.createErrorResponse(ctx, "Decompression failed");
 			return false; // Decompression failed, terminate the method early
@@ -93,37 +92,46 @@ public final class PrimaryDecoder extends Decoder {
 		return true;
 	}
 
-	private static int zstdDecompress(ByteBuf in, int compressedLength) {
+	private static int zstdDecompress(ByteBuf in) {
 		in.markReaderIndex();
-		byte[] compressedData = new byte[compressedLength];
+		byte[] compressedData = new byte[in.capacity()];
 		in.readBytes(compressedData);
 		in.resetReaderIndex();
 
-		in.writerIndex(0);
-		byte[] decompressedData = Zstd.decompress(compressedData, (int) Zstd.decompressedSize(compressedData));
+		int decompressedSize = (int) Zstd.decompressedSize(compressedData);
+		byte[] decompressedData = Zstd.decompress(compressedData, decompressedSize);
 
+		in.writerIndex(0);
 		in.writeBytes(decompressedData);
+
 		return decompressedData.length;
 	}
 
-	private static ByteBuf lz4Decompress(ByteBuf in) {
-		int compressedLength = in.readInt();
-		byte[] compressedData = new byte[compressedLength];
+	private static int lz4Decompress(ByteBuf in) {
+		in.markReaderIndex();
+		byte[] compressedData = new byte[in.capacity()];
 		in.readBytes(compressedData);
+		in.resetReaderIndex();
 
-		LZ4Factory factory = LZ4Factory.fastestInstance();
-		LZ4SafeDecompressor decompressor = factory.safeDecompressor();
-		
+		class Lz4Decompressor {
+			private static final LZ4SafeDecompressor decompressor;
+
+			static {
+				LZ4Factory factory = LZ4Factory.fastestInstance();
+				decompressor = factory.safeDecompressor();
+			}
+			
+			private Lz4Decompressor() {}
+		}
+
 		int decompressedLength = LZ4DecompressorWithLength.getDecompressedLength(compressedData);
-		
 		byte[] decompressedData = new byte[decompressedLength];
-		decompressor.decompress(compressedData, decompressedData);
+		Lz4Decompressor.decompressor.decompress(compressedData, decompressedData);
 
-		in.clear();
+		in.writerIndex(0);
 		in.writeBytes(decompressedData);
-		in.capacity(decompressedData.length);
-		
-		return null;
+
+		return decompressedData.length;
 	}
 
 	private static int determineMaxLength(ChannelHandlerContext ctx, ByteBuf data, ClientMessageType messageType) {
@@ -147,7 +155,7 @@ public final class PrimaryDecoder extends Decoder {
 			}
 
 			int maxLength = getMaxLengthForContentType(ctx, contentType);
-			if (maxLength == -1) {
+			if (maxLength == -1 || data.capacity() > maxLength) {
 				ByteBuf messageRejected = ctx.alloc().ioBuffer();
 				messageRejected.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
 				messageRejected.writeInt(MessageDeliveryStatus.REJECTED.id);
