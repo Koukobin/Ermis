@@ -14,7 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -100,28 +99,24 @@ class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog>
 }
 
 Future<void> showWhatsAppDialog(
-    BuildContext context, String content, VoidCallback onPressed) async {
+  BuildContext context, {
+  required String title,
+  required List<TextButton> buttons,
+  required String content,
+}) async {
   await showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) => WhatsAppPopupDialog(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("Dialog!", style: TextStyle(fontSize: 18)),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: onPressed,
-            child: Text("Close"),
-          ),
-        ],
-      ),
-    ),
-  );
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => WhatsAppPopupDialog(
+            child: AlertDialog(
+              title: Text(title),
+              content: Text(content),
+              actions: [...buttons],
+            ),
+          ));
 }
 
-Future<void> confirmDialog(BuildContext context, String content,
-    GestureTapCallback runOnConfirmation) async {
+Future<void> showConfirmationDialog(BuildContext context, String content, GestureTapCallback runOnConfirmation) async {
   final bool? shouldExit = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
@@ -132,11 +127,11 @@ Future<void> confirmDialog(BuildContext context, String content,
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false), // Cancel
-              child: const Text("No"),
+              child: const Text("No", style: TextStyle(fontSize: 18)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true), // Confirm
-              child: const Text("Yes"),
+              child: const Text("Yes", style: TextStyle(fontSize: 18)),
             ),
           ],
         ),

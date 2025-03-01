@@ -65,7 +65,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
             gradient: LinearGradient(
           colors: [
             appColors.secondaryColor,
-            Color(0xFF002200), // Very dark green
+            appColors.tertiaryColor, // Very dark green
             Color(0xFF00FF00), // Neon green glow
           ],
           begin: Alignment.topRight,

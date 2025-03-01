@@ -569,12 +569,12 @@ class _SendChatRequestButtonState extends State<SendChatRequestButton> with Tick
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: AnimatedOpacity(
-          duration: Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 200),
           opacity: _widgetOpacity,
           child: FloatingActionButton(
             onPressed: () => SendChatRequestButton.showAddChatRequestDialog(context),
             backgroundColor: appColors.primaryColor,
-            child: Icon(Icons.add),
+            child: const Icon(Icons.add),
           ),
         ),
       ),
@@ -638,14 +638,14 @@ class _SearchFieldState extends State<SearchField> {
               ),
               filled: true,
               fillColor: Colors.white.withOpacity(0.2),
-              contentPadding: EdgeInsets.symmetric(vertical: 5),
+              contentPadding: const EdgeInsets.symmetric(vertical: 5),
             ),
           ),
           child: TextField(
               focusNode: widget.focusNode,
               controller: widget.searchController,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 suffixIcon: GestureDetector(
                     onTap: () {
                       setState(() => _opacity = 0.0);
@@ -654,7 +654,7 @@ class _SearchFieldState extends State<SearchField> {
                         widget.searchController.clear();
                       });
                     },
-                    child: Icon(Icons.clear)),
+                    child: const Icon(Icons.clear)),
                 hintText: 'Search...',
                 fillColor: appColors.tertiaryColor,
                 filled: true,
@@ -666,8 +666,10 @@ class _SearchFieldState extends State<SearchField> {
 }
 
 class AnimatedDropdownMenu extends StatefulWidget {
+  const AnimatedDropdownMenu({super.key});
+
   @override
-  _AnimatedDropdownMenuState createState() => _AnimatedDropdownMenuState();
+  State<AnimatedDropdownMenu> createState() => _AnimatedDropdownMenuState();
 }
 
 class _AnimatedDropdownMenuState extends State<AnimatedDropdownMenu>
@@ -720,7 +722,7 @@ class _AnimatedDropdownMenuState extends State<AnimatedDropdownMenu>
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
-              BoxShadow(
+              const BoxShadow(
                 color: Colors.black12,
                 blurRadius: 6,
                 offset: Offset(0, 2),
@@ -781,7 +783,7 @@ class _AnimatedDropdownMenuState extends State<AnimatedDropdownMenu>
                                     ? Colors.blue
                                     : Colors.transparent,
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Text(
                                 option,
                                 style: TextStyle(

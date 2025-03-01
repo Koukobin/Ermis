@@ -24,9 +24,7 @@ import java.util.function.Consumer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.util.concurrent.Promise;
 
 /**
  * @author Ilias Koukovinis
@@ -84,7 +82,7 @@ public class ActiveChatSessions {
 			execute.accept(payload.duplicate(), channel);
 		}
 	}
-	
+
 	public static void broadcastToChatSessionExcept(ByteBuf payload, ChatSession chatSession, Channel excludeChannel, Consumer<ChannelFuture> run) {
 		List<ClientInfo> members = chatSession.getActiveMembers();
 
@@ -98,9 +96,8 @@ public class ActiveChatSessions {
 
 			channel.writeAndFlush(payload.duplicate()).addListener((ChannelFuture f) -> run.accept(f));
 		}
-		
 	}
-	
+
 	private static void assessReferenceCount(int numberOfSends, ByteBuf payload) {
 		/*
 		 * Increase reference count by the amount of clients that this message is gonna

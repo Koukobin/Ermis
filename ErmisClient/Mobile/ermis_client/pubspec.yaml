@@ -36,6 +36,7 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   font_awesome_flutter: ^10.8.0
   visibility_detector: ^0.3.3
+  flutter_keyboard_visibility: ^6.0.0
 
   # Storage & Database
   sqflite: ^2.4.1

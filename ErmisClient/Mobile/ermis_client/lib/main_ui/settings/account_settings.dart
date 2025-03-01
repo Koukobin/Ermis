@@ -65,12 +65,12 @@ class _AccountSettingsState extends State<AccountSettings> {
         child: ListView(
           children: [
             ListTile(
-              leading: Icon(Icons.person_add_alt),
-              title: Text('Add account'),
+              leading: const Icon(Icons.person_add_alt),
+              title: const Text('Add account'),
               onTap: () async {
                 await showModalBottomSheet(
                   context: context,
-                  shape: RoundedRectangleBorder(
+                  shape: const RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(20)),
                   ),
@@ -81,14 +81,14 @@ class _AccountSettingsState extends State<AccountSettings> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Center(
+                          const Center(
                             child: Text(
                               "Profiles",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           ListTile(
                             leading: const PersonalProfilePhoto(),
                             title: Text(Client.instance().displayName!, style: TextStyle(fontSize: 18)),
@@ -99,24 +99,24 @@ class _AccountSettingsState extends State<AccountSettings> {
                               leading: UserProfilePhoto(profileBytes: account.profilePhoto),
                               title: Text(account.name(), style: TextStyle(fontSize: 18)),
                               onTap: () {
-                                showLogoutConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
-                                ServerInfo serverDetails = Client.instance().serverInfo;
-                                final DBConnection conn = ErmisDB.getConnection();
-                                List<LocalAccountInfo> allUserAccounts = await conn.getUserAccounts(serverDetails);
-                                LocalAccountInfo? matchingAccount;
+                                showConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
+                                  ServerInfo serverDetails = Client.instance().serverInfo;
+                                  final DBConnection conn = ErmisDB.getConnection();
+                                  List<LocalAccountInfo> allUserAccounts = await conn.getUserAccounts(serverDetails);
+                                  LocalAccountInfo? matchingAccount;
 
-                                for (LocalAccountInfo userAccount in allUserAccounts) {
-                                  if (userAccount.email == account.email) {
-                                    matchingAccount = userAccount;
+                                  for (LocalAccountInfo userAccount in allUserAccounts) {
+                                    if (userAccount.email == account.email) {
+                                      matchingAccount = userAccount;
+                                    }
                                   }
-                                }
 
-                                Client.instance().commands.switchAccount();
-                                setupClientSession(context, matchingAccount);
+                                  Client.instance().commands.switchAccount();
+                                  setupClientSession(context, matchingAccount, keepPreviousRoutes: true);
                                 });
                               },
                             ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -124,19 +124,14 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
-                                  child: Text(
-                                    "Close",
-                                  )),
+                                  child: const Text("Close")),
                               TextButton(
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                     Client.instance().commands.addNewAccount();
-                                    pushSlideTransition(context,
-                                        const CreateAccountInterface());
+                                    pushSlideTransition(context, const CreateAccountInterface());
                                   },
-                                  child: Text(
-                                    "Add new account",
-                                  ))
+                                  child: const Text("Add new account"))
                             ],
                           ),
                         ],
@@ -147,8 +142,8 @@ class _AccountSettingsState extends State<AccountSettings> {
               },
             ),
             ListTile(
-              leading: Icon(FontAwesomeIcons.solidTrashCan, color: Colors.redAccent,),
-              title: Text('Delete account'),
+              leading: const Icon(FontAwesomeIcons.solidTrashCan, color: Colors.redAccent),
+              title: const Text('Delete account'),
               onTap: () {
                 pushSlideTransition(context, const DeleteAccountSettings());
               },

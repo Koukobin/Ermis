@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/main_ui/splash_screen.dart';
+import 'package:ermis_client/util/app_lifecycle_service.dart';
 import 'package:ermis_client/util/notifications_util.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/foundation.dart';
@@ -125,6 +126,8 @@ void main() async {
   );
 
   await AppConstants.initialize();
+  
+  AppLifecycleService.init();
 
   await NotificationService.init();
   tz.initializeTimeZones();

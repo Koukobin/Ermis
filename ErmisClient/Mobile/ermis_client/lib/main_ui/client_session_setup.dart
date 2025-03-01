@@ -24,7 +24,7 @@ import '../util/database_service.dart';
 import '../util/dialogs_utils.dart';
 import 'entry/entry_interface.dart';
 
-Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo) async {
+Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo, {bool keepPreviousRoutes = false}) async {
   String serverVersion = await Client.instance().readServerVersion();
 
   // Check if the first digit of the application version - which is also the most significant -
@@ -33,15 +33,15 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
   if (AppConstants.applicationVersion.codeUnitAt(0) != serverVersion.codeUnitAt(0)) {
     showToastDialog("Incompatible server version! Some things many not work as expected!");
   }
-  
+
   Client.instance().startMessageDispatcher();
-  
+
   if (userInfo == null) {
     // Navigate to the Registration interface
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => CreateAccountInterface()),
-      (route) => false, // Removes all previous routes.
+      (route) => keepPreviousRoutes, // Removes all previous routes.
     );
     return;
   }
@@ -51,7 +51,7 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => CreateAccountInterface()),
-      (route) => false, // Removes all previous routes.
+      (route) => keepPreviousRoutes, // Removes all previous routes.
     );
     return;
   }

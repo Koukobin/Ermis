@@ -86,12 +86,12 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat Theme Settings"),
+        title: const Text("Chat Theme Settings"),
         backgroundColor: appColors.primaryColor,
         actions: [
           IconButton(
             onPressed: _saveSettingsJson,
-            icon: Icon(Icons.save),
+            icon: const Icon(Icons.save),
             tooltip: "Save Settings",
           ),
         ],
@@ -101,12 +101,12 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "Theme Mode",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SwitchListTile(
-              title: Text("System Default"),
+              title: const Text("System Default"),
               secondary: Icon(Icons.settings,
                   color: appColors.primaryColor),
               value: _useSystemDefault,
@@ -154,8 +154,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                   ),
               ],
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               "Chat Backdrop",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -182,8 +182,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               },
             ),
             if (_selectedBackdrop == ChatBackDrop.custom) ...[
-              SizedBox(height: 20),
-              Text("Upload Custom Image"),
+              const SizedBox(height: 20),
+              const Text("Upload Custom Image"),
               OutlinedButton.icon(
                 onPressed: () {
                   // Implement file picker or upload functionality
@@ -195,12 +195,12 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 label: Text("Choose Image"),
               ),
             ] else if (_selectedBackdrop == ChatBackDrop.gradient) ...[
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 "Select Gradient Colors",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -220,7 +220,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     },
                     child: Text("Start Color"),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () async {
                       Color? chosenColor = await showColorPickerDialog();
@@ -239,7 +239,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
                 height: 150,
                 width: double.infinity,
@@ -258,7 +258,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 ),
               ),
             ],
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Center(
               child: ElevatedButton(
                 onPressed: _saveSettingsJson,
@@ -267,7 +267,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ),
-                child: Text("Save Changes"),
+                child: const Text("Save Changes"),
               ),
             )
           ],

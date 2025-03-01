@@ -20,6 +20,7 @@ import 'package:ermis_client/util/device_utils.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/entropy_calculator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import '../../client/common/entry/added_info.dart';
 import '../../client/common/entry/create_account_info.dart';
@@ -100,10 +101,17 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
               height: 100,
             ),
 
+            KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
+              if (isKeyboardVisible) {
+                return const SizedBox.shrink();
+              }
+              return Container(margin: const EdgeInsets.only(top: 30));
+            }),
+
             // Form section for login
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 30),
+                padding: const EdgeInsets.only(top: 8),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -170,19 +178,19 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                             CreateAccountCredential.password:
                                 _passwordController.text,
                           });
-
+                      
                           ResultHolder entryResult = await createAccountEntry.getCredentialsExchangeResult();
-
+                      
                           bool isSuccessful = entryResult.isSuccessful;
                           String resultMessage = entryResult.message;
-
+                      
                           if (!isSuccessful) {
                             showSnackBarDialog(context: context, content: resultMessage);
                             return;
                           }
-
+                      
                           isSuccessful = await performVerification(context, _emailController.text);
-
+                      
                           if (isSuccessful) {
                             Client.instance().startMessageHandler();
                             await showLoadingDialog(context,
@@ -195,11 +203,9 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                               (route) => false, // Removes all previous routes.
                             );
                           }
-
                         },
                       )
-                    ]
-                ),
+                    ]),
               ),
             ),
 
@@ -218,7 +224,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                 Navigator.of(context).push(createVerticalTransition(
                     LoginInterface(), DirectionYAxis.bottomToTop));
               },
-            )
+            ),
           ],
         ),
       ),
@@ -279,10 +285,17 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
               height: 100,
             ),
 
+            KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
+              if (isKeyboardVisible) {
+                return const SizedBox.shrink();
+              }
+              return Container(margin: const EdgeInsets.only(top: 32));
+            }),
+
             // Form section for login
             Flexible(
               child: Padding(
-                padding: const EdgeInsets.only(top: 40),
+                padding: const EdgeInsets.only(top: 8),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,

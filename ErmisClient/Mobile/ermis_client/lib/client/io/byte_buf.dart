@@ -104,7 +104,7 @@ class ByteBuf {
   }
 
   /// Writes a boolean value (1 byte: 1 for `true`, 0 for `false`).
-  void writeBoolean1(bool boolean) {
+  void writeBoolean(bool boolean) {
     writeBytes(Uint8List.fromList([boolean ? 1 : 0]));
   }
 

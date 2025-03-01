@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
@@ -28,7 +29,6 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:vibration/vibration.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../client/app_event_bus.dart';
 import '../../constants/app_constants.dart';
@@ -43,7 +43,10 @@ import '../../util/dialogs_utils.dart';
 import '../../util/file_utils.dart';
 import '../../util/notifications_util.dart';
 import '../../util/top_app_bar_utils.dart';
+import '../scroll/infinite_scroll_list.dart';
 import 'user_avatar.dart';
+
+enum _IsOnScreen { hidden, visible }
 
 class MessagingInterface extends StatefulWidget {
   final int chatSessionIndex;
@@ -59,24 +62,22 @@ class MessagingInterface extends StatefulWidget {
   State<MessagingInterface> createState() => MessagingInterfaceState();
 }
 
-class MessagingInterfaceState extends LoadingState<MessagingInterface>
-    with WidgetsBindingObserver {
-  /// Used to determine whether to send push notification or not
-  bool isOnScreen = false;
+class MessagingInterfaceState extends LoadingState<MessagingInterface> with WidgetsBindingObserver {
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
 
-  /// Chat session user is currently active in
-  static late int _activeChatSessionIndex;
-
+  /// Used to determine whether to send push notification or not
+  static final Map<ChatSession, _IsOnScreen> _sessions = {};
+  
   late final int _chatSessionIndex;
   late ChatSession _chatSession; // Not final because can be updated by server
 
   List<Message> _messages = []; // Not final because can be updated by server
   final TextEditingController _inputController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
 
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
+
+  final List<StreamSubscription<Object>> eventBusSubscriptions = [];
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -118,7 +119,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
   }
 
   void _setupListeners() {
-    AppEventBus.instance.on<WrittenTextEvent>().listen((event) {
+    if (_sessions.containsKey(_chatSession)) {
+      _sessions[_chatSession] = _IsOnScreen.visible;
+      return;
+    }
+    _sessions[_chatSession] = _IsOnScreen.visible;
+    
+    final a = AppEventBus.instance.on<WrittenTextEvent>().listen((event) {
       if (!mounted) return;
       List<Message> messages = event.chatSession.getMessages;
 
@@ -133,20 +140,20 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
         messages: messages,
       );
     });
+    eventBusSubscriptions.add(a);
 
-    AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
+    final b = AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
       ChatSession chatSession = event.chatSession;
 
       // Since many app event bus listeners of these will exist for each unique chat session...too lazy to write rest
       if (_chatSessionIndex != chatSession.chatSessionIndex) return;
 
       Message msg = event.message;
-      _addMessage(msg);
 
-      // If message originates from the active chat session and the app is in
+      // If message does not originate from the active chat session or the app is in
       // the active state (resumed), abstain from showing the notification
-      if (_activeChatSessionIndex == chatSession.chatSessionIndex &&
-          _appLifecycleState == AppLifecycleState.resumed) {
+      if (_sessions[_chatSession] == _IsOnScreen.visible && _appLifecycleState == AppLifecycleState.resumed) {
+        setState(() {}); // Since messages was updated by the message handler simply setState
         return;
       }
 
@@ -185,12 +192,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
         replyCallBack: _sendTextMessage,
       );
     });
+    eventBusSubscriptions.add(b);
 
-    AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
+    final c = AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
       LoadedInMemoryFile file = event.file;
-
-      String? filePath =
-          await saveFileToDownloads(file.fileName, file.fileBytes);
+      String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
 
       if (!mounted) return; // Probably impossible but still check just in case
       if (filePath != null) {
@@ -198,19 +204,21 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
         return;
       }
 
-      showExceptionDialog(
-          context, "An error occured while trying to save file");
+      showExceptionDialog(context, "An error occurred while trying to save the file");
     });
+    eventBusSubscriptions.add(c);
 
-    AppEventBus.instance.on<ImageDownloadedEvent>().listen((event) async {
+    final d = AppEventBus.instance.on<ImageDownloadedEvent>().listen((event) async {
       _updateImageMessage(event.file, event.messageID);
     });
+    eventBusSubscriptions.add(d);
 
-    AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>().listen((event) {
+    final e = AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>().listen((event) {
       showToastDialog("Message deletion was unsuccessful");
     });
+    eventBusSubscriptions.add(e);
 
-    AppEventBus.instance.on<MessageDeletedEvent>().listen((event) async {
+    final f = AppEventBus.instance.on<MessageDeletedEvent>().listen((event) async {
       ChatSession session = event.chatSession;
       int messageID = event.messageId;
 
@@ -221,25 +229,23 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       _messagesBeingEdited.removeWhere((Message message) => message.messageID == messageID);
       _messages.removeWhere((Message message) => message.messageID == messageID);
 
-      // If mounted, rebuild UI
       if (mounted) {
         setState(() {});
       }
     });
+    eventBusSubscriptions.add(f);
 
-    AppEventBus.instance.on<MessageDeliveryStatusEvent>().listen((event) async {
+    final g = AppEventBus.instance.on<MessageDeliveryStatusEvent>().listen((event) async {
       if (!mounted) return;
       Message message = event.message;
 
       if (message.chatSessionID == _chatSession.chatSessionID) {
-        // Simply recall build since message delivery status
-        // has already been updated by the message handler.
-        // Yeah, I know. Extremely shitty code.
         setState(() {});
       }
     });
+    eventBusSubscriptions.add(g);
 
-    AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
+    final h = AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
       if (!mounted) return;
 
       setState(() {
@@ -247,6 +253,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
             session.chatSessionID == _chatSession.chatSessionID);
       });
     });
+    eventBusSubscriptions.add(h);
 
     VoiceCallHandler.startListeningForIncomingCalls(context);
   }
@@ -254,7 +261,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _chatSession.setMessages(_messages);
+    _sessions[_chatSession] = _IsOnScreen.hidden;
     super.dispose();
   }
 
@@ -303,30 +310,17 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
   @override
   Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-    _activeChatSessionIndex = _chatSessionIndex;
-    return VisibilityDetector(
-      key: Key('$_chatSessionIndex'),
-      onVisibilityChanged: (info) {
-        if (!mounted) {
-          isOnScreen = info.visibleFraction > 0.5;
-          return;
-        }
-        setState(() {
-          isOnScreen = info.visibleFraction > 0.5; // More than 50% visible
-        });
-      },
-      child: Scaffold(
-        appBar: _isEditingMessage
-            ? _buildEditMessageAppBar(appColors)
-            : _buildMainAppBar(appColors),
-        body: Container(
-          decoration: _getDecoration(SettingsJson().chatsBackDrop),
-          child: Column(
-            children: [
-              _buildMessageList(appColors),
-              _buildInputField(appColors),
-            ],
-          ),
+    return Scaffold(
+      appBar: _isEditingMessage
+          ? _buildEditMessageAppBar(appColors)
+          : _buildMainAppBar(appColors),
+      body: Container(
+        decoration: _getDecoration(SettingsJson().chatsBackDrop),
+        child: Column(
+          children: [
+            _buildMessageList(appColors),
+            _buildInputField(appColors),
+          ],
         ),
       ),
     );
@@ -338,7 +332,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: appColors.inferiorColor),
         onPressed: () {
-          _activeChatSessionIndex = -1;
           Navigator.pop(context);
         },
       ),
@@ -378,43 +371,44 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface>
 
   Widget _buildMessageList(AppColors appColors) {
     return Expanded(
-      child: RefreshIndicator(
-        onRefresh: () async {
-          // If user reaches top of conversation retrieve more messages
-          Client.instance().commands.fetchWrittenText(_chatSessionIndex);
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: ListView.builder(
-            controller: _scrollController,
-            reverse: true,
-            itemCount: _messages.length,
-            itemBuilder: (context, index) {
-              final Message message = _messages[_messages.length - index - 1];
-              return GestureDetector(
-                  onLongPress: () {
-                    setState(() {
-                      _isEditingMessage = true;
-                      if (!_messagesBeingEdited.add(message)) {
-                        _messagesBeingEdited.remove(message);
-                      }
-                    });
-                  },
-                  child: Container(
-                      decoration: _isEditingMessage &&
-                              _messagesBeingEdited.contains(message)
-                          ? BoxDecoration(
-                              color: appColors.secondaryColor.withOpacity(0.4),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.white, width: 1.5),
-                            )
-                          : null,
-                      child: MessageBubble(
-                        message: message,
-                        appColors: appColors,
-                      )));
-            },
-          ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: InfiniteScrollList(
+          reverse: true,
+          itemCount: _messages.length,
+          everythingLoaded: true,
+          itemBuilder: (context, index) {
+            final Message message = _messages[_messages.length - index - 1];
+            return GestureDetector(
+                onLongPress: () {
+                  setState(() {
+                    _isEditingMessage = true;
+                    if (!_messagesBeingEdited.add(message)) {
+                      _messagesBeingEdited.remove(message);
+                    }
+                  });
+                },
+                child: Container(
+                    decoration: _isEditingMessage &&
+                            _messagesBeingEdited.contains(message)
+                        ? BoxDecoration(
+                            color: appColors.secondaryColor.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          )
+                        : null,
+                    child: MessageBubble(
+                      message: message,
+                      appColors: appColors,
+                    )));
+          },
+          reLoading2: () {
+            // If user reaches top of conversation retrieve more messages
+            Client.instance().commands.fetchWrittenText(_chatSessionIndex);
+          },
+          reLoading: () {
+            Client.instance().commands.fetchWrittenText(_chatSessionIndex);
+          },
         ),
       ),
     );
@@ -760,25 +754,35 @@ class MessageBubble extends StatelessWidget {
                 tag: '${message.messageID}',
                 child: Image.memory(message.imageBytes!),
               );
-        return GestureDetector(
-          onDoubleTap: () {
-            if (image == null) {
-              Client.instance()
-                  .commands
-                  .downloadImage(message.messageID, message.chatSessionIndex);
-            }
-          },
-          child: Container(
-            color: appColors.secondaryColor,
-            child: image == null
-                ? null
-                : GestureDetector(
-                    onTap: () {
-                      // Display image fullscreen
-                      showImageDialog(context, image);
-                    },
-                    child: FittedBox(fit: BoxFit.contain, child: image)),
-          ),
+        bool isDownloading = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return GestureDetector(
+              onDoubleTap: () {
+                if (image == null) {
+                  setState(() {
+                    isDownloading = true;
+                  });
+                  Client.instance()
+                      .commands
+                      .downloadImage(message.messageID, message.chatSessionIndex);
+                }
+              },
+              child: Container(
+                color: appColors.secondaryColor,
+                child: image == null
+                    ? isDownloading
+                        ? LinearProgressIndicator()
+                        : null
+                    : GestureDetector(
+                        onTap: () {
+                          // Display image fullscreen
+                          showImageDialog(context, image);
+                        },
+                        child: FittedBox(fit: BoxFit.contain, child: image)),
+              ),
+            );
+          }
         );
     }
   }
