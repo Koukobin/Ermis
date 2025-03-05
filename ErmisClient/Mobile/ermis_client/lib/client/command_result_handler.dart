@@ -140,22 +140,21 @@ class CommandResultHandler {
   static void handle(ClientCommandResultType commandResult, ByteBuf msg) {
     switch (commandResult) {
       case ClientCommandResultType.downloadFile:
-        var fileNameLength = msg.readInt32();
-        var fileNameBytes = msg.readBytes(fileNameLength);
-        var fileBytes = msg.readBytes(msg.readableBytes);
+        final fileNameLength = msg.readInt32();
+        final fileNameBytes = msg.readBytes(fileNameLength);
+        final fileBytes = msg.readBytes(msg.readableBytes);
 
-        final file = LoadedInMemoryFile(String.fromCharCodes(fileNameBytes), fileBytes);
+        final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
         _eventBus.fire(FileDownloadedEvent(file));
         break;
       case ClientCommandResultType.downloadImage:
-        var messageID = msg.readInt32();
-        var fileNameLength = msg.readInt32();
-        var fileNameBytes = msg.readBytes(fileNameLength);
-        var fileBytes = msg.readBytes(msg.readableBytes);
+        final messageID = msg.readInt32();
+        final fileNameLength = msg.readInt32();
+        final fileNameBytes = msg.readBytes(fileNameLength);
+        final fileBytes = msg.readBytes(msg.readableBytes);
 
-        var file = LoadedInMemoryFile(
-            String.fromCharCodes(fileNameBytes), fileBytes);
+        final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
         _eventBus.fire(ImageDownloadedEvent(file, messageID));
         break;
@@ -171,13 +170,13 @@ class CommandResultHandler {
         break;
       case ClientCommandResultType.getChatSessions:
         Info.chatSessions = [];
+
         int chatSessionsSize = msg.readInt32();
         for (int i = 0; i < chatSessionsSize; i++) {
           int chatSessionIndex = i;
           int chatSessionID = msg.readInt32();
 
-          ChatSession chatSession =
-              ChatSession(chatSessionID, chatSessionIndex);
+          ChatSession chatSession = ChatSession(chatSessionID, chatSessionIndex);
 
           int membersSize = msg.readInt32();
           List<Member> members = <Member>[];
@@ -185,8 +184,7 @@ class CommandResultHandler {
             int memberClientID = msg.readInt32();
             bool isActive = msg.readBoolean();
             int usernameLength = msg.readInt32();
-            String username =
-                String.fromCharCodes(msg.readBytes(usernameLength));
+            String username = utf8.decode(msg.readBytes(usernameLength));
             Uint8List iconBytes = msg.readBytes(msg.readInt32());
 
             members.add(Member(username, memberClientID, iconBytes, isActive));
@@ -275,7 +273,7 @@ class CommandResultHandler {
         _eventBus.fire(WrittenTextEvent(chatSession));
         break;
       case ClientCommandResultType.deleteChatMessage:
-        int chatSessionID = msg.readInt32();
+        int chatSessionID = msg.readInt32();  
         while (msg.readableBytes > 0) {
           int messageID = msg.readInt32();
           bool success = msg.readBoolean();

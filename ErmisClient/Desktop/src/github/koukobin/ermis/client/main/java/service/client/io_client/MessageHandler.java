@@ -17,6 +17,7 @@ package github.koukobin.ermis.client.main.java.service.client.io_client;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.io.Files;
 
+import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
 import github.koukobin.ermis.client.main.java.service.client.ChatSession;
 import github.koukobin.ermis.client.main.java.service.client.DonationHtmlPage;
@@ -33,6 +35,7 @@ import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
+import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
@@ -49,73 +52,109 @@ public abstract class MessageHandler implements AutoCloseable {
 	private ByteBufInputStream in;
 	private ByteBufOutputStream out;
 
-	private String username;
-	private int clientID;
-	private byte[] accountIcon;
 	
-	private Map<Integer, ChatSession> chatSessionIDSToChatSessions = new HashMap<>();
-	private List<ChatSession> chatSessions = new ArrayList<>();
-	private List<ChatRequest> chatRequests = new ArrayList<>();
+	public static class I {
+		public static String username;
+		public static int clientID;
+		public static byte[] accountIcon;
+		public static final Map<Integer, ChatSession> chatSessionIDSToChatSessions = new HashMap<>();
+		public static final Map<Integer, MESSAGE> pendingMessagesQueue = new HashMap<>();
+		public static List<ChatSession> chatSessions = new ArrayList<>();
+		public static List<ChatRequest> chatRequests = new ArrayList<>();
+	}
 
 	private AtomicBoolean isClientListeningToMessages = new AtomicBoolean(false);
 	private Commands commands = new Commands();
-	
+
+	int lastPendingMessageID = 0;
+
 	void setByteBufInputStream(ByteBufInputStream in) {
 		this.in = in;
 	}
-	
+
 	void setByteBufOutputStream(ByteBufOutputStream out) {
 		this.out = out;
 	}
-	
-	public void sendMessageToClient(String text, int chatSessionIndex) throws IOException {
-		if (chatSessionIndex < 0) {
-			return;
-		}
-		
+
+	public MESSAGE sendMessageToClient(String text, int chatSessionIndex) throws IOException {
 		byte[] textBytes = text.getBytes();
-		
+
 		ByteBuf payload = Unpooled.buffer();
 		payload.writeInt(ClientMessageType.CLIENT_CONTENT.id);
+		payload.writeInt(++lastPendingMessageID);
 		payload.writeInt(ClientContentType.TEXT.id);
 		payload.writeInt(chatSessionIndex);
 		payload.writeInt(textBytes.length);
 		payload.writeBytes(textBytes);
-		
+
 		out.write(payload);
-	}
-	
-	public void sendFile(File file, int chatSessionIndex) throws IOException {
-		if (chatSessionIndex < 0) {
-			return;
-		}
 		
+		return createPendingMessage(textBytes, null, 
+				ClientContentType.TEXT,
+				I.chatSessions.get(chatSessionIndex).getChatSessionID(), 
+				chatSessionIndex,
+				lastPendingMessageID);
+	}
+
+	public MESSAGE sendFile(File file, int chatSessionIndex) throws IOException {
 		byte[] fileNameBytes = file.getName().getBytes();
 		byte[] fileBytes = Files.toByteArray(file);
 
 		ByteBuf payload = Unpooled.buffer();
 		payload.writeInt(ClientMessageType.CLIENT_CONTENT.id);
+		payload.writeInt(++lastPendingMessageID);
 		payload.writeInt(ClientContentType.FILE.id);
 		payload.writeInt(chatSessionIndex);
 		payload.writeInt(fileNameBytes.length);
 		payload.writeBytes(fileNameBytes);
 		payload.writeBytes(fileBytes);
-		
+
 		out.write(payload);
+
+		return createPendingMessage(null, 
+				fileNameBytes, 
+				ClientContentType.FILE,
+				I.chatSessions.get(chatSessionIndex).getChatSessionID(), 
+				chatSessionIndex,
+				lastPendingMessageID);
+	}
+
+	public MESSAGE createPendingMessage(byte[] text, 
+			byte[] fileName, 
+			ClientContentType contentType, 
+			int chatSessionID,
+			int chatSessionIndex, 
+			int tempMessageID) {
+		final MESSAGE m = new MESSAGE(
+				Client.getDisplayName(),
+				Client.getClientID(),
+				-1,
+				chatSessionID,
+				chatSessionIndex,
+				text,
+             	fileName,
+             	Instant.now().getEpochSecond(),
+             	contentType,
+				MessageDeliveryStatus.SENDING);
+
+		I.pendingMessagesQueue.put(tempMessageID, m);
+		return m;
 	}
 
 	public abstract void usernameReceived(String username);
-	public abstract void messageReceived(UserMessage message, int chatSessionIndex);
-	public abstract void messageSuccesfullySentReceived(ChatSession chatSession, int messageID);
+	public abstract void messageReceived(MESSAGE message, int chatSessionIndex);
+	public abstract void messageSuccesfullySentReceived(MessageDeliveryStatus status, MESSAGE pendingMessage);
 	public abstract void alreadyWrittenTextReceived(ChatSession chatSession);
 	public abstract void serverMessageReceived(String message);
 	public abstract void fileDownloaded(LoadedInMemoryFile file);
-	public abstract void donationPageReceived(DonationHtmlPage donationPage);
+	public abstract void imageDownloaded(LoadedInMemoryFile file);
+	public abstract void donationPageReceived(String donationPage);
 	public abstract void serverSourceCodeReceived(String serverSourceCodeURL);
 	public abstract void clientIDReceived(int clientID);
 	public abstract void chatRequestsReceived(List<ChatRequest> chatRequests);
 	public abstract void chatSessionsReceived(List<ChatSession> chatSessions);
 	public abstract void messageDeleted(ChatSession chatSession, int messageIDOfDeletedMessage);
+	public abstract void messageUnsuccessfulyDeleted(ChatSession chatSession, int messageID);
 	public abstract void iconReceived(byte[] icon);
 	
 	public class Commands {
@@ -168,7 +207,7 @@ public abstract class MessageHandler implements AutoCloseable {
 			payload.writeInt(ClientMessageType.COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_WRITTEN_TEXT.id);
 			payload.writeInt(chatSessionIndex);
-			payload.writeInt(chatSessions.get(chatSessionIndex).getMessages().size() /* Amount of messages client already has */);
+			payload.writeInt(I.chatSessions.get(chatSessionIndex).getMessages().size() /* Amount of messages client already has */);
 			
 			out.write(payload);
 		}
@@ -288,7 +327,6 @@ public abstract class MessageHandler implements AutoCloseable {
 		}
 
 		public void addAccountIcon(File accountIcon) throws IOException {
-			
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.COMMAND.id);
 			payload.writeInt(ClientCommandType.SET_ACCOUNT_ICON.id);
@@ -311,277 +349,36 @@ public abstract class MessageHandler implements AutoCloseable {
 	 * reads incoming messages sent from the server
 	 */
 	public void startListeningToMessages() throws IOException {
-		
-		if (isClientListeningToMessages()) {
-			throw new IllegalStateException("Client is already listening to messages!");
-		}
-		
-		isClientListeningToMessages.set(true);
-
-		Thread thread = new Thread("Thread-listenToMessages") {
-			
-			@Override
-			public void run() {
-				while (isClientListeningToMessages()) {
-					try {
-						
-						ByteBuf msg = in.read();
-						
-						ServerMessageType msgType = ServerMessageType.fromId(msg.readInt());
-
-						switch (msgType) {
-						case SERVER_INFO -> {
-							
-							byte[] content = new byte[msg.readableBytes()];
-							msg.readBytes(content);
-							
-							serverMessageReceived(new String(content));
-						}
-						case VOICE_CALL_INCOMING -> {
-							// Do nothing.
-						}
-						case MESSAGE_SUCCESFULLY_SENT -> {
-				          int chatSessionID = msg.readInt();
-				          int messageID = msg.readInt();
-				          messageSuccesfullySentReceived(chatSessionIDSToChatSessions.get(chatSessionID), messageID);
-						}
-						case CLIENT_MESSAGE -> {
-
-							UserMessage message = new UserMessage();
-							
-							ClientContentType contentType = ClientContentType.fromId(msg.readInt());
-							
-							long timeWritten = msg.readLong();
-							
-							byte[] text = null;
-							byte[] fileNameBytes = null;
-							
-							switch (contentType) {
-							case TEXT -> {
-								
-								text = new byte[msg.readInt()];
-								msg.readBytes(text);
-							}
-							case FILE, IMAGE -> {
-								fileNameBytes = new byte[msg.readInt()];
-								msg.readBytes(fileNameBytes);
-							}
-							}
-							
-							byte[] usernameBytes = new byte[msg.readInt()];
-							msg.readBytes(usernameBytes);
-							
-							String username = new String(usernameBytes);
-							int clientID = msg.readInt();
-							int messageID = msg.readInt();
-							int chatSessionID = msg.readInt();
-							
-							message.setContentType(contentType);
-							message.setUsername(username);
-							message.setClientID(clientID);
-							message.setMessageID(messageID);
-							message.setChatSessionID(chatSessionID);
-							message.setText(text);
-							message.setFileName(fileNameBytes);
-							message.setTimeWritten(timeWritten);
-							
-							ChatSession chatSession = chatSessionIDSToChatSessions.get(chatSessionID);
-							
-							if (chatSession.haveChatMessagesBeenCached()) {
-								chatSession.getMessages().add(message);
-							}
-							
-							messageReceived(message, chatSession.getChatSessionIndex());
-						}
-						case COMMAND_RESULT -> {
-
-							ClientCommandResultType commandResult = ClientCommandResultType.fromId(msg.readInt());
-
-							switch (commandResult) {
-							case DOWNLOAD_FILE, DOWNLOAD_IMAGE -> {
-								
-								byte[] fileNameBytes = new byte[msg.readInt()];
-								msg.readBytes(fileNameBytes);
-								
-								byte[] fileBytes = new byte[msg.readableBytes()];
-								msg.readBytes(fileBytes);
-								
-								fileDownloaded(new LoadedInMemoryFile(new String(fileNameBytes), fileBytes));
-							}
-							case GET_DISPLAY_NAME -> {
-								
-								byte[] usernameBytes = new byte[msg.readableBytes()];
-								msg.readBytes(usernameBytes);
-
-								username = new String(usernameBytes);
-								
-								usernameReceived(username);
-							}
-							case GET_CLIENT_ID -> {
-								clientID = msg.readInt();
-								clientIDReceived(clientID);
-							}
-							case GET_CHAT_SESSIONS -> {
-
-								chatSessions.clear();
-								
-								int chatSessionsSize = msg.readInt();
-								for (int i = 0; i < chatSessionsSize; i++) {
-
-									int chatSessionIndex = i;
-									int chatSessionID = msg.readInt();
-
-									ChatSession chatSession = new ChatSession(chatSessionID, chatSessionIndex);
-
-									int membersSize = msg.readInt();
-
-									List<ChatSession.Member> members = new ArrayList<>(membersSize);
-
-									for (int j = 0; j < membersSize; j++) {
-
-										int clientID = msg.readInt();
-										@SuppressWarnings("unused")
-										boolean isActive = msg.readBoolean();
-
-										byte[] usernameBytes = new byte[msg.readInt()];
-										msg.readBytes(usernameBytes);
-										
-										byte[] iconBytes = new byte[msg.readInt()];
-										msg.readBytes(iconBytes);
-
-										members.add(new ChatSession.Member(new String(usernameBytes), clientID, iconBytes));
-									}
-
-									chatSession.setMembers(members);
-
-									chatSessions.add(chatSessionIndex, chatSession);
-									chatSessionIDSToChatSessions.put(chatSessionID, chatSession);
-								}
-								
-								chatSessionsReceived(chatSessions);
-							}
-							case GET_CHAT_REQUESTS -> {
-								
-								chatRequests.clear();
-								
-								int friendRequestsLength = msg.readInt();
-
-								for (int i = 0; i < friendRequestsLength; i++) {
-									int clientID = msg.readInt();
-									chatRequests.add(new ChatRequest(clientID));
-								}
-								
-								chatRequestsReceived(chatRequests);
-							}
-							case GET_WRITTEN_TEXT -> {
-
-								ChatSession chatSession;
-
-								{
-									int chatSessionIndex = msg.readInt();
-									
-									chatSession = chatSessions.get(chatSessionIndex);
-								}
-								
-								List<UserMessage> messages = chatSession.getMessages();
-								while (msg.readableBytes() > 0) {
-
-									ClientContentType contentType = ClientContentType.fromId(msg.readInt());
-									
-									int clientID = msg.readInt();
-									int messageID = msg.readInt();
-
-									String username;
-									
-									{
-										byte[] usernameBytes = new byte[msg.readInt()];
-										msg.readBytes(usernameBytes);
-								
-										username = new String(usernameBytes);
-									}
-
-									byte[] messageBytes = null;
-									byte[] fileNameBytes = null;
-
-									long timeWritten = msg.readLong();
-									
-									switch (contentType) {
-									case TEXT -> {
-										messageBytes = new byte[msg.readInt()];
-										msg.readBytes(messageBytes);
-									}
-									case FILE, IMAGE -> {
-										fileNameBytes = new byte[msg.readInt()];
-										msg.readBytes(fileNameBytes);
-									}
-									}
-
-									if (contentType != null) {
-										UserMessage message = new UserMessage(username,
-												clientID,
-												messageID,
-												chatSession.getChatSessionID(),
-												messageBytes,
-												fileNameBytes,
-												timeWritten,
-												contentType);
-										messages.add(message);
-									}
-								}
-								
-								messages.sort(Comparator.comparing(UserMessage::getMessageID));
-								
-								chatSession.setHaveChatMessagesBeenCached(true);
-								alreadyWrittenTextReceived(chatSession);
-							}
-							case GET_DONATION_PAGE -> {
-
-								byte[] htmlBytes = new byte[msg.readInt()];
-								msg.readBytes(htmlBytes);
-								
-								byte[] htmlFileName = new byte[msg.readableBytes()];
-								msg.readBytes(htmlFileName);
-
-								DonationHtmlPage htmlPage = new DonationHtmlPage(new String(htmlBytes), new String(htmlFileName));
-
-								donationPageReceived(htmlPage);
-							}
-							case GET_SOURCE_CODE_PAGE -> {
-								
-								byte[] htmlPageURL = new byte[msg.readableBytes()];
-								msg.readBytes(htmlPageURL);
-								
-								serverSourceCodeReceived(new String(htmlPageURL));
-							}
-							case FETCH_ACCOUNT_ICON -> {
-								
-								accountIcon = new byte[msg.readableBytes()];
-								
-								if (accountIcon.length > 0) {
-									msg.readBytes(accountIcon);
-									iconReceived(accountIcon);
-								}
-							}
-							case DELETE_CHAT_MESSAGE -> {
-
-								int chatSessionID = msg.readInt();
-								int messageID = msg.readInt();
-
-								messageDeleted(chatSessionIDSToChatSessions.get(chatSessionID), messageID);
-							}
-							}
-						}
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				
-				isClientListeningToMessages.set(false);
-			}
-		};
-		thread.setDaemon(true);
-		thread.start();
+//		if (isClientListeningToMessages()) {
+//			throw new IllegalStateException("Client is already listening to messages!");
+//		}
+//		
+//		isClientListeningToMessages.set(true);
+//
+//		Thread thread = new Thread("Thread-listenToMessages") {
+//			
+//			@Override
+//			public void run() {
+//				while (isClientListeningToMessages()) {
+//					try {
+//						ByteBuf msg = in.read();
+//						ServerMessageType msgType = ServerMessageType.fromId(msg.readInt());
+//
+//						switch (msgType) {
+//						case ENTRY -> {
+//							
+//						}
+//						}
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//				
+//				isClientListeningToMessages.set(false);
+//			}
+//		};
+//		thread.setDaemon(true);
+//		thread.start();
 		
 		getCommands().fetchUsername();
 		getCommands().fetchClientID();
@@ -591,7 +388,6 @@ public abstract class MessageHandler implements AutoCloseable {
 	}
 
 	public void stopListeningToMessages() {
-		
 		if (!isClientListeningToMessages()) {
 			throw new IllegalStateException("Client isn't listening to messages to stop listening to messages!");
 		}
@@ -608,27 +404,27 @@ public abstract class MessageHandler implements AutoCloseable {
 	}
 
 	public Map<Integer, ChatSession> getChatSessionIDSToChatSessions() {
-		return chatSessionIDSToChatSessions;
+		return I.chatSessionIDSToChatSessions;
 	}
 
 	public List<ChatSession> getChatSessions() {
-		return chatSessions;
+		return I.chatSessions;
 	}
 
 	public List<ChatRequest> getChatRequests() {
-		return chatRequests;
+		return I.chatRequests;
 	}
 
 	public String getUsername() {
-		return username;
+		return I.username;
 	}
 
 	public int getClientID() {
-		return clientID;
+		return I.clientID;
 	}
 	
 	public byte[] getAccountIcon() {
-		return accountIcon;
+		return I.accountIcon;
 	}
 
 	@Override

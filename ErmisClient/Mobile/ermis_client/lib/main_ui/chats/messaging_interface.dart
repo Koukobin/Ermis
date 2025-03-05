@@ -335,36 +335,43 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           Navigator.pop(context);
         },
       ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
+      title: LayoutBuilder(
+        builder: (context, constraints) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              UserAvatar(
-                imageBytes: _chatSession.getMembers[0].getIcon,
-                isOnline: _chatSession.getMembers[0].isActive,
-              ),
-              const SizedBox(width: 10),
-              Text(
-                "Chat with ${widget.chatSession.getMembers[0].username}",
-                style: TextStyle(color: appColors.inferiorColor),
-              ),
-            ],
-          ),
-          Flexible(
-            child: IconButton(
-                onPressed: () {
-                  // navigateWithFade(context, const VoicCall());
-                  VoiceCallHandler.initiateVoiceCall(
-                    context,
-                    chatSessionIndex: _chatSessionIndex,
-                    chatSessionID: _chatSession.chatSessionID,
-                  );
-                },
-                icon: Icon(Icons.phone)),
-          )
-        ],
-      ),
+              Row(
+                children: [
+                  UserAvatar(
+                    imageBytes: _chatSession.getMembers[0].getIcon,
+                    isOnline: _chatSession.getMembers[0].isActive,
+                  ),
+                  const SizedBox(width: 10),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: constraints.maxWidth - 75),
+                    child: Text(
+                      "Chat with ${widget.chatSession.getMembers[0].username}",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: appColors.inferiorColor),
+                  ),
+                ),
+              ],
+            ),
+            Flexible(
+              child: IconButton(
+                  onPressed: () {
+                    // navigateWithFade(context, const VoicCall());
+                    VoiceCallHandler.initiateVoiceCall(
+                      context,
+                      chatSessionIndex: _chatSessionIndex,
+                      chatSessionID: _chatSession.chatSessionID,
+                    );
+                  },
+                  icon: const Icon(Icons.phone)),
+            )
+          ],
+        );
+      }),
       bottom: DividerBottom(dividerColor: appColors.inferiorColor),
     );
   }

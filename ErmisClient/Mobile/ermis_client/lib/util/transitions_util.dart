@@ -15,6 +15,13 @@
  */
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+Future<Object?> pushMaterialTransition(BuildContext context, Widget newPage) async {
+  return await Navigator.push(context, MaterialPageRoute(
+    builder: (context) => newPage,
+  ));
+}
 
 Future<Object?> pushSlideTransition(BuildContext context, Widget newPage) async {
   // CupertinoPageRoute adds a very nice slide transition between pages

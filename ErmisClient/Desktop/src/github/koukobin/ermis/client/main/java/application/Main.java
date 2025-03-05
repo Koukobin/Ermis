@@ -117,6 +117,7 @@ public class Main extends Application {
 			}
 		}
 
+		Client.initiateMessageDispatcher();
 		while (!Client.isLoggedIn()) {
 			EntryInterface entryInterface = new EntryInterface();
 			entryInterface.showAndWait();

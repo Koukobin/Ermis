@@ -41,7 +41,6 @@ public final class MFXDialogsUtil {
 	}
 	
 	public static void showSimpleInformationDialog(Stage stage, Pane ownerNode, String contentText) {
-
 		MFXDialog dialog = new MFXDialog(stage, ownerNode);
 		dialog.setContentText(contentText);
 		dialog.setHeaderText("Information");

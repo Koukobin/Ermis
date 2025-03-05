@@ -38,7 +38,6 @@ class ByteBufInputStream implements AutoCloseable {
 	}
 
 	public ByteBuf read() throws IOException {
-
 		byte[] lengthOfMsgBytes = new byte[Integer.BYTES];
 		read(lengthOfMsgBytes);
 

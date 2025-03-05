@@ -48,7 +48,7 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>github.ermis.common</groupId>
+			<groupId>io.github.koukobin.ermis</groupId>
 			<artifactId>ermis.common</artifactId>
 			<version>1.0-rc</version>
 		</dependency>
@@ -57,6 +57,12 @@
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
 			<version>3.41.2.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>io.reactivex.rxjava3</groupId>
+			<artifactId>rxjava</artifactId>
+			<version>3.1.10</version>
 		</dependency>
 
 		<dependency>

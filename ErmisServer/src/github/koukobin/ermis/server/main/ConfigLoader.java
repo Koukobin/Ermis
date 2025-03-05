@@ -29,25 +29,25 @@ import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths;
  */
 public class ConfigLoader {
 
-    private Properties properties;
+	private Properties properties;
 
-    public ConfigLoader(String configFile) throws IOException {
-        this(new FileInputStream(configFile));
-    }
+	public ConfigLoader(String configFile) throws IOException {
+		this(new FileInputStream(configFile));
+	}
 
 	public ConfigLoader(InputStream configFile) throws IOException {
 		properties = new Properties();
 		properties.load(configFile);
 	}
-    
-    public void loadConfig() {
-        Field[] fields = ConfigurationsPaths.class.getDeclaredFields();
 
-        for (Field field : fields) {
-        	System.out.println("Field [");
-        	System.out.println(field.getName());
-            if (field.isAnnotationPresent(ConfigProperty.class)) {
-                ConfigProperty annotation = field.getAnnotation(ConfigProperty.class);
+	public void loadConfig() {
+		Field[] fields = ConfigurationsPaths.class.getDeclaredFields();
+
+		for (Field field : fields) {
+			System.out.println("Field [");
+			System.out.println(field.getName());
+			if (field.isAnnotationPresent(ConfigProperty.class)) {
+				ConfigProperty annotation = field.getAnnotation(ConfigProperty.class);
 				String propertyKey = annotation.value();
 				String propertyValue = properties.getProperty(propertyKey);
 
@@ -62,9 +62,9 @@ public class ConfigLoader {
 					}
 				}
 			}
-            
-            System.out.println("]");
+
+			System.out.println("]");
 		}
-        
-    }
+
+	}
 }

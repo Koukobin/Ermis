@@ -788,7 +788,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		case REQUEST_DONATION_PAGE_URL -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-			payload.writeInt(ClientCommandResultType.GET_DONATION_PAGE.id);
+			payload.writeInt(ClientCommandResultType.GET_DONATION_PAGE_URL.id);
 			payload.writeBytes(ServerSettings.Donations.DONATION_HTML_PAGE_URL.getBytes());
 
 			channel.writeAndFlush(payload);
@@ -796,7 +796,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		case REQUEST_SOURCE_CODE_PAGE_URL -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-			payload.writeInt(ClientCommandResultType.GET_SOURCE_CODE_PAGE.id);
+			payload.writeInt(ClientCommandResultType.GET_SOURCE_CODE_PAGE_URL.id);
 			payload.writeBytes(ServerSettings.SOURCE_CODE_URL.getBytes());
 
 			channel.writeAndFlush(payload);

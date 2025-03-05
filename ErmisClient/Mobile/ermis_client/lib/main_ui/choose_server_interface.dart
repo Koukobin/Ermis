@@ -58,6 +58,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.fromLTRB(16.0, 100.0, 16.0, 200.0),
@@ -65,7 +66,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
             gradient: LinearGradient(
           colors: [
             appColors.secondaryColor,
-            appColors.tertiaryColor, // Very dark green
+            isDarkMode ? Colors.black : Colors.white,
             Color(0xFF00FF00), // Neon green glow
           ],
           begin: Alignment.topRight,

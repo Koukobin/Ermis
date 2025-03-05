@@ -47,19 +47,18 @@ public class ChatInterfaceController implements Initializable {
 	public StackPane stackPane;
 	
 	private Stage stage;
-	
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		try {
-			
-			Client.startMessageHandler(new ImplementedMessageHandler(stage, rootBorderPane));
+			new ImplementedMessageHandler(stage, rootBorderPane).a();
+			Client.startMessageHandler();
 
 			RootReferences.initializeAll();
-			
+
 			rootBorderPane.setCenter(RootReferences.getMessageRoot());
 			stackPane.getChildren().add(RootReferences.getChatsRoot());
 		} catch (Exception e) {
-
 			Optional<ButtonType> exceptionDialogResult = DialogsUtil.showExceptionDialog(e);
 
 			if (!exceptionDialogResult.isPresent() || exceptionDialogResult.get() == CustomDialogButtonTypes.RETRY_BUTTON) {
@@ -67,13 +66,11 @@ public class ChatInterfaceController implements Initializable {
 			} else {
 				Platform.exit();
 			}
-			
 		}
 	}
 
 	@FXML
 	public void logout(ActionEvent event) throws IOException {
-		
 		LogoutDialog dialog = new LogoutDialog(stage, rootBorderPane);
 		dialog.showAndWait();
 		
@@ -100,7 +97,6 @@ public class ChatInterfaceController implements Initializable {
 	}
 
 	private void transitionBetweenOptionsBar(StackPane parentContainer, Node newComponent) {
-
 		Node oldComponent = stackPane.getChildren().get(0);
 		
 		if (newComponent.equals(oldComponent)) {

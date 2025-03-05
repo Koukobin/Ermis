@@ -116,25 +116,28 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
   @override
   Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: appColors.primaryColor,
-          width: 3.0,
+    return Hero(
+      tag: "titty-fuck",
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: appColors.primaryColor,
+            width: 3.0,
+          ),
         ),
-      ),
-      child: CircleAvatar(
-        radius: widget.radius,
-        backgroundColor: Colors.grey[200],
-        backgroundImage: _profileBytes?.isEmpty ?? true ? null : MemoryImage(_profileBytes!),
-        child: _profileBytes?.isEmpty ?? true 
-            ? Icon(
-                Icons.person_rounded,
-                color: Colors.grey,
-                size: widget.radius == null ? 40 : widget.radius! * 2,
-              )
-            : null,
+        child: CircleAvatar(
+          radius: widget.radius,
+          backgroundColor: Colors.grey[200],
+          backgroundImage: _profileBytes?.isEmpty ?? true ? null : MemoryImage(_profileBytes!),
+          child: _profileBytes?.isEmpty ?? true
+              ? Icon(
+                  Icons.person_rounded,
+                  color: Colors.grey,
+                  size:  widget.radius == null ? 40 : widget.radius! * 2,
+                )
+              : null,
+        ),
       ),
     );
   }

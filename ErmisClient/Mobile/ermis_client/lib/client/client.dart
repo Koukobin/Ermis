@@ -18,7 +18,6 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/common/account.dart';
@@ -207,7 +206,7 @@ class Entry<T extends CredentialInterface> {
   Future<ResultHolder> getCredentialsExchangeResult() async {
     ByteBuf? buffer;
     await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
-      buffer= msg.buffer;
+      buffer = msg.buffer;
     });
 
     if (buffer == null) throw Exception("Buffer is null");

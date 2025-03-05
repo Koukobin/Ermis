@@ -28,16 +28,15 @@ import io.netty.buffer.ByteBuf;
  */
 class ByteBufOutputStream implements AutoCloseable {
 
-    private static final int compressionLevel = 4; // 1 (fastest) to 22 (highest compression)
-	
+	private static final int compressionLevel = 4; // 1 (fastest) to 22 (highest compression)
+
 	private final OutputStream out;
-	
+
 	public ByteBufOutputStream(OutputStream out) {
 		this.out = out;
 	}
 
 	public void write(ByteBuf msg) throws IOException {
-		
 		int msgLength = msg.readableBytes();
 
 		byte[] msgBytes = new byte[msgLength];
@@ -50,11 +49,11 @@ class ByteBufOutputStream implements AutoCloseable {
 
 		// The length of the payload is explicitly declared at the beginning
 		byte[] lengthOfMsgBytes = Ints.toByteArray(msgLength);
-		
+
 		byte[] payload = new byte[Integer.BYTES /* length of payload */ + msgLength];
 		System.arraycopy(lengthOfMsgBytes, 0, payload, 0, lengthOfMsgBytes.length);
 		System.arraycopy(msgBytes, 0, payload, Integer.BYTES, msgLength);
-		
+
 		out.write(payload);
 	}
 

@@ -30,16 +30,89 @@ import '../../util/top_app_bar_utils.dart';
 import '../entry/entry_interface.dart';
 import '../client_session_setup.dart';
 
+List<Account> _accounts = Client.instance().otherAccounts ?? [];
+
+
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
 
   @override
   State<AccountSettings> createState() => _AccountSettingsState();
+
+  static Future showOtherAccounts(BuildContext context) async {
+    return await showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Center(
+                child: Text(
+                  "Profiles",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const PersonalProfilePhoto(),
+                title: Text(Client.instance().displayName!, style: TextStyle(fontSize: 18)),
+                trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
+              ),
+              for (final Account account in _accounts)
+                ListTile(
+                  leading: UserProfilePhoto(profileBytes: account.profilePhoto),
+                  title: Text(account.name(), style: TextStyle(fontSize: 18)),
+                  onTap: () {
+                    showConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
+                      ServerInfo serverDetails = Client.instance().serverInfo;
+                      final DBConnection conn = ErmisDB.getConnection();
+                      List<LocalAccountInfo> allUserAccounts = await conn.getUserAccounts(serverDetails);
+                      LocalAccountInfo? matchingAccount;
+
+                      for (LocalAccountInfo userAccount in allUserAccounts) {
+                        if (userAccount.email == account.email) {
+                          matchingAccount = userAccount;
+                        }
+                      }
+
+                      Client.instance().commands.switchAccount();
+                      setupClientSession(context, matchingAccount, keepPreviousRoutes: true);
+                    });
+                  },
+                ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("Close")),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Client.instance().commands.addNewAccount();
+                        pushSlideTransition(context, const CreateAccountInterface());
+                      },
+                      child: const Text("Add new account"))
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _AccountSettingsState extends State<AccountSettings> {
-
-  List<Account> accounts = Client.instance().otherAccounts ?? [];
 
   @override
   void initState() {
@@ -48,7 +121,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     AppEventBus.instance.on<OtherAccountsEvent>().listen((event) async {
       if (!mounted) return;
       setState(() {
-        accounts = event.accounts;
+        _accounts = event.accounts;
       });
     });
   }
@@ -68,77 +141,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               leading: const Icon(Icons.person_add_alt),
               title: const Text('Add account'),
               onTap: () async {
-                await showModalBottomSheet(
-                  context: context,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  builder: (BuildContext context) {
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Center(
-                            child: Text(
-                              "Profiles",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          ListTile(
-                            leading: const PersonalProfilePhoto(),
-                            title: Text(Client.instance().displayName!, style: TextStyle(fontSize: 18)),
-                            trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
-                          ),
-                          for (final Account account in accounts)
-                            ListTile(
-                              leading: UserProfilePhoto(profileBytes: account.profilePhoto),
-                              title: Text(account.name(), style: TextStyle(fontSize: 18)),
-                              onTap: () {
-                                showConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
-                                  ServerInfo serverDetails = Client.instance().serverInfo;
-                                  final DBConnection conn = ErmisDB.getConnection();
-                                  List<LocalAccountInfo> allUserAccounts = await conn.getUserAccounts(serverDetails);
-                                  LocalAccountInfo? matchingAccount;
-
-                                  for (LocalAccountInfo userAccount in allUserAccounts) {
-                                    if (userAccount.email == account.email) {
-                                      matchingAccount = userAccount;
-                                    }
-                                  }
-
-                                  Client.instance().commands.switchAccount();
-                                  setupClientSession(context, matchingAccount, keepPreviousRoutes: true);
-                                });
-                              },
-                            ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text("Close")),
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    Client.instance().commands.addNewAccount();
-                                    pushSlideTransition(context, const CreateAccountInterface());
-                                  },
-                                  child: const Text("Add new account"))
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
+                await AccountSettings.showOtherAccounts(context);
               },
             ),
             ListTile(
@@ -154,77 +157,6 @@ class _AccountSettingsState extends State<AccountSettings> {
     );
   }
 
-  Future createModalBottomSheet() {
-    final appColors = Theme.of(context).extension<AppColors>()!;
-    final TextEditingController displayNameController = TextEditingController();
-    displayNameController.text = Client.instance().displayName!;
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-              top: 16.0,
-              right: 16.0,
-              left: 16.0,
-              bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Enter your name",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  Flexible(
-                      child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Enter your name',
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: appColors.primaryColor), // Bottom line color
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: appColors.primaryColor,
-                            width: 2), // Highlight color
-                      ),
-                    ),
-                    autofocus: true,
-                    controller: displayNameController,
-                  )),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text("Cancel")),
-                  TextButton(
-                      onPressed: () {
-                        String newDisplayName = displayNameController.text;
-                        Client.instance().commands.changeDisplayName(newDisplayName);
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        "Save",
-                      ))
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
 

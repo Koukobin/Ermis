@@ -33,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.jfoenix.controls.JFXButton;
 
+import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.context_menu.MyContextMenuItem;
 import github.koukobin.ermis.client.main.java.info.Icons;
 import github.koukobin.ermis.client.main.java.service.client.ChatSession;
@@ -42,6 +43,7 @@ import github.koukobin.ermis.client.main.java.util.NotificationsUtil;
 import github.koukobin.ermis.client.main.java.util.Threads;
 import github.koukobin.ermis.client.main.java.util.dialogs.MFXDialogsUtil;
 import github.koukobin.ermis.common.message_types.ClientContentType;
+import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.UserMessage;
 import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
@@ -84,7 +86,7 @@ public class MessagingController extends GeneralController {
 	@FXML
 	private TextField inputField;
 	
-	private Queue<UserMessage> pendingMessages = new ArrayDeque<>();
+	private Queue<MESSAGE> pendingMessages = new ArrayDeque<>();
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -118,21 +120,21 @@ public class MessagingController extends GeneralController {
 		});
 	}
 	
-	public void addMessages(UserMessage[] messages, int chatSessionIndex, int activeChatSessionIndex) {
+	public void addMessages(MESSAGE[] messages, int chatSessionIndex, int activeChatSessionIndex) {
 		for (int i = 0; i < messages.length; i++) {
 			addMessage(messages[i], chatSessionIndex, activeChatSessionIndex);
 		}
 	}
 	
-	public void addMessage(UserMessage message, int chatSessionIndex, int activeChatSessionIndex) {
+	public void addMessage(MESSAGE message, int chatSessionIndex, int activeChatSessionIndex) {
 		printToMessageArea(message, chatSessionIndex, activeChatSessionIndex);
 	}
 	
-	private HBox createClientMessage(UserMessage message) {
+	private HBox createClientMessage(MESSAGE message) {
 		
 		ClientContentType contentType = message.getContentType();
 		
-		Instant instant = Instant.ofEpochMilli(message.getTimeWritten());
+		Instant instant = Instant.ofEpochSecond(message.getEpochSecond());
 		ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
 
 		DateTimeFormatter dateFormat = new DateTimeFormatterBuilder()
@@ -227,7 +229,7 @@ public class MessagingController extends GeneralController {
 		return hbox;
 	}
 
-	private void printDateLabelIfNeeded(UserMessage msg) {
+	private void printDateLabelIfNeeded(MESSAGE msg) {
 		class MessageDateTracker {
 
 			private static String lastMessageDate = null;
@@ -244,7 +246,7 @@ public class MessagingController extends GeneralController {
 		}
 
 		// Retrieve current date
-		Instant instant = Instant.ofEpochMilli(msg.getTimeWritten());
+		Instant instant = Instant.ofEpochSecond(msg.getEpochSecond());
 		ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
 
 		String currentMessageDate = zonedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -271,8 +273,7 @@ public class MessagingController extends GeneralController {
 		MessageDateTracker.updatelastMessageDate(currentMessageDate);
 	}
 
-	public void printToMessageArea(UserMessage msg, int chatSessionIndex, int activeChatSessionIndex) {
-
+	public void printToMessageArea(MESSAGE msg, int chatSessionIndex, int activeChatSessionIndex) {
 		if (chatSessionIndex != activeChatSessionIndex) {
 			return;
 		}
@@ -333,8 +334,7 @@ public class MessagingController extends GeneralController {
 		setVvalue(chatBoxScrollpane.getVmax());
 	}
 
-	public void notifyUser(UserMessage message, int chatSessionIndex, int activeChatSessionIndex) {
-
+	public void notifyUser(MESSAGE message, int chatSessionIndex, int activeChatSessionIndex) {
 		/*
 		 * Skip notification if the user is focused on the app and the message received
 		 * originates from the chat session he is currently active in.*
@@ -343,8 +343,7 @@ public class MessagingController extends GeneralController {
 			return;
 		}
 
-		byte[] messageContent;
-
+		String messageContent;
 		if (message.getContentType() == ClientContentType.FILE) {
 			messageContent = message.getFileName();
 		} else {
@@ -389,7 +388,6 @@ public class MessagingController extends GeneralController {
 
 	@FXML
 	public void sendMessageTextByPressingEnter(KeyEvent event) {
-
 		if (event.getCode() != KeyCode.ENTER) {
 			return;
 		}
@@ -423,29 +421,29 @@ public class MessagingController extends GeneralController {
 	}
 	
 	void addPendingMessage(byte[] text, byte[] fileName, ClientContentType contentType) {
-		UserMessage pendingMessage = new UserMessage(
-				Client.getDisplayName(),
-				Client.getClientID(), -1,
-				RootReferences.getChatsController().getActiveChatSession().getChatSessionID(),
-				text,
-				fileName,
-				System.currentTimeMillis(),
-				contentType);
-
-		pendingMessages.add(pendingMessage);
-		printToMessageArea(pendingMessages.peek(),
-				RootReferences.getChatsController().getActiveChatSessionIndex(),
-				RootReferences.getChatsController().getActiveChatSessionIndex());
+//		MESSAGE pendingMessage = new MESSAGE(
+//				Client.getDisplayName(),
+//				Client.getClientID(), -1,
+//				RootReferences.getChatsController().getActiveChatSession().getChatSessionID(),
+//				text,
+//				fileName,
+//				System.currentTimeMillis(),
+//				contentType);
+//
+//		pendingMessages.add(pendingMessage);
+//		printToMessageArea(pendingMessages.peek(),
+//				RootReferences.getChatsController().getActiveChatSessionIndex(),
+//				RootReferences.getChatsController().getActiveChatSessionIndex());
 	}
 
-	public void succesfullySentMessage(ChatSession chatSession, int messageID) {
-		UserMessage message = pendingMessages.peek();
+	public void succesfullySentMessage(MESSAGE message, MessageDeliveryStatus status) {
+		int messageID = message.getMessageID();
 		message.setMessageID(messageID);
-		chatSession.getMessages().add(message);
+//		chatSession.getMessages().add(message);
 		Threads.delay(50, () -> {
 			Platform.runLater(() -> {
 				messagingBox.getChildren().remove(messagingBox.getChildren().size() - 1);
-				printToMessageArea(message, messageID, messageID);
+				printToMessageArea(message, message.getChatSessionIndex(), RootReferences.getChatsController().getActiveChatSessionIndex());
 			});
 		});
 		pendingMessages.poll();

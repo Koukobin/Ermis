@@ -32,6 +32,7 @@ import java.security.cert.X509Certificate;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -42,20 +43,33 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import com.google.common.eventbus.EventBus;
+
+import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.database.LocalAccountInfo;
 import github.koukobin.ermis.client.main.java.database.ServerInfo;
 import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
 import github.koukobin.ermis.client.main.java.service.client.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.Events.EntryMessage;
+import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
+import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.EntryType;
+import github.koukobin.ermis.common.entry.GeneralEntryAction;
 import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.entry.Verification;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
+import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
+import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.EntryResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.annotations.Nullable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleEmitter;
 
 /**
  * 
@@ -133,9 +147,6 @@ public class Client {
 
 			in = new ByteBufInputStream(sslSocket.getInputStream());
 			out = new ByteBufOutputStream(sslSocket.getOutputStream());
-
-			// This message helps the server distinguish between a normal message and an http request
-			out.write(Unpooled.EMPTY_BUFFER);
 		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
 				| UnrecoverableKeyException | KeyManagementException e) {
 			throw new ClientInitializationException(e.getMessage());
@@ -150,8 +161,27 @@ public class Client {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-	  }
-	
+	}
+
+	public static void initiateMessageDispatcher() {
+		Thread thread = new Thread("Thread-listenToMessages") {
+			@Override
+			public void run() {
+				for (;;) {
+					try {
+						ByteBuf msg = in.read();
+						GlobalMessageDispatcher.getDispatcher().dispatchMessage(msg);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+//				isClientListeningToMessages.set(false);
+			}
+		};
+		thread.setDaemon(true);
+		thread.start();
+	}
+
     /**
      * Attempts to authenticate user by sending their email and password hash
      * over the network to the server for validation.
@@ -190,7 +220,6 @@ public class Client {
 		private final EntryType entryType;
 
 		private Entry(EntryType entryType) {
-
 			if (isLoggedIn.get()) {
 				throw new IllegalStateException("User is already logged in");
 			}
@@ -199,27 +228,30 @@ public class Client {
 		}
 
 		public ResultHolder getResult() throws IOException {
+			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
+					.observeMessages()
+					.ofType(EntryMessage.class)
+					.firstElement()
+					.blockingGet();
 
-			ByteBuf msg = in.read();
+			ByteBuf buffer = msg.getBuffer();
 
-			boolean isSuccesfull = msg.readBoolean();
+			boolean isSuccessful = buffer.readBoolean();
 
-			byte[] resultMessageBytes = new byte[msg.readableBytes()];
-			msg.readBytes(resultMessageBytes);
+			byte[] resultMessageBytes = new byte[buffer.readableBytes()];
+			buffer.readBytes(resultMessageBytes);
 
-			return new ResultHolder(isSuccesfull, new String(resultMessageBytes));
+			return new ResultHolder(isSuccessful, new String(resultMessageBytes));
 		}
 
 		public void sendCredentials(Map<T, String> credentials) throws IOException {
 			for (Map.Entry<T, String> credential : credentials.entrySet()) {
 
-				boolean isAction = false;
 				int credentialInt = credential.getKey().id();
 				byte[] credentialValueBytes = credential.getValue().getBytes();
 
 				ByteBuf payload = Unpooled.buffer();
 				payload.writeInt(ClientMessageType.ENTRY.id);
-				payload.writeBoolean(isAction);
 				payload.writeInt(credentialInt);
 				payload.writeBytes(credentialValueBytes);
 
@@ -246,12 +278,11 @@ public class Client {
 		}
 
 		public void togglePasswordType() throws IOException {
-
-			boolean isAction = true;
 			int actionId = LoginInfo.Action.TOGGLE_PASSWORD_TYPE.id;
 
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeBoolean(isAction);
+		    payload.writeInt(ClientMessageType.ENTRY.id);
+		    payload.writeInt(GeneralEntryAction.action.id);
 			payload.writeInt(actionId);
 
 			out.write(payload);
@@ -261,8 +292,12 @@ public class Client {
 	public static class BackupVerificationEntry {
 
 		public ResultHolder getResult() throws IOException {
-
-			ByteBuf payload = in.read();
+			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
+					.observeMessages()
+					.ofType(EntryMessage.class)
+					.firstElement()
+					.blockingGet();
+			ByteBuf payload = msg.getBuffer();
 
 			isLoggedIn.set(payload.readBoolean());
 
@@ -282,25 +317,27 @@ public class Client {
 		private VerificationEntry() {}
 
 		public void sendVerificationCode(String verificationCode) throws IOException {
-
-			boolean isAction = false;
-
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.ENTRY.id);
-			payload.writeBoolean(isAction);
 			payload.writeInt(Integer.valueOf(verificationCode));
 
 			out.write(payload);
 		}
 
 		public EntryResult getResult() throws IOException {
-            ByteBuf msg = in.read();
-            isVerificationComplete = msg.readBoolean();
-            isLoggedIn.set(msg.readBoolean());
+			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
+					.observeMessages()
+					.ofType(EntryMessage.class)
+					.firstElement()
+					.blockingGet();
+			ByteBuf payload = msg.getBuffer();
 
-            int resultMessageLength = msg.readInt();
+			isVerificationComplete = payload.readBoolean();
+            isLoggedIn.set(payload.readBoolean());
+
+            int resultMessageLength = payload.readInt();
             byte[] resultMessageBytes = new byte[resultMessageLength];
-			msg.readBytes(resultMessageBytes);
+            payload.readBytes(resultMessageBytes);
 
 			Map<AddedInfo, String> map = new EnumMap<>(AddedInfo.class);
 
@@ -309,11 +346,11 @@ public class Client {
 					map);
 
             // Reading additional information from the ByteBuf
-            while (msg.readableBytes() > 0) {
-                AddedInfo addedInfo = AddedInfo.fromId(msg.readInt());
-                int messageLength = msg.readInt();
+            while (payload.readableBytes() > 0) {
+                AddedInfo addedInfo = AddedInfo.fromId(payload.readInt());
+                int messageLength = payload.readInt();
                 byte[] messageBytes = new byte[messageLength];
-                msg.readBytes(messageBytes);
+                payload.readBytes(messageBytes);
 
                 // Adding the added info to the map with the UTF-8 decoded message
                 map.put(addedInfo, new String(messageBytes));
@@ -323,12 +360,9 @@ public class Client {
 		}
 
 		public void resendVerificationCode() throws IOException {
-
-			boolean isAction = true;
-
-			ByteBuf payload = Unpooled.buffer(1 + Integer.BYTES);
+			ByteBuf payload = Unpooled.buffer(3 * Integer.BYTES);
 			payload.writeInt(ClientMessageType.ENTRY.id);
-			payload.writeBoolean(isAction);
+			payload.writeInt(GeneralEntryAction.action.id);
 			payload.writeInt(Verification.Action.RESEND_CODE.id);
 
 			out.write(payload);
@@ -339,13 +373,103 @@ public class Client {
 		}
 	}
 
-	public static void startMessageHandler(MessageHandler messageHandler) throws IOException {
-
+	public static void startMessageHandler() throws IOException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("User can't start writing server if he isn't logged in");
 		}
 
-		Client.messageHandler = messageHandler;
+		Client.messageHandler = new MessageHandler() {
+			
+			@Override
+			public void usernameReceived(String username) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void serverSourceCodeReceived(String serverSourceCodeURL) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void serverMessageReceived(String message) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void messageUnsuccessfulyDeleted(ChatSession chatSession, int messageID) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void messageSuccesfullySentReceived(MessageDeliveryStatus status, MESSAGE pendingMessage) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void messageReceived(MESSAGE message, int chatSessionIndex) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void messageDeleted(ChatSession chatSession, int messageIDOfDeletedMessage) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void imageDownloaded(LoadedInMemoryFile file) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void iconReceived(byte[] icon) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void fileDownloaded(LoadedInMemoryFile file) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void donationPageReceived(String donationPage) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void clientIDReceived(int clientID) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void chatSessionsReceived(List<ChatSession> chatSessions) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void chatRequestsReceived(List<ChatRequest> chatRequests) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void alreadyWrittenTextReceived(ChatSession chatSession) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
 		Client.messageHandler.setByteBufInputStream(in);
 		Client.messageHandler.setByteBufOutputStream(out);
 		Client.messageHandler.startListeningToMessages();

@@ -51,8 +51,8 @@ public enum ClientCommandResultType {
     START_VOICE_CALL(500),
     
     // External Pages
-    GET_DONATION_PAGE(600),
-    GET_SOURCE_CODE_PAGE(601);
+    GET_DONATION_PAGE_URL(600),
+    GET_SOURCE_CODE_PAGE_URL(601);
 	
 	private static final HashMap<Integer, ClientCommandResultType> values;
 

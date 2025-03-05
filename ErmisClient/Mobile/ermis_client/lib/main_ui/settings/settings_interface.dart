@@ -29,6 +29,7 @@ import '../user_profile.dart';
 import 'help_settings.dart';
 import 'linked_devices_settings.dart';
 import 'profile_settings.dart';
+import 'storage_data_settings.dart';
 import 'theme_settings.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -52,13 +53,22 @@ class SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           ListTile(
-            leading: const PersonalProfilePhoto(),
+            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+            leading: const PersonalProfilePhoto(radius: 25),
             title: const DisplayName(),
             subtitle: const Text('Profile, change name, ID'),
-            onTap: () {
-              pushSlideTransition(context, const ProfileSettings());
-            },
-          ),
+              onTap: () {
+                navigateWithFade(context, const ProfileSettings());
+              },
+              trailing: IconButton(
+                  onPressed: () async {
+                    await AccountSettings.showOtherAccounts(context);
+                  },
+                  icon: Icon(
+                    Icons.add_circle_outline,
+                    color: appColors.primaryColor,
+                  ))),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.lock),
             title: const Text('Account'),
@@ -88,7 +98,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Storage and Data'),
             subtitle: const Text('Network usage, auto-download'),
             onTap: () {
-              // Navigate to Storage and Data settings
+              pushSlideTransition(context, const StorageAndDataScreen());
             },
           ),
           ListTile(
@@ -99,7 +109,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               pushSlideTransition(context, const HelpSettings());
             },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.link),
             title: const Text('Linked Devices'),

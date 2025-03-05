@@ -20,6 +20,7 @@ import '../constants/app_constants.dart';
 import '../theme/app_theme.dart';
 
 class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final Widget? leading;
   final List<Widget> actions;
   final Widget title;
   final Color? color;
@@ -33,6 +34,7 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
     List<Widget> actions = const [],
     Color? color,
     bool? centerTitle,
+    Widget? leading,
     bool removeDivider = false,
   }) {
     assert((title == null || titleText == null));
@@ -54,6 +56,7 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: actions,
       color: color,
       removeDivider: removeDivider,
+      leading: leading,
       centerTitle: centerTitle,
     );
   }
@@ -65,6 +68,7 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions = const [],
     this.color,
     this.removeDivider = false,
+    this.leading,
     this.centerTitle,
   });
 
@@ -75,6 +79,7 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return AppBar(
+      leading: leading,
       backgroundColor: color ?? appColors.secondaryColor,
       foregroundColor: appColors.primaryColor,
       title: title,

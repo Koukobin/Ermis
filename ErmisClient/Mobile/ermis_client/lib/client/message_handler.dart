@@ -149,7 +149,7 @@ class MessageHandler {
     );
   }
 
-    Message createPendingMessage({
+  Message createPendingMessage({
     Uint8List? text,
     Uint8List? fileName,
     required MessageContentType contentType,
@@ -169,7 +169,7 @@ class MessageHandler {
         contentType: contentType,
         deliveryStatus: MessageDeliveryStatus.sending);
     
-    Info.pendingMessagesQueue[Info.lastPendingMessageID] = m;
+    Info.pendingMessagesQueue[tempMessageID] = m;
     return m;
   }
 

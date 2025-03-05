@@ -16,6 +16,9 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Define variables for folder and file paths
+
+jlink --module-path /usr/share/openjfx/lib  --add-modules java.base,java.desktop,java.logging,java.sql,javafx.controls,javafx.graphics --output custom-runtime --strip-debug --compress=2 --no-header-files --no-man-pages
+
 TARGET_FOLDER="$(git rev-parse --show-toplevel)/ErmisClient/Desktop"
 JAR_FILE="$TARGET_FOLDER/target/ermis-client.jar"
 LIB_FOLDER="$TARGET_FOLDER/target/lib"

@@ -24,6 +24,7 @@ import java.util.ResourceBundle;
 import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
 
+import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.context_menu.MyContextMenuItem;
 import github.koukobin.ermis.client.main.java.info.Icons;
 import github.koukobin.ermis.client.main.java.service.client.ChatSession;
@@ -31,7 +32,6 @@ import github.koukobin.ermis.client.main.java.service.client.ChatSession.Member;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
 import github.koukobin.ermis.client.main.java.util.ContextMenusUtil;
 import github.koukobin.ermis.client.main.java.util.Threads;
-import github.koukobin.ermis.common.message_types.UserMessage;
 import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -93,9 +93,9 @@ public class ChatsController extends GeneralController {
 						ioe.printStackTrace();
 					}
 				} else {
-					List<UserMessage> messages = chatSession.getMessages();
+					List<MESSAGE> messages = chatSession.getMessages();
 					RootReferences.getMessagingController().addMessages(
-							messages.toArray(new UserMessage[0]),
+							messages.toArray(new MESSAGE[0]),
 							chatSession.getChatSessionIndex(),
 							getActiveChatSessionIndex());
 				}
