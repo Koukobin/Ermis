@@ -69,13 +69,13 @@ class VoiceCallHandler {
 
     late int voiceCallKey;
     late int port;
-    Completer<void> completer = Completer();
-    AppEventBus.instance.on<StartVoiceCallResultEvent>().listen((event) {
+
+    Client.instance().commands.startVoiceCall(chatSessionIndex);
+    await AppEventBus.instance.on<StartVoiceCallResultEvent>().first.then((event) {
       voiceCallKey = event.key;
       port = event.udpServerPort;
-      completer.complete();
     });
-    await completer.future;
+
     navigateWithFade(
         context,
         VoiceCallScreen._(

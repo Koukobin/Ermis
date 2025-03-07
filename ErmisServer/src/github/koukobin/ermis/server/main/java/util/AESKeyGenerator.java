@@ -53,9 +53,6 @@ public final class AESKeyGenerator {
 			Cipher encryptionCipher = Cipher.getInstance("AES/GCM/NoPadding");
 			encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey, new GCMParameterSpec(128, iv));
 
-			Cipher decryptionCipher = Cipher.getInstance("AES/GCM/NoPadding");
-			decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey);
-
 			return new AESGCMCipher(secretKey, encryptionCipher);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
 				| InvalidAlgorithmParameterException e) {

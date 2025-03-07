@@ -15,8 +15,6 @@
  */
 package github.koukobin.ermis.client.main.java.service.client;
 
-import java.util.Arrays;
-
 import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.service.client.io_client.MessageHandler.I;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;

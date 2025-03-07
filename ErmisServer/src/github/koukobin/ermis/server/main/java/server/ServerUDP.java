@@ -352,7 +352,7 @@ public final class ServerUDP {
 			contentBytes.readBytes(contentBytes2);
 			contentBytes.resetReaderIndex();
 
-			Path outputPath = Paths.get("/home/ilias/test.wav");
+			Path outputPath = Paths.get("/home/ilias/march.wav");
 			if (!Files.exists(outputPath)) {
 				// Write WAV header for the first time
 				try (OutputStream os = Files.newOutputStream(outputPath, StandardOpenOption.CREATE)) {

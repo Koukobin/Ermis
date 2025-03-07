@@ -26,8 +26,8 @@ class InfiniteScrollList extends StatefulWidget {
   final Clip clipBehavior;
   final Widget? loadingWidget;
 
-  final VoidCallback reLoading;
-  final VoidCallback reLoading2;
+  final VoidCallback reLoadingTop;
+  final VoidCallback reLoadingBottom;
   final int itemCount;
   final Widget? Function(BuildContext, int) itemBuilder;
   const InfiniteScrollList({
@@ -51,8 +51,8 @@ class InfiniteScrollList extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.clipBehavior = Clip.hardEdge,
     this.loadingWidget,
-    required this.reLoading,
-    required this.reLoading2,
+    required this.reLoadingTop,
+    required this.reLoadingBottom,
     required this.itemCount,
     required this.itemBuilder,
   });
@@ -62,19 +62,19 @@ class InfiniteScrollList extends StatefulWidget {
 }
 
 class _InfiniteScrollListState extends State<InfiniteScrollList> {
-  bool _loading = false;
-  bool _loading2 = false;
+  bool _isLoadingTop = false;
+  bool _isLoadingBottom = false;
+  int _overscrollCount = 0;
+  DateTime _dateTime = DateTime.now();
   
   @override
   void initState() {
     super.initState();
   }
 
-  int v = 0;
-
   @override
   Widget build(BuildContext context) {
-    return widget.itemCount == 0 && _loading
+    return widget.itemCount == 0 && _isLoadingTop
         ? widget.loadingWidget ??
             const Padding(
               padding: EdgeInsets.all(20),
@@ -84,29 +84,38 @@ class _InfiniteScrollListState extends State<InfiniteScrollList> {
             )
         : NotificationListener<OverscrollNotification>(
             onNotification: (overscroll) {
-              v++;
-              Future.delayed(Duration(milliseconds: 100), () => v = 0);
-              if (v < 10) {
+              _overscrollCount++;
+
+              // Reset count after delay to prevent triggering too quickly
+              Future.delayed(Duration(milliseconds: 100), () => _overscrollCount = 0);
+              if (_overscrollCount < 10) {
                 return false;
               }
+
+              if (DateTime.now().difference(_dateTime).inSeconds < 3) {
+                return false;
+              }
+
+              _dateTime = DateTime.now();
+
               if (overscroll.overscroll < 0) {
                 setState(() {
-                  _loading = true;
+                  _isLoadingTop = true;
                 });
-                widget.reLoading();
+                widget.reLoadingTop();
                 Future.delayed(Duration(seconds: 2), () {
                   setState(() {
-                    _loading = false;
+                    _isLoadingTop = false;
                   });
                 });
               } else if (overscroll.overscroll > 0) {
                 setState(() {
-                  _loading2 = true;
+                  _isLoadingBottom = true;
                 });
-                widget.reLoading2();
+                widget.reLoadingBottom();
                 Future.delayed(Duration(seconds: 2), () {
                   setState(() {
-                    _loading2 = false;
+                    _isLoadingBottom = false;
                   });
                 });
               }
@@ -133,13 +142,13 @@ class _InfiniteScrollListState extends State<InfiniteScrollList> {
               itemCount: widget.itemCount + 2,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  if (!widget.everythingLoaded || _loading) {
+                  if (!widget.everythingLoaded || _isLoadingTop) {
                     return buildLoadingScreen();
                   } else {
                     return const SizedBox.shrink();
                   }
                 } else if (index == widget.itemCount + 2 - 1) {
-                  if (_loading2) {
+                  if (_isLoadingBottom) {
                     return buildLoadingScreen();
                   } else {
                     return const SizedBox.shrink();

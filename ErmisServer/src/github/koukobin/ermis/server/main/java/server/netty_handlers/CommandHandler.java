@@ -572,7 +572,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			UserMessage[] messages;
 
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				messages = conn.selectMessages(chatSessionID, 
+				messages = conn.selectMessages(chatSessionID,
 						numOfMessagesAlreadySelected,
 						ServerSettings.NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME,
 						clientInfo.getClientID());
@@ -634,29 +634,29 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			channel.writeAndFlush(payload);
 		}
 		case FETCH_CHAT_REQUESTS -> {
-			
+
 			List<Integer> chatRequests = clientInfo.getChatRequests();
-			
+
 			ByteBuf payload = channel.alloc().ioBuffer(Integer.BYTES * 3 + Integer.BYTES * chatRequests.size());
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.GET_CHAT_REQUESTS.id);
 			payload.writeInt(chatRequests.size());
-			
+
 			if (!chatRequests.isEmpty()) {
 				for (int i = 0; i < chatRequests.size(); i++) {
 					int clientID = chatRequests.get(i);
 					payload.writeInt(clientID);
 				}
 			}
-			
+
 			channel.writeAndFlush(payload);
 		}
 		case FETCH_CHAT_SESSIONS -> {
-			
+
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS.id);
-			
+
 			List<ChatSession> chatSessions = clientInfo.getChatSessions();
 
 			payload.writeInt(chatSessions.size());
@@ -687,10 +687,10 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 								isActive = false;
 							} else {
 								ClientInfo random = member.get(0);
-								if (clientInfo.getClientID() ==  random.getClientID()) {
+								if (clientInfo.getClientID() == random.getClientID()) {
 									continue;
 								}
-								
+
 								usernameBytes = random.getUsername().getBytes();
 								isActive = true;
 							}
@@ -712,7 +712,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 				}
 			}
-			
+
 			channel.writeAndFlush(payload);
 		}
 		case FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS -> {
@@ -732,22 +732,22 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				if (account.clientID() == clientInfo.getClientID()) {
 					continue;
 				}
-				
+
 				payload.writeInt(account.clientID());
-				
+
 				String email = account.email();
 				payload.writeInt(email.length());
 				payload.writeBytes(email.getBytes());
-				
+
 				String displayName = account.displayName();
 				payload.writeInt(displayName.length());
 				payload.writeBytes(displayName.getBytes());
-				
+
 				byte[] profilePhoto = account.profilePhoto();
 				payload.writeInt(profilePhoto.length);
 				payload.writeBytes(profilePhoto);
 			}
-			
+
 			channel.writeAndFlush(payload);
 		}
 		case ACCEPT_VOICE_CALL -> {

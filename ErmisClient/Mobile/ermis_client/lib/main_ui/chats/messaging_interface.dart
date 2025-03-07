@@ -94,28 +94,36 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     _chatSessionIndex = widget.chatSessionIndex;
     _chatSession = widget.chatSession;
 
-    // Fetch cached messages or load from the server
-    if (!_chatSession.haveChatMessagesBeenCached) {
-      Client.instance().commands.fetchWrittenText(_chatSessionIndex);
-    } else {
-      _setMessages(_chatSession.getMessages);
-      setState(() {
-        isLoading = false;
-      });
-    }
+    Future(() async {
+      // Fetch cached messages or load from the server
+      if (!_chatSession.haveChatMessagesBeenCached) {
+        List<Message> messages = await _retrieveLocalMessages();
 
-    // Register message listeners
-    _retrieveLocalMessages();
-    _setupListeners();
+        if (messages.length > 30) {
+          setState(() {
+            _messages = messages;
+            isLoading = false;
+          });
+        } else {
+          Client.instance().commands.fetchWrittenText(_chatSessionIndex);
+        }
+      } else {
+        setState(() {
+          _messages = _chatSession.getMessages;
+          isLoading = false;
+        });
+      }
+      _setupListeners(); // Register message listeners
+    });
   }
 
-  void _retrieveLocalMessages() async {
-    // List<Message> messages = await ErmisDB.getConnection().retieveChatMessages(
-    //   Client.getInstance().serverInfo,
-    //   _chatSession.chatSessionID,
-    // );
+  Future<List<Message>> _retrieveLocalMessages() async {
+    List<Message> messages = await ErmisDB.getConnection().retieveChatMessages(
+      Client.instance().serverInfo,
+      _chatSession.chatSessionID,
+    );
 
-    // _setMessages(messages);
+    return messages;
   }
 
   void _setupListeners() {
@@ -335,6 +343,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           Navigator.pop(context);
         },
       ),
+      titleSpacing: -5, // Decrease space between leading and title
       title: LayoutBuilder(
         builder: (context, constraints) {
           return Row(
@@ -360,7 +369,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
             Flexible(
               child: IconButton(
                   onPressed: () {
-                    // navigateWithFade(context, const VoicCall());
                     VoiceCallHandler.initiateVoiceCall(
                       context,
                       chatSessionIndex: _chatSessionIndex,
@@ -409,11 +417,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                       appColors: appColors,
                     )));
           },
-          reLoading2: () {
+          reLoadingBottom: () {
             // If user reaches top of conversation retrieve more messages
             Client.instance().commands.fetchWrittenText(_chatSessionIndex);
           },
-          reLoading: () {
+          reLoadingTop: () {
             Client.instance().commands.fetchWrittenText(_chatSessionIndex);
           },
         ),

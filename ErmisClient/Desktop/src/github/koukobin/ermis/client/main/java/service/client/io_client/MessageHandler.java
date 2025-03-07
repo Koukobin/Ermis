@@ -379,7 +379,7 @@ public abstract class MessageHandler implements AutoCloseable {
 //		};
 //		thread.setDaemon(true);
 //		thread.start();
-		
+
 		getCommands().fetchUsername();
 		getCommands().fetchClientID();
 		getCommands().fetchChatSessions();
@@ -391,14 +391,14 @@ public abstract class MessageHandler implements AutoCloseable {
 		if (!isClientListeningToMessages()) {
 			throw new IllegalStateException("Client isn't listening to messages to stop listening to messages!");
 		}
-		
+
 		isClientListeningToMessages.set(false);
 	}
-	
+
 	public boolean isClientListeningToMessages() {
 		return isClientListeningToMessages.get();
 	}
-	
+
 	public Commands getCommands() {
 		return commands;
 	}
@@ -422,7 +422,7 @@ public abstract class MessageHandler implements AutoCloseable {
 	public int getClientID() {
 		return I.clientID;
 	}
-	
+
 	public byte[] getAccountIcon() {
 		return I.accountIcon;
 	}

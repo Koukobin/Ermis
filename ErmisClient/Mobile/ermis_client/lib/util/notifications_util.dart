@@ -87,11 +87,11 @@ class NotificationService {
       onDidReceiveNotificationResponse: onDidReceiveNotification,
     );
 
-    // Request notification permission for android
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
+    // // Request notification permission for android
+    // await flutterLocalNotificationsPlugin
+    //     .resolvePlatformSpecificImplementation<
+    //         AndroidFlutterLocalNotificationsPlugin>()
+    //     ?.requestNotificationsPermission();
   }
 
   static Future<void> showIconNotification(Uint8List iconBytes, String title, String body) async {

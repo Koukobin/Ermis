@@ -58,11 +58,11 @@ dependencies:
   device_info_plus: ^10.1.2
 
   # Background & Notifications
-  flutter_background: ^1.3.0+1
+  # flutter_background: ^1.3.0+1
   flutter_background_service: ^5.1.0
   # workmanager: ^0.5.2
   # shared_preferences: ^2.3.4
-  flutter_foreground_task: ^8.17.0
+  # flutter_foreground_task: ^8.17.0
   flutter_local_notifications: ^18.0.1
   fluttertoast: ^8.2.10
   vibration: ^2.0.1

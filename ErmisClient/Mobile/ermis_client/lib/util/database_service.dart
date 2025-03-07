@@ -217,6 +217,11 @@ class DBConnection {
     );
   }
 
+  Future<ServerInfo> getServerUrlLastUsed() async {
+    return (await getServerUrls())[0];
+  }
+
+  /// Fetches all server urls created by user sorted by most recently used
   Future<List<ServerInfo>> getServerUrls() async {
     final db = await _database;
 
@@ -268,7 +273,11 @@ class DBConnection {
   }
 
   Future<void> insertChatMessages({required ServerInfo serverInfo, required List<Message> messages}) async {
-    for (Message message in messages) {
+    // Create copy of messages to avoid "Unhandled Exception: Concurrent modification during iteration."
+    // I have no idea from where this error originates.
+    final messagesCopy = List<Message>.from(messages);
+
+    for (Message message in messagesCopy) {
       await insertChatMessage(serverInfo: serverInfo, message: message);
     }
   }
@@ -286,8 +295,7 @@ class DBConnection {
         'text': message.text,
         'file_name': message.fileName,
         'content_type': message.contentType.id,
-        'ts_entered':
-            DateTime.fromMicrosecondsSinceEpoch(message.epochSecond).toIso8601String(),
+        'ts_entered': DateTime.fromMicrosecondsSinceEpoch(message.epochSecond).toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
