@@ -41,8 +41,9 @@ import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.UserFi
 public final class FilesStorage {
 
 	private static final int FILE_COMPRESSION_LEVEL = 4; // 1 (fastest) to 22 (highest compression)
-	
+
 	private static final Logger LOGGER = LogManager.getLogger("server");
+
 	private static final LoadingCache<String, byte[]> filesCache;
 	private static final LoadingCache<String, byte[]> profilePhotosCache;
 
@@ -108,6 +109,8 @@ public final class FilesStorage {
 		Path path = Paths.get(photoFilePath);
 		Files.createFile(path);
 		Files.write(path, photoBytesCompressed);
+
+		profilePhotosCache.put(uuid, photoBytesCompressed); // Cache file on initial transmission, when retrieval is most likely
 		return uuid;
 	}
 
@@ -119,6 +122,8 @@ public final class FilesStorage {
 		Path path = Paths.get(photoFilePath);
 		Files.createFile(path);
 		Files.write(path, fileBytesCompressed);
+
+		filesCache.put(uuid, fileBytesCompressed); // Cache file on initial transmission, when retrieval is most likely
 		return uuid;
 	}
 
