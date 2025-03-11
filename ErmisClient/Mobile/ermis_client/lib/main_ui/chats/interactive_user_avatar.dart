@@ -21,26 +21,25 @@ import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-List<Widget> x(BuildContext context, VoidCallback __) => const [];
+typedef AvatarClicked = List<Widget> Function(BuildContext context, VoidCallback popContext);
+List<Widget> _defaultAvatarClickedAction(BuildContext _, VoidCallback __) => const [];
 
 class InteractiveUserAvatar extends StatelessWidget {
   final Uint8List imageBytes;
   final bool isOnline;
 
-  static int _lastAvatarID = 0;
-  final int _avatarID;
-
   final ChatSession chatSession;
+  final int avatarID;
 
-  final List<Widget> Function(BuildContext context, VoidCallback popContext) a;
+  final AvatarClicked onAvatarClicked;
 
   InteractiveUserAvatar({
     super.key,
     required this.imageBytes,
     required this.isOnline,
     required this.chatSession,
-    this.a = x,
-  }) : _avatarID = _lastAvatarID += 1;
+    this.onAvatarClicked = _defaultAvatarClickedAction,
+  }) : avatarID = chatSession.getMembers[0].clientID;
 
   @override
   Widget build(BuildContext context) {
@@ -51,25 +50,11 @@ class InteractiveUserAvatar extends StatelessWidget {
       child: Stack(
         children: [
           Hero(
-            flightShuttleBuilder:
-                (context, animation, direction, fromHero, toHero) => AnimatedBuilder(
-                animation: animation,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: 0.5 + (animation.value * 0.5),
-                  child: Opacity(
-                    opacity: animation.value,
-                    child: toHero.widget,
-                  ),
-                );
-              },
-            ),
-            tag: "avarar-hero-$_avatarID",
+            tag: "avarar-hero-$avatarID",
             child: CircleAvatar(
               radius: 20,
               backgroundColor: Colors.grey[200],
-              backgroundImage:
-                  imageBytes.isEmpty ? null : MemoryImage(imageBytes),
+              backgroundImage: imageBytes.isEmpty ? null : MemoryImage(imageBytes),
               child: imageBytes.isEmpty
                   ? Icon(
                       Icons.person,
@@ -159,7 +144,7 @@ class InteractiveUserAvatar extends StatelessWidget {
                         minScale: 1.0,
                         maxScale: 8.0,
                         child: Hero(
-                          tag: "avarar-hero-$_avatarID",
+                          tag: "avarar-hero-$avatarID",
                           child: Container(
                             color: appColors.tertiaryColor,
                             child: imageBytes.isEmpty
@@ -189,7 +174,7 @@ class InteractiveUserAvatar extends StatelessWidget {
                           color: appColors.tertiaryColor,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: a(context, popContext),
+                            children: onAvatarClicked(context, popContext),
                           ),
                         ),
                       ),

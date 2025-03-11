@@ -15,6 +15,7 @@
  */
 
 
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/material.dart';
@@ -86,13 +87,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chat Theme Settings"),
+        title: Text(S.current.chat_theme_settings),
         backgroundColor: appColors.primaryColor,
         actions: [
           IconButton(
             onPressed: _saveSettingsJson,
             icon: const Icon(Icons.save),
-            tooltip: "Save Settings",
+            tooltip: S.current.settings_save,
           ),
         ],
       ),
@@ -101,14 +102,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Theme Mode",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              S.current.theme_mode,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SwitchListTile(
-              title: const Text("System Default"),
-              secondary: Icon(Icons.settings,
-                  color: appColors.primaryColor),
+              title: Text(S.current.theme_system_default),
+              secondary: Icon(Icons.settings, color: appColors.primaryColor),
               value: _useSystemDefault,
               onChanged: (bool value) {
                 setState(() {
@@ -127,7 +127,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             Stack(
               children: [
                 SwitchListTile(
-                  title: Text(_isDarkMode ? "Dark Mode" : "Light Mode"),
+                  title: Text(_isDarkMode ? S.current.theme_dark : S.current.theme_light),
                   secondary: Icon(
                       _isDarkMode ? Icons.dark_mode : Icons.light_mode,
                       color: Theme.of(context).primaryColor),
@@ -155,9 +155,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               ],
             ),
             const SizedBox(height: 20),
-            const Text(
-              "Chat Backdrop",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              S.current.chat_backdrop,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             DropdownButtonFormField<ChatBackDrop>(
               value: _selectedBackdrop,
@@ -183,22 +183,22 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             ),
             if (_selectedBackdrop == ChatBackDrop.custom) ...[
               const SizedBox(height: 20),
-              const Text("Upload Custom Image"),
+              Text(S.current.chat_backdrop_upload_custom),
               OutlinedButton.icon(
                 onPressed: () {
                   // Implement file picker or upload functionality
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Custom image upload coming soon!')),
+                    SnackBar(content: Text(S.current.chat_backdrop_upload_coming_soon)),
                   );
                 },
-                icon: Icon(Icons.upload_file),
-                label: Text("Choose Image"),
+                icon: const Icon(Icons.upload_file),
+                label: Text(S.current.chat_backdrop_choose_image),
               ),
             ] else if (_selectedBackdrop == ChatBackDrop.gradient) ...[
               const SizedBox(height: 20),
-              const Text(
-                "Select Gradient Colors",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Text(
+                S.current.chat_backdrop_select_gradient,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Row(
@@ -218,7 +218,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
 
                       _settingsJson.setGradientColors(_gradientColors);
                     },
-                    child: Text("Start Color"),
+                    child: Text(S.current.chat_backdrop_gradient_start_color),
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
@@ -235,7 +235,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
 
                       _settingsJson.setGradientColors(_gradientColors);
                     },
-                    child: Text("End Color"),
+                    child: Text(S.current.chat_backdrop_gradient_end_color),
                   ),
                 ],
               ),
@@ -252,7 +252,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 ),
                 child: Center(
                   child: Text(
-                    "Gradient Preview",
+                    S.current.chat_backdrop_gradient_preview,
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -263,11 +263,10 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               child: ElevatedButton(
                 onPressed: _saveSettingsJson,
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text("Save Changes"),
+                child: Text(S.current.settings_save),
               ),
             )
           ],
@@ -280,7 +279,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     Color? chosenColor;
     await showDialog(
       builder: (context) => AlertDialog(
-        title: const Text('Pick a color!'),
+        title: Text(S.current.chat_backdrop_color_pick),
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: Colors.red,
@@ -292,14 +291,14 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         ),
         actions: <Widget>[
           ElevatedButton(
-            child: const Text('Cancel'),
+            child: Text(S.current.cancel),
             onPressed: () {
               chosenColor = null; // Unselect color
               Navigator.of(context).pop();
             },
           ),
           ElevatedButton(
-            child: const Text('OK'),
+            child: Text(S.current.ok),
             onPressed: () {
               Navigator.of(context).pop();
             },

@@ -21,6 +21,27 @@ import 'package:ermis_client/main_ui/settings/theme_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../client/common/exceptions/EnumNotFoundException.dart';
+
+enum NotificationSound {
+  osDefault(cleanName: "OS default", id: 1), ermis(cleanName: "Ermis", id: 2);
+
+  final String cleanName;
+
+  /// This is used to identify each chat backdrop by its id
+  final int id;
+
+  const NotificationSound({required this.cleanName, required this.id});
+
+  static NotificationSound fromId(int id) {
+    try {
+      return NotificationSound.values.firstWhere((type) => type.id == id);
+    } catch (e) {
+      throw EnumNotFoundException('No NotificationSound found for id $id');
+    }
+  }
+}
+
 class SettingsJson {
   static SettingsJson? _instance;
 
@@ -68,8 +89,17 @@ class SettingsJson {
     _settingsJson["notificationsEnabled"] = enabled;
   }
 
+  void setNotificationSound(NotificationSound sound) {
+    _settingsJson["notificationsSound"] = sound.id;
+  }
+
   void setShowMessagePreview(bool showPreview) {
     _settingsJson["showMessagePreview"] = showPreview;
+  }
+
+  void setLocale(Locale locale) {
+    _settingsJson["languageCode"] = locale.languageCode;
+    _settingsJson["countryCode"] = locale.countryCode;
   }
 
   void setVibrationEnabled(bool enabled) {
@@ -84,8 +114,19 @@ class SettingsJson {
       .map((colorInt) => Color(colorInt))
       .toList();
   bool get notificationsEnabled => _settingsJson["notificationsEnabled"];
+  NotificationSound get notificationSound => NotificationSound.fromId(_settingsJson["notificationsSound"]);
+
   bool get showMessagePreview => _settingsJson["showMessagePreview"];
   bool get vibrationEnabled => _settingsJson["vibrationEnabled"];
+
+  Locale? get getLocale {
+    String? languageCode = _settingsJson['languageCode'];
+    String? countryCode = _settingsJson['countryCode'];
+
+    if (languageCode == null || countryCode == null) return null;
+
+    return Locale(languageCode, countryCode);
+  }
 
   bool get isJsonLoaded => _isJsonLoaded;
   bool get isJsonNotLoaded => !_isJsonLoaded;
@@ -114,6 +155,7 @@ class SettingsJson {
     };
     await file.writeAsString(jsonEncode(_settingsJson));
   }
+
 }
 
 // Similar to the code above, but instead of manually storing the json 

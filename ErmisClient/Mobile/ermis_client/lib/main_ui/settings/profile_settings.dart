@@ -17,6 +17,7 @@
 import 'package:camera/camera.dart';
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -83,7 +84,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
       appBar: ErmisAppBar(
-          titleText: "Profile Settings",
+          titleText: S.current.profile_settings,
           leading: Navigator.of(context).canPop()
               ? IconButton(
                   icon: const Icon(Icons.arrow_back),
@@ -127,9 +128,9 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ListTile(
-              leading: Icon(Icons.person_outline_rounded),
+              leading: const Icon(Icons.person_outline_rounded),
               trailing: Icon(
                 Icons.edit_outlined,
                 color: appColors.primaryColor,
@@ -138,7 +139,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Name',
+                    S.current.name,
                     style: TextStyle(color: Colors.grey[500]),
                   ),
                   Text(_displayName),
@@ -149,7 +150,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
               },
             ),
             ListTile(
-              leading: Icon(Icons.info_outline),
+              leading: const Icon(Icons.info_outline),
               trailing: Icon(
                 Icons.edit_outlined,
                 color: appColors.primaryColor,
@@ -158,20 +159,20 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'About',
+                    S.current.profile_about,
                     style: TextStyle(color: Colors.grey[500]),
                   ),
-                  Text("Hey there!"),
+                  Text(S.current.profile_hey_there),
                 ],
               ),
               onTap: () {
                 showSnackBarDialog(
                     context: context,
-                    content: "Functionality not implemented yet!");
+                    content: S.current.functionality_not_implemented);
               },
             ),
             ListTile(
-              leading: Icon(Icons.numbers_outlined),
+              leading: const Icon(Icons.numbers_outlined),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -185,7 +186,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
               onTap: () {
                 Clipboard.setData(ClipboardData(text: _clientID.toString()));
                 showSnackBarDialog(
-                    context: context, content: "ID copied to clipboard");
+                    context: context, content: S.current.profile_id_copied);
               },
             ),
           ],
@@ -207,7 +208,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Profile Photo",
+                S.current.profile_photo,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
@@ -217,7 +218,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                   _buildPopupOption(
                     context,
                     icon: Icons.image_outlined,
-                    label: "Gallery",
+                    label: S.current.profile_gallery,
                     onTap: () async {
                       Navigator.pop(context);
                       attachSingleFile(context,
@@ -232,7 +233,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                   _buildPopupOption(
                     context,
                     icon: Icons.camera_alt_outlined,
-                    label: "Camera",
+                    label: S.current.profile_camera,
                     onTap: () async {
                       Navigator.pop(context);
                       XFile? file = await MyCamera.capturePhoto();
@@ -308,16 +309,16 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Enter your name",
+                S.current.name_enter,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 children: [
                   Flexible(
                       child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Enter your name',
+                      hintText: S.current.name_enter,
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: appColors.primaryColor), // Bottom line color
@@ -333,13 +334,13 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                   )),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text("Cancel")),
+                      child: Text(S.current.cancel)),
                   TextButton(
                       onPressed: () {
                         String newDisplayName = displayNameController.text;
@@ -349,8 +350,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                         Navigator.of(context).pop();
                       },
                       child: Text(
-                        "Save",
-                        style: TextStyle(),
+                        S.current.save,
                       ))
                 ],
               ),

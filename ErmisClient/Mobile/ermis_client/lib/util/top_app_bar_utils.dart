@@ -103,7 +103,7 @@ class DividerBottom extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Divider(
       color: dividerColor,
-      thickness: 1,
+      thickness: 0.5,
       height: 0, // Ensures no additional spacing below the divider
     );
   }

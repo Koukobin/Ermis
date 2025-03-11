@@ -17,6 +17,7 @@
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/common/user_device.dart';
 import 'package:ermis_client/client/message_events.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -50,7 +51,7 @@ class LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: ErmisAppBar(titleText: 'Linked Devices',),
+      appBar: ErmisAppBar(titleText: S.current.linked_devices),
       body: Column(
         children: [
           Flexible(
@@ -90,9 +91,9 @@ class LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
                             value: 'logout',
                             child: Row(
                               children: [
-                                Icon(Icons.delete, color: Colors.red),
-                                SizedBox(width: 8),
-                                Text('Logout'),
+                                const Icon(Icons.delete, color: Colors.red),
+                                const SizedBox(width: 8),
+                                Text(S.current.logout_capitalized),
                               ],
                             ),
                           ),
@@ -122,7 +123,7 @@ class LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
             ),
             title: Center(
               child: Text(
-                "Logout From All Devices",
+                S.current.logout_from_all_devices,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.redAccent,
@@ -132,7 +133,7 @@ class LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
               ),
             ),
             onTap: () {
-              showLogoutConfirmationDialog(context, "Are you sure you would like to logout from all devices?",
+              showLogoutConfirmationDialog(context, S.current.are_you_sure_you_want_to_logout_from_all_devices,
                   () {
                 Client.instance().commands.logoutAllDevices();
                 SystemNavigator.pop();

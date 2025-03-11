@@ -15,6 +15,7 @@
  */
 
 import 'package:ermis_client/client/client.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:ermis_client/util/url_launcher.dart';
@@ -58,7 +59,7 @@ class HelpSettingsState extends State<HelpSettings> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
-      appBar: ErmisAppBar(titleText: "Help & Settings"),
+      appBar: ErmisAppBar(titleText: S.current.help_settings),
       body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
@@ -66,51 +67,51 @@ class HelpSettingsState extends State<HelpSettings> {
               // Section 1: Source Code
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("Source Code",
+                child: Text(S.current.source_code,
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               ListTile(
-                leading: Icon(FontAwesomeIcons.github),
-                title: Text("Source Code", style: TextStyle(fontSize: 16)),
+                leading: const Icon(FontAwesomeIcons.github),
+                title: Text(S.current.server_source_code, style: const TextStyle(fontSize: 16)),
                 onTap: () {
                   UrlLauncher.launchURL(context, AppConstants.sourceCodeURL);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.code),
+                leading: const Icon(Icons.code),
                 title:
-                    Text("Server Source Code", style: TextStyle(fontSize: 16)),
+                    Text(S.current.server_source_code, style: const TextStyle(fontSize: 16)),
                 onTap: () {
                   Client.instance().commands.requestServerSourceCodeHTMLPage();
                 },
               ),
 
-              Divider(thickness: 2),
+              const Divider(thickness: 2),
 
               // Section 2: Donations
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("Donations",
+                child: Text(S.current.donations,
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               ListTile(
-                leading: Icon(Icons.favorite),
+                leading: const Icon(Icons.favorite),
                 title:
-                    Text("Donate To Hoster", style: TextStyle(fontSize: 16)),
+                    Text(S.current.donate_to_hoster, style: TextStyle(fontSize: 16)),
                 onTap: () {
                   Client.instance().commands.requestDonationHTMLPage();
                 },
               ),
               ListTile(
-                leading: Icon(Icons.favorite),
-                title: Text("Donate To The Ermis Project",
+                leading: const Icon(Icons.favorite),
+                title: Text(S.current.donate_to_ermis_project,
                     style: TextStyle(fontSize: 16)),
                 onTap: () {
                   showSnackBarDialog(
                     context: context,
-                    content: "Functionality not implemented yet",
+                    content: S.current.functionality_not_implemented,
                   );
                 },
               ),
@@ -120,20 +121,20 @@ class HelpSettingsState extends State<HelpSettings> {
               // Section 3: Other
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("Other",
+                child: Text(S.current.other,
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               ListTile(
-                leading: Icon(FontAwesomeIcons.shieldHalved),
-                title: Text("License Crux", style: TextStyle(fontSize: 16)),
+                leading: const Icon(FontAwesomeIcons.shieldHalved),
+                title: Text(S.current.license_crux, style: const TextStyle(fontSize: 16)),
                 onTap: () async {
                   UrlLauncher.launchURL(context, AppConstants.licenceURL);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.info_outline),
-                title: Text("App info", style: TextStyle(fontSize: 16)),
+                leading: const Icon(Icons.info_outline),
+                title: Text(S.current.app_info, style: const TextStyle(fontSize: 16)),
                 onTap: () async {
                   pushSlideTransition(context, const AppInfo());
                 },
@@ -166,39 +167,39 @@ class AppInfo extends StatelessWidget {
                 ),
               ),
               Text(
-                "Version: ${AppConstants.applicationVersion}",
+                "${S.current.version_capitalized}: ${AppConstants.applicationVersion}",
                 style: TextStyle(
                   fontSize: 16,
                   color: Color(0xFF9E9E9E),
                 ),
               ),
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
               Image.asset(
                 AppConstants.appIconPath,
                 width: 125,
                 height: 125,
               ),
-              SizedBox(height: 25),
-              Text(
+              const SizedBox(height: 25),
+              const Text(
                 "Ⓒ 2023-2025 Ilias Koukovinis",
                 style: TextStyle(
                   fontSize: 16,
                   color: Color(0xFF9E9E9E),
                 ),
               ),
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
               ElevatedButton(
-                onPressed: () {
-                  pushSlideTransition(context, const LicenceInfo());
-                },
+                onPressed: () =>
+                    {pushSlideTransition(context, const LicenceInfo())},
                 style: ElevatedButton.styleFrom(
                   foregroundColor: appColors.inferiorColor, // Splash color
                   backgroundColor: appColors.primaryColor,
                   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 32),
                 ),
-                child: Text("Licence",
-                    style:
-                        TextStyle(fontSize: 18, color: appColors.secondaryColor)),
+                child: Text(
+                  S.current.license_capitalized,
+                  style: TextStyle(fontSize: 18, color: appColors.secondaryColor),
+                ),
               ),
             ],
           ),

@@ -3,6 +3,7 @@
 flutter clean
 flutter pub get
 dart run flutter_launcher_icons
+dart run intl_utils:generate
 
 # Running "dart run flutter_launcher_icons" generates a folder named 
 # "mipmap-anydpi-v26" in android/app/src/main/res/. In order to ensure the app icon 

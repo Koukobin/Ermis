@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import '../../client/client.dart';
 import '../../client/common/chat_request.dart';
 import '../../theme/app_theme.dart';
+import '../../util/custom_scroll_view.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../loading_state.dart';
 import 'user_avatar.dart';
@@ -63,55 +64,48 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
       appBar: ErmisAppBar(),
-      body: CustomScrollView(
-        // Must wrap RefreshIndicator in a CustomScrollView to enable slivers,
-        // allowing the AppBar to be independent from the body and
-        // preventing the RefreshIndicator from interfering with the AppBar's background color.
-        // I do not know why is this the case - but it works.
-        slivers: [
-          SliverFillRemaining(
-              child: RefreshIndicator(
-            // if user scrolls downwards refresh chat requests
-            onRefresh: _refreshContent,
-            backgroundColor: Colors.transparent,
-            color: appColors.primaryColor,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: _chatRequests!.isNotEmpty
-                  ? ListView.separated(
-                      itemCount: _chatRequests!.length,
-                      itemBuilder: (context, index) =>
-                          buildChatRequestButton(index),
-                      separatorBuilder: (context, index) => Divider(
-                        color: appColors.tertiaryColor.withOpacity(0.0),
-                        thickness: 1,
-                        height: 16,
-                      ),
-                    )
-                  :
-                  // Wrap in a list view to ensure it is scrollable for refresh indicator
-                  ListView(
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height -
-                              150, // Substract number to center
-                          child: Center(
-                            child: Text(
-                              "No chat requests available",
-                              style: TextStyle(
-                                color: appColors.inferiorColor,
-                                fontSize: 16,
-                                fontStyle: FontStyle.italic,
-                              ),
+      body: ScrollViewFixer.createScrollViewWithAppBarSafety(
+        scrollView: RefreshIndicator(
+          // if user scrolls downwards refresh chat requests
+          onRefresh: _refreshContent,
+          backgroundColor: Colors.transparent,
+          color: appColors.primaryColor,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: _chatRequests!.isNotEmpty
+                ? ListView.separated(
+                    itemCount: _chatRequests!.length,
+                    itemBuilder: (context, index) =>
+                        buildChatRequestButton(index),
+                    separatorBuilder: (context, index) => Divider(
+                      color: appColors.tertiaryColor.withOpacity(0.0),
+                      thickness: 1,
+                      height: 16,
+                    ),
+                  )
+                :
+                // Wrap in a list view to ensure it is scrollable for refresh indicator
+                ListView(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height -
+                            150, // Substract number to center
+                        child: Center(
+                          child: Text(
+                            "No chat requests available",
+                            style: TextStyle(
+                              color: appColors.inferiorColor,
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
-                        )
-                      ],
-                    ),
-            ),
-          )),
-        ],
+                        ),
+                      )
+                    ],
+                  ),
+          ),
+        ),
       ),
     );
   }
@@ -162,21 +156,21 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text("Accept"),
+                  child: const Text("Accept"),
                 ),
-                SizedBox(width: 10), // Add space between buttons
+                const SizedBox(width: 10), // Add space between buttons
                 OutlinedButton(
                   onPressed: () => Client.instance()
                       .commands
                       .declineChatRequest(_chatRequests![index].clientID),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
-                    side: BorderSide(color: Colors.redAccent),
+                    side: const BorderSide(color: Colors.redAccent),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text("Decline"),
+                  child: const Text("Decline"),
                 ),
               ],
             )

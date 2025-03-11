@@ -49,31 +49,22 @@ class WhatsAppPopupDialog extends StatefulWidget {
   State<WhatsAppPopupDialog> createState() => _WhatsAppPopupDialogState();
 }
 
-class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog>
-    with SingleTickerProviderStateMixin {
+class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
-  late final Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 300), // Transition duration
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
     _scaleAnimation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutBack, // Spring-like effect
-    );
-
-    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeIn, // Smooth fade-in
-      ),
+      curve: Curves.fastEaseInToSlowEaseOut,
     );
 
     // Launch animation
@@ -88,19 +79,16 @@ class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog>
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _opacityAnimation,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: widget.child,
-      ),
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: widget.child,
     );
   }
 }
 
 Future<void> showWhatsAppDialog(
   BuildContext context, {
-  required String title,
+  String? title,
   required List<TextButton> buttons,
   required String content,
 }) async {
@@ -109,8 +97,9 @@ Future<void> showWhatsAppDialog(
       barrierDismissible: true,
       builder: (_) => WhatsAppPopupDialog(
             child: AlertDialog(
-              title: Text(title),
+              title: title == null ? null : Text(title),
               content: Text(content),
+              actionsAlignment: MainAxisAlignment.end,
               actions: [...buttons],
             ),
           ));
@@ -206,9 +195,13 @@ Future<void> showErrorDialog(BuildContext context, String message) async {
 void showSnackBarDialog({
   required BuildContext context,
   required String content,
+  SnackBarAction? action,
 }) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(content)),
+    SnackBar(
+      content: Text(content),
+      action: action,
+    ),
   );
 }
 

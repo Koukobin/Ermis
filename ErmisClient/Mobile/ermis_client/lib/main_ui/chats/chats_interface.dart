@@ -49,7 +49,7 @@ class ChatUserAvatar extends InteractiveUserAvatar {
     required super.imageBytes,
     required super.isOnline,
     required super.chatSession,
-  }) : super(a: (BuildContext context, VoidCallback popContext) {
+  }) : super(onAvatarClicked: (BuildContext context, VoidCallback popContext) {
           final appColors = Theme.of(context).extension<AppColors>()!;
           return [
             IconButton(

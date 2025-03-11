@@ -102,6 +102,8 @@ class NotificationService {
         "channelName",
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
+        playSound: false,
+        visibility: NotificationVisibility.secret,
         largeIcon: ByteArrayAndroidBitmap(iconBytes),
       ),
     );
@@ -117,6 +119,8 @@ class NotificationService {
         "channelName",
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
+        playSound: false,
+        visibility: NotificationVisibility.secret,
         largeIcon: FilePathAndroidBitmap(iconPath),
       ),
     );
@@ -133,7 +137,9 @@ class NotificationService {
       channelDescription: 'Detailed notification example',
       importance: Importance.high,
       priority: Priority.high,
+      playSound: false,
       additionalFlags: Int32List.fromList(<int>[4]), // Optional, custom flags
+      visibility: NotificationVisibility.secret,
       ticker: 'ticker',
     ));
 
@@ -156,6 +162,7 @@ class NotificationService {
         largeIcon: ByteArrayAndroidBitmap(icon),
         ongoing: true, // Keeps the notification persistent
         autoCancel: false, // Prevents swiping it away
+        playSound: true,
         fullScreenIntent: true, // Ensures it's shown prominently
         additionalFlags: Int32List.fromList(<int>[4]), // Optional, custom flags
         actions: [
@@ -196,6 +203,10 @@ class NotificationService {
       priority: Priority.high,
       largeIcon: ByteArrayAndroidBitmap(icon),
       additionalFlags: Int32List.fromList(<int>[4]),
+      playSound: false,
+      visibility: NotificationVisibility.secret,
+      enableVibration: true,
+      vibrationPattern: Int64List.fromList([500, 500, 200, 500, 200, 500]),
       actions: [
         AndroidNotificationAction(
           NotificationAction.actionReply.id,

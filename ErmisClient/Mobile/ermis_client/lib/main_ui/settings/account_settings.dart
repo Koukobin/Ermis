@@ -22,6 +22,7 @@ import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../generated/l10n.dart';
 import '../../theme/app_theme.dart';
 import '../../client/client.dart';
 import '../../util/database_service.dart';
@@ -52,10 +53,10 @@ class AccountSettings extends StatefulWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Center(
+              Center(
                 child: Text(
-                  "Profiles",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  S.current.profile,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 20),
@@ -94,14 +95,14 @@ class AccountSettings extends StatefulWidget {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text("Close")),
+                      child: Text(S.current.close)),
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         Client.instance().commands.addNewAccount();
                         pushSlideTransition(context, const CreateAccountInterface());
                       },
-                      child: const Text("Add new account"))
+                      child: Text(S.current.account_add))
                 ],
               ),
             ],
@@ -132,21 +133,21 @@ class _AccountSettingsState extends State<AccountSettings> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
-      appBar: ErmisAppBar(titleText: "Account Settings"),
+      appBar: ErmisAppBar(titleText: S.current.account_settings),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ListView(
           children: [
             ListTile(
               leading: const Icon(Icons.person_add_alt),
-              title: const Text('Add account'),
+              title: Text(S.current.account_add),
               onTap: () async {
                 await AccountSettings.showOtherAccounts(context);
               },
             ),
             ListTile(
               leading: const Icon(FontAwesomeIcons.solidTrashCan, color: Colors.redAccent),
-              title: const Text('Delete account'),
+              title: Text(S.current.account_delete),
               onTap: () {
                 pushSlideTransition(context, const DeleteAccountSettings());
               },
@@ -182,7 +183,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
-      appBar: ErmisAppBar(titleText: "Delete Account"),
+      appBar: ErmisAppBar(titleText: S.current.account_delete),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 16.0),
         child: Column(
@@ -191,13 +192,13 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
             Row(
               children: [
                 // Display a warning icon in red
-                Icon(Icons.warning_amber_rounded, color: Colors.red),
+                const Icon(Icons.warning_amber_rounded, color: Colors.red),
 
                 // Add space between the icon and text
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
 
                 // Display the warning text about account deletion
-                Text('Deleting this account will:',
+                Text(S.current.account_delete_confirmation,
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
@@ -206,19 +207,19 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
             ),
 
             // Add space below the warning text
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Display bullet points explaining what will happen if the account is deleted
-            buildBullet("Delete your account with no way to recover"),
-            buildBullet("Erase your message history"),
-            buildBullet("Delete all your chats"),
+            buildBullet(S.current.account_delete_bullet1),
+            buildBullet(S.current.account_delete_bullet2),
+            buildBullet(S.current.account_delete_bullet3),
 
             // Add space below the bullet points            
             const SizedBox(height: 30),
 
             // Text
             Text(
-              "Are you certain you want to proceed?",
+              S.current.account_confirm_proceed,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -235,7 +236,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                labelText: "Email address",
+                labelText: S.current.email_address,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -248,7 +249,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
               controller: passwordController,
               keyboardType: TextInputType.visiblePassword,
               decoration: InputDecoration(
-                labelText: "Password",
+                labelText: S.current.password,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -265,8 +266,8 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                 backgroundColor: Colors.red,
                 minimumSize: const Size.fromHeight(50),
               ),
-              child: const Text(
-                "Delete My Account",
+              child: Text(
+                S.current.account_delete,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -323,7 +324,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Enter your name",
+                S.current.name_enter,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
@@ -332,7 +333,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                   Flexible(
                       child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Enter your name',
+                      hintText: S.current.name_enter,
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: appColors.primaryColor), // Bottom line color
@@ -354,7 +355,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                 children: [
                   TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text("Cancel")),
+                      child: Text(S.current.cancel)),
                   TextButton(
                       onPressed: () {
                         String newDisplayName = displayNameController.text;
@@ -362,7 +363,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                         Navigator.of(context).pop();
                       },
                       child: Text(
-                        "Save",
+                        S.current.save,
                         style: TextStyle(),
                       ))
                 ],

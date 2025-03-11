@@ -14,7 +14,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_client/generated/l10n.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+
+import '../util/locale_provider.dart';
 
 class AppTheme extends StatefulWidget {
   final Widget home;
@@ -108,6 +115,13 @@ class AppThemeState extends State<AppTheme> {
         selectionColor: Colors.greenAccent.withOpacity(0.5), // Color of the selected text background
         selectionHandleColor: Colors.green, // Color of the selection handles
       ),
+      radioTheme: RadioThemeData(
+          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return widget.darkAppColors.primaryColor; // Active color
+        }
+        return widget.darkAppColors.quaternaryColor; // Inactive color
+      })),
       checkboxTheme: CheckboxThemeData(
         checkColor: WidgetStateProperty.all(Colors.white), // Checkmark color
         splashRadius: 20,
@@ -134,20 +148,23 @@ class AppThemeState extends State<AppTheme> {
             borderRadius: BorderRadius.circular(8),
           ),
         ),
-        snackBarTheme: SnackBarThemeData(
-          backgroundColor: const Color(0xFF333333),
-          contentTextStyle: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-          shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Color.fromARGB(195, 10, 10, 10), width: 1.25),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFF333333),
+        contentTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+        ),
+        closeIconColor: Colors.grey,
+        showCloseIcon: true,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+              color: Color.fromARGB(195, 10, 10, 10), width: 1.25),
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 1,
-          behavior: SnackBarBehavior.floating,
-        ),
-        switchTheme: SwitchThemeData(
+        behavior: SnackBarBehavior.fixed,
+      ),
+      switchTheme: SwitchThemeData(
           trackColor: WidgetStateProperty.resolveWith<Color>((states) {
             if (states.contains(WidgetState.selected)) {
               return widget.darkAppColors.primaryColor; // Active color
@@ -211,6 +228,13 @@ class AppThemeState extends State<AppTheme> {
         selectionColor: Colors.greenAccent.withOpacity(0.5), // Color of the selected text background
         selectionHandleColor: Colors.green, // Color of the selection handles
       ),
+      radioTheme: RadioThemeData(
+          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return widget.lightAppColors.primaryColor; // Active color
+        }
+        return widget.lightAppColors.quaternaryColor; // Inactive color
+      })),
       checkboxTheme: CheckboxThemeData(
         checkColor: WidgetStateProperty.all(Colors.black), // Checkmark color
         splashRadius: 20,
@@ -235,44 +259,134 @@ class AppThemeState extends State<AppTheme> {
           elevation: 5,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
-          ),
         ),
-        snackBarTheme: SnackBarThemeData(
-          backgroundColor: const Color(0xFF333333),
-          contentTextStyle: const TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-          ),
-          shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Color.fromARGB(195, 220, 220, 220), width: 1.25),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFF333333),
+        contentTextStyle: const TextStyle(
+          color: Colors.black,
+          fontSize: 16,
+        ),
+        closeIconColor: Colors.grey,
+        showCloseIcon: true,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+              color: Color.fromARGB(195, 220, 220, 220), width: 1.25),
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 1,
-          behavior: SnackBarBehavior.floating,
-        ),
-        switchTheme: SwitchThemeData(
-          trackColor: WidgetStateProperty.resolveWith<Color>((states) {
-            if (states.contains(WidgetState.selected)) {
-              return widget.lightAppColors.primaryColor; // Active color
-            }
-            return widget.lightAppColors.secondaryColor; // Inactive color
-          }),
-          thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
-            return widget.lightAppColors.quaternaryColor; // Thumb color
-          }),
-        ),
+        behavior: SnackBarBehavior.fixed,
+      ),
+      switchTheme: SwitchThemeData(
+        trackColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return widget.lightAppColors.primaryColor; // Active color
+          }
+          return widget.lightAppColors.secondaryColor; // Inactive color
+        }),
+        thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+          return widget.lightAppColors.quaternaryColor; // Thumb color
+        }),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      themeMode: _themeMode,
-      darkTheme: buildDarkThemeData(),
-      theme: buildLightThemeData(),
-      home: widget.home,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => LocaleProvider(),
+        )
+      ],
+      child: Consumer<LocaleProvider>(
+        builder: (BuildContext context, LocaleProvider localeProvider, Widget? child) {
+          return MaterialApp(
+            locale: localeProvider.locale,
+            supportedLocales: AppConstants.availableLanguages,
+            localizationsDelegates: [
+              S.delegate,
+              
+              LatinMaterialLocalizationsDelegate(),
+              AncientGreekMaterialLocalizationsDelegate(),
+              LatinCupertinoLocalizationsDelegate(),
+              AncientGreekCupertinoLocalizationsDelegate(),
+
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            themeMode: _themeMode,
+            darkTheme: buildDarkThemeData(),
+            theme: buildLightThemeData(),
+            home: widget.home,
+          );
+        },
+      ),
     );
   }
+}
+
+class LatinMaterialLocalizations extends DefaultMaterialLocalizations {}
+
+class LatinMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'la';
+
+  @override
+  Future<MaterialLocalizations> load(Locale locale) async {
+    return LatinMaterialLocalizations();
+  }
+
+  @override
+  bool shouldReload(LatinMaterialLocalizationsDelegate old) => false;
+}
+
+// Ancient Greek Material Localizations
+class AncientGreekMaterialLocalizations extends DefaultMaterialLocalizations {}
+
+class AncientGreekMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'grc';
+
+  @override
+  Future<MaterialLocalizations> load(Locale locale) async {
+    return AncientGreekMaterialLocalizations();
+  }
+
+  @override
+  bool shouldReload(AncientGreekMaterialLocalizationsDelegate old) => false;
+}
+
+// Latin Cupertino Localizations
+class LatinCupertinoLocalizations extends DefaultCupertinoLocalizations {}
+
+class LatinCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'la';
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) async {
+    return LatinCupertinoLocalizations();
+  }
+
+  @override
+  bool shouldReload(LatinCupertinoLocalizationsDelegate old) => false;
+}
+
+// Ancient Greek Cupertino Localizations
+class AncientGreekCupertinoLocalizations extends DefaultCupertinoLocalizations {}
+
+class AncientGreekCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'grc';
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) async {
+    return AncientGreekCupertinoLocalizations();
+  }
+
+  @override
+  bool shouldReload(AncientGreekCupertinoLocalizationsDelegate old) => false;
 }
 
 

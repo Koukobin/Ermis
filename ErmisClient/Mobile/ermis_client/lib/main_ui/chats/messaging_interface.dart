@@ -26,6 +26,7 @@ import 'package:ermis_client/util/database_service.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:vibration/vibration.dart';
@@ -77,7 +78,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
 
-  final List<StreamSubscription<Object>> eventBusSubscriptions = [];
+  static final Map<ChatSession, List<StreamSubscription<Object>>> eventBusSubscriptions = {};
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -123,16 +124,19 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       _chatSession.chatSessionID,
     );
 
-    return messages;
+    // return messages;
+    return [];
   }
 
   void _setupListeners() {
     if (_sessions.containsKey(_chatSession)) {
-      _sessions[_chatSession] = _IsOnScreen.visible;
-      return;
+      for (final event in eventBusSubscriptions[_chatSession]!) {
+        event.cancel();
+      }
     }
+
     _sessions[_chatSession] = _IsOnScreen.visible;
-    
+
     final a = AppEventBus.instance.on<WrittenTextEvent>().listen((event) {
       if (!mounted) return;
       List<Message> messages = event.chatSession.getMessages;
@@ -148,7 +152,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         messages: messages,
       );
     });
-    eventBusSubscriptions.add(a);
 
     final b = AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
       ChatSession chatSession = event.chatSession;
@@ -160,8 +163,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
       // If message does not originate from the active chat session or the app is in
       // the active state (resumed), abstain from showing the notification
-      if (_sessions[_chatSession] == _IsOnScreen.visible && _appLifecycleState == AppLifecycleState.resumed) {
+      if (_sessions[_chatSession] == _IsOnScreen.visible && _appLifecycleState == AppLifecycleState.resumed && mounted) {
         setState(() {}); // Since messages was updated by the message handler simply setState
+        return;
+      }
+
+      // This instance would occur say when a client has two instances of an ermis client app 
+      if (msg.clientID == Client.instance().clientID) {
         return;
       }
 
@@ -174,6 +182,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
       if (!settingsJson.notificationsEnabled) {
         return;
+      }
+      
+      switch (settingsJson.notificationSound) {
+        case NotificationSound.osDefault:
+          FlutterRingtonePlayer().playNotification();
+        case NotificationSound.ermis:
+          FlutterRingtonePlayer().play(fromAsset: "assets/sounds/notification.wav");
       }
 
       if (!settingsJson.showMessagePreview) {
@@ -200,7 +215,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         replyCallBack: _sendTextMessage,
       );
     });
-    eventBusSubscriptions.add(b);
+    eventBusSubscriptions.putIfAbsent(_chatSession, () => []);
+    eventBusSubscriptions[_chatSession]!.add(b);
 
     final c = AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
       LoadedInMemoryFile file = event.file;
@@ -214,17 +230,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
       showExceptionDialog(context, "An error occurred while trying to save the file");
     });
-    eventBusSubscriptions.add(c);
 
     final d = AppEventBus.instance.on<ImageDownloadedEvent>().listen((event) async {
       _updateImageMessage(event.file, event.messageID);
     });
-    eventBusSubscriptions.add(d);
 
     final e = AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>().listen((event) {
       showToastDialog("Message deletion was unsuccessful");
     });
-    eventBusSubscriptions.add(e);
 
     final f = AppEventBus.instance.on<MessageDeletedEvent>().listen((event) async {
       ChatSession session = event.chatSession;
@@ -241,7 +254,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         setState(() {});
       }
     });
-    eventBusSubscriptions.add(f);
 
     final g = AppEventBus.instance.on<MessageDeliveryStatusEvent>().listen((event) async {
       if (!mounted) return;
@@ -251,7 +263,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         setState(() {});
       }
     });
-    eventBusSubscriptions.add(g);
 
     final h = AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
       if (!mounted) return;
@@ -261,7 +272,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
             session.chatSessionID == _chatSession.chatSessionID);
       });
     });
-    eventBusSubscriptions.add(h);
 
     VoiceCallHandler.startListeningForIncomingCalls(context);
   }
@@ -366,7 +376,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                 ),
               ],
             ),
-            Flexible(
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0),
               child: IconButton(
                   onPressed: () {
                     VoiceCallHandler.initiateVoiceCall(
@@ -376,7 +387,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                     );
                   },
                   icon: const Icon(Icons.phone)),
-            )
+            ),
           ],
         );
       }),
@@ -476,10 +487,27 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
               icon: Icon(Icons.copy)),
         ],
         IconButton(
-            onPressed: () {
+            onPressed: () async {
               List<int> messageIDs = _messagesBeingEdited.map((Message message) => message.messageID).toList();
-              Client.instance().commands.deleteMessages(_chatSessionIndex, messageIDs);
-              showSnackBarDialog(context: context, content: "Attempting to delete message");
+              await showWhatsAppDialog(
+                context,
+                buttons: [
+                  TextButton(
+                    onPressed: Navigator.of(context).pop,
+                    child: Text("Cancel"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Client.instance().commands.deleteMessages(_chatSessionIndex, messageIDs);
+                      showSnackBarDialog(context: context, content: "Attempting to delete message");
+                    },
+                    child: Text("Delete"),
+                  ),
+                ],
+                content: "Are you sure you want to permanently delete message?",
+              );
+
               setState(() {
                 _isEditingMessage = false;
                 _messagesBeingEdited.clear();

@@ -18,15 +18,20 @@ import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/settings/account_settings.dart';
 import 'package:ermis_client/main_ui/settings/notification_settings.dart';
+import 'package:ermis_client/util/locale_provider.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../generated/l10n.dart';
 import '../../theme/app_theme.dart';
 import '../../client/client.dart';
+import '../../util/custom_scroll_view.dart';
 import '../../util/dialogs_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../user_profile.dart';
 import 'help_settings.dart';
+import 'language_settings.dart';
 import 'linked_devices_settings.dart';
 import 'profile_settings.dart';
 import 'storage_data_settings.dart';
@@ -45,100 +50,112 @@ class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+    final localeProvider = Provider.of<LocaleProvider>(context);
+
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
       appBar: ErmisAppBar(
-        titleText: 'Settings',
+        titleText: S.current.settings,
       ),
-      body: ListView(
-        children: [
-          ListTile(
-            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-            leading: const PersonalProfilePhoto(radius: 25),
-            title: const DisplayName(),
-            subtitle: const Text('Profile, change name, ID'),
+      body: ScrollViewFixer.createScrollViewWithAppBarSafety(
+        scrollView: ListView(
+          children: [
+            ListTile(
+                contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                leading: const PersonalProfilePhoto(radius: 25),
+                title: const DisplayName(),
+                subtitle: Text(S.current.profile_change_name_id),
+                onTap: () {
+                  navigateWithFade(context, const ProfileSettings());
+                },
+                trailing: IconButton(
+                    onPressed: () async {
+                      await AccountSettings.showOtherAccounts(context);
+                    },
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: appColors.primaryColor,
+                    ))),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.lock),
+              title: Text(S.current.account),
+              subtitle: Text(S.current.privacy_security_change_number),
               onTap: () {
-                navigateWithFade(context, const ProfileSettings());
+                pushSlideTransition(context, const AccountSettings());
               },
-              trailing: IconButton(
-                  onPressed: () async {
-                    await AccountSettings.showOtherAccounts(context);
-                  },
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    color: appColors.primaryColor,
-                  ))),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.lock),
-            title: const Text('Account'),
-            subtitle: const Text('Privacy, security, change number'),
-            onTap: () {
-              pushSlideTransition(context, const AccountSettings());
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.chat),
-            title: const Text('Chats'),
-            subtitle: const Text('Theme, wallpapers, chat history'),
-            onTap: () {
-              pushSlideTransition(context, const ThemeSettingsPage());
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Notifications'),
-            subtitle: const Text('Message, group, and call tones'),
-            onTap: () {
-               pushSlideTransition(context, const NotificationSettings());
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.data_usage),
-            title: const Text('Storage and Data'),
-            subtitle: const Text('Network usage, auto-download'),
-            onTap: () {
-              pushSlideTransition(context, const StorageAndDataScreen());
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.help),
-            title: const Text('Help'),
-            subtitle: const Text('FAQ, contact us, terms and privacy policy'),
-            onTap: () {
-              pushSlideTransition(context, const HelpSettings());
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.link),
-            title: const Text('Linked Devices'),
-            onTap: () {
-              pushSlideTransition(context, const LinkedDevicesScreen());
-            },
-          ),
-          ListTile(
-            leading: const Icon(
-              Icons.logout,
-              color: Colors.redAccent,
             ),
-            title: const Text(
-              "Logout From Account",
-              style: TextStyle(
-                fontSize: 16,
+            ListTile(
+              leading: const Icon(Icons.chat),
+              title: Text(S.current.chats),
+              subtitle: Text(S.current.theme_wallpapers_chat_history),
+              onTap: () {
+                pushSlideTransition(context, const ThemeSettingsPage());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: Text(S.current.notifications),
+              subtitle: Text(S.current.message_group_call_tones),
+              onTap: () {
+                pushSlideTransition(context, const NotificationSettings());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.data_usage),
+              title: Text(S.current.storage_data),
+              subtitle: Text(S.current.network_usage_auto_download),
+              onTap: () {
+                pushSlideTransition(context, const StorageAndDataScreen());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: Text(S.current.app_language),
+              subtitle: Text(localeProvider.language ?? "Could not find language"),
+              onTap: () {
+                LanguageSettingsPage.showSheet(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.help),
+              title: Text(S.current.help),
+              subtitle: Text(S.current.faq_contact_terms_privacy),
+              onTap: () {
+                pushSlideTransition(context, const HelpSettings());
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: Text(S.current.linked_devices),
+              onTap: () {
+                pushSlideTransition(context, const LinkedDevicesScreen());
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.logout,
                 color: Colors.redAccent,
-                fontWeight: FontWeight.bold,
-                fontStyle: FontStyle.italic,
               ),
-            ),
-            onTap: () {
-              showLogoutConfirmationDialog(
-                  context,
-                  "Are you sure you want to logout?",
-                  () => Client.instance().commands.logoutThisDevice());
-            },
-          )
-        ],
+              title: Text(
+                S.current.logout_from_this_device,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              onTap: () {
+                showLogoutConfirmationDialog(
+                    context,
+                    S.current.linked_devices_logout_confirm,
+                    () => Client.instance().commands.logoutThisDevice());
+              },
+            )
+          ],
+        ),
       ),
     );
   }
@@ -172,7 +189,7 @@ class DisplayNameState extends State<DisplayName> {
   Widget build(BuildContext context) {
     return Text(
       _displayName,
-      style: TextStyle(fontSize: 18),
+      style: const TextStyle(fontSize: 18),
     );
   }
   

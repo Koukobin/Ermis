@@ -16,6 +16,7 @@
 
 import 'dart:io';
 
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/util/database_service.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:flutter/foundation.dart';
@@ -98,7 +99,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                         String? url = await showInputDialog(
                           context: context,
                           vsync: this,
-                          title: "Enter Server URL",
+                          title: S.current.server_url_enter,
                           hintText: "example.com",
                         );
                         if (url == null) return;
@@ -119,11 +120,11 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
 
                         // Feedback
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Server added successfully!")),
+                          SnackBar(content: Text(S.current.server_add_success)),
                         );
                       },
                       icon: const Icon(Icons.add),
-                      label: const Text("Add Server",
+                      label: Text(S.current.server_add,
                           style: TextStyle(fontSize: 16)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: appColors.primaryColor,
@@ -140,7 +141,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                         },
                         activeColor: appColors.primaryColor,
                         title: Text(
-                          "Check certificate",
+                          S.current.server_certificate_check,
                           style: TextStyle(fontSize: 16, color: appColors.primaryColor),
                         ),
                       ),
@@ -213,9 +214,11 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                     backgroundColor: appColors.secondaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text("Connect",
+                  child: Text(S.current.connect,
                       style: TextStyle(
-                          fontSize: 18, color: appColors.primaryColor)),
+                        fontSize: 18,
+                        color: appColors.primaryColor,
+                      )),
                 ),
               ],
             ),
@@ -253,7 +256,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
           child: DropdownButton<String>(
             key: _widgetKey,
             hint: Text(
-              "Choose server URL",
+              S.current.server_url_choose,
               style: TextStyle(
                 color: appColors.primaryColor,
                 fontWeight: FontWeight.w500,
