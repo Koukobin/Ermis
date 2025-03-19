@@ -14,8 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../client/client.dart';
@@ -29,9 +29,10 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
 
   // Check if the first digit of the application version - which is also the most significant -
   // matches the server version. For instance, app version 1.x.x should be compatible
-  // (theoretically at least) with server version 1.y.z; but not with server version 2.0.0! (Using "!" to avoid ambiguity with version dots)
+  // (theoretically at least) with server version 1.y.z; but not
+  // with server version 2.0.0! (Using "!" to avoid ambiguity with version dots)
   if (AppConstants.applicationVersion.codeUnitAt(0) != serverVersion.codeUnitAt(0)) {
-    showToastDialog("Incompatible server version! Some things many not work as expected!");
+    showToastDialog(S.current.incompatible_server_version_warning);
   }
 
   Client.instance().startMessageDispatcher();
@@ -40,7 +41,7 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
     // Navigate to the Registration interface
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => CreateAccountInterface()),
+      MaterialPageRoute(builder: (context) => const CreateAccountInterface()),
       (route) => keepPreviousRoutes, // Removes all previous routes.
     );
     return;
@@ -50,7 +51,7 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
   if (!success) {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => CreateAccountInterface()),
+      MaterialPageRoute(builder: (context) => const CreateAccountInterface()),
       (route) => keepPreviousRoutes, // Removes all previous routes.
     );
     return;
@@ -61,7 +62,7 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
   // Navigate to the main interface
   Navigator.pushAndRemoveUntil(
     context,
-    MaterialPageRoute(builder: (context) => MainInterface()),
+    MaterialPageRoute(builder: (context) => const MainInterface()),
     (route) => false, // Removes all previous routes.
   );
 }

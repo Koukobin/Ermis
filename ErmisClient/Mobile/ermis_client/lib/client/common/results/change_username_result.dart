@@ -22,8 +22,16 @@ enum ChangeUsernameResult {
     id: 0,
     resultHolder: ResultHolder(true, "Successfully changed username!"),
   ),
-  errorWhileChangingUsername(
+  passwordCannotBeIdenticalToPrevious(
     id: 1,
+    resultHolder: ResultHolder(false, "There was an error while trying to change username!")
+  ),
+  errorWhileChangingUsername(
+    id: 2,
+    resultHolder: ResultHolder(false, "There was an error while trying to change username!"),
+  ),
+  requirementsNotMet(
+    id: 3,
     resultHolder: ResultHolder(false, "There was an error while trying to change username!"),
   );
 

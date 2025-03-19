@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +44,9 @@ public class t {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-////		AESGCMCipher key = AESKeyGenerator.generateAESKey();
+		byte[] key = AESKeyGenerator.genereateRawSecretKey();
+		
+		System.out.println(new String(key, StandardCharsets.UTF_8));
 //		prependWavHeader(
 //		        "/home/ilias/test.wav",  // Input raw PCM file
 //		        "/home/ilias/test2.wav"  // Output WAV file

@@ -22,6 +22,6 @@ class Requirements {
 	final int? maxLength;
   final String? invalidCharacters;
 
-  Requirements({this.minEntropy = 0, required this.maxLength, this.invalidCharacters = ""});
-  Requirements.empty() : minEntropy = null, maxLength = null, invalidCharacters = null;
+  const Requirements({this.minEntropy = 0, required this.maxLength, this.invalidCharacters = ""});
+  const Requirements.empty() : minEntropy = null, maxLength = null, invalidCharacters = null;
 }

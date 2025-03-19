@@ -14,6 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/generated/l10n.dart';
+
 import '../results/ResultHolder.dart';
 import 'entry_type.dart';
 
@@ -68,7 +70,7 @@ enum CreateAccountCredential implements CredentialInterface {
   static CreateAccountCredential? fromId(int id) => _valuesById[id];
 }
 
-enum CredentialValidationResult {
+enum CredentialValidationResult implements A {
   successfullyExchangedCredentials(1, ResultHolder(true, "Successfully exchanged credentials!")),
   unableToGenerateClientId(2, ResultHolder(false, "Unable to generate client id!")),
   emailAlreadyUsed(3, ResultHolder(false, "Email is already used!")),
@@ -81,9 +83,57 @@ enum CredentialValidationResult {
 
   const CredentialValidationResult(this.id, this.resultHolder);
 
+  @override
+  bool get isSuccessful => resultHolder.isSuccessful;
+  
+  @override
+  String get message => switch (this) {
+    CredentialValidationResult.successfullyExchangedCredentials => S.current.credential_validation_success,
+    CredentialValidationResult.unableToGenerateClientId => S.current.credential_validation_client_id_error,
+    CredentialValidationResult.emailAlreadyUsed => S.current.create_account_email_exists,
+    CredentialValidationResult.usernameRequirementsNotMet => S.current.credential_validation_username_invalid,
+    CredentialValidationResult.passwordRequirementsNotMet => S.current.credential_validation_password_invalid,
+    CredentialValidationResult.invalidEmailAddress => S.current.credential_validation_email_invalid,
+  };
+
   static final Map<int, CredentialValidationResult> _valuesById = {
     for (var result in CredentialValidationResult.values) result.id: result,
   };
 
   static CredentialValidationResult? fromId(int id) => _valuesById[id];
+}
+
+abstract interface class A {
+  bool get isSuccessful;
+  String get message;
+}
+
+enum CreateAccountResult implements A {
+  successfullyCreatedAccount(1, ResultHolder(true, "Account successfully created!")),
+  errorWhileCreatingAccount(2, ResultHolder(false, "An error occurred while creating your account!")),
+  databaseMaxSizeReached(3, ResultHolder(false, "Database maximum capacity reached! Unfortunately, your request could not be processed.")),
+  emailAlreadyUsed(4, ResultHolder(false, "Email is already used!"));
+
+  final int id;
+  final ResultHolder resultHolder;
+
+  const CreateAccountResult(this.id, this.resultHolder);
+
+  @override
+  bool get isSuccessful => resultHolder.isSuccessful;
+  
+  @override
+  String get message => switch(this) {
+    CreateAccountResult.successfullyCreatedAccount => S.current.create_account_success,
+    CreateAccountResult.errorWhileCreatingAccount => S.current.create_account_error,
+    CreateAccountResult.databaseMaxSizeReached => S.current.create_account_database_full,
+    CreateAccountResult.emailAlreadyUsed => S.current.create_account_email_exists,
+  };
+
+  static final Map<int, CreateAccountResult> _valuesById = {
+    for (final result in CreateAccountResult.values) result.id: result,
+  };
+
+  static CreateAccountResult? fromId(int id) => _valuesById[id];
+  
 }

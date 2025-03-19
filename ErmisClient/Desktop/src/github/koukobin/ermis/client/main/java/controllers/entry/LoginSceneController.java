@@ -116,7 +116,7 @@ public final class LoginSceneController extends GeneralEntryController {
 
 			ResultHolder entryResult = backupVerificationEntry.getResult();
 			isSuccessful = entryResult.isSuccessful();
-			String resultMessage = entryResult.getResultMessage();
+			String resultMessage = entryResult.getIDable();
 
 			if (isSuccessful) {
 				DialogsUtil.showSuccessDialog(resultMessage);

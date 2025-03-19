@@ -16,6 +16,7 @@
 
 import 'package:ermis_client/client/client.dart';
 import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:ermis_client/util/url_launcher.dart';
@@ -25,7 +26,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../client/app_event_bus.dart';
 import '../../client/message_events.dart';
 import '../../constants/app_constants.dart';
-import '../../theme/app_theme.dart';
 import '../../util/file_utils.dart';
 import '../../util/top_app_bar_utils.dart';
 

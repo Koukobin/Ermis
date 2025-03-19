@@ -62,7 +62,7 @@ import github.koukobin.ermis.common.entry.Verification;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.results.EntryResult;
+import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -324,7 +324,7 @@ public class Client {
 			out.write(payload);
 		}
 
-		public EntryResult getResult() throws IOException {
+		public GeneralResult getResult() throws IOException {
 			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
 					.observeMessages()
 					.ofType(EntryMessage.class)
@@ -341,7 +341,7 @@ public class Client {
 
 			Map<AddedInfo, String> map = new EnumMap<>(AddedInfo.class);
 
-			EntryResult result = new EntryResult(
+			GeneralResult result = new GeneralResult(
 					new ResultHolder(isLoggedIn.get(), new String(resultMessageBytes)),
 					map);
 

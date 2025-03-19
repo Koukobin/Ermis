@@ -16,14 +16,13 @@
 
 import 'dart:async';
 
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class InfiniteScrollList extends StatefulWidget {
   final Function(int page)? onLoadingStart;
-  final bool everythingLoaded;
+  final bool isLoaded;
   final EdgeInsetsGeometry? padding;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
@@ -49,7 +48,7 @@ class InfiniteScrollList extends StatefulWidget {
   const InfiniteScrollList({
     super.key,
     this.onLoadingStart,
-    this.everythingLoaded = false,
+    this.isLoaded = false,
     this.padding,
     this.shrinkWrap = false,
     this.physics,
@@ -158,7 +157,7 @@ class _InfiniteScrollListState extends State<InfiniteScrollList> {
               itemCount: widget.itemCount + 2,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  if (!widget.everythingLoaded || _isLoadingTop) {
+                  if (!widget.isLoaded || _isLoadingTop) {
                     return buildLoadingScreen();
                   } else {
                     return const SizedBox.shrink();

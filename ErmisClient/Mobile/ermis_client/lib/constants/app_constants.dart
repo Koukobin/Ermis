@@ -14,10 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-
-import '../theme/app_theme.dart';
 
 class AppConstants {
   static late final String applicationVersion;
@@ -29,7 +28,7 @@ class AppConstants {
 
   static const String applicationTitle = "Ermis";
   static const String appIconPath = 'assets/primary_application_icon.png';
-  static const String parthenonasPath = 'assets/parthenonas.png';
+  static const String parthenonasPath = 'assets/background/z2.jpg';
   static const String sourceCodeURL = "https://github.com/Koukobin/Ermis";
   static const String licenceURL = "$sourceCodeURL/wiki/License";
   static const String licencePath = "assets/LICENCE.txt";
@@ -44,7 +43,7 @@ class AppConstants {
   static const AppColors darkAppColors = AppColors(
     primaryColor: Colors.green,
     secondaryColor: Color.fromARGB(255, 17, 17, 17),
-    tertiaryColor: Color.fromARGB(221, 30, 30, 30),
+    tertiaryColor: Color.fromARGB(255, 30, 30, 30),
     quaternaryColor: Color.fromARGB(255, 46, 46, 46),
     inferiorColor: Colors.white,
   );

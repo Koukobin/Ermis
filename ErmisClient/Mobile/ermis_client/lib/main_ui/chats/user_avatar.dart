@@ -16,9 +16,8 @@
 
 import 'dart:typed_data';
 
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-
-import '../../theme/app_theme.dart';
 
 class UserAvatar extends StatelessWidget {
   final Uint8List imageBytes;

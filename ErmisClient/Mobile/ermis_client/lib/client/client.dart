@@ -203,7 +203,7 @@ class Entry<T extends CredentialInterface> {
 
   Entry(this.entryType, this.outputStream, this.inputStream);
 
-  Future<ResultHolder> getCredentialsExchangeResult() async {
+  Future<A> getCredentialsExchangeResult() async {
     ByteBuf? buffer;
     await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
       buffer = msg.buffer;
@@ -211,10 +211,10 @@ class Entry<T extends CredentialInterface> {
 
     if (buffer == null) throw Exception("Buffer is null");
 
-    bool isSuccessful = buffer!.readBoolean();
-    Uint8List resultMessageBytes = buffer!.readBytes(buffer!.readableBytes);
-
-    return ResultHolder(isSuccessful, utf8.decode(resultMessageBytes));
+    int id = buffer!.readInt32();
+    return entryType == EntryType.createAccount
+            ? CredentialValidationResult.fromId(id)!
+            : LoginCredentialResult.fromId(id)!;
   }
 
   Future<void> sendCredentials(Map<T, String> credentials) async {
@@ -242,7 +242,7 @@ class Entry<T extends CredentialInterface> {
     isLoggedIn = payload!.readBoolean();
     Client.instance()._isLoggedIn = isLoggedIn;
 
-    Uint8List resultMessageBytes = payload!.readBytes(payload!.readableBytes);
+    Uint8List resultMessageBytes = payload!.readInt(payload!.readableBytes);
 
     return ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes));
   }
@@ -276,18 +276,21 @@ class Entry<T extends CredentialInterface> {
     isLoggedIn = payload.readBoolean();
 
     Client.instance()._isLoggedIn = isLoggedIn;
-    List<int> resultMessageBytes = payload.readBytes(payload.readInt32());
+    int resultMessageBytes = payload.readInt32();
 
     Map<AddedInfo, String> map = HashMap();
-    EntryResult result = EntryResult(
-        ResultHolder(isLoggedIn, String.fromCharCodes(resultMessageBytes)),
-        map);
 
     while (payload.readableBytes > 0) {
       AddedInfo addedInfo = AddedInfo.fromId(payload.readInt32());
-      Uint8List message = payload.readBytes(payload.readInt32());
+      Uint8List message = payload.readInt(payload.readInt32());
       map[addedInfo] = utf8.decode(message.toList());
     }
+
+    EntryResult result = EntryResult(
+        entryType == EntryType.createAccount
+            ? CreateAccountResult.fromId(resultMessageBytes)!
+            : LoginResult.fromId(resultMessageBytes)!,
+        map);
 
     return result;
   }
@@ -328,7 +331,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
 
     {
       int usernameMaxLength = payload!.readInt32();
-      String invalidCharacters = utf8.decode(payload!.readBytes(payload!.readInt32()));
+      String invalidCharacters = utf8.decode(payload!.readInt(payload!.readInt32()));
       usernameRequirements = Requirements(
         maxLength: usernameMaxLength,
         invalidCharacters: invalidCharacters,
@@ -339,7 +342,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
     {
       int passwordMaxLength = payload!.readInt32();
       double minEntropy = payload!.readFloat32();
-      String invalidCharacters = utf8.decode(payload!.readBytes(payload!.readableBytes));
+      String invalidCharacters = utf8.decode(payload!.readInt(payload!.readableBytes));
       passwordRequirements = Requirements(
         minEntropy: minEntropy,
         maxLength: passwordMaxLength,

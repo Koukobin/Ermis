@@ -14,10 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-import '../theme/app_theme.dart';
 
 Future<void> showToastDialog(String msg) async {
   await Fluttertoast.showToast(

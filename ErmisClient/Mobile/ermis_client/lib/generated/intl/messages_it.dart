@@ -20,8 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'it';
 
+  static String m0(deviceInfo) =>
+      "Sei sicuro di voler disconnetterti da ${deviceInfo}?";
+
+  static String m1(username) => "Chat con ${username}";
+
+  static String m2(entropy) => "Entropia: ${entropy} (Stima approssimativa)";
+
+  static String m3(fileName) => "File ricevuto ${fileName}";
+
+  static String m4(username) => "Messaggio da ${username}";
+
+  static String m5(minEntropy) => "Entropia minima: ${minEntropy}";
+
+  static String m6(resultMessage) => "Registrazione fallita: ${resultMessage}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accept": MessageLookupByLibrary.simpleMessage("Accetta"),
     "account": MessageLookupByLibrary.simpleMessage("Account"),
     "account_add": MessageLookupByLibrary.simpleMessage(
       "Aggiungi nuovo account",
@@ -56,10 +72,14 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "app_info": MessageLookupByLibrary.simpleMessage("Informazioni sull\'app"),
     "app_language": MessageLookupByLibrary.simpleMessage("Lingua dell\'app"),
+    "are_you_sure_you_want_to_logout_from": m0,
     "are_you_sure_you_want_to_logout_from_all_devices":
         MessageLookupByLibrary.simpleMessage(
           "Sei sicuro di voler uscire da tutti i dispositivi?",
         ),
+    "attempting_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Tentativo di eliminazione del messaggio",
+    ),
     "authentication_stage_create_account": MessageLookupByLibrary.simpleMessage(
       "Creazione account",
     ),
@@ -70,6 +90,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "authentication_stage_login": MessageLookupByLibrary.simpleMessage(
       "Accesso",
     ),
+    "backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Codice di verifica di backup",
+    ),
     "backup_verification_code_regenerate_error":
         MessageLookupByLibrary.simpleMessage(
           "Si è verificato un errore durante il cambio del nome utente!",
@@ -78,6 +101,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Codici di verifica di backup rigenerati con successo!",
         ),
+    "camera": MessageLookupByLibrary.simpleMessage("Fotocamera"),
     "cancel": MessageLookupByLibrary.simpleMessage("Annulla"),
     "change_password_error": MessageLookupByLibrary.simpleMessage(
       "Si è verificato un errore durante il cambio della password!",
@@ -137,13 +161,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Impostazioni tema chat",
     ),
+    "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Chat"),
+    "choose_option": MessageLookupByLibrary.simpleMessage("Scegli un\'opzione"),
+    "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
+      "L\'ID cliente deve essere un numero",
+    ),
     "close": MessageLookupByLibrary.simpleMessage("Chiudi"),
     "command_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Comando {} non implementato!",
     ),
     "command_unknown": MessageLookupByLibrary.simpleMessage(
       "Comando sconosciuto!",
+    ),
+    "confirm_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Sei sicuro di voler eliminare definitivamente il messaggio?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Connetti"),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
@@ -152,6 +184,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Tipo di contenuto sconosciuto!",
     ),
+    "create_account": MessageLookupByLibrary.simpleMessage("Crea account"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
       "Capacità massima del database raggiunta! Purtroppo la tua richiesta non può essere elaborata.",
     ),
@@ -185,9 +218,20 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "I requisiti del nome utente non sono soddisfatti!",
         ),
+    "decline": MessageLookupByLibrary.simpleMessage("Rifiuta"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Decompressione fallita",
     ),
+    "delete": MessageLookupByLibrary.simpleMessage("Elimina"),
+    "delete_chat": MessageLookupByLibrary.simpleMessage("Elimina chat"),
+    "delete_this_chat_question": MessageLookupByLibrary.simpleMessage(
+      "Eliminare questa chat?",
+    ),
+    "deleting_this_chat_will_permanently_delete_all_prior_messages":
+        MessageLookupByLibrary.simpleMessage(
+          "L\'eliminazione di questa chat cancellerà permanentemente tutti i messaggi precedenti",
+        ),
+    "display_name": MessageLookupByLibrary.simpleMessage("Nome visualizzato"),
     "display_part_of_messages_in_notifications":
         MessageLookupByLibrary.simpleMessage(
           "Mostra parte del messaggio nelle notifiche",
@@ -197,22 +241,63 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "donate_to_hoster": MessageLookupByLibrary.simpleMessage("Dona all\'host"),
     "donations": MessageLookupByLibrary.simpleMessage("Donazioni"),
+    "downloaded_file": MessageLookupByLibrary.simpleMessage("File scaricato"),
+    "email": MessageLookupByLibrary.simpleMessage("Email"),
     "email_address": MessageLookupByLibrary.simpleMessage("Indirizzo email"),
+    "email_is_empty": MessageLookupByLibrary.simpleMessage("L\'email è vuota!"),
     "email_mismatch": MessageLookupByLibrary.simpleMessage(
       "L\'email inserita non corrisponde all\'email effettiva!",
+    ),
+    "enter_client_id": MessageLookupByLibrary.simpleMessage(
+      "Inserisci l\'ID cliente",
+    ),
+    "enter_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Inserisci il codice di verifica",
+    ),
+    "enter_verification_code_sent_to_your_email":
+        MessageLookupByLibrary.simpleMessage(
+          "Inserisci il codice di verifica inviato alla tua email",
+        ),
+    "entropy_rough_estimate": m2,
+    "error_saving_file": MessageLookupByLibrary.simpleMessage(
+      "Si è verificato un errore durante il salvataggio del file",
     ),
     "faq_contact_terms_privacy": MessageLookupByLibrary.simpleMessage(
       "FAQ, contattaci, termini e privacy",
     ),
+    "feature_audio_messages": MessageLookupByLibrary.simpleMessage(
+      "Supporto per i messaggi audio",
+    ),
+    "feature_chat_themes": MessageLookupByLibrary.simpleMessage(
+      "Nuovi temi di chat",
+    ),
+    "feature_encryption": MessageLookupByLibrary.simpleMessage(
+      "Protocolli di crittografia migliorati",
+    ),
+    "feature_languages": MessageLookupByLibrary.simpleMessage(
+      "Supporto multilingue!",
+    ),
+    "feature_voice_calls": MessageLookupByLibrary.simpleMessage(
+      "Chiamate vocali (Accesso anticipato)",
+    ),
+    "file_received": m3,
     "functionality_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Funzionalità non ancora implementata!",
     ),
+    "gallery": MessageLookupByLibrary.simpleMessage("Galleria"),
+    "got_it_button": MessageLookupByLibrary.simpleMessage("Capito!"),
     "help": MessageLookupByLibrary.simpleMessage("Aiuto"),
     "help_settings": MessageLookupByLibrary.simpleMessage(
       "Impostazioni di aiuto",
     ),
+    "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
+      "Versione del server incompatibile! Alcune funzionalità potrebbero non funzionare come previsto!",
+    ),
     "license_capitalized": MessageLookupByLibrary.simpleMessage("Licenza"),
     "license_crux": MessageLookupByLibrary.simpleMessage("Licenza crux"),
+    "link_new_device": MessageLookupByLibrary.simpleMessage(
+      "Collega nuovo dispositivo",
+    ),
     "linked_devices": MessageLookupByLibrary.simpleMessage(
       "Dispositivi collegati",
     ),
@@ -225,6 +310,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "linked_devices_logout_confirm": MessageLookupByLibrary.simpleMessage(
       "Sei sicuro di voler disconnetterti da ",
     ),
+    "login": MessageLookupByLibrary.simpleMessage("Accedi"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
       "L\'account non esiste!",
     ),
@@ -254,6 +340,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "logout": MessageLookupByLibrary.simpleMessage("disconnetti"),
     "logout_capitalized": MessageLookupByLibrary.simpleMessage("Disconnetti"),
+    "logout_confirmation_all_devices": MessageLookupByLibrary.simpleMessage(
+      "Sei sicuro di voler disconnetterti da \${device.formattedInfo()}?",
+    ),
+    "logout_confirmation_device": MessageLookupByLibrary.simpleMessage(
+      "Sei sicuro di voler disconnetterti da \${device.formattedInfo()}?",
+    ),
     "logout_from_all_devices": MessageLookupByLibrary.simpleMessage(
       "Esci da tutti i dispositivi",
     ),
@@ -262,6 +354,13 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "manage_storage": MessageLookupByLibrary.simpleMessage(
       "Gestisci archiviazione",
+    ),
+    "message_by": m4,
+    "message_copied": MessageLookupByLibrary.simpleMessage(
+      "Messaggio copiato negli appunti",
+    ),
+    "message_deletion_unsuccessful": MessageLookupByLibrary.simpleMessage(
+      "Eliminazione del messaggio non riuscita",
     ),
     "message_group_call_tones": MessageLookupByLibrary.simpleMessage(
       "Messaggi, gruppi e suonerie chiamate",
@@ -275,10 +374,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Tipo di messaggio non riconosciuto!",
     ),
+    "min_entropy": m5,
     "name": MessageLookupByLibrary.simpleMessage("Nome"),
     "name_enter": MessageLookupByLibrary.simpleMessage("Inserisci il tuo nome"),
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Utilizzo rete, download automatico",
+    ),
+    "new_chat": MessageLookupByLibrary.simpleMessage("\'Nuova chat\'"),
+    "new_message": MessageLookupByLibrary.simpleMessage("Nuovo messaggio!"),
+    "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
+      "Nessuna richiesta di chat pendente",
+    ),
+    "no_chats_available_incompatible_server_version":
+        MessageLookupByLibrary.simpleMessage(
+          "Nessuna chat disponibile, versione del server incompatibile",
+        ),
+    "no_conversations_available": MessageLookupByLibrary.simpleMessage(
+      "Nessuna conversazione disponibile",
+    ),
+    "no_linked_devices": MessageLookupByLibrary.simpleMessage(
+      "Nessun dispositivo collegato",
     ),
     "notification_enable": MessageLookupByLibrary.simpleMessage(
       "Abilita notifiche",
@@ -300,16 +415,23 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("Notifiche"),
     "ok": MessageLookupByLibrary.simpleMessage("OK"),
+    "or": MessageLookupByLibrary.simpleMessage("O"),
     "other": MessageLookupByLibrary.simpleMessage("Altro"),
     "other_settings": MessageLookupByLibrary.simpleMessage(
       "Altre impostazioni",
     ),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
+    "password_is_empty": MessageLookupByLibrary.simpleMessage(
+      "La password è vuota!",
+    ),
     "password_validation_invalid": MessageLookupByLibrary.simpleMessage(
       "I requisiti della password non sono soddisfatti!",
     ),
     "password_validation_success": MessageLookupByLibrary.simpleMessage(
       "Password convalidata con successo!",
+    ),
+    "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Inserisci il codice di verifica",
     ),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Privacy, sicurezza, cambia numero",
@@ -336,8 +458,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "profile_settings": MessageLookupByLibrary.simpleMessage(
       "Impostazioni profilo",
     ),
+    "registration_failed": m6,
     "requests": MessageLookupByLibrary.simpleMessage("Richieste"),
+    "resend_code": MessageLookupByLibrary.simpleMessage("Reinvia codice"),
     "save": MessageLookupByLibrary.simpleMessage("Salva"),
+    "search": MessageLookupByLibrary.simpleMessage("Cerca..."),
+    "select_an_option": MessageLookupByLibrary.simpleMessage(
+      "Seleziona un\'opzione",
+    ),
+    "send_chat_request": MessageLookupByLibrary.simpleMessage(
+      "Invia richiesta di chat",
+    ),
     "server_add": MessageLookupByLibrary.simpleMessage("Aggiungi server"),
     "server_add_success": MessageLookupByLibrary.simpleMessage(
       "Server aggiunto con successo!",
@@ -359,10 +490,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_saved": MessageLookupByLibrary.simpleMessage(
       "Impostazioni salvate",
     ),
+    "sign_out": MessageLookupByLibrary.simpleMessage("Disconnetti"),
     "source_code": MessageLookupByLibrary.simpleMessage("Codice sorgente"),
     "storage_data": MessageLookupByLibrary.simpleMessage(
       "Archiviazione e dati",
     ),
+    "submit": MessageLookupByLibrary.simpleMessage("Invia"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
       "Rallenta un po\'! Sei stato temporaneamente bannato dall\'interazione con il server per un breve intervallo di tempo.",
     ),
@@ -375,6 +508,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "theme_wallpapers_chat_history": MessageLookupByLibrary.simpleMessage(
       "Tema, sfondi, cronologia chat",
     ),
+    "today": MessageLookupByLibrary.simpleMessage("Oggi"),
+    "type_message": MessageLookupByLibrary.simpleMessage(
+      "Scrivi un messaggio...",
+    ),
+    "unknown_size": MessageLookupByLibrary.simpleMessage(
+      "Dimensione sconosciuta",
+    ),
+    "use_backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Usa il codice di verifica di backup",
+    ),
+    "use_password": MessageLookupByLibrary.simpleMessage("Usa la password"),
     "username_same_as_old": MessageLookupByLibrary.simpleMessage(
       "Il nome utente non può essere lo stesso di quello vecchio!",
     ),
@@ -384,11 +528,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "username_validation_success": MessageLookupByLibrary.simpleMessage(
       "Nome utente convalidato con successo!",
     ),
+    "verification": MessageLookupByLibrary.simpleMessage("Verifica"),
     "verification_attempts_exhausted": MessageLookupByLibrary.simpleMessage(
       "Numero massimo di tentativi esaurito!",
     ),
     "verification_code_incorrect": MessageLookupByLibrary.simpleMessage(
       "Codice errato!",
+    ),
+    "verification_code_must_be_number": MessageLookupByLibrary.simpleMessage(
+      "Il codice di verifica deve essere un numero",
     ),
     "verification_email_invalid": MessageLookupByLibrary.simpleMessage(
       "Indirizzo email non valido",
@@ -403,6 +551,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibration": MessageLookupByLibrary.simpleMessage("Vibrazione"),
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
       "La vibrazione non è disponibile su questo dispositivo",
+    ),
+    "whats_new": MessageLookupByLibrary.simpleMessage("Cosa c\'è di nuovo"),
+    "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(
+      "Nuovi messaggi di sistema",
+    ),
+    "whats_new_title": MessageLookupByLibrary.simpleMessage(
+      "Nuove funzionalità in Hermis",
     ),
   };
 }

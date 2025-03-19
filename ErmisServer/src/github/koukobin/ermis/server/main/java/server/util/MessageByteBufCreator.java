@@ -15,6 +15,7 @@
  */
 package github.koukobin.ermis.server.main.java.server.util;
 
+import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -31,21 +32,38 @@ public final class MessageByteBufCreator {
 	private MessageByteBufCreator() {}
 
 	public static void sendMessageExceedsMaximumMessageLength(ChannelHandlerContext ctx, int maxLength) {
-		sendMessageInfo(ctx, "Message length exceeds maximum length (%d characters)".formatted(maxLength));
-	}
-
-	public static void sendMessageInfo(ChannelHandlerContext ctx, String text) {
 		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.SERVER_INFO.id);
-		payload.writeBytes(text.getBytes());
+		payload.writeInt(ServerInfoMessage.MESSAGE_LENGTH_EXCEEDS_LIMIT.id);
+		payload.writeInt(maxLength);
 		ctx.channel().writeAndFlush(payload);
 	}
 
-	public static void sendMessageInfo(EpollSocketChannel channel, String text) {
-		ByteBuf payload = channel.alloc().ioBuffer();
+	public static void sendMessageInfo(ChannelHandlerContext ctx, int messageInfoID) {
+		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.SERVER_INFO.id);
-		payload.writeBytes(text.getBytes());
-		channel.writeAndFlush(payload);
+		payload.writeInt(messageInfoID);
+		ctx.channel().writeAndFlush(payload);
 	}
 
+	public static void sendMessageInfo(EpollSocketChannel channel, int messageInfoID) {
+		ByteBuf payload = channel.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.SERVER_INFO.id);
+		payload.writeInt(messageInfoID);
+		channel.writeAndFlush(payload);
+	}
+	
+	public static void sendMessageInfo(ChannelHandlerContext ctx, ServerInfoMessage info) {
+		ByteBuf payload = ctx.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.SERVER_INFO.id);
+		payload.writeInt(info.id);
+		ctx.channel().writeAndFlush(payload);
+	}
+
+	public static void sendMessageInfo(EpollSocketChannel channel, ServerInfoMessage info) {
+		ByteBuf payload = channel.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.SERVER_INFO.id);
+		payload.writeInt(info.id);
+		channel.writeAndFlush(payload);
+	}
 }

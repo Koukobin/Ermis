@@ -15,7 +15,9 @@
  */
 
 import 'package:ermis_client/client/common/entry/requirements.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/main_ui/custom_textfield.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/util/device_utils.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/entropy_calculator.dart';
@@ -25,10 +27,8 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import '../../client/common/entry/added_info.dart';
 import '../../client/common/entry/create_account_info.dart';
 import '../../client/common/entry/login_info.dart';
-import '../../client/common/results/ResultHolder.dart';
 import '../../client/common/results/entry_result.dart';
 import '../../constants/app_constants.dart';
-import '../../theme/app_theme.dart';
 import '../../main.dart';
 import '../../util/database_service.dart';
 import '../../util/top_app_bar_utils.dart';
@@ -64,11 +64,13 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
     isDisplaying = true;
     createAccountEntry = Client.instance().createNewCreateAccountEntry();
     createAccountEntry.sendEntryType();
+
     createAccountEntry.fetchCredentialRequirements().whenComplete(() {
       _passwordRequirements = createAccountEntry.passwordRequirements!;
       _usernameRequirements = createAccountEntry.usernameRequirements!;
       setState(() {});
     });
+
     _passwordController.addListener(() {
       _passwordEntropy = EntropyCalculator.calculateEntropy(_passwordController.text);
       setState(() {});
@@ -77,13 +79,17 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
 
   @override
   void dispose() {
-    super.dispose();
     isDisplaying = false;
+    _emailController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+
     return Scaffold(
       appBar: ErmisAppBar(),
       backgroundColor: appColors.tertiaryColor,
@@ -119,33 +125,39 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                       CustomTextField(
                           keyboardType: TextInputType.emailAddress,
                           controller: _emailController,
-                          hint: "Email"),
+                          hint: S.current.email),
                       const SizedBox(height: 8),
                       CustomTextField(
                           maxLength: _usernameRequirements.maxLength,
                           illegalCharacters: _usernameRequirements.invalidCharacters,
                           keyboardType: TextInputType.name,
                           controller: _usernameController,
-                          hint: "Display Name"),
+                          hint: S.current.display_name),
                       const SizedBox(height: 8),
                       CustomTextField(
                           maxLength: _passwordRequirements.maxLength,
                           illegalCharacters: _passwordRequirements.invalidCharacters,
                           keyboardType: TextInputType.twitter,
                           controller: _passwordController,
-                          hint: "Password",
+                          hint: S.current.password,
                           obscureText: true),
                       const SizedBox(height: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "Entropy: ${double.parse((_passwordEntropy).toStringAsFixed(3))} (Rough estimate)",
-                            style: const TextStyle(fontStyle: FontStyle.italic),
+                          // Flexible so text is flexible and does not exceed screen
+                          Flexible(
+                            child: Text(
+                              S.current.entropy_rough_estimate(double.parse((_passwordEntropy).toStringAsFixed(3))),
+                              style: const TextStyle(fontStyle: FontStyle.italic),
+                            ),
                           ),
-                          Text(
-                            'Min Entropy: ${_passwordRequirements.minEntropy}',
-                            style: const TextStyle(fontStyle: FontStyle.italic),
+                          // Flexible so text is flexible and does not exceed screen
+                          Flexible( 
+                            child: Text(
+                              S.current.min_entropy(_passwordRequirements.minEntropy ?? 0),
+                              style: const TextStyle(fontStyle: FontStyle.italic),
+                            ),
                           )
                         ],
                       ),
@@ -163,7 +175,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                       ),
                       const SizedBox(height: 6),
                       _buildButton(
-                        label: "Create Account",
+                        label: S.current.create_account,
                         icon: Icons.account_circle,
                         backgroundColor: appColors.secondaryColor,
                         textColor: appColors.primaryColor,
@@ -179,7 +191,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                                 _passwordController.text,
                           });
                       
-                          ResultHolder entryResult = await createAccountEntry.getCredentialsExchangeResult();
+                          A entryResult = await createAccountEntry.getCredentialsExchangeResult();
                       
                           bool isSuccessful = entryResult.isSuccessful;
                           String resultMessage = entryResult.message;
@@ -210,7 +222,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
             ),
 
             _buildButton(
-              label: "Login",
+              label: S.current.login,
               icon: Icons.login,
               backgroundColor: appColors.primaryColor,
               textColor: appColors.secondaryColor,
@@ -222,7 +234,9 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                 }
 
                 Navigator.of(context).push(createVerticalTransition(
-                    LoginInterface(), DirectionYAxis.bottomToTop));
+                  const LoginInterface(),
+                  DirectionYAxis.bottomToTop,
+                ));
               },
             ),
           ],
@@ -238,7 +252,6 @@ class LoginInterface extends StatefulWidget {
 
   @override
   State<LoginInterface> createState() => LoginInterfaceState();
-  
 }
 
 class LoginInterfaceState extends State<LoginInterface> with Verification {
@@ -261,13 +274,17 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
 
   @override
   void dispose() {
-    super.dispose();
     isDisplaying = false;
+    _emailController.dispose();
+    _passwordController.dispose();
+    _backupVerificationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+
     return Scaffold(
       appBar: ErmisAppBar(centerTitle: false, removeDivider: true),
       backgroundColor: appColors.secondaryColor,
@@ -303,7 +320,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                       CustomTextField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        hint: "Email",
+                        hint: S.current.email,
                       ),
                       const SizedBox(height: 8),
                       AnimatedSwitcher(
@@ -314,12 +331,12 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                             ? CustomTextField(
                                 key: ValueKey('backupCode'), // Unique key for backup verification code
                                 controller: _backupVerificationController,
-                                hint: "Backup-Verification Code",
+                                hint: S.current.backup_verification_code,
                               )
                             : CustomTextField(
                                 keyboardType: TextInputType.twitter,
                                 controller: _passwordController,
-                                hint: "Password",
+                                hint: S.current.password,
                                 obscureText: true),
                         transitionBuilder: (Widget child, Animation<double> animation) {
                           // return ScaleTransition(scale: animation, child: child,);
@@ -333,20 +350,20 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                           );
                         },
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       _buildButton(
-                        label: "Login",
+                        label: S.current.login,
                         icon: Icons.login,
                         backgroundColor: appColors.secondaryColor,
                         textColor: appColors.primaryColor,
                         onPressed: () async {
                           if (_emailController.text.isEmpty) {
-                            showToastDialog("Email is empty!");
+                            showToastDialog(S.current.email_is_empty);
                             return;
                           }
 
                           if (_passwordController.text.isEmpty) {
-                            showToastDialog("Password is empty!");
+                            showToastDialog(S.current.password_is_empty);
                             return;
                           }
 
@@ -362,17 +379,16 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                             LoginCredential.password: _passwordController.text,
                           });
 
-                          ResultHolder entryResult = await loginEntry.getCredentialsExchangeResult();
+                          A entryResult = await loginEntry.getCredentialsExchangeResult();
 
                           bool isSuccessful = entryResult.isSuccessful;
                           String resultMessage = entryResult.message;
 
                           if (!isSuccessful) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      "Registration failed: $resultMessage")),
-                            );
+                            showSnackBarDialog(
+                                context: context,
+                                content: S.current
+                                    .registration_failed(resultMessage));
                             return;
                           }
 
@@ -383,8 +399,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
 
                           if (isSuccessful) {
                             Client.instance().startMessageHandler();
-                            await showLoadingDialog(context,
-                                Client.instance().fetchUserInformation());
+                            await showLoadingDialog(context, Client.instance().fetchUserInformation());
                             // Navigate to the main interface
                             Navigator.pushAndRemoveUntil(
                               context,
@@ -398,7 +413,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                       const SizedBox(height: 10),
                       Center(
                           child: Text(
-                        "OR",
+                        S.current.or,
                         style: TextStyle(color: appColors.primaryColor, fontSize: 16),
                       )),
                       const SizedBox(height: 10),
@@ -418,24 +433,32 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        label: AnimatedSwitcher(duration: Duration(milliseconds: 400), child: _useBackupverificationCode ? Text(
-                          key: ValueKey("sex"),
-                          "Use Password",
-                          style: TextStyle(
-                              fontSize: 18, color: appColors.inferiorColor),
-                        ) : Text(
-                          key: ValueKey("anal"),
-                          "Use Backup-Verification Code",
-                          style: TextStyle(
-                              fontSize: 18, color: appColors.inferiorColor),
-                        ),
-                        
-                        switchInCurve: Curves.easeInOut,
-                        switchOutCurve: Curves.easeInOut,
+                        label: AnimatedSwitcher(
+                          duration: Duration(milliseconds: 400),
+                          switchInCurve: Curves.easeInOut,
+                          switchOutCurve: Curves.easeInOut,
                           transitionBuilder:
                               (Widget child, Animation<double> animation) {
-                                return ScaleTransition(scale: animation, child: child,);
-                              },
+                            return ScaleTransition(
+                              scale: animation,
+                              child: child,
+                            );
+                          },
+                          child: _useBackupverificationCode
+                              ? Text(
+                                  key: ValueKey("sex"),
+                                  "Use Password",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: appColors.inferiorColor),
+                                )
+                              : Text(
+                                  key: ValueKey("anal"),
+                                  "Use Backup-Verification Code",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: appColors.inferiorColor),
+                                ),
                         ),
                       ),
                       // _buildTextButton(
@@ -455,7 +478,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
             ),
 
             _buildButton(
-                label: "Create Account",
+                label: S.current.create_account,
                 icon: Icons.account_circle,
                 backgroundColor: appColors.primaryColor,
                 textColor: appColors.secondaryColor,
@@ -467,7 +490,9 @@ class LoginInterfaceState extends State<LoginInterface> with Verification {
                   }
 
                   Navigator.of(context).push(createVerticalTransition(
-                      CreateAccountInterface(), DirectionYAxis.bottomToTop));
+                    const CreateAccountInterface(),
+                    DirectionYAxis.bottomToTop,
+                  ));
                 })
           ],
         ),
@@ -557,9 +582,9 @@ Future<void> _showVerificationDialog({
                   const SizedBox(height: 16.0),
                   TextField(
                     controller: codeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Enter Verification Code',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: S.current.enter_verification_code,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16.0),
@@ -572,7 +597,7 @@ Future<void> _showVerificationDialog({
                             : () {
                                 onResendCode();
                               },
-                        child: const Text('Resend Code'),
+                        child: Text(S.current.resend_code),
                       ),
                       ElevatedButton(
                         onPressed: isSubmitting
@@ -583,7 +608,7 @@ Future<void> _showVerificationDialog({
                                   showSnackBarDialog(
                                       context: context,
                                       content:
-                                          'Please enter the verification code');
+                                          S.current.please_enter_the_verification_code);
                                   return;
                                 }
             
@@ -593,7 +618,7 @@ Future<void> _showVerificationDialog({
                                   showSnackBarDialog(
                                       context: context,
                                       content:
-                                          "Verification code must be number");
+                                          S.current.verification_code_must_be_number);
                                   return;
                                 }
             
@@ -617,7 +642,7 @@ Future<void> _showVerificationDialog({
                                 width: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : const Text('Submit'),
+                            : Text(S.current.submit),
                       ),
                     ],
                   ),
@@ -642,14 +667,14 @@ mixin Verification {
     while (!verificationEntry.isVerificationComplete) {
       await _showVerificationDialog(
           context: context,
-          title: "Verification",
-          promptMessage: "Enter verification code sent to your email",
+          title: S.current.verification,
+          promptMessage: S.current.enter_verification_code_sent_to_your_email,
           onResendCode: () => verificationEntry.resendVerificationCode(),
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
       entryResult = await verificationEntry.getResult();
-      isSuccessful = entryResult.isSuccessful;
-      String resultMessage = entryResult.message;
+      isSuccessful = entryResult.resultHolder.isSuccessful;
+      String resultMessage = entryResult.resultHolder.message;
 
       if (isSuccessful) {
         showToastDialog(resultMessage);

@@ -16,8 +16,10 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:encrypt/encrypt.dart';
 import 'package:ermis_client/client/io/byte_buf.dart';
 // import 'dart:ffi' as ffi;
 // import 'package:path/path.dart' as path;
@@ -54,6 +56,7 @@ class VoiceCallUDPSocket {
   late int _chatSessionID;
   late int _key;
   late encrypt.Key _aesKey;
+  late Encrypter _encrypter;
 
   VoiceCallUDPSocket();
 
@@ -61,19 +64,20 @@ class VoiceCallUDPSocket {
   set key(int key) => _key = key;
   set aesKey(Uint8List aesKey) => _aesKey = encrypt.Key(aesKey);
 
-  Future<void> initialize(InternetAddress remoteAddress, int remotePort,
-      int chatSessionIndex,) async {
-    if (remotePort <= 0) {
-      throw ArgumentError("Port cannot be below zero");
-    }
-
+  Future<void> initialize(Uint8List aesKey) async {
     _udpSocket = await RawDatagramSocket.bind(
       InternetAddress.anyIPv4,
       9090,
     );
 
-    _remoteAddress = remoteAddress;
-    _remotePort = remotePort;
+    _encrypter = Encrypter(
+      AES(
+        encrypt.Key(aesKey),
+        mode: AESMode.gcm,
+        padding: null,
+      ),
+    );
+
   }
 
   void listen(
@@ -95,6 +99,18 @@ class VoiceCallUDPSocket {
       onDone: onDone,
       cancelOnError: cancelOnError,
     );
+  }
+
+  void rawSecureSend(List<int> message, InternetAddress address, int port) {
+    Random random = Random();
+    final Encrypted encrypted = _encrypter.encryptBytes(
+      message,
+      iv: IV(Uint8List.fromList(List.generate(12, (int index) {
+        return random.nextInt(10);
+      }))),
+    ); // IV probably not need in this context
+    _udpSocket.send(encrypted.bytes, address, port);
+    print(encrypted.bytes);
   }
 
   void send(Uint8List message) {

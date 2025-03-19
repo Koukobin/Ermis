@@ -25,7 +25,7 @@ import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.Verification.Action;
 import github.koukobin.ermis.common.entry.Verification.Result;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.results.EntryResult;
+import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
 import github.koukobin.ermis.server.main.java.util.InsecureRandomNumberGenerator;
@@ -87,7 +87,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 
 	@Override
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		EntryResult entryResult = new EntryResult(Result.WRONG_CODE.resultHolder);
+		GeneralResult entryResult = new GeneralResult(Result.WRONG_CODE, Result.WRONG_CODE.resultHolder.isSuccessful());
 		attemptsRemaining--;
 
 		boolean isVerificationComplete = false;
@@ -99,22 +99,19 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 			entryResult = executeWhenVerificationSuccessful();
 			isVerificationComplete = true;
 		} else if (attemptsRemaining == 0) {
-			entryResult = new EntryResult(Result.RUN_OUT_OF_ATTEMPTS.resultHolder);
+			entryResult = new GeneralResult(Result.RUN_OUT_OF_ATTEMPTS, Result.RUN_OUT_OF_ATTEMPTS.resultHolder.isSuccessful());
 			isVerificationComplete = true;
 		}
-		
+
 		if (entryResult == null) {
 			return;
 		}
-
-		byte[] resultMessageBytes = entryResult.getResultMessage().getBytes();
 
 		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.ENTRY.id);
 		payload.writeBoolean(isVerificationComplete);
 		payload.writeBoolean(entryResult.isSuccessful());
-		payload.writeInt(resultMessageBytes.length);
-		payload.writeBytes(resultMessageBytes);
+		payload.writeInt(entryResult.getIDable().getID());
 		for (Entry<AddedInfo, String> addedInfo : entryResult.getAddedInfo().entrySet()) {
 			payload.writeInt(addedInfo.getKey().id);
 			byte[] info = addedInfo.getValue().getBytes();
@@ -135,7 +132,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 	}
 
 	public abstract String createEmailMessage(String account, String generatedVerificationCode);
-	public abstract EntryResult executeWhenVerificationSuccessful() throws IOException;
+	public abstract GeneralResult executeWhenVerificationSuccessful() throws IOException;
 	
 	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
 		login(ctx, clientInfo);

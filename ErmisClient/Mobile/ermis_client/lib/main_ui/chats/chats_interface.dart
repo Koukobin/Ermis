@@ -18,10 +18,12 @@ import 'dart:async';
 
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/main_ui/chats/interactive_user_avatar.dart';
 import 'package:ermis_client/main_ui/chats/temp.dart';
 import 'package:ermis_client/main_ui/settings/linked_devices_settings.dart';
 import 'package:ermis_client/main_ui/settings/settings_interface.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -29,7 +31,6 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../../util/transitions_util.dart';
 import '../splash_screen.dart';
 import 'messaging_interface.dart';
-import '../../theme/app_theme.dart';
 import '../../client/common/chat_session.dart';
 import '../../client/client.dart';
 import '../../util/top_app_bar_utils.dart';
@@ -66,7 +67,7 @@ class ChatUserAvatar extends InteractiveUserAvatar {
                   popContext();
                   showSnackBarDialog(
                       context: context,
-                      content: "Functionality not implemented yet!");
+                      content: S.current.functionality_not_implemented);
                 },
                 icon: Icon(
                   Icons.phone_outlined,
@@ -77,7 +78,7 @@ class ChatUserAvatar extends InteractiveUserAvatar {
                   popContext();
                   showSnackBarDialog(
                       context: context,
-                      content: "Functionality not implemented yet!");
+                      content: S.current.functionality_not_implemented);
                 },
                 icon: Icon(
                   Icons.video_call_outlined,
@@ -88,7 +89,7 @@ class ChatUserAvatar extends InteractiveUserAvatar {
                   popContext();
                   showSnackBarDialog(
                       context: context,
-                      content: "Functionality not implemented yet!");
+                      content: S.current.functionality_not_implemented);
                 },
                 icon: Icon(
                   Icons.info_outline,
@@ -180,7 +181,7 @@ class ChatsState extends TempState<Chats> {
         ErmisAppBar(
           actions: [
             IconButton(
-              icon: Icon(Icons.search),
+              icon: const Icon(Icons.search),
               onPressed: () {
                 setState(() {
                   task = Task.searching;
@@ -214,8 +215,8 @@ class ChatsState extends TempState<Chats> {
                     SendChatRequestButton.showAddChatRequestDialog(context);
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: const Text(
-                    'New chat',
+                  child: Text(
+                    S.current.new_chat,
                     style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
                   ),
                 ),
@@ -224,8 +225,8 @@ class ChatsState extends TempState<Chats> {
                     pushSlideTransition(context, const LinkedDevicesScreen());
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: const Text(
-                    'Linked devices',
+                  child: Text(
+                    S.current.linked_devices,
                     style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15)
                   ),
                 ),
@@ -234,8 +235,8 @@ class ChatsState extends TempState<Chats> {
                     pushSlideTransition(context, const SettingsScreen());
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: const Text(
-                    'Settings',
+                  child: Text(
+                    S.current.settings,
                     style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
                   ),
                 ),
@@ -249,8 +250,8 @@ class ChatsState extends TempState<Chats> {
                     );
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: const Text(
-                    'Sign out',
+                  child: Text(
+                    S.current.sign_out,
                     style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
                   ),
                 ),
@@ -296,13 +297,12 @@ class ChatsState extends TempState<Chats> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: const Text("Delete this chat?"),
-                        content: Text(
-                            "Deleting this chat will permanently delete all prior messages"),
+                        title: Text(S.current.delete_this_chat_question),
+                        content: Text(S.current.deleting_this_chat_will_permanently_delete_all_prior_messages),
                         actions: [
                           TextButton(
                             onPressed: Navigator.of(context).pop, // Cancel
-                            child: const Text("Cancel"),
+                            child: Text(S.current.cancel),
                           ),
                           TextButton(
                             onPressed: () {
@@ -313,7 +313,7 @@ class ChatsState extends TempState<Chats> {
                                     .deleteChatSession(cs.chatSessionIndex);
                               }
                             }, // Confirm
-                            child: const Text("Delete chat"),
+                            child: Text(S.current.delete_chat),
                           ),
                         ],
                       );
@@ -364,15 +364,30 @@ class ChatsState extends TempState<Chats> {
                         SizedBox(
                           height: MediaQuery.of(context).size.height - 150,
                           width: MediaQuery.of(context).size.width,
-                          child: Center(
-                            child: Text(
-                              "No conversations available",
-                              style: TextStyle(
-                                color: appColors.inferiorColor,
-                                fontSize: 16,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("assets/ermis/a.png"),
+                              const SizedBox(height: 15),
+                              Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  color: appColors.primaryColor,
+                                  borderRadius: const BorderRadius.all(Radius.circular(24)),
+                                  border: Border.all(color: appColors.secondaryColor),
+                                ),
+                                child: Text(
+                                  S.current.no_conversations_available,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: appColors.secondaryColor,
+                                    fontSize: 16,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
                         )
                       ],
@@ -429,8 +444,7 @@ class ChatsState extends TempState<Chats> {
             ? Icon(
                 Icons.check_circle,
                 color: Colors.green,
-                key: ValueKey(
-                    'selected_$sessionIndex'), // Unique key for the selected state
+                key: ValueKey('selected_$sessionIndex'), // Unique key for the selected state
               )
             : Text(
                 chatSession.lastMessageSentTime,
@@ -521,14 +535,14 @@ class SendChatRequestButton extends StatefulWidget {
         context: context,
         keyboardType: TextInputType.number,
         vsync: _SendChatRequestButtonState._vsync,
-        title: "Send Chat Request",
-        hintText: "Enter client id");
+        title: S.current.send_chat_request,
+        hintText: S.current.client_id_must_be_a_number);
 
     if (input == null) return;
     if (int.tryParse(input) == null) {
       showSnackBarDialog(
         context: context,
-        content: "Client id must be a number",
+        content: S.current.client_id_must_be_a_number,
       );
       return;
     }
@@ -655,7 +669,7 @@ class _SearchFieldState extends State<SearchField> {
                       });
                     },
                     child: const Icon(Icons.clear)),
-                hintText: 'Search...',
+                hintText: S.current.search,
                 fillColor: appColors.tertiaryColor,
                 filled: true,
               )),
@@ -672,8 +686,7 @@ class AnimatedDropdownMenu extends StatefulWidget {
   State<AnimatedDropdownMenu> createState() => _AnimatedDropdownMenuState();
 }
 
-class _AnimatedDropdownMenuState extends State<AnimatedDropdownMenu>
-    with SingleTickerProviderStateMixin {
+class _AnimatedDropdownMenuState extends State<AnimatedDropdownMenu> with SingleTickerProviderStateMixin {
   String? selectedValue = 'Option 1'; // Default selected value
   bool isOpen = false; // Tracks whether the dropdown is open
   late AnimationController _controller; // Animation controller
@@ -742,7 +755,7 @@ class _AnimatedDropdownMenuState extends State<AnimatedDropdownMenu>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      selectedValue ?? "Select an option",
+                      selectedValue ?? S.current.select_an_option,
                       style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
                     Icon(

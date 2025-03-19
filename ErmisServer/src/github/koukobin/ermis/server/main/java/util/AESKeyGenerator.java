@@ -30,6 +30,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
 import io.netty.buffer.ByteBuf;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author Ilias Koukovinis
@@ -41,7 +42,15 @@ public final class AESKeyGenerator {
 	
 	private AESKeyGenerator() {}
 	
-	public static AESGCMCipher generateAESKey1() {
+	public static byte[] genereateRawSecretKey() {
+		// KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+		// keyGen.init(256); // Key size: 128, 192, or 256 bits
+		byte[] key = new byte[256 / 8];
+		secureRandom.nextBytes(key);
+		return new byte[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	}
+
+	public static AESGCMCipher generateAESKeyWithoutIV() {
 		try {
 			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 			keyGen.init(256); // Key size: 128, 192, or 256 bits
@@ -60,23 +69,42 @@ public final class AESKeyGenerator {
 			throw new RuntimeException(e);
 		}
 	}
+	
+    private static final int IV_LENGTH = 12; // Standard IV length for GCM
+    private static final int TAG_LENGTH = 16; // 128-bit authentication tag
+    
+	public static byte[] decrypt(SecretKey secretKey, byte[] fullCiphertext) {
+		System.out.println(new String(fullCiphertext));
+	    if (fullCiphertext.length < IV_LENGTH + TAG_LENGTH) {
+	        throw new IllegalArgumentException("Ciphertext too short");
+	    }
 
-	public static byte[] decrypt(SecretKey secretKey, byte[] fullCiphertext) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
-		Cipher decryptionCipher;
+	    // Extract IV
+	    byte[] iv = Arrays.copyOfRange(fullCiphertext, 0, IV_LENGTH);
+	    byte[] ciphertext = Arrays.copyOfRange(fullCiphertext, IV_LENGTH, fullCiphertext.length);
+
+	    Cipher cipher = null;
 		try {
-			decryptionCipher = Cipher.getInstance("AES/GCM/NoPadding");
-			// Extract IV from ciphertext storage
-			byte[] extractedIv = Arrays.copyOfRange(fullCiphertext, 0, 12); // Assuming IV is prepended
-			byte[] ciphertext = Arrays.copyOfRange(fullCiphertext, 12, fullCiphertext.length);
-			
-			decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, extractedIv));
-
-			byte[] decryptedText = decryptionCipher.doFinal(ciphertext);
-			return decryptedText;
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException e) {
+			cipher = Cipher.getInstance("AES/GCM/NoPadding");
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new RuntimeException(e);
 		}
+	    GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH * 8, iv);
+	    try {
+			cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
+		} catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	    try {
+			return cipher.doFinal(ciphertext);
+		} catch (IllegalBlockSizeException | BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ciphertext;
 	}
 	
 	public static String bytesToHex(byte[] bytes) {

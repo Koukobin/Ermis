@@ -58,12 +58,14 @@ public enum ClientCommandType {
 	DOWNLOAD_IMAGE(CommandLevel.HEAVY, 309),
 	START_VOICE_CALL(CommandLevel.HEAVY, 310),
 	ACCEPT_VOICE_CALL(CommandLevel.HEAVY, 311),
-	
+
 	// External Pages
 	REQUEST_DONATION_PAGE_URL(CommandLevel.LIGHT, 400),
-	REQUEST_SOURCE_CODE_PAGE_URL(CommandLevel.LIGHT, 401);
+	REQUEST_SOURCE_CODE_PAGE_URL(CommandLevel.LIGHT, 401),
 
-	
+	// Other
+	FETCH_SIGNALLING_SERVER_PORT(CommandLevel.LIGHT, 500);
+
 	/*
 	 * This enum determines whether the command requested by the client is "Heavy" or "Light."
 	 * 

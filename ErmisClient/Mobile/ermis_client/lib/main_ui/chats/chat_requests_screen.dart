@@ -18,11 +18,12 @@ import 'dart:typed_data';
 
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
+import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../client/client.dart';
 import '../../client/common/chat_request.dart';
-import '../../theme/app_theme.dart';
 import '../../util/custom_scroll_view.dart';
 import '../../util/top_app_bar_utils.dart';
 import '../loading_state.dart';
@@ -71,13 +72,11 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
           backgroundColor: Colors.transparent,
           color: appColors.primaryColor,
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: _chatRequests!.isNotEmpty
                 ? ListView.separated(
                     itemCount: _chatRequests!.length,
-                    itemBuilder: (context, index) =>
-                        buildChatRequestButton(index),
+                    itemBuilder: (context, index) => buildChatRequestButton(index),
                     separatorBuilder: (context, index) => Divider(
                       color: appColors.tertiaryColor.withOpacity(0.0),
                       thickness: 1,
@@ -89,17 +88,33 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
                 ListView(
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height -
-                            150, // Substract number to center
-                        child: Center(
-                          child: Text(
-                            "No chat requests available",
-                            style: TextStyle(
-                              color: appColors.inferiorColor,
-                              fontSize: 16,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
+                        height: MediaQuery.of(context).size.height - 150, // Substract number to center
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset("assets/ermis/a.png"),
+                            const SizedBox(height: 15),
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.rectangle,
+                                color: appColors.primaryColor,
+                                borderRadius: const BorderRadius.all(Radius.circular(24)),
+                                border: Border.all(
+                                  color: appColors.secondaryColor
+                                ),
+                              ),
+                              child: Text(
+                                S.current.no_chat_requests_available,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: appColors.secondaryColor,
+                                  fontSize: 16,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       )
                     ],
@@ -156,7 +171,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text("Accept"),
+                  child: Text(S.current.accept),
                 ),
                 const SizedBox(width: 10), // Add space between buttons
                 OutlinedButton(
@@ -170,7 +185,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text("Decline"),
+                  child: Text(S.current.decline),
                 ),
               ],
             )

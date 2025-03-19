@@ -28,8 +28,7 @@ import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo.Action;
 import github.koukobin.ermis.common.entry.CreateAccountInfo.Credential;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.results.EntryResult;
-import github.koukobin.ermis.common.results.ResultHolder;
+import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
@@ -111,25 +110,22 @@ final class CreateAccountHandler extends EntryHandler {
 			String password = credentials.get(Credential.PASSWORD);
 			String email = credentials.get(Credential.EMAIL);
 
-			ResultHolder resultHolder;
+			CreateAccountInfo.CredentialValidation.Result result;
 
 			if (EmailerService.isValidEmailAddress(email)) {
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-					resultHolder = conn.checkIfUserMeetsRequirementsToCreateAccount(username, password, email);
+					result = conn.checkIfUserMeetsRequirementsToCreateAccount(username, password, email);
 				}
 			} else {
-				resultHolder = CreateAccountInfo.CredentialValidation.Result.INVALID_EMAIL_ADDRESS.resultHolder;
+				result = CreateAccountInfo.CredentialValidation.Result.INVALID_EMAIL_ADDRESS;
 			}
-
-			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
 
 			ByteBuf payload = ctx.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.ENTRY.id);
-			payload.writeBoolean(resultHolder.isSuccessful());
-			payload.writeBytes(resultMessageBytes);
+			payload.writeInt(result.id);
 			ctx.channel().writeAndFlush(payload);
 
-			if (resultHolder.isSuccessful()) {
+			if (result.resultHolder.isSuccessful()) {
 				super.registrationSuccessful(ctx);
 			} else {
 //				EntryHandler.registrationFailed(ctx);
@@ -145,7 +141,7 @@ final class CreateAccountHandler extends EntryHandler {
 		VerificationHandler verificationHandler = new VerificationHandler(clientInfo, email) {
 
 			@Override
-			public EntryResult executeWhenVerificationSuccessful() {
+			public GeneralResult executeWhenVerificationSuccessful() {
 
 				String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
 				String username = credentials.get(Credential.USERNAME);
@@ -153,7 +149,7 @@ final class CreateAccountHandler extends EntryHandler {
 
 				UserDeviceInfo deviceInfo = new UserDeviceInfo(address, deviceType, osName);
 
-				EntryResult result;
+				GeneralResult result;
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 					result = conn.createAccount(username, password, deviceInfo, email);
 				}

@@ -32,9 +32,9 @@ void main() {
       ByteBuf buf = ByteBuf(10);
       buf.writeBytes(Uint8List.fromList([1, 2, 3]));
       expect(buf.readableBytes, 3);
-      expect(buf.readBytes(2), [1, 2]);
+      expect(buf.readInt(2), [1, 2]);
       expect(buf.readableBytes, 1);
-      expect(buf.readBytes(1), [3]);
+      expect(buf.readInt(1), [3]);
     });
 
     test('Write beyond capacity (growable)', () {
@@ -73,11 +73,11 @@ void main() {
     test('Mark and reset reader index', () {
       ByteBuf buf = ByteBuf(10);
       buf.writeBytes(Uint8List.fromList([1, 2, 3, 4]));
-      buf.readBytes(2); // Read [1, 2]
+      buf.readInt(2); // Read [1, 2]
       buf.markReaderIndex();
-      buf.readBytes(1); // Read [3]
+      buf.readInt(1); // Read [3]
       buf.resetReaderIndex();
-      expect(buf.readBytes(2), [3, 4]);
+      expect(buf.readInt(2), [3, 4]);
     });
 
     test('Mark and reset writer index', () {
@@ -87,23 +87,23 @@ void main() {
       buf.writeBytes(Uint8List.fromList([3]));
       buf.resetWriterIndex();
       buf.writeBytes(Uint8List.fromList([1]));
-      expect(buf.readBytes(buf.readableBytes), [1, 2, 1]);
+      expect(buf.readInt(buf.readableBytes), [1, 2, 1]);
     });
 
     test('Discarding already read bytes', () {
       ByteBuf buf = ByteBuf(10);
       buf.writeBytes(Uint8List.fromList([1, 2, 3, 4, 5]));
-      buf.readBytes(3); // Read [1, 2, 3]
+      buf.readInt(3); // Read [1, 2, 3]
       buf.discardReadBytes();
       expect(buf.readableBytes, 2); // Only [4, 5] remain
-      expect(buf.readBytes(buf.readableBytes), [4, 5]);
+      expect(buf.readInt(buf.readableBytes), [4, 5]);
     });
 
     test('ByteBuf.wrap works', () {
       Uint8List list = Uint8List.fromList([10, 20, 30]);
       ByteBuf buf = ByteBuf.wrap(list);
       expect(buf.capacity, list.length);
-      expect(buf.readBytes(3), [10, 20, 30]);
+      expect(buf.readInt(3), [10, 20, 30]);
     });
   });
 }

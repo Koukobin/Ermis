@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
+import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.WhatTheFuckIsGoingOnException;
@@ -163,7 +164,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 			chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
 		} catch (IndexOutOfBoundsException ioobe) {
 			getLogger().debug("Chat session index does not exist:", ioobe);
-			MessageByteBufCreator.sendMessageInfo(ctx, "Chat session selected doesn't exist. (May have been deleted by the other user)");
+			MessageByteBufCreator.sendMessageInfo(ctx, ServerInfoMessage.CHAT_SESSION_DOES_NOT_EXIST);
 			return;
 		}
 
@@ -233,7 +234,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 	}
 
 	private void broadcastMessageToChatSession(ByteBuf payload, int tempMessageID, int messageID, ChatSession chatSession) {
-		ActiveChatSessions.broadcastToChatSessionExcept(payload, chatSession, clientInfo.getChannel(), (ChannelFuture cf) -> {
+		ActiveChatSessions.broadcastToChatSessionExcept(payload, chatSession, clientInfo, (ChannelFuture cf) -> {
 			Channel channel = cf.channel();
 			if (cf.isSuccess()) {
 

@@ -20,26 +20,28 @@ import 'dart:ui';
 
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/client/message_events.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/main_ui/chats/voice_call.dart';
 import 'package:ermis_client/main_ui/settings/theme_settings.dart';
+import 'package:ermis_client/theme/app_colors.dart';
+import 'package:ermis_client/util/custom_scroll_view.dart';
 import 'package:ermis_client/util/database_service.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:vibration/vibration.dart';
 
 import '../../client/app_event_bus.dart';
 import '../../constants/app_constants.dart';
+import '../../util/custom_date_formatter.dart';
 import '../loading_state.dart';
 import '../../client/client.dart';
 import '../../client/common/chat_session.dart';
 import '../../client/common/file_heap.dart';
 import '../../client/common/message.dart';
 import '../../client/common/message_types/content_type.dart';
-import '../../theme/app_theme.dart';
 import '../../util/dialogs_utils.dart';
 import '../../util/file_utils.dart';
 import '../../util/notifications_util.dart';
@@ -192,7 +194,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       }
 
       if (!settingsJson.showMessagePreview) {
-        NotificationService.showSimpleNotification(body: "New message!");
+        NotificationService.showSimpleNotification(body: S.current.new_message);
         return;
       }
 
@@ -202,13 +204,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           body = msg.text;
           break;
         case MessageContentType.file || MessageContentType.image:
-          body = "Send file ${msg.fileName}";
+          body = S.current.file_received(msg.fileName);
           break;
       }
 
       NotificationService.showInstantNotification(
         icon: event.chatSession.getMembers[0].getIcon,
-        body: "Message by ${msg.username}",
+        body: S.current.message_by(msg.username),
         contentText: body,
         contentTitle: msg.username,
         summaryText: event.chatSession.toString(),
@@ -224,11 +226,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
       if (!mounted) return; // Probably impossible but still check just in case
       if (filePath != null) {
-        showSnackBarDialog(context: context, content: "Downloaded file");
+        showSnackBarDialog(context: context, content: S.current.downloaded_file);
         return;
       }
 
-      showExceptionDialog(context, "An error occurred while trying to save the file");
+      showExceptionDialog(context, S.current.error_saving_file);
     });
 
     final d = AppEventBus.instance.on<ImageDownloadedEvent>().listen((event) async {
@@ -236,7 +238,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     });
 
     final e = AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>().listen((event) {
-      showToastDialog("Message deletion was unsuccessful");
+      showToastDialog(S.current.message_deletion_unsuccessful);
     });
 
     final f = AppEventBus.instance.on<MessageDeletedEvent>().listen((event) async {
@@ -257,6 +259,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
     final g = AppEventBus.instance.on<MessageDeliveryStatusEvent>().listen((event) async {
       if (!mounted) return;
+
       Message message = event.message;
 
       if (message.chatSessionID == _chatSession.chatSessionID) {
@@ -347,29 +350,25 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   AppBar _buildMainAppBar(AppColors appColors) {
     return AppBar(
       backgroundColor: appColors.tertiaryColor,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: appColors.inferiorColor),
-        onPressed: () {
-          Navigator.pop(context);
-        },
+      leading: BackButton(
+        onPressed: () => Navigator.pop(context),
       ),
       titleSpacing: -5, // Decrease space between leading and title
-      title: LayoutBuilder(
-        builder: (context, constraints) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  UserAvatar(
-                    imageBytes: _chatSession.getMembers[0].getIcon,
-                    isOnline: _chatSession.getMembers[0].isActive,
-                  ),
-                  const SizedBox(width: 10),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: constraints.maxWidth - 75),
-                    child: Text(
-                      "Chat with ${widget.chatSession.getMembers[0].username}",
+      title: LayoutBuilder(builder: (context, constraints) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                UserAvatar(
+                  imageBytes: _chatSession.getMembers[0].getIcon,
+                  isOnline: _chatSession.getMembers[0].isActive,
+                ),
+                const SizedBox(width: 10),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth - 75),
+                  child: Text(
+                    S.current.chat_with(widget.chatSession.getMembers[0].username),
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: appColors.inferiorColor),
                   ),
@@ -378,15 +377,36 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
             ),
             Padding(
               padding: const EdgeInsets.only(right: 12.0),
-              child: IconButton(
-                  onPressed: () {
-                    VoiceCallHandler.initiateVoiceCall(
-                      context,
-                      chatSessionIndex: _chatSessionIndex,
-                      chatSessionID: _chatSession.chatSessionID,
-                    );
-                  },
-                  icon: const Icon(Icons.phone)),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      VoiceCallHandler.initiateVoiceCall(
+                        context,
+                        chatSessionIndex: _chatSessionIndex,
+                        chatSessionID: _chatSession.chatSessionID,
+                      );
+                    },
+                    icon: const Icon(Icons.phone_outlined),
+                  ),
+                  PopupMenuButton<VoidCallback>(
+                    position: PopupMenuPosition.under,
+                    menuPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                    onSelected: (VoidCallback callback) {
+                      callback();
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem(
+                        value: () {
+                          // FUCK
+                        },
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: Text("Chat Theme"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -399,12 +419,20 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: InfiniteScrollList(
+        child: ScrollViewFixer.createScrollViewWithAppBarSafety(scrollView: InfiniteScrollList(
           reverse: true,
           itemCount: _messages.length,
-          everythingLoaded: true,
+          isLoaded: true,
           itemBuilder: (context, index) {
             final Message message = _messages[_messages.length - index - 1];
+            final Message? previousMessage;
+
+            if (index != _messages.length - 1) {
+              previousMessage = _messages[_messages.length - index - 2];
+            } else {
+              previousMessage = null;
+            }
+
             return GestureDetector(
                 onLongPress: () {
                   setState(() {
@@ -415,27 +443,28 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                   });
                 },
                 child: Container(
-                    decoration: _isEditingMessage &&
-                            _messagesBeingEdited.contains(message)
+                    decoration: _isEditingMessage && _messagesBeingEdited.contains(message)
                         ? BoxDecoration(
-                            color: appColors.secondaryColor.withOpacity(0.4),
+                            color: appColors.secondaryColor.withAlpha(100),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: Colors.white, width: 1.5),
                           )
                         : null,
                     child: MessageBubble(
                       message: message,
+                      previousMessage: previousMessage,
                       appColors: appColors,
                     )));
           },
           reLoadingBottom: () {
+            // If user scrolls below the bottom of conversation refresh
+            Client.instance().commands.refetchWrittenText(_chatSessionIndex);
+          },
+          reLoadingTop: () {
             // If user reaches top of conversation retrieve more messages
             Client.instance().commands.fetchWrittenText(_chatSessionIndex);
           },
-          reLoadingTop: () {
-            Client.instance().commands.fetchWrittenText(_chatSessionIndex);
-          },
-        ),
+        )),
       ),
     );
   }
@@ -478,13 +507,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
                 Clipboard.setData(ClipboardData(text: data));
                 showSnackBarDialog(
-                    context: context, content: "Message copied to clipboard");
+                    context: context, content: S.current.message_copied);
                 setState(() {
                   _isEditingMessage = false;
                   _messagesBeingEdited.clear();
                 });
               },
-              icon: Icon(Icons.copy)),
+              icon: const Icon(Icons.copy)),
         ],
         IconButton(
             onPressed: () async {
@@ -494,18 +523,18 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                 buttons: [
                   TextButton(
                     onPressed: Navigator.of(context).pop,
-                    child: Text("Cancel"),
+                    child: Text(S.current.cancel),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                       Client.instance().commands.deleteMessages(_chatSessionIndex, messageIDs);
-                      showSnackBarDialog(context: context, content: "Attempting to delete message");
+                      showSnackBarDialog(context: context, content: S.current.attempting_delete_message);
                     },
-                    child: Text("Delete"),
+                    child: Text(S.current.delete),
                   ),
                 ],
-                content: "Are you sure you want to permanently delete message?",
+                content: S.current.confirm_delete_message,
               );
 
               setState(() {
@@ -513,7 +542,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                 _messagesBeingEdited.clear();
               });
             },
-            icon: Icon(Icons.delete_outline)),
+            icon: const Icon(Icons.delete_outline)),
         const SizedBox(width: 15),
       ],
       bottom: DividerBottom(dividerColor: appColors.inferiorColor),
@@ -525,7 +554,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         children: [
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           SendFilePopupMenu(
             chatSessionIndex: _chatSessionIndex,
             fileCallBack: (String fileName, Uint8List fileContent) {
@@ -537,14 +566,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
               _addMessage(pendingMessage);
             },
           ),
-          SizedBox(width: 15),
+          const SizedBox(width: 15),
           Expanded(
             child: TextField(
               maxLines: null,
               keyboardType: TextInputType.multiline,
               controller: _inputController,
               decoration: InputDecoration(
-                hintText: "Type a message...",
+                hintText: S.current.type_message,
                 filled: true,
                 fillColor: appColors.secondaryColor,
                 border: OutlineInputBorder(
@@ -575,23 +604,23 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       appBar: AppBar(
         backgroundColor: appColors.tertiaryColor,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: appColors.inferiorColor), // Back arrow icon
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: Icon(
+            Icons.arrow_back,
+            color: appColors.inferiorColor,
+          ), // Back arrow icon
+          onPressed: () => {Navigator.pop(context)},
         ),
         title: Row(
           children: [
             UserAvatar(imageBytes: Uint8List(0), isOnline: false),
             const SizedBox(width: 10),
-            Text("Chat with ${widget.chatSession.getMembers[0].username}",
+            Text(S.current.chat_with(widget.chatSession.getMembers[0].username),
                 style: TextStyle(color: appColors.inferiorColor)),
           ],
         ),
         bottom: DividerBottom(dividerColor: appColors.inferiorColor),
       ),
-      body: Center(child: CircularProgressIndicator()),
+      body: const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -623,12 +652,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
 class MessageBubble extends StatelessWidget {
   final Message message;
+  final Message? previousMessage;
   final AppColors appColors;
-  static DateTime lastMessageDate = DateTime.fromMicrosecondsSinceEpoch(0);
 
   const MessageBubble({
     super.key,
     required this.message,
+    required this.previousMessage,
     required this.appColors,
   });
 
@@ -642,8 +672,12 @@ class MessageBubble extends StatelessWidget {
             isUtc: true)
         .toLocal();
 
-    bool isNewDay = lastMessageDate.difference(currentMessageDate).inDays != 0;
-    lastMessageDate = currentMessageDate;
+    DateTime previousMessageDate = DateTime.fromMillisecondsSinceEpoch(
+            (previousMessage?.epochSecond ?? 0) * millisPerSecond /* Convert seconds to millis */,
+            isUtc: true)
+        .toLocal();
+
+    bool isNewDay = previousMessageDate.difference(currentMessageDate).inDays != 0;
 
     return Column(
       children: [
@@ -652,13 +686,12 @@ class MessageBubble extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Center(
                 child: !isNewDay
-                    ? Text("Today")
+                    ? Text(S.current.today)
                     : Text(
-                        DateFormat("yyyy-MM-dd").format(currentMessageDate))),
+                        CustomDateFormatter.formatDate(currentMessageDate, "yyyy-MM-dd"))),
           ),
         Align(
-          alignment:
-              isMessageOwner ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: isMessageOwner ? Alignment.centerRight : Alignment.centerLeft,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -683,7 +716,7 @@ class MessageBubble extends StatelessWidget {
                         : null,
                     color: isMessageOwner
                         ? null
-                        : const Color.fromARGB(100, 100, 100, 100),
+                        : const Color.fromARGB(255, 50, 50, 50),
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(isMessageOwner ? 10 : 2),
                         topRight: Radius.circular(isMessageOwner ? 2 : 10),
@@ -691,8 +724,7 @@ class MessageBubble extends StatelessWidget {
                         bottomRight: const  Radius.circular(10)),
                   ),
                   child: Stack(
-                    clipBehavior:
-                        Clip.none, // Enable positioning outside bounds
+                    clipBehavior: Clip.none, // Enable positioning outside bounds
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
@@ -705,7 +737,7 @@ class MessageBubble extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              DateFormat("HH:mm").format(currentMessageDate),
+                              CustomDateFormatter.formatDate(currentMessageDate, "HH:mm"),
                               style: TextStyle(
                                   color: appColors.inferiorColor, fontSize: 12),
                             ),
@@ -775,18 +807,49 @@ class MessageBubble extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
-              child: Text(
-                message.fileName,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: appColors.secondaryColor.withAlpha(100),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Client.instance().commands.downloadFile(
+                                message.messageID, message.chatSessionIndex);
+                          },
+                          child: const Icon(Icons.download),
+                        ),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                message.fileName,
+                                softWrap: true, // Enable text wrapping
+                                overflow: TextOverflow.clip,
+                                maxLines: null,
+                              ),
+                              Text(S.current.unknown_size),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    message.fileName,
+                    softWrap: true, // Enable text wrapping
+                    overflow: TextOverflow.clip,
+                    maxLines: null,
+                  ),
+                ],
               ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Client.instance()
-                    .commands
-                    .downloadFile(message.messageID, message.chatSessionIndex);
-              },
-              child: Icon(Icons.download,
-                  size: 20, color: appColors.inferiorColor),
             ),
           ],
         );
@@ -999,7 +1062,7 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Choose an option",
+                      S.current.choose_option,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
@@ -1010,7 +1073,7 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                         _buildPopupOption(
                           context,
                           icon: Icons.image,
-                          label: "Gallery",
+                          label: S.current.gallery,
                           onTap: () async {
                             Navigator.pop(context);
                             attachSingleFile(context, (String fileName, Uint8List fileBytes) {
@@ -1024,7 +1087,7 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                         _buildPopupOption(
                           context,
                           icon: Icons.camera_alt,
-                          label: "Camera",
+                          label: S.current.camera,
                           onTap: () async {
                             Navigator.pop(context);
                             XFile? file = await MyCamera.capturePhoto();
@@ -1045,7 +1108,7 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                         _buildPopupOption(
                           context,
                           icon: Icons.insert_drive_file,
-                          label: "Documents",
+                          label: S.current.documents,
                           onTap: () {
                             Navigator.pop(context);
                             attachSingleFile(context,

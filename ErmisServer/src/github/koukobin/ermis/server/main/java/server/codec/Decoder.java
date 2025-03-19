@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -88,7 +89,7 @@ public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 		MessageByteBufCreator.sendMessageExceedsMaximumMessageLength(ctx, maxLength);
 	}
 
-	protected static void createErrorResponse(ChannelHandlerContext ctx, String message) {
-		MessageByteBufCreator.sendMessageInfo(ctx, message);
+	protected static void createErrorResponse(ChannelHandlerContext ctx, ServerInfoMessage serverInfo) {
+		MessageByteBufCreator.sendMessageInfo(ctx, serverInfo.id);
 	}
 }

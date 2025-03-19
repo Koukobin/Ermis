@@ -19,11 +19,11 @@ import 'dart:typed_data';
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/loading_state.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../client/client.dart';
-import '../theme/app_theme.dart';
 
 class UserProfilePhoto extends StatefulWidget {
   final double? radius;

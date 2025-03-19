@@ -19,6 +19,8 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/client/voice_call_udp_socket.dart';
 import 'package:ermis_client/main_ui/user_profile.dart';
@@ -40,10 +42,16 @@ import '../../util/notifications_util.dart';
 import '../../util/permissions.dart';
 import '../../util/transitions_util.dart';
 
+late VoiceCallUDPSocket _udpSocket;
+
 class VoiceCallHandler {
   static void startListeningForIncomingCalls(BuildContext context) {
     AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
       Member member = event.member;
+
+      _udpSocket = VoiceCallUDPSocket();
+      _udpSocket.initialize(event.aesKey);
+    
       NotificationService.showVoiceCallNotification(
           icon: member.getIcon,
           callerName: member.getUsername,
@@ -53,8 +61,7 @@ class VoiceCallHandler {
                 VoiceCallScreen._(
                     chatSessionID: event.chatSessionID,
                     chatSessionIndex: event.chatSessionIndex,
-                    voiceCallKey: event.voiceCallKey,
-                    udpServerPort: event.udpServerPort,
+                    mansPort: event.mansPort,
                     member: member));
           });
     });
@@ -67,22 +74,25 @@ class VoiceCallHandler {
   }) async {
     // WebRTCService.startCall(chatSessionID);
 
-    late int voiceCallKey;
-    late int port;
+    // Client.instance().commands.startVoiceCall(chatSessionIndex);
+    // await AppEventBus.instance.on<StartVoiceCallResultEvent>().first.then((event) {
+    //   voiceCallKey = event.key;
+    //   port = event.udpServerPort;
+    // });
+    SignallingServerPortEvent signallingServerPort = await Client.instance().commands.fetchSignallingServerPort();
+    final int port = signallingServerPort.port;
+    final Uint8List aesKey = signallingServerPort.aesKey;
 
-    Client.instance().commands.startVoiceCall(chatSessionIndex);
-    await AppEventBus.instance.on<StartVoiceCallResultEvent>().first.then((event) {
-      voiceCallKey = event.key;
-      port = event.udpServerPort;
-    });
+    _udpSocket = VoiceCallUDPSocket();
+    await _udpSocket.initialize(aesKey);
+    _udpSocket.rawSecureSend([chatSessionID], Client.instance().serverInfo.address, port);
 
     navigateWithFade(
         context,
         VoiceCallScreen._(
           chatSessionIndex: chatSessionIndex,
           chatSessionID: chatSessionID,
-          voiceCallKey: voiceCallKey,
-          udpServerPort: port,
+          mansPort: port,
           member: null,
         ));
   }
@@ -91,15 +101,13 @@ class VoiceCallHandler {
 class VoiceCallScreen extends StatefulWidget {
   final int chatSessionID;
   final int chatSessionIndex;
-  final int voiceCallKey;
-  final int udpServerPort;
+  final int mansPort;
   final Member? member;
   const VoiceCallScreen._({
     super.key,
     required this.chatSessionID,
     required this.chatSessionIndex,
-    required this.voiceCallKey,
-    required this.udpServerPort,
+    required this.mansPort,
     required this.member,
   });
 
@@ -127,8 +135,6 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
   final AudioRecorder audioRecord = AudioRecorder();
   late final String audioFilePath;
 
-  late final _udpSocket = VoiceCallUDPSocket();
-
   double rms = 0.0;
 
   bool isMuted = false;
@@ -150,13 +156,13 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
     await checkPermission(Permission.microphone);
     await checkPermission(Permission.camera);
 
-    final address = Client.instance().serverInfo.address;
+    // final address = Client.instance().serverInfo.address;
 
-    await _udpSocket.initialize(address, widget.udpServerPort, widget.chatSessionIndex);
-    _udpSocket.chatSessionID = widget.chatSessionID;
-    _udpSocket.key = widget.voiceCallKey;
+    // await _udpSocket.initialize(address, widget.udpServerPort, widget.chatSessionIndex);
+    // _udpSocket.chatSessionID = widget.chatSessionID;
+    // _udpSocket.key = widget.voiceCallKey;
 
-    _udpSocket.send(Uint8List(0)); // Test packet
+    // _udpSocket.send(Uint8List(0)); // Test packet
 
     FlutterSoundPlayer player = FlutterSoundPlayer();
     await player.openPlayer();
@@ -167,8 +173,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> {
     );
 
     _udpSocket.listen((data) async {
-      VoiceCallServerMessage type =
-          VoiceCallServerMessage.fromId(ByteBuf.wrap(data).readInt32());
+      VoiceCallServerMessage type = VoiceCallServerMessage.fromId(ByteBuf.wrap(data).readInt32());
 
       switch (type) {
         case VoiceCallServerMessage.voice:

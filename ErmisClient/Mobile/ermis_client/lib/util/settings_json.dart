@@ -17,6 +17,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_client/main_ui/new_features_page_status.dart';
 import 'package:ermis_client/main_ui/settings/theme_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -106,6 +108,10 @@ class SettingsJson {
     _settingsJson["vibrationEnabled"] = enabled;
   }
 
+  void setHasShownNewFeaturesPage(NewFeaturesPageStatus page) {
+    _settingsJson["newFeaturesPageStatus"] = jsonEncode(page.toJson());
+  }
+
   bool get useSystemDefaultTheme => _settingsJson["useSystemDefaultTheme"];
   bool get isDarkModeEnabled => _settingsJson["darkMode"];
   ChatBackDrop get chatsBackDrop =>
@@ -126,6 +132,19 @@ class SettingsJson {
     if (languageCode == null || countryCode == null) return null;
 
     return Locale(languageCode, countryCode);
+  }
+
+  NewFeaturesPageStatus get newFeaturesPageStatus {
+    final status = _settingsJson["newFeaturesPageStatus"];
+    if (status is String) {
+      try {
+        return NewFeaturesPageStatus.fromJson(jsonDecode(status));
+      } on Error {
+        // In case of a fail, return a default status
+      }
+    }
+
+    return NewFeaturesPageStatus(hasShown: false, version: AppConstants.applicationVersion);
   }
 
   bool get isJsonLoaded => _isJsonLoaded;

@@ -1380,10 +1380,10 @@ class S {
     );
   }
 
-  /// `Message length exceeds maximum length (%d characters)`
+  /// `Message length exceeds maximum length {|characters}`
   String get message_length_exceeded {
     return Intl.message(
-      'Message length exceeds maximum length (%d characters)',
+      'Message length exceeds maximum length {|characters}',
       name: 'message_length_exceeded',
       desc: '',
       args: [],
@@ -1445,6 +1445,646 @@ class S {
     return Intl.message(
       'Decompression failed',
       name: 'decompression_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Slow your horses. You have been temporarily banned.`
+  String get too_many_requests_made {
+    return Intl.message(
+      'Slow your horses. You have been temporarily banned.',
+      name: 'too_many_requests_made',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The command you entered was not recognized by the server.`
+  String get command_not_recognized {
+    return Intl.message(
+      'The command you entered was not recognized by the server.',
+      name: 'command_not_recognized',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while attempting to send the chat request.`
+  String get error_occurred_while_trying_to_send_chat_request {
+    return Intl.message(
+      'An error occurred while attempting to send the chat request.',
+      name: 'error_occurred_while_trying_to_send_chat_request',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while attempting to retrieve the file from the database.`
+  String get error_occurred_while_trying_to_fetch_file_from_database {
+    return Intl.message(
+      'An error occurred while attempting to retrieve the file from the database.',
+      name: 'error_occurred_while_trying_to_fetch_file_from_database',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The message type received was not recognized.`
+  String get message_type_not_recognized {
+    return Intl.message(
+      'The message type received was not recognized.',
+      name: 'message_type_not_recognized',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New message!`
+  String get new_message {
+    return Intl.message(
+      'New message!',
+      name: 'new_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `File received {fileName}`
+  String file_received(Object fileName) {
+    return Intl.message(
+      'File received $fileName',
+      name: 'file_received',
+      desc: '',
+      args: [fileName],
+    );
+  }
+
+  /// `Message by {username}`
+  String message_by(Object username) {
+    return Intl.message(
+      'Message by $username',
+      name: 'message_by',
+      desc: '',
+      args: [username],
+    );
+  }
+
+  /// `Downloaded file`
+  String get downloaded_file {
+    return Intl.message(
+      'Downloaded file',
+      name: 'downloaded_file',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while trying to save the file`
+  String get error_saving_file {
+    return Intl.message(
+      'An error occurred while trying to save the file',
+      name: 'error_saving_file',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Message deletion was unsuccessful`
+  String get message_deletion_unsuccessful {
+    return Intl.message(
+      'Message deletion was unsuccessful',
+      name: 'message_deletion_unsuccessful',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chat with {username}`
+  String chat_with(Object username) {
+    return Intl.message(
+      'Chat with $username',
+      name: 'chat_with',
+      desc: '',
+      args: [username],
+    );
+  }
+
+  /// `Message copied to clipboard`
+  String get message_copied {
+    return Intl.message(
+      'Message copied to clipboard',
+      name: 'message_copied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Attempting to delete message`
+  String get attempting_delete_message {
+    return Intl.message(
+      'Attempting to delete message',
+      name: 'attempting_delete_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to permanently delete message?`
+  String get confirm_delete_message {
+    return Intl.message(
+      'Are you sure you want to permanently delete message?',
+      name: 'confirm_delete_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get delete {
+    return Intl.message('Delete', name: 'delete', desc: '', args: []);
+  }
+
+  /// `Type a message...`
+  String get type_message {
+    return Intl.message(
+      'Type a message...',
+      name: 'type_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Today`
+  String get today {
+    return Intl.message('Today', name: 'today', desc: '', args: []);
+  }
+
+  /// `Choose an option`
+  String get choose_option {
+    return Intl.message(
+      'Choose an option',
+      name: 'choose_option',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gallery`
+  String get gallery {
+    return Intl.message('Gallery', name: 'gallery', desc: '', args: []);
+  }
+
+  /// `Camera`
+  String get camera {
+    return Intl.message('Camera', name: 'camera', desc: '', args: []);
+  }
+
+  /// `Documents`
+  String get documents {
+    return Intl.message('Documents', name: 'documents', desc: '', args: []);
+  }
+
+  /// `What's New`
+  String get whats_new {
+    return Intl.message('What\'s New', name: 'whats_new', desc: '', args: []);
+  }
+
+  /// `New Features in Hermis`
+  String get whats_new_title {
+    return Intl.message(
+      'New Features in Hermis',
+      name: 'whats_new_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enhanced encryption protocols`
+  String get feature_encryption {
+    return Intl.message(
+      'Enhanced encryption protocols',
+      name: 'feature_encryption',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Multi-language support!`
+  String get feature_languages {
+    return Intl.message(
+      'Multi-language support!',
+      name: 'feature_languages',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Voice calls (Early Access)`
+  String get feature_voice_calls {
+    return Intl.message(
+      'Voice calls (Early Access)',
+      name: 'feature_voice_calls',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New chat themes`
+  String get feature_chat_themes {
+    return Intl.message(
+      'New chat themes',
+      name: 'feature_chat_themes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Audio message support`
+  String get feature_audio_messages {
+    return Intl.message(
+      'Audio message support',
+      name: 'feature_audio_messages',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New System Messages`
+  String get whats_new_system_messages {
+    return Intl.message(
+      'New System Messages',
+      name: 'whats_new_system_messages',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Got it!`
+  String get got_it_button {
+    return Intl.message('Got it!', name: 'got_it_button', desc: '', args: []);
+  }
+
+  /// `Are you sure you want to logout from {deviceInfo}?`
+  String are_you_sure_you_want_to_logout_from(Object deviceInfo) {
+    return Intl.message(
+      'Are you sure you want to logout from $deviceInfo?',
+      name: 'are_you_sure_you_want_to_logout_from',
+      desc: '',
+      args: [deviceInfo],
+    );
+  }
+
+  /// `No pending chat requests`
+  String get no_chat_requests_available {
+    return Intl.message(
+      'No pending chat requests',
+      name: 'no_chat_requests_available',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No conversations available`
+  String get no_conversations_available {
+    return Intl.message(
+      'No conversations available',
+      name: 'no_conversations_available',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No chats available, incompatible server version`
+  String get no_chats_available_incompatible_server_version {
+    return Intl.message(
+      'No chats available, incompatible server version',
+      name: 'no_chats_available_incompatible_server_version',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Accept`
+  String get accept {
+    return Intl.message('Accept', name: 'accept', desc: '', args: []);
+  }
+
+  /// `Decline`
+  String get decline {
+    return Intl.message('Decline', name: 'decline', desc: '', args: []);
+  }
+
+  /// `Client id must be a number`
+  String get client_id_must_be_a_number {
+    return Intl.message(
+      'Client id must be a number',
+      name: 'client_id_must_be_a_number',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter client id`
+  String get enter_client_id {
+    return Intl.message(
+      'Enter client id',
+      name: 'enter_client_id',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send Chat Request`
+  String get send_chat_request {
+    return Intl.message(
+      'Send Chat Request',
+      name: 'send_chat_request',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search...`
+  String get search {
+    return Intl.message('Search...', name: 'search', desc: '', args: []);
+  }
+
+  /// `Select an option`
+  String get select_an_option {
+    return Intl.message(
+      'Select an option',
+      name: 'select_an_option',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete chat`
+  String get delete_chat {
+    return Intl.message('Delete chat', name: 'delete_chat', desc: '', args: []);
+  }
+
+  /// `Deleting this chat will permanently delete all prior messages`
+  String get deleting_this_chat_will_permanently_delete_all_prior_messages {
+    return Intl.message(
+      'Deleting this chat will permanently delete all prior messages',
+      name: 'deleting_this_chat_will_permanently_delete_all_prior_messages',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete this chat?`
+  String get delete_this_chat_question {
+    return Intl.message(
+      'Delete this chat?',
+      name: 'delete_this_chat_question',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `'New chat'`
+  String get new_chat {
+    return Intl.message('\'New chat\'', name: 'new_chat', desc: '', args: []);
+  }
+
+  /// `Incompatible server version! Some things many not work as expected!`
+  String get incompatible_server_version_warning {
+    return Intl.message(
+      'Incompatible server version! Some things many not work as expected!',
+      name: 'incompatible_server_version_warning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Submit`
+  String get submit {
+    return Intl.message('Submit', name: 'submit', desc: '', args: []);
+  }
+
+  /// `Verification`
+  String get verification {
+    return Intl.message(
+      'Verification',
+      name: 'verification',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter verification code sent to your email`
+  String get enter_verification_code_sent_to_your_email {
+    return Intl.message(
+      'Enter verification code sent to your email',
+      name: 'enter_verification_code_sent_to_your_email',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification code must be number`
+  String get verification_code_must_be_number {
+    return Intl.message(
+      'Verification code must be number',
+      name: 'verification_code_must_be_number',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter the verification code`
+  String get please_enter_the_verification_code {
+    return Intl.message(
+      'Please enter the verification code',
+      name: 'please_enter_the_verification_code',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resend Code`
+  String get resend_code {
+    return Intl.message('Resend Code', name: 'resend_code', desc: '', args: []);
+  }
+
+  /// `Enter Verification Code`
+  String get enter_verification_code {
+    return Intl.message(
+      'Enter Verification Code',
+      name: 'enter_verification_code',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create Account`
+  String get create_account {
+    return Intl.message(
+      'Create Account',
+      name: 'create_account',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use Backup-Verification Code`
+  String get use_backup_verification_code {
+    return Intl.message(
+      'Use Backup-Verification Code',
+      name: 'use_backup_verification_code',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use Password`
+  String get use_password {
+    return Intl.message(
+      'Use Password',
+      name: 'use_password',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `OR`
+  String get or {
+    return Intl.message('OR', name: 'or', desc: '', args: []);
+  }
+
+  /// `Registration failed: {resultMessage}`
+  String registration_failed(Object resultMessage) {
+    return Intl.message(
+      'Registration failed: $resultMessage',
+      name: 'registration_failed',
+      desc: '',
+      args: [resultMessage],
+    );
+  }
+
+  /// `Password is empty!`
+  String get password_is_empty {
+    return Intl.message(
+      'Password is empty!',
+      name: 'password_is_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email is empty!`
+  String get email_is_empty {
+    return Intl.message(
+      'Email is empty!',
+      name: 'email_is_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Login`
+  String get login {
+    return Intl.message('Login', name: 'login', desc: '', args: []);
+  }
+
+  /// `Backup-Verification Code`
+  String get backup_verification_code {
+    return Intl.message(
+      'Backup-Verification Code',
+      name: 'backup_verification_code',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email`
+  String get email {
+    return Intl.message('Email', name: 'email', desc: '', args: []);
+  }
+
+  /// `Min Entropy: {minEntropy}`
+  String min_entropy(Object minEntropy) {
+    return Intl.message(
+      'Min Entropy: $minEntropy',
+      name: 'min_entropy',
+      desc: '',
+      args: [minEntropy],
+    );
+  }
+
+  /// `Entropy: {entropy} (Rough estimate)`
+  String entropy_rough_estimate(Object entropy) {
+    return Intl.message(
+      'Entropy: $entropy (Rough estimate)',
+      name: 'entropy_rough_estimate',
+      desc: '',
+      args: [entropy],
+    );
+  }
+
+  /// `Display Name`
+  String get display_name {
+    return Intl.message(
+      'Display Name',
+      name: 'display_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to logout from ${device.formattedInfo()}?`
+  String get logout_confirmation_device {
+    return Intl.message(
+      'Are you sure you want to logout from \${device.formattedInfo()}?',
+      name: 'logout_confirmation_device',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to logout from ${device.formattedInfo()}?`
+  String get logout_confirmation_all_devices {
+    return Intl.message(
+      'Are you sure you want to logout from \${device.formattedInfo()}?',
+      name: 'logout_confirmation_all_devices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unknown size`
+  String get unknown_size {
+    return Intl.message(
+      'Unknown size',
+      name: 'unknown_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign out`
+  String get sign_out {
+    return Intl.message('Sign out', name: 'sign_out', desc: '', args: []);
+  }
+
+  /// `No linked devices`
+  String get no_linked_devices {
+    return Intl.message(
+      'No linked devices',
+      name: 'no_linked_devices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link new device`
+  String get link_new_device {
+    return Intl.message(
+      'Link new device',
+      name: 'link_new_device',
       desc: '',
       args: [],
     );

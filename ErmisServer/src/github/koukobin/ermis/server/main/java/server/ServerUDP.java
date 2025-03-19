@@ -398,7 +398,7 @@ public final class ServerUDP {
 
 	public static VoiceChat createVoiceChat(int chatSessionID) {
 		int key = InsecureRandomNumberGenerator.generateRandomNumber(8);
-		AESGCMCipher aesKey = AESKeyGenerator.generateAESKey1();
+		AESGCMCipher aesKey = AESKeyGenerator.generateAESKeyWithoutIV();
 		Test.calls.put(chatSessionID, new VoiceChat(key, Lists.newArrayList(), aesKey));
 //		Test.socks.put(address, chatSessionID);
 		return Test.calls.get(chatSessionID);

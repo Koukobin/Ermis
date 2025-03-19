@@ -20,11 +20,12 @@ import java.util.Map;
 
 import github.koukobin.ermis.common.DeviceType;
 import github.koukobin.ermis.common.UserDeviceInfo;
+import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.entry.LoginInfo.Action;
 import github.koukobin.ermis.common.entry.LoginInfo.Credential;
 import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.results.EntryResult;
+import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
@@ -43,13 +44,13 @@ final class LoginHandler extends EntryHandler {
 	private PasswordType passwordType = PasswordType.PASSWORD;
 	private DeviceType deviceType = DeviceType.UNSPECIFIED;
 	private String osName = "Unknown";
-	
+
 	private Map<Credential, String> credentials = new EnumMap<>(Credential.class);
-	
+
 	LoginHandler(ClientInfo clientInfo) {
 		super(clientInfo);
 	}
-	
+
 	@Override
 	public void executeEntryAction(ChannelHandlerContext ctx, ByteBuf msg) {
 		int readerIndex = msg.readerIndex();
@@ -65,7 +66,7 @@ final class LoginHandler extends EntryHandler {
 		}
 		case ADD_DEVICE_INFO -> {
 			deviceType = DeviceType.fromId(msg.readInt());
-			
+
 			byte[] osNameBytes = new byte[msg.readableBytes()];
 			msg.readBytes(osNameBytes);
 			osName = new String(osNameBytes);
@@ -74,36 +75,32 @@ final class LoginHandler extends EntryHandler {
 
 		msg.readerIndex(readerIndex);
 	}
-	
+
 	@Override
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) {
 		{
 			Credential credential = Credential.fromId(msg.readInt());
-			
+
 			byte[] msgBytes = new byte[msg.readableBytes()];
 			msg.readBytes(msgBytes);
-			
+
 			credentials.put(credential, new String(msgBytes));
 		}
-		
-		if (credentials.size() == Credential.values().length) {
 
+		if (credentials.size() == Credential.values().length) {
 			String email = credentials.get(Credential.EMAIL);
 
-			ResultHolder resultHolder;
+			LoginInfo.CredentialsExchange.Result result;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				resultHolder = conn.checkIfUserMeetsRequirementsToLogin(email);
+				result = conn.checkIfUserMeetsRequirementsToLogin(email);
 			}
 
-			byte[] resultMessageBytes = resultHolder.getResultMessage().getBytes();
-			
 			ByteBuf payload = ctx.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.ENTRY.id);
-			payload.writeBoolean(resultHolder.isSuccessful());
-			payload.writeBytes(resultMessageBytes);
+			payload.writeInt(result.id);
 			ctx.channel().writeAndFlush(payload);
 
-			if (resultHolder.isSuccessful()) {
+			if (result.resultHolder.isSuccessful()) {
 				super.registrationSuccessful(ctx);
 			} else {
 //				EntryHandler.registrationFailed(ctx);
@@ -134,12 +131,10 @@ final class LoginHandler extends EntryHandler {
 //				EntryHandler.registrationFailed(ctx);
 			}
 
-			byte[] resultMessageBytes = entryResult.getResultMessage().getBytes();
-
 			ByteBuf payload = ctx.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.ENTRY.id);
 			payload.writeBoolean(entryResult.isSuccessful());
-			payload.writeBytes(resultMessageBytes);
+//			payload.writeBytes(resultMessageBytes);
 
 			ctx.channel().writeAndFlush(payload);
 		}
@@ -147,11 +142,11 @@ final class LoginHandler extends EntryHandler {
 			VerificationHandler verificationHandler = new VerificationHandler(clientInfo, email) {
 
 				@Override
-				public EntryResult executeWhenVerificationSuccessful() {
+				public GeneralResult executeWhenVerificationSuccessful() {
 					String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
 					UserDeviceInfo deviceInfo = new UserDeviceInfo(address, deviceType, osName);
 
-					EntryResult result;
+					GeneralResult result;
 					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 						result = conn.loginUsingPassword(email, password, deviceInfo);
 					}

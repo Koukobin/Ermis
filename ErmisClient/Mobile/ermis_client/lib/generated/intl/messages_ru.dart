@@ -20,8 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ru';
 
+  static String m0(deviceInfo) =>
+      "Вы уверены, что хотите выйти из ${deviceInfo}?";
+
+  static String m1(username) => "Чат с ${username}";
+
+  static String m2(entropy) => "Энтропия: ${entropy} (Приблизительная оценка)";
+
+  static String m3(fileName) => "Файл получен ${fileName}";
+
+  static String m4(username) => "Сообщение от ${username}";
+
+  static String m5(minEntropy) => "Минимальная энтропия: ${minEntropy}";
+
+  static String m6(resultMessage) => "Регистрация не удалась: ${resultMessage}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accept": MessageLookupByLibrary.simpleMessage("Принять"),
     "account": MessageLookupByLibrary.simpleMessage("Аккаунт"),
     "account_add": MessageLookupByLibrary.simpleMessage(
       "Добавить новый аккаунт",
@@ -56,10 +72,14 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "app_info": MessageLookupByLibrary.simpleMessage("Информация о приложении"),
     "app_language": MessageLookupByLibrary.simpleMessage("Язык приложения"),
+    "are_you_sure_you_want_to_logout_from": m0,
     "are_you_sure_you_want_to_logout_from_all_devices":
         MessageLookupByLibrary.simpleMessage(
           "Вы уверены, что хотите выйти со всех устройств?",
         ),
+    "attempting_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Попытка удалить сообщение",
+    ),
     "authentication_stage_create_account": MessageLookupByLibrary.simpleMessage(
       "Создание аккаунта",
     ),
@@ -70,6 +90,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "authentication_stage_login": MessageLookupByLibrary.simpleMessage(
       "Авторизация",
     ),
+    "backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Резервный код верификации",
+    ),
     "backup_verification_code_regenerate_error":
         MessageLookupByLibrary.simpleMessage(
           "Произошла ошибка при смене имени пользователя!",
@@ -78,6 +101,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Резервные коды подтверждения успешно сгенерированы заново!",
         ),
+    "camera": MessageLookupByLibrary.simpleMessage("Камера"),
     "cancel": MessageLookupByLibrary.simpleMessage("Отмена"),
     "change_password_error": MessageLookupByLibrary.simpleMessage(
       "Произошла ошибка при смене пароля!",
@@ -137,13 +161,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Настройки темы чата",
     ),
+    "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Чаты"),
+    "choose_option": MessageLookupByLibrary.simpleMessage("Выберите опцию"),
+    "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
+      "ID клиента должен быть числом",
+    ),
     "close": MessageLookupByLibrary.simpleMessage("Закрыть"),
     "command_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Команда {} не реализована!",
     ),
     "command_unknown": MessageLookupByLibrary.simpleMessage(
       "Команда неизвестна!",
+    ),
+    "confirm_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Вы уверены, что хотите безвозвратно удалить сообщение?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Подключиться"),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
@@ -152,6 +184,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Тип содержимого неизвестен!",
     ),
+    "create_account": MessageLookupByLibrary.simpleMessage("Создать аккаунт"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
       "Достигнута максимальная емкость базы данных! К сожалению, ваш запрос не может быть обработан.",
     ),
@@ -185,9 +218,20 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Имя пользователя не соответствует требованиям!",
         ),
+    "decline": MessageLookupByLibrary.simpleMessage("Отклонить"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Ошибка распаковки",
     ),
+    "delete": MessageLookupByLibrary.simpleMessage("Удалить"),
+    "delete_chat": MessageLookupByLibrary.simpleMessage("Удалить чат"),
+    "delete_this_chat_question": MessageLookupByLibrary.simpleMessage(
+      "Удалить этот чат?",
+    ),
+    "deleting_this_chat_will_permanently_delete_all_prior_messages":
+        MessageLookupByLibrary.simpleMessage(
+          "Удаление этого чата навсегда удалит все предыдущие сообщения",
+        ),
+    "display_name": MessageLookupByLibrary.simpleMessage("Отображаемое имя"),
     "display_part_of_messages_in_notifications":
         MessageLookupByLibrary.simpleMessage(
           "Отображать часть сообщения в уведомлениях",
@@ -199,20 +243,63 @@ class MessageLookup extends MessageLookupByLibrary {
       "Пожертвовать хостеру",
     ),
     "donations": MessageLookupByLibrary.simpleMessage("Пожертвования"),
+    "downloaded_file": MessageLookupByLibrary.simpleMessage("Файл загружен"),
+    "email": MessageLookupByLibrary.simpleMessage("Электронная почта"),
     "email_address": MessageLookupByLibrary.simpleMessage("Электронная почта"),
+    "email_is_empty": MessageLookupByLibrary.simpleMessage(
+      "Электронная почта пуста!",
+    ),
     "email_mismatch": MessageLookupByLibrary.simpleMessage(
       "Введённый email не совпадает с фактическим!",
+    ),
+    "enter_client_id": MessageLookupByLibrary.simpleMessage(
+      "Введите ID клиента",
+    ),
+    "enter_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Введите код верификации",
+    ),
+    "enter_verification_code_sent_to_your_email":
+        MessageLookupByLibrary.simpleMessage(
+          "Введите код верификации, отправленный на вашу электронную почту",
+        ),
+    "entropy_rough_estimate": m2,
+    "error_saving_file": MessageLookupByLibrary.simpleMessage(
+      "Произошла ошибка при попытке сохранить файл",
     ),
     "faq_contact_terms_privacy": MessageLookupByLibrary.simpleMessage(
       "FAQ, контакты, условия и политика конфиденциальности",
     ),
+    "feature_audio_messages": MessageLookupByLibrary.simpleMessage(
+      "Поддержка аудиосообщений",
+    ),
+    "feature_chat_themes": MessageLookupByLibrary.simpleMessage(
+      "Новые темы чата",
+    ),
+    "feature_encryption": MessageLookupByLibrary.simpleMessage(
+      "Улучшенные протоколы шифрования",
+    ),
+    "feature_languages": MessageLookupByLibrary.simpleMessage(
+      "Многоязычная поддержка!",
+    ),
+    "feature_voice_calls": MessageLookupByLibrary.simpleMessage(
+      "Голосовые звонки (Ранний доступ)",
+    ),
+    "file_received": m3,
     "functionality_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Функция ещё не реализована!",
     ),
+    "gallery": MessageLookupByLibrary.simpleMessage("Галерея"),
+    "got_it_button": MessageLookupByLibrary.simpleMessage("Понял!"),
     "help": MessageLookupByLibrary.simpleMessage("Помощь"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Настройки помощи"),
+    "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
+      "Несовместимая версия сервера! Некоторые функции могут работать не так, как ожидается!",
+    ),
     "license_capitalized": MessageLookupByLibrary.simpleMessage("Лицензия"),
     "license_crux": MessageLookupByLibrary.simpleMessage("Основное о лицензии"),
+    "link_new_device": MessageLookupByLibrary.simpleMessage(
+      "Связать новое устройство",
+    ),
     "linked_devices": MessageLookupByLibrary.simpleMessage(
       "Подключенные устройства",
     ),
@@ -225,6 +312,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "linked_devices_logout_confirm": MessageLookupByLibrary.simpleMessage(
       "Вы уверены, что хотите выйти из ",
     ),
+    "login": MessageLookupByLibrary.simpleMessage("Войти"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
       "Аккаунт не существует!",
     ),
@@ -254,6 +342,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "logout": MessageLookupByLibrary.simpleMessage("выход"),
     "logout_capitalized": MessageLookupByLibrary.simpleMessage("Выход"),
+    "logout_confirmation_all_devices": MessageLookupByLibrary.simpleMessage(
+      "Вы уверены, что хотите выйти из \${device.formattedInfo()}?",
+    ),
+    "logout_confirmation_device": MessageLookupByLibrary.simpleMessage(
+      "Вы уверены, что хотите выйти из \${device.formattedInfo()}?",
+    ),
     "logout_from_all_devices": MessageLookupByLibrary.simpleMessage(
       "Выйти со всех устройств",
     ),
@@ -262,6 +356,13 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "manage_storage": MessageLookupByLibrary.simpleMessage(
       "Управление хранилищем",
+    ),
+    "message_by": m4,
+    "message_copied": MessageLookupByLibrary.simpleMessage(
+      "Сообщение скопировано в буфер обмена",
+    ),
+    "message_deletion_unsuccessful": MessageLookupByLibrary.simpleMessage(
+      "Не удалось удалить сообщение",
     ),
     "message_group_call_tones": MessageLookupByLibrary.simpleMessage(
       "Тоны сообщений, групп и звонков",
@@ -275,10 +376,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Тип сообщения не распознан!",
     ),
+    "min_entropy": m5,
     "name": MessageLookupByLibrary.simpleMessage("Имя"),
     "name_enter": MessageLookupByLibrary.simpleMessage("Введите ваше имя"),
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Использование сети, автозагрузка",
+    ),
+    "new_chat": MessageLookupByLibrary.simpleMessage("\'Новый чат\'"),
+    "new_message": MessageLookupByLibrary.simpleMessage("Новое сообщение!"),
+    "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
+      "Нет ожидающих запросов чата",
+    ),
+    "no_chats_available_incompatible_server_version":
+        MessageLookupByLibrary.simpleMessage(
+          "Чаты недоступны, несовместимая версия сервера",
+        ),
+    "no_conversations_available": MessageLookupByLibrary.simpleMessage(
+      "Нет доступных бесед",
+    ),
+    "no_linked_devices": MessageLookupByLibrary.simpleMessage(
+      "Нет связанных устройств",
     ),
     "notification_enable": MessageLookupByLibrary.simpleMessage(
       "Включить уведомления",
@@ -300,14 +417,19 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("Уведомления"),
     "ok": MessageLookupByLibrary.simpleMessage("ОК"),
+    "or": MessageLookupByLibrary.simpleMessage("Или"),
     "other": MessageLookupByLibrary.simpleMessage("Другое"),
     "other_settings": MessageLookupByLibrary.simpleMessage("Другие настройки"),
     "password": MessageLookupByLibrary.simpleMessage("Пароль"),
+    "password_is_empty": MessageLookupByLibrary.simpleMessage("Пароль пуст!"),
     "password_validation_invalid": MessageLookupByLibrary.simpleMessage(
       "Пароль не соответствует требованиям!",
     ),
     "password_validation_success": MessageLookupByLibrary.simpleMessage(
       "Пароль успешно подтвержден!",
+    ),
+    "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Пожалуйста, введите код верификации",
     ),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Конфиденциальность, безопасность, смена номера",
@@ -334,8 +456,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "profile_settings": MessageLookupByLibrary.simpleMessage(
       "Настройки профиля",
     ),
+    "registration_failed": m6,
     "requests": MessageLookupByLibrary.simpleMessage("Запросы"),
+    "resend_code": MessageLookupByLibrary.simpleMessage(
+      "Повторно отправить код",
+    ),
     "save": MessageLookupByLibrary.simpleMessage("Сохранить"),
+    "search": MessageLookupByLibrary.simpleMessage("Поиск..."),
+    "select_an_option": MessageLookupByLibrary.simpleMessage("Выберите опцию"),
+    "send_chat_request": MessageLookupByLibrary.simpleMessage(
+      "Отправить запрос чата",
+    ),
     "server_add": MessageLookupByLibrary.simpleMessage("Добавить сервер"),
     "server_add_success": MessageLookupByLibrary.simpleMessage(
       "Сервер успешно добавлен!",
@@ -359,8 +490,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_saved": MessageLookupByLibrary.simpleMessage(
       "Настройки сохранены",
     ),
+    "sign_out": MessageLookupByLibrary.simpleMessage("Выйти"),
     "source_code": MessageLookupByLibrary.simpleMessage("Исходный код"),
     "storage_data": MessageLookupByLibrary.simpleMessage("Хранилище и данные"),
+    "submit": MessageLookupByLibrary.simpleMessage("Отправить"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
       "Притормози! Ты временно заблокирован от взаимодействия с сервером на короткий промежуток времени.",
     ),
@@ -373,6 +506,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "theme_wallpapers_chat_history": MessageLookupByLibrary.simpleMessage(
       "Тема, обои, история чатов",
     ),
+    "today": MessageLookupByLibrary.simpleMessage("Сегодня"),
+    "type_message": MessageLookupByLibrary.simpleMessage(
+      "Введите сообщение...",
+    ),
+    "unknown_size": MessageLookupByLibrary.simpleMessage("Неизвестный размер"),
+    "use_backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Использовать резервный код верификации",
+    ),
+    "use_password": MessageLookupByLibrary.simpleMessage("Использовать пароль"),
     "username_same_as_old": MessageLookupByLibrary.simpleMessage(
       "Имя пользователя не может совпадать со старым именем!",
     ),
@@ -382,11 +524,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "username_validation_success": MessageLookupByLibrary.simpleMessage(
       "Имя пользователя успешно подтверждено!",
     ),
+    "verification": MessageLookupByLibrary.simpleMessage("Верификация"),
     "verification_attempts_exhausted": MessageLookupByLibrary.simpleMessage(
       "Исчерпаны все попытки!",
     ),
     "verification_code_incorrect": MessageLookupByLibrary.simpleMessage(
       "Неверный код!",
+    ),
+    "verification_code_must_be_number": MessageLookupByLibrary.simpleMessage(
+      "Код верификации должен быть числом",
     ),
     "verification_email_invalid": MessageLookupByLibrary.simpleMessage(
       "Некорректный адрес электронной почты",
@@ -401,6 +547,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibration": MessageLookupByLibrary.simpleMessage("Вибрация"),
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
       "Вибрация недоступна на этом устройстве",
+    ),
+    "whats_new": MessageLookupByLibrary.simpleMessage("Что нового"),
+    "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(
+      "Новые системные сообщения",
+    ),
+    "whats_new_title": MessageLookupByLibrary.simpleMessage(
+      "Новые функции в Hermis",
     ),
   };
 }

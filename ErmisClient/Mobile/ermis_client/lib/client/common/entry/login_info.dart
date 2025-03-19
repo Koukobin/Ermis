@@ -14,10 +14,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/client/common/entry/create_account_info.dart';
+import 'package:ermis_client/generated/l10n.dart';
+
 import '../results/ResultHolder.dart';
 import 'entry_type.dart';
 
-enum LoginResult {
+enum LoginResult implements A {
   successfullyLoggedIn(1, ResultHolder(true, "Successfully logged into your account!")),
   errorWhileLoggingIn(2, ResultHolder(false, "An error occurred while logging into your account! Please contact the server administrator.")),
   incorrectPassword(3, ResultHolder(false, "Incorrect password.")),
@@ -27,6 +30,17 @@ enum LoginResult {
   final ResultHolder resultHolder;
 
   const LoginResult(this.id, this.resultHolder);
+
+  @override
+  bool get isSuccessful => resultHolder.isSuccessful;
+
+  @override
+  String get message => switch(this) {
+    LoginResult.successfullyLoggedIn => S.current.login_success,
+    LoginResult.errorWhileLoggingIn => S.current.login_error,
+    LoginResult.incorrectPassword => S.current.login_password_incorrect,
+    LoginResult.incorrectBackupVerificationCode => S.current.login_backup_code_incorrect,
+  };
 
   static final Map<int, LoginResult> _valuesById = {
     for (var result in LoginResult.values) result.id: result,
@@ -48,6 +62,33 @@ enum LoginCredential implements CredentialInterface {
   };
 
   static LoginCredential? fromId(int id) => _valuesById[id];
+}
+
+enum LoginCredentialResult implements A {
+  successfullyExchangedCredentials(1, ResultHolder(true, "Succesfully exchanged credentials!")),
+  incorrectEmail(2, ResultHolder(false, "Incorrect email!")),
+  accountDoesntExist(3, ResultHolder(false, "Account doesn't exist!"));
+
+  final int id;
+  final ResultHolder resultHolder;
+
+  const LoginCredentialResult(this.id, this.resultHolder);
+
+  @override
+  bool get isSuccessful => resultHolder.isSuccessful;
+  
+  @override
+  String get message => switch (this) {
+    LoginCredentialResult.successfullyExchangedCredentials => S.current.credential_validation_success,
+    LoginCredentialResult.incorrectEmail => S.current.login_email_incorrect,
+    LoginCredentialResult.accountDoesntExist => S.current.login_account_not_found,
+  };
+
+  static final Map<int, LoginCredentialResult> _valuesById = {
+    for (var result in LoginCredentialResult.values) result.id: result,
+  };
+
+  static LoginCredentialResult? fromId(int id) => _valuesById[id];
 }
 
 enum LoginAction {

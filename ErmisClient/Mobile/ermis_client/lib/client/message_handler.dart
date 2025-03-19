@@ -19,6 +19,7 @@ import 'dart:io';
 
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
+import 'package:ermis_client/client/message_events.dart';
 import 'package:flutter/foundation.dart';
 
 import 'client.dart';
@@ -272,6 +273,16 @@ class Commands {
     out.write(payload);
   }
 
+  void refetchWrittenText(int chatSessionIndex) {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchWrittenText.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(0);
+
+    out.write(payload);
+  }
+
   void fetchWrittenText(int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
@@ -315,6 +326,16 @@ class Commands {
     payload.writeInt32(ClientCommandType.requestSourceCodePage.id);
 
     out.write(payload);
+  }
+
+  Future<SignallingServerPortEvent> fetchSignallingServerPort() {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchSignallingServerPort.id);
+
+    out.write(payload);
+
+    return AppEventBus.instance.on<SignallingServerPortEvent>().first;
   }
 
   void sendChatRequest(int userClientID) {

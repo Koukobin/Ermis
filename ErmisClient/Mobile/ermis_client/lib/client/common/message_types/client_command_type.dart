@@ -53,7 +53,10 @@ enum ClientCommandType {
 
   // External Pages
   requestDonationPage(CommandLevel.light, 400),
-  requestSourceCodePage(CommandLevel.light, 401);
+  requestSourceCodePage(CommandLevel.light, 401),
+
+  // Other
+	fetchSignallingServerPort(CommandLevel.light, 500);
 
   final CommandLevel commandLevel;
   final int id;

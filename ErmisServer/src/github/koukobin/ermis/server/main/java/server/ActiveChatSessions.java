@@ -83,18 +83,24 @@ public class ActiveChatSessions {
 		}
 	}
 
-	public static void broadcastToChatSessionExcept(ByteBuf payload, ChatSession chatSession, Channel excludeChannel, Consumer<ChannelFuture> run) {
+	public static void broadcastToChatSessionExcept(ByteBuf payload, ChatSession chatSession, ClientInfo excludeClient, Consumer<ChannelFuture> run) {
 		List<ClientInfo> members = chatSession.getActiveMembers();
 
 		assessReferenceCount(members.size(), payload);
 		for (int i = 0; i < members.size(); i++) {
-			EpollSocketChannel channel = members.get(i).getChannel();
+			ClientInfo clientInfo = members.get(i);
+			EpollSocketChannel channel = clientInfo.getChannel();
+			int clientID = clientInfo.getClientID();
 
-			if (channel.equals(excludeChannel)) {
+			if (channel.equals(excludeClient.getChannel())) {
 				continue;
 			}
 
-			channel.writeAndFlush(payload.duplicate()).addListener((ChannelFuture f) -> run.accept(f));
+			ChannelFuture future = channel.writeAndFlush(payload.duplicate()); 
+			
+			if (clientID != excludeClient.getClientID()) {
+				future.addListener((ChannelFuture f) -> run.accept(f));
+			}
 		}
 	}
 

@@ -18,10 +18,10 @@ import 'package:camera/camera.dart';
 import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../theme/app_theme.dart';
 import '../../client/client.dart';
 import '../../util/dialogs_utils.dart';
 import '../../util/top_app_bar_utils.dart';
@@ -80,116 +80,117 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: appColors.secondaryColor,
-      appBar: ErmisAppBar(
-          titleText: S.current.profile_settings,
-          leading: Navigator.of(context).canPop()
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    _controller.reverse().whenComplete(() {
-                      _controller.dispose();
-                      Navigator.pop(context);
-                    });
-                  },
-                )
-              : null),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Profile Image Section
-            Center(
-              child: GestureDetector(
-                onTap: onChangeProfileImage,
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    const PersonalProfilePhoto(radius: 80),
-                    ScaleTransition(
-                      scale: _animation,
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.green, // Online or offline color
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.camera_alt_outlined,
-                          color: appColors.secondaryColor,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) {
+          return;
+        }
+        _controller.reverse().whenComplete(() {
+          _controller.dispose();
+          Navigator.pop(context);
+        });
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: appColors.secondaryColor,
+        appBar: ErmisAppBar(
+            titleText: S.current.profile_settings),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Profile Image Section
+              Center(
+                child: GestureDetector(
+                  onTap: onChangeProfileImage,
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      const PersonalProfilePhoto(radius: 80),
+                      ScaleTransition(
+                        scale: _animation,
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.green, // Online or offline color
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.camera_alt_outlined,
+                            color: appColors.secondaryColor,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            ListTile(
-              leading: const Icon(Icons.person_outline_rounded),
-              trailing: Icon(
-                Icons.edit_outlined,
-                color: appColors.primaryColor,
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.person_outline_rounded),
+                trailing: Icon(
+                  Icons.edit_outlined,
+                  color: appColors.primaryColor,
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.current.name,
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                    Text(_displayName),
+                  ],
+                ),
+                onTap: () {
+                  createModalBottomSheet();
+                },
               ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    S.current.name,
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                  Text(_displayName),
-                ],
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                trailing: Icon(
+                  Icons.edit_outlined,
+                  color: appColors.primaryColor,
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.current.profile_about,
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                    Text(S.current.profile_hey_there),
+                  ],
+                ),
+                onTap: () {
+                  showSnackBarDialog(
+                      context: context,
+                      content: S.current.functionality_not_implemented);
+                },
               ),
-              onTap: () {
-                createModalBottomSheet();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              trailing: Icon(
-                Icons.edit_outlined,
-                color: appColors.primaryColor,
+              ListTile(
+                leading: const Icon(Icons.numbers_outlined),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "ID",
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                    Text(_clientID.toString()),
+                  ],
+                ),
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: _clientID.toString()));
+                  showSnackBarDialog(
+                      context: context, content: S.current.profile_id_copied);
+                },
               ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    S.current.profile_about,
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                  Text(S.current.profile_hey_there),
-                ],
-              ),
-              onTap: () {
-                showSnackBarDialog(
-                    context: context,
-                    content: S.current.functionality_not_implemented);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.numbers_outlined),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "ID",
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                  Text(_clientID.toString()),
-                ],
-              ),
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: _clientID.toString()));
-                showSnackBarDialog(
-                    context: context, content: S.current.profile_id_copied);
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

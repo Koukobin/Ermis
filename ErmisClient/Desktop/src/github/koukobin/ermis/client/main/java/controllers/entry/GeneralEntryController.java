@@ -22,7 +22,7 @@ import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
-import github.koukobin.ermis.common.results.EntryResult;
+import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 
 import java.io.IOException;
@@ -94,7 +94,7 @@ public abstract sealed class GeneralEntryController implements Initializable per
 
 		ResultHolder entryResult = clientEntry.getResult();
 		boolean isSuccessful = entryResult.isSuccessful();
-		String resultMessage = entryResult.getResultMessage();
+		String resultMessage = entryResult.getIDable();
 
 		if (!isSuccessful) {
 			DialogsUtil.showErrorDialog(resultMessage);
@@ -106,7 +106,7 @@ public abstract sealed class GeneralEntryController implements Initializable per
 	protected boolean performVerification(String email) throws IOException {
 		Client.VerificationEntry verificationEntry = Client.createNewVerificationEntry();
 		VerificationDialog verificationDialog = new VerificationDialog(verificationEntry);
-		EntryResult entryResult;
+		GeneralResult entryResult;
 
 		boolean success = false;
 
@@ -116,7 +116,7 @@ public abstract sealed class GeneralEntryController implements Initializable per
 
 			entryResult = verificationEntry.getResult();
 			success = entryResult.isSuccessful();
-			String resultMessage = entryResult.getResultMessage();
+			String resultMessage = entryResult.getIDable();
 
 			if (success) {
 				DialogsUtil.showSuccessDialog(resultMessage);

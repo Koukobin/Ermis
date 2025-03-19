@@ -18,6 +18,7 @@ package github.koukobin.ermis.common.entry;
 import java.util.HashMap;
 import java.util.Map;
 
+import github.koukobin.ermis.common.IDable;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EnumIntConverter;
 
@@ -52,7 +53,7 @@ public final class Verification {
         }
     }
 
-    public enum Result {
+    public enum Result implements IDable {
         SUCCESFULLY_VERIFIED(1, true, "Succesfully verified!"),
         WRONG_CODE(2, false, "Incorrect code!"),
         RUN_OUT_OF_ATTEMPTS(3, false, "Run out of attempts!"),
@@ -76,6 +77,11 @@ public final class Verification {
         public static Result fromId(int id) {
             return EnumIntConverter.fromId(valuesById, id);
         }
+
+		@Override
+		public int getID() {
+			return id;
+		}
     }
 }
 

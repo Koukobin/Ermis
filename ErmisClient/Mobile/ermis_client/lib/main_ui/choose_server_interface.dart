@@ -17,14 +17,16 @@
 import 'dart:io';
 
 import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_client/main_ui/new_features_page_status.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/util/database_service.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
+import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../client/client.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_theme.dart';
 import 'client_session_setup.dart';
 
 String? serverUrl;
@@ -54,6 +56,30 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
   void initState() {
     super.initState();
     cachedServerUrls = widget.cachedServerUrls;
+
+    NewFeaturesPageStatus status = SettingsJson().newFeaturesPageStatus;
+    if (status.hasShown && status.version == AppConstants.applicationVersion) {
+      
+      if (kReleaseMode) return;
+
+      debugPrint("NewFeaturesPage would not have been shown in production built!");
+    }
+
+    status.hasShown = true;
+    status.version = AppConstants.applicationVersion;
+
+    SettingsJson()
+      ..setHasShownNewFeaturesPage(status)
+      ..saveSettingsJson();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      showDialog(
+        // ignore: use_build_context_synchronously
+        context: context,
+        builder: (BuildContext context) {
+          return const WhatsAppPopupDialog(child: WhatsNewScreen());
+        },
+      );
+    });
   }
 
   @override
@@ -94,41 +120,47 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        String? url = await showInputDialog(
-                          context: context,
-                          vsync: this,
-                          title: S.current.server_url_enter,
-                          hintText: "example.com",
-                        );
-                        if (url == null) return;
+                    SizedBox(
+                      width: 150,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          String? url = await showInputDialog(
+                            context: context,
+                            vsync: this,
+                            title: S.current.server_url_enter,
+                            hintText: "example.com",
+                          );
+                          if (url == null) return;
 
-                        ServerInfo serverInfo;
+                          ServerInfo serverInfo;
 
-                        try {
-                          serverInfo = ServerInfo(Uri.https(url));
-                        } on InvalidServerUrlException catch (e) {
-                          showExceptionDialog(context, e.message);
-                          return;
-                        }
+                          try {
+                            serverInfo = ServerInfo(Uri.https(url));
+                          } on InvalidServerUrlException catch (e) {
+                            showExceptionDialog(context, e.message);
+                            return;
+                          }
 
-                        setState(() {
-                          cachedServerUrls.add(serverInfo);
-                        });
-                        ErmisDB.getConnection().insertServerInfo(serverInfo);
+                          setState(() {
+                            cachedServerUrls.add(serverInfo);
+                          });
+                          ErmisDB.getConnection().insertServerInfo(serverInfo);
 
-                        // Feedback
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(S.current.server_add_success)),
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: Text(S.current.server_add,
-                          style: TextStyle(fontSize: 16)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: appColors.primaryColor,
-                        foregroundColor: appColors.tertiaryColor,
+                          // Feedback
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(S.current.server_add_success)),
+                          );
+                        },
+                        icon: const Icon(Icons.add),
+                        label: Text(
+                          softWrap: true,
+                          S.current.server_add,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appColors.primaryColor,
+                          foregroundColor: appColors.tertiaryColor,
+                        ),
                       ),
                     ),
                     Expanded(
@@ -166,9 +198,7 @@ class ChooseServerState extends State<ChooseServer> with TickerProviderStateMixi
                     // ),
                   ],
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
                 // "Connect" Button
                 ElevatedButton(
                   onPressed: _isConnectingToServer ? null : () async {
@@ -315,6 +345,64 @@ class _DropdownMenuState extends State<DropdownMenu> {
               );
             }).toList(),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class WhatsNewScreen extends StatelessWidget {
+  const WhatsNewScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(S.current.whats_new),
+        backgroundColor: Color(0xFF4CAF50),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              S.current.whats_new_title,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF4CAF50),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Feature List
+            ListTile(
+              leading: const Icon(Icons.add, color: Color(0xFF4CAF50)),
+              title: Text(S.current.feature_encryption),
+            ),
+            ListTile(
+              leading: const Icon(Icons.language, color: Color(0xFF4CAF50)),
+              title: Text(S.current.feature_languages),
+            ),
+            ListTile(
+              leading: const Icon(Icons.call, color: Color(0xFF4CAF50)),
+              title: Text(S.current.feature_voice_calls),
+            ),
+            const SizedBox(height: 30),
+            // Dismiss Button
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF4CAF50),
+                ),
+                onPressed: Navigator.of(context).pop,
+                child: Text(
+                  S.current.got_it_button,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

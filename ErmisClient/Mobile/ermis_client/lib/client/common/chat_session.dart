@@ -16,7 +16,7 @@
 
 import 'dart:typed_data';
 import 'package:ermis_client/client/common/message_types/content_type.dart';
-import 'package:intl/intl.dart';
+import 'package:ermis_client/util/custom_date_formatter.dart';
 
 import 'message.dart';
 
@@ -74,10 +74,10 @@ class ChatSession {
             .toLocal();
 
     if (DateTime.now().difference(localTime).inDays >= 1) {
-      return DateFormat("dd/MM/yy").format(localTime);
+      return CustomDateFormatter.formatDate(localTime, "dd/MM/yy");
     }
 
-    return DateFormat("HH:mm").format(localTime);
+    return CustomDateFormatter.formatDate(localTime, "HH:mm");
   }
 
   bool get haveChatMessagesBeenCached => _haveChatMessagesBeenCached;

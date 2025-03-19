@@ -20,8 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ar';
 
+  static String m0(deviceInfo) =>
+      "هل أنت متأكد أنك تريد تسجيل الخروج من ${deviceInfo}؟";
+
+  static String m1(username) => "محادثة مع ${username}";
+
+  static String m2(entropy) => "الإنتروبيا: ${entropy} (تقدير تقريبي)";
+
+  static String m3(fileName) => "تم استلام ملف ${fileName}";
+
+  static String m4(username) => "رسالة من ${username}";
+
+  static String m5(minEntropy) => "الحد الأدنى للإنتروبيا: ${minEntropy}";
+
+  static String m6(resultMessage) => "فشل التسجيل: ${resultMessage}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accept": MessageLookupByLibrary.simpleMessage("قبول"),
     "account": MessageLookupByLibrary.simpleMessage("الحساب"),
     "account_add": MessageLookupByLibrary.simpleMessage("إضافة حساب جديد"),
     "account_confirm_proceed": MessageLookupByLibrary.simpleMessage(
@@ -50,10 +66,14 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "app_info": MessageLookupByLibrary.simpleMessage("معلومات التطبيق"),
     "app_language": MessageLookupByLibrary.simpleMessage("لغة التطبيق"),
+    "are_you_sure_you_want_to_logout_from": m0,
     "are_you_sure_you_want_to_logout_from_all_devices":
         MessageLookupByLibrary.simpleMessage(
           "هل أنت متأكد من أنك تريد تسجيل الخروج من جميع الأجهزة؟",
         ),
+    "attempting_delete_message": MessageLookupByLibrary.simpleMessage(
+      "جارٍ محاولة حذف الرسالة",
+    ),
     "authentication_stage_create_account": MessageLookupByLibrary.simpleMessage(
       "إنشاء حساب",
     ),
@@ -64,6 +84,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "authentication_stage_login": MessageLookupByLibrary.simpleMessage(
       "تسجيل الدخول",
     ),
+    "backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "رمز التحقق الاحتياطي",
+    ),
     "backup_verification_code_regenerate_error":
         MessageLookupByLibrary.simpleMessage(
           "حدث خطأ أثناء محاولة تغيير اسم المستخدم!",
@@ -72,6 +95,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "تم إعادة إنشاء رموز التحقق الاحتياطية بنجاح!",
         ),
+    "camera": MessageLookupByLibrary.simpleMessage("الكاميرا"),
     "cancel": MessageLookupByLibrary.simpleMessage("إلغاء"),
     "change_password_error": MessageLookupByLibrary.simpleMessage(
       "حدث خطأ أثناء محاولة تغيير كلمة المرور!",
@@ -131,12 +155,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "إعدادات سمة المحادثة",
     ),
+    "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("المحادثات"),
+    "choose_option": MessageLookupByLibrary.simpleMessage("اختر خيارًا"),
+    "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
+      "يجب أن يكون معرف العميل رقمًا",
+    ),
     "close": MessageLookupByLibrary.simpleMessage("إغلاق"),
     "command_not_implemented": MessageLookupByLibrary.simpleMessage(
       "الأمر {} لم يتم تنفيذه!",
     ),
     "command_unknown": MessageLookupByLibrary.simpleMessage("الأمر غير معروف!"),
+    "confirm_delete_message": MessageLookupByLibrary.simpleMessage(
+      "هل أنت متأكد أنك تريد حذف الرسالة نهائيًا؟",
+    ),
     "connect": MessageLookupByLibrary.simpleMessage("اتصال"),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "نوع المحتوى لم يتم تنفيذه!",
@@ -144,6 +176,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "نوع المحتوى غير معروف!",
     ),
+    "create_account": MessageLookupByLibrary.simpleMessage("إنشاء حساب"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
       "تم الوصول إلى الحد الأقصى لسعة قاعدة البيانات! للأسف، تعذر معالجة طلبك.",
     ),
@@ -175,9 +208,20 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "متطلبات اسم المستخدم غير مستوفاة!",
         ),
+    "decline": MessageLookupByLibrary.simpleMessage("رفض"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "فشل فك الضغط",
     ),
+    "delete": MessageLookupByLibrary.simpleMessage("حذف"),
+    "delete_chat": MessageLookupByLibrary.simpleMessage("حذف الدردشة"),
+    "delete_this_chat_question": MessageLookupByLibrary.simpleMessage(
+      "هل تريد حذف هذه الدردشة؟",
+    ),
+    "deleting_this_chat_will_permanently_delete_all_prior_messages":
+        MessageLookupByLibrary.simpleMessage(
+          "سيؤدي حذف هذه الدردشة إلى حذف جميع الرسائل السابقة بشكل دائم",
+        ),
+    "display_name": MessageLookupByLibrary.simpleMessage("اسم العرض"),
     "display_part_of_messages_in_notifications":
         MessageLookupByLibrary.simpleMessage("عرض جزء من الرسالة في الإشعارات"),
     "donate_to_ermis_project": MessageLookupByLibrary.simpleMessage(
@@ -185,22 +229,61 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "donate_to_hoster": MessageLookupByLibrary.simpleMessage("التبرع للمضيف"),
     "donations": MessageLookupByLibrary.simpleMessage("التبرعات"),
+    "downloaded_file": MessageLookupByLibrary.simpleMessage("تم تنزيل الملف"),
+    "email": MessageLookupByLibrary.simpleMessage("البريد الإلكتروني"),
     "email_address": MessageLookupByLibrary.simpleMessage(
       "عنوان البريد الإلكتروني",
+    ),
+    "email_is_empty": MessageLookupByLibrary.simpleMessage(
+      "البريد الإلكتروني فارغ!",
     ),
     "email_mismatch": MessageLookupByLibrary.simpleMessage(
       "البريد الإلكتروني المدخل لا يطابق البريد الإلكتروني الفعلي!",
     ),
+    "enter_client_id": MessageLookupByLibrary.simpleMessage("أدخل معرف العميل"),
+    "enter_verification_code": MessageLookupByLibrary.simpleMessage(
+      "أدخل رمز التحقق",
+    ),
+    "enter_verification_code_sent_to_your_email":
+        MessageLookupByLibrary.simpleMessage(
+          "أدخل رمز التحقق المرسل إلى بريدك الإلكتروني",
+        ),
+    "entropy_rough_estimate": m2,
+    "error_saving_file": MessageLookupByLibrary.simpleMessage(
+      "حدث خطأ أثناء محاولة حفظ الملف",
+    ),
     "faq_contact_terms_privacy": MessageLookupByLibrary.simpleMessage(
       "الأسئلة الشائعة، اتصل بنا، الشروط وسياسة الخصوصية",
     ),
+    "feature_audio_messages": MessageLookupByLibrary.simpleMessage(
+      "دعم الرسائل الصوتية",
+    ),
+    "feature_chat_themes": MessageLookupByLibrary.simpleMessage(
+      "سمات دردشة جديدة",
+    ),
+    "feature_encryption": MessageLookupByLibrary.simpleMessage(
+      "بروتوكولات تشفير محسّنة",
+    ),
+    "feature_languages": MessageLookupByLibrary.simpleMessage(
+      "دعم متعدد اللغات!",
+    ),
+    "feature_voice_calls": MessageLookupByLibrary.simpleMessage(
+      "المكالمات الصوتية (وصول مبكر)",
+    ),
+    "file_received": m3,
     "functionality_not_implemented": MessageLookupByLibrary.simpleMessage(
       "الوظيفة لم يتم تنفيذها بعد!",
     ),
+    "gallery": MessageLookupByLibrary.simpleMessage("معرض الصور"),
+    "got_it_button": MessageLookupByLibrary.simpleMessage("فهمت!"),
     "help": MessageLookupByLibrary.simpleMessage("المساعدة"),
     "help_settings": MessageLookupByLibrary.simpleMessage("إعدادات المساعدة"),
+    "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
+      "نسخة الخادم غير متوافقة! قد لا تعمل بعض الأشياء كما هو متوقع!",
+    ),
     "license_capitalized": MessageLookupByLibrary.simpleMessage("الترخيص"),
     "license_crux": MessageLookupByLibrary.simpleMessage("جوهر الترخيص"),
+    "link_new_device": MessageLookupByLibrary.simpleMessage("ربط جهاز جديد"),
     "linked_devices": MessageLookupByLibrary.simpleMessage("الأجهزة المرتبطة"),
     "linked_devices_logout_all": MessageLookupByLibrary.simpleMessage(
       "تسجيل الخروج من جميع الأجهزة",
@@ -211,6 +294,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "linked_devices_logout_confirm": MessageLookupByLibrary.simpleMessage(
       "هل أنت متأكد من أنك تريد تسجيل الخروج من ",
     ),
+    "login": MessageLookupByLibrary.simpleMessage("تسجيل الدخول"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
       "الحساب غير موجود!",
     ),
@@ -240,6 +324,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "logout": MessageLookupByLibrary.simpleMessage("تسجيل الخروج"),
     "logout_capitalized": MessageLookupByLibrary.simpleMessage("تسجيل الخروج"),
+    "logout_confirmation_all_devices": MessageLookupByLibrary.simpleMessage(
+      "هل أنت متأكد أنك تريد تسجيل الخروج من \${device.formattedInfo()}؟",
+    ),
+    "logout_confirmation_device": MessageLookupByLibrary.simpleMessage(
+      "هل أنت متأكد أنك تريد تسجيل الخروج من \${device.formattedInfo()}؟",
+    ),
     "logout_from_all_devices": MessageLookupByLibrary.simpleMessage(
       "تسجيل الخروج من جميع الأجهزة",
     ),
@@ -247,6 +337,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "تسجيل الخروج من هذا الجهاز",
     ),
     "manage_storage": MessageLookupByLibrary.simpleMessage("إدارة التخزين"),
+    "message_by": m4,
+    "message_copied": MessageLookupByLibrary.simpleMessage(
+      "تم نسخ الرسالة إلى الحافظة",
+    ),
+    "message_deletion_unsuccessful": MessageLookupByLibrary.simpleMessage(
+      "فشل حذف الرسالة",
+    ),
     "message_group_call_tones": MessageLookupByLibrary.simpleMessage(
       "نغمات الرسائل والمجموعات والمكالمات",
     ),
@@ -259,10 +356,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_type_unknown": MessageLookupByLibrary.simpleMessage(
       "نوع الرسالة غير معروف!",
     ),
+    "min_entropy": m5,
     "name": MessageLookupByLibrary.simpleMessage("الاسم"),
     "name_enter": MessageLookupByLibrary.simpleMessage("أدخل اسمك"),
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "استخدام الشبكة، التنزيل التلقائي",
+    ),
+    "new_chat": MessageLookupByLibrary.simpleMessage("\'دردشة جديدة\'"),
+    "new_message": MessageLookupByLibrary.simpleMessage("رسالة جديدة!"),
+    "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
+      "لا توجد طلبات دردشة معلقة",
+    ),
+    "no_chats_available_incompatible_server_version":
+        MessageLookupByLibrary.simpleMessage(
+          "لا توجد محادثات متاحة، نسخة الخادم غير متوافقة",
+        ),
+    "no_conversations_available": MessageLookupByLibrary.simpleMessage(
+      "لا توجد محادثات متاحة",
+    ),
+    "no_linked_devices": MessageLookupByLibrary.simpleMessage(
+      "لا توجد أجهزة مرتبطة",
     ),
     "notification_enable": MessageLookupByLibrary.simpleMessage(
       "تمكين الإشعارات",
@@ -282,14 +395,21 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("الإشعارات"),
     "ok": MessageLookupByLibrary.simpleMessage("موافق"),
+    "or": MessageLookupByLibrary.simpleMessage("أو"),
     "other": MessageLookupByLibrary.simpleMessage("أخرى"),
     "other_settings": MessageLookupByLibrary.simpleMessage("إعدادات أخرى"),
     "password": MessageLookupByLibrary.simpleMessage("كلمة المرور"),
+    "password_is_empty": MessageLookupByLibrary.simpleMessage(
+      "كلمة المرور فارغة!",
+    ),
     "password_validation_invalid": MessageLookupByLibrary.simpleMessage(
       "متطلبات كلمة المرور غير مستوفاة!",
     ),
     "password_validation_success": MessageLookupByLibrary.simpleMessage(
       "تم التحقق من كلمة المرور بنجاح!",
+    ),
+    "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
+      "الرجاء إدخال رمز التحقق",
     ),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "الخصوصية، الأمان، تغيير الرقم",
@@ -314,8 +434,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "profile_settings": MessageLookupByLibrary.simpleMessage(
       "إعدادات الملف الشخصي",
     ),
+    "registration_failed": m6,
     "requests": MessageLookupByLibrary.simpleMessage("الطلبات"),
+    "resend_code": MessageLookupByLibrary.simpleMessage("إعادة إرسال الرمز"),
     "save": MessageLookupByLibrary.simpleMessage("حفظ"),
+    "search": MessageLookupByLibrary.simpleMessage("بحث..."),
+    "select_an_option": MessageLookupByLibrary.simpleMessage("اختر خيارًا"),
+    "send_chat_request": MessageLookupByLibrary.simpleMessage(
+      "إرسال طلب دردشة",
+    ),
     "server_add": MessageLookupByLibrary.simpleMessage("إضافة خادم"),
     "server_add_success": MessageLookupByLibrary.simpleMessage(
       "تمت إضافة الخادم بنجاح!",
@@ -335,8 +462,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings": MessageLookupByLibrary.simpleMessage("الإعدادات"),
     "settings_save": MessageLookupByLibrary.simpleMessage("حفظ الإعدادات"),
     "settings_saved": MessageLookupByLibrary.simpleMessage("تم حفظ الإعدادات"),
+    "sign_out": MessageLookupByLibrary.simpleMessage("تسجيل الخروج"),
     "source_code": MessageLookupByLibrary.simpleMessage("كود المصدر"),
     "storage_data": MessageLookupByLibrary.simpleMessage("التخزين والبيانات"),
+    "submit": MessageLookupByLibrary.simpleMessage("إرسال"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
       "تمهل! تم حظرك مؤقتًا من التفاعل مع الخادم لفترة قصيرة.",
     ),
@@ -349,6 +478,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "theme_wallpapers_chat_history": MessageLookupByLibrary.simpleMessage(
       "السمة، الخلفيات، تاريخ المحادثات",
     ),
+    "today": MessageLookupByLibrary.simpleMessage("اليوم"),
+    "type_message": MessageLookupByLibrary.simpleMessage("اكتب رسالة..."),
+    "unknown_size": MessageLookupByLibrary.simpleMessage("حجم غير معروف"),
+    "use_backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "استخدام رمز التحقق الاحتياطي",
+    ),
+    "use_password": MessageLookupByLibrary.simpleMessage("استخدام كلمة المرور"),
     "username_same_as_old": MessageLookupByLibrary.simpleMessage(
       "لا يمكن أن يكون اسم المستخدم هو نفسه اسم المستخدم القديم!",
     ),
@@ -358,11 +494,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "username_validation_success": MessageLookupByLibrary.simpleMessage(
       "تم التحقق من اسم المستخدم بنجاح!",
     ),
+    "verification": MessageLookupByLibrary.simpleMessage("التحقق"),
     "verification_attempts_exhausted": MessageLookupByLibrary.simpleMessage(
       "نفدت محاولاتك!",
     ),
     "verification_code_incorrect": MessageLookupByLibrary.simpleMessage(
       "رمز غير صحيح!",
+    ),
+    "verification_code_must_be_number": MessageLookupByLibrary.simpleMessage(
+      "يجب أن يكون رمز التحقق رقمًا",
     ),
     "verification_email_invalid": MessageLookupByLibrary.simpleMessage(
       "عنوان بريد إلكتروني غير صالح",
@@ -377,6 +517,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibration": MessageLookupByLibrary.simpleMessage("اهتزاز"),
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
       "الاهتزاز غير متوفر على هذا الجهاز",
+    ),
+    "whats_new": MessageLookupByLibrary.simpleMessage("ما الجديد"),
+    "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(
+      "رسائل النظام الجديدة",
+    ),
+    "whats_new_title": MessageLookupByLibrary.simpleMessage(
+      "الميزات الجديدة في هرمس",
     ),
   };
 }

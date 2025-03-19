@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Throwables;
 
+import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -71,10 +72,7 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 
 				// Block incoming messages for a certain time interval
 				ctx.executor().schedule(() -> isBanned = false, BLOCK_DURATION_SECONDS, TimeUnit.SECONDS);
-				MessageByteBufCreator.sendMessageInfo(ctx, """
-						Slow your horses there! You've been temporarily banned from interacting
-						with the server for a short time interval.
-						""");
+				MessageByteBufCreator.sendMessageInfo(ctx, ServerInfoMessage.TOO_MANY_REQUESTS_MADE.id);
 				LOGGER.debug("User temporarily banned from server");
 				return;
 			}

@@ -92,6 +92,12 @@ class ServerSourceCodeEvent {
   const ServerSourceCodeEvent(this.sourceCodeUrl);
 }
 
+class SignallingServerPortEvent {
+  final int port;
+  final Uint8List aesKey;
+  const SignallingServerPortEvent(this.port, this.aesKey);
+}
+
 class ClientIdEvent {
   final int clientId;
   const ClientIdEvent(this.clientId);
@@ -115,15 +121,15 @@ class OtherAccountsEvent {
 class VoiceCallIncomingEvent {
   final int chatSessionID;
   final int chatSessionIndex;
-  final int voiceCallKey;
-  final int udpServerPort;
+  final Uint8List aesKey;
+  final int mansPort;
   final Member member;
   const VoiceCallIncomingEvent({
     required this.chatSessionID,
     required this.chatSessionIndex,
-    required this.voiceCallKey,
+    required this.aesKey,
     required this.member,
-    required this.udpServerPort,
+    required this.mansPort,
   });
 }
 

@@ -24,10 +24,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -49,7 +47,7 @@ import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.results.ChangePasswordResult;
 import github.koukobin.ermis.common.results.ChangeUsernameResult;
-import github.koukobin.ermis.common.results.EntryResult;
+import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.common.util.FileUtils;
@@ -281,50 +279,55 @@ public final class ErmisDatabase {
 			super(generalPurposeDataSource);
 		}
 
-		public ResultHolder checkIfUserMeetsRequirementsToCreateAccount(String username, String password,
+		public CreateAccountInfo.CredentialValidation.Result checkIfUserMeetsRequirementsToCreateAccount(
+				String username, 
+				String password,
 				String emailAddress) {
 
 			// Check if username and password meets the requirements
 			if (!usernameComplexityChecker.estimate(username)) {
-				return usernameComplexityChecker.getResultWhenUnsuccesfull();
+				return CreateAccountInfo.CredentialValidation.Result.USERNAME_REQUIREMENTS_NOT_MET;
 			}
 
 			if (!passwordComplexityChecker.estimate(password)) {
-				return passwordComplexityChecker.getResultWhenUnsuccesfull();
+				return CreateAccountInfo.CredentialValidation.Result.PASSWORD_REQUIREMENTS_NOT_MET;
 			}
 
 			if (accountWithEmailExists(emailAddress)) {
-				return CreateAccountInfo.CredentialValidation.Result.EMAIL_ALREADY_USED.resultHolder;
-			}
-			
-			return CreateAccountInfo.CredentialValidation.Result.SUCCESFULLY_EXCHANGED_CREDENTIALS.resultHolder;
-		}
-
-		/**
-		 * First checks if user meets requirements method before createAccount method
-		 */
-		public EntryResult checkAndCreateAccount(String username, String password, UserDeviceInfo deviceInfo,
-				String emailAddress) {
-
-			EntryResult resultHolder = new EntryResult(checkIfUserMeetsRequirementsToCreateAccount(username, password, emailAddress));
-
-			if (!resultHolder.isSuccessful()) {
-				return resultHolder;
+				return CreateAccountInfo.CredentialValidation.Result.EMAIL_ALREADY_USED;
 			}
 
-			return createAccount(username, password, deviceInfo, emailAddress);
+			return CreateAccountInfo.CredentialValidation.Result.SUCCESFULLY_EXCHANGED_CREDENTIALS;
 		}
 
-		public EntryResult createAccount(String username,
+//		/**
+//		 * First checks if user meets requirements method before createAccount method
+//		 */
+//		public CreateAccountResult checkAndCreateAccount1(String username,
+//				String password,
+//				UserDeviceInfo deviceInfo,
+//				String emailAddress) {
+//
+//			CreateAccountResult resultHolder = new CreateAccountResult(checkIfUserMeetsRequirementsToCreateAccount(username, password, emailAddress));
+//
+//			if (!resultHolder.getEnumIndicatingResult().resultHolder.isSuccessful()) {
+//				return resultHolder;
+//			}
+//
+//			return createAccount(username, password, deviceInfo, emailAddress);
+//		}
+
+		public GeneralResult createAccount(String username,
 				String password,
-				UserDeviceInfo deviceInfo, String emailAddress) {
+				UserDeviceInfo deviceInfo, 
+				String emailAddress) {
 
 			// Retrieve and delete a unique client ID. If account creation fails, 
 			// the deleted client ID will be regenerated during the next generation.
 			int clientID = ClientIDGenerator.retrieveAndDelete(conn);
 
 			if (clientID == -1) {
-				return new EntryResult(CreateAccountInfo.CreateAccount.Result.DATABASE_MAX_SIZE_REACHED.resultHolder);
+				return new GeneralResult(CreateAccountInfo.CreateAccount.Result.DATABASE_MAX_SIZE_REACHED, CreateAccountInfo.CreateAccount.Result.DATABASE_MAX_SIZE_REACHED.resultHolder.isSuccessful());
 			}
 
 			String salt;
@@ -359,7 +362,7 @@ public final class ErmisDatabase {
 				int resultUpdate = createUser.executeUpdate();
 				
 				if (resultUpdate == 0) {
-					return new EntryResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT.resultHolder);
+					return new GeneralResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT, CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT.resultHolder.isSuccessful());
 				}
 			} catch (SQLException sqle) {
 				logger.trace(Throwables.getStackTraceAsString(sqle));
@@ -383,13 +386,13 @@ public final class ErmisDatabase {
 					addedInfo.put(AddedInfo.PASSWORD_HASH, passwordHashResult);
 					addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, String.join("\n", hashedBackupVerificationCodes));
 					
-					return new EntryResult(CreateAccountInfo.CreateAccount.Result.SUCCESFULLY_CREATED_ACCOUNT.resultHolder, addedInfo);
+					return new GeneralResult(CreateAccountInfo.CreateAccount.Result.SUCCESFULLY_CREATED_ACCOUNT, CreateAccountInfo.CreateAccount.Result.SUCCESFULLY_CREATED_ACCOUNT.resultHolder.isSuccessful(), addedInfo);
 				}
 			} catch (SQLException sqle) {
 				logger.trace(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return new EntryResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT.resultHolder);
+			return new GeneralResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT, CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT.resultHolder.isSuccessful());
 		}
 
 		/**
@@ -441,24 +444,23 @@ public final class ErmisDatabase {
 					: Optional.ofNullable(null);
 		}
 		
-		public ResultHolder checkIfUserMeetsRequirementsToLogin(String emailAddress) {
+		public LoginInfo.CredentialsExchange.Result checkIfUserMeetsRequirementsToLogin(String emailAddress) {
 			if (!accountWithEmailExists(emailAddress)) {
-				return LoginInfo.CredentialsExchange.Result.ACCOUNT_DOESNT_EXIST.resultHolder;
+				return LoginInfo.CredentialsExchange.Result.ACCOUNT_DOESNT_EXIST;
 			}
 
-			return LoginInfo.CredentialsExchange.Result.SUCCESFULLY_EXCHANGED_CREDENTIALS.resultHolder;
+			return LoginInfo.CredentialsExchange.Result.SUCCESFULLY_EXCHANGED_CREDENTIALS;
 		}
 
-		public EntryResult checkRequirementsAndLogin(String email, String password, UserDeviceInfo deviceInfo) {
-
-			ResultHolder resultHolder = checkIfUserMeetsRequirementsToLogin(email);
-
-			if (!resultHolder.isSuccessful()) {
-				return new EntryResult(resultHolder);
-			}
-
-			return loginUsingPassword(email, password, deviceInfo);
-		}
+//		public LoginResult checkRequirementsAndLogin(String email, String password, UserDeviceInfo deviceInfo) {
+//			Result resultHolder = checkIfUserMeetsRequirementsToLogin(email);
+//
+//			if (!resultHolder.resultHolder.isSuccessful()) {
+//				return new LoginResult(resultHolder);
+//			}
+//
+//			return loginUsingPassword(email, password, deviceInfo);
+//		}
 
 		@Deprecated
 		public ResultHolder loginUsingBackupVerificationCode(String email, String backupVerificationCode, UserDeviceInfo deviceInfo) {
@@ -506,11 +508,11 @@ public final class ErmisDatabase {
 
 			return LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN.resultHolder;
 		}
-		
-		public EntryResult loginUsingPassword(String email, String password, UserDeviceInfo deviceInfo) {
+
+		public GeneralResult loginUsingPassword(String email, String password, UserDeviceInfo deviceInfo) {
 			Optional<String> passwordHashOptional = checkAuthentication(email, password);
 			if (passwordHashOptional.isEmpty()) {
-				return new EntryResult(LoginInfo.Login.Result.INCORRECT_PASSWORD.resultHolder);
+				return new GeneralResult(LoginInfo.Login.Result.INCORRECT_PASSWORD, LoginInfo.Login.Result.INCORRECT_PASSWORD.resultHolder.isSuccessful());
 			}
 			String passwordHash = passwordHashOptional.get();
 
@@ -520,31 +522,31 @@ public final class ErmisDatabase {
 			if (result != Insert.NOTHING_CHANGED) {
 				Map<AddedInfo, String> info = new EnumMap<>(AddedInfo.class);
 				info.put(AddedInfo.PASSWORD_HASH, passwordHash);
-				return new EntryResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder, info);
+				return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder.isSuccessful(), info);
 			}
 
-			return new EntryResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN.resultHolder);
+			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN.resultHolder.isSuccessful());
 		}
 
 		public Insert insertUserIp(String email, UserDeviceInfo deviceInfo) {
 			return insertUserIp(getClientID(email).orElseThrow(), deviceInfo);
 		}
-		
+
 		public Insert insertUserIp(int clientID, UserDeviceInfo deviceInfo) {
 			String sql = """
 					  INSERT INTO user_ips (client_id, ip_address, device_type, os_name)
 					  VALUES (?, ?, ?, ?)
 					  ON CONFLICT (client_id, ip_address) DO NOTHING;
 					""";
-			
+
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 				pstmt.setInt(1, clientID);
 				pstmt.setString(2, deviceInfo.ipAddress());
 				pstmt.setInt(3, DeviceTypeConverter.getDeviceTypeAsDatabaseInt(deviceInfo.deviceType()));
 				pstmt.setString(4, deviceInfo.osName());
-				
-		        int affectedRows = pstmt.executeUpdate();
-		        return affectedRows > 0 ? Insert.SUCCESSFUL_INSERT : Insert.DUPLICATE_ENTRY;
+
+				int affectedRows = pstmt.executeUpdate();
+				return affectedRows > 0 ? Insert.SUCCESSFUL_INSERT : Insert.DUPLICATE_ENTRY;
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
@@ -552,12 +554,11 @@ public final class ErmisDatabase {
 			return Insert.NOTHING_CHANGED;
 		}
 
-		public ResultHolder changeDisplayName(int clientID, String newDisplayName) {
-			
+		public ChangeUsernameResult changeDisplayName(int clientID, String newDisplayName) {
 			if (!usernameComplexityChecker.estimate(newDisplayName)) {
-				return ChangeUsernameResult.REQUIREMENTS_NOT_MET.resultHolder;
+				return ChangeUsernameResult.REQUIREMENTS_NOT_MET;
 			}
-			
+
 			String sql = "UPDATE user_profiles SET display_name=? WHERE client_id=?";
 			try (PreparedStatement changeUsername = conn.prepareStatement(sql)) {
 				changeUsername.setString(1, newDisplayName);
@@ -565,24 +566,24 @@ public final class ErmisDatabase {
 
 				int resultUpdate = changeUsername.executeUpdate();
 				if (resultUpdate == 1) {
-					return ChangeUsernameResult.SUCCESFULLY_CHANGED_USERNAME.resultHolder;
+					return ChangeUsernameResult.SUCCESFULLY_CHANGED_USERNAME;
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return ChangeUsernameResult.ERROR_WHILE_CHANGING_USERNAME.resultHolder;
+			return ChangeUsernameResult.ERROR_WHILE_CHANGING_USERNAME;
 		}
-		
-		public ResultHolder changePassword(String emailAddress, String newPassword) {
+
+		public ChangePasswordResult changePassword(String emailAddress, String newPassword) {
 			if (!passwordComplexityChecker.estimate(newPassword)) {
-				return passwordComplexityChecker.getResultWhenUnsuccesfull();
+				return ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD;
 			}
 
 			String salt = getSalt(emailAddress);
-			
+
 			SimpleHash passwordHash = HashUtil.createHash(newPassword, salt, DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
-			
+
 			try (PreparedStatement changePassword = conn
 					.prepareStatement("UPDATE users SET password_hash=? WHERE email=?")) {
 
@@ -592,13 +593,13 @@ public final class ErmisDatabase {
 				int resultUpdate = changePassword.executeUpdate();
 
 				if (resultUpdate == 1) {
-					return ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD.resultHolder;
+					return ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD;
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD.resultHolder;
+			return ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD;
 		}
 
 		public Optional<String> getUsername(int clientID) {

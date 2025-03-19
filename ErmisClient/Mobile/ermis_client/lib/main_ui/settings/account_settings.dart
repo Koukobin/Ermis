@@ -18,12 +18,12 @@ import 'package:ermis_client/client/app_event_bus.dart';
 import 'package:ermis_client/client/common/account.dart';
 import 'package:ermis_client/client/message_events.dart';
 import 'package:ermis_client/main_ui/user_profile.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../generated/l10n.dart';
-import '../../theme/app_theme.dart';
 import '../../client/client.dart';
 import '../../util/database_service.dart';
 import '../../util/dialogs_utils.dart';

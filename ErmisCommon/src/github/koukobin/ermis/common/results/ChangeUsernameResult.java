@@ -27,8 +27,9 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  */
 public enum ChangeUsernameResult {
     SUCCESFULLY_CHANGED_USERNAME(0, true, "Succesfully changed username!"),
-    ERROR_WHILE_CHANGING_USERNAME(1, false, "There was an error while trying to change username!"),
-	REQUIREMENTS_NOT_MET(2, false, "Username requirements not met");
+    PASSWORD_CANNOT_BE_IDENTICAL_TO_PREVIOUS_ONE(1, false, "Username cannot be the same as old username!"),
+    ERROR_WHILE_CHANGING_USERNAME(2, false, "There was an error while trying to change username!"),
+	REQUIREMENTS_NOT_MET(3, false, "Username requirements not met");
 
     private static final HashMap<Integer, ChangeUsernameResult> values;
 

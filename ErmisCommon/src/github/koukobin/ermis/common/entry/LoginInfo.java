@@ -18,6 +18,7 @@ package github.koukobin.ermis.common.entry;
 import java.util.HashMap;
 import java.util.Map;
 
+import github.koukobin.ermis.common.IDable;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EnumIntConverter;
 
@@ -151,7 +152,7 @@ public final class LoginInfo {
 	}
 
 	public static class Login {
-		public enum Result {
+		public enum Result implements IDable {
             SUCCESFULLY_LOGGED_IN(1, true, "Succesfully logged into your account!"),
             ERROR_WHILE_LOGGING_IN(2, false, "An error occurred while logging into your account! Please contact the server administrator and let them know that their server is broken."),
             INCORRECT_PASSWORD(3, false, "Incorrect password."),
@@ -176,6 +177,12 @@ public final class LoginInfo {
 			public static Result fromId(int id) {
 				return EnumIntConverter.fromId(valuesById, id);
 			}
+
+			@Override
+			public int getID() {
+				return id;
+			}
+
 		}
 	}
 }

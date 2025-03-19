@@ -20,8 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'la';
 
+  static String m0(deviceInfo) =>
+      "Certus esne te velle ab ${deviceInfo} discedere?";
+
+  static String m1(username) => "Colloquium cum ${username}";
+
+  static String m2(entropy) => "Entropia: ${entropy} (Aestimatio rudis)";
+
+  static String m3(fileName) => "Fasciculus acceptus ${fileName}";
+
+  static String m4(username) => "Nuntius ab ${username}";
+
+  static String m5(minEntropy) => "Minimum entropiae: ${minEntropy}";
+
+  static String m6(resultMessage) => "Registratio defecit: ${resultMessage}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accept": MessageLookupByLibrary.simpleMessage("Accipio"),
     "account": MessageLookupByLibrary.simpleMessage("Ratio"),
     "account_add": MessageLookupByLibrary.simpleMessage("Rationem novam adde"),
     "account_confirm_proceed": MessageLookupByLibrary.simpleMessage(
@@ -58,10 +74,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "app_language": MessageLookupByLibrary.simpleMessage(
       "Lingua applicationis",
     ),
+    "are_you_sure_you_want_to_logout_from": m0,
     "are_you_sure_you_want_to_logout_from_all_devices":
         MessageLookupByLibrary.simpleMessage(
           "Certus esne te ex omnibus machinis exire velle?",
         ),
+    "attempting_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Nuntium delere conamur",
+    ),
     "authentication_stage_create_account": MessageLookupByLibrary.simpleMessage(
       "Rationem crea",
     ),
@@ -72,6 +92,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "authentication_stage_login": MessageLookupByLibrary.simpleMessage(
       "Initium",
     ),
+    "backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Codex verificationis tergiversationis",
+    ),
     "backup_verification_code_regenerate_error":
         MessageLookupByLibrary.simpleMessage(
           "Error erat dum nomen usoris mutaretur!",
@@ -80,6 +103,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Codices verificationis tergum feliciter regenerati sunt!",
         ),
+    "camera": MessageLookupByLibrary.simpleMessage("Camera"),
     "cancel": MessageLookupByLibrary.simpleMessage("Cancella"),
     "change_password_error": MessageLookupByLibrary.simpleMessage(
       "Error erat dum tessera mutaretur!",
@@ -139,13 +163,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Optiones thematis colloquii",
     ),
+    "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Colloquia"),
+    "choose_option": MessageLookupByLibrary.simpleMessage("Eligere optionem"),
+    "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
+      "ID clientis numerus esse debet",
+    ),
     "close": MessageLookupByLibrary.simpleMessage("Claude"),
     "command_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Mandatum {} nondum implementatum est!",
     ),
     "command_unknown": MessageLookupByLibrary.simpleMessage(
       "Mandatum ignotum!",
+    ),
+    "confirm_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Visne nuntium perpetuo delere?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Coniunge"),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
@@ -154,6 +186,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Typus contenti ignotus!",
     ),
+    "create_account": MessageLookupByLibrary.simpleMessage("Crea rationem"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
       "Maxima capacitas datorum elapsa est! Infeliciter, petitio tua procedi non potuit.",
     ),
@@ -187,9 +220,20 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Nomina usoris requisita non implentur!",
         ),
+    "decline": MessageLookupByLibrary.simpleMessage("Recuso"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Decompressio defecit",
     ),
+    "delete": MessageLookupByLibrary.simpleMessage("Dele"),
+    "delete_chat": MessageLookupByLibrary.simpleMessage("Dele colloquium"),
+    "delete_this_chat_question": MessageLookupByLibrary.simpleMessage(
+      "Dele hoc colloquium?",
+    ),
+    "deleting_this_chat_will_permanently_delete_all_prior_messages":
+        MessageLookupByLibrary.simpleMessage(
+          "Deletio huius colloquii omnia prioria nuntia perpetuo delebit",
+        ),
+    "display_name": MessageLookupByLibrary.simpleMessage("Nomen ostendendum"),
     "display_part_of_messages_in_notifications":
         MessageLookupByLibrary.simpleMessage(
           "Partem nuntiorum in notificationibus monstra",
@@ -199,22 +243,67 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "donate_to_hoster": MessageLookupByLibrary.simpleMessage("Hospiti dona"),
     "donations": MessageLookupByLibrary.simpleMessage("Donationes"),
+    "downloaded_file": MessageLookupByLibrary.simpleMessage(
+      "Fasciculus demissus",
+    ),
+    "email": MessageLookupByLibrary.simpleMessage("Electronica"),
     "email_address": MessageLookupByLibrary.simpleMessage(
       "Inscriptio electronica",
+    ),
+    "email_is_empty": MessageLookupByLibrary.simpleMessage(
+      "Electronica vacua est!",
     ),
     "email_mismatch": MessageLookupByLibrary.simpleMessage(
       "Inscriptio electronica intrata inscriptioni electronicae actuali non congruit!",
     ),
+    "enter_client_id": MessageLookupByLibrary.simpleMessage(
+      "Intra ID clientis",
+    ),
+    "enter_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Intra codicem verificationis",
+    ),
+    "enter_verification_code_sent_to_your_email":
+        MessageLookupByLibrary.simpleMessage(
+          "Intra codicem verificationis ad electronicam tuam missum",
+        ),
+    "entropy_rough_estimate": m2,
+    "error_saving_file": MessageLookupByLibrary.simpleMessage(
+      "Error accidit dum fasciculus servatur",
+    ),
     "faq_contact_terms_privacy": MessageLookupByLibrary.simpleMessage(
       "FAQ, nos contacta, termini et consilium privatis",
     ),
+    "feature_audio_messages": MessageLookupByLibrary.simpleMessage(
+      "Podderzhka audiosoobshcheniy",
+    ),
+    "feature_chat_themes": MessageLookupByLibrary.simpleMessage(
+      "Novye temy chata",
+    ),
+    "feature_encryption": MessageLookupByLibrary.simpleMessage(
+      "Uluchshennye protokoly shifrovaniya",
+    ),
+    "feature_languages": MessageLookupByLibrary.simpleMessage(
+      "Mnogoiazychnaya podderzhka!",
+    ),
+    "feature_voice_calls": MessageLookupByLibrary.simpleMessage(
+      "Golosovye zvonki (Ranniy dostup)",
+    ),
+    "file_received": m3,
     "functionality_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Functiones nondum implementatae sunt!",
     ),
+    "gallery": MessageLookupByLibrary.simpleMessage("Pinacotheca"),
+    "got_it_button": MessageLookupByLibrary.simpleMessage("Ponyal!"),
     "help": MessageLookupByLibrary.simpleMessage("Auxilium"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Optiones auxilii"),
+    "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
+      "Versio servitoris incompatibilis! Quaedam res ut expectatur non operari possunt!",
+    ),
     "license_capitalized": MessageLookupByLibrary.simpleMessage("Licentia"),
     "license_crux": MessageLookupByLibrary.simpleMessage("Licentia crux"),
+    "link_new_device": MessageLookupByLibrary.simpleMessage(
+      "Coniunge novam machinam",
+    ),
     "linked_devices": MessageLookupByLibrary.simpleMessage(
       "Machinae coniunctae",
     ),
@@ -227,6 +316,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "linked_devices_logout_confirm": MessageLookupByLibrary.simpleMessage(
       "Certus esne te exire velle ex ",
     ),
+    "login": MessageLookupByLibrary.simpleMessage("Intra"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
       "Ratio non existit!",
     ),
@@ -256,6 +346,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "logout": MessageLookupByLibrary.simpleMessage("exi"),
     "logout_capitalized": MessageLookupByLibrary.simpleMessage("Exitum"),
+    "logout_confirmation_all_devices": MessageLookupByLibrary.simpleMessage(
+      "Certus esne te velle ab omnibus \${device.formattedInfo()} discedere?",
+    ),
+    "logout_confirmation_device": MessageLookupByLibrary.simpleMessage(
+      "Certus esne te velle ab \${device.formattedInfo()} discedere?",
+    ),
     "logout_from_all_devices": MessageLookupByLibrary.simpleMessage(
       "Ex omnibus machinis exi",
     ),
@@ -264,6 +360,13 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "manage_storage": MessageLookupByLibrary.simpleMessage(
       "Repositorium administra",
+    ),
+    "message_by": m4,
+    "message_copied": MessageLookupByLibrary.simpleMessage(
+      "Nuntius in chartam adhaesivam translatus est",
+    ),
+    "message_deletion_unsuccessful": MessageLookupByLibrary.simpleMessage(
+      "Nuntii deletio infelix fuit",
     ),
     "message_group_call_tones": MessageLookupByLibrary.simpleMessage(
       "Nuntius, coetus, soni vocationum",
@@ -277,10 +380,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Typus nuntii non agnoscitur!",
     ),
+    "min_entropy": m5,
     "name": MessageLookupByLibrary.simpleMessage("Nomen"),
     "name_enter": MessageLookupByLibrary.simpleMessage("Nomen tuum intra"),
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Usus retis, auto-download",
+    ),
+    "new_chat": MessageLookupByLibrary.simpleMessage("\'Novum colloquium\'"),
+    "new_message": MessageLookupByLibrary.simpleMessage("Nuntius novus!"),
+    "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
+      "Nullae petitiones colloquii pendentes sunt",
+    ),
+    "no_chats_available_incompatible_server_version":
+        MessageLookupByLibrary.simpleMessage(
+          "Nulla colloquia praesto sunt, versio servitoris incompatibilis",
+        ),
+    "no_conversations_available": MessageLookupByLibrary.simpleMessage(
+      "Nullae sermones praesto sunt",
+    ),
+    "no_linked_devices": MessageLookupByLibrary.simpleMessage(
+      "Nullae machinae coniunctae sunt",
     ),
     "notification_enable": MessageLookupByLibrary.simpleMessage(
       "Notificationes permitte",
@@ -302,14 +421,21 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("Notificationes"),
     "ok": MessageLookupByLibrary.simpleMessage("OK"),
+    "or": MessageLookupByLibrary.simpleMessage("Vel"),
     "other": MessageLookupByLibrary.simpleMessage("Alia"),
     "other_settings": MessageLookupByLibrary.simpleMessage("Aliae optiones"),
     "password": MessageLookupByLibrary.simpleMessage("Tessera"),
+    "password_is_empty": MessageLookupByLibrary.simpleMessage(
+      "Tessera vacua est!",
+    ),
     "password_validation_invalid": MessageLookupByLibrary.simpleMessage(
       "Tesserarum requisita non implentur!",
     ),
     "password_validation_success": MessageLookupByLibrary.simpleMessage(
       "Tessera feliciter validata est!",
+    ),
+    "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Quaeso intra codicem verificationis",
     ),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Privatio, securitas, numerum muta",
@@ -338,8 +464,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "profile_settings": MessageLookupByLibrary.simpleMessage(
       "Optiones personae",
     ),
+    "registration_failed": m6,
     "requests": MessageLookupByLibrary.simpleMessage("Petitiones"),
+    "resend_code": MessageLookupByLibrary.simpleMessage("Resende codicem"),
     "save": MessageLookupByLibrary.simpleMessage("Serva"),
+    "search": MessageLookupByLibrary.simpleMessage("Quaere..."),
+    "select_an_option": MessageLookupByLibrary.simpleMessage(
+      "Eligere optionem",
+    ),
+    "send_chat_request": MessageLookupByLibrary.simpleMessage(
+      "Mitte petitionem colloquii",
+    ),
     "server_add": MessageLookupByLibrary.simpleMessage("Servum adde"),
     "server_add_success": MessageLookupByLibrary.simpleMessage(
       "Servus feliciter additus est!",
@@ -359,10 +494,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_saved": MessageLookupByLibrary.simpleMessage(
       "Optiones servatae sunt",
     ),
+    "sign_out": MessageLookupByLibrary.simpleMessage("Exi"),
     "source_code": MessageLookupByLibrary.simpleMessage("Codex fons"),
     "storage_data": MessageLookupByLibrary.simpleMessage(
       "Repositorium et data",
     ),
+    "submit": MessageLookupByLibrary.simpleMessage("Submitte"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
       "Lente ibi! Temporarie prohibitus es ab interatione cum servo per breve intervallum temporis.",
     ),
@@ -375,6 +512,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "theme_wallpapers_chat_history": MessageLookupByLibrary.simpleMessage(
       "Thema, parietes picti, historia colloquiorum",
     ),
+    "today": MessageLookupByLibrary.simpleMessage("Hodie"),
+    "type_message": MessageLookupByLibrary.simpleMessage("Scribe nuntium..."),
+    "unknown_size": MessageLookupByLibrary.simpleMessage("Magnitudo ignota"),
+    "use_backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Utere codice verificationis tergiversationis",
+    ),
+    "use_password": MessageLookupByLibrary.simpleMessage("Utere tessera"),
     "username_same_as_old": MessageLookupByLibrary.simpleMessage(
       "Nomen usoris idem esse ac vetus nomen usoris non potest!",
     ),
@@ -384,11 +528,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "username_validation_success": MessageLookupByLibrary.simpleMessage(
       "Nomen usoris feliciter validatum est!",
     ),
+    "verification": MessageLookupByLibrary.simpleMessage("Verificatio"),
     "verification_attempts_exhausted": MessageLookupByLibrary.simpleMessage(
       "Conatus expleti sunt!",
     ),
     "verification_code_incorrect": MessageLookupByLibrary.simpleMessage(
       "Codex falsus!",
+    ),
+    "verification_code_must_be_number": MessageLookupByLibrary.simpleMessage(
+      "Codex verificationis numerus esse debet",
     ),
     "verification_email_invalid": MessageLookupByLibrary.simpleMessage(
       "Inscriptio electronica invalida",
@@ -403,6 +551,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibration": MessageLookupByLibrary.simpleMessage("Vibratio"),
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
       "Vibratio in hac machina non praesto est",
+    ),
+    "whats_new": MessageLookupByLibrary.simpleMessage("Chto novogo"),
+    "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(
+      "Novye sistemnye soobshcheniya",
+    ),
+    "whats_new_title": MessageLookupByLibrary.simpleMessage(
+      "Novye funktsii v Hermis",
     ),
   };
 }

@@ -52,7 +52,10 @@ public enum ClientCommandResultType {
     
     // External Pages
     GET_DONATION_PAGE_URL(600),
-    GET_SOURCE_CODE_PAGE_URL(601);
+    GET_SOURCE_CODE_PAGE_URL(601),
+    
+	// Other
+	FETCH_SIGNALLING_SERVER_PORT(700);
 	
 	private static final HashMap<Integer, ClientCommandResultType> values;
 

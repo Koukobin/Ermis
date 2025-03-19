@@ -43,7 +43,10 @@ enum ClientCommandResultType {
 
   // External Pages
   getDonationPageURL(600),
-  getSourceCodePageURL(601);
+  getSourceCodePageURL(601),
+
+  // Other
+  fetchSignallingServerPort(700);
 
   final int id;
   const ClientCommandResultType(this.id);

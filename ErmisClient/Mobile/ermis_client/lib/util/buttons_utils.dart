@@ -14,10 +14,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../main_ui/chats/user_avatar.dart';
-import '../theme/app_theme.dart';
 
 SizedBox createSimpleButton(BuildContext context, String text, IconData iconData, GestureTapCallback onTap) {
   final appColors = Theme.of(context).extension<AppColors>()!;

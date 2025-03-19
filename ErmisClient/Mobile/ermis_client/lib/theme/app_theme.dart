@@ -16,6 +16,7 @@
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -315,6 +316,41 @@ class AppThemeState extends State<AppTheme> {
               GlobalMaterialLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
+            // initialRoute: '/',
+            // routes: {
+            //   '/': (context) => const SplashScreen(),
+            //   '/main_interface': (context) => const MainInterface(),
+            //   '/choose_server': (context) => const SplashScreen(),
+            //   '/settings': (context) => const SettingsScreen(),
+            //   '/account_settings': (context) => const AccountSettings(),
+            //   '/help_settings': (context) => const HelpSettings(),
+            //   '/linked_devices_settings': (context) => const LinkedDevicesScreen(),
+            //   '/notification_settings': (context) => const NotificationSettings(),
+            //   '/profile_settings': (context) => const ProfileSettings(),
+            //   '/storage_data_settings': (context) => const StorageAndDataScreen(),
+            //   '/theme_settings': (context) => const ThemeSettingsPage(),
+            //   '/chat_requests_screen': (context) => const ChatRequests(),
+            //   '/conversations_screen': (context) => const Chats(),
+            //   '/auth_login': (context) => const LoginInterface(),
+            //   '/auth_register': (context) => const CreateAccountInterface(),
+            // },
+            // onGenerateRoute: (RouteSettings settings) {
+            //   if (settings.name == '/choose_server') {
+            //     return CupertinoPageRoute(
+            //       builder: (context) => const SplashScreen(),
+            //     );
+            //   } else if (settings.name == '/messaging_interface') {
+            //     final args = settings.arguments as Map<String, dynamic>;
+
+            //     return CupertinoPageRoute(
+            //       builder: (context) => MessagingInterface(
+            //         chatSessionIndex: args['chat_session_index'],
+            //         chatSession: args['chatSession'],
+            //       ),
+            //     );
+            //   }
+            //   return null; // Result to default behavior
+            // },
             themeMode: _themeMode,
             darkTheme: buildDarkThemeData(),
             theme: buildLightThemeData(),
@@ -387,50 +423,4 @@ class AncientGreekCupertinoLocalizationsDelegate extends LocalizationsDelegate<C
 
   @override
   bool shouldReload(AncientGreekCupertinoLocalizationsDelegate old) => false;
-}
-
-
-class AppColors extends ThemeExtension<AppColors> {
-  final Color primaryColor;
-  final Color secondaryColor;
-  final Color tertiaryColor;
-  final Color quaternaryColor;
-  final Color inferiorColor;
-
-  const AppColors({
-    required this.primaryColor,
-    required this.secondaryColor,
-    required this.tertiaryColor,
-    required this.quaternaryColor,
-    required this.inferiorColor,
-  });
-
-  @override
-  AppColors copyWith({
-    Color? primaryColor,
-    Color? secondaryColor,
-    Color? tertiaryColor,
-    Color? quaternaryColor,
-    Color? inferiorColor,
-  }) {
-    return AppColors(
-      primaryColor: primaryColor ?? this.primaryColor,
-      secondaryColor: secondaryColor ?? this.secondaryColor,
-      tertiaryColor: tertiaryColor ?? this.tertiaryColor,
-      quaternaryColor: quaternaryColor ?? this.quaternaryColor,
-      inferiorColor: inferiorColor ?? this.inferiorColor,
-    );
-  }
-
-  @override
-  AppColors lerp(ThemeExtension<AppColors>? other, double t) {
-    if (other is! AppColors) return this;
-    return AppColors(
-      primaryColor: Color.lerp(primaryColor, other.primaryColor, t)!,
-      secondaryColor: Color.lerp(secondaryColor, other.secondaryColor, t)!,
-      tertiaryColor: Color.lerp(tertiaryColor, other.tertiaryColor, t)!,
-      quaternaryColor: Color.lerp(quaternaryColor, other.quaternaryColor, t)!,
-      inferiorColor: Color.lerp(inferiorColor, other.inferiorColor, t)!,
-    );
-  }
 }

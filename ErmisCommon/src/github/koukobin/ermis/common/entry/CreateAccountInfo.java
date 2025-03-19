@@ -18,6 +18,7 @@ package github.koukobin.ermis.common.entry;
 import java.util.HashMap;
 import java.util.Map;
 
+import github.koukobin.ermis.common.IDable;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EnumIntConverter;
 
@@ -130,7 +131,7 @@ public final class CreateAccountInfo {
 	}
 
 	public static class CreateAccount {
-        public enum Result {
+        public enum Result implements IDable {
             SUCCESFULLY_CREATED_ACCOUNT(1, true, "Account successfully created!"),
             ERROR_WHILE_CREATING_ACCOUNT(2, false, "An error occurred while creating your account!"),
             DATABASE_MAX_SIZE_REACHED(3, false, "Database maximum capacity reached! Unfortunately, your request could not be processed."),
@@ -154,7 +155,13 @@ public final class CreateAccountInfo {
             public static Result fromId(int id) {
                 return EnumIntConverter.fromId(valuesById, id);
             }
-        }
+
+			@Override
+			public int getID() {
+				return id;
+			}
+
+		}
 	}
 	
 }

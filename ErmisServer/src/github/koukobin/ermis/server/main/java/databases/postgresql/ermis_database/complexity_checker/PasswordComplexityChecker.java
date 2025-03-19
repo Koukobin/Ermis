@@ -18,8 +18,6 @@ package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databa
 import java.util.List;
 import java.util.Objects;
 
-import github.koukobin.ermis.common.results.IsPasswordValidResult;
-import github.koukobin.ermis.common.results.ResultHolder;
 import me.gosimple.nbvcxz.Nbvcxz;
 import me.gosimple.nbvcxz.scoring.Result;
 import me.gosimple.nbvcxz.resources.Configuration;
@@ -63,13 +61,6 @@ public final class PasswordComplexityChecker {
 
 	public PasswordComplexityChecker(Requirements requirements) {
 		this.requirements = requirements;
-	}
-
-	@Deprecated
-	public ResultHolder getResultWhenUnsuccesfull() {
-		ResultHolder result = IsPasswordValidResult.REQUIREMENTS_NOT_MET.resultHolder;
-//		result.addTextToResultMessage("Requirements:\n" + requirements.toString());
-		return result;
 	}
 
 	public void setRequirements(Requirements requirements) {

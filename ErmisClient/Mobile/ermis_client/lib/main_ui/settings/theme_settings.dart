@@ -16,6 +16,7 @@
 
 
 import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/util/dialogs_utils.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter/material.dart';

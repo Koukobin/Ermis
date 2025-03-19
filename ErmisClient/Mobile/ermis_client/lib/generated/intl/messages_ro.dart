@@ -20,8 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ro';
 
+  static String m0(deviceInfo) =>
+      "Sigur doriți să vă deconectați de la ${deviceInfo}?";
+
+  static String m1(username) => "Conversație cu ${username}";
+
+  static String m2(entropy) => "Entropie: ${entropy} (Estimare aproximativă)";
+
+  static String m3(fileName) => "Fișier primit ${fileName}";
+
+  static String m4(username) => "Mesaj de la ${username}";
+
+  static String m5(minEntropy) => "Entropie minimă: ${minEntropy}";
+
+  static String m6(resultMessage) => "Înregistrare eșuată: ${resultMessage}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accept": MessageLookupByLibrary.simpleMessage("Acceptă"),
     "account": MessageLookupByLibrary.simpleMessage("Cont"),
     "account_add": MessageLookupByLibrary.simpleMessage("Adaugă cont nou"),
     "account_confirm_proceed": MessageLookupByLibrary.simpleMessage(
@@ -52,10 +68,14 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "app_info": MessageLookupByLibrary.simpleMessage("Informații aplicație"),
     "app_language": MessageLookupByLibrary.simpleMessage("Limba aplicației"),
+    "are_you_sure_you_want_to_logout_from": m0,
     "are_you_sure_you_want_to_logout_from_all_devices":
         MessageLookupByLibrary.simpleMessage(
           "Ești sigur că vrei să te deconectezi de pe toate dispozitivele?",
         ),
+    "attempting_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Se încearcă ștergerea mesajului",
+    ),
     "authentication_stage_create_account": MessageLookupByLibrary.simpleMessage(
       "Crează cont",
     ),
@@ -66,6 +86,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "authentication_stage_login": MessageLookupByLibrary.simpleMessage(
       "Conectare",
     ),
+    "backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Cod de verificare de rezervă",
+    ),
     "backup_verification_code_regenerate_error":
         MessageLookupByLibrary.simpleMessage(
           "A apărut o eroare la încercarea de a schimba numele de utilizator!",
@@ -74,6 +97,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Codurile de verificare de rezervă au fost regenerate cu succes!",
         ),
+    "camera": MessageLookupByLibrary.simpleMessage("Cameră"),
     "cancel": MessageLookupByLibrary.simpleMessage("Anulează"),
     "change_password_error": MessageLookupByLibrary.simpleMessage(
       "A apărut o eroare la încercarea de a schimba parola!",
@@ -133,13 +157,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Setări temă chat",
     ),
+    "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Chat-uri"),
+    "choose_option": MessageLookupByLibrary.simpleMessage("Alege o opțiune"),
+    "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
+      "ID-ul clientului trebuie să fie un număr",
+    ),
     "close": MessageLookupByLibrary.simpleMessage("Închide"),
     "command_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Comanda {} nu este implementată!",
     ),
     "command_unknown": MessageLookupByLibrary.simpleMessage(
       "Comanda nu este cunoscută!",
+    ),
+    "confirm_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Sigur doriți să ștergeți definitiv mesajul?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Conectează"),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
@@ -148,6 +180,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Tipul de conținut nu este cunoscut!",
     ),
+    "create_account": MessageLookupByLibrary.simpleMessage("Creează cont"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
       "Capacitatea maximă a bazei de date a fost atinsă! Din păcate, cererea ta nu a putut fi procesată.",
     ),
@@ -181,9 +214,20 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Cerințele pentru nume de utilizator nu sunt îndeplinite!",
         ),
+    "decline": MessageLookupByLibrary.simpleMessage("Refuză"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Decompresia a eșuat",
     ),
+    "delete": MessageLookupByLibrary.simpleMessage("Șterge"),
+    "delete_chat": MessageLookupByLibrary.simpleMessage("Șterge chat"),
+    "delete_this_chat_question": MessageLookupByLibrary.simpleMessage(
+      "Ștergeți acest chat?",
+    ),
+    "deleting_this_chat_will_permanently_delete_all_prior_messages":
+        MessageLookupByLibrary.simpleMessage(
+          "Ștergerea acestui chat va șterge permanent toate mesajele anterioare",
+        ),
+    "display_name": MessageLookupByLibrary.simpleMessage("Nume afișat"),
     "display_part_of_messages_in_notifications":
         MessageLookupByLibrary.simpleMessage(
           "Afișează o parte a mesajului în notificări",
@@ -195,21 +239,64 @@ class MessageLookup extends MessageLookupByLibrary {
       "Donează către găzduire",
     ),
     "donations": MessageLookupByLibrary.simpleMessage("Donații"),
+    "downloaded_file": MessageLookupByLibrary.simpleMessage("Fișier descărcat"),
+    "email": MessageLookupByLibrary.simpleMessage("E-mail"),
     "email_address": MessageLookupByLibrary.simpleMessage("Adresă de email"),
+    "email_is_empty": MessageLookupByLibrary.simpleMessage(
+      "E-mailul este gol!",
+    ),
     "email_mismatch": MessageLookupByLibrary.simpleMessage(
       "Emailul introdus nu corespunde cu emailul real!",
+    ),
+    "enter_client_id": MessageLookupByLibrary.simpleMessage(
+      "Introduceți ID-ul clientului",
+    ),
+    "enter_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Introduceți codul de verificare",
+    ),
+    "enter_verification_code_sent_to_your_email":
+        MessageLookupByLibrary.simpleMessage(
+          "Introduceți codul de verificare trimis la adresa dvs. de e-mail",
+        ),
+    "entropy_rough_estimate": m2,
+    "error_saving_file": MessageLookupByLibrary.simpleMessage(
+      "A apărut o eroare la încercarea de a salva fișierul",
     ),
     "faq_contact_terms_privacy": MessageLookupByLibrary.simpleMessage(
       "Întrebări frecvente, contactează-ne, termeni și politica de confidențialitate",
     ),
+    "feature_audio_messages": MessageLookupByLibrary.simpleMessage(
+      "Suport pentru mesaje audio",
+    ),
+    "feature_chat_themes": MessageLookupByLibrary.simpleMessage(
+      "Teme noi de chat",
+    ),
+    "feature_encryption": MessageLookupByLibrary.simpleMessage(
+      "Protocoale de criptare îmbunătățite",
+    ),
+    "feature_languages": MessageLookupByLibrary.simpleMessage(
+      "Suport multi-lingvistic!",
+    ),
+    "feature_voice_calls": MessageLookupByLibrary.simpleMessage(
+      "Apeluri vocale (Acces timpuriu)",
+    ),
+    "file_received": m3,
     "functionality_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Funcționalitatea nu este încă implementată!",
     ),
+    "gallery": MessageLookupByLibrary.simpleMessage("Galerie"),
+    "got_it_button": MessageLookupByLibrary.simpleMessage("Am înțeles!"),
     "help": MessageLookupByLibrary.simpleMessage("Ajutor"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Setări ajutor"),
+    "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
+      "Versiune server incompatibilă! Unele lucruri ar putea să nu funcționeze conform așteptărilor!",
+    ),
     "license_capitalized": MessageLookupByLibrary.simpleMessage("Licență"),
     "license_crux": MessageLookupByLibrary.simpleMessage(
       "Punctul crucial al licenței",
+    ),
+    "link_new_device": MessageLookupByLibrary.simpleMessage(
+      "Conectați un dispozitiv nou",
     ),
     "linked_devices": MessageLookupByLibrary.simpleMessage(
       "Dispozitive conectate",
@@ -223,6 +310,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "linked_devices_logout_confirm": MessageLookupByLibrary.simpleMessage(
       "Ești sigur că vrei să te deconectezi de la ",
     ),
+    "login": MessageLookupByLibrary.simpleMessage("Conectare"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
       "Contul nu există!",
     ),
@@ -252,6 +340,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "logout": MessageLookupByLibrary.simpleMessage("deconectare"),
     "logout_capitalized": MessageLookupByLibrary.simpleMessage("Deconectare"),
+    "logout_confirmation_all_devices": MessageLookupByLibrary.simpleMessage(
+      "Sigur doriți să vă deconectați de la \${device.formattedInfo()}?",
+    ),
+    "logout_confirmation_device": MessageLookupByLibrary.simpleMessage(
+      "Sigur doriți să vă deconectați de la \${device.formattedInfo()}?",
+    ),
     "logout_from_all_devices": MessageLookupByLibrary.simpleMessage(
       "Deconectare de pe toate dispozitivele",
     ),
@@ -260,6 +354,13 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "manage_storage": MessageLookupByLibrary.simpleMessage(
       "Gestionează stocarea",
+    ),
+    "message_by": m4,
+    "message_copied": MessageLookupByLibrary.simpleMessage(
+      "Mesajul a fost copiat în clipboard",
+    ),
+    "message_deletion_unsuccessful": MessageLookupByLibrary.simpleMessage(
+      "Ștergerea mesajului a eșuat",
     ),
     "message_group_call_tones": MessageLookupByLibrary.simpleMessage(
       "Tonuri mesaje, grupuri și apeluri",
@@ -273,10 +374,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Tipul de mesaj nu este recunoscut!",
     ),
+    "min_entropy": m5,
     "name": MessageLookupByLibrary.simpleMessage("Nume"),
     "name_enter": MessageLookupByLibrary.simpleMessage("Introdu numele tău"),
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Utilizare rețea, descărcare automată",
+    ),
+    "new_chat": MessageLookupByLibrary.simpleMessage("\'Chat nou\'"),
+    "new_message": MessageLookupByLibrary.simpleMessage("Mesaj nou!"),
+    "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
+      "Nu există cereri de chat în așteptare",
+    ),
+    "no_chats_available_incompatible_server_version":
+        MessageLookupByLibrary.simpleMessage(
+          "Nu există chat-uri disponibile, versiunea serverului este incompatibilă",
+        ),
+    "no_conversations_available": MessageLookupByLibrary.simpleMessage(
+      "Nu există conversații disponibile",
+    ),
+    "no_linked_devices": MessageLookupByLibrary.simpleMessage(
+      "Nu există dispozitive conectate",
     ),
     "notification_enable": MessageLookupByLibrary.simpleMessage(
       "Activează notificările",
@@ -298,14 +415,21 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("Notificări"),
     "ok": MessageLookupByLibrary.simpleMessage("OK"),
+    "or": MessageLookupByLibrary.simpleMessage("Sau"),
     "other": MessageLookupByLibrary.simpleMessage("Altele"),
     "other_settings": MessageLookupByLibrary.simpleMessage("Alte setări"),
-    "password": MessageLookupByLibrary.simpleMessage("Parolă"),
+    "password": MessageLookupByLibrary.simpleMessage("Parola"),
+    "password_is_empty": MessageLookupByLibrary.simpleMessage(
+      "Parola este goală!",
+    ),
     "password_validation_invalid": MessageLookupByLibrary.simpleMessage(
       "Cerințele pentru parolă nu sunt îndeplinite!",
     ),
     "password_validation_success": MessageLookupByLibrary.simpleMessage(
       "Parola a fost validată cu succes!",
+    ),
+    "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Vă rugăm să introduceți codul de verificare",
     ),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Confidențialitate, securitate, schimbare număr",
@@ -330,8 +454,17 @@ class MessageLookup extends MessageLookupByLibrary {
       "A apărut o eroare la încercarea de a prelua fotografia de profil din baza de date!",
     ),
     "profile_settings": MessageLookupByLibrary.simpleMessage("Setări profil"),
+    "registration_failed": m6,
     "requests": MessageLookupByLibrary.simpleMessage("Cereri"),
+    "resend_code": MessageLookupByLibrary.simpleMessage("Retrimite codul"),
     "save": MessageLookupByLibrary.simpleMessage("Salvează"),
+    "search": MessageLookupByLibrary.simpleMessage("Caută..."),
+    "select_an_option": MessageLookupByLibrary.simpleMessage(
+      "Selectați o opțiune",
+    ),
+    "send_chat_request": MessageLookupByLibrary.simpleMessage(
+      "Trimiteți cerere de chat",
+    ),
     "server_add": MessageLookupByLibrary.simpleMessage("Adaugă server"),
     "server_add_success": MessageLookupByLibrary.simpleMessage(
       "Server adăugat cu succes!",
@@ -351,8 +484,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings": MessageLookupByLibrary.simpleMessage("Setări"),
     "settings_save": MessageLookupByLibrary.simpleMessage("Salvează setările"),
     "settings_saved": MessageLookupByLibrary.simpleMessage("Setări salvate"),
+    "sign_out": MessageLookupByLibrary.simpleMessage("Deconectare"),
     "source_code": MessageLookupByLibrary.simpleMessage("Cod sursă"),
     "storage_data": MessageLookupByLibrary.simpleMessage("Stocare și date"),
+    "submit": MessageLookupByLibrary.simpleMessage("Trimite"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
       "Calmați-vă caii! Ați fost interzis temporar de la interacțiunea cu serverul pentru un scurt interval de timp.",
     ),
@@ -365,6 +500,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "theme_wallpapers_chat_history": MessageLookupByLibrary.simpleMessage(
       "Temă, imagini de fundal, istoric chat",
     ),
+    "today": MessageLookupByLibrary.simpleMessage("Astăzi"),
+    "type_message": MessageLookupByLibrary.simpleMessage("Scrie un mesaj..."),
+    "unknown_size": MessageLookupByLibrary.simpleMessage(
+      "Dimensiune necunoscută",
+    ),
+    "use_backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Utilizați codul de verificare de rezervă",
+    ),
+    "use_password": MessageLookupByLibrary.simpleMessage("Utilizați parola"),
     "username_same_as_old": MessageLookupByLibrary.simpleMessage(
       "Numele de utilizator nu poate fi același cu numele de utilizator vechi!",
     ),
@@ -374,11 +518,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "username_validation_success": MessageLookupByLibrary.simpleMessage(
       "Numele de utilizator a fost validat cu succes!",
     ),
+    "verification": MessageLookupByLibrary.simpleMessage("Verificare"),
     "verification_attempts_exhausted": MessageLookupByLibrary.simpleMessage(
       "Numărul de încercări a fost epuizat!",
     ),
     "verification_code_incorrect": MessageLookupByLibrary.simpleMessage(
       "Cod incorect!",
+    ),
+    "verification_code_must_be_number": MessageLookupByLibrary.simpleMessage(
+      "Codul de verificare trebuie să fie un număr",
     ),
     "verification_email_invalid": MessageLookupByLibrary.simpleMessage(
       "Adresă de email nevalidă",
@@ -393,6 +541,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibration": MessageLookupByLibrary.simpleMessage("Vibrații"),
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
       "Vibrațiile nu sunt disponibile pe acest dispozitiv",
+    ),
+    "whats_new": MessageLookupByLibrary.simpleMessage("Ce e nou"),
+    "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(
+      "Mesaje noi de sistem",
+    ),
+    "whats_new_title": MessageLookupByLibrary.simpleMessage(
+      "Funcții noi în Hermis",
     ),
   };
 }

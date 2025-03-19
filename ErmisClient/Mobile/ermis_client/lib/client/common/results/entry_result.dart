@@ -14,15 +14,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import '../entry/added_info.dart';
-import 'ResultHolder.dart';
+import 'package:ermis_client/client/common/entry/create_account_info.dart';
 
-class EntryResult {
-  final ResultHolder resultHolder;
+import '../entry/added_info.dart';
+
+class EntryResult<T extends A> {
+  final T resultHolder;
 	final Map<AddedInfo, String> addedInfo;
 
   const EntryResult(this.resultHolder, this.addedInfo);
 
-  bool get isSuccessful => resultHolder.isSuccessful;
-  String get message => resultHolder.message;
+  T get isSuccessful => resultHolder;
 }

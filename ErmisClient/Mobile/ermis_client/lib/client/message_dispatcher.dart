@@ -15,10 +15,9 @@
  */
 
 
-import 'dart:convert';
-
 import 'package:ermis_client/client/app_event_bus.dart';
-import 'package:ermis_client/client/command_result_handler.dart';
+import 'package:ermis_client/client/common/message_types/server_info_message.dart';
+import 'package:ermis_client/client/handlers.dart';
 import 'package:ermis_client/client/common/results/client_command_result_type.dart';
 import 'package:ermis_client/client/io/input_stream.dart';
 import 'package:ermis_client/client/message_events.dart';
@@ -61,8 +60,8 @@ class MessageDispatcher {
           _eventBus.fire(EntryMessage(data));
           break;
         case ServerMessageType.serverMessageInfo:
-          Uint8List content = data.readBytes(data.readableBytes);
-          _eventBus.fire(ServerMessageInfoEvent(utf8.decode(content)));
+          ServerInfoMessage? infoMessage = ServerInfoMessage.fromId(data.readInt32());
+          _eventBus.fire(ServerMessageInfoEvent(infoMessage!.stringMessage));
           break;
         case ServerMessageType.voiceCallIncoming:
           VoiceCallHandler.handle(data);

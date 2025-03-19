@@ -15,8 +15,13 @@
  */
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:ermis_client/client/client.dart';
 import 'package:ermis_client/client/common/chat_session.dart';
 import 'package:ermis_client/client/common/message.dart';
@@ -24,11 +29,14 @@ import 'package:ermis_client/client/common/message_types/content_type.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/main_ui/splash_screen.dart';
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/util/database_service.dart';
 import 'package:ermis_client/util/notifications_util.dart';
 import 'package:ermis_client/util/settings_json.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+// import 'package:flutter_webrtc/flutter_webrtc.dart';
+// import 'package:http/http.dart' as http;
 import 'package:vibration/vibration.dart';
 
 import 'client/app_event_bus.dart';
@@ -49,7 +57,7 @@ void main() async {
   // Ensure that Flutter bindings are initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isAndroid || Platform.isIOS) {
+  if (Platform.isAndroid | Platform.isIOS) {
     FlutterBackgroundService().configure(
       androidConfiguration: AndroidConfiguration(
         onStart: onAndroidBackground,
@@ -86,7 +94,49 @@ void main() async {
     themeData = ThemeMode.light;
   }
 
+  final random = Random();
+  final key = encrypt.Key(Uint8List.fromList(List.generate(32, (int index) {
+    return random.nextInt(192);  // Generate a 16-byte IV for AES
+  })));  // 256-bit key
+  final iv = IV(Uint8List.fromList(List.generate(12, (int index) {
+    return random.nextInt(192);  // Generate a 16-byte IV for AES
+  })));
+
+  final encrypter = Encrypter(AES(key, mode: AESMode.gcm));  // Use CBC mode
+
+  final Encrypted encrypted = encrypter.encryptBytes(
+    ['h'.codeUnitAt(0), 'i'.codeUnitAt(0)],  // 'h' and 'i' as byte list
+    iv: iv,
+  );
+
+  print('Encrypted bytes: ${encrypted.bytes}');
+  print('Encrypted size: ${encrypted.bytes.length}');  // Should print the length of the encrypted data
   // runApp(MaterialApp(home: VoiceMyApp()));
+
+  // Future<void> startWebRTC() async {
+  //   RTCPeerConnection peerConnection = await createPeerConnection({
+  //     'iceServers': [
+  //       {'urls': 'stun:stun.l.google.com:19302'}
+  //     ]
+  //   });
+
+  //   RTCSessionDescription offer = await peerConnection.createOffer();
+  //   await peerConnection.setLocalDescription(offer);
+
+  //   var response = await http.post(Uri.parse('http://localhost:1984/streams'),
+  //       body: jsonEncode({'sdp': offer.sdp, 'type': offer.type}),
+  //       headers: {'Content-Type': 'application/json'});
+
+  //   var answer = jsonDecode(response.body);
+  //   await peerConnection.setRemoteDescription(
+  //       RTCSessionDescription(answer['sdp'], answer['type']));
+
+  //   peerConnection.onTrack = (event) {
+  //     // Handle incoming video/audio stream
+  //   };
+  // }
+  // startWebRTC();
+
   runApp(_MyApp(
     lightAppColors: AppConstants.lightAppColors,
     darkAppColors: AppConstants.darkAppColors,
@@ -210,7 +260,7 @@ void maintainWebSocketConnection(ServiceInstance service) async {
           body = "Send file ${msg.fileName}";
           break;
       }
-
+      
       NotificationService.showInstantNotification(
         icon: event.chatSession.getMembers[0].getIcon,
         body: "Message by ${msg.username}",
@@ -333,8 +383,7 @@ class MainInterface extends StatefulWidget {
 }
 
 class MainInterfaceState extends State<MainInterface> {
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   static const List<Widget> _widgetOptions = <Widget>[
     Chats(),

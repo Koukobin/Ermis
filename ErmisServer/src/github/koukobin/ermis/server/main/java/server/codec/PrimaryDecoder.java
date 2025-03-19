@@ -24,6 +24,7 @@ import com.google.common.base.Throwables;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
+import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.util.CompressionDetector;
@@ -61,7 +62,7 @@ public final class PrimaryDecoder extends Decoder {
 			LOGGER.debug("{} thrown for message; details: {}",
 					e.getClass().getSimpleName(),
 					Throwables.getStackTraceAsString(e));
-			Decoder.createErrorResponse(ctx, "Decompression failed");
+			Decoder.createErrorResponse(ctx, ServerInfoMessage.DECOMPRESSION_FAILED);
 			return false; // Decompression failed, terminate the method early
 		}
 
@@ -75,7 +76,7 @@ public final class PrimaryDecoder extends Decoder {
 					iobe.getClass().getSimpleName(),
 					ByteBufUtil.hexDump(fuck),
 					Throwables.getStackTraceAsString(iobe));
-			Decoder.createErrorResponse(ctx, "Message type not recognized!");
+			Decoder.createErrorResponse(ctx, ServerInfoMessage.MESSAGE_TYPE_NOT_RECOGNIZED);
 			return false;
 		}
 
@@ -144,7 +145,7 @@ public final class PrimaryDecoder extends Decoder {
 				contentType = ClientContentType.fromId(data.readInt());
 			} catch (IndexOutOfBoundsException iobe) {
 				LOGGER.debug(Throwables.getStackTraceAsString(iobe));
-				Decoder.createErrorResponse(ctx, "Content type not known!");
+				Decoder.createErrorResponse(ctx, ServerInfoMessage.CONTENT_TYPE_NOT_KNOWN);
 
 				ByteBuf messageFailure = ctx.alloc().ioBuffer();
 				messageFailure.writeInt(ServerMessageType.MESSAGE_DELIVERY_STATUS.id);
@@ -170,7 +171,7 @@ public final class PrimaryDecoder extends Decoder {
 			return getMaxLengthForCommand(ctx, data);
 		default:
 			LOGGER.debug("Message type not implemented!");
-			Decoder.createErrorResponse(ctx, "Message type not implemented!");
+			Decoder.createErrorResponse(ctx, ServerInfoMessage.MESSAGE_TYPE_NOT_IMPLEMENTED);
 			return -1;
 		}
 	}
@@ -183,7 +184,7 @@ public final class PrimaryDecoder extends Decoder {
 			return ServerSettings.MAX_CLIENT_MESSAGE_TEXT_BYTES;
 		default:
 			LOGGER.debug("Content type not implemented!");
-			Decoder.createErrorResponse(ctx, "Content type not implemented!");
+			Decoder.createErrorResponse(ctx, ServerInfoMessage.CONTENT_TYPE_NOT_IMPLEMENTED);
 			return -1;
 		}
 	}
@@ -195,7 +196,7 @@ public final class PrimaryDecoder extends Decoder {
 					: ServerSettings.MAX_CLIENT_MESSAGE_TEXT_BYTES;
 		} catch (IndexOutOfBoundsException iooe) {
 			LOGGER.debug(Throwables.getStackTraceAsString(iooe));
-			Decoder.createErrorResponse(ctx, "Command not known!");
+			Decoder.createErrorResponse(ctx, ServerInfoMessage.COMMAND_NOT_KNOWN);
 			return -1;
 		}
 	}

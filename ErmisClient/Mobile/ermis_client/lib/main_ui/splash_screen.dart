@@ -14,11 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import 'choose_server_interface.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_theme.dart';
 import '../util/database_service.dart';
 
 class SplashScreen extends StatefulWidget {

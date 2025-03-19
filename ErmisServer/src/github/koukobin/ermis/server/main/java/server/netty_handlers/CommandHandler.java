@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import javax.crypto.SecretKey;
+
 import com.google.common.collect.Lists;
 
 import github.koukobin.ermis.common.Account;
@@ -33,6 +35,7 @@ import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
+import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.results.ResultHolder;
@@ -45,10 +48,15 @@ import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.ServerUDP;
 import github.koukobin.ermis.server.main.java.server.ServerUDP.VoiceChat;
+import github.koukobin.ermis.server.main.java.server.UDPSignallingServer;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
+import github.koukobin.ermis.server.main.java.util.AESGCMCipher;
+import github.koukobin.ermis.server.main.java.util.AESKeyGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase.DeleteAccountSuccess;
-import github.koukobin.ermis.common.results.EntryResult;
+import github.koukobin.ermis.common.results.ChangePasswordResult;
+import github.koukobin.ermis.common.results.ChangeUsernameResult;
+import github.koukobin.ermis.common.results.GeneralResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
@@ -103,7 +111,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 	 */
 	private static void executeCommand(ClientInfo clientInfo, ClientCommandType commandType, ByteBuf args) {
 		EpollSocketChannel channel = clientInfo.getChannel();
-		
+
 		switch (commandType) {
 		case CHANGE_USERNAME -> {
 
@@ -112,21 +120,21 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			String newUsername = new String(newUsernameBytes);
 			String currentUsername = clientInfo.getUsername();
-			
+
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.SERVER_INFO.id);
-			
+
 			if (newUsername.equals(currentUsername)) {
-				payload.writeBytes("Username cannot be the same as old username!".getBytes());
+				payload.writeInt(ChangeUsernameResult.ERROR_WHILE_CHANGING_USERNAME.id);
 			} else {
-				ResultHolder resultHolder;
+				ChangeUsernameResult result;
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-					resultHolder = conn.changeDisplayName(clientInfo.getClientID(), newUsername);
+					result = conn.changeDisplayName(clientInfo.getClientID(), newUsername);
 				}
 
-				payload.writeBytes(resultHolder.getResultMessage().getBytes());
+				payload.writeInt(result.id);
 
-				if (resultHolder.isSuccessful()) {
+				if (result.resultHolder.isSuccessful()) {
 					clientInfo.setUsername(newUsername);
 
 					// Fetch username on behalf of the user
@@ -145,14 +153,14 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			// password is the same for security reasons
 			String newPassword = new String(newPasswordBytes);
 
-			ResultHolder resultHolder;
+			ChangePasswordResult result;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				resultHolder = conn.changePassword(clientInfo.getEmail(), newPassword);
+				result = conn.changePassword(clientInfo.getEmail(), newPassword);
 			}
 
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.SERVER_INFO.id);
-			payload.writeBytes(resultHolder.getResultMessage().getBytes());
+			payload.writeInt(result.id);
 			channel.writeAndFlush(payload);
 		}
 		case DOWNLOAD_FILE, DOWNLOAD_IMAGE -> {
@@ -202,7 +210,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}, () -> {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
-				payload.writeBytes("An error occured while trying to fetch file from database!".getBytes());
+				payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_FETCH_FILE_FROM_DATABASE.id);
 				channel.writeAndFlush(payload);
 			});
 
@@ -220,7 +228,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			if (!success) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
-				payload.writeBytes("An error occured while trying to send chat request!".getBytes());
+				payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_SEND_CHAT_REQUEST.id);
 				channel.writeAndFlush(payload);
 				return;
 			}
@@ -244,7 +252,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			if (optionalChatSessionID.isEmpty()) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
-				payload.writeBytes("Something went wrong while trying accept chat request!".getBytes());
+				payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_ACCEPT_CHAT_REQUEST.id);
 				channel.writeAndFlush(payload);
 				return;
 			}
@@ -279,7 +287,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.SERVER_INFO.id);
-			payload.writeBytes("Something went wrong while trying to decline chat request!".getBytes());
+			payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_DECLINE_CHAT_REQUEST.id);
 			channel.writeAndFlush(payload);
 		}
 		case DELETE_CHAT_SESSION -> {
@@ -311,7 +319,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			} else {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
-				payload.writeBytes("Something went wrong while trying delete chat session!".getBytes());
+				payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_DELETE_CHAT_SESSION.id);
 				channel.writeAndFlush(payload);
 			}
 		}
@@ -399,7 +407,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				address = InetAddress.getByName(new String(addressBytes));
 			} catch (UnknownHostException uhe) {
 				getLogger().debug(String.format("Address not recognized %s", new String(addressBytes)), uhe);
-				MessageByteBufCreator.sendMessageInfo(channel, "Address not recognized!");
+				MessageByteBufCreator.sendMessageInfo(channel, ServerInfoMessage.INET_ADDRESS_NOT_RECOGNIZED.id);
 				return;
 			}
 
@@ -478,41 +486,41 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			String email = new String(emailAddress);
 
-			channel.pipeline().addLast(DeleteAccountVerificationHandler.class.getName(),
-					new DeleteAccountVerificationHandler(clientInfo, clientInfo.getEmail()) {
-
-						@Override
-						public EntryResult executeWhenVerificationSuccessful() throws IOException {
-							String password = new String(passwordBytes);
-
-							DeleteAccountSuccess result;
-							try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-								result = conn.deleteAccount(email, password, clientInfo.getClientID());
-							}
-
-							switch (result) {
-							case SUCCESS -> {
-								channel.close();
-							}
-							case EMAIL_ENTERED_DOES_NOT_MATCH_ACCOUNT -> {
-								MessageByteBufCreator.sendMessageInfo(channel, "Email entered does not match actual email!");
-							}
-							case AUTHENTICATION_FAILED -> {
-								MessageByteBufCreator.sendMessageInfo(channel, "Authentication Failed!");
-							}
-							case FAILURE -> {
-								MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account!");
-							}
-							}
-		
-							return null;
-				}
-				
-				@Override
-				public String createEmailMessage(String account, String generatedVerificationCode) {
-					return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
-				}
-			});
+//			channel.pipeline().addLast(DeleteAccountVerificationHandler.class.getName(),
+//					new DeleteAccountVerificationHandler(clientInfo, clientInfo.getEmail()) {
+//
+//						@Override
+//						public GeneralResult executeWhenVerificationSuccessful() throws IOException {
+//							String password = new String(passwordBytes);
+//
+//							DeleteAccountSuccess result;
+//							try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+//								result = conn.deleteAccount(email, password, clientInfo.getClientID());
+//							}
+//
+//							switch (result) {
+//							case SUCCESS -> {
+//								channel.close();
+//							}
+//							case EMAIL_ENTERED_DOES_NOT_MATCH_ACCOUNT -> {
+//								MessageByteBufCreator.sendMessageInfo(channel, "Email entered does not match actual email!");
+//							}
+//							case AUTHENTICATION_FAILED -> {
+//								MessageByteBufCreator.sendMessageInfo(channel, "Authentication Failed!");
+//							}
+//							case FAILURE -> {
+//								MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account!");
+//							}
+//							}
+//		
+//							return null;
+//				}
+//				
+//				@Override
+//				public String createEmailMessage(String account, String generatedVerificationCode) {
+//					return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
+//				}
+//			});
 
 		}
 		case SET_ACCOUNT_ICON -> {
@@ -559,7 +567,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}, () -> {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
-				payload.writeBytes("An error occured while trying to fetch profile photo from database!".getBytes());
+				payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_FETCH_PROFILE_PHOTO.id);
 				channel.writeAndFlush(payload);
 			});
 		}
@@ -801,17 +809,28 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			channel.writeAndFlush(payload);
 		}
+		case FETCH_SIGNALLING_SERVER_PORT -> {
+			byte[] cipher = UDPSignallingServer.createVoiceChat(clientInfo.getInetAddress());
+
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+			payload.writeInt(ClientCommandResultType.FETCH_SIGNALLING_SERVER_PORT.id);
+			payload.writeInt(9999);
+			payload.writeBytes(cipher);
+
+			channel.writeAndFlush(payload);
+		}
 		default -> {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.SERVER_INFO.id);
-			payload.writeBytes("Command \"%s\" not implemented!".formatted(commandType.name()).getBytes());
+			payload.writeInt(ServerInfoMessage.COMMAND_NOT_RECOGNIZED.id);
 
 			channel.writeAndFlush(payload);
 		}
 		}
-		
+
 	}
-	
+
 	/**
 	 * Executes a given action for every active device associated with the specified account/clientID.
 	 *
@@ -819,12 +838,12 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 	 * @param action the operation to perform on each active device
 	 */
 	private static void forActiveAccounts(int clientID, Consumer<ClientInfo> action) {
-		List<ClientInfo> activeClients =  ActiveClients.getClient(clientID);
-		
+		List<ClientInfo> activeClients = ActiveClients.getClient(clientID);
+
 		if (activeClients == null) {
 			return;
 		}
-		
+
 		for (ClientInfo clientInfo : activeClients) {
 			action.accept(clientInfo);
 		}

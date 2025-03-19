@@ -60,7 +60,7 @@ class ByteBuf {
   /// Reads a specified number of bytes from the buffer.
   ///
   /// Throws an exception if there are not enough readable bytes.
-  Uint8List readBytes(int length) {
+  Uint8List readInt(int length) {
     if (readableBytes < length) {
       throw Exception("Not enough readable bytes");
     }

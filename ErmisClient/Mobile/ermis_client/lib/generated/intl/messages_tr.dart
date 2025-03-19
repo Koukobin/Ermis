@@ -20,8 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'tr';
 
+  static String m0(deviceInfo) =>
+      "${deviceInfo} cihazından çıkış yapmak istediğinize emin misiniz?";
+
+  static String m1(username) => "${username} ile sohbet";
+
+  static String m2(entropy) => "Entropi: ${entropy} (Kaba tahmin)";
+
+  static String m3(fileName) => "Dosya alındı ${fileName}";
+
+  static String m4(username) => "${username} tarafından mesaj";
+
+  static String m5(minEntropy) => "Minimum entropi: ${minEntropy}";
+
+  static String m6(resultMessage) => "Kayıt başarısız oldu: ${resultMessage}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accept": MessageLookupByLibrary.simpleMessage("Kabul et"),
     "account": MessageLookupByLibrary.simpleMessage("Hesap"),
     "account_add": MessageLookupByLibrary.simpleMessage("Yeni hesap ekle"),
     "account_confirm_proceed": MessageLookupByLibrary.simpleMessage(
@@ -50,10 +66,14 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "app_info": MessageLookupByLibrary.simpleMessage("Uygulama Bilgisi"),
     "app_language": MessageLookupByLibrary.simpleMessage("Uygulama dili"),
+    "are_you_sure_you_want_to_logout_from": m0,
     "are_you_sure_you_want_to_logout_from_all_devices":
         MessageLookupByLibrary.simpleMessage(
           "Tüm cihazlardan çıkış yapmak istediğinizden emin misiniz?",
         ),
+    "attempting_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Mesaj silinmeye çalışılıyor",
+    ),
     "authentication_stage_create_account": MessageLookupByLibrary.simpleMessage(
       "Hesap oluştur",
     ),
@@ -64,6 +84,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "authentication_stage_login": MessageLookupByLibrary.simpleMessage(
       "Giriş yap",
     ),
+    "backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Yedek doğrulama kodu",
+    ),
     "backup_verification_code_regenerate_error":
         MessageLookupByLibrary.simpleMessage(
           "Kullanıcı adını değiştirmeye çalışırken bir hata oluştu!",
@@ -72,6 +95,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Yedek doğrulama kodları başarıyla yeniden oluşturuldu!",
         ),
+    "camera": MessageLookupByLibrary.simpleMessage("Kamera"),
     "cancel": MessageLookupByLibrary.simpleMessage("İptal"),
     "change_password_error": MessageLookupByLibrary.simpleMessage(
       "Şifreyi değiştirmeye çalışırken bir hata oluştu!",
@@ -131,13 +155,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Sohbet Tema Ayarları",
     ),
+    "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Sohbetler"),
+    "choose_option": MessageLookupByLibrary.simpleMessage("Bir seçenek seçin"),
+    "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
+      "Müşteri kimliği bir sayı olmalıdır",
+    ),
     "close": MessageLookupByLibrary.simpleMessage("Kapat"),
     "command_not_implemented": MessageLookupByLibrary.simpleMessage(
       "{} komutu uygulanmadı!",
     ),
     "command_unknown": MessageLookupByLibrary.simpleMessage(
       "Komut bilinmiyor!",
+    ),
+    "confirm_delete_message": MessageLookupByLibrary.simpleMessage(
+      "Mesajı kalıcı olarak silmek istediğinizden emin misiniz?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Bağlan"),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
@@ -146,6 +178,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "İçerik türü bilinmiyor!",
     ),
+    "create_account": MessageLookupByLibrary.simpleMessage("Hesap oluştur"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
       "Veritabanı maksimum kapasitesine ulaştı! Maalesef isteğiniz işlenemedi.",
     ),
@@ -179,9 +212,20 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Kullanıcı adı gereksinimleri karşılanmadı!",
         ),
+    "decline": MessageLookupByLibrary.simpleMessage("Reddet"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Sıkıştırma açma başarısız oldu",
     ),
+    "delete": MessageLookupByLibrary.simpleMessage("Sil"),
+    "delete_chat": MessageLookupByLibrary.simpleMessage("Sohbeti sil"),
+    "delete_this_chat_question": MessageLookupByLibrary.simpleMessage(
+      "Bu sohbeti silinsin mi?",
+    ),
+    "deleting_this_chat_will_permanently_delete_all_prior_messages":
+        MessageLookupByLibrary.simpleMessage(
+          "Bu sohbeti silmek, önceki tüm mesajları kalıcı olarak silecektir",
+        ),
+    "display_name": MessageLookupByLibrary.simpleMessage("Görünen ad"),
     "display_part_of_messages_in_notifications":
         MessageLookupByLibrary.simpleMessage(
           "Bildirimlerde mesajın bir kısmını göster",
@@ -193,20 +237,59 @@ class MessageLookup extends MessageLookupByLibrary {
       "Barındırıcıya Bağış Yap",
     ),
     "donations": MessageLookupByLibrary.simpleMessage("Bağışlar"),
+    "downloaded_file": MessageLookupByLibrary.simpleMessage("Dosya indirildi"),
+    "email": MessageLookupByLibrary.simpleMessage("E-posta"),
     "email_address": MessageLookupByLibrary.simpleMessage("E-posta adresi"),
+    "email_is_empty": MessageLookupByLibrary.simpleMessage("E-posta boş!"),
     "email_mismatch": MessageLookupByLibrary.simpleMessage(
       "Girilen e-posta gerçek e-posta ile eşleşmiyor!",
+    ),
+    "enter_client_id": MessageLookupByLibrary.simpleMessage(
+      "Müşteri kimliğini girin",
+    ),
+    "enter_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Doğrulama kodunu girin",
+    ),
+    "enter_verification_code_sent_to_your_email":
+        MessageLookupByLibrary.simpleMessage(
+          "E-postanıza gönderilen doğrulama kodunu girin",
+        ),
+    "entropy_rough_estimate": m2,
+    "error_saving_file": MessageLookupByLibrary.simpleMessage(
+      "Dosya kaydedilirken bir hata oluştu",
     ),
     "faq_contact_terms_privacy": MessageLookupByLibrary.simpleMessage(
       "SSS, bize ulaşın, şartlar ve gizlilik politikası",
     ),
+    "feature_audio_messages": MessageLookupByLibrary.simpleMessage(
+      "Sesli mesaj desteği",
+    ),
+    "feature_chat_themes": MessageLookupByLibrary.simpleMessage(
+      "Yeni sohbet temaları",
+    ),
+    "feature_encryption": MessageLookupByLibrary.simpleMessage(
+      "Geliştirilmiş şifreleme protokolleri",
+    ),
+    "feature_languages": MessageLookupByLibrary.simpleMessage(
+      "Çoklu dil desteği!",
+    ),
+    "feature_voice_calls": MessageLookupByLibrary.simpleMessage(
+      "Sesli aramalar (Erken Erişim)",
+    ),
+    "file_received": m3,
     "functionality_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Bu işlev henüz uygulanmadı!",
     ),
+    "gallery": MessageLookupByLibrary.simpleMessage("Galeri"),
+    "got_it_button": MessageLookupByLibrary.simpleMessage("Anladım!"),
     "help": MessageLookupByLibrary.simpleMessage("Yardım"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Yardım Ayarları"),
+    "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
+      "Uyumsuz sunucu sürümü! Bazı şeyler beklendiği gibi çalışmayabilir!",
+    ),
     "license_capitalized": MessageLookupByLibrary.simpleMessage("Lisans"),
     "license_crux": MessageLookupByLibrary.simpleMessage("Lisans özü"),
+    "link_new_device": MessageLookupByLibrary.simpleMessage("Yeni cihaz bağla"),
     "linked_devices": MessageLookupByLibrary.simpleMessage("Bağlı Cihazlar"),
     "linked_devices_logout_all": MessageLookupByLibrary.simpleMessage(
       "Tüm Cihazlardan Çıkış Yap",
@@ -217,6 +300,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "linked_devices_logout_confirm": MessageLookupByLibrary.simpleMessage(
       "Şuradan çıkış yapmak istediğinizden emin misiniz: ",
     ),
+    "login": MessageLookupByLibrary.simpleMessage("Giriş yap"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
       "Hesap mevcut değil!",
     ),
@@ -246,6 +330,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "logout": MessageLookupByLibrary.simpleMessage("çıkış yap"),
     "logout_capitalized": MessageLookupByLibrary.simpleMessage("Çıkış Yap"),
+    "logout_confirmation_all_devices": MessageLookupByLibrary.simpleMessage(
+      "\${device.formattedInfo()} cihazından çıkış yapmak istediğinize emin misiniz?",
+    ),
+    "logout_confirmation_device": MessageLookupByLibrary.simpleMessage(
+      "\${device.formattedInfo()} cihazından çıkış yapmak istediğinize emin misiniz?",
+    ),
     "logout_from_all_devices": MessageLookupByLibrary.simpleMessage(
       "Tüm Cihazlardan Çıkış Yap",
     ),
@@ -253,6 +343,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "Bu cihazdan çıkış yap",
     ),
     "manage_storage": MessageLookupByLibrary.simpleMessage("Depolamayı Yönet"),
+    "message_by": m4,
+    "message_copied": MessageLookupByLibrary.simpleMessage(
+      "Mesaj panoya kopyalandı",
+    ),
+    "message_deletion_unsuccessful": MessageLookupByLibrary.simpleMessage(
+      "Mesaj silme başarısız oldu",
+    ),
     "message_group_call_tones": MessageLookupByLibrary.simpleMessage(
       "Mesaj, grup ve çağrı tonları",
     ),
@@ -265,10 +362,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Mesaj türü tanınmadı!",
     ),
+    "min_entropy": m5,
     "name": MessageLookupByLibrary.simpleMessage("İsim"),
     "name_enter": MessageLookupByLibrary.simpleMessage("Adınızı girin"),
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Ağ kullanımı, otomatik indirme",
+    ),
+    "new_chat": MessageLookupByLibrary.simpleMessage("\'Yeni sohbet\'"),
+    "new_message": MessageLookupByLibrary.simpleMessage("Yeni mesaj!"),
+    "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
+      "Bekleyen sohbet isteği yok",
+    ),
+    "no_chats_available_incompatible_server_version":
+        MessageLookupByLibrary.simpleMessage(
+          "Sohbetler mevcut değil, sunucu sürümü uyumsuz",
+        ),
+    "no_conversations_available": MessageLookupByLibrary.simpleMessage(
+      "Mevcut konuşma yok",
+    ),
+    "no_linked_devices": MessageLookupByLibrary.simpleMessage(
+      "Bağlı cihaz yok",
     ),
     "notification_enable": MessageLookupByLibrary.simpleMessage(
       "Bildirimleri Etkinleştir",
@@ -288,14 +401,19 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("Bildirimler"),
     "ok": MessageLookupByLibrary.simpleMessage("Tamam"),
+    "or": MessageLookupByLibrary.simpleMessage("Veya"),
     "other": MessageLookupByLibrary.simpleMessage("Diğer"),
     "other_settings": MessageLookupByLibrary.simpleMessage("Diğer Ayarlar"),
     "password": MessageLookupByLibrary.simpleMessage("Şifre"),
+    "password_is_empty": MessageLookupByLibrary.simpleMessage("Şifre boş!"),
     "password_validation_invalid": MessageLookupByLibrary.simpleMessage(
       "Şifre gereksinimleri karşılanmadı!",
     ),
     "password_validation_success": MessageLookupByLibrary.simpleMessage(
       "Şifre başarıyla doğrulandı!",
+    ),
+    "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Lütfen doğrulama kodunu girin",
     ),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Gizlilik, güvenlik, numara değiştir",
@@ -318,8 +436,17 @@ class MessageLookup extends MessageLookupByLibrary {
       "Veritabanından profil fotoğrafı almaya çalışırken bir hata oluştu!",
     ),
     "profile_settings": MessageLookupByLibrary.simpleMessage("Profil Ayarları"),
+    "registration_failed": m6,
     "requests": MessageLookupByLibrary.simpleMessage("İstekler"),
+    "resend_code": MessageLookupByLibrary.simpleMessage("Kodu yeniden gönder"),
     "save": MessageLookupByLibrary.simpleMessage("Kaydet"),
+    "search": MessageLookupByLibrary.simpleMessage("Ara..."),
+    "select_an_option": MessageLookupByLibrary.simpleMessage(
+      "Bir seçenek seçin",
+    ),
+    "send_chat_request": MessageLookupByLibrary.simpleMessage(
+      "Sohbet isteği gönder",
+    ),
     "server_add": MessageLookupByLibrary.simpleMessage("Sunucu Ekle"),
     "server_add_success": MessageLookupByLibrary.simpleMessage(
       "Sunucu başarıyla eklendi!",
@@ -341,8 +468,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings_saved": MessageLookupByLibrary.simpleMessage(
       "Ayarlar kaydedildi",
     ),
+    "sign_out": MessageLookupByLibrary.simpleMessage("Çıkış yap"),
     "source_code": MessageLookupByLibrary.simpleMessage("Kaynak Kodu"),
     "storage_data": MessageLookupByLibrary.simpleMessage("Depolama ve Veri"),
+    "submit": MessageLookupByLibrary.simpleMessage("Gönder"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
       "Biraz yavaşlayın! Kısa bir süre için sunucuyla etkileşim kurmanız geçici olarak yasaklandı.",
     ),
@@ -355,6 +484,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "theme_wallpapers_chat_history": MessageLookupByLibrary.simpleMessage(
       "Tema, duvar kağıtları, sohbet geçmişi",
     ),
+    "today": MessageLookupByLibrary.simpleMessage("Bugün"),
+    "type_message": MessageLookupByLibrary.simpleMessage("Bir mesaj yazın..."),
+    "unknown_size": MessageLookupByLibrary.simpleMessage("Bilinmeyen boyut"),
+    "use_backup_verification_code": MessageLookupByLibrary.simpleMessage(
+      "Yedek doğrulama kodunu kullan",
+    ),
+    "use_password": MessageLookupByLibrary.simpleMessage("Şifreyi kullan"),
     "username_same_as_old": MessageLookupByLibrary.simpleMessage(
       "Kullanıcı adı eski kullanıcı adı ile aynı olamaz!",
     ),
@@ -364,11 +500,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "username_validation_success": MessageLookupByLibrary.simpleMessage(
       "Kullanıcı adı başarıyla doğrulandı!",
     ),
+    "verification": MessageLookupByLibrary.simpleMessage("Doğrulama"),
     "verification_attempts_exhausted": MessageLookupByLibrary.simpleMessage(
       "Deneme hakkı tükendi!",
     ),
     "verification_code_incorrect": MessageLookupByLibrary.simpleMessage(
       "Yanlış kod!",
+    ),
+    "verification_code_must_be_number": MessageLookupByLibrary.simpleMessage(
+      "Doğrulama kodu bir sayı olmalıdır",
     ),
     "verification_email_invalid": MessageLookupByLibrary.simpleMessage(
       "Geçersiz e-posta adresi",
@@ -383,6 +523,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibration": MessageLookupByLibrary.simpleMessage("Titreşim"),
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
       "Bu cihazda titreşim kullanılamıyor",
+    ),
+    "whats_new": MessageLookupByLibrary.simpleMessage("Ne var ne yok"),
+    "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(
+      "Yeni sistem mesajları",
+    ),
+    "whats_new_title": MessageLookupByLibrary.simpleMessage(
+      "Hermis\'teki Yeni Özellikler",
     ),
   };
 }

@@ -147,6 +147,7 @@ public final class Server {
 		}
 
 		ServerUDP.start();
+		UDPSignallingServer.start();
 	}
 
 	private static class ClientConnector extends ChannelInitializer<EpollSocketChannel> {
