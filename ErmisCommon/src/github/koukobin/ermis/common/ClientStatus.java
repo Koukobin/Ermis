@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.common.message_types;
+package github.koukobin.ermis.common;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,30 +25,26 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  * @author Ilias Koukovinis
  *
  */
-public enum ServerMessageType {
-    CLIENT_MESSAGE(0),
-    MESSAGE_DELIVERY_STATUS(1),
-    VOICE_CALL_INCOMING(2),
-	SERVER_INFO(3),
-    ENTRY(4),
-    COMMAND_RESULT(5);
+public enum ClientStatus {
+	ONLINE(0), OFFLINE(1), DO_NOT_DISTURB(2), INVISIBLE(3);
 
-	private static final HashMap<Integer, ServerMessageType> values;
+	private static final HashMap<Integer, ClientStatus> values;
 
 	static {
 		values = new HashMap<>(
-				Arrays.stream(ServerMessageType.values())
-				.collect(Collectors.toMap(type -> type.id, type -> type))
+				Arrays.stream(ClientStatus.values())
+				.collect(Collectors.toUnmodifiableMap(type -> type.id, type -> type))
 				);
 	}
-	
-    public final int id;
 
-    ServerMessageType(int id) {
-        this.id = id;
-    }
+	public final int id;
 
-	public static ServerMessageType fromId(int id) {
+	ClientStatus(int id) {
+		this.id = id;
+	}
+
+	public static ClientStatus fromId(int id) {
 		return EnumIntConverter.fromId(values, id);
 	}
 }
+

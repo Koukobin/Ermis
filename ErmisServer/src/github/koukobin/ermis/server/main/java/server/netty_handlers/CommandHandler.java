@@ -19,14 +19,19 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-
-import javax.crypto.SecretKey;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 
 import github.koukobin.ermis.common.Account;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
@@ -38,10 +43,8 @@ import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.UserMessage;
-import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
-import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
@@ -51,12 +54,8 @@ import github.koukobin.ermis.server.main.java.server.ServerUDP.VoiceChat;
 import github.koukobin.ermis.server.main.java.server.UDPSignallingServer;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
-import github.koukobin.ermis.server.main.java.util.AESGCMCipher;
-import github.koukobin.ermis.server.main.java.util.AESKeyGenerator;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase.DeleteAccountSuccess;
 import github.koukobin.ermis.common.results.ChangePasswordResult;
 import github.koukobin.ermis.common.results.ChangeUsernameResult;
-import github.koukobin.ermis.common.results.GeneralResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
@@ -216,15 +215,20 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 		}
 		case SEND_CHAT_REQUEST -> {
-			
 			int receiverID = args.readInt();
 			int senderClientID = clientInfo.getClientID();
 			
+			// TODO: why does it not check if they are already friends?
+			if (receiverID == senderClientID) {
+				getLogger().debug("You can't create chat session with yourself");
+				return;
+			}
+
 			boolean success;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				success = conn.sendChatRequest(receiverID, senderClientID);
 			}
-			
+
 			if (!success) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
@@ -274,7 +278,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			int senderClientID = args.readInt();
 			int receiverClientID = clientInfo.getClientID();
-			
+
 			boolean success;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				success = conn.deleteChatRequest(receiverClientID, senderClientID);
@@ -307,6 +311,8 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			if (success) {
 				ChatSession chatSession = ActiveChatSessions.getChatSession(chatSessionID);
 
+				// Ensure chat session isn't null, albeit this is virtually improbable.
+				// Edge case: client disconnects immediately following command.
 				if (chatSession != null) {
 
 					List<ClientInfo> activeMembers = chatSession.getActiveMembers();
@@ -316,6 +322,103 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 					ActiveChatSessions.removeChatSession(chatSessionID);
 				}
+			} else {
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.SERVER_INFO.id);
+				payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_DELETE_CHAT_SESSION.id);
+				channel.writeAndFlush(payload);
+			}
+		}
+		case ADD_USER_IN_CHAT_SESSION -> {
+			int chatSessionID;
+
+			{
+				int chatSessionIndex = args.readInt();
+				chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+			}
+
+			int memberID = args.readInt();
+
+			// TODO: Add check here to ensure member is not already in session to minimize pressure on database
+
+			if (!ActiveChatSessions.areMembersFriendOfUser(clientInfo, memberID)) {
+				return;
+			}
+
+			boolean success;
+			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+				success = conn.addUserToChatSession(chatSessionID, memberID);
+			}
+
+			if (!success) {
+//				ByteBuf payload = channel.alloc().ioBuffer();
+//				payload.writeInt(ServerMessageType.SERVER_INFO.id);
+//				payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_DELETE_CHAT_SESSION.id);
+//				channel.writeAndFlush(payload);
+				// TODO
+			}
+
+			ChatSession chatSession = ActiveChatSessions.getChatSession(chatSessionID);
+
+			// Ensure chat session isn't null, albeit this is virtually improbable.
+			// Edge case: client disconnects immediately following command.
+			if (chatSession != null) {
+				chatSession.getMembers().add(memberID);
+				List<ClientInfo> memberActiveConnections = ActiveClients.getClient(memberID);
+				if (memberActiveConnections != null) {
+					chatSession.getActiveMembers().addAll(memberActiveConnections);
+				}
+
+				refreshChatSession(chatSession); // Refresh, to ensure changes are reflected
+			}
+
+		}
+		case CREATE_GROUP_CHAT_SESSION -> {
+
+			int[] memberIds = new int[(args.readableBytes() / Integer.BYTES) + 1 /* Attributed to client self */];
+			for (int i = 0; i < memberIds.length - 1; i++) {
+				memberIds[i] = args.readInt();
+			}
+			memberIds[memberIds.length - 1] = clientInfo.getClientID();
+
+			List<Integer> memberIdsList = Ints.asList(memberIds);
+
+			boolean existsAlready = true;
+			for (ChatSession session : clientInfo.getChatSessions()) {
+				existsAlready &= session.getMembers().equals(memberIdsList);
+			}
+
+			if (existsAlready) {
+				getLogger().debug("An identical group chat session already exists");
+				return;
+			}
+
+			if (!ActiveChatSessions.areMembersFriendOfUser(clientInfo, memberIds)) {
+				getLogger().debug("Members specified are not friends");
+				return;
+			}
+
+			int chatSessionID;
+			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+				chatSessionID = conn.createChat(memberIds);
+			}
+
+			if (chatSessionID != -1) {
+				List<Integer> members = Arrays.stream(memberIds).boxed().toList();
+
+				ChatSession chatSession = new ChatSession(chatSessionID);
+				chatSession.setMembers(members);
+				chatSession.setActiveMembers(new ArrayList<>(members.size()));
+				for (Integer memberID : memberIdsList) {
+					List<ClientInfo> member = ActiveClients.getClient(memberID);
+
+					if (member != null) {
+						chatSession.getActiveMembers().addAll(member);
+					}
+				}
+
+				ActiveChatSessions.addChatSession(chatSession);
+				refreshChatSession(chatSession);
 			} else {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);

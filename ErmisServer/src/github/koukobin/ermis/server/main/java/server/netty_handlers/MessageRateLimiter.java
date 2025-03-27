@@ -43,7 +43,7 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 	private int requestCount;
 	private boolean isBanned;
 	private Instant lastMessageSent;
-	
+
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) {
 		this.requestCount = 0;
@@ -59,7 +59,7 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 		}
 
 		Instant currentTime = Instant.now();
-
+		
 		// If a second has passed since the last message was sent reset the request count.
 		// Otherwise increment it and check whether or not it has exceeded the limit
 		if (currentTime.getEpochSecond() - lastMessageSent.getEpochSecond() >= 1) {
@@ -67,7 +67,7 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 		} else {
 			requestCount++;
 			if (requestCount > MAX_REQUESTS_PER_SECOND) {
-				
+
 				isBanned = true;
 
 				// Block incoming messages for a certain time interval

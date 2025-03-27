@@ -15,11 +15,14 @@
  */
 package github.koukobin.ermis.server.main.java.server;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import javax.annotation.Nonnull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -61,6 +64,28 @@ public class ActiveChatSessions {
 
 	public static void removeMember(int chatSessionID, ClientInfo member) {
 		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveMembers().remove(member);
+	}
+	
+	public static boolean areMembersFriendOfUser(@Nonnull ClientInfo clientInfo, @Nonnull int... memberIds) {
+		List<ClientInfo> friends = clientInfo.getChatSessions()
+				.parallelStream()
+				.map(ChatSession::getActiveMembers)
+				.distinct()
+				.filter((List<ClientInfo> ci) -> ci.contains(clientInfo))
+				.flatMap(Collection::stream)
+				.toList(); // Baddass use of stream API
+
+		boolean isMemberIDFriendOrJustRandomIndividual = true;
+		for (ClientInfo ci : friends) {
+			for (int memberID : memberIds) {
+				if (ci.getClientID() == memberID) {
+					isMemberIDFriendOrJustRandomIndividual &= true;
+					break;
+				}
+			}
+		}
+
+		return isMemberIDFriendOrJustRandomIndividual;
 	}
 
 	public static void broadcastToChatSession(ByteBuf payload, ChatSession chatSession) {

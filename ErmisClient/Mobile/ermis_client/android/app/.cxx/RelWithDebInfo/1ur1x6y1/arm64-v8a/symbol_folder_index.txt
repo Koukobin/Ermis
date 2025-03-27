@@ -1,1 +1,0 @@
-/opt/flutter-apps/ermis_client/build/app/intermediates/cxx/RelWithDebInfo/1ur1x6y1/obj/arm64-v8a

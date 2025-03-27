@@ -841,26 +841,31 @@ public final class ErmisDatabase {
 			return userIPS;
 		}
 		
-		public int createChat(int chatSessionID, int... members) {
+		public int createChat(int... members) {
+			int chatSessionID = ChatSessionIDGenerator.retrieveAndDelete(conn);
 
-			int resultUpdate = 0;
-
+			if (chatSessionID == -1) return chatSessionID;
+			
 			String createChatSQL = "INSERT INTO chat_sessions (chat_session_id) VALUES(?) ON CONFLICT DO NOTHING;";
 			try (PreparedStatement psmtp = conn.prepareStatement(createChatSQL)) {
 				psmtp.setInt(1, chatSessionID);
-				resultUpdate = psmtp.executeUpdate();
-				
+				int resultUpdate = psmtp.executeUpdate();
+
 				if (resultUpdate == 1) {
 					insertMembersToChatSession(chatSessionID, members);
+				} else {
+					ChatSessionIDGenerator.undo(chatSessionID); // In case of failure, return session id
+					chatSessionID = -1;
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
+				ChatSessionIDGenerator.undo(chatSessionID); // In case of failure, return session id
+				chatSessionID = -1;
 			}
-			
 
-			return resultUpdate;
+			return chatSessionID;
 		}
-		
+
 		public void insertMembersToChatSession(int chatSessionID, int[] members) {
 			String insertMembers = "INSERT INTO chat_session_members (chat_session_id, member_id) VALUES(?, ?) ON CONFLICT DO NOTHING;";
 			try (PreparedStatement psmtp = conn.prepareStatement(insertMembers)){
@@ -1046,12 +1051,33 @@ public final class ErmisDatabase {
 		}
 
 		public boolean deleteChatSession(int chatSessionID) {
-
 			int resultUpdate = 0;
 
+			// chat_session_members auto-deleted by CASCADE
 			String query = "DELETE FROM chat_sessions WHERE chat_session_id = ?;";
 			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
 				pstmt.setInt(1, chatSessionID);
+				resultUpdate = pstmt.executeUpdate();
+			} catch (SQLException sqle) {
+				logger.error(Throwables.getStackTraceAsString(sqle));
+			}
+
+			return resultUpdate == 1;
+		}
+
+		/**
+		 * This can be used by two users who have already established a chat session,
+		 * add another mutual acquaintance
+		 * 
+		 */
+		public boolean addUserToChatSession(int chatSessionID, int memberID) {
+
+			int resultUpdate = 0;
+
+			String query = "INSERT INTO chat_session_members (chat_session_id, member_id) VALUES (?, ?);";
+			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+				pstmt.setInt(1, chatSessionID);
+				pstmt.setInt(2, memberID);
 				resultUpdate = pstmt.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
