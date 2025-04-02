@@ -14,26 +14,36 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:typed_data';
 import 'package:ermis_client/client/common/message_types/content_type.dart';
+import 'package:ermis_client/core/util/datetime_utils.dart';
 import 'package:ermis_client/core/util/custom_date_formatter.dart';
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 
+import 'member_icon.dart';
 import 'message.dart';
 
 class ChatSession {
-  final int _chatSessionID;
-  final int _chatSessionIndex;
+  int chatSessionID;
+  int chatSessionIndex;
   List<Member> _members;
+  List<int> memberIDs;
   List<Message> _messages;
   bool _haveChatMessagesBeenCached;
 
-  ChatSession(this._chatSessionID, this._chatSessionIndex)
+  ChatSession(this.chatSessionID, this.chatSessionIndex)
       : _members = [],
         _messages = [],
-        _haveChatMessagesBeenCached = false;
+        _haveChatMessagesBeenCached = false,
+        memberIDs = [];
 
-  ChatSession.withDetails(this._chatSessionID, this._chatSessionIndex,
-      this._messages, this._members, this._haveChatMessagesBeenCached);
+  ChatSession.withDetails(
+    this.chatSessionID,
+    this.chatSessionIndex,
+    this._messages,
+    this._members,
+    this._haveChatMessagesBeenCached,
+    this.memberIDs,
+  );
 
   void setMembers(List<Member> members) => _members = members;
 
@@ -42,8 +52,6 @@ class ChatSession {
   void setHaveChatMessagesBeenCached(bool haveChatMessagesBeenCached) =>
       _haveChatMessagesBeenCached = haveChatMessagesBeenCached;
 
-  int get chatSessionID => _chatSessionID;
-  int get chatSessionIndex => _chatSessionIndex;
   List<Member> get getMembers => _members;
   List<Message> get getMessages => _messages;
 
@@ -70,8 +78,7 @@ class ChatSession {
     }
 
     DateTime localTime =
-        DateTime.fromMillisecondsSinceEpoch(message.epochSecond, isUtc: true)
-            .toLocal();
+        EpochDateTime.fromSecondsSinceEpoch(message.epochSecond).toLocal();
 
     if (DateTime.now().difference(localTime).inDays >= 1) {
       return CustomDateFormatter.formatDate(localTime, "dd/MM/yy");
@@ -83,14 +90,14 @@ class ChatSession {
   bool get haveChatMessagesBeenCached => _haveChatMessagesBeenCached;
 
   @override
-  int get hashCode => _chatSessionID.hashCode ^ _chatSessionIndex.hashCode;
+  int get hashCode => chatSessionID.hashCode ^ chatSessionIndex.hashCode;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! ChatSession) return false;
-    return _chatSessionID == other._chatSessionID &&
-        _chatSessionIndex == other._chatSessionIndex &&
+    return chatSessionID == other.chatSessionID &&
+        chatSessionIndex == other.chatSessionIndex &&
         _haveChatMessagesBeenCached == other._haveChatMessagesBeenCached &&
         _members == other._members &&
         _messages == other._messages;
@@ -105,20 +112,10 @@ class ChatSession {
 class Member {
   String username;
   int clientID;
-  Uint8List icon;
-  bool isActive;
+  MemberIcon icon;
+  ClientStatus status;
 
-  Member(this.username, this.clientID, this.icon, this.isActive);
-
-  void setUsername(String username) => this.username = username;
-  void setClientID(int clientID) => this.clientID = clientID;
-  void setIcon(Uint8List icon) => this.icon = icon;
-  void setIsActive(bool isActive) => this.isActive = isActive;
-
-  String get getUsername => username;
-  int get getClientID => clientID;
-  Uint8List get getIcon => icon;
-  bool get getIsActive => isActive;
+  Member(this.username, this.clientID, this.icon, this.status);
 
   @override
   int get hashCode => clientID.hashCode;
@@ -130,7 +127,7 @@ class Member {
     return clientID == other.clientID &&
         icon == other.icon &&
         username == other.username &&
-        isActive == other.isActive;
+        status == other.status;
   }
 
   @override

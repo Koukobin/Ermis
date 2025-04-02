@@ -25,12 +25,14 @@ enum ClientCommandResultType {
   getDisplayName(200),
   getClientId(201),
   fetchUserDevices(202),
-  fetchAccountIcon(203),
-  getOtherAccountsAssociatedWithDevice(204),
+  fetchAccountStatus(203),
+  fetchAccountIcon(204),
+  getOtherAccountsAssociatedWithDevice(205),
 
   // Chat Management
   getChatRequests(300),
   getChatSessions(301),
+  getChatSessionIndices(304),
   getWrittenText(302),
   deleteChatMessage(303),
 

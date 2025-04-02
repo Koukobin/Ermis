@@ -44,8 +44,8 @@ public final class FilesStorage {
 
 	private static final Logger LOGGER = LogManager.getLogger("server");
 
-	private static final LoadingCache<String, byte[]> filesCache;
-	private static final LoadingCache<String, byte[]> profilePhotosCache;
+	private static final LoadingCache<String /* ID */, byte[] /* Content */> filesCache;
+	private static final LoadingCache<String /* ID */, byte[] /* Content */> profilePhotosCache;
 
 	private FilesStorage() {}
 
@@ -66,7 +66,7 @@ public final class FilesStorage {
 	}
 	
 	static {
-		final int maxWeight = 50 * 1024 * 1024;
+		final int maxWeight = 50 * 1024 * 1024; // 50 MB
 		filesCache = CacheBuilder.newBuilder()
                 .maximumWeight(maxWeight)
                 .weigher((String key, byte[] value) -> value.length) // Weigh by byte array size in bytes
@@ -82,7 +82,7 @@ public final class FilesStorage {
 	}
 
 	static {
-		final int maxWeight = 50 * 1024 * 1024;
+		final int maxWeight = 50 * 1024 * 1024; // 50 MB
 		profilePhotosCache = CacheBuilder.newBuilder()
                 .maximumWeight(maxWeight)
                 .weigher((String key, byte[] value) -> value.length) // Weigh by byte array size in bytes

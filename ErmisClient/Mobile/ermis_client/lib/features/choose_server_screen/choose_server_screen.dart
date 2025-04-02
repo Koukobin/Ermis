@@ -62,6 +62,14 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
       
       if (kReleaseMode) return;
 
+      // Many prints to ensure it is clear on terminal
+      debugPrint("NewFeaturesPage would not have been shown in production built!");
+      debugPrint("NewFeaturesPage would not have been shown in production built!");
+      debugPrint("NewFeaturesPage would not have been shown in production built!");
+      debugPrint("NewFeaturesPage would not have been shown in production built!");
+      debugPrint("NewFeaturesPage would not have been shown in production built!");
+      debugPrint("NewFeaturesPage would not have been shown in production built!");
+      debugPrint("NewFeaturesPage would not have been shown in production built!");
       debugPrint("NewFeaturesPage would not have been shown in production built!");
     }
 
@@ -124,12 +132,11 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                       width: 150,
                       child: ElevatedButton.icon(
                         onPressed: () async {
-                          String? url = await showInputDialog(
+                          String url = await showInputDialog(
                             context: context,
                             title: S.current.server_url_enter,
                             hintText: "example.com",
                           );
-                          if (url == null) return;
 
                           ServerInfo serverInfo;
 

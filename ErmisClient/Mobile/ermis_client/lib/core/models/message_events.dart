@@ -26,6 +26,7 @@ import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/models/user_device.dart';
 import 'package:ermis_client/client/io/byte_buf.dart';
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 
 import 'account.dart';
 import 'chat_session.dart';
@@ -103,9 +104,19 @@ class ClientIdEvent {
   const ClientIdEvent(this.clientId);
 }
 
+class AccountStatusEvent {
+  final ClientStatus status;
+  const AccountStatusEvent(this.status);
+}
+
 class ChatRequestsEvent {
   final List<ChatRequest> requests;
   const ChatRequestsEvent(this.requests);
+}
+
+class ChatSessionsIndicesReceivedEvent {
+  final List<ChatSession> sessions;
+  const ChatSessionsIndicesReceivedEvent(this.sessions);
 }
 
 class ChatSessionsEvent {

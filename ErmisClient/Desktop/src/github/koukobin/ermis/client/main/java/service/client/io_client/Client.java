@@ -194,7 +194,7 @@ public class Client {
      */
     public static boolean attemptHashedLogin(LocalAccountInfo userInfo) {
         ByteBuf buffer = Unpooled.buffer();
-        buffer.writeInt(ClientMessageType.ENTRY.id);
+        buffer.writeInt(ClientMessageType.USER_ENTRY.id);
         buffer.writeInt(EntryType.LOGIN.id);
 
         // Email length and email
@@ -251,7 +251,7 @@ public class Client {
 				byte[] credentialValueBytes = credential.getValue().getBytes();
 
 				ByteBuf payload = Unpooled.buffer();
-				payload.writeInt(ClientMessageType.ENTRY.id);
+				payload.writeInt(ClientMessageType.USER_ENTRY.id);
 				payload.writeInt(credentialInt);
 				payload.writeBytes(credentialValueBytes);
 
@@ -260,7 +260,7 @@ public class Client {
 		}
 
 		public void sendEntryType() throws IOException {
-			out.write(Unpooled.copyInt(ClientMessageType.ENTRY.id, entryType.id));
+			out.write(Unpooled.copyInt(ClientMessageType.USER_ENTRY.id, entryType.id));
 		}
 	}
 
@@ -281,7 +281,7 @@ public class Client {
 			int actionId = LoginInfo.Action.TOGGLE_PASSWORD_TYPE.id;
 
 			ByteBuf payload = Unpooled.buffer();
-		    payload.writeInt(ClientMessageType.ENTRY.id);
+		    payload.writeInt(ClientMessageType.USER_ENTRY.id);
 		    payload.writeInt(GeneralEntryAction.action.id);
 			payload.writeInt(actionId);
 
@@ -318,7 +318,7 @@ public class Client {
 
 		public void sendVerificationCode(String verificationCode) throws IOException {
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.ENTRY.id);
+			payload.writeInt(ClientMessageType.USER_ENTRY.id);
 			payload.writeInt(Integer.valueOf(verificationCode));
 
 			out.write(payload);
@@ -361,7 +361,7 @@ public class Client {
 
 		public void resendVerificationCode() throws IOException {
 			ByteBuf payload = Unpooled.buffer(3 * Integer.BYTES);
-			payload.writeInt(ClientMessageType.ENTRY.id);
+			payload.writeInt(ClientMessageType.USER_ENTRY.id);
 			payload.writeInt(GeneralEntryAction.action.id);
 			payload.writeInt(Verification.Action.RESEND_CODE.id);
 

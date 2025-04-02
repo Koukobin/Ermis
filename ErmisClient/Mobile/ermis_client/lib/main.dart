@@ -27,6 +27,8 @@ import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/client/common/message_types/content_type.dart';
 import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_client/core/util/message_notification.dart';
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import 'package:ermis_client/languages/generated/l10n.dart';
 import 'package:ermis_client/features/splash_screen/splash_screen.dart';
 import 'package:ermis_client/theme/app_colors.dart';
@@ -245,53 +247,15 @@ void maintainWebSocketConnection(ServiceInstance service) async {
     }
 
     Client.instance().startMessageHandler();
-    await Client.instance().fetchUserInformation();
+    Client.instance().commands.fetchChatSessions();
+    Client.instance().commands.setAccountStatus(ClientStatus.offline);
 
     AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
       ChatSession chatSession = event.chatSession;
-
       Message msg = event.message;
-
-      if (settingsJson.vibrationEnabled) {
-        Vibration.vibrate();
-      }
-
-      if (!settingsJson.notificationsEnabled) {
-        return;
-      }
-
-      switch (settingsJson.notificationSound) {
-        case NotificationSound.osDefault:
-          FlutterRingtonePlayer().playNotification();
-        case NotificationSound.ermis:
-          FlutterRingtonePlayer().play(fromAsset: "assets/sounds/notification.wav");
-      }
-
-      if (!settingsJson.showMessagePreview) {
-        NotificationService.showSimpleNotification(body: "New message!");
-        return;
-      }
-
-      String body;
-      switch (msg.contentType) {
-        case MessageContentType.text:
-          body = msg.text;
-          break;
-        case MessageContentType.file || MessageContentType.image:
-          body = "Send file ${msg.fileName}";
-          break;
-      }
-      
-      NotificationService.showInstantNotification(
-        icon: event.chatSession.getMembers[0].getIcon,
-        body: "Message by ${msg.username}",
-        contentText: body,
-        contentTitle: msg.username,
-        summaryText: event.chatSession.toString(),
-        replyCallBack: (String text) => {
-          Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex)
-        },
-      );
+      handleChatMessageNotification(chatSession, msg, settingsJson, (String text) {
+        Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex);
+      });
     });
 
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");

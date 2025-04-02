@@ -18,7 +18,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import 'package:ermis_client/features/messaging/presentation/message_bubble.dart';
 import 'package:ermis_client/features/messaging/presentation/send_file_popup_menu.dart';
 import 'package:ermis_client/features/messaging/presentation/choose_friends_screen.dart';
@@ -170,52 +172,15 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         return;
       }
 
-      // This instance would occur say when a client has two instances of an ermis client app 
+      // This instance would occur when the client is connected
+      // on a given ermis server from two distinct devices
       if (msg.clientID == Client.instance().clientID) {
         return;
       }
 
       SettingsJson settingsJson = SettingsJson();
       settingsJson.loadSettingsJson();
-
-      if (settingsJson.vibrationEnabled) {
-        Vibration.vibrate();
-      }
-
-      if (!settingsJson.notificationsEnabled) {
-        return;
-      }
-      
-      switch (settingsJson.notificationSound) {
-        case NotificationSound.osDefault:
-          FlutterRingtonePlayer().playNotification();
-        case NotificationSound.ermis:
-          FlutterRingtonePlayer().play(fromAsset: "assets/sounds/ermis_notification.wav");
-      }
-
-      if (!settingsJson.showMessagePreview) {
-        NotificationService.showSimpleNotification(body: S.current.new_message);
-        return;
-      }
-
-      String body;
-      switch (msg.contentType) {
-        case MessageContentType.text:
-          body = msg.text;
-          break;
-        case MessageContentType.file || MessageContentType.image:
-          body = S.current.file_received(msg.fileName);
-          break;
-      }
-
-      NotificationService.showInstantNotification(
-        icon: event.chatSession.getMembers[0].getIcon,
-        body: S.current.message_by(msg.username),
-        contentText: body,
-        contentTitle: msg.username,
-        summaryText: event.chatSession.toString(),
-        replyCallBack: _sendTextMessage,
-      );
+      handleChatMessageNotification(chatSession, msg, settingsJson, _sendTextMessage);
     });
     eventBusSubscriptions.putIfAbsent(_chatSession, () => []);
     eventBusSubscriptions[_chatSession]!.add(b);
@@ -359,8 +324,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
             Row(
               children: [
                 UserAvatar(
-                  imageBytes: _chatSession.getMembers[0].getIcon,
-                  isOnline: _chatSession.getMembers[0].isActive,
+                  imageBytes: _chatSession.getMembers[0].icon.profilePhoto,
+                  status: _chatSession.getMembers[0].status,
                 ),
                 const SizedBox(width: 10),
                 ConstrainedBox(
@@ -620,7 +585,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         ),
         title: Row(
           children: [
-            UserAvatar(imageBytes: Uint8List(0), isOnline: false),
+            UserAvatar(imageBytes: Uint8List(0), status: ClientStatus.offline),
             const SizedBox(width: 10),
             Text(S.current.chat_with(widget.chatSession.getMembers[0].username),
                 style: TextStyle(color: appColors.inferiorColor)),

@@ -57,7 +57,10 @@ class SettingsJson {
   bool _isJsonLoaded = false;
   late Map<String, dynamic> _settingsJson;
 
+  /// Loads Json Settings if not already loaded
   Future<void> loadSettingsJson() async {
+    if (_isJsonLoaded) return;
+    
     final path = await _getJsonSettingsFilePath();
     final file = File(path);
     if (!await file.exists()) {

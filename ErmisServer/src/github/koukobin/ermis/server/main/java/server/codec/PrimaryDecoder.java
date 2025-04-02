@@ -165,9 +165,9 @@ public final class PrimaryDecoder extends Decoder {
 			}
 
 			return maxLength;
-		case ENTRY:
+		case USER_ENTRY:
 			return SimpleDecoder.MAX_LENGTH; // Kinda shitty code but for now this will suffice
-		case COMMAND:
+		case USER_COMMAND:
 			return getMaxLengthForCommand(ctx, data);
 		default:
 			LOGGER.debug("Message type not implemented!");

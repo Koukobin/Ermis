@@ -62,6 +62,7 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.MessageIDGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.hashing.HashUtil;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.hashing.SimpleHash;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.ClientUpdate;
 
 /**
  * @author Ilias Koukovinis
@@ -1187,6 +1188,46 @@ public final class ErmisDatabase {
 			return members;
 		}
 		
+		public ClientUpdate[] getWhenChatSessionMembersProfilesWereLastUpdated(int chatSessionID) {
+			ClientUpdate[] members = {};
+
+			String query = """
+					SELECT up.client_id, up.last_updated_at
+					FROM user_profiles up
+					JOIN chat_session_members csm ON up.client_id = csm.member_id
+					WHERE csm.chat_session_id = ?;
+					""";
+			try (PreparedStatement pstmt = conn.prepareStatement(
+					query,
+					ResultSet.TYPE_SCROLL_SENSITIVE,
+					ResultSet.CONCUR_UPDATABLE /*
+												 * Pass these parameters so ResultSets can move forwards and backwards
+												 */)) {
+
+				pstmt.setInt(1, chatSessionID);
+				ResultSet rs = pstmt.executeQuery();
+
+				// Move to the last row to get the row count
+				rs.last();
+				int rowCount = rs.getRow(); // Get total rows
+				rs.beforeFirst();
+
+				members = new ClientUpdate[rowCount];
+
+				int i = 0;
+				while (rs.next()) {
+					int memberID = rs.getInt(1);
+					long lastUpdatedProfileAtEpochSecond = rs.getTimestamp(2).toInstant().getEpochSecond();
+					members[i] = new ClientUpdate(memberID, lastUpdatedProfileAtEpochSecond);
+					i++;
+				}
+			} catch (SQLException sqle) {
+				logger.error(Throwables.getStackTraceAsString(sqle));
+			}
+
+			return members;
+		}
+		
 		public Account[] getAccountsAssociatedWithDevice(InetAddress address) {
 
 			Account[] accounts = EmptyArrays.EMPTY_ACCOUNT_ARRAY;
@@ -1360,28 +1401,31 @@ public final class ErmisDatabase {
 			return resultUpdate;
 		}
 
-		public Optional<byte[]> selectUserIcon(int clientID) {
+		public Optional<UserIcon> selectUserIcon(int clientID) {
 
-			String sql = "SELECT profile_photo_id FROM user_profiles WHERE client_id = ?;";
+			String sql = "SELECT profile_photo_id, profile_photo_updated_at FROM user_profiles WHERE client_id = ?;";
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 				pstmt.setInt(1, clientID);
 
 				try (ResultSet rs = pstmt.executeQuery()) {
 					if (rs.next()) {
 						String iconID = rs.getString(1);
+						long lastUpdatedAtEpochSecond = rs.getTimestamp(2).toInstant().getEpochSecond();
 						if (iconID == null) {
-							return Optional.of(EmptyArrays.EMPTY_BYTE_ARRAY);
+							return Optional.of(new UserIcon(EmptyArrays.EMPTY_BYTE_ARRAY, lastUpdatedAtEpochSecond));
 						}
 
 						byte[] icon = FilesStorage.loadProfilePhoto(iconID);
-						return Optional.ofNullable(icon).or(() -> Optional.of(EmptyArrays.EMPTY_BYTE_ARRAY));
+						return Optional
+								.ofNullable(new UserIcon(icon, lastUpdatedAtEpochSecond))
+								.or(() -> Optional.of(new UserIcon(EmptyArrays.EMPTY_BYTE_ARRAY, lastUpdatedAtEpochSecond)));
 					}
 				}
 			} catch (SQLException sqle) {
 				logger.error("Error while trying to retrieve profile photo id from database", sqle); // Shouldn't happen
 			} catch (IOException ioe) {
 				logger.error("An error occured while trying to retrieve profile photo file", ioe);
-				return Optional.of(EmptyArrays.EMPTY_BYTE_ARRAY);
+				return Optional.empty();
 			}
 
 			return Optional.empty();

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import github.koukobin.ermis.common.ClientStatus;
 import io.netty.channel.Channel;
 import io.netty.channel.epoll.EpollSocketChannel;
 
@@ -34,20 +35,24 @@ public final class ClientInfo {
 	private String email;
 	private int clientID;
 	
+	private ClientStatus status;
+	
 	private List<ChatSession> chatSessions;
 	private List<Integer> chatRequestsClientIDS;
-	
+
 	private EpollSocketChannel channel;
 
 	public ClientInfo() {
 		chatSessions = new ArrayList<>();
 		chatRequestsClientIDS = new ArrayList<>();
+		status = ClientStatus.ONLINE; // For obvious reasons, by default is online
 	}
 
-	public ClientInfo(String username, String email, int clientID, List<ChatSession> chatSessions, List<Integer> chatRequests, EpollSocketChannel channel) {
+	public ClientInfo(String username, String email, int clientID, ClientStatus status, List<ChatSession> chatSessions, List<Integer> chatRequests, EpollSocketChannel channel) {
 		this.username = username;
 		this.email = email;
 		this.clientID = clientID;
+		this.status = status;
 		this.chatSessions = chatSessions;
 		this.chatRequestsClientIDS = chatRequests;
 		this.channel = channel;
@@ -65,6 +70,10 @@ public final class ClientInfo {
 		this.clientID = clientID;
 	}
 
+	public void setStatus(ClientStatus status) {
+		this.status = status;
+	}
+	
 	public void setChatSessions(List<ChatSession> chatSessions) {
 		this.chatSessions = chatSessions;
 	}
@@ -87,6 +96,10 @@ public final class ClientInfo {
 
 	public int getClientID() {
 		return clientID;
+	}
+	
+	public ClientStatus getStatus() {
+		return status;
 	}
 
 	public List<ChatSession> getChatSessions() {
@@ -114,14 +127,6 @@ public final class ClientInfo {
 		return Objects.hashCode(clientID);
 	}
 
-	public void clear() {
-		username = null;
-		email = null;
-		clientID = -1;
-		chatRequestsClientIDS = null;
-		chatSessions = null;
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -141,6 +146,7 @@ public final class ClientInfo {
 				&& Objects.equals(chatRequestsClientIDS, other.chatRequestsClientIDS)
 				&& Objects.equals(chatSessions, other.chatSessions) 
 				&& clientID == other.clientID
+				&& status.equals(other.status)
 				&& Objects.equals(email, other.email)
 				&& Objects.equals(username, other.username);
 	}

@@ -164,7 +164,7 @@ public abstract class MessageHandler implements AutoCloseable {
 			byte[] newUsernameBytes = newDisplayName.getBytes();
 
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.CHANGE_USERNAME.id);
 			payload.writeBytes(newUsernameBytes);
 
@@ -176,7 +176,7 @@ public abstract class MessageHandler implements AutoCloseable {
 			byte[] newPasswordBytes = newPassword.getBytes();
 
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.CHANGE_PASSWORD.id);
 			payload.writeBytes(newPasswordBytes);
 
@@ -186,7 +186,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void fetchUsername() throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_USERNAME.id);
 			
 			out.write(payload);
@@ -195,7 +195,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void fetchClientID() throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer(Integer.BYTES * 2);
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_CLIENT_ID.id);
 			
 			out.write(payload);
@@ -204,7 +204,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void fetchWrittenText(int chatSessionIndex) throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_WRITTEN_TEXT.id);
 			payload.writeInt(chatSessionIndex);
 			payload.writeInt(I.chatSessions.get(chatSessionIndex).getMessages().size() /* Amount of messages client already has */);
@@ -215,7 +215,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void fetchChatRequests() throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_CHAT_REQUESTS.id);
 
 			out.write(payload);
@@ -224,7 +224,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void fetchChatSessions() throws IOException {
 
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_CHAT_SESSIONS.id);
 
 			out.write(payload);
@@ -233,7 +233,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void requestDonationHTMLPage() throws IOException {
 
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.REQUEST_DONATION_PAGE_URL.id);
 			
 			out.write(payload);
@@ -242,7 +242,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void requestServerSourceCodeHTMLPage() throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.REQUEST_SOURCE_CODE_PAGE_URL.id);
 			
 			out.write(payload);
@@ -251,7 +251,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void sendChatRequest(int userClientID) throws IOException {
 
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.SEND_CHAT_REQUEST.id);
 			payload.writeInt(userClientID);
 			
@@ -261,7 +261,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void acceptChatRequest(int userClientID) throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.ACCEPT_CHAT_REQUEST.id);
 			payload.writeInt(userClientID);
 			
@@ -274,7 +274,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void declineChatRequest(int userClientID) throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.DECLINE_CHAT_REQUEST.id);
 			payload.writeInt(userClientID);
 			
@@ -286,7 +286,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void deleteChatSession(int chatSessionIndex) throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.DELETE_CHAT_SESSION.id);
 			payload.writeInt(chatSessionIndex);
 			
@@ -298,7 +298,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void deleteMessage(int chatSessionIndex, int messageID) throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.DELETE_CHAT_MESSAGE.id);
 			payload.writeInt(chatSessionIndex);
 			payload.writeInt(messageID);
@@ -309,7 +309,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void downloadFile(int messageID, int chatSessionIndex) throws IOException {
 
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.DOWNLOAD_FILE.id);
 			payload.writeInt(chatSessionIndex);
 			payload.writeInt(messageID);
@@ -320,7 +320,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void logout() throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.LOGOUT_THIS_DEVICE.id);
 			
 			out.write(payload);
@@ -328,7 +328,7 @@ public abstract class MessageHandler implements AutoCloseable {
 
 		public void addAccountIcon(File accountIcon) throws IOException {
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.SET_ACCOUNT_ICON.id);
 			payload.writeBytes(Files.toByteArray(accountIcon));
 			
@@ -338,7 +338,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		public void fetchAccountIcon() throws IOException {
 			
 			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.COMMAND.id);
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_ACCOUNT_ICON.id);		
 			out.write(payload);
 		}

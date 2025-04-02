@@ -13,39 +13,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.common.message_types;
+package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
-import github.koukobin.ermis.common.util.EnumIntConverter;
+import java.util.Objects;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public enum ClientMessageType {
-	CLIENT_CONTENT(0),
-	USER_ENTRY(1),
-	USER_COMMAND(2);
+public record ClientUpdate(int clientID, long lastUpdatedEpochSecond) {
 
-	private static final HashMap<Integer, ClientMessageType> values;
-	
-	static {
-		values = new HashMap<>(
-				Arrays.stream(ClientMessageType.values())
-				.collect(Collectors.toUnmodifiableMap(type -> type.id, type -> type))
-				);
+	@Override
+	public int hashCode() {
+		return Objects.hash(clientID);
 	}
-	
-    public final int id;
 
-    ClientMessageType(int id) {
-        this.id = id;
-    }
-
-	public static ClientMessageType fromId(int id) {
-		return EnumIntConverter.fromId(values, id);
-	}
 }

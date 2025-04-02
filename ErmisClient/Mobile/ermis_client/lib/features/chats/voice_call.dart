@@ -53,8 +53,8 @@ class VoiceCallHandler {
       _udpSocket.initialize(event.aesKey);
     
       NotificationService.showVoiceCallNotification(
-          icon: member.getIcon,
-          callerName: member.getUsername,
+          icon: member.icon.profilePhoto,
+          callerName: member.username,
           onAccept: () {
             navigateWithFade(
                 context,

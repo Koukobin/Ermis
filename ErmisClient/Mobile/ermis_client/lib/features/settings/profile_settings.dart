@@ -74,7 +74,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
     );
 
     // Start the animation
-    Future.delayed(Duration(milliseconds: 500), _controller.forward);
+    Future.delayed(const Duration(milliseconds: 500), _controller.forward);
   }
 
   @override
@@ -86,6 +86,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
         if (didPop) {
           return;
         }
+
         _controller.reverse().whenComplete(() {
           _controller.dispose();
           Navigator.pop(context);
@@ -94,8 +95,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: appColors.secondaryColor,
-        appBar: ErmisAppBar(
-            titleText: S.current.profile_settings),
+        appBar: ErmisAppBar(titleText: S.current.profile_settings),
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20.0),
           child: Column(

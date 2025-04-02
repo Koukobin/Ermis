@@ -20,20 +20,24 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import org.reflections.Reflections;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 
 import github.koukobin.ermis.common.Account;
+import github.koukobin.ermis.common.ClientStatus;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.UserDeviceInfo;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
@@ -46,6 +50,7 @@ import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.UserIcon;
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
@@ -69,7 +74,18 @@ import io.netty.channel.epoll.EpollSocketChannel;
 public final class CommandHandler extends AbstractChannelClientHandler {
 
 	private CompletableFuture<?> commandsToBeExecutedQueue;
-	
+
+	static {
+		System.out.println(CommandHandler.class.getPackage().toString());
+		Reflections reflections = new Reflections(CommandHandler.class.getPackage().toString());
+
+		Set<Class<? extends Object>> classes = reflections.getSubTypesOf(Object.class);
+
+		for (Class<?> clazz : classes) {
+			System.out.println(clazz.getName() + " implements MyInterface");
+		}
+	}
+
 	protected CommandHandler(ClientInfo clientInfo) {
 		super(clientInfo);
 		commandsToBeExecutedQueue = CompletableFuture.runAsync(() -> {
@@ -162,6 +178,17 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			payload.writeInt(result.id);
 			channel.writeAndFlush(payload);
 		}
+		case SET_ACCOUNT_STATUS -> {
+			ClientStatus newStatus = ClientStatus.fromId(args.readInt());
+			clientInfo.setStatus(newStatus);
+		}
+		case FETCH_ACCOUNT_STATUS -> {
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+			payload.writeInt(ClientCommandResultType.GET_ACCOUNT_STATUS.id);
+			payload.writeInt(clientInfo.getStatus().id);
+			channel.writeAndFlush(payload);
+		}
 		case DOWNLOAD_FILE, DOWNLOAD_IMAGE -> {
 
 			int chatSessionIndex = args.readInt();
@@ -169,7 +196,8 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			Optional<LoadedInMemoryFile> optionalFile;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				optionalFile = conn.getFile(messageID, clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID());
+				optionalFile = conn.getFile(messageID,
+						clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID());
 			}
 
 			optionalFile.ifPresentOrElse((LoadedInMemoryFile file) -> {
@@ -181,11 +209,13 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				switch (commandType) {
 				case DOWNLOAD_IMAGE -> {
 					payload.writeInt(ClientCommandResultType.DOWNLOAD_IMAGE.id);
-					payload.writeInt(messageID); // Include the message ID of the image so the client can add it to the correct message
+					payload.writeInt(messageID); // Include the message ID of the image so the client can add it to the
+													// correct message
 				}
 				case DOWNLOAD_FILE -> {
 					payload.writeInt(ClientCommandResultType.DOWNLOAD_FILE.id);
-					// Unlike with downloading images, there is no need to specify message id for file
+					// Unlike with downloading images, there is no need to specify message id for
+					// file
 					// downloads, since the client will save the file directly to the file system
 					// without needing to associate it to a specific message.
 				}
@@ -217,7 +247,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		case SEND_CHAT_REQUEST -> {
 			int receiverID = args.readInt();
 			int senderClientID = clientInfo.getClientID();
-			
+
 			// TODO: why does it not check if they are already friends?
 			if (receiverID == senderClientID) {
 				getLogger().debug("You can't create chat session with yourself");
@@ -252,7 +282,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 					optionalChatSessionID = conn.acceptChatRequest(receiverClientID, senderClientID);
 				}
 			}
-			
+
 			if (optionalChatSessionID.isEmpty()) {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
@@ -339,7 +369,8 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			int memberID = args.readInt();
 
-			// TODO: Add check here to ensure member is not already in session to minimize pressure on database
+			// TODO: Add check here to ensure member is not already in session to minimize
+			// pressure on database
 
 			if (!ActiveChatSessions.areMembersFriendOfUser(clientInfo, memberID)) {
 				return;
@@ -523,7 +554,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				if (!ci.getInetAddress().equals(address)) {
 					return;
 				}
-				
+
 				ci.getChannel().close();
 			});
 
@@ -656,16 +687,16 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		}
 		case FETCH_ACCOUNT_ICON -> {
 
-			Optional<byte[]> optionalIcon;
+			Optional<UserIcon> optionalIcon;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				optionalIcon = conn.selectUserIcon(clientInfo.getClientID());
 			}
 
-			optionalIcon.ifPresentOrElse((byte[] icon) -> {
+			optionalIcon.ifPresentOrElse((UserIcon icon) -> {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 				payload.writeInt(ClientCommandResultType.FETCH_ACCOUNT_ICON.id);
-				payload.writeBytes(icon);
+				payload.writeBytes(icon.iconBytes());
 				channel.writeAndFlush(payload);
 			}, () -> {
 				ByteBuf payload = channel.alloc().ioBuffer();
@@ -683,8 +714,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			UserMessage[] messages;
 
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				messages = conn.selectMessages(chatSessionID,
-						numOfMessagesAlreadySelected,
+				messages = conn.selectMessages(chatSessionID, numOfMessagesAlreadySelected,
 						ServerSettings.NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME,
 						clientInfo.getClientID());
 			}
@@ -762,67 +792,102 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			channel.writeAndFlush(payload);
 		}
+		case FETCH_CHAT_SESSION_INDICES -> {
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+			payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS_INDICES.id);
+
+			List<ChatSession> chatSessions = clientInfo.getChatSessions();
+			for (ChatSession chatSession : chatSessions) {
+				payload.writeInt(chatSession.getChatSessionID()); // Indices can be inferred by client
+			}
+			
+			channel.writeAndFlush(payload);
+		}
 		case FETCH_CHAT_SESSIONS -> {
 
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS.id);
 
-			List<ChatSession> chatSessions = clientInfo.getChatSessions();
+			Map<Integer, Integer> mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent = new HashMap<>();
+			
+			while (args.readableBytes() > 0) {
 
-			payload.writeInt(chatSessions.size());
-			if (!chatSessions.isEmpty()) {
-				for (int i = 0; i < chatSessions.size(); i++) {
+				int chatSessionIndex = args.readInt();
+				int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+				ClientUpdate[] members = new ClientUpdate[args.readInt()];
+				for (int j = 0; j < members.length; j++) {
+					members[j] = new ClientUpdate(args.readInt(), args.readInt());
+				}
 
-					ChatSession chatSession = chatSessions.get(i);
-					int chatSessionID = chatSession.getChatSessionID();
-					List<Integer> memberIDS = chatSession.getMembers();
+				ClientUpdate[] actualMembers;
+				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+					actualMembers = conn.getWhenChatSessionMembersProfilesWereLastUpdated(chatSessionID);
+				}
+				
+				// OPTIMIZATIONS
+				List<ClientUpdate> outdatedMembersInfo = Arrays.asList(actualMembers).stream()
+						.filter((ClientUpdate member) -> !Arrays.asList(members).contains(member)
+								&& clientInfo.getClientID() != member.clientID())
+						.toList();
+				List<Integer> memberIDS = outdatedMembersInfo.stream().map(ClientUpdate::clientID).toList();
 
-					payload.writeInt(chatSessionID);
+				if (memberIDS.isEmpty()) {
+					continue;
+				}
 
-					// The one that is subtracted is attributed to the user inquring this command
-					payload.writeInt(memberIDS.size() - 1);
-					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-						for (int j = 0; j < memberIDS.size(); j++) {
+				for (Integer memberID : memberIDS) {
+					mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent.putIfAbsent(memberID, 1);
+				}
 
-							int clientID = memberIDS.get(j);
+				payload.writeInt(chatSessionID);
+				payload.writeInt(memberIDS.size());
+				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+					for (int j = 0; j < memberIDS.size(); j++) {
 
-							boolean isActive;
-							List<ClientInfo> member = ActiveClients.getClient(clientID);
+						int clientID = memberIDS.get(j);
 
-							byte[] usernameBytes;
-							byte[] iconBytes = conn.selectUserIcon(clientID).orElse(EmptyArrays.EMPTY_BYTE_ARRAY);
+						payload.writeInt(clientID);
+						if (mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent.get(clientID) == 0) {
+							continue;
+						}
+						mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent.put(clientID, 0);
 
-							if (member == null) {
-								usernameBytes = conn.getUsername(clientID).orElse("null").getBytes();
-								isActive = false;
-							} else {
-								ClientInfo random = member.get(0);
-								if (clientInfo.getClientID() == random.getClientID()) {
-									continue;
-								}
+						ClientStatus clientStatus;
+						List<ClientInfo> member = ActiveClients.getClient(clientID);
 
-								usernameBytes = random.getUsername().getBytes();
-								isActive = true;
-							}
+						byte[] usernameBytes;
+						UserIcon icon = conn.selectUserIcon(clientID).orElse(UserIcon.empty());
+						byte[] iconBytes = icon.iconBytes();
 
-							payload.writeInt(clientID);
-							payload.writeBoolean(isActive);
-							payload.writeInt(usernameBytes.length);
-							payload.writeBytes(usernameBytes);
-							payload.writeInt(iconBytes.length);
-							payload.writeBytes(iconBytes);
+						if (member == null) {
+							usernameBytes = conn.getUsername(clientID).orElse("null").getBytes();
+							clientStatus = ClientStatus.OFFLINE;
+						} else {
+							ClientInfo random = member.get(0);
+							usernameBytes = random.getUsername().getBytes();
+							clientStatus = random.getStatus();
 						}
 
-					}
-
-					if (!chatSession.getActiveMembers().contains(clientInfo)) {
-						chatSession.getActiveMembers().add(clientInfo);
-						refreshChatSession(chatSession);
+						payload.writeInt(clientStatus.id);
+						payload.writeInt(usernameBytes.length);
+						payload.writeBytes(usernameBytes);
+						payload.writeInt(iconBytes.length);
+						payload.writeBytes(iconBytes);
+						payload.writeLong(icon.lastUpdatedEpochSecond());
 					}
 
 				}
+
+//				if (!chatSession.getActiveMembers().contains(clientInfo)) {
+//					chatSession.getActiveMembers().add(clientInfo);	
+//					refreshChatSession(chatSession);
+//				}
+
 			}
+
+			getLogger().debug("Payload size for member information: {}", payload.capacity());
 
 			channel.writeAndFlush(payload);
 		}
@@ -935,10 +1000,12 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 	}
 
 	/**
-	 * Executes a given action for every active device associated with the specified account/clientID.
+	 * Executes a given action for every active device associated with the specified
+	 * account/clientID.
 	 *
-	 * @param clientID the ID of the account whose active devices are to be processed
-	 * @param action the operation to perform on each active device
+	 * @param clientID the ID of the account whose active devices are to be
+	 *                 processed
+	 * @param action   the operation to perform on each active device
 	 */
 	private static void forActiveAccounts(int clientID, Consumer<ClientInfo> action) {
 		List<ClientInfo> activeClients = ActiveClients.getClient(clientID);

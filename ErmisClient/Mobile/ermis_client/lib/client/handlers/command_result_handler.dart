@@ -17,6 +17,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:ermis_client/client/handlers/chat_sessions_service.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/client/common/message_types/content_type.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
@@ -30,8 +31,10 @@ import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/file_heap.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/models/user_device.dart';
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import '../../core/event_bus/app_event_bus.dart';
 import '../../core/event_bus/event_bus.dart';
+import '../../core/models/member_icon.dart';
 
 final EventBus _eventBus = AppEventBus.instance;
 
@@ -64,36 +67,79 @@ class CommandResultHandler {
         Info.username = String.fromCharCodes(usernameBytes);
         _eventBus.fire(UsernameReceivedEvent(Info.username!));
         break;
-
       case ClientCommandResultType.getClientId:
         Info.clientID = msg.readInt32();
         _eventBus.fire(ClientIdEvent(Info.clientID));
         break;
-      case ClientCommandResultType.getChatSessions:
+      case ClientCommandResultType.fetchAccountStatus:
+        Info.accountStatus = ClientStatus.fromId(msg.readInt32());
+        _eventBus.fire(AccountStatusEvent(Info.accountStatus!));
+        break;
+      case ClientCommandResultType.getChatSessionIndices:
         Info.chatSessions = [];
 
-        int chatSessionsSize = msg.readInt32();
-        for (int i = 0; i < chatSessionsSize; i++) {
+        int i = 0;
+        while (msg.readableBytes > 0) {
           int chatSessionIndex = i;
           int chatSessionID = msg.readInt32();
 
-          ChatSession chatSession = ChatSession(chatSessionID, chatSessionIndex);
+          ChatSession? chatSession = Info.chatSessionIDSToChatSessions[chatSessionID];
+          if (chatSession == null) {
+            chatSession = ChatSession(chatSessionID, chatSessionIndex);
+            Info.chatSessionIDSToChatSessions[chatSessionID] = chatSession;
+          }
+          chatSession.chatSessionIndex = i;
+
+          Info.chatSessions!.add(chatSession);
+
+          i++;
+        }
+
+        _eventBus.fire(ChatSessionsIndicesReceivedEvent(Info.chatSessions!));
+        break;
+      case ClientCommandResultType.getChatSessions:
+        Map<int, Member> cache = {};
+
+        int i = 0;
+        while (msg.readableBytes > 0) {
+          int chatSessionID = msg.readInt32();
+          ChatSession chatSession = Info.chatSessionIDSToChatSessions[chatSessionID]!;
+          Set<Member> members = chatSession.getMembers.toSet();
 
           int membersSize = msg.readInt32();
-          List<Member> members = <Member>[];
           for (int j = 0; j < membersSize; j++) {
-            int memberClientID = msg.readInt32();
-            bool isActive = msg.readBoolean();
-            int usernameLength = msg.readInt32();
-            String username = utf8.decode(msg.readInt(usernameLength));
-            Uint8List iconBytes = msg.readInt(msg.readInt32());
+            int memberID = msg.readInt32();
 
-            members.add(Member(username, memberClientID, iconBytes, isActive));
+            Member member;
+            if (cache.containsKey(memberID)) {
+              member = cache[memberID]!;
+            } else {
+              ClientStatus status = ClientStatus.fromId(msg.readInt32());
+              int usernameLength = msg.readInt32();
+              String username = utf8.decode(msg.readInt(usernameLength));
+              Uint8List iconBytes = msg.readInt(msg.readInt32());
+              int iconLastUpdatedAt = msg.readInt64();
+
+              member = Member(
+                username,
+                memberID,
+                MemberIcon(iconBytes, iconLastUpdatedAt),
+                status,
+              );
+            }
+
+            members.add(member);
+            cache[memberID] = member;
           }
 
-          chatSession.setMembers(members);
-          Info.chatSessions?.insert(chatSessionIndex, chatSession);
-          Info.chatSessionIDSToChatSessions[chatSessionID] = chatSession;
+          chatSession.setMembers(members.toList());
+
+          ChatSessionService().insertChatSession(
+            server: Client.instance().serverInfo,
+            session: chatSession,
+          );
+
+          i++;
         }
         _eventBus.fire(ChatSessionsEvent(Info.chatSessions!));
         break;

@@ -14,8 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:typed_data';
-
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/languages/generated/l10n.dart';
@@ -72,10 +70,10 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
           onRefresh: _refreshContent,
           backgroundColor: Colors.transparent,
           color: appColors.primaryColor,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: _chatRequests!.isNotEmpty
-                ? ListView.separated(
+          child: _chatRequests!.isNotEmpty
+              ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: ListView.separated(
                     itemCount: _chatRequests!.length,
                     itemBuilder: (context, index) => buildChatRequestButton(index),
                     separatorBuilder: (context, index) => Divider(
@@ -83,44 +81,47 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
                       thickness: 1,
                       height: 16,
                     ),
-                  )
-                :
-                // Wrap in a list view to ensure it is scrollable for refresh indicator
-                ListView(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - 150, // Substract number to center
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(AppConstants.ermisMascotPath),
-                            const SizedBox(height: 15),
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                color: appColors.primaryColor,
-                                borderRadius: const BorderRadius.all(Radius.circular(24)),
-                                border: Border.all(
-                                  color: appColors.secondaryColor
-                                ),
-                              ),
-                              child: Text(
-                                S.current.no_chat_requests_available,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: appColors.secondaryColor,
-                                  fontSize: 16,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
                   ),
-          ),
+              )
+              :
+              // Wrap in a list view to ensure it is scrollable for refresh indicator
+              ListView(
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height - 150, // Substract number to center
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Image.asset(AppConstants.ermisMascotPath),
+                          ),
+                          const SizedBox(height: 15),
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.rectangle,
+                              color: appColors.primaryColor,
+                              borderRadius: const BorderRadius.all(Radius.circular(24)),
+                              border: Border.all(
+                                color: appColors.secondaryColor
+                              ),
+                            ),
+                            child: Text(
+                              S.current.no_chat_requests_available,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: appColors.secondaryColor,
+                                fontSize: 16,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
         ),
       ),
     );
@@ -149,10 +150,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            UserAvatar(
-              imageBytes: Uint8List.fromList(List.empty()),
-              isOnline: false,
-            ),
+            UserAvatar.empty(),
             const SizedBox(height: 5),
             Text(
               _chatRequests![index].toString(),

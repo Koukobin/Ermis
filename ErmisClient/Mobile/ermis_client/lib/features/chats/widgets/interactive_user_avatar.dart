@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'package:ermis_client/core/models/chat_session.dart';
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:flutter/foundation.dart';
@@ -26,7 +27,7 @@ List<Widget> _defaultAvatarClickedAction(BuildContext _, VoidCallback __) => con
 
 class InteractiveUserAvatar extends StatelessWidget {
   final Uint8List imageBytes;
-  final bool isOnline;
+  final ClientStatus status;
 
   final ChatSession chatSession;
 
@@ -40,9 +41,9 @@ class InteractiveUserAvatar extends StatelessWidget {
     required this.member,
     required this.chatSession,
     this.onAvatarClicked = _defaultAvatarClickedAction,
-  })  : imageBytes = member.getIcon,
-        isOnline = member.getIsActive,
-        avatarID = "avarar-hero-${chatSession.chatSessionID}-${member.getClientID}";
+  })  : imageBytes = member.icon.profilePhoto,
+        status = member.status,
+        avatarID = "avarar-hero-${chatSession.chatSessionID}-${member.clientID}";
 
   @override
   Widget build(BuildContext context) {
@@ -71,18 +72,27 @@ class InteractiveUserAvatar extends StatelessWidget {
             bottom: 0,
             left: 38,
             child: Container(
-              width: 12,
-              height: 12,
+              width: 14,
+              height: 14,
               decoration: BoxDecoration(
-                color: isOnline
-                    ? Colors.green
-                    : Colors.red, // Online or offline color
+                color: switch (status) {
+                  ClientStatus.online => Colors.green,
+                  ClientStatus.offline => Colors.red,
+                  ClientStatus.doNotDisturb => Colors.amber,
+                  ClientStatus.invisible => Colors.blueGrey,
+                },
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: appColors.secondaryColor, // Border to separate the indicator from the avatar
-                  width: 1,
+                  width: 2.5,
                 ),
               ),
+              // Do not disturb icon
+              // child: const Icon(
+              //         Icons.do_not_disturb_on_rounded,
+              //         color: Colors.red,
+              //         size: 13,
+              //       ),
             ),
           ),
         ],

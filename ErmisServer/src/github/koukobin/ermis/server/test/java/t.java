@@ -29,6 +29,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import github.koukobin.ermis.server.main.java.util.AESGCMCipher;
 import github.koukobin.ermis.server.main.java.util.AESKeyGenerator;
@@ -44,9 +50,14 @@ public class t {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		byte[] key = AESKeyGenerator.genereateRawSecretKey();
+		List<Integer> memberIDS = new ArrayList<>(Arrays.asList(5,6,7));
+		Map<Integer, Integer> a = memberIDS.stream().collect(Collectors.toMap(id -> id, id -> 1));
+		a.put(5, 0);
+		System.out.println(a.get(5));
+//		byte[] key = AESKeyGenerator.genereateRawSecretKey();
+//		
+//		System.out.println(new String(key, StandardCharsets.UTF_8));
 		
-		System.out.println(new String(key, StandardCharsets.UTF_8));
 //		prependWavHeader(
 //		        "/home/ilias/test.wav",  // Input raw PCM file
 //		        "/home/ilias/test2.wav"  // Output WAV file

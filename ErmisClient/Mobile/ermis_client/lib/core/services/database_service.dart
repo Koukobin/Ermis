@@ -17,8 +17,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ermis_client/core/models/chat_session.dart';
+import 'package:ermis_client/core/models/member_icon.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/client/common/message_types/content_type.dart';
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -55,56 +58,86 @@ class DBConnection {
     // Importing 'package:flutter/widgets.dart' is required." by flutter documentation
     // P.S. I don't know exactly why this is necessary, but the documentation said so
     WidgetsFlutterBinding.ensureInitialized();
-    return openDatabase(
+    Database db = await openDatabase(
         join(await getDatabasesPath(), 'ermis_sqlite_database_6.db'),
-        onCreate: (db, version) async {
-      // Create the 'servers' table
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS servers (
-          server_url TEXT NOT NULL,
-          last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (server_url)
-        );
-      ''');
+        onCreate: (db, version) async {},
+        version: 1);
 
-      // Create 'server_accounts' table
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS server_accounts (
-          server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
-          email TEXT NOT NULL,
-          password_hash TEXT NOT NULL,
-          last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (server_url, email)
-        );
-      ''');
+    // Create the 'servers' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS servers (
+        server_url TEXT NOT NULL,
+        last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (server_url)
+      );
+    ''');
 
-      // 'chat_sessions' table
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS chat_sessions (
-          server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
-          chat_session_id INTEGER NOT NULL,
-          PRIMARY KEY (server_url, chat_session_id)
-        );
-      ''');
-      // 'chat_messages' table
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS chat_messages (
-          server_url TEXT NOT NULL,
-          chat_session_id INTEGER NOT NULL,
-          message_id INTEGER NOT NULL,
-          client_id INTEGER NOT NULL,
-          text TEXT,
-          file_name TEXT,
-          file_content_id TEXT,
-          content_type INTEGER NOT NULL,
-          ts_entered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (server_url, chat_session_id, message_id),
-          CHECK (text IS NOT NULL OR file_content_id IS NOT NULL),
-          FOREIGN KEY (server_url, chat_session_id)
-              REFERENCES chat_sessions (server_url, chat_session_id) ON DELETE CASCADE
-        );
-      ''');
-    }, version: 1);
+    // Create 'server_accounts' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS server_accounts (
+        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+        email TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
+        last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (server_url, email)
+      );
+    ''');
+
+    // await db.execute('''
+    //   DROP TABLE chat_session_members;
+    // ''');
+
+    // 'chat_sessions' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS chat_sessions (
+        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+        chat_session_id INTEGER NOT NULL,
+        PRIMARY KEY (server_url, chat_session_id)
+      );
+    ''');
+
+    // 'chat_messages' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS chat_messages (
+        server_url TEXT NOT NULL,
+        chat_session_id INTEGER NOT NULL,
+        message_id INTEGER NOT NULL,
+        client_id INTEGER NOT NULL,
+        text TEXT,
+        file_name TEXT,
+        file_content_id TEXT,
+        content_type INTEGER NOT NULL,
+        ts_entered TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (server_url, chat_session_id, message_id),
+        CHECK (text IS NOT NULL OR file_content_id IS NOT NULL),
+        FOREIGN KEY (server_url, chat_session_id)
+            REFERENCES chat_sessions (server_url, chat_session_id) ON DELETE CASCADE
+      );
+    ''');
+
+    // 'members' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS members (
+        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+        display_name TEXT NOT NULL,
+        client_id INTEGER NOT NULL,
+        profile_photo BLOB NOT NULL,
+        profile_photo_updated_at TIMESTAMP NOT NULL,
+        PRIMARY KEY (server_url, client_id)
+      );
+    ''');
+
+    // 'chat_session_members' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS chat_session_members (
+        server_url TEXT NOT NULL REFERENCES members(server_url) ON DELETE CASCADE,
+        chat_session_id INTEGER NOT NULL REFERENCES chat_sessions (chat_session_id) ON DELETE CASCADE,
+        client_id INTEGER NOT NULL REFERENCES members (client_id),
+        PRIMARY KEY (server_url, chat_session_id, client_id)
+      );
+    ''');
+
+    return db;
   }
 
   Future<void> addUserAccount(LocalAccountInfo userAccount, ServerInfo serverInfo) async {
@@ -247,6 +280,166 @@ class DBConnection {
     return servers;
   }
 
+  Future<void> storeFriendInfo({
+    required ServerInfo serverInfo,
+    required Member member,
+  }) async {
+    final db = await _database;
+
+    await db.insert(
+      'members',
+      {
+        'server_url': serverInfo.toString(),
+        'display_name': member.username,
+        'client_id': member.clientID,
+        'profile_photo': member.icon.profilePhoto,
+        'profile_photo_updated_at': member.icon.lastUpdatedAtEpochSecond,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Member>> fetchFriendInfo({
+    required ServerInfo server,
+  }) async {
+    final db = await _database;
+
+    final List<Map<String, Object?>> membersMap = await db.query(
+      'members',
+      where: 'server_url = ?',
+      whereArgs: [server.toString()],
+    );
+
+    List<Member> members = membersMap.map((record) {
+      final String displayName = record['display_name'] as String;
+      final int clientID = record['client_id'] as int;
+      final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
+      final int lastUpdatedAtEpochSecond = record['profile_photo_updated_at'] as int;
+
+      return Member(
+        displayName,
+        clientID,
+        MemberIcon(profilePhoto, lastUpdatedAtEpochSecond),
+        ClientStatus.offline,
+      );
+    }).toList();
+
+    return members;
+  }
+
+  Future<List<int>> fetchChatSessions({
+    required ServerInfo server,
+  }) async {
+    final db = await _database;
+
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      '''
+    SELECT *
+    FROM chat_sessions
+    WHERE server_url = ?
+  ''',
+      [server.toString()],
+    );
+
+    List<int> members = results.map((Map<String, dynamic> record) {
+      final int sessionID = record['chat_session_id'] as int;
+      return sessionID;
+    }).toList();
+
+    return members;
+  }
+
+  Future<List<Member>> fetchMembersAssociatedWithChatSession({
+    required ServerInfo server,
+    required int chatSessionID,
+  }) async {
+    final db = await _database;
+
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      '''
+        SELECT m.*
+        FROM members m
+        JOIN chat_session_members csm 
+            ON m.server_url = csm.server_url 
+            AND m.client_id = csm.client_id
+        WHERE csm.chat_session_id = ? AND csm.server_url = ?;
+      ''',
+      [chatSessionID, server.toString()],
+    );
+
+    List<Member> members = results.map((Map<String, dynamic> record) {
+      final String displayName = record['display_name'] as String;
+      final int clientID = record['client_id'] as int;
+      final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
+      final int lastUpdatedAtEpochSecond = record['profile_photo_updated_at'] as int;
+
+      return Member(
+        displayName,
+        clientID,
+        MemberIcon(profilePhoto, lastUpdatedAtEpochSecond),
+        ClientStatus.offline,
+      );
+    }).toList();
+
+    return members;
+  }
+
+  Future<void> insertChatSessionMember({
+    required String serverUrl,
+    required int chatSessionId,
+    required int clientId,
+  }) async {
+    final db = await _database;
+
+    await db.insert(
+      'chat_session_members',
+      {
+        'server_url': serverUrl,
+        'chat_session_id': chatSessionId,
+        'client_id': clientId,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> insertChatSessionMembers({
+    required String serverUrl,
+    required int chatSessionId,
+    required List<int> memberIDs,
+  }) async {
+    for (int clientID in memberIDs) {
+      await insertChatSessionMember(serverUrl: serverUrl, chatSessionId: chatSessionId, clientId: clientID);
+    }
+  }
+
+  Future<void> insertMembers({
+    required String serverUrl,
+    required List<Member> members,
+  }) async {
+    for (Member member in members) {
+      await insertMember(serverUrl: serverUrl, member: member);
+    }
+  }
+
+  Future<void> insertMember({
+    required String serverUrl,
+    required Member member,
+  }) async {
+    final db = await _database;
+
+    await db.insert(
+      'members',
+      {
+        'server_url': serverUrl,
+        'display_name': member.username,
+        'client_id': member.clientID,
+        'profile_photo': member.icon.profilePhoto,
+        'profile_photo_updated_at': member.icon.lastUpdatedAtEpochSecond,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
   Future<void> insertChatSession(String serverUrl, int chatSessionId) async {
     final db = await _database;
 
@@ -255,8 +448,6 @@ class DBConnection {
       {
         'server_url': serverUrl,
         'chat_session_id': chatSessionId,
-        'created_at':
-            DateTime.now().toIso8601String(), // Optional: Override default
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -328,7 +519,7 @@ class DBConnection {
       final int clientID = record['client_id'] as int;
       final int messageID = record['client_id'] as int;
       final String timeWritten = record['ts_entered'] as String;
-      final MessageContentType contentType =MessageContentType.fromId(record['content_type'] as int);
+      final MessageContentType contentType = MessageContentType.fromId(record['content_type'] as int);
       final String? text = record['text'] as String?;
       final String? fileName = record['text'] as String?;
 

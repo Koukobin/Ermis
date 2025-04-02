@@ -50,7 +50,7 @@ public final class DispatcherHandler extends ChannelInboundHandlerAdapter {
 		case CLIENT_CONTENT -> {
 			ctx.fireChannelRead(msg); // Fires the next handler in the pipeline i.e the MessageHandler
 		}
-		case ENTRY -> {
+		case USER_ENTRY -> {
 			ChannelHandlerContext handler = ctx.pipeline().context(CommandHandler.class);
 
 			// If EntryHandler is not found, fallback to StartingEntryHandler
@@ -68,7 +68,7 @@ public final class DispatcherHandler extends ChannelInboundHandlerAdapter {
 
 			handler.fireChannelRead(msg);
 		}
-		case COMMAND -> {
+		case USER_COMMAND -> {
 			ctx.pipeline().context(MessageHandler.class).fireChannelRead(msg);
 		}
 		default -> {

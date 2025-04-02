@@ -16,18 +16,21 @@
 
 import 'dart:typed_data';
 
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class UserAvatar extends StatelessWidget {
   final Uint8List imageBytes;
-  final bool isOnline;
+  final ClientStatus status;
 
   const UserAvatar({
     super.key,
     required this.imageBytes,
-    required this.isOnline,
+    required this.status,
   });
+
+  UserAvatar.empty({super.key}) : imageBytes = Uint8List(0), status = ClientStatus.offline;
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +56,12 @@ class UserAvatar extends StatelessWidget {
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: isOnline
-                  ? Colors.green
-                  : Colors.red, // Online or offline color
+              color: switch (status) {
+                ClientStatus.online => Colors.green,
+                ClientStatus.offline => Colors.red,
+                ClientStatus.doNotDisturb => Colors.amber,
+                ClientStatus.invisible => Colors.blueGrey,
+              },
               shape: BoxShape.circle,
               border: Border.all(
                 color: appColors

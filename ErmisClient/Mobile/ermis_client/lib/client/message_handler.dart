@@ -15,11 +15,12 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:ermis_client/client/handlers/chat_sessions_service.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import 'package:flutter/foundation.dart';
 
 import '../core/data_sources/api_client.dart';
@@ -32,13 +33,13 @@ import '../core/event_bus/event_bus.dart';
 import 'io/byte_buf.dart';
 import '../core/models/chat_request.dart';
 import '../core/models/chat_session.dart';
-import 'io/input_stream.dart';
 import '../core/models/message.dart';
 import 'io/output_stream.dart';
 
 class Info {
   static String? username;
   static int clientID = -1;
+  static ClientStatus? accountStatus;
   static Uint8List? profilePhoto;
   static final List<UserDeviceInfo> userDevices = [];
 
@@ -52,9 +53,7 @@ class Info {
 }
 
 class MessageHandler {
-  late final ByteBufInputStream _inputStream;
   late final ByteBufOutputStream _outputStream;
-  late final Socket _socket;
 
   bool _isClientListeningToMessages = false;
 
@@ -63,17 +62,9 @@ class MessageHandler {
 
   MessageHandler();
 
-  void setByteBufInputStream(ByteBufInputStream inputStream) {
-    _inputStream = inputStream;
-  }
-
   void setByteBufOutputStream(ByteBufOutputStream outputStream) {
     _outputStream = outputStream;
     _commands = Commands(_outputStream);
-  }
-
-  void setSocket(Socket secureSocket) {
-    _socket = secureSocket;
   }
 
   Message sendMessageToClient(String text, int chatSessionIndex) {
@@ -177,7 +168,11 @@ class MessageHandler {
   Future<void> fetchUserInformation() async {
     commands.fetchUsername();
     commands.fetchClientID();
-    commands.fetchChatSessions();
+    commands.fetchAccountStatus();
+    commands.fetchChatSessionIndices();
+    AppEventBus.instance.on<ChatSessionsIndicesReceivedEvent>().first.then((ChatSessionsIndicesReceivedEvent msg) {
+      commands.fetchChatSessions();
+    });
     commands.fetchChatRequests();
     commands.fetchDevices();
     commands.fetchAccountIcon();
@@ -185,11 +180,12 @@ class MessageHandler {
 
     // Block until requested information has been fetched
     await Future.doWhile(() async {
-      return await Future.delayed(Duration(milliseconds: 100), () {
+      return await Future.delayed(const Duration(milliseconds: 100), () {
         return (username == null ||
             Info.profilePhoto == null ||
             chatRequests == null ||
-            chatSessions == null);
+            chatSessions == null ||
+            Info.accountStatus == null);
       });
     });
   }
@@ -219,7 +215,7 @@ class MessageHandler {
 class Commands {
   final ByteBufOutputStream out;
 
-  Commands(this.out);
+  const Commands(this.out);
 
   /// This method is unused for the time being since I am too lazy to refactor.
   /// In addition, while it could reduce boilerplate code, it may also potentially
@@ -257,6 +253,15 @@ class Commands {
     out.write(payload);
   }
 
+  void setAccountStatus(ClientStatus status) {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.setAccountStatus.id);
+    payload.writeInt32(status.id);
+
+    out.write(payload);
+  }
+
   void fetchUsername() {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
@@ -269,6 +274,14 @@ class Commands {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchClientId.id);
+
+    out.write(payload);
+  }
+
+  void fetchAccountStatus() {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchAccountStatus.id);
 
     out.write(payload);
   }
@@ -304,10 +317,46 @@ class Commands {
     out.write(payload);
   }
 
-  void fetchChatSessions() {
+  Future<void> fetchChatSessionIndices() async {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchChatSessionIndices.id);
+
+    List<int> sessions = await ChatSessionService().fetchChatSessions(server: Client.instance().serverInfo);
+    for (int sessionID in sessions) {
+
+      List<Member> members = await ChatSessionService().fetchMembersAssociatedWithChatSession(
+        server: Client.instance().serverInfo,
+        chatSessionID: sessionID,
+      );
+
+      ChatSession chatSession = ChatSession(sessionID, -1);
+      chatSession.setMembers(members);
+
+      Info.chatSessionIDSToChatSessions[sessionID] = chatSession;
+    }
+
+    out.write(payload);
+  }
+
+  void fetchChatSessions() async {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchChatSessions.id);
+
+    List<ChatSession> sessions = Info.chatSessionIDSToChatSessions.values.toList();
+
+    for (ChatSession session in sessions) {
+      payload.writeInt32(session.chatSessionIndex);
+
+      List<Member> members = session.getMembers;
+
+      payload.writeInt32(members.length);
+      for (Member member in members) {
+        payload.writeInt32(member.clientID);
+        payload.writeInt32(member.icon.lastUpdatedAtEpochSecond);
+      }
+    }
 
     out.write(payload);
   }

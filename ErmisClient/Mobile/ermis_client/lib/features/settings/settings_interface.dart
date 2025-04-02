@@ -18,6 +18,7 @@ import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/features/settings/account_settings.dart';
 import 'package:ermis_client/features/settings/notification_settings.dart';
+import 'package:ermis_client/features/settings/privacy_settings.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/services/locale_provider.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
@@ -78,13 +79,21 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ))),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.lock),
+              leading: const Icon(Icons.key),
               title: Text(S.current.account),
               subtitle: Text(S.current.privacy_security_change_number),
               onTap: () {
                 pushSlideTransition(context, const AccountSettings());
               },
             ),
+            // ListTile(
+            //   leading: const Icon(Icons.lock),
+            //   title: Text("S.current.account"),
+            //   subtitle: Text("S.current.privacy_security_change_number"),
+            //   onTap: () {
+            //     pushSlideTransition(context, const PrivacySettingsPage());
+            //   },
+            // ),
             ListTile(
               leading: const Icon(Icons.chat),
               title: Text(S.current.chats),

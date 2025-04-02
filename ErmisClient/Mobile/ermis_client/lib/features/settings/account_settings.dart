@@ -31,7 +31,9 @@ import '../../core/util/top_app_bar_utils.dart';
 import '../authentication/register_interface.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
 
-List<Account> _accounts = Client.instance().otherAccounts ?? [];
+List<Account> get _accounts {
+  return Client.instance().otherAccounts ?? [];
+}
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -39,7 +41,7 @@ class AccountSettings extends StatefulWidget {
   @override
   State<AccountSettings> createState() => _AccountSettingsState();
 
-  static Future showOtherAccounts(BuildContext context) async {
+  static Future<void> showOtherAccounts(BuildContext context) async {
     return await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -121,7 +123,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     AppEventBus.instance.on<OtherAccountsEvent>().listen((event) async {
       if (!mounted) return;
       setState(() {
-        _accounts = event.accounts;
+        // _accounts will be automatically updated
       });
     });
   }
@@ -198,7 +200,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
 
                 // Display the warning text about account deletion
                 Text(S.current.account_delete_confirmation,
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
                         fontSize: 16))
@@ -219,7 +221,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
             // Text
             Text(
               S.current.account_confirm_proceed,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: Colors.red,
@@ -236,7 +238,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: S.current.email_address,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
             ),
 
@@ -249,7 +251,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
               keyboardType: TextInputType.visiblePassword,
               decoration: InputDecoration(
                 labelText: S.current.password,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
             ),
 
@@ -267,7 +269,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
               ),
               child: Text(
                 S.current.account_delete,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -279,18 +281,16 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
   Widget buildBullet(String text) {
     return Row(
       children: [
-        SizedBox(width: 45),
-        Icon(Icons.circle,
-            size: 10, color: Colors.grey), // Larger, styled icon
-        SizedBox(width: 8),
+        const SizedBox(width: 45),
+        const Icon(Icons.circle, size: 10, color: Colors.grey),
+        const SizedBox(width: 8),
         Flexible(
           child: Text(
             text,
             softWrap: true,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
-              fontWeight:
-                  FontWeight.w500,
+              fontWeight: FontWeight.w500,
               color: Colors.grey,
               fontFamily: 'Roboto',
             ),
@@ -305,6 +305,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final TextEditingController displayNameController = TextEditingController();
     displayNameController.text = Client.instance().displayName!;
+
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -324,9 +325,9 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
             children: [
               Text(
                 S.current.name_enter,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 children: [
                   Flexible(
@@ -348,7 +349,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                   )),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -363,7 +364,6 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
                       },
                       child: Text(
                         S.current.save,
-                        style: TextStyle(),
                       ))
                 ],
               ),

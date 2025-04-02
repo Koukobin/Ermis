@@ -30,6 +30,7 @@ class AppConstants {
   static const String appIconPath = 'assets/primary_application_icon.png';
   static const String parthenonasPath = 'assets/background/parthenon.jpg';
   static const String ermisMascotPath = 'assets/ermis/ermis_mascot.png';
+  static const String ermisCryingPath = 'assets/ermis/crying-ermis.png';
   static const String sourceCodeURL = "https://github.com/Koukobin/Ermis";
   static const String licenceURL = "$sourceCodeURL/wiki/License";
   static const String licencePath = "assets/LICENCE.txt";

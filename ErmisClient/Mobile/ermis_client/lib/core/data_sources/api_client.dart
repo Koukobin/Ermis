@@ -89,8 +89,6 @@ class Client {
       _outputStream = ByteBufOutputStream(socket: _sslSocket!);
 
       _messageHandler = MessageHandler();
-      _messageHandler.setSocket(_sslSocket!);
-      _messageHandler.setByteBufInputStream(_inputStream!);
       _messageHandler.setByteBufOutputStream(_outputStream!);
     } on HandshakeException {
       if (scv == ServerCertificateVerification.verify) {

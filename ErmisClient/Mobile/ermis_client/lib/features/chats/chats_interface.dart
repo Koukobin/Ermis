@@ -31,6 +31,7 @@ import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../core/util/transitions_util.dart';
+import '../../core/widgets/scroll/custom_scroll_view.dart';
 import '../messaging/presentation/choose_friends_screen.dart';
 import '../splash_screen/splash_screen.dart';
 import '../messaging/presentation/messaging_interface.dart';
@@ -373,54 +374,58 @@ class ChatsState extends TempState<Chats> {
             appBar: appBar,
             backgroundColor: appColors.secondaryColor,
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Position at the bottom right
-            floatingActionButton: SendChatRequestButton(),
-            body: RefreshIndicator(
-              // if user scrolls downwards refresh chat requests
-              onRefresh: _refreshContent,
-              child: _conversations!.isNotEmpty
-                  ? ListView.separated(
-                      itemCount: _conversations!.length,
-                      itemBuilder: (context, index) => buildChatButton(index),
-                      separatorBuilder: (context, index) => Divider(
-                        color: appColors.primaryColor.withAlpha(0),
-                        thickness: 1,
-                        height: 10,
-                      ),
-                    )
-                  : // Wrap in a list view to ensure it is scrollable for refresh indicator
-                  ListView(
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height - 150,
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(AppConstants.ermisMascotPath),
-                              const SizedBox(height: 15),
-                              Container(
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.rectangle,
-                                  color: appColors.primaryColor,
-                                  borderRadius: const BorderRadius.all(Radius.circular(24)),
-                                  border: Border.all(color: appColors.secondaryColor),
+            floatingActionButton: const SendChatRequestButton(),
+            body: ScrollViewFixer.createScrollViewWithAppBarSafety(
+              scrollView: RefreshIndicator(
+                // if user scrolls downwards refresh chat requests
+                onRefresh: _refreshContent,
+                child: _conversations!.isNotEmpty
+                    ? ListView.separated(
+                        itemCount: _conversations!.length,
+                        itemBuilder: (context, index) => buildChatButton(index),
+                        separatorBuilder: (context, index) => const Divider(
+                          color: Colors.transparent,
+                          height: 10,
+                        ),
+                      )
+                    : // Wrap in a list view to ensure it is scrollable for refresh indicator
+                    ListView(
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height - 150,
+                            width: MediaQuery.of(context).size.width,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 96.0),
+                                  child: Image.asset(AppConstants.ermisCryingPath),
                                 ),
-                                child: Text(
-                                  S.current.no_conversations_available,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: appColors.secondaryColor,
-                                    fontSize: 16,
-                                    fontStyle: FontStyle.italic,
+                                const SizedBox(height: 15),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    color: appColors.primaryColor,
+                                    borderRadius: const BorderRadius.all(Radius.circular(24)),
+                                    border: Border.all(color: appColors.secondaryColor),
                                   ),
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
+                                  child: Text(
+                                    S.current.no_conversations_available,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: appColors.secondaryColor,
+                                      fontSize: 16,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+              ),
             ),
           );
         });
@@ -603,10 +608,10 @@ class _SendChatRequestButtonState extends State<SendChatRequestButton> {
 
   @override
   Widget build(BuildContext context) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
     return VisibilityDetector(
-      key: Key('send-chat-request-button'),
+      key: const Key('send-chat-request-button'),
       onVisibilityChanged: (VisibilityInfo info) {
+        if (!mounted) return;
         if (info.visibleFraction > 0) {
           setState(() {
             _widgetOpacity = 1.0;
