@@ -141,6 +141,7 @@ flutter:
     - assets/LICENCE.txt
     - assets/sounds/ermis_notification.wav
     - assets/ermis/ermis_mascot.png
+    - assets/ermis/crying-ermis.png
     - assets/background/parthenon.jpg
 
   # The following line ensures that the Material Icons font is
