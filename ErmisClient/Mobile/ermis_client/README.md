@@ -23,7 +23,7 @@
 Before building installer for a specific platform such as.
     * ```flutter build apk --release```
     * ```flutter build ios --release```
-First run build.sh to create built correctly
+First execute ```./build.sh``` to ensure built is updated correctly
 
 ## Contributing
 
