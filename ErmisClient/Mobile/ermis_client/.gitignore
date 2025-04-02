@@ -45,4 +45,4 @@ app.*.map.json
 /android/app/release
 
 # Automatically generated dart language files
-/opt/flutter-apps/ermis_client/lib/languages/generated
+lib/languages/generated
