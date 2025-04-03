@@ -29,7 +29,7 @@ class VoiceCallHandler {
     int mansPort = msg.readInt32();
     int chatSessionID = msg.readInt32();
     int clientID = msg.readInt32();
-    Uint8List aesKey = msg.readInt(msg.readableBytes);
+    Uint8List aesKey = msg.readBytes(msg.readableBytes);
 
     ChatSession session = Info.chatSessionIDSToChatSessions[chatSessionID]!;
 

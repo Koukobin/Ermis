@@ -179,7 +179,7 @@
   "error_occurred_while_trying_to_send_chat_request": "An error occurred while attempting to send the chat request.",
   "error_occurred_while_trying_to_fetch_file_from_database": "An error occurred while attempting to retrieve the file from the database.",
   "message_type_not_recognized": "The message type received was not recognized.",
-
+  
   "new_message": "New message!",
   "file_received": "File received {fileName}",
   "message_by": "Message by {username}",
@@ -209,7 +209,7 @@
 
   "are_you_sure_you_want_to_logout_from": "Are you sure you want to logout from {deviceInfo}?",
   "no_chat_requests_available": "No pending chat requests",
-  "no_conversations_available": "No conversations available",
+  "no_conversations_available": "Ermis has no friends...",
   "no_chats_available_incompatible_server_version": "No chats available, incompatible server version",
   "accept": "Accept",
   "decline": "Decline",

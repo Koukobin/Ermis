@@ -31,8 +31,8 @@ import '../../core/util/top_app_bar_utils.dart';
 import '../authentication/register_interface.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
 
-List<Account> get _accounts {
-  return Client.instance().otherAccounts ?? [];
+List<Account>? get _accounts {
+  return Client.instance().otherAccounts;
 }
 
 class AccountSettings extends StatefulWidget {
@@ -42,6 +42,13 @@ class AccountSettings extends StatefulWidget {
   State<AccountSettings> createState() => _AccountSettingsState();
 
   static Future<void> showOtherAccounts(BuildContext context) async {
+
+    // Await until other accounts are fetched
+    if (_accounts == null) {
+      Client.instance().commands.fetchOtherAccountsAssociatedWithDevice();
+      await AppEventBus.instance.on<OtherAccountsEvent>().first;
+    }
+
     return await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -66,7 +73,7 @@ class AccountSettings extends StatefulWidget {
                 title: Text(Client.instance().displayName!, style: TextStyle(fontSize: 18)),
                 trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
               ),
-              for (final Account account in _accounts)
+              for (final Account account in _accounts!)
                 ListTile(
                   leading: UserProfilePhoto(profileBytes: account.profilePhoto),
                   title: Text(account.name(), style: TextStyle(fontSize: 18)),

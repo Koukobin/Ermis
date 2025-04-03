@@ -24,12 +24,12 @@ class LanguageSettingsPage {
               appBar: AppBar(
                 leading: IconButton(
                   onPressed: Navigator.of(context).pop,
-                  icon: Icon(CupertinoIcons.xmark),
+                  icon: const Icon(CupertinoIcons.xmark),
                   color: Colors.grey,
                 ),
                 title: Text(
                   S.current.app_language,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -37,7 +37,6 @@ class LanguageSettingsPage {
               body: ScrollViewFixer.createScrollViewWithAppBarSafety(
                 scrollView: ListView(
                   children: [
-
                     RadioListTile<Locale>(
                       title: Text(AppConstants.languageNames["el"]!),
                       value: const Locale('el', 'GR'),
@@ -48,7 +47,7 @@ class LanguageSettingsPage {
                           localeProvider.setLocale(value);
 
                           SettingsJson json = SettingsJson();
-                          json.setLocale(const Locale('el', 'GR'));
+                          json.setLocale(value);
                           json.saveSettingsJson();
                         });
                       },
@@ -64,7 +63,7 @@ class LanguageSettingsPage {
                           localeProvider.setLocale(value);
 
                           SettingsJson json = SettingsJson();
-                          json.setLocale(const Locale('gcr'));
+                          json.setLocale(value);
                           json.saveSettingsJson();
                         });
                       },

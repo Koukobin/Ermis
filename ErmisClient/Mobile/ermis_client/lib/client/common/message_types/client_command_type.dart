@@ -32,17 +32,19 @@ enum ClientCommandType {
 	switchAccount(CommandLevel.heavy, 109),
 
   // User Information Requests
-  fetchUsername(CommandLevel.light, 200),
-  fetchClientId(CommandLevel.light, 201),
-  fetchAccountStatus(CommandLevel.light, 202),
-  fetchUserDevices(CommandLevel.heavy, 203),
-  fetchAccountIcon(CommandLevel.heavy, 204),
-  fetchOtherAccountsAssociatedWithDevice(CommandLevel.heavy, 205),
+  fetchProfileInformation(CommandLevel.heavy, 200),
+  fetchUsername(CommandLevel.light, 201),
+  fetchClientId(CommandLevel.light, 202),
+  fetchAccountStatus(CommandLevel.light, 203),
+  fetchUserDevices(CommandLevel.heavy, 204),
+  fetchAccountIcon(CommandLevel.heavy, 205),
+  fetchOtherAccountsAssociatedWithDevice(CommandLevel.heavy, 206),
 
   // Chat Management
   fetchChatRequests(CommandLevel.light, 300),
   fetchChatSessionIndices(CommandLevel.light, 301),
   fetchChatSessions(CommandLevel.light, 314),
+  fetchChatSessionStatuses(CommandLevel.light, 315),
   sendChatRequest(CommandLevel.heavy, 302),
   acceptChatRequest(CommandLevel.heavy, 303),
   declineChatRequest(CommandLevel.heavy, 304),

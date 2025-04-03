@@ -15,12 +15,12 @@ final class CustomDateFormatter {
     try {
       final formatter = DateFormat(newPattern); // Uses default locale by default
       return formatter.format(date);
-    } on ArgumentError catch (e) {
+    } catch (e) {
       debugPrint('Error formatting date: $e');
       try {
         final formatter = DateFormat(newPattern, 'en_US'); // In case of failure, fallback to English (US)
         return formatter.format(date);
-      } on ArgumentError catch (e2) {
+      } catch (e2) {
         debugPrint('Error formatting date in fallback: $e2');
         return "Invalid Date";
       }

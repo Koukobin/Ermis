@@ -1431,6 +1431,26 @@ public final class ErmisDatabase {
 			return Optional.empty();
 		}
 
+		public Optional<Long> getWhenUserLastUpdatedProfile(int clientID) {
+
+			String sql = "SELECT last_updated_at FROM user_profiles WHERE client_id = ?";
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setInt(1, clientID);
+
+				try (ResultSet rs = pstmt.executeQuery()) {
+					if (rs.next()) {
+						long lastUpdatedEpochSecond = rs.getTimestamp(1).toInstant().getEpochSecond();
+						return Optional.of(lastUpdatedEpochSecond);
+					}
+				}
+			} catch (SQLException sqle) {
+				// Shouldn't happen
+				logger.error("Error while fetching last profile update of user %d".formatted(clientID), sqle);
+			}
+
+			return Optional.empty();
+		}
+
 		public Optional<LoadedInMemoryFile> getFile(int messageID, int chatSessionID) {
 
 			LoadedInMemoryFile file = null;

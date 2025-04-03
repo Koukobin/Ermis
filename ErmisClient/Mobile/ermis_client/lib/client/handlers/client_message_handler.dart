@@ -40,16 +40,16 @@ class ClientMessageHandler {
     switch (contentType) {
       case MessageContentType.text:
         var textLength = msg.readInt32();
-        text = msg.readInt(textLength);
+        text = msg.readBytes(textLength);
         break;
       case MessageContentType.file || MessageContentType.image:
         var fileNameLength = msg.readInt32();
-        fileNameBytes = msg.readInt(fileNameLength);
+        fileNameBytes = msg.readBytes(fileNameLength);
         break;
     }
 
     int usernameLength = msg.readInt32();
-    Uint8List usernameBytes = msg.readInt(usernameLength);
+    Uint8List usernameBytes = msg.readBytes(usernameLength);
     String username = utf8.decode(usernameBytes);
 
     int clientID = msg.readInt32();

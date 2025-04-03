@@ -23,6 +23,7 @@ import 'package:ermis_client/client/common/message_types/content_type.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/client/common/results/client_command_result_type.dart';
 import 'package:ermis_client/client/io/byte_buf.dart';
+import 'package:ermis_client/core/extensions/iterable_extensions.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/client/message_handler.dart';
 import 'package:ermis_client/core/models/account.dart';
@@ -45,8 +46,8 @@ class CommandResultHandler {
     switch (commandResult) {
       case ClientCommandResultType.downloadFile:
         final fileNameLength = msg.readInt32();
-        final fileNameBytes = msg.readInt(fileNameLength);
-        final fileBytes = msg.readInt(msg.readableBytes);
+        final fileNameBytes = msg.readBytes(fileNameLength);
+        final fileBytes = msg.readBytes(msg.readableBytes);
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
@@ -55,16 +56,30 @@ class CommandResultHandler {
       case ClientCommandResultType.downloadImage:
         final messageID = msg.readInt32();
         final fileNameLength = msg.readInt32();
-        final fileNameBytes = msg.readInt(fileNameLength);
-        final fileBytes = msg.readInt(msg.readableBytes);
+        final fileNameBytes = msg.readBytes(fileNameLength);
+        final fileBytes = msg.readBytes(msg.readableBytes);
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
         _eventBus.fire(ImageDownloadedEvent(file, messageID));
         break;
+      case ClientCommandResultType.fetchProfileInfo:
+        // ClientID
+        Info.clientID = msg.readInt32();
+        _eventBus.fire(ClientIdEvent(Info.clientID));
+
+        // Username
+        final usernameBytes = msg.readBytes(msg.readInt32());
+        Info.username = utf8.decode(usernameBytes);
+        _eventBus.fire(UsernameReceivedEvent(Info.username!));
+
+        // Profile photo
+        Info.profilePhoto = msg.readBytes(msg.readableBytes);
+        _eventBus.fire(ProfilePhotoEvent(Info.profilePhoto!));
+        break;
       case ClientCommandResultType.getDisplayName:
-        var usernameBytes = msg.readInt(msg.readableBytes);
-        Info.username = String.fromCharCodes(usernameBytes);
+        final usernameBytes = msg.readBytes(msg.readableBytes);
+        Info.username = utf8.decode(usernameBytes);
         _eventBus.fire(UsernameReceivedEvent(Info.username!));
         break;
       case ClientCommandResultType.getClientId:
@@ -114,17 +129,16 @@ class CommandResultHandler {
             if (cache.containsKey(memberID)) {
               member = cache[memberID]!;
             } else {
-              ClientStatus status = ClientStatus.fromId(msg.readInt32());
               int usernameLength = msg.readInt32();
-              String username = utf8.decode(msg.readInt(usernameLength));
-              Uint8List iconBytes = msg.readInt(msg.readInt32());
+              String username = utf8.decode(msg.readBytes(usernameLength));
+              Uint8List iconBytes = msg.readBytes(msg.readInt32());
               int iconLastUpdatedAt = msg.readInt64();
 
               member = Member(
                 username,
                 memberID,
                 MemberIcon(iconBytes, iconLastUpdatedAt),
-                status,
+                ClientStatus.offline
               );
             }
 
@@ -134,7 +148,7 @@ class CommandResultHandler {
 
           chatSession.setMembers(members.toList());
 
-          ChatSessionService().insertChatSession(
+          IntermediaryService().insertChatSession(
             server: Client.instance().serverInfo,
             session: chatSession,
           );
@@ -142,6 +156,22 @@ class CommandResultHandler {
           i++;
         }
         _eventBus.fire(ChatSessionsEvent(Info.chatSessions!));
+        break;
+      case ClientCommandResultType.getChatSessionStatuses:
+        while (msg.readableBytes > 0) {
+          int clientID = msg.readInt32();
+          ClientStatus status = ClientStatus.fromId(msg.readInt32());  
+          
+          for (final session in Info.chatSessions!) {
+            Member? member = session.getMembers.firstWhereOrNull((m) => m.clientID == clientID);
+
+            if (member == null) continue;
+            member.status = status;
+
+            break; // Since all chat sessions share identical Member objects, only need to update one
+          }
+        }
+        
         break;
       case ClientCommandResultType.getChatRequests:
         Info.chatRequests = [];
@@ -157,9 +187,9 @@ class CommandResultHandler {
 
         while (msg.readableBytes > 0) {
           int clientID = msg.readInt32();
-          String email = utf8.decode(msg.readInt(msg.readInt32()));
-          String displayName = utf8.decode(msg.readInt(msg.readInt32()));
-          Uint8List profilePhoto = msg.readInt(msg.readInt32());
+          String email = utf8.decode(msg.readBytes(msg.readInt32()));
+          String displayName = utf8.decode(msg.readBytes(msg.readInt32()));
+          Uint8List profilePhoto = msg.readBytes(msg.readInt32());
 
           Info.otherAccounts!.add(Account(
               profilePhoto: profilePhoto,
@@ -179,7 +209,7 @@ class CommandResultHandler {
           MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
           int clientID = msg.readInt32();
           int messageID = msg.readInt32();
-          String username = utf8.decode(msg.readInt(msg.readInt32()));
+          String username = utf8.decode(msg.readBytes(msg.readInt32()));
 
           Uint8List? messageBytes;
           Uint8List? fileNameBytes;
@@ -193,10 +223,10 @@ class CommandResultHandler {
 
           switch (contentType) {
             case MessageContentType.text:
-              messageBytes = msg.readInt(msg.readInt32());
+              messageBytes = msg.readBytes(msg.readInt32());
               break;
             case MessageContentType.file || MessageContentType.image:
-              fileNameBytes = msg.readInt(msg.readInt32());
+              fileNameBytes = msg.readBytes(msg.readInt32());
               break;
           }
 
@@ -234,18 +264,19 @@ class CommandResultHandler {
         }
         break;
       case ClientCommandResultType.fetchAccountIcon:
-        Info.profilePhoto = msg.readInt(msg.readableBytes);
+        Info.profilePhoto = msg.readBytes(msg.readableBytes);
         _eventBus.fire(ProfilePhotoEvent(Info.profilePhoto!));
         break;
       case ClientCommandResultType.fetchUserDevices:
-        Info.userDevices.clear();
+        Info.userDevices = [];
+
         while (msg.readableBytes > 0) {
           DeviceType deviceType = DeviceType.fromId(msg.readInt32());
-          String address = utf8.decode(msg.readInt(msg.readInt32()));
-          String osName = utf8.decode(msg.readInt(msg.readInt32()));
-          Info.userDevices.add(UserDeviceInfo(address, deviceType, osName));
+          String address = utf8.decode(msg.readBytes(msg.readInt32()));
+          String osName = utf8.decode(msg.readBytes(msg.readInt32()));
+          Info.userDevices!.add(UserDeviceInfo(address, deviceType, osName));
         }
-        _eventBus.fire(UserDevicesEvent(Info.userDevices));
+        _eventBus.fire(UserDevicesEvent(Info.userDevices!));
         break;
       case ClientCommandResultType.setAccountIcon:
         bool isSuccessful = msg.readBoolean();
@@ -259,7 +290,7 @@ class CommandResultHandler {
       case ClientCommandResultType.startVoiceCall:
         int udpServerPort = msg.readInt32();
         int voiceCallKey = msg.readInt32();
-        Uint8List aesKey = msg.readInt(msg.readableBytes);
+        Uint8List aesKey = msg.readBytes(msg.readableBytes);
 
         RawDatagramSocket socket = await RawDatagramSocket.bind(
           Client.instance().serverInfo.address.type,
@@ -274,16 +305,16 @@ class CommandResultHandler {
         _eventBus.fire(StartVoiceCallResultEvent(voiceCallKey, udpServerPort));
         break;
       case ClientCommandResultType.getDonationPageURL:
-        Uint8List donationPageURL = msg.readInt(msg.readableBytes);
+        Uint8List donationPageURL = msg.readBytes(msg.readableBytes);
         _eventBus.fire(DonationPageEvent(utf8.decode(donationPageURL)));
         break;
       case ClientCommandResultType.getSourceCodePageURL:
-        Uint8List sourceCodePageURL = msg.readInt(msg.readableBytes);
+        Uint8List sourceCodePageURL = msg.readBytes(msg.readableBytes);
         _eventBus.fire(SourceCodePageEvent(utf8.decode(sourceCodePageURL)));
         break;
       case ClientCommandResultType.fetchSignallingServerPort:
         int signallingServerPort = msg.readInt32();
-        Uint8List aesKey = msg.readInt(msg.readableBytes);
+        Uint8List aesKey = msg.readBytes(msg.readableBytes);
         _eventBus.fire(SignallingServerPortEvent(signallingServerPort, aesKey));
         break;
     }

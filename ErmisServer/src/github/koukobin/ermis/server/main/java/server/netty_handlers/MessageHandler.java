@@ -147,7 +147,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 				continue;
 			}
 
-			CommandHandler.refreshChatSession(chatSession);
+			CommandHandler.refreshChatSessionStatuses(chatSession);
 		}
 
 	}

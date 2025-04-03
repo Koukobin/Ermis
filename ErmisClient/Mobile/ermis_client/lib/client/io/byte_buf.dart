@@ -60,7 +60,7 @@ class ByteBuf {
   /// Reads a specified number of bytes from the buffer.
   ///
   /// Throws an exception if there are not enough readable bytes.
-  Uint8List readInt(int length) {
+  Uint8List readBytes(int length) {
     if (readableBytes < length) {
       throw Exception("Not enough readable bytes");
     }
@@ -100,6 +100,12 @@ class ByteBuf {
   /// Writes a 32-bit integer in big-endian order.
   void writeInt32(int value) {
     ByteData byteData = ByteData(4)..setInt32(0, value, Endian.big);
+    writeBytes(byteData.buffer.asUint8List());
+  }
+
+  /// Writes a 64-bit integer in big-endian order.
+  void writeInt64(int value) {
+    ByteData byteData = ByteData(8)..setInt64(0, value, Endian.big);
     writeBytes(byteData.buffer.asUint8List());
   }
 

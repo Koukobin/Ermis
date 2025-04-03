@@ -18,7 +18,6 @@ import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/features/settings/account_settings.dart';
 import 'package:ermis_client/features/settings/notification_settings.dart';
-import 'package:ermis_client/features/settings/privacy_settings.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/services/locale_provider.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';

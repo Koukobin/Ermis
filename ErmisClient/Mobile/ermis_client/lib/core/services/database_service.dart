@@ -83,8 +83,21 @@ class DBConnection {
       );
     ''');
 
+    // Create 'server_profiles' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS server_profiles (
+        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+        email TEXT NOT NULL REFERENCES server_accounts(email) ON DELETE CASCADE,
+        display_name TEXT NOT NULL,
+        client_id INTEGER NOT NULL,
+        profile_photo BLOB NOT NULL,
+        last_updated_at TIMESTAMP NOT NULL,
+        PRIMARY KEY (server_url, email, client_id)
+      );
+    ''');
+
     // await db.execute('''
-    //   DROP TABLE chat_session_members;
+    //   DROP TABLE members;
     // ''');
 
     // 'chat_sessions' table
@@ -93,6 +106,28 @@ class DBConnection {
         server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
         chat_session_id INTEGER NOT NULL,
         PRIMARY KEY (server_url, chat_session_id)
+      );
+    ''');
+
+    // 'members' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS members (
+        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+        display_name TEXT NOT NULL,
+        client_id INTEGER NOT NULL,
+        profile_photo BLOB NOT NULL,
+        last_updated_at TIMESTAMP NOT NULL,
+        PRIMARY KEY (server_url, client_id)
+      );
+    ''');
+
+    // 'chat_session_members' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS chat_session_members (
+        server_url TEXT NOT NULL REFERENCES members(server_url) ON DELETE CASCADE,
+        chat_session_id INTEGER NOT NULL REFERENCES chat_sessions (chat_session_id) ON DELETE CASCADE,
+        client_id INTEGER NOT NULL REFERENCES members (client_id),
+        PRIMARY KEY (server_url, chat_session_id, client_id)
       );
     ''');
 
@@ -112,28 +147,6 @@ class DBConnection {
         CHECK (text IS NOT NULL OR file_content_id IS NOT NULL),
         FOREIGN KEY (server_url, chat_session_id)
             REFERENCES chat_sessions (server_url, chat_session_id) ON DELETE CASCADE
-      );
-    ''');
-
-    // 'members' table
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS members (
-        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
-        display_name TEXT NOT NULL,
-        client_id INTEGER NOT NULL,
-        profile_photo BLOB NOT NULL,
-        profile_photo_updated_at TIMESTAMP NOT NULL,
-        PRIMARY KEY (server_url, client_id)
-      );
-    ''');
-
-    // 'chat_session_members' table
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS chat_session_members (
-        server_url TEXT NOT NULL REFERENCES members(server_url) ON DELETE CASCADE,
-        chat_session_id INTEGER NOT NULL REFERENCES chat_sessions (chat_session_id) ON DELETE CASCADE,
-        client_id INTEGER NOT NULL REFERENCES members (client_id),
-        PRIMARY KEY (server_url, chat_session_id, client_id)
       );
     ''');
 
@@ -215,6 +228,32 @@ class DBConnection {
     return userAccounts;
   }
 
+  Future<LocalUserInfo?> getLocalUserInfo(ServerInfo serverInfo, String email) async {
+    final db = await _database;
+
+    final List<Map<String, Object?>> profilesMap = await db.query(
+      "server_profiles",
+      columns: ["display_name", "client_id", "profile_photo", "last_updated_at"],
+      where: 'server_url = ? AND email = ?',
+      whereArgs: [serverInfo.toString(), email],
+    );
+
+    Map<String, Object?>? record = profilesMap.firstOrNull;
+
+    if (record == null) return null;
+
+    final String displayName = record['display_name'] as String;
+    final int clientID = record['client_id'] as int;
+    final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
+    final int lastUsed = record['last_updated_at'] as int;
+
+    return LocalUserInfo(
+        displayName: displayName,
+        clientID: clientID,
+        profilePhoto: profilePhoto,
+        lastUpdatedEpochSecond: lastUsed);
+  }
+
   Future<void> updateServerUrlLastUsed(ServerInfo serverInfo) async {
     final db = await _database;
 
@@ -293,7 +332,7 @@ class DBConnection {
         'display_name': member.username,
         'client_id': member.clientID,
         'profile_photo': member.icon.profilePhoto,
-        'profile_photo_updated_at': member.icon.lastUpdatedAtEpochSecond,
+        'last_updated_at': member.icon.lastUpdatedAtEpochSecond,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -314,7 +353,7 @@ class DBConnection {
       final String displayName = record['display_name'] as String;
       final int clientID = record['client_id'] as int;
       final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
-      final int lastUpdatedAtEpochSecond = record['profile_photo_updated_at'] as int;
+      final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
 
       return Member(
         displayName,
@@ -371,7 +410,7 @@ class DBConnection {
       final String displayName = record['display_name'] as String;
       final int clientID = record['client_id'] as int;
       final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
-      final int lastUpdatedAtEpochSecond = record['profile_photo_updated_at'] as int;
+      final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
 
       return Member(
         displayName,
@@ -434,7 +473,7 @@ class DBConnection {
         'display_name': member.username,
         'client_id': member.clientID,
         'profile_photo': member.icon.profilePhoto,
-        'profile_photo_updated_at': member.icon.lastUpdatedAtEpochSecond,
+        'last_updated_at': member.icon.lastUpdatedAtEpochSecond,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -545,11 +584,19 @@ class LocalAccountInfo {
   final String passwordHash;
   final DateTime lastUsed;
 
-  factory LocalAccountInfo.fuck({required String email, required String passwordHash}) {
-    return LocalAccountInfo(email: email, passwordHash: passwordHash, lastUsed: DateTime.now());
+  factory LocalAccountInfo.fuck({
+    required String email,
+    required String passwordHash,
+  }) {
+    return LocalAccountInfo(
+        email: email, passwordHash: passwordHash, lastUsed: DateTime.now());
   }
 
-  LocalAccountInfo({required this.email, required this.passwordHash, required this.lastUsed});
+  const LocalAccountInfo({
+    required this.email,
+    required this.passwordHash,
+    required this.lastUsed,
+  });
 
   Map<String, Object?> toMap() {
     return {
@@ -560,11 +607,33 @@ class LocalAccountInfo {
   }
 }
 
+class LocalUserInfo {
+  final String displayName;
+  final int clientID;
+  final Uint8List profilePhoto;
+  final int lastUpdatedEpochSecond;
+
+  const LocalUserInfo({
+    required this.displayName,
+    required this.clientID,
+    required this.profilePhoto,
+    required this.lastUpdatedEpochSecond,
+  });
+
+  Map<String, Object?> toMap() {
+    return {
+      'display_name': displayName,
+      'client_id': clientID,
+      'profile_photo': profilePhoto,
+      'last_updated_at': lastUpdatedEpochSecond,
+    };
+  }
+}
+
 class InvalidServerUrlException implements Exception {
+  final String message;
 
-  String message;
-
-  InvalidServerUrlException(this.message);
+  const InvalidServerUrlException(this.message);
 
   @override
   String toString() {

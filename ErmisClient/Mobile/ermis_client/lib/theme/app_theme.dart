@@ -311,9 +311,9 @@ class AppThemeState extends State<AppTheme> {
           return MaterialApp(
             locale: localeProvider.locale,
             supportedLocales: AppConstants.availableLanguages,
-            localizationsDelegates: [
+            localizationsDelegates: const [
               S.delegate,
-              
+
               LatinMaterialLocalizationsDelegate(),
               AncientGreekMaterialLocalizationsDelegate(),
               LatinCupertinoLocalizationsDelegate(),
@@ -368,9 +368,13 @@ class AppThemeState extends State<AppTheme> {
   }
 }
 
-class LatinMaterialLocalizations extends DefaultMaterialLocalizations {}
+class LatinMaterialLocalizations extends DefaultMaterialLocalizations {
+  const LatinMaterialLocalizations();
+}
 
 class LatinMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+  const LatinMaterialLocalizationsDelegate();
+
   @override
   bool isSupported(Locale locale) => locale.languageCode == 'la';
 
@@ -384,9 +388,13 @@ class LatinMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialL
 }
 
 // Ancient Greek Material Localizations
-class AncientGreekMaterialLocalizations extends DefaultMaterialLocalizations {}
+class AncientGreekMaterialLocalizations extends DefaultMaterialLocalizations {
+  const AncientGreekMaterialLocalizations();
+}
 
 class AncientGreekMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+  const AncientGreekMaterialLocalizationsDelegate();
+
   @override
   bool isSupported(Locale locale) => locale.languageCode == 'grc';
 
@@ -400,9 +408,13 @@ class AncientGreekMaterialLocalizationsDelegate extends LocalizationsDelegate<Ma
 }
 
 // Latin Cupertino Localizations
-class LatinCupertinoLocalizations extends DefaultCupertinoLocalizations {}
+class LatinCupertinoLocalizations extends DefaultCupertinoLocalizations {
+  const LatinCupertinoLocalizations();
+}
 
 class LatinCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+  const LatinCupertinoLocalizationsDelegate();
+
   @override
   bool isSupported(Locale locale) => locale.languageCode == 'la';
 
@@ -416,9 +428,13 @@ class LatinCupertinoLocalizationsDelegate extends LocalizationsDelegate<Cupertin
 }
 
 // Ancient Greek Cupertino Localizations
-class AncientGreekCupertinoLocalizations extends DefaultCupertinoLocalizations {}
+class AncientGreekCupertinoLocalizations extends DefaultCupertinoLocalizations {
+  const AncientGreekCupertinoLocalizations();
+}
 
 class AncientGreekCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+  const AncientGreekCupertinoLocalizationsDelegate();
+
   @override
   bool isSupported(Locale locale) => locale.languageCode == 'grc';
 

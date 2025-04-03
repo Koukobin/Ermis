@@ -1,10 +1,10 @@
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/services/database_service.dart';
 
-class ChatSessionService {
+class IntermediaryService {
   final DBConnection _databaseService = ErmisDB.getConnection();
 
-  ChatSessionService();
+  IntermediaryService();
 
   Future<List<Member>> fetchMembersAssociatedWithChatSession({
     required ServerInfo server,
@@ -30,6 +30,14 @@ class ChatSessionService {
       chatSessionId: session.chatSessionID,
       memberIDs: session.getMembers.map((m) => m.clientID).toList(),
     );
+  }
+
+  Future<LocalUserInfo?> fetchLocalUserInfo({
+    required ServerInfo server,
+  }) async {
+    // A bit lazy, but will suffice for now
+    LocalAccountInfo? accountInfo = await _databaseService.getLastUsedAccount(server);
+    return _databaseService.getLocalUserInfo(server, accountInfo!.email);
   }
 
   // Future<void> updateLocalMessages(int chatSessionId, List<Map<String, dynamic>> messages) async {

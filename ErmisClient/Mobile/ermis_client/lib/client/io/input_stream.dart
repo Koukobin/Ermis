@@ -82,7 +82,7 @@ class ByteBufInputStreamDecoder {
 
       // Check if we have received enough data for the message
       if (buffer.readableBytes >= messageLength) {
-        Uint8List message = buffer.readInt(messageLength);
+        Uint8List message = buffer.readBytes(messageLength);
 
         if (_isZstdCompressed(message)) {
           message = (await zstandard.decompress(message))!;

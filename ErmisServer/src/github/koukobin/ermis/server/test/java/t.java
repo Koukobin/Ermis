@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +51,11 @@ public class t {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		List<Integer> memberIDS = new ArrayList<>(Arrays.asList(5,6,7));
-		Map<Integer, Integer> a = memberIDS.stream().collect(Collectors.toMap(id -> id, id -> 1));
-		a.put(5, 0);
-		System.out.println(a.get(5));
+		Integer[] array = {1,2,3};
+		List<Integer> list = new ArrayList<>(Arrays.asList(array));
+		array[0] = 0;
+		list.set(0, 3);
+		System.out.println(list);
 //		byte[] key = AESKeyGenerator.genereateRawSecretKey();
 //		
 //		System.out.println(new String(key, StandardCharsets.UTF_8));

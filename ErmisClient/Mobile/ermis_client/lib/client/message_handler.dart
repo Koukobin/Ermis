@@ -20,6 +20,7 @@ import 'package:ermis_client/client/handlers/chat_sessions_service.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/core/services/database_service.dart';
 import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import 'package:flutter/foundation.dart';
 
@@ -41,7 +42,7 @@ class Info {
   static int clientID = -1;
   static ClientStatus? accountStatus;
   static Uint8List? profilePhoto;
-  static final List<UserDeviceInfo> userDevices = [];
+  static List<UserDeviceInfo>? userDevices;
 
   static final Map<int, ChatSession> chatSessionIDSToChatSessions = {};
   static List<ChatSession>? chatSessions;
@@ -166,21 +167,23 @@ class MessageHandler {
   }
 
   Future<void> fetchUserInformation() async {
-    commands.fetchUsername();
-    commands.fetchClientID();
-    commands.fetchAccountStatus();
+    commands.fetchProfileInformation();
     commands.fetchChatSessionIndices();
-    AppEventBus.instance.on<ChatSessionsIndicesReceivedEvent>().first.then((ChatSessionsIndicesReceivedEvent msg) {
+    AppEventBus.instance.on<ChatSessionsIndicesReceivedEvent>().first.then((ChatSessionsIndicesReceivedEvent msg) async {
       commands.fetchChatSessions();
+      commands.fetchChatSessionsStatuses();
     });
     commands.fetchChatRequests();
-    commands.fetchDevices();
-    commands.fetchAccountIcon();
-    commands.fetchOtherAccountsAssociatedWithDevice();
+    commands.fetchAccountStatus();
 
     // Block until requested information has been fetched
     await Future.doWhile(() async {
       return await Future.delayed(const Duration(milliseconds: 100), () {
+        // debugPrint(username);
+        // debugPrint(Info.profilePhoto.toString());
+        // debugPrint(chatRequests.toString());
+        // debugPrint(chatSessions.toString());
+        // debugPrint(Info.accountStatus.toString());
         return (username == null ||
             Info.profilePhoto == null ||
             chatRequests == null ||
@@ -208,7 +211,7 @@ class MessageHandler {
   Uint8List? get profilePhoto => Info.profilePhoto;
   List<ChatSession>? get chatSessions => Info.chatSessions;
   List<ChatRequest>? get chatRequests => Info.chatRequests;
-  get usesDevices => Info.userDevices;
+  List<UserDeviceInfo>? get usesDevices => Info.userDevices;
   List<Account>? get otherAccounts => Info.otherAccounts;
 }
 
@@ -258,6 +261,22 @@ class Commands {
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.setAccountStatus.id);
     payload.writeInt32(status.id);
+
+    out.write(payload);
+  }
+
+  void fetchProfileInformation() async {
+    LocalUserInfo? userInfo = await IntermediaryService().fetchLocalUserInfo(server: Client.instance().serverInfo);
+
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchProfileInformation.id);
+    if (userInfo != null) {
+      payload.writeInt64(userInfo.lastUpdatedEpochSecond);
+      Info.clientID = userInfo.clientID;
+      Info.username = userInfo.displayName;
+      Info.profilePhoto = userInfo.profilePhoto;
+    }
 
     out.write(payload);
   }
@@ -322,10 +341,10 @@ class Commands {
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchChatSessionIndices.id);
 
-    List<int> sessions = await ChatSessionService().fetchChatSessions(server: Client.instance().serverInfo);
+    List<int> sessions = await IntermediaryService().fetchChatSessions(server: Client.instance().serverInfo);
     for (int sessionID in sessions) {
 
-      List<Member> members = await ChatSessionService().fetchMembersAssociatedWithChatSession(
+      List<Member> members = await IntermediaryService().fetchMembersAssociatedWithChatSession(
         server: Client.instance().serverInfo,
         chatSessionID: sessionID,
       );
@@ -354,9 +373,17 @@ class Commands {
       payload.writeInt32(members.length);
       for (Member member in members) {
         payload.writeInt32(member.clientID);
-        payload.writeInt32(member.icon.lastUpdatedAtEpochSecond);
+        payload.writeInt64(member.icon.lastUpdatedAtEpochSecond);
       }
     }
+
+    out.write(payload);
+  }
+
+  void fetchChatSessionsStatuses() {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.fetchChatSessionStatuses.id);
 
     out.write(payload);
   }
@@ -597,5 +624,5 @@ class Commands {
     payload.writeInt32(chatSessionIndex);
     out.write(payload);
   }
-
+  
 }

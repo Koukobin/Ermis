@@ -20,15 +20,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.reflections.Reflections;
@@ -47,7 +46,6 @@ import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.UserMessage;
-import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.UserIcon;
@@ -89,7 +87,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 	protected CommandHandler(ClientInfo clientInfo) {
 		super(clientInfo);
 		commandsToBeExecutedQueue = CompletableFuture.runAsync(() -> {
-		}); // initialize it like this for thenRunAsync to work
+		}); // Initialize queue this way for thenRunAsync to work
 	}
 
 	@Override
@@ -99,7 +97,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 		switch (commandType.getCommandLevel()) {
 		case HEAVY -> {
-			msg.retain(); // increase reference count by 1 for executeCommand since autoRelease is true
+			msg.retain(); // Increase reference count by 1 for executeCommand since autoRelease is true
 			commandsToBeExecutedQueue.thenRunAsync(() -> {
 				try {
 					executeCommand(commandType, msg);
@@ -342,7 +340,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				ChatSession chatSession = ActiveChatSessions.getChatSession(chatSessionID);
 
 				// Ensure chat session isn't null, albeit this is virtually improbable.
-				// Edge case: client disconnects immediately following command.
+				// Edge case: client disconnects immediately once server receives command.
 				if (chatSession != null) {
 
 					List<ClientInfo> activeMembers = chatSession.getActiveMembers();
@@ -392,7 +390,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			ChatSession chatSession = ActiveChatSessions.getChatSession(chatSessionID);
 
 			// Ensure chat session isn't null, albeit this is virtually improbable.
-			// Edge case: client disconnects immediately following command.
+			// Edge case: client disconnects immediately once server receives command.
 			if (chatSession != null) {
 				chatSession.getMembers().add(memberID);
 				List<ClientInfo> memberActiveConnections = ActiveClients.getClient(memberID);
@@ -400,7 +398,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 					chatSession.getActiveMembers().addAll(memberActiveConnections);
 				}
 
-				refreshChatSession(chatSession); // Refresh, to ensure changes are reflected
+				refreshChatSessionStatuses(chatSession); // Refresh, to ensure changes are reflected
 			}
 
 		}
@@ -449,7 +447,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 				}
 
 				ActiveChatSessions.addChatSession(chatSession);
-				refreshChatSession(chatSession);
+				refreshChatSessionStatuses(chatSession);
 			} else {
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
@@ -685,6 +683,53 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			// If handler doesn't exist, add it to the pipeline
 			channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 		}
+		case FETCH_PROFILE_INFORMATION -> {
+			long userLastUpdatedEpochSecond = args.readableBytes() > 0 ? args.readLong() : 0;
+			int clientID = clientInfo.getClientID();
+
+			Optional<Long> optionalActualLastUpdatedEpochSecond;
+			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+				optionalActualLastUpdatedEpochSecond = conn.getWhenUserLastUpdatedProfile(clientID);
+			}
+
+			Long lastUpdatedEpochSecond = optionalActualLastUpdatedEpochSecond.orElseGet(() -> Long.valueOf(-1));
+			boolean isProfileInfoOutdated = lastUpdatedEpochSecond.longValue() == userLastUpdatedEpochSecond;
+
+			if (isProfileInfoOutdated) {
+				break;
+			}
+			
+			byte[] usernameBytes = clientInfo.getUsername().getBytes();
+			
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+			payload.writeInt(ClientCommandResultType.FETCH_PROFILE_INFO.id);
+			payload.writeInt(clientID);
+			payload.writeInt(usernameBytes.length);
+			payload.writeBytes(usernameBytes);
+
+			Optional<UserIcon> optionalIcon;
+			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+				optionalIcon = conn.selectUserIcon(clientInfo.getClientID());
+			}
+
+			optionalIcon.ifPresentOrElse((UserIcon icon) -> {
+				// If successfully fetched icon, write it to payload
+				payload.writeBytes(icon.iconBytes());
+			}, () -> {
+				// Otherwise, send error message to inform user about insuccess
+				ByteBuf error = channel.alloc().ioBuffer();
+				error.writeInt(ServerMessageType.SERVER_INFO.id);
+				error.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_FETCH_PROFILE_PHOTO.id);
+				channel.writeAndFlush(error);
+			});
+
+			channel.writeAndFlush(payload);
+//			executeCommand(clientInfo, ClientCommandType.FETCH_CLIENT_ID, Unpooled.EMPTY_BUFFER);
+//			executeCommand(clientInfo, ClientCommandType.FETCH_USERNAME, Unpooled.EMPTY_BUFFER);
+//			executeCommand(clientInfo, ClientCommandType.FETCH_ACCOUNT_STATUS, Unpooled.EMPTY_BUFFER);
+//			executeCommand(clientInfo, ClientCommandType.FETCH_ACCOUNT_ICON, Unpooled.EMPTY_BUFFER);
+		}
 		case FETCH_ACCOUNT_ICON -> {
 
 			Optional<UserIcon> optionalIcon;
@@ -693,12 +738,14 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}
 
 			optionalIcon.ifPresentOrElse((UserIcon icon) -> {
+				// If successfully fetched icon, write it to payload
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 				payload.writeInt(ClientCommandResultType.FETCH_ACCOUNT_ICON.id);
 				payload.writeBytes(icon.iconBytes());
 				channel.writeAndFlush(payload);
 			}, () -> {
+				// Otherwise, send error message to inform user about insuccess
 				ByteBuf payload = channel.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.SERVER_INFO.id);
 				payload.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_FETCH_PROFILE_PHOTO.id);
@@ -801,7 +848,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			for (ChatSession chatSession : chatSessions) {
 				payload.writeInt(chatSession.getChatSessionID()); // Indices can be inferred by client
 			}
-			
+
 			channel.writeAndFlush(payload);
 		}
 		case FETCH_CHAT_SESSIONS -> {
@@ -811,21 +858,21 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS.id);
 
 			Map<Integer, Integer> mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent = new HashMap<>();
-			
+
 			while (args.readableBytes() > 0) {
 
 				int chatSessionIndex = args.readInt();
 				int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
 				ClientUpdate[] members = new ClientUpdate[args.readInt()];
 				for (int j = 0; j < members.length; j++) {
-					members[j] = new ClientUpdate(args.readInt(), args.readInt());
+					members[j] = new ClientUpdate(args.readInt(), args.readLong());
 				}
 
 				ClientUpdate[] actualMembers;
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 					actualMembers = conn.getWhenChatSessionMembersProfilesWereLastUpdated(chatSessionID);
 				}
-				
+
 				// OPTIMIZATIONS
 				List<ClientUpdate> outdatedMembersInfo = Arrays.asList(actualMembers).stream()
 						.filter((ClientUpdate member) -> !Arrays.asList(members).contains(member)
@@ -854,7 +901,6 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 						}
 						mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent.put(clientID, 0);
 
-						ClientStatus clientStatus;
 						List<ClientInfo> member = ActiveClients.getClient(clientID);
 
 						byte[] usernameBytes;
@@ -863,14 +909,11 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 						if (member == null) {
 							usernameBytes = conn.getUsername(clientID).orElse("null").getBytes();
-							clientStatus = ClientStatus.OFFLINE;
 						} else {
 							ClientInfo random = member.get(0);
 							usernameBytes = random.getUsername().getBytes();
-							clientStatus = random.getStatus();
 						}
 
-						payload.writeInt(clientStatus.id);
 						payload.writeInt(usernameBytes.length);
 						payload.writeBytes(usernameBytes);
 						payload.writeInt(iconBytes.length);
@@ -888,6 +931,43 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			}
 
 			getLogger().debug("Payload size for member information: {}", payload.capacity());
+
+			channel.writeAndFlush(payload);
+		}
+		case FETCH_CHAT_SESSION_STATUSES -> {
+
+			Integer[] friendsToFetchStatuses;
+
+			if (args.readableBytes() > 0) {
+				friendsToFetchStatuses = new Integer[args.readableBytes() / Integer.BYTES];
+				for (int i = 0; i < friendsToFetchStatuses.length; i++) {
+					friendsToFetchStatuses[i] = args.readInt();
+				} // TODO: IMPLEMENENT CHECK THAT THESE ARE ACTUALLY FRIENDS
+			} else {
+				friendsToFetchStatuses = clientInfo.getChatSessions().stream().map(ChatSession::getMembers)
+						.flatMap(Collection::stream).distinct().toArray(Integer[]::new);
+			}
+
+			ByteBuf payload = channel.alloc().ioBuffer();
+			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+			payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS_STATUSES.id);
+
+			for (int i = 0; i < friendsToFetchStatuses.length; i++) {
+				int clientID = friendsToFetchStatuses[i];
+				payload.writeInt(clientID);
+
+				ClientStatus clientStatus;
+				List<ClientInfo> member = ActiveClients.getClient(clientID);
+
+				if (member == null) {
+					clientStatus = ClientStatus.OFFLINE;
+				} else {
+					ClientInfo random = member.get(0);
+					clientStatus = random.getStatus();
+				}
+
+				payload.writeInt(clientStatus.id);
+			}
 
 			channel.writeAndFlush(payload);
 		}
@@ -1019,10 +1099,17 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		}
 	}
 
-	public static void refreshChatSession(ChatSession chatSession) {
+	/**
+	 * TODO: This method can be optimized not to update the statuses of all members
+	 * in a given chat session, but only of the users that actually changed their
+	 * status.
+	 * 
+	 * @param chatSession
+	 */
+	public static void refreshChatSessionStatuses(ChatSession chatSession) {
 		List<ClientInfo> activeMembers = chatSession.getActiveMembers();
 		for (int i = 0; i < activeMembers.size(); i++) {
-			executeCommand(activeMembers.get(i), ClientCommandType.FETCH_CHAT_SESSIONS, Unpooled.EMPTY_BUFFER);
+			executeCommand(activeMembers.get(i), ClientCommandType.FETCH_CHAT_SESSION_STATUSES, Unpooled.EMPTY_BUFFER);
 		}
 	}
 

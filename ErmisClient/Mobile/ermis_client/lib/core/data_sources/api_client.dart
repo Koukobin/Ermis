@@ -181,7 +181,7 @@ class Client {
   List<ChatSession>? get chatSessions => _messageHandler.chatSessions;
   List<ChatRequest>? get chatRequests => _messageHandler.chatRequests;
   ServerInfo get serverInfo => ServerInfo(uri!);
-  List<UserDeviceInfo> get userDevices => _messageHandler.usesDevices;
+  List<UserDeviceInfo>? get userDevices => _messageHandler.usesDevices;
   List<Account>? get otherAccounts => _messageHandler.otherAccounts;
   MessageHandler get messageHandler => _messageHandler;
 
@@ -240,7 +240,7 @@ class Entry<T extends CredentialInterface> {
     isLoggedIn = payload!.readBoolean();
     Client.instance()._isLoggedIn = isLoggedIn;
 
-    Uint8List resultMessageBytes = payload!.readInt(payload!.readableBytes);
+    Uint8List resultMessageBytes = payload!.readBytes(payload!.readableBytes);
 
     return isLoggedIn;
   }
@@ -280,7 +280,7 @@ class Entry<T extends CredentialInterface> {
 
     while (payload.readableBytes > 0) {
       AddedInfo addedInfo = AddedInfo.fromId(payload.readInt32());
-      Uint8List message = payload.readInt(payload.readInt32());
+      Uint8List message = payload.readBytes(payload.readInt32());
       map[addedInfo] = utf8.decode(message.toList());
     }
 
@@ -329,7 +329,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
 
     {
       int usernameMaxLength = payload!.readInt32();
-      String invalidCharacters = utf8.decode(payload!.readInt(payload!.readInt32()));
+      String invalidCharacters = utf8.decode(payload!.readBytes(payload!.readInt32()));
       usernameRequirements = Requirements(
         maxLength: usernameMaxLength,
         invalidCharacters: invalidCharacters,
@@ -340,7 +340,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
     {
       int passwordMaxLength = payload!.readInt32();
       double minEntropy = payload!.readFloat32();
-      String invalidCharacters = utf8.decode(payload!.readInt(payload!.readableBytes));
+      String invalidCharacters = utf8.decode(payload!.readBytes(payload!.readableBytes));
       passwordRequirements = Requirements(
         minEntropy: minEntropy,
         maxLength: passwordMaxLength,

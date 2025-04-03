@@ -30,7 +30,7 @@ class ByteBufOutputStream {
 
   void write(ByteBuf msg) async {
     int msgLength = msg.readableBytes;
-    Uint8List msgBytes = msg.readInt(msgLength);
+    Uint8List msgBytes = msg.readBytes(msgLength);
 
     // Compress message if it exceeds a certain threshold
     if (msgLength > 204800 /* 200 KB */) {
