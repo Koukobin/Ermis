@@ -132,7 +132,7 @@ class SettingsJson {
     String? languageCode = _settingsJson['languageCode'];
     String? countryCode = _settingsJson['countryCode'];
 
-    if (languageCode == null || countryCode == null) return null;
+    if (languageCode == null) return null;
 
     return Locale(languageCode, countryCode);
   }
