@@ -256,7 +256,7 @@ class CommandResultHandler {
           bool success = msg.readBoolean();
 
           if (!success) {
-            _eventBus.fire(MessageDeletionUnsuccessfulEvent());
+            _eventBus.fire(const MessageDeletionUnsuccessfulEvent());
             continue;
           }
 

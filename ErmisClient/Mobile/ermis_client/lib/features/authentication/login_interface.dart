@@ -28,7 +28,7 @@ import '../../core/util/dialogs_utils.dart';
 import '../../core/util/top_app_bar_utils.dart';
 import '../../core/util/transitions_util.dart';
 import '../../core/widgets/custom_textfield.dart';
-import '../../languages/generated/l10n.dart';
+import '../../generated/l10n.dart';
 import '../../main.dart';
 import '../../theme/app_colors.dart';
 import 'utils/entry_buttons.dart';

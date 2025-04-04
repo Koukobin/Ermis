@@ -20,7 +20,7 @@ import 'dart:math';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/chats/widgets/interactive_user_avatar.dart';
 import 'package:ermis_client/features/chats/temp.dart';
 import 'package:ermis_client/features/settings/linked_devices_settings.dart';
@@ -584,7 +584,7 @@ class SendChatRequestButton extends StatefulWidget {
       hintText: S.current.client_id_must_be_a_number,
     );
 
-    if (input.isEmpty) return;
+    if (input.trim().isEmpty) return;
     if (int.tryParse(input) == null) {
       showSnackBarDialog(
         context: context,
@@ -599,7 +599,9 @@ class SendChatRequestButton extends StatefulWidget {
 }
 
 class _SendChatRequestButtonState extends State<SendChatRequestButton> {
-  double _widgetOpacity = 0.0;
+  // NOTE: changing opacity to 0.0 will result in button
+  // not displaying if Chats page is refreshed
+  double _widgetOpacity = 1.0;
 
   @override
   void initState() {
@@ -721,145 +723,3 @@ class _SearchFieldState extends State<SearchField> {
   }
 }
 
-class AnimatedDropdownMenu extends StatefulWidget {
-  const AnimatedDropdownMenu({super.key});
-
-  @override
-  State<AnimatedDropdownMenu> createState() => _AnimatedDropdownMenuState();
-}
-
-class _AnimatedDropdownMenuState extends State<AnimatedDropdownMenu> with SingleTickerProviderStateMixin {
-  String? selectedValue = 'Option 1'; // Default selected value
-  bool isOpen = false; // Tracks whether the dropdown is open
-  late AnimationController _controller; // Animation controller
-  late Animation<double> _expandAnimation; // Animation for height expansion
-
-  final List<String> options = ['Option 1', 'Option 2', 'Option 3'];
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _expandAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
-  }
-
-  void toggleDropdown() {
-    setState(() {
-      isOpen = !isOpen;
-      if (isOpen) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: GestureDetector(
-        onTap: toggleDropdown,
-        child: Container(
-          width: 250,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              const BoxShadow(
-                color: Colors.black12,
-                blurRadius: 6,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Selected item
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      selectedValue ?? S.current.select_an_option,
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    Icon(
-                      isOpen
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      color: Colors.grey,
-                    ),
-                  ],
-                ),
-              ),
-              // Animated Dropdown Options
-              SizeTransition(
-                sizeFactor: _expandAnimation,
-                axisAlignment: -1.0,
-                child: Container(
-                  color: Colors.grey.shade200,
-                  child: Column(
-                    children: options.map((option) {
-                      return InkWell(
-                        onTap: () {
-                          setState(() {
-                            selectedValue = option;
-                            isOpen = false;
-                            _controller.reverse();
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: selectedValue == option
-                                    ? Colors.blue
-                                    : Colors.transparent,
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                option,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: selectedValue == option
-                                      ? Colors.blue
-                                      : Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

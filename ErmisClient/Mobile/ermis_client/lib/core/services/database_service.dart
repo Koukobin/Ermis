@@ -58,10 +58,24 @@ class DBConnection {
     // Importing 'package:flutter/widgets.dart' is required." by flutter documentation
     // P.S. I don't know exactly why this is necessary, but the documentation said so
     WidgetsFlutterBinding.ensureInitialized();
+
+    final String databaseFolderPath = await getDatabasesPath();
+    final String path = join(databaseFolderPath, 'ermis_sqlite_database_6.db');
+
     Database db = await openDatabase(
-        join(await getDatabasesPath(), 'ermis_sqlite_database_6.db'),
-        onCreate: (db, version) async {},
-        version: 1);
+      path,
+      onCreate: (Database db, int version) async {},
+      onDowngrade: (Database db, int oldVersion, int newVersion) async {},
+      onUpgrade: (Database db, int oldVersion, int newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('DROP TABLE members;');
+          await db.execute('DROP TABLE chat_session_members;');
+          await db.execute('DROP TABLE chat_sessions;');
+          await db.execute('DROP TABLE chat_messages;');
+        }
+      },
+      version: 2,
+    );
 
     // Create the 'servers' table
     await db.execute('''
@@ -98,6 +112,9 @@ class DBConnection {
 
     // await db.execute('''
     //   DROP TABLE members;
+    // ''');
+    // await db.execute('''
+    //   DROP TABLE chat_session_members;
     // ''');
 
     // 'chat_sessions' table

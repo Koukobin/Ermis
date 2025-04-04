@@ -15,7 +15,7 @@
  */
 
 import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'entry_type.dart';
 
 enum LoginResult implements Resultable {

@@ -38,6 +38,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "ability_to_form_group_chats": MessageLookupByLibrary.simpleMessage(
+      "Δυνατότητα δημιουργίας ομαδικών συνομιλιών!",
+    ),
     "accept": MessageLookupByLibrary.simpleMessage("Αποδοχή"),
     "account": MessageLookupByLibrary.simpleMessage("Λογαριασμός"),
     "account_add": MessageLookupByLibrary.simpleMessage(
@@ -362,6 +365,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "manage_storage": MessageLookupByLibrary.simpleMessage(
       "Διαχείριση αποθήκευσης",
     ),
+    "many_bug_fixes": MessageLookupByLibrary.simpleMessage(
+      "Πολλές διορθώσεις σφαλμάτων!",
+    ),
     "message_by": m4,
     "message_copied": MessageLookupByLibrary.simpleMessage(
       "Το μήνυμα αντιγράφηκε στο πρόχειρο",
@@ -422,6 +428,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("Ειδοποιήσεις"),
     "ok": MessageLookupByLibrary.simpleMessage("OK"),
+    "optimizations_on_data_usage": MessageLookupByLibrary.simpleMessage(
+      "Σημαντικές βελτιστοποιήσεις στη χρήση δεδομένων!",
+    ),
     "or": MessageLookupByLibrary.simpleMessage("Ή"),
     "other": MessageLookupByLibrary.simpleMessage("Άλλα"),
     "other_settings": MessageLookupByLibrary.simpleMessage("Άλλες ρυθμίσεις"),

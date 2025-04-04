@@ -18,7 +18,7 @@ import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/user_device.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/widgets/loading_state.dart';
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

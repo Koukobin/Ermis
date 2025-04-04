@@ -24,7 +24,7 @@ import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../languages/generated/l10n.dart';
+import '../../generated/l10n.dart';
 import '../../core/data_sources/api_client.dart';
 import '../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../core/util/dialogs_utils.dart';

@@ -117,7 +117,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
   Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Hero(
-      tag: "titty-fuck",
+      tag: "self-user-profile",
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -144,7 +144,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
 
   @override
   Widget buildLoadingScreen() {
-    return Center(child: CircularProgressIndicator());
+    return const Center(child: CircularProgressIndicator());
   }
 
 }

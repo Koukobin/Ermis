@@ -16,7 +16,7 @@
 
 import 'dart:io';
 
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/core/models/app_state/new_features_page_status.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/services/database_service.dart';
@@ -59,10 +59,10 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
 
     NewFeaturesPageStatus status = SettingsJson().newFeaturesPageStatus;
     if (status.hasShown && status.version == AppConstants.applicationVersion) {
-      
+
       if (kReleaseMode) return;
 
-      // Many prints to ensure it is clear on terminal
+      // Many prints to ensure message is visible on terminal
       debugPrint("NewFeaturesPage would not have been shown in production built!");
       debugPrint("NewFeaturesPage would not have been shown in production built!");
       debugPrint("NewFeaturesPage would not have been shown in production built!");
@@ -362,10 +362,11 @@ class WhatsNewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       appBar: AppBar(
         title: Text(S.current.whats_new),
-        backgroundColor: Color(0xFF4CAF50),
+        backgroundColor: appColors.primaryColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -374,24 +375,32 @@ class WhatsNewScreen extends StatelessWidget {
           children: [
             Text(
               S.current.whats_new_title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF4CAF50),
+                color: appColors.primaryColor,
               ),
             ),
             const SizedBox(height: 20),
             // Feature List
             ListTile(
-              leading: const Icon(Icons.add, color: Color(0xFF4CAF50)),
+              leading: Icon(Icons.add, color: appColors.primaryColor),
               title: Text(S.current.feature_encryption),
             ),
             ListTile(
-              leading: const Icon(Icons.language, color: Color(0xFF4CAF50)),
-              title: Text(S.current.feature_languages),
+              leading: Icon(Icons.lightbulb_outline, color: appColors.primaryColor),
+              title: Text(S.current.ability_to_form_group_chats),
             ),
             ListTile(
-              leading: const Icon(Icons.call, color: Color(0xFF4CAF50)),
+              leading: Icon(Icons.build, color: appColors.primaryColor),
+              title: Text(S.current.many_bug_fixes),
+            ),
+            ListTile(
+              leading: Icon(Icons.speed, color: appColors.primaryColor),
+              title: Text(S.current.optimizations_on_data_usage),
+            ),
+            ListTile(
+              leading: Icon(Icons.call,  color: appColors.primaryColor),
               title: Text(S.current.feature_voice_calls),
             ),
             const SizedBox(height: 30),
@@ -399,7 +408,7 @@ class WhatsNewScreen extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF4CAF50),
+                  backgroundColor: appColors.primaryColor,
                 ),
                 onPressed: Navigator.of(context).pop,
                 child: Text(

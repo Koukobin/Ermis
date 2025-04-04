@@ -4,7 +4,7 @@ import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:vibration/vibration.dart';
 
 import '../../client/common/message_types/content_type.dart';
-import '../../languages/generated/l10n.dart';
+import '../../generated/l10n.dart';
 import '../models/chat_session.dart';
 import '../models/message.dart';
 import '../services/settings_json.dart';

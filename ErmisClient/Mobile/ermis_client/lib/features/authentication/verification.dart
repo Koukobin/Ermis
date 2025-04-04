@@ -19,7 +19,7 @@ import 'package:ermis_client/features/authentication/domain/entities/added_info.
 import 'package:ermis_client/client/common/results/entry_result.dart';
 import 'package:ermis_client/core/services/database_service.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 Future<void> _showVerificationDialog({
@@ -70,20 +70,16 @@ Future<void> _showVerificationDialog({
                             : () {
                                 final codeString = codeController.text.trim();
                                 if (codeString.isEmpty) {
-                                  showSnackBarDialog(
-                                      context: context,
-                                      content:
-                                          S.current.please_enter_the_verification_code);
+                                  showToastDialog(
+                                      S.current.please_enter_the_verification_code);
                                   return;
                                 }
             
                                 int? codeInt = int.tryParse(codeString);
             
                                 if (codeInt == null) {
-                                  showSnackBarDialog(
-                                      context: context,
-                                      content:
-                                          S.current.verification_code_must_be_number);
+                                  showToastDialog(
+                                      S.current.verification_code_must_be_number);
                                   return;
                                 }
             

@@ -19,7 +19,7 @@ import 'package:ermis_client/features/authentication/domain/entities/resultable.
 import 'package:ermis_client/features/authentication/utils/entry_buttons.dart';
 import 'package:ermis_client/features/authentication/login_interface.dart';
 import 'package:ermis_client/features/authentication/verification.dart';
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/core/widgets/custom_textfield.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/util/device_utils.dart';

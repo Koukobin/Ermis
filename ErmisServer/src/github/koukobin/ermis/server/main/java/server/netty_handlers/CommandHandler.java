@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.reflections.Reflections;
 
@@ -298,7 +297,20 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 			clientInfo.getChatRequests().remove(Integer.valueOf(senderClientID));
 
-			Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> ci.getChatSessions().add(chatSession);
+			Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> {
+				ci.getChatSessions().add(chatSession);
+
+				ByteBuf payload = channel.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+				payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS.id);
+
+				payload.writeInt(chatSessionID);
+				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+					addMemberInfoToPayload(payload, conn, ci.getClientID() == senderClientID ? receiverClientID : senderClientID);
+				}
+
+				channel.writeAndFlush(payload);
+			};
 			forActiveAccounts(receiverClientID, updateSessions);
 			forActiveAccounts(senderClientID, updateSessions);
 		}
@@ -393,10 +405,26 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 			// Edge case: client disconnects immediately once server receives command.
 			if (chatSession != null) {
 				chatSession.getMembers().add(memberID);
+
+				Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> {
+					ByteBuf payload = channel.alloc().ioBuffer();
+					payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+					payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS.id);
+					
+					payload.writeInt(chatSessionID);
+					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+						addMemberInfoToPayload(payload, conn, memberID);
+					}
+
+					channel.writeAndFlush(payload);
+				};
+				chatSession.getActiveMembers().forEach(updateSessions::accept);
+
 				List<ClientInfo> memberActiveConnections = ActiveClients.getClient(memberID);
 				if (memberActiveConnections != null) {
 					chatSession.getActiveMembers().addAll(memberActiveConnections);
 				}
+
 
 				refreshChatSessionStatuses(chatSession); // Refresh, to ensure changes are reflected
 			}
@@ -873,7 +901,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 					actualMembers = conn.getWhenChatSessionMembersProfilesWereLastUpdated(chatSessionID);
 				}
 
-				// OPTIMIZATIONS
+				// TODO: OPTIMIZE
 				List<ClientUpdate> outdatedMembersInfo = Arrays.asList(actualMembers).stream()
 						.filter((ClientUpdate member) -> !Arrays.asList(members).contains(member)
 								&& clientInfo.getClientID() != member.clientID())
@@ -901,24 +929,7 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 						}
 						mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent.put(clientID, 0);
 
-						List<ClientInfo> member = ActiveClients.getClient(clientID);
-
-						byte[] usernameBytes;
-						UserIcon icon = conn.selectUserIcon(clientID).orElse(UserIcon.empty());
-						byte[] iconBytes = icon.iconBytes();
-
-						if (member == null) {
-							usernameBytes = conn.getUsername(clientID).orElse("null").getBytes();
-						} else {
-							ClientInfo random = member.get(0);
-							usernameBytes = random.getUsername().getBytes();
-						}
-
-						payload.writeInt(usernameBytes.length);
-						payload.writeBytes(usernameBytes);
-						payload.writeInt(iconBytes.length);
-						payload.writeBytes(iconBytes);
-						payload.writeLong(icon.lastUpdatedEpochSecond());
+						addMemberInfoToPayload(payload, conn, clientID);
 					}
 
 				}
@@ -1099,6 +1110,28 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 		}
 	}
 
+	public static void addMemberInfoToPayload(ByteBuf payload, ErmisDatabase.GeneralPurposeDBConnection conn, int clientID) {
+		List<ClientInfo> member = ActiveClients.getClient(clientID);
+
+		byte[] usernameBytes;
+		UserIcon icon = conn.selectUserIcon(clientID).orElse(UserIcon.empty());
+		byte[] iconBytes = icon.iconBytes();
+
+		if (member == null) {
+			usernameBytes = conn.getUsername(clientID).orElse("null").getBytes();
+		} else {
+			ClientInfo random = member.get(0);
+			usernameBytes = random.getUsername().getBytes();
+		}
+
+		payload.writeInt(usernameBytes.length);
+		payload.writeBytes(usernameBytes);
+		payload.writeInt(iconBytes.length);
+		payload.writeBytes(iconBytes);
+		payload.writeLong(icon.lastUpdatedEpochSecond());
+	
+	}
+	
 	/**
 	 * TODO: This method can be optimized not to update the statuses of all members
 	 * in a given chat session, but only of the users that actually changed their

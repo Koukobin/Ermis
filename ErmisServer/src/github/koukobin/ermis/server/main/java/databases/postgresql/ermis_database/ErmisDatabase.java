@@ -433,10 +433,10 @@ public final class ErmisDatabase {
 			if (passwordHash != null) {
 				return passwordHash.equals(enteredPasswordpasswordHash);
 			}
-			
+
 			return false;
 		}
-		
+
 		public Optional<String> checkAuthentication(String email, String enteredPassword) {
 			String passwordHash = getPasswordHash(email);
 			SimpleHash enteredPasswordHash = HashUtil.createHash(enteredPassword, getSalt(email), DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
@@ -444,7 +444,7 @@ public final class ErmisDatabase {
 					? Optional.of(passwordHash)
 					: Optional.ofNullable(null);
 		}
-		
+
 		public LoginInfo.CredentialsExchange.Result checkIfUserMeetsRequirementsToLogin(String emailAddress) {
 			if (!accountWithEmailExists(emailAddress)) {
 				return LoginInfo.CredentialsExchange.Result.ACCOUNT_DOESNT_EXIST;
@@ -463,51 +463,65 @@ public final class ErmisDatabase {
 //			return loginUsingPassword(email, password, deviceInfo);
 //		}
 
-		@Deprecated
-		public ResultHolder loginUsingBackupVerificationCode(String email, String backupVerificationCode, UserDeviceInfo deviceInfo) {
-
-			String[] backupVerificationCodes = getBackupVerificationCodesAsStringArray(email);
-			
+		public GeneralResult loginUsingBackupVerificationCode(String email, String backupVerificationCode, UserDeviceInfo deviceInfo) {
 			boolean isBackupVerificationCodeCorrect = false;
-			
-			for (int i = 0; i < backupVerificationCodes.length; i++) {
-				if (backupVerificationCodes[i].equals(backupVerificationCode)) {
+
+			int backupVerificationCodesAmount = 0;
+			String query = "SELECT array_length(backup_verification_codes) FROM users WHERE 'backup_verification_codes'=ANY(?) AND email=?;";
+			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+				pstmt.setString(1, backupVerificationCode);
+				pstmt.setString(2, email);
+
+				ResultSet rs = pstmt.executeQuery();
+
+				if (rs.next()) {
 					isBackupVerificationCodeCorrect = true;
-					break;
+					backupVerificationCodesAmount = rs.getInt(1);
 				}
+			} catch (SQLException sqle) {
+				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
-			
+
 			if (!isBackupVerificationCodeCorrect) {
-				return LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE.resultHolder;
+				return new GeneralResult(LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE,
+						LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE.resultHolder.isSuccessful());
 			}
-			
+
 			// Add address to user logged in ip addresses
 			Insert resultC = insertUserIp(email, deviceInfo);
-			
+
 			if (resultC == Insert.SUCCESSFUL_INSERT) {
-				
-				ResultHolder result = LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder;
-				
-				// Remove backup verification code from user; a backup verification code can only be used once
+				// Remove backup verification code from user; a backup verification
+				// code can only be used once
 				removeBackupVerificationCode(backupVerificationCode, email);
 
 				// Regenerate backup verification codes if they have become 0
 				boolean hasRegeneratedBackupVerificationCodes = false;
-				if (backupVerificationCodes.length - 1 == 0) {
+				if (backupVerificationCodesAmount - 1 == 0) {
 					regenerateBackupVerificationCodes(email);
 					hasRegeneratedBackupVerificationCodes = true;
 				}
-				
-				// If has regenerated backup verification codes then add the to the result message
+
+				GeneralResult result;
+
+				// If has regenerated backup verification codes then add the to the
+				// result message
 				if (hasRegeneratedBackupVerificationCodes) {
 					Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
 					addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, backupVerificationCode);
+
+					result = new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN,
+							LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder.isSuccessful(), addedInfo);
+				} else {
+					result = new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN,
+							LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder.isSuccessful());
 				}
-				
+
 				return result;
 			}
 
-			return LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN.resultHolder;
+			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN,
+					LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN.resultHolder.isSuccessful());
 		}
 
 		public GeneralResult loginUsingPassword(String email, String password, UserDeviceInfo deviceInfo) {
@@ -635,7 +649,7 @@ public final class ErmisDatabase {
 
 			return passwordHash;
 		}
-		
+
 		public String getPasswordHash(int clientID) {
 
 			String passwordHash = null;
@@ -652,13 +666,12 @@ public final class ErmisDatabase {
 
 			return passwordHash;
 		}
-		
+
 		public String getSalt(String email) {
 
 			String salt = null;
 
-			try (PreparedStatement getPasswordHash = conn
-					.prepareStatement("SELECT salt FROM users WHERE email=?")) {
+			try (PreparedStatement getPasswordHash = conn.prepareStatement("SELECT salt FROM users WHERE email=?")) {
 
 				getPasswordHash.setString(1, email);
 
@@ -672,7 +685,7 @@ public final class ErmisDatabase {
 
 			return salt;
 		}
-		
+
 		public String getSalt(int clientID) {
 
 			String salt = null;
@@ -696,7 +709,7 @@ public final class ErmisDatabase {
 		public String getBackupVerificationCodesAsString(String email) {
 			return String.join(",", getBackupVerificationCodesAsStringArray(email));
 		}
-		
+
 		public String[] getBackupVerificationCodesAsStringArray(String email) {
 
 			String[] backupVerificationCodes = null;
@@ -728,24 +741,23 @@ public final class ErmisDatabase {
 
 			return backupVerificationCodes;
 		}
-		
+
 		public int regenerateBackupVerificationCodes(String email) {
-			
 			int resultUpdate = 0;
-			
+
 			String salt = getSalt(email);
 
 			String[] hashedBackupVerificationCodes = BackupVerificationCodesGenerator.generateHashedBackupVerificationCodes(salt);
 
 			try (PreparedStatement replaceBackupVerificationCodes = conn
 					.prepareStatement("UPDATE users SET backup_verification_codes=? WHERE email=?;")) {
-				
+
 				Array backupVerificationCodesArray = conn.createArrayOf("TEXT", hashedBackupVerificationCodes);
 				replaceBackupVerificationCodes.setArray(1, backupVerificationCodesArray);
 				backupVerificationCodesArray.free();
-				
+
 				replaceBackupVerificationCodes.setString(2, email);
-				
+
 				resultUpdate = replaceBackupVerificationCodes.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
@@ -753,17 +765,15 @@ public final class ErmisDatabase {
 
 			return resultUpdate;
 		}
-		
+
 		public int removeBackupVerificationCode(String backupVerificationCode, String email) {
-			
 			int resultUpdate = 0;
-			
+
 			String sql = "UPDATE users SET backup_verification_codes=array_remove(backup_verification_codes, ?) WHERE email=?";
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-				
 				pstmt.setString(1, backupVerificationCode);
 				pstmt.setString(2, email);
-				
+
 				pstmt.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
@@ -771,7 +781,7 @@ public final class ErmisDatabase {
 
 			return resultUpdate;
 		}
-		
+
 		public int getNumberOfBackupVerificationCodesLeft(String email) {
 		
 			int numberOfBackupVerificationCodesLeft = 0;

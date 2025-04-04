@@ -15,7 +15,7 @@
  */
 
 import '../../../../constants/app_constants.dart';
-import '../../../../languages/generated/l10n.dart';
+import '../../../../generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/data_sources/api_client.dart';

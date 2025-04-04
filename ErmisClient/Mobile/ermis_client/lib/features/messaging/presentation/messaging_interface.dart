@@ -24,7 +24,7 @@ import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import 'package:ermis_client/features/messaging/presentation/message_bubble.dart';
 import 'package:ermis_client/features/messaging/presentation/send_file_popup_menu.dart';
 import 'package:ermis_client/features/messaging/presentation/choose_friends_screen.dart';
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/chats/voice_call.dart';
 import 'package:ermis_client/features/settings/theme_settings.dart';
 import 'package:ermis_client/theme/app_colors.dart';

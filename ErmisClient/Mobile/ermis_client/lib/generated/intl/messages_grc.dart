@@ -37,6 +37,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "ability_to_form_group_chats": MessageLookupByLibrary.simpleMessage(
+      "ἡ δύναμις τοῦ συστήσασθαι ὁμιλίας κοινῇ πλειόνων!",
+    ),
     "accept": MessageLookupByLibrary.simpleMessage("Δέχομαι"),
     "account": MessageLookupByLibrary.simpleMessage("λογισμός"),
     "account_add": MessageLookupByLibrary.simpleMessage(
@@ -357,6 +360,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "ἐξέρχεσθαι ἐκ τοῦδε τοῦ ὀργάνου",
     ),
     "manage_storage": MessageLookupByLibrary.simpleMessage("διοικεῖν ἀποθήκην"),
+    "many_bug_fixes": MessageLookupByLibrary.simpleMessage(
+      "πολλαὶ τῶν σφαλμάτων ἐπανορθώσεις!",
+    ),
     "message_by": m4,
     "message_copied": MessageLookupByLibrary.simpleMessage(
       "Μήνυμα ἐγράφη εἰς τὸ ἀποθησαύρισμα",
@@ -415,6 +421,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("ἀγγελίαι"),
     "ok": MessageLookupByLibrary.simpleMessage("καλῶς"),
+    "optimizations_on_data_usage": MessageLookupByLibrary.simpleMessage(
+      "αἱ σπουδαῖαι βελτιώσεις τῆς χρήσεως τῶν δεδομένων!",
+    ),
     "or": MessageLookupByLibrary.simpleMessage("Ἢ"),
     "other": MessageLookupByLibrary.simpleMessage("ἄλλα"),
     "other_settings": MessageLookupByLibrary.simpleMessage("ἄλλαι τάξεις"),

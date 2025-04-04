@@ -22,7 +22,7 @@ import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/util/custom_date_formatter.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/core/util/file_utils.dart';
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 

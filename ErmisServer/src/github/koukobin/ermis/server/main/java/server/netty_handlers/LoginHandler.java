@@ -17,16 +17,17 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import github.koukobin.ermis.common.DeviceType;
 import github.koukobin.ermis.common.UserDeviceInfo;
+import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.entry.LoginInfo.Action;
 import github.koukobin.ermis.common.entry.LoginInfo.Credential;
 import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.GeneralResult;
-import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
@@ -116,7 +117,7 @@ final class LoginHandler extends EntryHandler {
 
 		switch (passwordType) {
 		case BACKUP_VERIFICATION_CODE -> {
-			ResultHolder entryResult;
+			GeneralResult entryResult;
 
 			String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
 			UserDeviceInfo deviceInfo = new UserDeviceInfo(address, deviceType, osName);
@@ -134,7 +135,13 @@ final class LoginHandler extends EntryHandler {
 			ByteBuf payload = ctx.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.ENTRY.id);
 			payload.writeBoolean(entryResult.isSuccessful());
-//			payload.writeBytes(resultMessageBytes);
+			payload.writeInt(entryResult.getIDable().getID());
+			for (Entry<AddedInfo, String> addedInfo : entryResult.getAddedInfo().entrySet()) {
+				payload.writeInt(addedInfo.getKey().id);
+				byte[] info = addedInfo.getValue().getBytes();
+				payload.writeInt(info.length);
+				payload.writeBytes(info);
+			}
 
 			ctx.channel().writeAndFlush(payload);
 		}

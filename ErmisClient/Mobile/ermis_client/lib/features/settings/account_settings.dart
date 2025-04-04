@@ -23,7 +23,7 @@ import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../languages/generated/l10n.dart';
+import '../../generated/l10n.dart';
 import '../../core/data_sources/api_client.dart';
 import '../../core/services/database_service.dart';
 import '../../core/util/dialogs_utils.dart';
@@ -42,8 +42,7 @@ class AccountSettings extends StatefulWidget {
   State<AccountSettings> createState() => _AccountSettingsState();
 
   static Future<void> showOtherAccounts(BuildContext context) async {
-
-    // Await until other accounts are fetched
+    // Fetch other accounts before displaying sheet
     if (_accounts == null) {
       Client.instance().commands.fetchOtherAccountsAssociatedWithDevice();
       await AppEventBus.instance.on<OtherAccountsEvent>().first;

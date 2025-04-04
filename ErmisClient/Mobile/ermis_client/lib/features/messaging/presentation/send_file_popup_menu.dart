@@ -20,7 +20,7 @@ import 'package:camera/camera.dart';
 import 'package:ermis_client/core/util/file_utils.dart';
 import 'package:flutter/material.dart';
 
-import '../../../languages/generated/l10n.dart';
+import '../../../generated/l10n.dart';
 import '../../../theme/app_colors.dart';
 
 class SendFilePopupMenu extends StatefulWidget {

@@ -29,7 +29,7 @@ import 'package:ermis_client/client/common/message_types/content_type.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/features/authentication/domain/client_status.dart';
-import 'package:ermis_client/languages/generated/l10n.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/splash_screen/splash_screen.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/services/database_service.dart';

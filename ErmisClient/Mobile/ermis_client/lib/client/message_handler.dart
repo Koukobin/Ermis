@@ -51,6 +51,23 @@ class Info {
 
   static final Map<int /* temporary message id */, Message> pendingMessagesQueue = {};
   static int lastPendingMessageID = 0;
+
+  /// Resets all user information; useful for when switching between accounts
+  static void resetUserInformation() {
+    username = null;
+    clientID = -1;
+    accountStatus = null;
+    profilePhoto = null;
+    userDevices = null;
+
+    chatSessionIDSToChatSessions.clear();
+    chatSessions = null;
+    chatRequests = null;
+
+    otherAccounts = null;
+    pendingMessagesQueue.clear();
+    lastPendingMessageID = 0;
+  }
 }
 
 class MessageHandler {
@@ -607,6 +624,11 @@ class Commands {
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.switchAccount.id);
     out.write(payload);
+
+    // Reset user information before switching to ensure that 
+    // user information from this account is not transferred 
+    // to the next
+    Info.resetUserInformation();
   }
 
   // void acceptVoiceCall(int chatSessionID) {
