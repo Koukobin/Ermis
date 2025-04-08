@@ -178,7 +178,7 @@ public final class PrimaryDecoder extends Decoder {
 
 	private static int getMaxLengthForContentType(ChannelHandlerContext ctx, ClientContentType contentType) {
 		switch (contentType) {
-		case FILE, IMAGE:
+		case FILE, IMAGE, VOICE:
 			return ServerSettings.MAX_CLIENT_MESSAGE_FILE_BYTES;
 		case TEXT:
 			return ServerSettings.MAX_CLIENT_MESSAGE_TEXT_BYTES;

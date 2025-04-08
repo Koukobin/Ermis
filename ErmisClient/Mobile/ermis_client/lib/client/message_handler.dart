@@ -16,6 +16,7 @@
 
 import 'dart:convert';
 
+import 'package:ermis_client/client/common/message_types/download_file_type.dart';
 import 'package:ermis_client/client/handlers/chat_sessions_service.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
@@ -153,6 +154,32 @@ class MessageHandler {
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
       contentType: MessageContentType.image,
+      chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionIndex: chatSessionIndex,
+      tempMessageID: Info.lastPendingMessageID,
+    );
+  }
+
+  Message sendVoiceToClient(String fileName, Uint8List bytes, int chatSessionIndex) {
+    Uint8List fileNameBytes = utf8.encode(fileName);
+
+    // Calculate the payload size in advance for efficiency
+    int payloadSize = 20 + fileNameBytes.length + bytes.length;
+
+    ByteBuf payload = ByteBuf(payloadSize);
+    payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(++Info.lastPendingMessageID);
+    payload.writeInt32(MessageContentType.voice.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(fileNameBytes.length);
+    payload.writeBytes(fileNameBytes);
+    payload.writeBytes(bytes);
+
+    _outputStream.write(payload);
+
+    return createPendingMessage(
+      fileName: Uint8List.fromList(utf8.encode(fileName)),
+      contentType: MessageContentType.voice,
       chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
       tempMessageID: Info.lastPendingMessageID,
@@ -524,6 +551,7 @@ class Commands {
     payload.writeInt32(ClientCommandType.downloadFile.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(messageID);
+    payload.writeInt8(FileType.file.id);
 
     out.write(payload);
   }
@@ -531,9 +559,21 @@ class Commands {
   void downloadImage(int messageID, int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
-    payload.writeInt32(ClientCommandType.downloadImage.id);
+    payload.writeInt32(ClientCommandType.downloadFile.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(messageID);
+    payload.writeInt8(FileType.image.id);
+
+    out.write(payload);
+  }
+
+  void downloadSound(int messageID, int chatSessionIndex) {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.downloadFile.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(messageID);
+    payload.writeInt8(FileType.sound.id);
 
     out.write(payload);
   }
@@ -615,14 +655,14 @@ class Commands {
   void addNewAccount() {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
-    payload.writeInt32(ClientCommandType.addNewAccount.id);
+    payload.writeInt32(ClientCommandType.addOrSwitchToNewAccount.id);
     out.write(payload);
   }
 
   void switchAccount() {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
-    payload.writeInt32(ClientCommandType.switchAccount.id);
+    payload.writeInt32(ClientCommandType.addOrSwitchToNewAccount.id);
     out.write(payload);
 
     // Reset user information before switching to ensure that 

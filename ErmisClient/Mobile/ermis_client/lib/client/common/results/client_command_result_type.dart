@@ -41,6 +41,7 @@ enum ClientCommandResultType {
   // File Management
   downloadFile(400),
   downloadImage(401),
+  downloadVoice(402),
 
   // Start voice call
   startVoiceCall(500),

@@ -19,7 +19,8 @@ import '../../../core/exceptions/EnumNotFoundException.dart';
 enum MessageContentType {
   text(0),
   file(1),
-  image(2);
+  image(2),
+  voice(3);
 
   final int id;
   const MessageContentType(this.id);

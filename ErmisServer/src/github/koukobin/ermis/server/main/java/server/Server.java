@@ -29,9 +29,11 @@ import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.codec.Encoder;
 import github.koukobin.ermis.server.main.java.server.codec.PrimaryDecoder;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.CommandHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.DispatcherHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.MessageRateLimiter;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.commands.CommandsHolder;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
 
 import org.apache.logging.log4j.LogManager;
@@ -95,6 +97,7 @@ public final class Server {
 
 			EmailerService.initialize();
 			ErmisDatabase.initialize();
+			CommandsHolder.initialize();
 
 			bossGroup = new EpollEventLoopGroup(1, (Runnable r) -> new Thread(r, "Thread-ClientConnector"));
 			workerGroup = new EpollEventLoopGroup(ServerSettings.WORKER_THREADS);

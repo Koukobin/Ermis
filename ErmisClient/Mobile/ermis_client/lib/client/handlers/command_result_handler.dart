@@ -63,6 +63,16 @@ class CommandResultHandler {
 
         _eventBus.fire(ImageDownloadedEvent(file, messageID));
         break;
+      case ClientCommandResultType.downloadVoice:
+        final messageID = msg.readInt32();
+        final fileNameLength = msg.readInt32();
+        final fileNameBytes = msg.readBytes(fileNameLength);
+        final fileBytes = msg.readBytes(msg.readableBytes);
+
+        final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
+
+        _eventBus.fire(VoiceDownloadedEvent(file, messageID));
+        break;
       case ClientCommandResultType.fetchProfileInfo:
         // ClientID
         Info.clientID = msg.readInt32();
@@ -225,7 +235,7 @@ class CommandResultHandler {
             case MessageContentType.text:
               messageBytes = msg.readBytes(msg.readInt32());
               break;
-            case MessageContentType.file || MessageContentType.image:
+            case MessageContentType.file || MessageContentType.image || MessageContentType.voice:
               fileNameBytes = msg.readBytes(msg.readInt32());
               break;
           }

@@ -78,6 +78,13 @@ class ImageDownloadedEvent {
   const ImageDownloadedEvent(this.file, this.messageID);
 }
 
+class VoiceDownloadedEvent {
+  final LoadedInMemoryFile file;
+  final int messageID;
+  const VoiceDownloadedEvent(this.file, this.messageID);
+}
+
+
 class DonationPageEvent {
   final String donationPageURL;
   const DonationPageEvent(this.donationPageURL);

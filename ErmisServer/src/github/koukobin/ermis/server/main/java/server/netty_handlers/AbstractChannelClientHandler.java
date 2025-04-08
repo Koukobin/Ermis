@@ -42,7 +42,8 @@ import io.netty.util.ReferenceCounted;
  * @author Ilias Koukovinis
  * 
  */
-abstract sealed class AbstractChannelClientHandler extends ChannelInboundHandlerAdapter permits MessageHandler, StartingEntryHandler, EntryHandler, CommandHandler {
+abstract sealed class AbstractChannelClientHandler extends
+		ChannelInboundHandlerAdapter permits MessageHandler, StartingEntryHandler, EntryHandler, CommandHandler {
 
 	private static final Logger LOGGER = LogManager.getLogger("server");
 
@@ -51,8 +52,8 @@ abstract sealed class AbstractChannelClientHandler extends ChannelInboundHandler
 	/**
 	 * Dictates whether of not to automatically release incoming messages after
 	 * proccessing. For most cases, this should be set to true to avoid memory
-	 * leaks, but in some instances you may not want the message to be
-	 * released immediately after {@code channelRead0} is called.
+	 * leaks, but in some instances you may not want the message to be released
+	 * immediately after {@code channelRead0} is called.
 	 */
 	private final boolean autoRelease;
 
@@ -66,20 +67,20 @@ abstract sealed class AbstractChannelClientHandler extends ChannelInboundHandler
 	protected AbstractChannelClientHandler(ClientInfo clientInfo) {
 		this(clientInfo, true);
 	}
-	
+
 	protected AbstractChannelClientHandler(ClientInfo clientInfo, boolean autoRelease) {
 		this.clientInfo = clientInfo;
 		this.autoRelease = autoRelease;
 	}
-	
+
 	@Override
 	// Finaly ensures this method is not ovveridable
 	public final void channelRead(ChannelHandlerContext ctx, Object msg) {
 		boolean release = true;
-        try {
-            if (msg instanceof ByteBuf imsg) {
-                channelRead0(ctx, imsg);
-            } else {
+		try {
+			if (msg instanceof ByteBuf imsg) {
+				channelRead0(ctx, imsg);
+			} else {
 				release = false;
 				ctx.fireChannelRead(msg);
 			}
@@ -107,10 +108,10 @@ abstract sealed class AbstractChannelClientHandler extends ChannelInboundHandler
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		LOGGER.error("Exception caught",  cause);
+		LOGGER.error("Exception caught", cause);
 	}
-	
-	public static final Logger getLogger() {
+
+	protected static final Logger getLogger() {
 		return LOGGER;
 	}
 }

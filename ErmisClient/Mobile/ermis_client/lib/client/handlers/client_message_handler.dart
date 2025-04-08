@@ -39,11 +39,11 @@ class ClientMessageHandler {
     Uint8List? fileNameBytes;
     switch (contentType) {
       case MessageContentType.text:
-        var textLength = msg.readInt32();
+        final textLength = msg.readInt32();
         text = msg.readBytes(textLength);
         break;
-      case MessageContentType.file || MessageContentType.image:
-        var fileNameLength = msg.readInt32();
+      case MessageContentType.file || MessageContentType.image || MessageContentType.voice:
+        final fileNameLength = msg.readInt32();
         fileNameBytes = msg.readBytes(fileNameLength);
         break;
     }

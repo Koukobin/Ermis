@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     client_id INTEGER NOT NULL REFERENCES users(client_id) ON DELETE CASCADE,
     display_name VARCHAR(DISPLAY_LENGTH) NOT NULL,
     about VARCHAR(128) NOT NULL,
-    profile_photo_id TEXT,
+    profile_photo_id TEXT, -- Hallmark name of profile photo bytes stored on local storage
     last_updated_at TIMESTAMP DEFAULT now(),
     display_name_updated_at TIMESTAMP DEFAULT now(),
     about_updated_at TIMESTAMP DEFAULT now(),
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     client_id INTEGER NOT NULL REFERENCES users (client_id) ON DELETE CASCADE,
     text TEXT,
     file_name TEXT,
-    file_content_id TEXT,
+    file_content_id TEXT, -- Hallmark name of file bytes stored on local storage
     content_type INTEGER NOT NULL,
     is_read BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (chat_session_id, message_id),

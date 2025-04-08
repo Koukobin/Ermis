@@ -97,6 +97,12 @@ class ByteBuf {
     writeBytes(bytebuf.buffer);
   }
 
+  /// Writes a 8-bit integer in big-endian order.
+  void writeInt8(int value) {
+    ByteData byteData = ByteData(1)..setInt8(0, value);
+    writeBytes(byteData.buffer.asUint8List());
+  }
+
   /// Writes a 32-bit integer in big-endian order.
   void writeInt32(int value) {
     ByteData byteData = ByteData(4)..setInt32(0, value, Endian.big);

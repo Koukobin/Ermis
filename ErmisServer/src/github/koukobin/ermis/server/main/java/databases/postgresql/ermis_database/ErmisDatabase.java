@@ -1462,7 +1462,6 @@ public final class ErmisDatabase {
 		}
 
 		public Optional<LoadedInMemoryFile> getFile(int messageID, int chatSessionID) {
-
 			LoadedInMemoryFile file = null;
 
 			String query = "SELECT file_content_id, file_name FROM chat_messages WHERE message_id=? AND chat_session_id=?;";

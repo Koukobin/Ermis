@@ -27,7 +27,7 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  */
 public enum ServerInfoMessage {
     TOO_MANY_REQUESTS_MADE(0),
-    COMMAND_NOT_RECOGNIZED(1),
+    COMMAND_NOT_IMPLEMENTED(1),
     ERROR_OCCURED_WHILE_TRYING_TO_FETCH_PROFILE_PHOTO(2),
     INET_ADDRESS_NOT_RECOGNIZED(3),
     MESSAGE_LENGTH_EXCEEDS_LIMIT(4),

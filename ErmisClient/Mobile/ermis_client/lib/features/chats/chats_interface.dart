@@ -452,12 +452,12 @@ class ChatsState extends TempState<Chats> {
           });
         }
 
-        // If the value was already in the set, remove it
-        if (!selectedConversations.add(chatSession)) {
-          setState(() {
+        setState(() {
+          // If the value was already in the set, remove it
+          if (!selectedConversations.add(chatSession)) {
             selectedConversations.remove(chatSession);
-          });
-        }
+          }
+        });
 
         if (selectedConversations.isEmpty) {
           setState(() {

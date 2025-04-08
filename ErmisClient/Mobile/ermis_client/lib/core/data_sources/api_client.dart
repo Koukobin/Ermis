@@ -136,6 +136,10 @@ class Client {
     return _messageHandler.sendFileToClient(fileName, fileContentBytes, chatSessionIndex);
   }
 
+  Message sendVoiceMessageToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
+    return _messageHandler.sendVoiceToClient(fileName, fileContentBytes, chatSessionIndex);
+  }
+
   Entry createNewVerificationEntry() {
     return Entry(EntryType.login, _outputStream!, _inputStream!);
   }
@@ -188,6 +192,7 @@ class Client {
   bool isLoggedIn() {
     return _isLoggedIn;
   }
+
 }
 
 class Entry<T extends CredentialInterface> {

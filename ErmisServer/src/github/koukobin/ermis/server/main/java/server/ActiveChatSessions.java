@@ -97,7 +97,7 @@ public class ActiveChatSessions {
 			channel.writeAndFlush(payload.duplicate());
 		}
 	}
-	
+
 	public static void broadcastToChatSession(ByteBuf payload, BiConsumer<ByteBuf, Channel> execute, ChatSession chatSession) {
 		List<ClientInfo> members = chatSession.getActiveMembers();
 
@@ -121,8 +121,8 @@ public class ActiveChatSessions {
 				continue;
 			}
 
-			ChannelFuture future = channel.writeAndFlush(payload.duplicate()); 
-			
+			ChannelFuture future = channel.writeAndFlush(payload.duplicate());
+
 			if (clientID != excludeClient.getClientID()) {
 				future.addListener((ChannelFuture f) -> run.accept(f));
 			}

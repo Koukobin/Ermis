@@ -14,7 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/client/common/message_types/content_type.dart';
 import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
@@ -22,9 +26,14 @@ import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/util/custom_date_formatter.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/core/util/file_utils.dart';
+import 'package:ermis_client/features/dots_loading_screen.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../../core/event_bus/app_event_bus.dart';
+import '../../../core/models/message_events.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message message;
@@ -227,41 +236,46 @@ class MessageBubble extends StatelessWidget {
           ],
         );
       case MessageContentType.image:
-        final image = message.imageBytes == null
+        final image = message.fileBytes == null
             ? null
             : Hero(
                 tag: '${message.messageID}',
-                child: Image.memory(message.imageBytes!),
+                child: Image.memory(message.fileBytes!),
               );
         bool isDownloading = false;
         return StatefulBuilder(
           builder: (context, setState) {
-            return GestureDetector(
-              onDoubleTap: () {
-                if (image == null) {
-                  setState(() {
-                    isDownloading = true;
-                  });
-                  Client.instance()
-                      .commands
-                      .downloadImage(message.messageID, message.chatSessionIndex);
-                }
-              },
-              child: Container(
-                color: appColors.secondaryColor,
-                child: image == null
-                    ? isDownloading
-                        ? LinearProgressIndicator()
-                        : null
-                    : GestureDetector(
-                        onTap: () {
-                          // Display image fullscreen
-                          showImageDialog(context, image);
-                        },
-                        child: FittedBox(fit: BoxFit.contain, child: image)),
-              ),
-            );
-          }
+          return GestureDetector(
+            onDoubleTap: () {
+              if (image == null) {
+                setState(() {
+                  isDownloading = true;
+                });
+                Client.instance()
+                    .commands
+                    .downloadImage(message.messageID, message.chatSessionIndex);
+              }
+            },
+            child: Container(
+              color: appColors.secondaryColor,
+              child: image == null
+                  ? isDownloading
+                      ? const LinearProgressIndicator()
+                      : null
+                  : GestureDetector(
+                      onTap: () {
+                        // Display image fullscreen
+                        showImageDialog(context, image);
+                      },
+                      child: FittedBox(fit: BoxFit.contain, child: image)),
+            ),
+          );
+        });
+      case MessageContentType.voice:
+        return VoiceMessage(
+          key: Key(
+              "${message.messageID}") /* CRITICAL FOR SOME REASON DO NOT REMOVE */,
+          message: message,
         );
     }
   }
@@ -289,9 +303,9 @@ class MessageBubble extends StatelessWidget {
                     IconButton(
                       onPressed: () {
                         saveFileToDownloads(
-                            message.fileName, message.imageBytes!);
+                            message.fileName, message.fileBytes!);
                       },
-                      icon: Icon(Icons.download),
+                      icon: const Icon(Icons.download),
                     ),
                   ],
                 ),
@@ -299,7 +313,7 @@ class MessageBubble extends StatelessWidget {
               body: InteractiveViewer(
               child: Center(
                 child: Container(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: image,
@@ -312,5 +326,222 @@ class MessageBubble extends StatelessWidget {
         ),
       );
     });
+  }
+}
+class SimpleWaveform extends StatelessWidget {
+  final List<double> samples;
+  final Color color;
+  final double strokeWidth;
+
+  const SimpleWaveform({
+    super.key,
+    required this.samples,
+    this.color = Colors.blue,
+    this.strokeWidth = 2.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return CustomPaint(
+          size: Size(constraints.maxWidth, constraints.maxHeight),
+          painter: _WaveformPainter(samples, color, strokeWidth),
+        );
+      },
+    );
+  }
+}
+
+class _WaveformPainter extends CustomPainter {
+  final List<double> samples;
+  final Color color;
+  final double strokeWidth;
+
+  _WaveformPainter(this.samples, this.color, this.strokeWidth);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (samples.isEmpty) return;
+
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final sampleCount = samples.length;
+    final widthPerSample = size.width / (sampleCount - 1); // Adjust for the last point
+    final centerY = size.height / 2;
+    final maxHeight = size.height / 2; // Limit the wave amplitude
+
+    for (int i = 0; i < sampleCount - 1; i++) {
+      final x1 = i * widthPerSample;
+      final y1 = centerY - samples[i] * maxHeight;
+      final x2 = (i + 1) * widthPerSample;
+      final y2 = centerY - samples[i + 1] * maxHeight;
+
+      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_WaveformPainter oldDelegate) {
+    return oldDelegate.samples != samples ||
+           oldDelegate.color != color ||
+           oldDelegate.strokeWidth != strokeWidth;
+  }
+}
+
+enum VoiceMessageState {
+  playing, paused, downloading;
+}
+
+class VoiceMessage extends StatefulWidget {
+  final Message message;
+  const VoiceMessage({super.key, required this.message});
+
+  @override
+  State<StatefulWidget> createState() => _VoiceMessageState();
+}
+
+class _VoiceMessageState extends State<VoiceMessage> {
+  late final Message _message;
+  VoiceMessageState state = VoiceMessageState.playing;
+
+  PlayerController? _player;
+
+  late final StreamSubscription<VoiceDownloadedEvent> _subcription;
+
+  @override
+  void initState() {
+    _message = widget.message;
+
+    _subcription = AppEventBus.instance.on<VoiceDownloadedEvent>().listen((event) {
+      if (event.messageID != _message.messageID) return;
+      _message.setFileName(Uint8List.fromList(utf8.encode(event.file.fileName)));
+      _message.fileBytes = event.file.fileBytes;
+
+      playAudio();
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _subcription.cancel();
+    super.dispose();
+  }
+
+  void playAudio() async {
+    if (_player?.playerState.isPaused ?? false) {
+      setState(() {
+        state = VoiceMessageState.paused;
+      });
+      _startPlayer();
+      return;
+    }
+
+    if (_player?.playerState.isPlaying ?? false) {
+      setState(() {
+        state = VoiceMessageState.playing;
+      });
+      _player?.pausePlayer();
+      return;
+    }
+
+    Uint8List fileBytes = _message.fileBytes!;
+    String fileName = _message.fileName;
+
+    if (kDebugMode) {
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+      debugPrint("playing audio");
+    }
+
+    File file = await createTempFile(fileBytes, fileName);
+    _player = PlayerController();
+    await _player!.preparePlayer(path: file.path);
+
+    _startPlayer();
+  }
+
+  void _startPlayer() {
+    setState(() {
+      state = VoiceMessageState.paused;
+    });
+
+    // Audioplayer will be automatically disposed once completed
+    _player!.startPlayer();
+
+    _player?.onCompletion.listen((void x /* What even is this? */) {
+      _player = null;
+      setState(() {
+        state = VoiceMessageState.playing;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
+    Widget widgetAction;
+
+    switch (state) {
+      case VoiceMessageState.playing:
+        widgetAction = const Icon(Icons.play_arrow);
+        break;
+      case VoiceMessageState.paused:
+        widgetAction = const Icon(Icons.pause);
+        break;
+      case VoiceMessageState.downloading:
+        widgetAction = SizedBox(height: 50, child: const DotsLoadingScreen());
+        break;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: appColors.secondaryColor.withAlpha(100),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        // Row expands and covers max space as dictated by box constraints
+        children: [
+          IconButton(
+              onPressed: () {
+                if (_message.fileBytes == null) {
+                  // Audio will be played automatically once voice message is received
+                  Client.instance().commands.downloadSound(
+                        _message.messageID,
+                        _message.chatSessionIndex,
+                      );
+
+                  setState(() {
+                    state = VoiceMessageState.downloading;
+                  });
+
+                  return;
+                }
+
+                playAudio();
+              },
+              icon: widgetAction)
+        ],
+      ),
+    );
   }
 }

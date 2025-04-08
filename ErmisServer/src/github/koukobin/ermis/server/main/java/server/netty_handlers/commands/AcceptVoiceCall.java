@@ -13,37 +13,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.common.message_types;
+package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
-import github.koukobin.ermis.common.util.EnumIntConverter;
+import github.koukobin.ermis.common.message_types.ClientCommandType;
+import github.koukobin.ermis.server.main.java.server.ClientInfo;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public enum MessageType {
-	USER_MESSAGE(0), FILE(1), IMAGE(2);
+public class AcceptVoiceCall implements ICommand {
 
-	private static final HashMap<Integer, ClientContentType> values;
-
-	static {
-		values = new HashMap<>(
-				Arrays.stream(ClientContentType.values())
-				.collect(Collectors.toMap(type -> type.id, type -> type))
-				);
+	@Override
+	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 	}
-	
-    public final int id;
 
-    MessageType(int id) {
-        this.id = id;
-    }
-
-	public static ClientContentType fromId(int id) {
-		return EnumIntConverter.fromId(values, id);
+	@Override
+	public ClientCommandType getCommand() {
+		return ClientCommandType.ACCEPT_VOICE_CALL;
 	}
+
 }

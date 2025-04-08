@@ -35,8 +35,7 @@ public enum ClientCommandType {
 	LOGOUT_OTHER_DEVICE(CommandLevel.HEAVY, 105),
 	LOGOUT_ALL_DEVICES(CommandLevel.HEAVY, 106),
 	DELETE_ACCOUNT(CommandLevel.HEAVY, 107),
-	ADD_NEW_ACCOUNT(CommandLevel.HEAVY, 108),
-	SWITCH_ACCOUNT(CommandLevel.HEAVY, 109),
+	ADD_OR_SWITCH_TO_NEW_ACCOUNT(CommandLevel.HEAVY, 108),
 
 	// User Information Requests
 	FETCH_PROFILE_INFORMATION(CommandLevel.HEAVY, 200),
@@ -61,7 +60,6 @@ public enum ClientCommandType {
 	DELETE_CHAT_MESSAGE(CommandLevel.HEAVY, 308),
 	FETCH_WRITTEN_TEXT(CommandLevel.HEAVY, 309),
 	DOWNLOAD_FILE(CommandLevel.HEAVY, 310),
-	DOWNLOAD_IMAGE(CommandLevel.HEAVY, 311),
 	START_VOICE_CALL(CommandLevel.HEAVY, 312),
 	ACCEPT_VOICE_CALL(CommandLevel.HEAVY, 313),
 

@@ -34,6 +34,7 @@ import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.commands.ICommand;
 import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -147,7 +148,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 				continue;
 			}
 
-			CommandHandler.refreshChatSessionStatuses(chatSession);
+			ICommand.refreshChatSessionStatuses(chatSession);
 		}
 
 	}
@@ -193,7 +194,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 			payload.writeInt(textLength);
 			payload.writeBytes(textBytes);
 		}
-		case FILE, IMAGE -> {
+		case FILE, IMAGE, VOICE -> {
 			int fileNameLength = msg.readInt();
 			fileNameBytes = new byte[fileNameLength];
 			msg.readBytes(fileNameBytes);

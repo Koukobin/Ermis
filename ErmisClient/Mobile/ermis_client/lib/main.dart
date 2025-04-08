@@ -247,13 +247,13 @@ void maintainWebSocketConnection(ServiceInstance service) async {
     }
 
     Client.instance().startMessageHandler();
-    Client.instance().commands.fetchChatSessions();
+    await Client.instance().fetchUserInformation();
     Client.instance().commands.setAccountStatus(ClientStatus.offline);
 
     AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
       ChatSession chatSession = event.chatSession;
       Message msg = event.message;
-      handleChatMessageNotification(chatSession, msg, settingsJson, (String text) {
+      handleChatMessageNotificationBackground(chatSession, msg, settingsJson, (String text) {
         Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex);
       });
     });

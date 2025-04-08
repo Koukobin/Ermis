@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'permissions.dart';
 
@@ -80,6 +81,27 @@ Future<void> writeFile(Uint8List fileData, String filePath) async {
   File file = File(filePath);
   await file.create();
   await file.writeAsBytes(fileData, mode: FileMode.write, flush: true);
+}
+
+Future<File> createTempFile(Uint8List fileData, String fileName) async {
+  if (kDebugMode) {
+    debugPrint(fileName);
+  }
+
+  final Directory tempDir = await getTemporaryDirectory();
+  final String tempPath = tempDir.path;
+  final String finalPath = '$tempPath/$fileName';
+
+  // Write the file to disk
+  File file = File(finalPath);
+
+  if (await file.exists()) {
+    file.delete(); // Ensure the file does not exist
+  }
+
+  await file.create(recursive: true);
+  await file.writeAsBytes(fileData, mode: FileMode.write, flush: true);
+  return file;
 }
 
 Future<void> attachSingleFile(BuildContext context /* Unused; should remove */, FileCallBack onFinished) async {

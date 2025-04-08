@@ -28,8 +28,7 @@ enum ClientCommandType {
   logoutOtherDevice(CommandLevel.light, 105),
   logoutAllDevices(CommandLevel.light, 106),
   deleteAccount(CommandLevel.heavy, 107),
-  addNewAccount(CommandLevel.heavy, 108),
-	switchAccount(CommandLevel.heavy, 109),
+  addOrSwitchToNewAccount(CommandLevel.heavy, 108),
 
   // User Information Requests
   fetchProfileInformation(CommandLevel.heavy, 200),
@@ -54,7 +53,6 @@ enum ClientCommandType {
   deleteChatMessage(CommandLevel.heavy, 308),
   fetchWrittenText(CommandLevel.heavy, 309),
   downloadFile(CommandLevel.heavy, 310),
-  downloadImage(CommandLevel.heavy, 311),
   startVoiceCall(CommandLevel.heavy, 312),
   acceptVoiceCall(CommandLevel.heavy, 313),
 

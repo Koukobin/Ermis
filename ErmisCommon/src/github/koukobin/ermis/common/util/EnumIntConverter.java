@@ -47,11 +47,11 @@ public final class EnumIntConverter {
 		return result;
 	}
 
-	public static <V, T extends Enum<T>> Optional<T> fromId2(Map<V, T> map, int id) {
+	public static <V, T extends Enum<T>> Optional<T> fromId2(Map<V, T> map, V id) {
 		return Optional.ofNullable(map.get(id));
 	}
 
-	public static <V, T extends Enum<T>> T fromId(Map<V, T> map, int id) {
+	public static <V, T extends Enum<T>> T fromId(Map<V, T> map, V id) {
 		T result = map.get(id);
 
 		if (result == null) {

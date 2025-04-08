@@ -50,6 +50,7 @@ public enum ClientCommandResultType {
     // File Management
     DOWNLOAD_FILE(400),
     DOWNLOAD_IMAGE(401),
+    DOWNLOAD_VOICE(402),
     
     // Start voice call,
     START_VOICE_CALL(500),

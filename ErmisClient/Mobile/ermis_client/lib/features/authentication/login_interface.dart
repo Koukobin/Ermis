@@ -148,7 +148,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                             return;
                           }
 
-                          if (_passwordController.text.isEmpty) {
+                          if (_passwordController.text.isEmpty && _backupVerificationController.text.isEmpty) {
                             showToastDialog(S.current.password_is_empty);
                             return;
                           }

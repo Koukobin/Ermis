@@ -29,7 +29,7 @@ class Message {
   int _chatSessionIndex;
   Uint8List? _text;
   Uint8List? _fileName;
-  Uint8List? imageBytes;
+  Uint8List? fileBytes;
   int _epochSecond;
   MessageContentType _contentType;
   MessageDeliveryStatus _deliveryStatus;

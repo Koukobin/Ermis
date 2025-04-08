@@ -22,6 +22,8 @@ import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
+import '../../client/message_handler.dart';
+
 Future<void> _showVerificationDialog({
   required BuildContext context,
   required String title,
@@ -140,10 +142,16 @@ mixin Verification {
       if (isSuccessful) {
         showToastDialog(resultMessage);
         ErmisDB.getConnection().addUserAccount(
-            LocalAccountInfo.fuck(
-                email: email,
-                passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
-            Client.instance().serverInfo);
+          LocalAccountInfo.fuck(
+              email: email,
+              passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
+          Client.instance().serverInfo,
+        );
+
+        // Reset user information before switching to ensure that
+        // user information from this account is not transferred
+        // to the next
+        Info.resetUserInformation();
         break;
       }
 

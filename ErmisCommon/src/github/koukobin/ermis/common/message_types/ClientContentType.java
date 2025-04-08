@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 import github.koukobin.ermis.common.util.EnumIntConverter;
 
 /**
-* @author Ilias Koukovinis
-*
-*/
+ * @author Ilias Koukovinis
+ *
+ */
 public enum ClientContentType {
-	TEXT(0), FILE(1), IMAGE(2);
+	TEXT(0), FILE(1), IMAGE(2), VOICE(3);
 	
 	private static final HashMap<Integer, ClientContentType> values;
 	

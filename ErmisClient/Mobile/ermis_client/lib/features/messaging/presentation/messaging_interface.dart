@@ -16,11 +16,15 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:ermis_client/client/message_handler.dart';
 
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:ermis_client/features/authentication/domain/client_status.dart';
+import 'package:ermis_client/features/messaging/presentation/input_field.dart';
 import 'package:ermis_client/features/messaging/presentation/message_bubble.dart';
 import 'package:ermis_client/features/messaging/presentation/send_file_popup_menu.dart';
 import 'package:ermis_client/features/messaging/presentation/choose_friends_screen.dart';
@@ -31,6 +35,7 @@ import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/widgets/scroll/custom_scroll_view.dart';
 import 'package:ermis_client/core/services/database_service.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -77,7 +82,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   late ChatSession _chatSession; // Not final because can be updated by server
 
   List<Message> _messages = []; // Not final because can be updated by server
-  final TextEditingController _inputController = TextEditingController();
 
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
@@ -180,7 +184,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
       SettingsJson settingsJson = SettingsJson();
       settingsJson.loadSettingsJson();
-      handleChatMessageNotification(chatSession, msg, settingsJson, _sendTextMessage);
+      handleChatMessageNotificationForeground(chatSession, msg, settingsJson, _sendTextMessage);
     });
     eventBusSubscriptions.putIfAbsent(_chatSession, () => []);
     eventBusSubscriptions[_chatSession]!.add(b);
@@ -199,7 +203,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     });
 
     final d = AppEventBus.instance.on<ImageDownloadedEvent>().listen((event) async {
-      _updateImageMessage(event.file, event.messageID);
+      _updateFileMessage(event.file, event.messageID);
     });
 
     final e = AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>().listen((event) {
@@ -262,33 +266,19 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     });
   }
 
-  void _addMessage(Message msg) {
-    if (mounted) {
-      setState(() {
-        _messages.add(msg);
-      });
-      return;
-    }
 
-    _messages.add(msg);
-  }
 
-  void _updateImageMessage(LoadedInMemoryFile file, int messageID) {
+  void _updateFileMessage(LoadedInMemoryFile file, int messageID) {
     if (!mounted) return;
     for (final message in _messages) {
       if (message.messageID == messageID) {
         setState(() {
           message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
-          message.imageBytes = file.fileBytes;
+          message.fileBytes = file.fileBytes;
         });
         break;
       }
     }
-  }
-
-  void _sendTextMessage(String text) {
-    Message pendingMessage = Client.instance().sendMessageToClient(text, _chatSessionIndex);
-    _addMessage(pendingMessage);
   }
 
   @override
@@ -388,6 +378,21 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     );
   }
 
+  void _sendTextMessage(String text) {
+    Message pendingMessage = Client.instance().sendMessageToClient(text, widget.chatSessionIndex);
+    _addMessage(pendingMessage);
+  }
+
+  void _addMessage(Message msg) {
+    if (mounted) {
+      setState(() {
+        _messages.add(msg);
+      });
+      return;
+    }
+    _messages.add(msg);
+  }
+
   Widget _buildMessageList(AppColors appColors) {
     return Expanded(
       child: Padding(
@@ -473,7 +478,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                   case MessageContentType.text:
                     data = message.text;
                     break;
-                  case MessageContentType.file || MessageContentType.image:
+                  case MessageContentType.file || MessageContentType.image || MessageContentType.voice:
                     data = message.fileName;
                     break;
                 }
@@ -523,50 +528,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   }
 
   Widget _buildInputField(AppColors appColors) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Row(
-        children: [
-          const SizedBox(width: 5),
-          SendFilePopupMenu(
-            chatSessionIndex: _chatSessionIndex,
-            fileCallBack: (String fileName, Uint8List fileContent) {
-              Message pendingMessage = Client.instance().sendFileToClient(fileName, fileContent, widget.chatSessionIndex);
-              _addMessage(pendingMessage);
-            },
-            imageCallBack: (String fileName, Uint8List fileContent) {
-              Message pendingMessage = Client.instance().sendImageToClient(fileName, fileContent, widget.chatSessionIndex);
-              _addMessage(pendingMessage);
-            },
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: TextField(
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              controller: _inputController,
-              decoration: InputDecoration(
-                hintText: S.current.type_message,
-                filled: true,
-                fillColor: appColors.secondaryColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              if (_inputController.text.trim().isEmpty) return;
-              _sendTextMessage(_inputController.text);
-              _inputController.clear();
-            },
-            icon: Icon(Icons.send, color: appColors.inferiorColor),
-          ),
-        ],
-      ),
-    );
+    return InputField(chatSessionIndex: _chatSessionIndex, messages: _messages);
   }
 
   @override

@@ -18,6 +18,7 @@ import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/user_device.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/widgets/loading_state.dart';
+import 'package:ermis_client/features/dots_loading_screen.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -230,70 +231,6 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> {
     return Scaffold(
       appBar: ErmisAppBar(titleText: S.current.linked_devices),
       body: const DotsLoadingScreen(),
-    );
-  }
-
-}
-
-class DotsLoadingScreen extends StatefulWidget {
-  const DotsLoadingScreen({super.key});
-
-  @override
-  State<DotsLoadingScreen> createState() => _DotsLoadingScreenState();
-}
-
-class _DotsLoadingScreenState extends State<DotsLoadingScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late List<Animation<double>> _dotAnimations;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800))
-      ..repeat(reverse: true);
-
-    _dotAnimations = List.generate(3, (index) {
-      return Tween<double>(begin: 0.25, end: 1.0).animate(
-        CurvedAnimation(
-          parent: _controller,
-          curve: Interval(index * 0.3, (index + 1) * 0.3),
-        ),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (index) {
-          return AnimatedBuilder(
-            animation: _dotAnimations[index],
-            builder: (context, child) {
-              return Opacity(
-                opacity: _dotAnimations[index].value,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                ),
-              );
-            },
-          );
-        }),
-      ),
     );
   }
 }
