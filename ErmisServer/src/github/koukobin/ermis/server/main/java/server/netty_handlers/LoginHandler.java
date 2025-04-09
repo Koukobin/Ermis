@@ -28,6 +28,7 @@ import github.koukobin.ermis.common.entry.LoginInfo.Credential;
 import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.GeneralResult;
+import github.koukobin.ermis.common.results.RegenerateBackupVerificationCodesResult;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
@@ -126,8 +127,8 @@ final class LoginHandler extends EntryHandler {
 			}
 
 			if (entryResult.isSuccessful()) {
-				login(ctx, clientInfo);
 				clientInfo.setEmail(email);
+				login(ctx, clientInfo);
 			} else {
 //				EntryHandler.registrationFailed(ctx);
 			}
@@ -157,11 +158,11 @@ final class LoginHandler extends EntryHandler {
 					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 						result = conn.loginUsingPassword(email, password, deviceInfo);
 					}
-					
+
 					if (result.isSuccessful()) {
 						clientInfo.setEmail(email);
 					}
-					
+
 					return result;
 				}
 

@@ -15,11 +15,15 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
-import github.koukobin.ermis.common.Account;
+import java.util.Collection;
+import java.util.List;
+
+import github.koukobin.ermis.common.ClientStatus;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
+import github.koukobin.ermis.server.main.java.server.ActiveClients;
+import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
@@ -32,35 +36,37 @@ public class FetchChatSessionStatuses implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
-		ByteBuf payload = channel.alloc().ioBuffer();
-		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-		payload.writeInt(ClientCommandResultType.FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS.id);
+		Integer[] friendsToFetchStatuses;
 
-		Account[] accounts;
-		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			accounts = conn.getAccountsAssociatedWithDevice(clientInfo.getInetAddress());
+		if (args.readableBytes() > 0) {
+			friendsToFetchStatuses = new Integer[args.readableBytes() / Integer.BYTES];
+			for (int i = 0; i < friendsToFetchStatuses.length; i++) {
+				friendsToFetchStatuses[i] = args.readInt();
+			} // TODO: IMPLEMENENT CHECK THAT THESE ARE ACTUALLY FRIENDS
+		} else {
+			friendsToFetchStatuses = clientInfo.getChatSessions().stream().map(ChatSession::getMembers)
+					.flatMap(Collection::stream).distinct().toArray(Integer[]::new);
 		}
 
-		for (int i = 0; i < accounts.length; i++) {
-			Account account = accounts[i];
+		ByteBuf payload = channel.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+		payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS_STATUSES.id);
 
-			if (account.clientID() == clientInfo.getClientID()) {
-				continue;
+		for (int i = 0; i < friendsToFetchStatuses.length; i++) {
+			int clientID = friendsToFetchStatuses[i];
+			payload.writeInt(clientID);
+
+			ClientStatus clientStatus;
+			List<ClientInfo> member = ActiveClients.getClient(clientID);
+
+			if (member == null) {
+				clientStatus = ClientStatus.OFFLINE;
+			} else {
+				ClientInfo random = member.get(0);
+				clientStatus = random.getStatus();
 			}
 
-			payload.writeInt(account.clientID());
-
-			String email = account.email();
-			payload.writeInt(email.length());
-			payload.writeBytes(email.getBytes());
-
-			String displayName = account.displayName();
-			payload.writeInt(displayName.length());
-			payload.writeBytes(displayName.getBytes());
-
-			byte[] profilePhoto = account.profilePhoto();
-			payload.writeInt(profilePhoto.length);
-			payload.writeBytes(profilePhoto);
+			payload.writeInt(clientStatus.id);
 		}
 
 		channel.writeAndFlush(payload);

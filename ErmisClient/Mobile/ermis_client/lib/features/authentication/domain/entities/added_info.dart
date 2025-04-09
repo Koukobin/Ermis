@@ -26,7 +26,7 @@ enum AddedInfo {
     try {
       return AddedInfo.values.firstWhere((type) => type.id == id);
     } catch (e) {
-      throw EnumNotFoundException('No AddedInfo found for id $id');
+      throw EnumNotFoundException('No $AddedInfo found for id $id');
     }
   }
 }

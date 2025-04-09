@@ -234,7 +234,7 @@ class Entry<T extends CredentialInterface> {
     }
   }
 
-  Future<bool> getBackupVerificationCodeResult() async {
+  Future<Resultable> getBackupVerificationCodeResult() async {
     ByteBuf? payload;
     await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
       payload = msg.buffer;
@@ -245,9 +245,8 @@ class Entry<T extends CredentialInterface> {
     isLoggedIn = payload!.readBoolean();
     Client.instance()._isLoggedIn = isLoggedIn;
 
-    Uint8List resultMessageBytes = payload!.readBytes(payload!.readableBytes);
-
-    return isLoggedIn;
+    int id = payload!.readInt32();
+    return LoginCredentialResult.fromId(id)!;
   }
 
   void sendEntryType() {

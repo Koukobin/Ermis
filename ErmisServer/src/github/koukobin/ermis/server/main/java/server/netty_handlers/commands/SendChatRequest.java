@@ -21,6 +21,7 @@ import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
@@ -55,6 +56,7 @@ public class SendChatRequest implements ICommand {
 
 		forActiveAccounts(receiverID, (ClientInfo ci) -> {
 			ci.getChatRequests().add(senderClientID);
+			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_REQUESTS, ci, Unpooled.EMPTY_BUFFER);
 		});
 	}
 

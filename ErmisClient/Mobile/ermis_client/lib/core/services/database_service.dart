@@ -116,6 +116,9 @@ class DBConnection {
     // await db.execute('''
     //   DROP TABLE chat_session_members;
     // ''');
+    // await db.execute('''
+    //   DROP TABLE chat_sessions;
+    // ''');
 
     // 'chat_sessions' table
     await db.execute('''

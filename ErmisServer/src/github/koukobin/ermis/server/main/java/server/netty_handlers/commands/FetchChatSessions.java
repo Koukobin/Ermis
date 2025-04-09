@@ -47,7 +47,22 @@ public class FetchChatSessions implements ICommand {
 		while (args.readableBytes() > 0) {
 
 			int chatSessionIndex = args.readInt();
-			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+			payload.writeInt(chatSessionIndex);
+
+			ChatSession chatSession;
+			try {
+				chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
+			} catch (IndexOutOfBoundsException iobe) {
+				// IndexOutOfBoundsException could be thrown here; this could happen,
+				// for instance, if chat session was deleted by other user
+				getLogger().debug("Chat session was not found", iobe);
+				args.skipBytes(args.readInt() * (Integer.BYTES + Long.BYTES)); // Skip subsequent reads
+				int membersSize = -1;
+				payload.writeInt(membersSize); // Inferred by client session was deleted
+				continue;
+			}
+
+			int chatSessionID = chatSession.getChatSessionID();
 			ClientUpdate[] members = new ClientUpdate[args.readInt()];
 			for (int j = 0; j < members.length; j++) {
 				members[j] = new ClientUpdate(args.readInt(), args.readLong());
@@ -65,6 +80,7 @@ public class FetchChatSessions implements ICommand {
 					.toList();
 			List<Integer> memberIDS = outdatedMembersInfo.stream().map(ClientUpdate::clientID).toList();
 
+			payload.writeInt(memberIDS.size());
 			if (memberIDS.isEmpty()) {
 				continue;
 			}
@@ -73,8 +89,6 @@ public class FetchChatSessions implements ICommand {
 				mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent.putIfAbsent(memberID, 1);
 			}
 
-			payload.writeInt(chatSessionID);
-			payload.writeInt(memberIDS.size());
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				for (int j = 0; j < memberIDS.size(); j++) {
 

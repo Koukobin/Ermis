@@ -162,10 +162,16 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
 
                           loginEntry.sendCredentials({
                             LoginCredential.email: _emailController.text,
-                            LoginCredential.password: _passwordController.text,
+                            LoginCredential.password: _useBackupverificationCode ? _backupVerificationController.text : _passwordController.text,
                           });
 
-                          Resultable entryResult = await loginEntry.getCredentialsExchangeResult();
+                          
+                          Resultable entryResult;
+                          if (!_useBackupverificationCode) {
+                            entryResult = await loginEntry.getCredentialsExchangeResult();
+                          } else {
+                            entryResult = await loginEntry.getBackupVerificationCodeResult();
+                          }
 
                           bool isSuccessful = entryResult.isSuccessful;
                           String resultMessage = entryResult.message;
@@ -212,19 +218,19 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                         style: TextButton.styleFrom(
                           backgroundColor: appColors.quaternaryColor,
                           padding: const EdgeInsets.symmetric(vertical: 18),
-                          textStyle: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.bold),
+                          textStyle: const TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.bold,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         label: AnimatedSwitcher(
-                          duration: Duration(milliseconds: 400),
+                          duration: const Duration(milliseconds: 400),
                           switchInCurve: Curves.easeInOut,
                           switchOutCurve: Curves.easeInOut,
-                          transitionBuilder:
-                              (Widget child, Animation<double> animation) {
+                          transitionBuilder: (Widget child, Animation<double> animation) {
                             return ScaleTransition(
                               scale: animation,
                               child: child,

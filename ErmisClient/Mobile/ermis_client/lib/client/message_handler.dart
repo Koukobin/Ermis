@@ -213,10 +213,7 @@ class MessageHandler {
   Future<void> fetchUserInformation() async {
     commands.fetchProfileInformation();
     commands.fetchChatSessionIndices();
-    AppEventBus.instance.on<ChatSessionsIndicesReceivedEvent>().first.then((ChatSessionsIndicesReceivedEvent msg) async {
-      commands.fetchChatSessions();
-      commands.fetchChatSessionsStatuses();
-    });
+    commands.setAccountStatus(ClientStatus.online);
     commands.fetchChatRequests();
     commands.fetchAccountStatus();
 

@@ -121,17 +121,40 @@ class CommandResultHandler {
         }
 
         _eventBus.fire(ChatSessionsIndicesReceivedEvent(Info.chatSessions!));
+
+        Client.instance().commands.fetchChatSessions(); // Proceed to fetching chat sessions
         break;
       case ClientCommandResultType.getChatSessions:
         Map<int, Member> cache = {};
 
         int i = 0;
         while (msg.readableBytes > 0) {
-          int chatSessionID = msg.readInt32();
-          ChatSession chatSession = Info.chatSessionIDSToChatSessions[chatSessionID]!;
+          int chatSessionIndex = msg.readInt32();
+          ChatSession chatSession;
+
+          try {
+            chatSession = Info.chatSessions![chatSessionIndex];
+          } on RangeError {
+            continue; // This could happen potentially if this chat session had been cached in local database and when the conditional request was it did not know what to do and it sent -1. Outdated chat sessions will be deleted  after new chat sessions have been processed
+          }
+
           Set<Member> members = chatSession.getMembers.toSet();
 
           int membersSize = msg.readInt32();
+          if (membersSize == -1) {
+            // Infer session has been deleted since membersSize is -1
+
+            Info.chatSessions!.removeAt(chatSessionIndex);
+            Info.chatSessionIDSToChatSessions.remove(chatSession.chatSessionID);
+
+            IntermediaryService().deleteChatSession(
+              server: Client.instance().serverInfo,
+              session: chatSession,
+            );
+
+            continue;
+          }
+
           for (int j = 0; j < membersSize; j++) {
             int memberID = msg.readInt32();
 
@@ -150,10 +173,11 @@ class CommandResultHandler {
                 MemberIcon(iconBytes, iconLastUpdatedAt),
                 ClientStatus.offline
               );
+
+              cache[memberID] = member;
             }
 
             members.add(member);
-            cache[memberID] = member;
           }
 
           chatSession.setMembers(members.toList());
@@ -165,7 +189,17 @@ class CommandResultHandler {
 
           i++;
         }
+        
+        // Delete outdated chat sessions
+        for (final session in Info.chatSessionIDSToChatSessions.values) {
+          if (Info.chatSessions!.contains(session)) continue;
+
+          IntermediaryService().deleteChatSession(server: Client.instance().serverInfo, session: session);
+        }
+
         _eventBus.fire(ChatSessionsEvent(Info.chatSessions!));
+
+        Client.instance().commands.fetchChatSessionsStatuses(); // Proceed to fetching statuses
         break;
       case ClientCommandResultType.getChatSessionStatuses:
         while (msg.readableBytes > 0) {

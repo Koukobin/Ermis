@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 
-import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
@@ -31,6 +30,7 @@ import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
@@ -71,16 +71,9 @@ public class AcceptChatRequest implements ICommand {
 		Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> {
 			ci.getChatSessions().add(chatSession);
 
-			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-			payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS.id);
-
-			payload.writeInt(chatSessionID);
-			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				addMemberInfoToPayload(payload, conn, ci.getClientID() == senderClientID ? receiverClientID : senderClientID);
-			}
-
-			channel.writeAndFlush(payload);
+			// Send updated indices to the client. This triggers the
+			// retrieval of current chat sessions and their statuses.
+			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
 		};
 		forActiveAccounts(receiverClientID, updateSessions);
 		forActiveAccounts(senderClientID, updateSessions);

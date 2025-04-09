@@ -467,7 +467,7 @@ public final class ErmisDatabase {
 			boolean isBackupVerificationCodeCorrect = false;
 
 			int backupVerificationCodesAmount = 0;
-			String query = "SELECT array_length(backup_verification_codes) FROM users WHERE 'backup_verification_codes'=ANY(?) AND email=?;";
+			String query = "SELECT array_length(backup_verification_codes::TEXT[], 1) FROM users WHERE ? = ANY(backup_verification_codes) AND email=?;";
 			try (PreparedStatement pstmt = conn.prepareStatement(query)) {
 				pstmt.setString(1, backupVerificationCode);
 				pstmt.setString(2, email);

@@ -40,6 +40,10 @@ class IntermediaryService {
     return _databaseService.getLocalUserInfo(server, accountInfo!.email);
   }
 
+  Future<void> deleteChatSession({required ServerInfo server, required ChatSession session}) async {
+    await _databaseService.deleteChatSession(server.toString(), session.chatSessionID);
+  }
+
   // Future<void> updateLocalMessages(int chatSessionId, List<Map<String, dynamic>> messages) async {
   //   // Perform any necessary data transformation or validation
   //   for (var message in messages) {
