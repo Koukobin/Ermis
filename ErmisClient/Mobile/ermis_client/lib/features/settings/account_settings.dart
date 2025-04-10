@@ -72,7 +72,7 @@ class AccountSettings extends StatefulWidget {
                 title: Text(Client.instance().displayName!, style: TextStyle(fontSize: 18)),
                 trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
               ),
-              for (final Account account in _accounts!)
+              for (final Account account in _accounts ?? [])
                 ListTile(
                   leading: UserProfilePhoto(profileBytes: account.profilePhoto),
                   title: Text(account.name(), style: TextStyle(fontSize: 18)),

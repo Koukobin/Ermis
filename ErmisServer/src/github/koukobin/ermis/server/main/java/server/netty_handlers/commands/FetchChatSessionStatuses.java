@@ -54,7 +54,10 @@ public class FetchChatSessionStatuses implements ICommand {
 
 		for (int i = 0; i < friendsToFetchStatuses.length; i++) {
 			int clientID = friendsToFetchStatuses[i];
-			payload.writeInt(clientID);
+
+			if (clientID == clientInfo.getClientID()) {
+				continue;
+			}
 
 			ClientStatus clientStatus;
 			List<ClientInfo> member = ActiveClients.getClient(clientID);
@@ -66,6 +69,7 @@ public class FetchChatSessionStatuses implements ICommand {
 				clientStatus = random.getStatus();
 			}
 
+			payload.writeInt(clientID);
 			payload.writeInt(clientStatus.id);
 		}
 

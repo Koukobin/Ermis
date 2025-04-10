@@ -3,17 +3,12 @@ import 'dart:collection';
 /// This is an implementation of the .distinct() method in the Java Stream API in dart
 extension IterableDistinct<T> on Iterable<T> {
   ///
-  /// Returns a new [Iterable] consisting of the distinct elements 
-  /// (according to ==) of this [Iterable].
+  /// Returns a new [Iterable] consisting of the distinct elements
+  /// (according to both == and hashCode) of this [Iterable].
   ///
-  Iterable<T> equalsDistinct() {
+  Iterable<T> shittyDistinct() {
+    // ignore: prefer_collection_literals, for clarity, I decided to explicitly initialize the Set instead of using {}
     final seen = LinkedHashSet<T>();
-    // forEach((m) {
-    //   int count = 0;
-    //   for (T t in this) {
-    //     if (t == m) return count;
-    //   }
-    // });
     return where((T element) => seen.add(element));
   }
 
@@ -23,9 +18,7 @@ extension IterableDistinct<T> on Iterable<T> {
   /// Uses [LinkedHashSet] to assure there are not duplicates
   /// while maintaining the ordering of the elements
   Iterable<T> hashCodeDistinct() {
-    final seen = LinkedHashSet<T>();
-    toSet().toList();
-    return where((T element) => seen.add(element));
+    return toHashOnlySet();
   }
 }
 
@@ -36,5 +29,18 @@ extension FirstWhereExt<T> on Iterable<T> {
       if (test(element)) return element;
     }
     return null;
+  }
+}
+
+extension ToHashOnlySet<T> on Iterable<T> {
+  /// Apparently, in Dart, the Set uses both hashCode and == (equality operator) 
+  /// to determine uniqueness of values. So even if multiple elements have the same 
+  /// hash code, they will all be added to the set unless they are also considered 
+  /// equal via ==.
+  /// 
+  /// This is truly a horrible design choice. Why? I love Dart - but this is a very 
+  /// questionable choice. Nevertheless, I am sure they had their reasons.
+  Iterable<T> toHashOnlySet() {
+    return HashSet(equals: (p0, p1) => true)..addAll(this);
   }
 }

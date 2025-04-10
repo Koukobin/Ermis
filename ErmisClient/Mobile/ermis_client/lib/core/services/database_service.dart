@@ -268,10 +268,38 @@ class DBConnection {
     final int lastUsed = record['last_updated_at'] as int;
 
     return LocalUserInfo(
-        displayName: displayName,
-        clientID: clientID,
-        profilePhoto: profilePhoto,
-        lastUpdatedEpochSecond: lastUsed);
+      displayName: displayName,
+      clientID: clientID,
+      profilePhoto: profilePhoto,
+      lastUpdatedEpochSecond: lastUsed,
+    );
+  }
+
+  Future<void> insertLocalUserInfo(ServerInfo serverInfo, LocalUserInfo info) async {
+    final db = await _database;
+
+    /**
+     *     await db.execute('''
+      CREATE TABLE IF NOT EXISTS server_profiles (
+        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
+        email TEXT NOT NULL REFERENCES server_accounts(email) ON DELETE CASCADE,
+        display_name TEXT NOT NULL,
+        client_id INTEGER NOT NULL,
+        profile_photo BLOB NOT NULL,
+        last_updated_at TIMESTAMP NOT NULL,
+        PRIMARY KEY (server_url, email, client_id)
+      );
+     */
+
+    db.insert(
+      "server_profiles",
+      {
+        "server_url": serverInfo.toString(),
+        "email": (await getLastUsedAccount(serverInfo))!.email,
+        ...info.toMap()
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<void> updateServerUrlLastUsed(ServerInfo serverInfo) async {
@@ -410,6 +438,7 @@ class DBConnection {
 
   Future<List<Member>> fetchMembersAssociatedWithChatSession({
     required ServerInfo server,
+    required int excludeClientID,
     required int chatSessionID,
   }) async {
     final db = await _database;
@@ -421,9 +450,10 @@ class DBConnection {
         JOIN chat_session_members csm 
             ON m.server_url = csm.server_url 
             AND m.client_id = csm.client_id
+            AND NOT m.client_id  = ?
         WHERE csm.chat_session_id = ? AND csm.server_url = ?;
       ''',
-      [chatSessionID, server.toString()],
+      [excludeClientID, chatSessionID, server.toString()],
     );
 
     List<Member> members = results.map((Map<String, dynamic> record) {

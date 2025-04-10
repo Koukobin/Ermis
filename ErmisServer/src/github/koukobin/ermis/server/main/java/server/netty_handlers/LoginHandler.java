@@ -28,7 +28,6 @@ import github.koukobin.ermis.common.entry.LoginInfo.Credential;
 import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.GeneralResult;
-import github.koukobin.ermis.common.results.RegenerateBackupVerificationCodesResult;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;

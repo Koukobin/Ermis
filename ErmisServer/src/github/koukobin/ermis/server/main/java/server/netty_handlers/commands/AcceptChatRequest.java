@@ -74,6 +74,9 @@ public class AcceptChatRequest implements ICommand {
 			// Send updated indices to the client. This triggers the
 			// retrieval of current chat sessions and their statuses.
 			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
+
+			// Update chat requests as well
+			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_REQUESTS, clientInfo, args);
 		};
 		forActiveAccounts(receiverClientID, updateSessions);
 		forActiveAccounts(senderClientID, updateSessions);

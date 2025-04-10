@@ -38,7 +38,6 @@ import 'storage_data_settings.dart';
 import 'theme_settings.dart';
 
 class SettingsScreen extends StatefulWidget {
-
   const SettingsScreen({super.key});
 
   @override
@@ -178,7 +177,7 @@ class DisplayName extends StatefulWidget {
 }
 
 class DisplayNameState extends State<DisplayName> {
-  static String _displayName = Client.instance().displayName ?? "";
+  String _displayName = Client.instance().displayName ?? "";
 
   @override
   void initState() {

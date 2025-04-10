@@ -8,9 +8,14 @@ class IntermediaryService {
 
   Future<List<Member>> fetchMembersAssociatedWithChatSession({
     required ServerInfo server,
+    required int excludeClientID,
     required int chatSessionID,
   }) async {
-    return await _databaseService.fetchMembersAssociatedWithChatSession(server: server, chatSessionID: chatSessionID);
+    return await _databaseService.fetchMembersAssociatedWithChatSession(
+      server: server,
+      excludeClientID: excludeClientID,
+      chatSessionID: chatSessionID,
+    );
   }
 
   Future<List<int>> fetchChatSessions({
@@ -42,6 +47,13 @@ class IntermediaryService {
 
   Future<void> deleteChatSession({required ServerInfo server, required ChatSession session}) async {
     await _databaseService.deleteChatSession(server.toString(), session.chatSessionID);
+  }
+
+  Future<void> addLocalUserInfo({
+    required ServerInfo server,
+    required LocalUserInfo info,
+  }) async {
+    await _databaseService.insertLocalUserInfo(server, info);
   }
 
   // Future<void> updateLocalMessages(int chatSessionId, List<Map<String, dynamic>> messages) async {

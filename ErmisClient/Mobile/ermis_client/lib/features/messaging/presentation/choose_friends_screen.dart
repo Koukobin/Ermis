@@ -1,4 +1,5 @@
 import 'package:ermis_client/core/data_sources/api_client.dart';
+import 'package:ermis_client/core/extensions/iterable_extensions.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:ermis_client/features/chats/widgets/user_avatar.dart';
 import 'package:ermis_client/generated/l10n.dart';
@@ -31,14 +32,25 @@ class ChooseFriendScreen extends StatefulWidget {
 }
 
 class _ChooseFriendScreenState extends State<ChooseFriendScreen> {
-  late final List<Member> friends = Client.instance()
+  late final List<Member> friends;
+  final Set<Member> selectedFriends = {};
+  late List<Member> results;
+
+  @override
+  void initState() {
+    friends = Client.instance()
       .chatSessions!
       .map((ChatSession session) => session.getMembers)
       .expand((List<Member> members) => members.toList())
-      .where((member) => !widget.membersToExclude.contains(member))
+      .where((member) {
+        return !widget.membersToExclude.map((m) => m.clientID).toList().contains(member.clientID);
+      })
+      .toHashOnlySet() // Remove duplicates
       .toList();
-  final Set<Member> selectedFriends = {};
-  late List<Member> results = friends;
+
+    results = friends;
+    super.initState();
+  }
 
   final TextEditingController _controller = TextEditingController();
 

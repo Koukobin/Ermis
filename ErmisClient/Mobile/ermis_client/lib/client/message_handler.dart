@@ -306,7 +306,7 @@ class Commands {
     out.write(payload);
   }
 
-  void fetchProfileInformation() async {
+  Future<void> fetchProfileInformation() async {
     LocalUserInfo? userInfo = await IntermediaryService().fetchLocalUserInfo(server: Client.instance().serverInfo);
 
     ByteBuf payload = ByteBuf.smallBuffer();
@@ -383,10 +383,17 @@ class Commands {
     payload.writeInt32(ClientCommandType.fetchChatSessionIndices.id);
 
     List<int> sessions = await IntermediaryService().fetchChatSessions(server: Client.instance().serverInfo);
+
+    while (Info.clientID < 0) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      continue;
+    }
+
     for (int sessionID in sessions) {
 
       List<Member> members = await IntermediaryService().fetchMembersAssociatedWithChatSession(
         server: Client.instance().serverInfo,
+        excludeClientID: Info.clientID,
         chatSessionID: sessionID,
       );
 
@@ -471,9 +478,6 @@ class Commands {
     payload.writeInt32(userClientID);
 
     out.write(payload);
-
-    fetchChatRequests();
-    fetchChatSessions();
   }
 
   void declineChatRequest(int userClientID) {
@@ -483,8 +487,6 @@ class Commands {
     payload.writeInt32(userClientID);
 
     out.write(payload);
-
-    fetchChatRequests();
   }
 
   void deleteChatSession(int chatSessionIndex) {

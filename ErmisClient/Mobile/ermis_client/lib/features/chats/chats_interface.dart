@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ermis_client/client/message_handler.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
@@ -269,6 +270,7 @@ class ChatsState extends TempState<Chats> {
                 ),
                 PopupMenuItem(
                   value: () {
+                    Info.resetUserInformation();
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(

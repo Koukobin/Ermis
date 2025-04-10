@@ -32,6 +32,7 @@ import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/file_heap.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/models/user_device.dart';
+import 'package:ermis_client/core/services/database_service.dart';
 import 'package:ermis_client/features/authentication/domain/client_status.dart';
 import '../../core/event_bus/app_event_bus.dart';
 import '../../core/event_bus/event_bus.dart';
@@ -83,9 +84,21 @@ class CommandResultHandler {
         Info.username = utf8.decode(usernameBytes);
         _eventBus.fire(UsernameReceivedEvent(Info.username!));
 
+        int lastUpdatedEpochSecond = msg.readInt64();
+
         // Profile photo
         Info.profilePhoto = msg.readBytes(msg.readableBytes);
         _eventBus.fire(ProfilePhotoEvent(Info.profilePhoto!));
+
+        IntermediaryService().addLocalUserInfo(
+          server: Client.instance().serverInfo,
+          info: LocalUserInfo(
+            displayName: Info.username!,
+            clientID: Info.clientID,
+            profilePhoto: Info.profilePhoto!,
+            lastUpdatedEpochSecond: lastUpdatedEpochSecond,
+          ),
+        );
         break;
       case ClientCommandResultType.getDisplayName:
         final usernameBytes = msg.readBytes(msg.readableBytes);

@@ -30,6 +30,7 @@ import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
@@ -83,7 +84,16 @@ public class CreateGroupChat implements ICommand {
 			}
 
 			ActiveChatSessions.addChatSession(chatSession);
-			ICommand.refreshChatSessionStatuses(chatSession);
+
+			for (ClientInfo member : chatSession.getActiveMembers()) {
+				forActiveAccounts(member.getClientID(), (ClientInfo ci) -> {
+					ci.getChatSessions().add(chatSession);
+
+					// Send updated indices to the client. This triggers a catalytic process
+					// which leads to the retrieval of current chat sessions and their statuses.
+					CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
+				});
+			}
 		} else {
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.SERVER_INFO.id);

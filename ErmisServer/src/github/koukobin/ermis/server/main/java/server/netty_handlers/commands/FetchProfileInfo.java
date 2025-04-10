@@ -43,10 +43,10 @@ public class FetchProfileInfo implements ICommand {
 			optionalActualLastUpdatedEpochSecond = conn.getWhenUserLastUpdatedProfile(clientID);
 		}
 
-		Long lastUpdatedEpochSecond = optionalActualLastUpdatedEpochSecond.orElseGet(() -> Long.valueOf(-1));
-		boolean isProfileInfoOutdated = lastUpdatedEpochSecond.longValue() == userLastUpdatedEpochSecond;
+		long lastUpdatedEpochSecond = optionalActualLastUpdatedEpochSecond.orElseGet(() -> Long.valueOf(-1)).longValue();
+		boolean isProfileInfoOutdated = lastUpdatedEpochSecond != userLastUpdatedEpochSecond;
 
-		if (isProfileInfoOutdated) {
+		if (!isProfileInfoOutdated) {
 			return;
 		}
 
@@ -58,7 +58,8 @@ public class FetchProfileInfo implements ICommand {
 		payload.writeInt(clientID);
 		payload.writeInt(usernameBytes.length);
 		payload.writeBytes(usernameBytes);
-
+		payload.writeLong(lastUpdatedEpochSecond);
+		
 		Optional<UserIcon> optionalIcon;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 			optionalIcon = conn.selectUserIcon(clientInfo.getClientID());
@@ -74,6 +75,8 @@ public class FetchProfileInfo implements ICommand {
 			error.writeInt(ServerInfoMessage.ERROR_OCCURED_WHILE_TRYING_TO_FETCH_PROFILE_PHOTO.id);
 			channel.writeAndFlush(error);
 		});
+
+		getLogger().debug("Payload size for profile information: {}", payload.capacity());
 
 		channel.writeAndFlush(payload);
 //		executeCommand(clientInfo, ClientCommandType.FETCH_CLIENT_ID, Unpooled.EMPTY_BUFFER);
