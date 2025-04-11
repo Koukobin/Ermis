@@ -39,6 +39,7 @@ public class FetchWrittenText implements ICommand {
 		int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
 
 		int numOfMessagesAlreadySelected = args.readInt();
+		getLogger().debug("Num of messages already selected: {}", numOfMessagesAlreadySelected);
 
 		UserMessage[] messages;
 
@@ -47,6 +48,8 @@ public class FetchWrittenText implements ICommand {
 					ServerSettings.NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME,
 					clientInfo.getClientID());
 		}
+
+		getLogger().debug("Selected a total of {} messages", messages.length);
 
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);

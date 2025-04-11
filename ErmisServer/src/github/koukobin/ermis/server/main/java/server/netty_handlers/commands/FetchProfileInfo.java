@@ -44,7 +44,7 @@ public class FetchProfileInfo implements ICommand {
 		}
 
 		long lastUpdatedEpochSecond = optionalActualLastUpdatedEpochSecond.orElseGet(() -> Long.valueOf(-1)).longValue();
-		boolean isProfileInfoOutdated = lastUpdatedEpochSecond != userLastUpdatedEpochSecond;
+		boolean isProfileInfoOutdated = lastUpdatedEpochSecond > userLastUpdatedEpochSecond;
 
 		if (!isProfileInfoOutdated) {
 			return;
@@ -59,7 +59,7 @@ public class FetchProfileInfo implements ICommand {
 		payload.writeInt(usernameBytes.length);
 		payload.writeBytes(usernameBytes);
 		payload.writeLong(lastUpdatedEpochSecond);
-		
+
 		Optional<UserIcon> optionalIcon;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 			optionalIcon = conn.selectUserIcon(clientInfo.getClientID());

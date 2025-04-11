@@ -75,7 +75,7 @@ public class FetchChatSessions implements ICommand {
 
 			// TODO: OPTIMIZE
 			List<ClientUpdate> outdatedMembersInfo = Arrays.asList(actualMembers).stream()
-					.filter((ClientUpdate member) -> !Arrays.asList(members).contains(member)
+					.filter((ClientUpdate member) -> !Arrays.asList(actualMembers).contains(member)
 							&& clientInfo.getClientID() != member.clientID())
 					.toList();
 			List<Integer> memberIDS = outdatedMembersInfo.stream().map(ClientUpdate::clientID).toList();
