@@ -19,7 +19,7 @@ import 'dart:io';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/core/models/app_state/new_features_page_status.dart';
 import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/services/database_service.dart';
+import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
@@ -28,6 +28,7 @@ import 'package:flutter/material.dart';
 import '../../core/data_sources/api_client.dart';
 import '../../constants/app_constants.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
+import 'whats_new_screen.dart';
 
 String? serverUrl;
 
@@ -228,8 +229,13 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                       );
                     } catch (e) {
                       setState(() => _isConnectingToServer = false);
-                      if (e is TlsException || e is SocketException) {
-                        await showToastDialog((e as dynamic).message);
+                      if (e is SocketException) {
+                        await showToastDialog(e.message);
+                        return;
+                      }
+
+                      if (e is ServerVerificationFailedException) {
+                        await showToastDialog("Could not verify server certificate");
                         return;
                       }
 
@@ -351,73 +357,6 @@ class _DropdownMenuState extends State<DropdownMenu> {
               );
             }).toList(),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class WhatsNewScreen extends StatelessWidget {
-  const WhatsNewScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(S.current.whats_new),
-        backgroundColor: appColors.primaryColor,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              S.current.whats_new_title,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: appColors.primaryColor,
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Feature List
-            ListTile(
-              leading: Icon(Icons.add, color: appColors.primaryColor),
-              title: Text(S.current.feature_encryption),
-            ),
-            ListTile(
-              leading: Icon(Icons.lightbulb_outline, color: appColors.primaryColor),
-              title: Text(S.current.ability_to_form_group_chats),
-            ),
-            ListTile(
-              leading: Icon(Icons.build, color: appColors.primaryColor),
-              title: Text(S.current.many_bug_fixes),
-            ),
-            ListTile(
-              leading: Icon(Icons.speed, color: appColors.primaryColor),
-              title: Text(S.current.optimizations_on_data_usage),
-            ),
-            ListTile(
-              leading: Icon(Icons.call,  color: appColors.primaryColor),
-              title: Text(S.current.feature_voice_calls),
-            ),
-            const SizedBox(height: 30),
-            // Dismiss Button
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: appColors.primaryColor,
-                ),
-                onPressed: Navigator.of(context).pop,
-                child: Text(
-                  S.current.got_it_button,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

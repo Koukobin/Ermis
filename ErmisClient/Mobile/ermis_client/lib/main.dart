@@ -25,14 +25,14 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/message.dart';
-import 'package:ermis_client/client/common/message_types/content_type.dart';
+import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
-import 'package:ermis_client/features/authentication/domain/client_status.dart';
+import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/splash_screen/splash_screen.dart';
 import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/services/database_service.dart';
+import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/util/notifications_util.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:ermis_client/web_rtc/main.dart' as MyApp;
@@ -46,10 +46,10 @@ import 'package:vibration/vibration.dart';
 import 'core/event_bus/app_event_bus.dart';
 import 'core/models/message_events.dart';
 import 'features/chats/chat_requests_screen.dart';
-import 'features/settings/profile_settings.dart';
+import 'features/settings/options/profile_settings.dart';
 import 'theme/app_theme.dart';
 import 'features/chats/chats_interface.dart';
-import 'features/settings/settings_interface.dart';
+import 'features/settings/primary_settings_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -246,7 +246,6 @@ void maintainWebSocketConnection(ServiceInstance service) async {
       return;
     }
 
-    Client.instance().startMessageHandler();
     await Client.instance().fetchUserInformation();
     Client.instance().commands.setAccountStatus(ClientStatus.offline);
 

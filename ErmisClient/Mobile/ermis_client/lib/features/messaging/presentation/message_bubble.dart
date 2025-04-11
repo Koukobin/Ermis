@@ -14,19 +14,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
-import 'package:ermis_client/client/common/message_types/content_type.dart';
-import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
+import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
+import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/util/custom_date_formatter.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/core/util/file_utils.dart';
-import 'package:ermis_client/features/dots_loading_screen.dart';
+import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
+import 'package:ermis_client/core/widgets/dots_loading_screen.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/foundation.dart';
@@ -404,19 +404,17 @@ class VoiceMessage extends StatefulWidget {
   State<StatefulWidget> createState() => _VoiceMessageState();
 }
 
-class _VoiceMessageState extends State<VoiceMessage> {
+class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMixin {
   late final Message _message;
   VoiceMessageState state = VoiceMessageState.playing;
 
   PlayerController? _player;
 
-  late final StreamSubscription<VoiceDownloadedEvent> _subcription;
-
   @override
   void initState() {
     _message = widget.message;
 
-    _subcription = AppEventBus.instance.on<VoiceDownloadedEvent>().listen((event) {
+    subscribe(AppEventBus.instance.on<VoiceDownloadedEvent>(), (event) {
       if (event.messageID != _message.messageID) return;
       _message.setFileName(Uint8List.fromList(utf8.encode(event.file.fileName)));
       _message.fileBytes = event.file.fileBytes;
@@ -424,12 +422,6 @@ class _VoiceMessageState extends State<VoiceMessage> {
       playAudio();
     });
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _subcription.cancel();
-    super.dispose();
   }
 
   void playAudio() async {

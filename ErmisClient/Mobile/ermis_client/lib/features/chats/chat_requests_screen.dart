@@ -16,6 +16,7 @@
 
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +36,8 @@ class ChatRequests extends StatefulWidget {
   State<ChatRequests> createState() => ChatRequestsState();
 }
 
-class ChatRequestsState extends LoadingState<ChatRequests> {
+class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscriptionMixin {
   List<ChatRequest>? _chatRequests = Client.instance().chatRequests;
-
-  bool _isInitialized = false; // Flag to check if it's initialized
 
   ChatRequestsState() {
     if (_chatRequests != null) {
@@ -49,13 +48,9 @@ class ChatRequestsState extends LoadingState<ChatRequests> {
   @override
   void initState() {
     super.initState();
-    if (_isInitialized) return;
-
-    AppEventBus.instance.on<ChatRequestsEvent>().listen((event) async {
+    subscribe(AppEventBus.instance.on<ChatRequestsEvent>(), (event) {
       _updateChatRequests(event.requests);
     });
-
-    _isInitialized = true;
   }
 
   @override

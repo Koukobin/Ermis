@@ -14,10 +14,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/client/common/message_types/content_type.dart';
+import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_client/core/util/datetime_utils.dart';
 import 'package:ermis_client/core/util/custom_date_formatter.dart';
-import 'package:ermis_client/features/authentication/domain/client_status.dart';
+import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 
 import 'member_icon.dart';
 import 'message.dart';
@@ -52,8 +52,8 @@ class ChatSession {
   void setHaveChatMessagesBeenCached(bool haveChatMessagesBeenCached) =>
       _haveChatMessagesBeenCached = haveChatMessagesBeenCached;
 
-  List<Member> get getMembers => _members;
-  List<Message> get getMessages => _messages;
+  List<Member> get members => _members;
+  List<Message> get messages => _messages;
 
   String get lastMessageContent {
     Message? message = _messages.lastOrNull;

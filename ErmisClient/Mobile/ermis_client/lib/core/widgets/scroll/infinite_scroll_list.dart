@@ -41,8 +41,8 @@ class InfiniteScrollList extends StatefulWidget {
   final Clip clipBehavior;
   final Widget? loadingWidget;
 
-  final VoidCallback reLoadingTop;
   final VoidCallback reLoadingBottom;
+  final VoidCallback reLoadingTop;
   final int itemCount;
   final Widget? Function(BuildContext, int) itemBuilder;
   const InfiniteScrollList({
@@ -66,8 +66,8 @@ class InfiniteScrollList extends StatefulWidget {
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
     this.clipBehavior = Clip.hardEdge,
     this.loadingWidget,
-    required this.reLoadingTop,
     required this.reLoadingBottom,
+    required this.reLoadingTop,
     required this.itemCount,
     required this.itemBuilder,
   });
@@ -98,11 +98,11 @@ class _InfiniteScrollListState extends State<InfiniteScrollList> {
               ),
             )
         : NotificationListener<OverscrollNotification>(
-            onNotification: (overscroll) {
+            onNotification: (OverscrollNotification overscroll) {
               _overscrollCount++;
 
               // Reset count after delay to prevent triggering too quickly
-              Future.delayed(Duration(milliseconds: 100), () => _overscrollCount = 0);
+              Future.delayed(const Duration(milliseconds: 100), () => _overscrollCount = 0);
               if (_overscrollCount < 10) {
                 return false;
               }
@@ -117,7 +117,7 @@ class _InfiniteScrollListState extends State<InfiniteScrollList> {
                 setState(() {
                   _isLoadingTop = true;
                 });
-                widget.reLoadingTop();
+                widget.reLoadingBottom();
                 Future.delayed(Duration(seconds: 2), () {
                   setState(() {
                     _isLoadingTop = false;
@@ -127,7 +127,7 @@ class _InfiniteScrollListState extends State<InfiniteScrollList> {
                 setState(() {
                   _isLoadingBottom = true;
                 });
-                widget.reLoadingBottom();
+                widget.reLoadingTop();
                 Future.delayed(Duration(seconds: 2), () {
                   setState(() {
                     _isLoadingBottom = false;

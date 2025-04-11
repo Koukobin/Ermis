@@ -18,7 +18,7 @@ import 'package:ermis_client/features/authentication/domain/entities/requirement
 import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
 import 'package:ermis_client/features/authentication/utils/entry_buttons.dart';
 import 'package:ermis_client/features/authentication/login_interface.dart';
-import 'package:ermis_client/features/authentication/verification.dart';
+import 'package:ermis_client/features/authentication/verification_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/core/widgets/custom_textfield.dart';
 import 'package:ermis_client/theme/app_colors.dart';
@@ -204,7 +204,6 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                           isSuccessful = await performVerification(context, _emailController.text);
                       
                           if (isSuccessful) {
-                            Client.instance().startMessageHandler();
                             await showLoadingDialog(context,
                                 Client.instance().fetchUserInformation());
                             // Navigate to the main interface

@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 
+@Deprecated("Why does this even exist?") 
 class AppLifecycleService with WidgetsBindingObserver {
   static final AppLifecycleService _instance = AppLifecycleService._internal();
 

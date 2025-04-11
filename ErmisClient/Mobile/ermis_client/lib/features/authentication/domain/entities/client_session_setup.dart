@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/data_sources/api_client.dart';
 import '../../../../main.dart';
-import '../../../../core/services/database_service.dart';
+import '../../../../core/services/database/database_service.dart';
 import '../../../../core/util/dialogs_utils.dart';
 import '../../register_interface.dart';
 
@@ -57,7 +57,6 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
     return;
   }
 
-  Client.instance().startMessageHandler();
   await showLoadingDialog(context, Client.instance().fetchUserInformation());
   // Navigate to the main interface
   Navigator.pushAndRemoveUntil(

@@ -16,7 +16,7 @@
 
 import 'dart:async';
 import 'package:ermis_client/core/models/chat_session.dart';
-import 'package:ermis_client/features/authentication/domain/client_status.dart';
+import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:flutter/foundation.dart';

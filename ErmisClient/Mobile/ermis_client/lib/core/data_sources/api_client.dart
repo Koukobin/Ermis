@@ -22,13 +22,13 @@ import 'dart:async';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/account.dart';
 import 'package:ermis_client/features/authentication/domain/entities/requirements.dart';
-import 'package:ermis_client/client/io/byte_buf.dart';
-import 'package:ermis_client/client/message_dispatcher.dart';
+import 'package:ermis_client/core/data/models/network/byte_buf.dart';
+import 'package:ermis_client/core/networking/message_dispatcher.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
 import 'package:flutter/foundation.dart';
 
-import '../services/database_service.dart';
+import '../services/database/database_service.dart';
 import '../models/chat_request.dart';
 import '../models/chat_session.dart';
 import '../../features/authentication/domain/entities/added_info.dart';
@@ -37,15 +37,19 @@ import '../../features/authentication/domain/entities/entry_type.dart';
 import '../../features/authentication/domain/entities/login_info.dart';
 import '../../features/authentication/domain/entities/verification.dart';
 import '../models/message.dart';
-import '../../client/common/message_types/client_message_type.dart';
-import '../../client/common/results/entry_result.dart';
+import '../networking/common/message_types/client_message_type.dart';
+import '../networking/common/results/entry_result.dart';
 import '../models/user_device.dart';
 import '../event_bus/event_bus.dart';
-import '../../client/io/input_stream.dart';
-import '../../client/message_handler.dart';
-import '../../client/io/output_stream.dart';
+import '../data/models/network/input_stream.dart';
+import '../networking/message_transmitter.dart';
+import '../data/models/network/output_stream.dart';
 
 enum ServerCertificateVerification { verify, ignore }
+
+class ServerVerificationFailedException implements Exception {
+  const ServerVerificationFailedException();
+}
 
 class Client {
   static final Client _instance = Client._();
@@ -62,7 +66,7 @@ class Client {
 
   bool _isLoggedIn = false;
 
-  late MessageHandler _messageHandler;
+  late MessageTransmitter _messageHandler;
 
   Uri? uri;
 
@@ -75,11 +79,14 @@ class Client {
 
     try {
       final sslContext = SecurityContext.defaultContext;
-      _sslSocket = await SecureSocket.connect(uri.host, uri.port,
-          context: sslContext,
-          timeout: Duration(seconds: 5),
-          onBadCertificate: (X509Certificate cert) =>
-              scv == ServerCertificateVerification.ignore);
+      _sslSocket = await SecureSocket.connect(
+        uri.host,
+        uri.port,
+        context: sslContext,
+        timeout: const Duration(seconds: 5),
+        onBadCertificate: (X509Certificate cert) =>
+            scv == ServerCertificateVerification.ignore,
+      );
 
       broadcastStream = _sslSocket!.asBroadcastStream();
 
@@ -88,11 +95,11 @@ class Client {
       _inputStream = ByteBufInputStream(socket: _sslSocket!, stream: broadcastStream!);
       _outputStream = ByteBufOutputStream(socket: _sslSocket!);
 
-      _messageHandler = MessageHandler();
+      _messageHandler = MessageTransmitter();
       _messageHandler.setByteBufOutputStream(_outputStream!);
     } on HandshakeException {
       if (scv == ServerCertificateVerification.verify) {
-        throw HandshakeException("Could not verify server certificate");
+        throw ServerVerificationFailedException();
       }
       rethrow;
     }
@@ -173,10 +180,6 @@ class Client {
     isMessageDispatcherRunning = true;
   }
 
-  void startMessageHandler() {
-    _messageHandler.startListeningToMessages();
-  }
-
   EventBus get eventBus => _messageHandler.eventBus;
   Commands get commands => _messageHandler.commands;
   int get clientID => _messageHandler.clientID;
@@ -187,7 +190,7 @@ class Client {
   ServerInfo get serverInfo => ServerInfo(uri!);
   List<UserDeviceInfo>? get userDevices => _messageHandler.usesDevices;
   List<Account>? get otherAccounts => _messageHandler.otherAccounts;
-  MessageHandler get messageHandler => _messageHandler;
+  MessageTransmitter get messageHandler => _messageHandler;
 
   bool isLoggedIn() {
     return _isLoggedIn;

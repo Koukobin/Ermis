@@ -17,15 +17,16 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:ermis_client/client/message_handler.dart';
+import 'package:ermis_client/core/networking/message_transmitter.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/chats/widgets/interactive_user_avatar.dart';
 import 'package:ermis_client/features/chats/temp.dart';
-import 'package:ermis_client/features/settings/linked_devices_settings.dart';
-import 'package:ermis_client/features/settings/settings_interface.dart';
+import 'package:ermis_client/features/settings/options/linked_devices_settings.dart';
+import 'package:ermis_client/features/settings/primary_settings_interface.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +111,7 @@ class Chats extends StatefulWidget {
   State<Chats> createState() => ChatsState();
 }
 
-class ChatsState extends TempState<Chats> {
+class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
   List<ChatSession>? _conversations;
   Set<ChatSession> selectedConversations = {}; // Set instead of list to prevent duplicates
 
@@ -132,8 +133,6 @@ class ChatsState extends TempState<Chats> {
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  final List<StreamSubscription<Object>> _subscriptions = [];
-
   @override
   void initState() {
     super.initState();
@@ -144,9 +143,9 @@ class ChatsState extends TempState<Chats> {
       task = Task.loading;
     }
 
-    _subscriptions.add(AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
+    subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
       _updateChatSessions(event.sessions);
-    }));
+    });
 
     // Whenever text changes performs search
     _searchController.addListener(() {
@@ -168,14 +167,7 @@ class ChatsState extends TempState<Chats> {
   void dispose() {
     _searchController.dispose();
     _focusNode.dispose();
-    _removeSubscriptions();
     super.dispose();
-  }
-
-  void _removeSubscriptions() async {
-    for (final sub in _subscriptions) {
-      await sub.cancel();
-    }
   }
 
   @override
@@ -487,12 +479,12 @@ class ChatsState extends TempState<Chats> {
                 style: const TextStyle(fontSize: 14),
               ),
       ),
-      horizontalTitleGap: chatSession.getMembers.length * 3,
+      horizontalTitleGap: chatSession.members.length * 3,
       leading: SizedBox(
-        width: chatSession.getMembers.length * 10 + 65,
+        width: chatSession.members.length * 10 + 65,
         child: Stack(
           children: [
-            for (final (index, member) in chatSession.getMembers.indexed)
+            for (final (index, member) in chatSession.members.indexed)
               Positioned(
                 left: index * 25,
                 top: index * 5.0 * pow(-1, index + 1),

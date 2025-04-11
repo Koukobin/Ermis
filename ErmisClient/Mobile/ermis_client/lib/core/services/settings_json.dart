@@ -19,7 +19,7 @@ import 'dart:io';
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/models/app_state/new_features_page_status.dart';
-import 'package:ermis_client/features/settings/theme_settings.dart';
+import 'package:ermis_client/features/settings/options/theme_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 

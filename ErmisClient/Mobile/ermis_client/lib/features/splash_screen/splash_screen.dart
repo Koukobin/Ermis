@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '../choose_server_screen/choose_server_screen.dart';
 import '../../constants/app_constants.dart';
-import '../../core/services/database_service.dart';
+import '../../core/services/database/database_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

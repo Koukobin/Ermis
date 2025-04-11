@@ -17,9 +17,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:ermis_client/client/common/message_types/message_delivery_status.dart';
+import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
 
-import '../../client/common/message_types/content_type.dart';
+import '../networking/common/message_types/content_type.dart';
 
 class Message {
   String _username;

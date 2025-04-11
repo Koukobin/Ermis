@@ -16,7 +16,7 @@
 
 import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
 import 'package:ermis_client/features/authentication/register_interface.dart';
-import 'package:ermis_client/features/authentication/verification.dart';
+import 'package:ermis_client/features/authentication/verification_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
@@ -190,7 +190,6 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                           }
 
                           if (isSuccessful) {
-                            Client.instance().startMessageHandler();
                             await showLoadingDialog(context, Client.instance().fetchUserInformation());
                             // Navigate to the main interface
                             Navigator.pushAndRemoveUntil(

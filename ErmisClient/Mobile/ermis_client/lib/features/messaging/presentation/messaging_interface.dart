@@ -16,30 +16,24 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:ermis_client/client/message_handler.dart';
 
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
-import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/features/authentication/domain/client_status.dart';
+import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/features/messaging/presentation/input_field.dart';
 import 'package:ermis_client/features/messaging/presentation/message_bubble.dart';
-import 'package:ermis_client/features/messaging/presentation/send_file_popup_menu.dart';
 import 'package:ermis_client/features/messaging/presentation/choose_friends_screen.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/chats/voice_call.dart';
-import 'package:ermis_client/features/settings/theme_settings.dart';
+import 'package:ermis_client/features/settings/options/theme_settings.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/widgets/scroll/custom_scroll_view.dart';
-import 'package:ermis_client/core/services/database_service.dart';
+import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:vibration/vibration.dart';
 
 import '../../../core/event_bus/app_event_bus.dart';
 import '../../../constants/app_constants.dart';
@@ -48,10 +42,9 @@ import '../../../core/data_sources/api_client.dart';
 import '../../../core/models/chat_session.dart';
 import '../../../core/models/file_heap.dart';
 import '../../../core/models/message.dart';
-import '../../../client/common/message_types/content_type.dart';
+import '../../../core/networking/common/message_types/content_type.dart';
 import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/file_utils.dart';
-import '../../../core/util/notifications_util.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/scroll/infinite_scroll_list.dart';
 import '../../chats/widgets/user_avatar.dart';
@@ -72,7 +65,7 @@ class MessagingInterface extends StatefulWidget {
   State<MessagingInterface> createState() => MessagingInterfaceState();
 }
 
-class MessagingInterfaceState extends LoadingState<MessagingInterface> with WidgetsBindingObserver {
+class MessagingInterfaceState extends LoadingState<MessagingInterface> with WidgetsBindingObserver, EventBusSubscriptionMixin {
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
 
   /// Used to determine whether to send push notification or not
@@ -85,8 +78,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
-
-  static final Map<ChatSession, List<StreamSubscription<Object>>> eventBusSubscriptions = {};
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -107,6 +98,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       // Fetch cached messages or load from the server
       if (!_chatSession.haveChatMessagesBeenCached) {
         List<Message> messages = await _retrieveLocalMessages();
+        _chatSession.setMessages(messages);
 
         if (messages.length > 30) {
           setState(() {
@@ -118,7 +110,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         }
       } else {
         setState(() {
-          _messages = _chatSession.getMessages;
+          _messages = _chatSession.messages;
           isLoading = false;
         });
       }
@@ -127,27 +119,22 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   }
 
   Future<List<Message>> _retrieveLocalMessages() async {
-    List<Message> messages = await ErmisDB.getConnection().retieveChatMessages(
+    List<Message> messages = await ErmisDB.getConnection().retrieveChatMessages(
       Client.instance().serverInfo,
       _chatSession.chatSessionID,
     );
+    for (final m in messages) {
+      m.setChatSessionIndex(_chatSessionIndex);
+    }
 
-    // return messages;
-    return [];
+    return messages;
   }
 
   void _setupListeners() {
-    if (_sessions.containsKey(_chatSession)) {
-      for (final event in eventBusSubscriptions[_chatSession]!) {
-        event.cancel();
-      }
-    }
-
     _sessions[_chatSession] = _IsOnScreen.visible;
 
-    final a = AppEventBus.instance.on<WrittenTextEvent>().listen((event) {
-      if (!mounted) return;
-      List<Message> messages = event.chatSession.getMessages;
+    subscribe(AppEventBus.instance.on<WrittenTextEvent>(), (event) {
+      List<Message> messages = event.chatSession.messages;
 
       _setMessages(messages);
       setState(() {
@@ -161,11 +148,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       );
     });
 
-    final b = AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
+    subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) {
       ChatSession chatSession = event.chatSession;
-
-      // Since many app event bus listeners of these will exist for each unique chat session...too lazy to write rest
-      if (_chatSessionIndex != chatSession.chatSessionIndex) return;
 
       Message msg = event.message;
 
@@ -186,10 +170,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       settingsJson.loadSettingsJson();
       handleChatMessageNotificationForeground(chatSession, msg, settingsJson, _sendTextMessage);
     });
-    eventBusSubscriptions.putIfAbsent(_chatSession, () => []);
-    eventBusSubscriptions[_chatSession]!.add(b);
 
-    final c = AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
+    subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) async {
       LoadedInMemoryFile file = event.file;
       String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
 
@@ -202,15 +184,15 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       showExceptionDialog(context, S.current.error_saving_file);
     });
 
-    final d = AppEventBus.instance.on<ImageDownloadedEvent>().listen((event) async {
+    subscribe(AppEventBus.instance.on<ImageDownloadedEvent>(), (event) {
       _updateFileMessage(event.file, event.messageID);
     });
 
-    final e = AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>().listen((event) {
+    subscribe(AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>(), (event) {
       showToastDialog(S.current.message_deletion_unsuccessful);
     });
 
-    final f = AppEventBus.instance.on<MessageDeletedEvent>().listen((event) async {
+    subscribe(AppEventBus.instance.on<MessageDeletedEvent>(), (event) {
       ChatSession session = event.chatSession;
       int messageID = event.messageId;
 
@@ -226,9 +208,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       }
     });
 
-    final g = AppEventBus.instance.on<MessageDeliveryStatusEvent>().listen((event) async {
-      if (!mounted) return;
-
+    subscribe(AppEventBus.instance.on<MessageDeliveryStatusEvent>(), (event) {
       Message message = event.message;
 
       if (message.chatSessionID == _chatSession.chatSessionID) {
@@ -236,9 +216,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       }
     });
 
-    final h = AppEventBus.instance.on<ChatSessionsEvent>().listen((event) {
-      if (!mounted) return;
-
+    subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
       setState(() {
         _chatSession = event.sessions.firstWhere((ChatSession session) =>
             session.chatSessionID == _chatSession.chatSessionID);
@@ -265,8 +243,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       _messages = messages;
     });
   }
-
-
 
   void _updateFileMessage(LoadedInMemoryFile file, int messageID) {
     if (!mounted) return;
@@ -314,14 +290,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
             Row(
               children: [
                 UserAvatar(
-                  imageBytes: _chatSession.getMembers[0].icon.profilePhoto,
-                  status: _chatSession.getMembers[0].status,
+                  imageBytes: _chatSession.members[0].icon.profilePhoto,
+                  status: _chatSession.members[0].status,
                 ),
                 const SizedBox(width: 10),
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: constraints.maxWidth - 150),
                   child: Text(
-                    S.current.chat_with(widget.chatSession.getMembers[0].username),
+                    S.current.chat_with(widget.chatSession.members[0].username),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -357,7 +333,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                       value: () async {
                         List<Member> members = await showChooseFriendsScreen(
                           context,
-                          membersToExclude: _chatSession.getMembers,
+                          membersToExclude: _chatSession.members,
                         );
 
                         if (members.isEmpty) return;
@@ -434,13 +410,17 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                       appColors: appColors,
                     )));
           },
-          reLoadingBottom: () {
-            // If user scrolls below the bottom of conversation refresh
-            Client.instance().commands.refetchWrittenText(_chatSessionIndex);
-          },
           reLoadingTop: () {
             // If user reaches top of conversation retrieve more messages
+            if (kDebugMode) debugPrint("Fetching written text");
+
             Client.instance().commands.fetchWrittenText(_chatSessionIndex);
+          },
+          reLoadingBottom: () {
+            // If user scrolls below the bottom of conversation refresh
+            if (kDebugMode) debugPrint("Refetching written text");
+
+            Client.instance().commands.refetchWrittenText(_chatSessionIndex);
           },
         )),
       ),
@@ -549,7 +529,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           children: [
             UserAvatar(imageBytes: Uint8List(0), status: ClientStatus.offline),
             const SizedBox(width: 10),
-            Text(S.current.chat_with(widget.chatSession.getMembers[0].username),
+            Text(S.current.chat_with(widget.chatSession.members[0].username),
                 style: TextStyle(color: appColors.inferiorColor)),
           ],
         ),
