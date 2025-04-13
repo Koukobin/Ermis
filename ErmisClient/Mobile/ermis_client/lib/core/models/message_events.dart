@@ -182,4 +182,6 @@ class UserDevicesEvent {
   const UserDevicesEvent(this.devices);
 }
 
-
+class ConnectionResetEvent {
+  const ConnectionResetEvent();
+}

@@ -16,6 +16,7 @@
 
 import 'dart:io';
 
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/core/models/app_state/new_features_page_status.dart';
 import 'package:ermis_client/theme/app_colors.dart';
@@ -27,6 +28,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/data_sources/api_client.dart';
 import '../../constants/app_constants.dart';
+import '../../main.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
 import 'whats_new_screen.dart';
 
@@ -212,9 +214,11 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                     Uri url = Uri.parse(serverUrl!);
                     setState(() => _isConnectingToServer = true);
 
+                    ServerInfo serverInfo = ServerInfo(url);
+
                     final DBConnection conn = ErmisDB.getConnection();
-                    conn.updateServerUrlLastUsed(ServerInfo(url));
-                    LocalAccountInfo? userInfo = await conn.getLastUsedAccount(ServerInfo(url));
+                    conn.updateServerUrlLastUsed(serverInfo);
+                    LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
                     if (kDebugMode) {
                       debugPrint(userInfo?.email);
                       debugPrint(userInfo?.passwordHash);
@@ -229,13 +233,25 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                       );
                     } catch (e) {
                       setState(() => _isConnectingToServer = false);
+
+                      UserInfoManager.serverInfo = serverInfo;
+                      await UserInfoManager.fetchProfileInformation();
+                      await UserInfoManager.fetchLocalChatSessions();
+                      
+                      // Navigate to the main interface
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainInterface()),
+                        (route) => false, // Removes all previous routes.
+                      );
+
                       if (e is SocketException) {
-                        await showToastDialog(e.message);
+                        await showToastDialog(S.current.connection_refused);
                         return;
                       }
 
                       if (e is ServerVerificationFailedException) {
-                        await showToastDialog("Could not verify server certificate");
+                        await showToastDialog(S.current.could_not_verify_server_certificate);
                         return;
                       }
 

@@ -22,6 +22,7 @@ import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/networking/voice_call_udp_socket.dart';
 import 'package:ermis_client/core/widgets/user_profile.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
@@ -85,7 +86,7 @@ class VoiceCallHandler {
 
     _udpSocket = VoiceCallUDPSocket();
     await _udpSocket.initialize(aesKey);
-    _udpSocket.rawSecureSend([chatSessionID], Client.instance().serverInfo.address, port);
+    _udpSocket.rawSecureSend([chatSessionID], UserInfoManager.serverInfo.address, port);
 
     navigateWithFade(
         context,

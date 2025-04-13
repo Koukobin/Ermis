@@ -33,25 +33,30 @@ class ThemeSettingsPage extends StatefulWidget {
 }
 
 enum ChatBackDrop {
-  monotone(name: "Default/Monotone", id: 0),
-  abstract(name: "Abstract", id: 1),
-  gradient(name: "Gradient", id: 2),
-  custom(name: "Custom", id: 3);
-
-  final String name;
+  monotone(id: 0),
+  abstract(id: 1),
+  gradient(id: 2),
+  custom(id: 3);
 
   /// This is used to identify each chat backdrop by its id
   final int id;
-  
-  const ChatBackDrop({required this.name, required this.id});
+
+  const ChatBackDrop({required this.id});
 
   static ChatBackDrop fromId(int id) {
     try {
       return ChatBackDrop.values.firstWhere((type) => type.id == id);
     } catch (e) {
-      throw EnumNotFoundException('No ChatBackDrop found for id $id');
+      throw EnumNotFoundException('No $ChatBackDrop found for id $id');
     }
   }
+
+  String get name => switch (this) {
+        monotone => S.current.default_monotone,
+        abstract => S.current.abstract,
+        gradient => S.current.gradient,
+        custom => S.current.custom,
+      };
 }
 
 class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
@@ -80,7 +85,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
 
   void _saveSettingsJson() async {
     _settingsJson.saveSettingsJson();
-    showSnackBarDialog(context: context, content: "Settings saved");
+    showSnackBarDialog(context: context, content: S.current.settings_saved);
   }
 
   @override

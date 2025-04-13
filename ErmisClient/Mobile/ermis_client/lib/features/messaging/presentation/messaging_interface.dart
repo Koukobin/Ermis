@@ -37,6 +37,7 @@ import 'package:flutter/services.dart';
 
 import '../../../core/event_bus/app_event_bus.dart';
 import '../../../constants/app_constants.dart';
+import '../../../core/networking/user_info_manager.dart';
 import '../../../core/widgets/loading_state.dart';
 import '../../../core/data_sources/api_client.dart';
 import '../../../core/models/chat_session.dart';
@@ -100,12 +101,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         List<Message> messages = await _retrieveLocalMessages();
         _chatSession.setMessages(messages);
 
-        if (messages.length > 30) {
+        if (messages.isNotEmpty) {
           setState(() {
             _messages = messages;
             isLoading = false;
           });
-        } else {
+        }
+
+        if (messages.length < 30) {
           Client.instance().commands.fetchWrittenText(_chatSessionIndex);
         }
       } else {
@@ -120,7 +123,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
   Future<List<Message>> _retrieveLocalMessages() async {
     List<Message> messages = await ErmisDB.getConnection().retrieveChatMessages(
-      Client.instance().serverInfo,
+      UserInfoManager.serverInfo,
       _chatSession.chatSessionID,
     );
     for (final m in messages) {
@@ -141,7 +144,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
         isLoading = false;
       });
 
-      ServerInfo serverInfo = Client.instance().serverInfo;
+      ServerInfo serverInfo = UserInfoManager.serverInfo;
       ErmisDB.getConnection().insertChatMessages(
         serverInfo: serverInfo,
         messages: messages,
@@ -327,7 +330,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                         // FUCK
                       },
                       padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: Text("Chat Theme"),
+                      child: Text(S.current.chat_theme),
                     ),
                     PopupMenuItem(
                       value: () async {
@@ -341,7 +344,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
                         Client.instance().commands.addUsersInChatSession(_chatSession.chatSessionIndex, memberIds);
                       },
                       padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: Text("Add User"),
+                      child: Text(S.current.add_user),
                     ),
                   ],
                 ),
@@ -523,7 +526,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
             Icons.arrow_back,
             color: appColors.inferiorColor,
           ), // Back arrow icon
-          onPressed: () => {Navigator.pop(context)},
+          onPressed: () => Navigator.pop(context),
         ),
         title: Row(
           children: [

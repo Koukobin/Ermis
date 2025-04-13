@@ -21,6 +21,7 @@ import 'dart:async';
 
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/account.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/features/authentication/domain/entities/requirements.dart';
 import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 import 'package:ermis_client/core/networking/message_dispatcher.dart';
@@ -40,7 +41,6 @@ import '../models/message.dart';
 import '../networking/common/message_types/client_message_type.dart';
 import '../networking/common/results/entry_result.dart';
 import '../models/user_device.dart';
-import '../event_bus/event_bus.dart';
 import '../data/models/network/input_stream.dart';
 import '../networking/message_transmitter.dart';
 import '../data/models/network/output_stream.dart';
@@ -66,9 +66,8 @@ class Client {
 
   bool _isLoggedIn = false;
 
-  late MessageTransmitter _messageHandler;
-
-  Uri? uri;
+  late MessageTransmitter _messageTransmitter;
+  bool _isMessageDispatcherRunning = false;
 
   Client._();
 
@@ -90,16 +89,16 @@ class Client {
 
       broadcastStream = _sslSocket!.asBroadcastStream();
 
-      this.uri = uri;
+      UserInfoManager.serverInfo = ServerInfo(uri);
 
       _inputStream = ByteBufInputStream(socket: _sslSocket!, stream: broadcastStream!);
       _outputStream = ByteBufOutputStream(socket: _sslSocket!);
 
-      _messageHandler = MessageTransmitter();
-      _messageHandler.setByteBufOutputStream(_outputStream!);
+      _messageTransmitter = MessageTransmitter();
+      _messageTransmitter.setByteBufOutputStream(_outputStream!);
     } on HandshakeException {
       if (scv == ServerCertificateVerification.verify) {
-        throw ServerVerificationFailedException();
+        throw const ServerVerificationFailedException();
       }
       rethrow;
     }
@@ -132,19 +131,19 @@ class Client {
   }
 
   Message sendMessageToClient(String text, int chatSessionIndex) {
-    return _messageHandler.sendMessageToClient(text, chatSessionIndex);
+    return _messageTransmitter.sendMessageToClient(text, chatSessionIndex);
   }
 
   Message sendImageToClient(String fileName, Uint8List fileBytes, int chatSessionIndex) {
-    return _messageHandler.sendImageToClient(fileName, fileBytes, chatSessionIndex);
+    return _messageTransmitter.sendImageToClient(fileName, fileBytes, chatSessionIndex);
   }
 
   Message sendFileToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
-    return _messageHandler.sendFileToClient(fileName, fileContentBytes, chatSessionIndex);
+    return _messageTransmitter.sendFileToClient(fileName, fileContentBytes, chatSessionIndex);
   }
 
   Message sendVoiceMessageToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
-    return _messageHandler.sendVoiceToClient(fileName, fileContentBytes, chatSessionIndex);
+    return _messageTransmitter.sendVoiceToClient(fileName, fileContentBytes, chatSessionIndex);
   }
 
   Entry createNewVerificationEntry() {
@@ -169,28 +168,35 @@ class Client {
           "User can't start writing to the server if they aren't logged in");
     }
 
-    await _messageHandler.fetchUserInformation();
+    await _messageTransmitter.fetchUserInformation();
   }
 
-  bool isMessageDispatcherRunning = false;
   void startMessageDispatcher() {
-    if (isMessageDispatcherRunning) return;
+    if (_isMessageDispatcherRunning) return;
 
     MessageDispatcher(inputStream: _inputStream!).debute();
-    isMessageDispatcherRunning = true;
+    _isMessageDispatcherRunning = true;
   }
 
-  EventBus get eventBus => _messageHandler.eventBus;
-  Commands get commands => _messageHandler.commands;
-  int get clientID => _messageHandler.clientID;
-  String? get displayName => _messageHandler.username;
-  Uint8List? get profilePhoto => _messageHandler.profilePhoto;
-  List<ChatSession>? get chatSessions => _messageHandler.chatSessions;
-  List<ChatRequest>? get chatRequests => _messageHandler.chatRequests;
-  ServerInfo get serverInfo => ServerInfo(uri!);
-  List<UserDeviceInfo>? get userDevices => _messageHandler.usesDevices;
-  List<Account>? get otherAccounts => _messageHandler.otherAccounts;
-  MessageTransmitter get messageHandler => _messageHandler;
+  void disconnect() async {
+    await _sslSocket!.close();
+    _sslSocket = null;
+    _outputStream = null;
+    _inputStream = null;
+    broadcastStream = null;
+    _isMessageDispatcherRunning = false;
+    UserInfoManager.resetUserInformation();
+  }
+
+  Commands get commands => _messageTransmitter.commands;
+  int get clientID => UserInfoManager.clientID;
+  String? get displayName => UserInfoManager.username;
+  Uint8List? get profilePhoto => UserInfoManager.profilePhoto;
+  List<ChatSession>? get chatSessions => UserInfoManager.chatSessions;
+  List<ChatRequest>? get chatRequests => UserInfoManager.chatRequests;
+  ServerInfo? get serverInfo => UserInfoManager.serverInfo;
+  List<UserDeviceInfo>? get userDevices => UserInfoManager.userDevices;
+  List<Account>? get otherAccounts => UserInfoManager.otherAccounts;
 
   bool isLoggedIn() {
     return _isLoggedIn;

@@ -78,7 +78,7 @@ class _ChooseFriendScreenState extends State<ChooseFriendScreen> {
           leading: BackButton(
             onPressed: () => Navigator.pop(context, <Member>[]),
           ),
-          title: Text("Choose Friends")),
+          title: Text(S.current.choose_friends)),
       body: Column(
         children: [
           Padding(

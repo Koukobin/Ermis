@@ -23,7 +23,7 @@
   "login_incorrect_password": "Incorrect password.",
   "login_incorrect_backup_verification_code": "Incorrect backup verification code.",
   "login_incorrect_email": "Incorrect email!",
-  "login_account_doesnt_exist": "Account doesn't exist!",
+  "login_account_doesnt_exist": "Account doesnt exist!",
 
   "login_toggle_password_type": "Toggle password type",
   "login_add_device_info": "Add device info",
@@ -59,7 +59,7 @@
   "backup_verification_code_successfully_regenerated_backup_verification_codes": "Successfully regenerated backup verification codes!",
   "backup_verification_code_error_while_changing_username": "There was an error while trying to change username!"
 
-  "temp_banned":"Slow your horses there! You've been temporarily banned from interacting with the server for a short time interval."
+  "temp_banned":"Slow your horses there! Youve been temporarily banned from interacting with the server for a short time interval."
 
   "addAccount": "Add account"
   "deleteAccount": "Delete account"
@@ -157,7 +157,7 @@
   "An error occured while trying to fetch profile photo from database!": "An error occured while trying to fetch profile photo from database!"
   "Command {} not implemented!": "Command {} not implemented!"
   "Username cannot be the same as old username!": "Username cannot be the same as old username!"
-  "Chat session selected doesn't exist. (May have been deleted by the other user)": "Chat session selected doesn't exist. (May have been deleted by the other user)"
+  "Chat session selected doesnt exist. (May have been deleted by the other user)": "Chat session selected doesnt exist. (May have been deleted by the other user)"
   "Message length exceeds maximum length (%d characters)": "Message length exceeds maximum length (%d characters)"
   "Command not known!": "Command not known!"
   "Content type not implemented!": "Content type not implemented!"

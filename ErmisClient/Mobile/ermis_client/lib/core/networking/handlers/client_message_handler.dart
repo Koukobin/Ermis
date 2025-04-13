@@ -20,9 +20,9 @@ import 'package:ermis_client/core/networking/common/message_types/content_type.d
 import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/networking/message_transmitter.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/message.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import '../../event_bus/app_event_bus.dart';
 import '../../event_bus/event_bus.dart';
 
@@ -64,13 +64,13 @@ class ClientMessageHandler {
     message.setMessageID(messageID);
     message.setChatSessionID(chatSessionID);
     message.setChatSessionIndex(
-        Info.chatSessionIDSToChatSessions[chatSessionID]!.chatSessionIndex);
+        UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.chatSessionIndex);
     message.setText(text);
     message.setFileName(fileNameBytes);
     message.setEpochSecond(epochSecond);
     message.setDeliveryStatus(MessageDeliveryStatus.delivered);
 
-    ChatSession chatSession = Info.chatSessionIDSToChatSessions[chatSessionID]!;
+    ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
     if (chatSession.haveChatMessagesBeenCached) {
       chatSession.messages.add(message);
     }

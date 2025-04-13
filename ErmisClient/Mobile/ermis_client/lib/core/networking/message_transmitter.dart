@@ -17,15 +17,14 @@
 import 'dart:convert';
 
 import 'package:ermis_client/core/networking/common/message_types/download_file_type.dart';
-import 'package:ermis_client/core/networking/handlers/chat_sessions_service.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:flutter/foundation.dart';
 
-import '../data_sources/api_client.dart';
 import '../models/account.dart';
 import 'common/message_types/client_command_type.dart';
 import 'common/message_types/client_message_type.dart';
@@ -37,39 +36,6 @@ import '../models/chat_request.dart';
 import '../models/chat_session.dart';
 import '../models/message.dart';
 import '../data/models/network/output_stream.dart';
-
-class Info {
-  static String? username;
-  static int clientID = -1;
-  static ClientStatus? accountStatus;
-  static Uint8List? profilePhoto;
-  static List<UserDeviceInfo>? userDevices;
-
-  static final Map<int, ChatSession> chatSessionIDSToChatSessions = {};
-  static List<ChatSession>? chatSessions;
-  static List<ChatRequest>? chatRequests;
-  static List<Account>? otherAccounts;
-
-  static final Map<int /* temporary message id */, Message> pendingMessagesQueue = {};
-  static int lastPendingMessageID = 0;
-
-  /// Resets all user information; useful for when switching between accounts
-  static void resetUserInformation() {
-    username = null;
-    clientID = -1;
-    accountStatus = null;
-    profilePhoto = null;
-    userDevices = null;
-
-    chatSessionIDSToChatSessions.clear();
-    chatSessions = null;
-    chatRequests = null;
-
-    otherAccounts = null;
-    pendingMessagesQueue.clear();
-    lastPendingMessageID = 0;
-  }
-}
 
 class MessageTransmitter {
   late final ByteBufOutputStream _outputStream;
@@ -89,7 +55,7 @@ class MessageTransmitter {
 
     ByteBuf payload = ByteBuf.smallBuffer(growable: true);
     payload.writeInt32(ClientMessageType.clientContent.id);
-    payload.writeInt32(++Info.lastPendingMessageID);
+    payload.writeInt32(++UserInfoManager.lastPendingMessageID);
     payload.writeInt32(MessageContentType.text.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(textBytes.length);
@@ -100,9 +66,9 @@ class MessageTransmitter {
     return createPendingMessage(
       text: Uint8List.fromList(utf8.encode(text)),
       contentType: MessageContentType.text,
-      chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
-      tempMessageID: Info.lastPendingMessageID,
+      tempMessageID: UserInfoManager.lastPendingMessageID,
     );
   }
 
@@ -114,7 +80,7 @@ class MessageTransmitter {
 
     ByteBuf payload = ByteBuf(payloadSize);
     payload.writeInt32(ClientMessageType.clientContent.id);
-    payload.writeInt32(++Info.lastPendingMessageID);
+    payload.writeInt32(++UserInfoManager.lastPendingMessageID);
     payload.writeInt32(MessageContentType.file.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(fileNameBytes.length);
@@ -126,9 +92,9 @@ class MessageTransmitter {
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
       contentType: MessageContentType.file,
-      chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
-      tempMessageID: Info.lastPendingMessageID,
+      tempMessageID: UserInfoManager.lastPendingMessageID,
     );
   }
 
@@ -140,7 +106,7 @@ class MessageTransmitter {
     
     ByteBuf payload = ByteBuf(payloadSize);
     payload.writeInt32(ClientMessageType.clientContent.id);
-    payload.writeInt32(++Info.lastPendingMessageID);
+    payload.writeInt32(++UserInfoManager.lastPendingMessageID);
     payload.writeInt32(MessageContentType.image.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(fileNameBytes.length);
@@ -152,9 +118,9 @@ class MessageTransmitter {
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
       contentType: MessageContentType.image,
-      chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
-      tempMessageID: Info.lastPendingMessageID,
+      tempMessageID: UserInfoManager.lastPendingMessageID,
     );
   }
 
@@ -166,7 +132,7 @@ class MessageTransmitter {
 
     ByteBuf payload = ByteBuf(payloadSize);
     payload.writeInt32(ClientMessageType.clientContent.id);
-    payload.writeInt32(++Info.lastPendingMessageID);
+    payload.writeInt32(++UserInfoManager.lastPendingMessageID);
     payload.writeInt32(MessageContentType.voice.id);
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(fileNameBytes.length);
@@ -178,9 +144,9 @@ class MessageTransmitter {
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
       contentType: MessageContentType.voice,
-      chatSessionID: Info.chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
-      tempMessageID: Info.lastPendingMessageID,
+      tempMessageID: UserInfoManager.lastPendingMessageID,
     );
   }
 
@@ -195,8 +161,8 @@ class MessageTransmitter {
     final m = Message(
         text: text,
         fileName: fileName,
-        username: Client.instance().displayName!,
-        clientID: Client.instance().clientID,
+        username: username!,
+        clientID: clientID,
         messageID: -1,
         chatSessionID: chatSessionID,
         chatSessionIndex: chatSessionIndex,
@@ -204,7 +170,7 @@ class MessageTransmitter {
         contentType: contentType,
         deliveryStatus: MessageDeliveryStatus.sending);
     
-    Info.pendingMessagesQueue[tempMessageID] = m;
+    UserInfoManager.pendingMessagesQueue[tempMessageID] = m;
     return m;
   }
 
@@ -224,22 +190,22 @@ class MessageTransmitter {
         // debugPrint(chatSessions.toString());
         // debugPrint(Info.accountStatus.toString());
         return (username == null ||
-            Info.profilePhoto == null ||
+            UserInfoManager.profilePhoto == null ||
             chatRequests == null ||
             chatSessions == null ||
-            Info.accountStatus == null);
+            UserInfoManager.accountStatus == null);
       });
     });
   }
 
   Commands get commands => _commands;
-  String? get username => Info.username;
-  int get clientID => Info.clientID;
-  Uint8List? get profilePhoto => Info.profilePhoto;
-  List<ChatSession>? get chatSessions => Info.chatSessions;
-  List<ChatRequest>? get chatRequests => Info.chatRequests;
-  List<UserDeviceInfo>? get usesDevices => Info.userDevices;
-  List<Account>? get otherAccounts => Info.otherAccounts;
+  String? get username => UserInfoManager.username;
+  int get clientID => UserInfoManager.clientID;
+  Uint8List? get profilePhoto => UserInfoManager.profilePhoto;
+  List<ChatSession>? get chatSessions => UserInfoManager.chatSessions;
+  List<ChatRequest>? get chatRequests => UserInfoManager.chatRequests;
+  List<UserDeviceInfo>? get userDevices => UserInfoManager.userDevices;
+  List<Account>? get otherAccounts => UserInfoManager.otherAccounts;
 }
 
 class Commands {
@@ -293,16 +259,13 @@ class Commands {
   }
 
   Future<void> fetchProfileInformation() async {
-    LocalUserInfo? userInfo = await IntermediaryService().fetchLocalUserInfo(server: Client.instance().serverInfo);
+    LocalUserInfo? userInfo = await UserInfoManager.fetchProfileInformation();
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchProfileInformation.id);
     if (userInfo != null) {
       payload.writeInt64(userInfo.lastUpdatedEpochSecond);
-      Info.clientID = userInfo.clientID;
-      Info.username = userInfo.displayName;
-      Info.profilePhoto = userInfo.profilePhoto;
     }
 
     out.write(payload);
@@ -347,7 +310,7 @@ class Commands {
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchWrittenText.id);
     payload.writeInt32(chatSessionIndex);
-    payload.writeInt32(Client.instance()
+    payload.writeInt32(UserInfoManager
         .chatSessions![chatSessionIndex]
         .messages
         .length /* Number of messages client already has */);
@@ -364,31 +327,11 @@ class Commands {
   }
 
   Future<void> fetchChatSessionIndices() async {
+    await UserInfoManager.fetchLocalChatSessions();
+
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchChatSessionIndices.id);
-
-    List<int> sessions = await IntermediaryService().fetchChatSessions(server: Client.instance().serverInfo);
-
-    while (Info.clientID < 0) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      continue;
-    }
-
-    for (int sessionID in sessions) {
-
-      List<Member> members = await IntermediaryService().fetchMembersAssociatedWithChatSession(
-        server: Client.instance().serverInfo,
-        excludeClientID: Info.clientID,
-        chatSessionID: sessionID,
-      );
-
-      ChatSession chatSession = ChatSession(sessionID, -1);
-      chatSession.setMembers(members);
-
-      Info.chatSessionIDSToChatSessions[sessionID] = chatSession;
-    }
-
     out.write(payload);
   }
 
@@ -397,7 +340,7 @@ class Commands {
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchChatSessions.id);
 
-    List<ChatSession> sessions = Info.chatSessionIDSToChatSessions.values.toList();
+    List<ChatSession> sessions = UserInfoManager.chatSessionIDSToChatSessions.values.toList();
 
     for (ChatSession session in sessions) {
       payload.writeInt32(session.chatSessionIndex);
@@ -653,7 +596,7 @@ class Commands {
     // Reset user information before switching to ensure that 
     // user information from this account is not transferred 
     // to the next
-    Info.resetUserInformation();
+    UserInfoManager.resetUserInformation();
   }
 
   // void acceptVoiceCall(int chatSessionID) {

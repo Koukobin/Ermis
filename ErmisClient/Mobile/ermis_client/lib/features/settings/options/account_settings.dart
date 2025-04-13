@@ -26,6 +26,7 @@ import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../core/networking/user_info_manager.dart';
 import '../../../generated/l10n.dart';
 import '../../../core/data_sources/api_client.dart';
 import '../../../core/services/database/database_service.dart';
@@ -81,7 +82,7 @@ class AccountSettings extends StatefulWidget {
                   title: Text(account.name(), style: TextStyle(fontSize: 18)),
                   onTap: () {
                     showConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
-                      ServerInfo serverDetails = Client.instance().serverInfo;
+                      ServerInfo serverDetails = UserInfoManager.serverInfo;
                       final DBConnection conn = ErmisDB.getConnection();
                       List<LocalAccountInfo> allUserAccounts = await conn.getUserAccounts(serverDetails);
                       LocalAccountInfo? matchingAccount;

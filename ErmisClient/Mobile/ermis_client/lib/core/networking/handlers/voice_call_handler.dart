@@ -17,8 +17,8 @@
 import 'dart:typed_data';
 import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/networking/message_transmitter.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import '../../event_bus/app_event_bus.dart';
 import '../../event_bus/event_bus.dart';
 
@@ -31,7 +31,7 @@ class VoiceCallHandler {
     int clientID = msg.readInt32();
     Uint8List aesKey = msg.readBytes(msg.readableBytes);
 
-    ChatSession session = Info.chatSessionIDSToChatSessions[chatSessionID]!;
+    ChatSession session = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
 
     Member? member;
     for (var j = 0; j < session.members.length; j++) {

@@ -454,10 +454,12 @@ class DBConnection {
 
   Future<List<Member>> fetchMembersAssociatedWithChatSession({
     required ServerInfo server,
-    required int excludeClientID,
     required int chatSessionID,
   }) async {
     final db = await _database;
+
+    String email = (await getLastUsedAccount(server))!.email;
+    LocalUserInfo localInfo = (await getLocalUserInfo(server, email))!;
 
     final List<Map<String, dynamic>> results = await db.rawQuery(
       '''
@@ -469,7 +471,7 @@ class DBConnection {
             AND NOT m.client_id  = ?
         WHERE csm.chat_session_id = ? AND csm.server_url = ?;
       ''',
-      [excludeClientID, chatSessionID, server.toString()],
+      [localInfo.clientID, chatSessionID, server.toString()],
     );
 
     List<Member> members = results.map((Map<String, dynamic> record) {

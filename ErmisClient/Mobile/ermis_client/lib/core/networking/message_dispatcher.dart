@@ -25,7 +25,6 @@ import 'package:ermis_client/core/networking/handlers/voice_call_handler.dart';
 import 'package:ermis_client/core/data/models/network/input_stream.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 import 'common/message_types/server_message_type.dart';
 import '../event_bus/event_bus.dart';
@@ -45,9 +44,10 @@ class MessageDispatcher {
       },
       onDone: () {
         _inputStream.socket.destroy();
-        SystemNavigator.pop();
+        // SystemNavigator.pop();
+        _eventBus.fire(const ConnectionResetEvent());
       },
-      onError: (e) {
+      onError: (dynamic e) {
         if (kDebugMode) {
           debugPrint(e.toString());
         }

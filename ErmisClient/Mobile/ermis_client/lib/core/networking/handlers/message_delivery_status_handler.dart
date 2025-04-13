@@ -19,6 +19,7 @@ import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/networking/message_transmitter.dart';
 import 'package:ermis_client/core/models/message.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import '../../event_bus/app_event_bus.dart';
 import '../../event_bus/event_bus.dart';
 
@@ -34,19 +35,19 @@ class MessageDeliveryStatusHandler {
       int chatSessionID = msg.readInt32();
       int generatedMessageID = msg.readInt32();
 
-      pendingMessage = Info.chatSessionIDSToChatSessions[chatSessionID]!
+      pendingMessage = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!
           .messages
           .firstWhere((m) => m.messageID == generatedMessageID);
     } else if (status == MessageDeliveryStatus.rejected) {
       int tempMessageID = msg.readInt32();
-      pendingMessage = Info.pendingMessagesQueue.remove(tempMessageID)!;
+      pendingMessage = UserInfoManager.pendingMessagesQueue.remove(tempMessageID)!;
     } else {
       int tempMessageID = msg.readInt32();
       int generatedMessageID = msg.readInt32();
 
-      pendingMessage = Info.pendingMessagesQueue[tempMessageID]!;
+      pendingMessage = UserInfoManager.pendingMessagesQueue[tempMessageID]!;
       if (status == MessageDeliveryStatus.delivered) {
-        Info.pendingMessagesQueue.remove(tempMessageID)!;
+        UserInfoManager.pendingMessagesQueue.remove(tempMessageID)!;
       }
 
       pendingMessage.setMessageID(generatedMessageID);

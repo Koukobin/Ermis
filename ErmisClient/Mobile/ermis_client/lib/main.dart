@@ -31,6 +31,7 @@ import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/splash_screen/splash_screen.dart';
+import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/util/notifications_util.dart';
@@ -38,6 +39,7 @@ import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:ermis_client/web_rtc/main.dart' as MyApp;
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
 // import 'package:flutter_webrtc/flutter_webrtc.dart';
 // import 'package:http/http.dart' as http;
@@ -354,7 +356,7 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
       darkAppColors: widget.darkAppColors,
       lightAppColors: widget.lightAppColors,
       theme: widget.themeMode,
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }
@@ -366,7 +368,7 @@ class MainInterface extends StatefulWidget {
   State<MainInterface> createState() => MainInterfaceState();
 }
 
-class MainInterfaceState extends State<MainInterface> {
+class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionMixin {
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   static const List<Widget> _widgetOptions = <Widget>[
@@ -386,9 +388,12 @@ class MainInterfaceState extends State<MainInterface> {
     super.initState();
     _pageController = PageController(initialPage: _selectedPageIndex);
 
-    AppEventBus.instance.on<ServerMessageInfoEvent>().listen((event) {
-      if (!mounted) return;
+    subscribe(AppEventBus.instance.on<ServerMessageInfoEvent>(), (event) {
       showToastDialog(event.message);
+    });
+
+    subscribe(AppEventBus.instance.on<ConnectionResetEvent>(), (event) {
+      showToastDialog(S.current.connection_reset);
     });
   }
 

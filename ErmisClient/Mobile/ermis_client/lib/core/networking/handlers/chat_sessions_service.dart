@@ -24,12 +24,10 @@ class IntermediaryService {
 
   Future<List<Member>> fetchMembersAssociatedWithChatSession({
     required ServerInfo server,
-    required int excludeClientID,
     required int chatSessionID,
   }) async {
     return await _databaseService.fetchMembersAssociatedWithChatSession(
       server: server,
-      excludeClientID: excludeClientID,
       chatSessionID: chatSessionID,
     );
   }

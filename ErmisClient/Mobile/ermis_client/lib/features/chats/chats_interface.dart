@@ -17,7 +17,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:ermis_client/core/networking/message_transmitter.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
@@ -127,7 +126,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
   /// Even though it's only referenced once in the code, using the refresh indicator
   /// to refresh the chat session will trigger the stream again. If you wish to see
   /// this for yourself, try the code without the broadcast stream.
-  late final Stream<int> _stream = Stream.periodic(Duration(seconds: 5), (x) => x).asBroadcastStream();
+  late final Stream<int> _stream = Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
 
   ChatsState() : super(Task.normal);
 
@@ -215,7 +214,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
                   child: Text(
-                    "New Group",
+                    S.current.new_group,
                     style: const TextStyle(
                         color: Colors.green,
                         fontStyle: FontStyle.italic,
@@ -262,11 +261,12 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                 ),
                 PopupMenuItem(
                   value: () {
-                    Info.resetUserInformation();
+                    Client.instance().disconnect();
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const SplashScreen()),
+                        builder: (context) => const SplashScreen(),
+                      ),
                       (route) => false, // Removes all previous routes
                     );
                   },

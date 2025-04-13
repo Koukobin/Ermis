@@ -15,14 +15,13 @@
  */
 
 import 'package:ermis_client/core/data_sources/api_client.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/features/authentication/domain/entities/added_info.dart';
 import 'package:ermis_client/core/networking/common/results/entry_result.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
-
-import '../../core/networking/message_transmitter.dart';
 
 Future<void> _showVerificationDialog({
   required BuildContext context,
@@ -145,13 +144,13 @@ mixin Verification {
           LocalAccountInfo.fuck(
               email: email,
               passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
-          Client.instance().serverInfo,
+          UserInfoManager.serverInfo,
         );
 
         // Reset user information before switching to ensure that
         // user information from this account is not transferred
         // to the next
-        Info.resetUserInformation();
+        UserInfoManager.resetUserInformation();
         break;
       }
 

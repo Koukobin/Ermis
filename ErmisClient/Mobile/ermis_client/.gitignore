@@ -45,4 +45,4 @@ app.*.map.json
 /android/app/release
 
 # Automatically generated dart language files
-/lib/generated
+/lib/generated/

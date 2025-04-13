@@ -32,6 +32,7 @@ import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/file_heap.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/models/user_device.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import '../../event_bus/app_event_bus.dart';
@@ -76,64 +77,64 @@ class CommandResultHandler {
         break;
       case ClientCommandResultType.fetchProfileInfo:
         // ClientID
-        Info.clientID = msg.readInt32();
-        _eventBus.fire(ClientIdEvent(Info.clientID));
+        UserInfoManager.clientID = msg.readInt32();
+        _eventBus.fire(ClientIdEvent(UserInfoManager.clientID));
 
         // Username
         final usernameBytes = msg.readBytes(msg.readInt32());
-        Info.username = utf8.decode(usernameBytes);
-        _eventBus.fire(UsernameReceivedEvent(Info.username!));
+        UserInfoManager.username = utf8.decode(usernameBytes);
+        _eventBus.fire(UsernameReceivedEvent(UserInfoManager.username!));
 
         int lastUpdatedEpochSecond = msg.readInt64();
 
         // Profile photo
-        Info.profilePhoto = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(ProfilePhotoEvent(Info.profilePhoto!));
+        UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
+        _eventBus.fire(ProfilePhotoEvent(UserInfoManager.profilePhoto!));
 
         IntermediaryService().addLocalUserInfo(
-          server: Client.instance().serverInfo,
+          server: UserInfoManager.serverInfo,
           info: LocalUserInfo(
-            displayName: Info.username!,
-            clientID: Info.clientID,
-            profilePhoto: Info.profilePhoto!,
+            displayName: UserInfoManager.username!,
+            clientID: UserInfoManager.clientID,
+            profilePhoto: UserInfoManager.profilePhoto!,
             lastUpdatedEpochSecond: lastUpdatedEpochSecond,
           ),
         );
         break;
       case ClientCommandResultType.getDisplayName:
         final usernameBytes = msg.readBytes(msg.readableBytes);
-        Info.username = utf8.decode(usernameBytes);
-        _eventBus.fire(UsernameReceivedEvent(Info.username!));
+        UserInfoManager.username = utf8.decode(usernameBytes);
+        _eventBus.fire(UsernameReceivedEvent(UserInfoManager.username!));
         break;
       case ClientCommandResultType.getClientId:
-        Info.clientID = msg.readInt32();
-        _eventBus.fire(ClientIdEvent(Info.clientID));
+        UserInfoManager.clientID = msg.readInt32();
+        _eventBus.fire(ClientIdEvent(UserInfoManager.clientID));
         break;
       case ClientCommandResultType.fetchAccountStatus:
-        Info.accountStatus = ClientStatus.fromId(msg.readInt32());
-        _eventBus.fire(AccountStatusEvent(Info.accountStatus!));
+        UserInfoManager.accountStatus = ClientStatus.fromId(msg.readInt32());
+        _eventBus.fire(AccountStatusEvent(UserInfoManager.accountStatus!));
         break;
       case ClientCommandResultType.getChatSessionIndices:
-        Info.chatSessions = [];
+        UserInfoManager.chatSessions = [];
 
         int i = 0;
         while (msg.readableBytes > 0) {
           int chatSessionIndex = i;
           int chatSessionID = msg.readInt32();
 
-          ChatSession? chatSession = Info.chatSessionIDSToChatSessions[chatSessionID];
+          ChatSession? chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID];
           if (chatSession == null) {
             chatSession = ChatSession(chatSessionID, chatSessionIndex);
-            Info.chatSessionIDSToChatSessions[chatSessionID] = chatSession;
+            UserInfoManager.chatSessionIDSToChatSessions[chatSessionID] = chatSession;
           }
           chatSession.chatSessionIndex = i;
 
-          Info.chatSessions!.add(chatSession);
+          UserInfoManager.chatSessions!.add(chatSession);
 
           i++;
         }
 
-        _eventBus.fire(ChatSessionsIndicesReceivedEvent(Info.chatSessions!));
+        _eventBus.fire(ChatSessionsIndicesReceivedEvent(UserInfoManager.chatSessions!));
 
         Client.instance().commands.fetchChatSessions(); // Proceed to fetching chat sessions
         break;
@@ -146,7 +147,7 @@ class CommandResultHandler {
           ChatSession chatSession;
 
           try {
-            chatSession = Info.chatSessions![chatSessionIndex];
+            chatSession = UserInfoManager.chatSessions![chatSessionIndex];
           } on RangeError {
             continue; // This could happen potentially if this chat session had been cached in local database and when the conditional request was it did not know what to do and it sent -1. Outdated chat sessions will be deleted  after new chat sessions have been processed
           }
@@ -157,11 +158,11 @@ class CommandResultHandler {
           if (membersSize == -1) {
             // Infer session has been deleted since membersSize is -1
 
-            Info.chatSessions!.removeAt(chatSessionIndex);
-            Info.chatSessionIDSToChatSessions.remove(chatSession.chatSessionID);
+            UserInfoManager.chatSessions!.removeAt(chatSessionIndex);
+            UserInfoManager.chatSessionIDSToChatSessions.remove(chatSession.chatSessionID);
 
             IntermediaryService().deleteChatSession(
-              server: Client.instance().serverInfo,
+              server: UserInfoManager.serverInfo,
               session: chatSession,
             );
 
@@ -196,7 +197,7 @@ class CommandResultHandler {
           chatSession.setMembers(members.toList());
 
           IntermediaryService().insertChatSession(
-            server: Client.instance().serverInfo,
+            server: UserInfoManager.serverInfo,
             session: chatSession,
           );
 
@@ -204,13 +205,13 @@ class CommandResultHandler {
         }
         
         // Delete outdated chat sessions
-        for (final session in Info.chatSessionIDSToChatSessions.values) {
-          if (Info.chatSessions!.contains(session)) continue;
+        for (final session in UserInfoManager.chatSessionIDSToChatSessions.values) {
+          if (UserInfoManager.chatSessions!.contains(session)) continue;
 
-          IntermediaryService().deleteChatSession(server: Client.instance().serverInfo, session: session);
+          IntermediaryService().deleteChatSession(server: UserInfoManager.serverInfo, session: session);
         }
 
-        _eventBus.fire(ChatSessionsEvent(Info.chatSessions!));
+        _eventBus.fire(ChatSessionsEvent(UserInfoManager.chatSessions!));
 
         Client.instance().commands.fetchChatSessionsStatuses(); // Proceed to fetching statuses
         break;
@@ -219,7 +220,7 @@ class CommandResultHandler {
           int clientID = msg.readInt32();
           ClientStatus status = ClientStatus.fromId(msg.readInt32());  
           
-          for (final session in Info.chatSessions!) {
+          for (final session in UserInfoManager.chatSessions!) {
             Member? member = session.members.firstWhereOrNull((m) => m.clientID == clientID);
 
             if (member == null) continue;
@@ -231,16 +232,16 @@ class CommandResultHandler {
         
         break;
       case ClientCommandResultType.getChatRequests:
-        Info.chatRequests = [];
+        UserInfoManager.chatRequests = [];
         int friendRequestsLength = msg.readInt32();
         for (int i = 0; i < friendRequestsLength; i++) {
           int clientID = msg.readInt32();
-          Info.chatRequests?.add(ChatRequest(clientID));
+          UserInfoManager.chatRequests?.add(ChatRequest(clientID));
         }
-        _eventBus.fire(ChatRequestsEvent(Info.chatRequests!));
+        _eventBus.fire(ChatRequestsEvent(UserInfoManager.chatRequests!));
         break;
       case ClientCommandResultType.getOtherAccountsAssociatedWithDevice:
-        Info.otherAccounts = [];
+        UserInfoManager.otherAccounts = [];
 
         while (msg.readableBytes > 0) {
           int clientID = msg.readInt32();
@@ -248,18 +249,18 @@ class CommandResultHandler {
           String displayName = utf8.decode(msg.readBytes(msg.readInt32()));
           Uint8List profilePhoto = msg.readBytes(msg.readInt32());
 
-          Info.otherAccounts!.add(Account(
+          UserInfoManager.otherAccounts!.add(Account(
               profilePhoto: profilePhoto,
               displayName: displayName,
               email: email,
               clientID: clientID));
         }
 
-        _eventBus.fire(OtherAccountsEvent(Info.otherAccounts!));
+        _eventBus.fire(OtherAccountsEvent(UserInfoManager.otherAccounts!));
         break;
       case ClientCommandResultType.getWrittenText:
         int chatSessionIndex = msg.readInt32();
-        ChatSession chatSession = Info.chatSessions![chatSessionIndex];
+        ChatSession chatSession = UserInfoManager.chatSessions![chatSessionIndex];
         Set<Message> messagesSet = chatSession.messages.toSet();
 
         while (msg.readableBytes > 0) {
@@ -272,7 +273,7 @@ class CommandResultHandler {
           Uint8List? fileNameBytes;
           int epochSecond = msg.readInt64();
           bool isRead;
-          if (clientID == Info.clientID) {
+          if (clientID == UserInfoManager.clientID) {
             isRead = msg.readBoolean();
           } else {
             isRead = true;
@@ -322,23 +323,23 @@ class CommandResultHandler {
             continue;
           }
 
-          _eventBus.fire(MessageDeletedEvent(Info.chatSessionIDSToChatSessions[chatSessionID]!, messageID));
+          _eventBus.fire(MessageDeletedEvent(UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!, messageID));
         }
         break;
       case ClientCommandResultType.fetchAccountIcon:
-        Info.profilePhoto = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(ProfilePhotoEvent(Info.profilePhoto!));
+        UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
+        _eventBus.fire(ProfilePhotoEvent(UserInfoManager.profilePhoto!));
         break;
       case ClientCommandResultType.fetchUserDevices:
-        Info.userDevices = [];
+        UserInfoManager.userDevices = [];
 
         while (msg.readableBytes > 0) {
           DeviceType deviceType = DeviceType.fromId(msg.readInt32());
           String address = utf8.decode(msg.readBytes(msg.readInt32()));
           String osName = utf8.decode(msg.readBytes(msg.readInt32()));
-          Info.userDevices!.add(UserDeviceInfo(address, deviceType, osName));
+          UserInfoManager.userDevices!.add(UserDeviceInfo(address, deviceType, osName));
         }
-        _eventBus.fire(UserDevicesEvent(Info.userDevices!));
+        _eventBus.fire(UserDevicesEvent(UserInfoManager.userDevices!));
         break;
       case ClientCommandResultType.setAccountIcon:
         bool isSuccessful = msg.readBoolean();
@@ -346,7 +347,7 @@ class CommandResultHandler {
           break;
         }
         
-        Info.profilePhoto = Commands.pendingAccountIcon;
+        UserInfoManager.profilePhoto = Commands.pendingAccountIcon;
         _eventBus.fire(AddProfilePhotoResultEvent(isSuccessful));
         break;
       case ClientCommandResultType.startVoiceCall:
@@ -355,7 +356,7 @@ class CommandResultHandler {
         Uint8List aesKey = msg.readBytes(msg.readableBytes);
 
         RawDatagramSocket socket = await RawDatagramSocket.bind(
-          Client.instance().serverInfo.address.type,
+          UserInfoManager.serverInfo.address.type,
           0,
         );
 

@@ -29,6 +29,7 @@ mixin EventBusSubscriptionMixin<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
+  @protected
   void subscribe<E>(Stream<E> stream, void Function(E event) onData) {
     if (!mounted) return;
 
