@@ -22,7 +22,7 @@
   "login_password_incorrect": "Incorrect password.",
   "login_backup_code_incorrect": "Incorrect backup verification code.",
   "login_email_incorrect": "Incorrect email!",
-  "login_account_not_found": "Account doesn't exist!",
+  "login_account_not_found": "Account doesnt exist!",
 
   "login_toggle_password": "Toggle password type",
   "login_add_device_info": "Add device info",
@@ -52,7 +52,7 @@
   "backup_verification_code_regenerate_success": "Successfully regenerated backup verification codes!",
   "backup_verification_code_regenerate_error": "There was an error while trying to change username!",
 
-  "temp_banned": "Slow your horses there! You've been temporarily banned from interacting with the server for a short time interval.",
+  "temp_banned": "Slow your horses there! Youve been temporarily banned from interacting with the server for a short time interval.",
 
   "requests": "Requests",
   "account_add": "Add new account",
@@ -166,7 +166,7 @@
   "profile_photo_fetch_error": "An error occured while trying to fetch profile photo from database!",
   "command_not_implemented": "Command {} not implemented!",
   "username_same_as_old": "Username cannot be the same as old username!",
-  "chat_session_not_found": "Chat session selected doesn't exist. (May have been deleted by the other user)",
+  "chat_session_not_found": "Chat session selected doesnt exist. (May have been deleted by the other user)",
   "message_length_exceeded": "Message length exceeds maximum length {|characters}",
   "command_unknown": "Command not known!",
   "content_type_not_implemented": "Content type not implemented!",
@@ -197,7 +197,7 @@
   "gallery": "Gallery",
   "camera": "Camera",
   "documents": "Documents",
-  "whats_new": "What's New",
+  "whats_new": "Whats New",
   "whats_new_title": "New Features in Hermis",
   "feature_encryption": "Enhanced encryption protocols",
   "feature_languages": "Multi-language support!",
@@ -221,7 +221,7 @@
   "delete_chat": "Delete chat",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Deleting this chat will permanently delete all prior messages",
   "delete_this_chat_question": "Delete this chat?",
-  "new_chat": "'New chat'",
+  "new_chat": "New chat",
   "incompatible_server_version_warning": "Incompatible server version! Some things many not work as expected!",
   "submit": "Submit",
   "verification": "Verification",
@@ -254,5 +254,23 @@
 
   "many_bug_fixes": "Many bug fixes!",
   "ability_to_form_group_chats": "Ability to form group chats!",
-  "optimizations_on_data_usage": "Significant optimizations regarding data usage!"
+  "optimizations_on_data_usage": "Significant optimizations regarding data usage!",
+
+  "custom": "Custom",
+  "gradient": "Gradient",
+  "abstract": "Abstract",
+  "default_monotone": "Default/Monotone",
+
+  "connection_refused": "Connection Refused!",
+  "connection_reset": "Connection Reset!",
+  "could_not_verify_server_certificate": "Could not verify server certificate",
+
+  "privacy": "Privacy",
+
+  "new_group": "New Group",
+  "add_user": "Add User",
+  "choose_friends": "Choose Friends",
+
+  "chat_theme": "Chat Theme",
+  "settings_saved": "Settings saved"
 }

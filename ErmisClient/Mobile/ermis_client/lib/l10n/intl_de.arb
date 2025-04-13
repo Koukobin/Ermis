@@ -216,7 +216,7 @@
   "delete_chat": "Chat löschen",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Das Löschen dieses Chats löscht dauerhaft alle vorherigen Nachrichten",
   "delete_this_chat_question": "Diesen Chat löschen?",
-  "new_chat": "'Neuer Chat'",
+  "new_chat": "Neuer Chat",
   "incompatible_server_version_warning": "Inkompatible Serverversion! Einige Dinge funktionieren möglicherweise nicht wie erwartet!",
   "submit": "Senden",
   "verification": "Verifizierung",
@@ -244,5 +244,23 @@
   "unknown_size": "Unbekannte Größe",
   "sign_out": "Abmelden",
   "no_linked_devices": "Keine verknüpften Geräte",
-  "link_new_device": "Neues Gerät verknüpfen"
+  "link_new_device": "Neues Gerät verknüpfen",
+
+  "custom": "Benutzerdefiniert",
+  "gradient": "Farbverlauf",
+  "abstract": "Abstrakt",
+  "default_monotone": "Standard/Monoton",
+
+  "connection_refused": "Verbindung abgelehnt!",
+  "connection_reset": "Verbindung zurückgesetzt!",
+  "could_not_verify_server_certificate": "Serverzertifikat konnte nicht verifiziert werden",
+
+  "privacy": "Privatsphäre",
+
+  "new_group": "Neue Gruppe",
+  "add_user": "Benutzer hinzufügen",
+  "choose_friends": "Freunde auswählen",
+
+  "chat_theme": "Chat-Design",
+  "settings_saved": "Einstellungen gespeichert"
 }

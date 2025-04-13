@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a el locale. All the
 // messages from the main program should be duplicated here with the same
@@ -57,6 +41,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ability_to_form_group_chats": MessageLookupByLibrary.simpleMessage(
       "Δυνατότητα δημιουργίας ομαδικών συνομιλιών!",
     ),
+    "abstract": MessageLookupByLibrary.simpleMessage("Αφηρημένο"),
     "accept": MessageLookupByLibrary.simpleMessage("Αποδοχή"),
     "account": MessageLookupByLibrary.simpleMessage("Λογαριασμός"),
     "account_add": MessageLookupByLibrary.simpleMessage(
@@ -89,6 +74,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_settings": MessageLookupByLibrary.simpleMessage(
       "Ρυθμίσεις λογαριασμού",
     ),
+    "add_user": MessageLookupByLibrary.simpleMessage("Προσθήκη Χρήστη"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Η διεύθυνση δεν αναγνωρίστηκε!",
     ),
@@ -178,11 +164,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
       "Η επιλεγμένη συνεδρία συνομιλίας δεν υπάρχει. (Μπορεί να έχει διαγραφεί από τον άλλο χρήστη)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("Θέμα Συνομιλίας"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Ρυθμίσεις θέματος συνομιλίας",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Συνομιλίες"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Επιλογή Φίλων"),
     "choose_option": MessageLookupByLibrary.simpleMessage(
       "Επιλέξτε μια επιλογή",
     ),
@@ -198,11 +186,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά το μήνυμα;",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Σύνδεση"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Η σύνδεση απέτυχε!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Η σύνδεση διακόπηκε!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Ο τύπος περιεχομένου δεν έχει υλοποιηθεί!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Άγνωστος τύπος περιεχομένου!",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Δεν ήταν δυνατή η επαλήθευση του πιστοποιητικού διακομιστή",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage(
       "Δημιουργία λογαριασμού",
@@ -240,9 +237,13 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Οι προϋποθέσεις για το όνομα χρήστη δεν πληρούνται!",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("Προσαρμοσμένο"),
     "decline": MessageLookupByLibrary.simpleMessage("Απόρριψη"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Η αποσυμπίεση απέτυχε",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "Προεπιλογή/Μονότονο",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Διαγραφή"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Διαγραφή συνομιλίας"),
@@ -314,6 +315,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Γκαλερί"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Το κατάλαβα!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Διαβάθμιση"),
     "help": MessageLookupByLibrary.simpleMessage("Βοήθεια"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Ρυθμίσεις βοήθειας"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
@@ -409,7 +411,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Χρήση δικτύου, αυτόματη λήψη",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Νέα συνομιλία\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Νέα συνομιλία"),
+    "new_group": MessageLookupByLibrary.simpleMessage("Νέα Ομάδα"),
     "new_message": MessageLookupByLibrary.simpleMessage("Νέο μήνυμα!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Δεν υπάρχουν εκκρεμείς αιτήσεις συνομιλίας",
@@ -463,6 +466,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Παρακαλώ εισαγάγετε τον κωδικό επαλήθευσης",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Απόρρητο"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Απόρρητο, ασφάλεια, αλλαγή αριθμού",
     ),

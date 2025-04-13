@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a fr locale. All the
 // messages from the main program should be duplicated here with the same
@@ -50,11 +34,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m5(minEntropy) => "Entropie minimale : ${minEntropy}";
 
-  static String m6(resultMessage) =>
-      "Échec de l\'inscription : ${resultMessage}";
+  static String m6(resultMessage) => "Échec de linscription : ${resultMessage}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "abstract": MessageLookupByLibrary.simpleMessage("Abstrait"),
     "accept": MessageLookupByLibrary.simpleMessage("Accepter"),
     "account": MessageLookupByLibrary.simpleMessage("Compte"),
     "account_add": MessageLookupByLibrary.simpleMessage(
@@ -79,7 +63,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "La suppression de ce compte entraînera :",
     ),
     "account_delete_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors de la suppression de votre compte !",
+      "Une erreur sest produite lors de la suppression de votre compte !",
     ),
     "account_delete_my": MessageLookupByLibrary.simpleMessage(
       "Supprimer mon compte",
@@ -87,14 +71,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_settings": MessageLookupByLibrary.simpleMessage(
       "Paramètres du compte",
     ),
+    "add_user": MessageLookupByLibrary.simpleMessage("Ajouter un utilisateur"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Adresse non reconnue !",
     ),
-    "app_info": MessageLookupByLibrary.simpleMessage(
-      "Infos sur l\'application",
-    ),
+    "app_info": MessageLookupByLibrary.simpleMessage("Infos sur lapplication"),
     "app_language": MessageLookupByLibrary.simpleMessage(
-      "Langue de l\'application",
+      "Langue de lapplication",
     ),
     "are_you_sure_you_want_to_logout_from": m0,
     "are_you_sure_you_want_to_logout_from_all_devices":
@@ -119,7 +102,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "backup_verification_code_regenerate_error":
         MessageLookupByLibrary.simpleMessage(
-          "Une erreur s\'est produite lors du changement du nom d\'utilisateur !",
+          "Une erreur sest produite lors du changement du nom dutilisateur !",
         ),
     "backup_verification_code_regenerate_success":
         MessageLookupByLibrary.simpleMessage(
@@ -128,19 +111,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "camera": MessageLookupByLibrary.simpleMessage("Appareil photo"),
     "cancel": MessageLookupByLibrary.simpleMessage("Annuler"),
     "change_password_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors du changement de mot de passe !",
+      "Une erreur sest produite lors du changement de mot de passe !",
     ),
     "change_password_success": MessageLookupByLibrary.simpleMessage(
       "Mot de passe changé avec succès !",
     ),
     "change_username_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors du changement de nom d\'utilisateur !",
+      "Une erreur sest produite lors du changement de nom dutilisateur !",
     ),
     "change_username_invalid": MessageLookupByLibrary.simpleMessage(
-      "Les exigences du nom d\'utilisateur ne sont pas remplies",
+      "Les exigences du nom dutilisateur ne sont pas remplies",
     ),
     "change_username_success": MessageLookupByLibrary.simpleMessage(
-      "Nom d\'utilisateur changé avec succès !",
+      "Nom dutilisateur changé avec succès !",
     ),
     "chat_backdrop": MessageLookupByLibrary.simpleMessage(
       "Arrière-plan du chat",
@@ -167,33 +150,37 @@ class MessageLookup extends MessageLookupByLibrary {
       "Sélectionner des couleurs de dégradé",
     ),
     "chat_backdrop_upload_coming_soon": MessageLookupByLibrary.simpleMessage(
-      "Téléchargement d\'images personnalisées bientôt disponible !",
+      "Téléchargement dimages personnalisées bientôt disponible !",
     ),
     "chat_backdrop_upload_custom": MessageLookupByLibrary.simpleMessage(
       "Télécharger une image personnalisée",
     ),
     "chat_request_accept_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors de l\'acceptation de la demande de chat !",
+      "Une erreur sest produite lors de lacceptation de la demande de chat !",
     ),
     "chat_request_decline_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors du refus de la demande de chat !",
+      "Une erreur sest produite lors du refus de la demande de chat !",
     ),
     "chat_session_delete_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors de la suppression de la session de chat !",
+      "Une erreur sest produite lors de la suppression de la session de chat !",
     ),
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
-      "La session de chat sélectionnée n\'existe pas. (Elle a peut-être été supprimée par l\'autre utilisateur)",
+      "La session de chat sélectionnée nexiste pas. (Elle a peut-être été supprimée par lautre utilisateur)",
+    ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage(
+      "Thème de la discussion",
     ),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Paramètres du thème du chat",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Chats"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Choisir des amis"),
     "choose_option": MessageLookupByLibrary.simpleMessage(
       "Choisissez une option",
     ),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
-      "L\'identifiant client doit être un nombre",
+      "Lidentifiant client doit être un nombre",
     ),
     "close": MessageLookupByLibrary.simpleMessage("Fermer"),
     "command_not_implemented": MessageLookupByLibrary.simpleMessage(
@@ -206,31 +193,40 @@ class MessageLookup extends MessageLookupByLibrary {
       "Êtes-vous sûr de vouloir supprimer définitivement ce message ?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Se connecter"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Connexion refusée !",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Connexion réinitialisée !",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Type de contenu non implémenté !",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Type de contenu inconnu !",
     ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Impossible de vérifier le certificat du serveur",
+    ),
     "create_account": MessageLookupByLibrary.simpleMessage("Créer un compte"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
-      "Capacité maximale de la base de données atteinte ! Malheureusement, votre demande n\'a pas pu être traitée.",
+      "Capacité maximale de la base de données atteinte ! Malheureusement, votre demande na pas pu être traitée.",
     ),
     "create_account_email_exists": MessageLookupByLibrary.simpleMessage(
-      "L\'e-mail est déjà utilisé !",
+      "Le-mail est déjà utilisé !",
     ),
     "create_account_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors de la création de votre compte !",
+      "Une erreur sest produite lors de la création de votre compte !",
     ),
     "create_account_success": MessageLookupByLibrary.simpleMessage(
       "Compte créé avec succès !",
     ),
     "credential_validation_client_id_error":
         MessageLookupByLibrary.simpleMessage(
-          "Impossible de générer l\'ID client !",
+          "Impossible de générer lID client !",
         ),
     "credential_validation_email_exists": MessageLookupByLibrary.simpleMessage(
-      "L\'e-mail est déjà utilisé !",
+      "Le-mail est déjà utilisé !",
     ),
     "credential_validation_email_invalid": MessageLookupByLibrary.simpleMessage(
       "Adresse e-mail invalide",
@@ -244,11 +240,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "credential_validation_username_invalid":
         MessageLookupByLibrary.simpleMessage(
-          "Les exigences du nom d\'utilisateur ne sont pas remplies !",
+          "Les exigences du nom dutilisateur ne sont pas remplies !",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("Personnalisé"),
     "decline": MessageLookupByLibrary.simpleMessage("Refuser"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Échec de la décompression",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "Par défaut/Monotone",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Supprimer"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Supprimer le chat"),
@@ -259,7 +259,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "La suppression de ce chat supprimera définitivement tous les messages précédents",
         ),
-    "display_name": MessageLookupByLibrary.simpleMessage("Nom d\'affichage"),
+    "display_name": MessageLookupByLibrary.simpleMessage("Nom daffichage"),
     "display_part_of_messages_in_notifications":
         MessageLookupByLibrary.simpleMessage(
           "Afficher une partie du message dans les notifications",
@@ -268,7 +268,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Faire un don au projet Ermis",
     ),
     "donate_to_hoster": MessageLookupByLibrary.simpleMessage(
-      "Faire un don à l\'hébergeur",
+      "Faire un don à lhébergeur",
     ),
     "donations": MessageLookupByLibrary.simpleMessage("Dons"),
     "downloaded_file": MessageLookupByLibrary.simpleMessage(
@@ -277,13 +277,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "email": MessageLookupByLibrary.simpleMessage("E-mail"),
     "email_address": MessageLookupByLibrary.simpleMessage("Adresse e-mail"),
     "email_is_empty": MessageLookupByLibrary.simpleMessage(
-      "L\'e-mail est vide !",
+      "Le-mail est vide !",
     ),
     "email_mismatch": MessageLookupByLibrary.simpleMessage(
-      "L\'email saisi ne correspond pas à l\'email réel !",
+      "Lemail saisi ne correspond pas à lemail réel !",
     ),
     "enter_client_id": MessageLookupByLibrary.simpleMessage(
-      "Entrer l\'identifiant client",
+      "Entrer lidentifiant client",
     ),
     "enter_verification_code": MessageLookupByLibrary.simpleMessage(
       "Entrer le code de vérification",
@@ -294,7 +294,7 @@ class MessageLookup extends MessageLookupByLibrary {
         ),
     "entropy_rough_estimate": m2,
     "error_saving_file": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors de la tentative d\'enregistrement du fichier",
+      "Une erreur sest produite lors de la tentative denregistrement du fichier",
     ),
     "faq_contact_terms_privacy": MessageLookupByLibrary.simpleMessage(
       "FAQ, nous contacter, conditions et politique de confidentialité",
@@ -319,9 +319,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Fonctionnalité non encore implémentée !",
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Galerie"),
-    "got_it_button": MessageLookupByLibrary.simpleMessage("J\'ai compris !"),
+    "got_it_button": MessageLookupByLibrary.simpleMessage("Jai compris !"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Dégradé"),
     "help": MessageLookupByLibrary.simpleMessage("Aide"),
-    "help_settings": MessageLookupByLibrary.simpleMessage("Paramètres d\'aide"),
+    "help_settings": MessageLookupByLibrary.simpleMessage("Paramètres daide"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
       "Version du serveur incompatible ! Certaines choses peuvent ne pas fonctionner comme prévu !",
     ),
@@ -344,10 +345,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "login": MessageLookupByLibrary.simpleMessage("Se connecter"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
-      "Le compte n\'existe pas !",
+      "Le compte nexiste pas !",
     ),
     "login_add_device_info": MessageLookupByLibrary.simpleMessage(
-      "Ajouter des informations sur l\'appareil",
+      "Ajouter des informations sur lappareil",
     ),
     "login_backup_code_incorrect": MessageLookupByLibrary.simpleMessage(
       "Code de vérification de secours incorrect.",
@@ -356,7 +357,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "E-mail incorrect !",
     ),
     "login_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors de la connexion à votre compte ! Veuillez contacter l\'administrateur du serveur et lui faire savoir que son serveur est en panne.",
+      "Une erreur sest produite lors de la connexion à votre compte ! Veuillez contacter ladministrateur du serveur et lui faire savoir que son serveur est en panne.",
     ),
     "login_fetch_requirements": MessageLookupByLibrary.simpleMessage(
       "Récupérer les exigences",
@@ -410,7 +411,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Utilisation du réseau, téléchargement automatique",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Nouveau chat\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Nouveau chat"),
+    "new_group": MessageLookupByLibrary.simpleMessage("Nouveau groupe"),
     "new_message": MessageLookupByLibrary.simpleMessage("Nouveau message !"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Aucune demande de chat en attente",
@@ -461,6 +463,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Veuillez entrer le code de vérification",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Confidentialité"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Confidentialité, sécurité, changement de numéro",
     ),
@@ -481,7 +484,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "profile_photo": MessageLookupByLibrary.simpleMessage("Photo de profil"),
     "profile_photo_fetch_error": MessageLookupByLibrary.simpleMessage(
-      "Une erreur s\'est produite lors de la récupération de la photo de profil depuis la base de données !",
+      "Une erreur sest produite lors de la récupération de la photo de profil depuis la base de données !",
     ),
     "profile_settings": MessageLookupByLibrary.simpleMessage(
       "Paramètres du profil",
@@ -508,10 +511,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Code source du serveur",
     ),
     "server_url_choose": MessageLookupByLibrary.simpleMessage(
-      "Choisir l\'URL du serveur",
+      "Choisir lURL du serveur",
     ),
     "server_url_enter": MessageLookupByLibrary.simpleMessage(
-      "Entrez l\'URL du serveur",
+      "Entrez lURL du serveur",
     ),
     "settings": MessageLookupByLibrary.simpleMessage("Paramètres"),
     "settings_save": MessageLookupByLibrary.simpleMessage(
@@ -525,7 +528,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "storage_data": MessageLookupByLibrary.simpleMessage("Stockage et données"),
     "submit": MessageLookupByLibrary.simpleMessage("Soumettre"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
-      "Du calme ! Vous avez été temporairement banni d\'interagir avec le serveur pendant une courte période.",
+      "Du calme ! Vous avez été temporairement banni dinteragir avec le serveur pendant une courte période.",
     ),
     "theme_dark": MessageLookupByLibrary.simpleMessage("Mode sombre"),
     "theme_light": MessageLookupByLibrary.simpleMessage("Mode clair"),
@@ -534,9 +537,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Par défaut du système",
     ),
     "theme_wallpapers_chat_history": MessageLookupByLibrary.simpleMessage(
-      "Thème, fonds d\'écran, historique des discussions",
+      "Thème, fonds décran, historique des discussions",
     ),
-    "today": MessageLookupByLibrary.simpleMessage("Aujourd\'hui"),
+    "today": MessageLookupByLibrary.simpleMessage("Aujourdhui"),
     "type_message": MessageLookupByLibrary.simpleMessage(
       "Écrivez un message...",
     ),
@@ -548,13 +551,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "Utiliser le mot de passe",
     ),
     "username_same_as_old": MessageLookupByLibrary.simpleMessage(
-      "Le nom d\'utilisateur ne peut pas être identique à l\'ancien !",
+      "Le nom dutilisateur ne peut pas être identique à lancien !",
     ),
     "username_validation_invalid": MessageLookupByLibrary.simpleMessage(
-      "Les exigences du nom d\'utilisateur ne sont pas remplies !",
+      "Les exigences du nom dutilisateur ne sont pas remplies !",
     ),
     "username_validation_success": MessageLookupByLibrary.simpleMessage(
-      "Nom d\'utilisateur validé avec succès !",
+      "Nom dutilisateur validé avec succès !",
     ),
     "verification": MessageLookupByLibrary.simpleMessage("Vérification"),
     "verification_attempts_exhausted": MessageLookupByLibrary.simpleMessage(
@@ -578,7 +581,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "version_capitalized": MessageLookupByLibrary.simpleMessage("Version"),
     "vibration": MessageLookupByLibrary.simpleMessage("Vibration"),
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
-      "La vibration n\'est pas disponible sur cet appareil",
+      "La vibration nest pas disponible sur cet appareil",
     ),
     "whats_new": MessageLookupByLibrary.simpleMessage("Quoi de neuf"),
     "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(

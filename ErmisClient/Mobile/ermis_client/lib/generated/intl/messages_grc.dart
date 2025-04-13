@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a grc locale. All the
 // messages from the main program should be duplicated here with the same
@@ -37,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'grc';
 
   static String m0(deviceInfo) =>
-      "Ἆρ\' οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ τοῦ ${deviceInfo}?";
+      "Ἆρ οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ τοῦ ${deviceInfo}?";
 
   static String m1(username) => "Διάλεξις μετὰ ${username}";
 
@@ -56,6 +40,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ability_to_form_group_chats": MessageLookupByLibrary.simpleMessage(
       "ἡ δύναμις τοῦ συστήσασθαι ὁμιλίας κοινῇ πλειόνων!",
     ),
+    "abstract": MessageLookupByLibrary.simpleMessage("Ἀφηρημένος"),
     "accept": MessageLookupByLibrary.simpleMessage("Δέχομαι"),
     "account": MessageLookupByLibrary.simpleMessage("λογισμός"),
     "account_add": MessageLookupByLibrary.simpleMessage(
@@ -84,6 +69,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "ἀφαιρεῖν τὸν λογισμόν μου",
     ),
     "account_settings": MessageLookupByLibrary.simpleMessage("τάξεις λογισμοῦ"),
+    "add_user": MessageLookupByLibrary.simpleMessage("Προσθεῖναι χρήστην"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "διεύθυνσις οὐ γιγνώσκεται",
     ),
@@ -177,11 +163,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
       "σύνοδος διαλόγου οὐχ εὑρίσκεται (ἄλλος χρήστης ἴσως ἀφεῖλεν)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("Τύπος διαλόγου"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "τάξεις θέματος διαλόγου",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("διάλογοι"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Αἱρεῖσθαι φίλους"),
     "choose_option": MessageLookupByLibrary.simpleMessage("Αἵρει ἕνα τρόπον"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
       "Τὸ τοῦ προστάτου ἀριθμητικὸν εἶναι δεῖ",
@@ -197,11 +185,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Βούλει ἀληθῶς ἀφανίσαι τὸ μήνυμα διὰ παντός;",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("συνάπτειν"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Ἡ σύνδεσις ἀπηρνήθη!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Ἡ σύνδεσις ἐπανετέθη!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "εἶδος ὑλικοῦ οὐ πεποίηται",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "εἶδος ὑλικοῦ οὐ γιγνώσκεται",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Οὐκ ἠδυνήθην τὸ πιστοποιητικὸν τοῦ διακομιστοῦ βεβαιῶσαι",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage("Ποιεῖν λογισμόν"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
@@ -235,9 +232,13 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "ἀπαιτήσεις ὀνόματος χρήστου οὐκ ἐπληρώθησαν",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("Ἰδιόμορφος"),
     "decline": MessageLookupByLibrary.simpleMessage("Ἀποκρούω"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "ἀποσυμπίεσις ἀπέτυχεν",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "Προκαθορισμένος/Μονόχρως",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Ἀφάνισον"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Διαγράφειν διάλογον"),
@@ -311,6 +312,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Πινακοθήκη"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Συνῆκα!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Κλῖμαξ χρωμάτων"),
     "help": MessageLookupByLibrary.simpleMessage("βοήθεια"),
     "help_settings": MessageLookupByLibrary.simpleMessage("τάξεις βοηθείας"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
@@ -364,10 +366,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "logout": MessageLookupByLibrary.simpleMessage("ἐξέρχεσθαι"),
     "logout_capitalized": MessageLookupByLibrary.simpleMessage("ἔξοδος"),
     "logout_confirmation_all_devices": MessageLookupByLibrary.simpleMessage(
-      "Ἆρ\' οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ πάντων τῶν \${device.formattedInfo()}?",
+      "Ἆρ οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ πάντων τῶν \${device.formattedInfo()}?",
     ),
     "logout_confirmation_device": MessageLookupByLibrary.simpleMessage(
-      "Ἆρ\' οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ τοῦ \${device.formattedInfo()}?",
+      "Ἆρ οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ τοῦ \${device.formattedInfo()}?",
     ),
     "logout_from_all_devices": MessageLookupByLibrary.simpleMessage(
       "ἐξέρχεσθαι ἐκ πάντων τῶν ὀργάνων",
@@ -404,7 +406,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "χρῆσις δικτύου, αὐτόματος κατάβασις",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Νέος διάλογος\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Νέος διάλογος"),
+    "new_group": MessageLookupByLibrary.simpleMessage("Ὁμίλος νέος"),
     "new_message": MessageLookupByLibrary.simpleMessage("Μήνυμα νέον!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Οὐδεμία αἴτησις διαλόγου παρεστίν",
@@ -456,6 +459,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Παρακαλῶ, εἴσαγε τὸν ἐξεταστικὸν ἀριθμόν",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Τὸ ἴδιον"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "ἀσφάλεια, ἀλλαγὴ ἀριθμοῦ",
     ),
@@ -508,7 +512,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings": MessageLookupByLibrary.simpleMessage("τάξεις"),
     "settings_save": MessageLookupByLibrary.simpleMessage("σῴζειν τάξεις"),
-    "settings_saved": MessageLookupByLibrary.simpleMessage("τάξεις σεσῳσμέναι"),
+    "settings_saved": MessageLookupByLibrary.simpleMessage(
+      "Αἱ διατάξεις σεσῴασται",
+    ),
     "sign_out": MessageLookupByLibrary.simpleMessage("Ἐξέρχομαι"),
     "source_code": MessageLookupByLibrary.simpleMessage("πηγαῖος κώδιξ"),
     "storage_data": MessageLookupByLibrary.simpleMessage("ἀποθήκη, δεδομένα"),

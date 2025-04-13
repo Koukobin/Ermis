@@ -216,7 +216,7 @@
   "delete_chat": "Dele colloquium",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Deletio huius colloquii omnia prioria nuntia perpetuo delebit",
   "delete_this_chat_question": "Dele hoc colloquium?",
-  "new_chat": "'Novum colloquium'",
+  "new_chat": "Novum colloquium",
   "incompatible_server_version_warning": "Versio servitoris incompatibilis! Quaedam res ut expectatur non operari possunt!",
   "submit": "Submitte",
   "verification": "Verificatio",
@@ -244,5 +244,23 @@
   "unknown_size": "Magnitudo ignota",
   "sign_out": "Exi",
   "no_linked_devices": "Nullae machinae coniunctae sunt",
-  "link_new_device": "Coniunge novam machinam"
+  "link_new_device": "Coniunge novam machinam",
+
+  "custom": "Custumarius",
+  "gradient": "Gradatim coloratus",
+  "abstract": "Abstractus",
+  "default_monotone": "Defectus/Unicolor",
+
+  "connection_refused": "Coniunctio negata est!",
+  "connection_reset": "Coniunctio iterum incepta est!",
+  "could_not_verify_server_certificate": "Testimonium servi verificare non potui",
+
+  "privacy": "Privata res",
+
+  "new_group": "Grex novus",
+  "add_user": "Adde usorem",
+  "choose_friends": "Amicos elige",
+
+  "chat_theme": "Forma colloquii",
+  "settings_saved": "Ordines servati sunt"
 }

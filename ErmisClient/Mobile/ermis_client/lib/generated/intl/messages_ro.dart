@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a ro locale. All the
 // messages from the main program should be duplicated here with the same
@@ -53,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "abstract": MessageLookupByLibrary.simpleMessage("Abstract"),
     "accept": MessageLookupByLibrary.simpleMessage("Acceptă"),
     "account": MessageLookupByLibrary.simpleMessage("Cont"),
     "account_add": MessageLookupByLibrary.simpleMessage("Adaugă cont nou"),
@@ -79,6 +64,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Șterge Contul Meu",
     ),
     "account_settings": MessageLookupByLibrary.simpleMessage("Setări cont"),
+    "add_user": MessageLookupByLibrary.simpleMessage("Adaugă Utilizator"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Adresa nu este recunoscută!",
     ),
@@ -170,11 +156,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
       "Sesiunea de chat selectată nu există. (Poate a fost ștearsă de celălalt utilizator)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("Temă Chat"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Setări temă chat",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Chat-uri"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Alege Prieteni"),
     "choose_option": MessageLookupByLibrary.simpleMessage("Alege o opțiune"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
       "ID-ul clientului trebuie să fie un număr",
@@ -190,11 +178,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Sigur doriți să ștergeți definitiv mesajul?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Conectează"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Conexiune Refuzată!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Conexiune Resetată!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Tipul de conținut nu este implementat!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Tipul de conținut nu este cunoscut!",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Nu s-a putut verifica certificatul serverului",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage("Creează cont"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
@@ -230,9 +227,13 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Cerințele pentru nume de utilizator nu sunt îndeplinite!",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("Personalizat"),
     "decline": MessageLookupByLibrary.simpleMessage("Refuză"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Decompresia a eșuat",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "Implicit/Monoton",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Șterge"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Șterge chat"),
@@ -302,6 +303,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Galerie"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Am înțeles!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Gradient"),
     "help": MessageLookupByLibrary.simpleMessage("Ajutor"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Setări ajutor"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
@@ -396,7 +398,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Utilizare rețea, descărcare automată",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Chat nou\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Chat nou"),
+    "new_group": MessageLookupByLibrary.simpleMessage("Grup Nou"),
     "new_message": MessageLookupByLibrary.simpleMessage("Mesaj nou!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Nu există cereri de chat în așteptare",
@@ -447,6 +450,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Vă rugăm să introduceți codul de verificare",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Confidențialitate"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Confidențialitate, securitate, schimbare număr",
     ),
@@ -499,7 +503,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings": MessageLookupByLibrary.simpleMessage("Setări"),
     "settings_save": MessageLookupByLibrary.simpleMessage("Salvează setările"),
-    "settings_saved": MessageLookupByLibrary.simpleMessage("Setări salvate"),
+    "settings_saved": MessageLookupByLibrary.simpleMessage("Setări Salvate"),
     "sign_out": MessageLookupByLibrary.simpleMessage("Deconectare"),
     "source_code": MessageLookupByLibrary.simpleMessage("Cod sursă"),
     "storage_data": MessageLookupByLibrary.simpleMessage("Stocare și date"),

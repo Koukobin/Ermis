@@ -216,7 +216,7 @@
   "delete_chat": "Excluir chat",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Excluir este chat apagará permanentemente todas as mensagens anteriores",
   "delete_this_chat_question": "Excluir este chat?",
-  "new_chat": "'Novo chat'",
+  "new_chat": "Novo chat",
   "incompatible_server_version_warning": "Versão do servidor incompatível! Algumas coisas podem não funcionar como esperado!",
   "submit": "Enviar",
   "verification": "Verificação",
@@ -244,5 +244,23 @@
   "unknown_size": "Tamanho desconhecido",
   "sign_out": "Sair",
   "no_linked_devices": "Não há dispositivos vinculados",
-  "link_new_device": "Vincular novo dispositivo"
+  "link_new_device": "Vincular novo dispositivo",
+
+  "custom": "Personalizado",
+  "gradient": "Gradiente",
+  "abstract": "Abstrato",
+  "default_monotone": "Padrão/Monocromático",
+
+  "connection_refused": "Conexão Recusada!",
+  "connection_reset": "Conexão Reiniciada!",
+  "could_not_verify_server_certificate": "Não foi possível verificar o certificado do servidor",
+
+  "privacy": "Privacidade",
+
+  "new_group": "Novo Grupo",
+  "add_user": "Adicionar Usuário",
+  "choose_friends": "Escolher Amigos",
+
+  "chat_theme": "Tema do Chat",
+  "settings_saved": "Configurações Salvas"
 }

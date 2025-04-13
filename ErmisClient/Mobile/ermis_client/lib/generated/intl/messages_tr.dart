@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a tr locale. All the
 // messages from the main program should be duplicated here with the same
@@ -53,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "abstract": MessageLookupByLibrary.simpleMessage("Soyut"),
     "accept": MessageLookupByLibrary.simpleMessage("Kabul et"),
     "account": MessageLookupByLibrary.simpleMessage("Hesap"),
     "account_add": MessageLookupByLibrary.simpleMessage("Yeni hesap ekle"),
@@ -77,6 +62,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "account_delete_my": MessageLookupByLibrary.simpleMessage("Hesabımı Sil"),
     "account_settings": MessageLookupByLibrary.simpleMessage("Hesap Ayarları"),
+    "add_user": MessageLookupByLibrary.simpleMessage("Kullanıcı Ekle"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Adres tanınmadı!",
     ),
@@ -168,11 +154,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
       "Seçilen sohbet oturumu mevcut değil. (Diğer kullanıcı tarafından silinmiş olabilir)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("Sohbet Teması"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Sohbet Tema Ayarları",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Sohbetler"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Arkadaşları Seç"),
     "choose_option": MessageLookupByLibrary.simpleMessage("Bir seçenek seçin"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
       "Müşteri kimliği bir sayı olmalıdır",
@@ -188,11 +176,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Mesajı kalıcı olarak silmek istediğinizden emin misiniz?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Bağlan"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Bağlantı Reddedildi!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Bağlantı Sıfırlandı!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "İçerik türü uygulanmadı!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "İçerik türü bilinmiyor!",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Sunucu sertifikası doğrulanamadı",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage("Hesap oluştur"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
@@ -228,9 +225,13 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Kullanıcı adı gereksinimleri karşılanmadı!",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("Özel"),
     "decline": MessageLookupByLibrary.simpleMessage("Reddet"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Sıkıştırma açma başarısız oldu",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "Varsayılan/Tek Renkli",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Sil"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Sohbeti sil"),
@@ -298,6 +299,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Galeri"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Anladım!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Gradyan"),
     "help": MessageLookupByLibrary.simpleMessage("Yardım"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Yardım Ayarları"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
@@ -384,7 +386,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Ağ kullanımı, otomatik indirme",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Yeni sohbet\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Yeni sohbet"),
+    "new_group": MessageLookupByLibrary.simpleMessage("Yeni Grup"),
     "new_message": MessageLookupByLibrary.simpleMessage("Yeni mesaj!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Bekleyen sohbet isteği yok",
@@ -431,6 +434,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Lütfen doğrulama kodunu girin",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Gizlilik"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Gizlilik, güvenlik, numara değiştir",
     ),
@@ -474,15 +478,15 @@ class MessageLookup extends MessageLookupByLibrary {
       "Sunucu Kaynak Kodu",
     ),
     "server_url_choose": MessageLookupByLibrary.simpleMessage(
-      "Sunucu URL\'sini seçin",
+      "Sunucu URLsini seçin",
     ),
     "server_url_enter": MessageLookupByLibrary.simpleMessage(
-      "Sunucu URL\'sini Girin",
+      "Sunucu URLsini Girin",
     ),
     "settings": MessageLookupByLibrary.simpleMessage("Ayarlar"),
     "settings_save": MessageLookupByLibrary.simpleMessage("Ayarları Kaydet"),
     "settings_saved": MessageLookupByLibrary.simpleMessage(
-      "Ayarlar kaydedildi",
+      "Ayarlar Kaydedildi",
     ),
     "sign_out": MessageLookupByLibrary.simpleMessage("Çıkış yap"),
     "source_code": MessageLookupByLibrary.simpleMessage("Kaynak Kodu"),
@@ -545,7 +549,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Yeni sistem mesajları",
     ),
     "whats_new_title": MessageLookupByLibrary.simpleMessage(
-      "Hermis\'teki Yeni Özellikler",
+      "Hermisteki Yeni Özellikler",
     ),
   };
 }

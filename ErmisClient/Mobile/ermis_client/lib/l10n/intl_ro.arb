@@ -216,7 +216,7 @@
   "delete_chat": "Șterge chat",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Ștergerea acestui chat va șterge permanent toate mesajele anterioare",
   "delete_this_chat_question": "Ștergeți acest chat?",
-  "new_chat": "'Chat nou'",
+  "new_chat": "Chat nou",
   "incompatible_server_version_warning": "Versiune server incompatibilă! Unele lucruri ar putea să nu funcționeze conform așteptărilor!",
   "submit": "Trimite",
   "verification": "Verificare",
@@ -244,5 +244,23 @@
   "unknown_size": "Dimensiune necunoscută",
   "sign_out": "Deconectare",
   "no_linked_devices": "Nu există dispozitive conectate",
-  "link_new_device": "Conectați un dispozitiv nou"
+  "link_new_device": "Conectați un dispozitiv nou",
+
+  "custom": "Personalizat",
+  "gradient": "Gradient",
+  "abstract": "Abstract",
+  "default_monotone": "Implicit/Monoton",
+
+  "connection_refused": "Conexiune Refuzată!",
+  "connection_reset": "Conexiune Resetată!",
+  "could_not_verify_server_certificate": "Nu s-a putut verifica certificatul serverului",
+
+  "privacy": "Confidențialitate",
+
+  "new_group": "Grup Nou",
+  "add_user": "Adaugă Utilizator",
+  "choose_friends": "Alege Prieteni",
+
+  "chat_theme": "Temă Chat",
+  "settings_saved": "Setări Salvate"
 }

@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a pt locale. All the
 // messages from the main program should be duplicated here with the same
@@ -53,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "abstract": MessageLookupByLibrary.simpleMessage("Abstrato"),
     "accept": MessageLookupByLibrary.simpleMessage("Aceitar"),
     "account": MessageLookupByLibrary.simpleMessage("Conta"),
     "account_add": MessageLookupByLibrary.simpleMessage("Adicionar nova conta"),
@@ -81,6 +66,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_settings": MessageLookupByLibrary.simpleMessage(
       "Configurações da conta",
     ),
+    "add_user": MessageLookupByLibrary.simpleMessage("Adicionar Usuário"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Endereço não reconhecido!",
     ),
@@ -174,11 +160,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
       "A sessão de chat selecionada não existe. (Pode ter sido excluída pelo outro usuário)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("Tema do Chat"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Configurações de tema do chat",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Chats"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Escolher Amigos"),
     "choose_option": MessageLookupByLibrary.simpleMessage("Escolha uma opção"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
       "O ID do cliente deve ser um número",
@@ -194,11 +182,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Tem certeza de que deseja excluir permanentemente a mensagem?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Conectar"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Conexão Recusada!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Conexão Reiniciada!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Tipo de conteúdo não implementado!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Tipo de conteúdo desconhecido!",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Não foi possível verificar o certificado do servidor",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage("Criar conta"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
@@ -234,9 +231,13 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Requisitos de nome de usuário não atendidos!",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("Personalizado"),
     "decline": MessageLookupByLibrary.simpleMessage("Recusar"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Falha na descompressão",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "Padrão/Monocromático",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Excluir"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Excluir chat"),
@@ -306,6 +307,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Galeria"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Rozumiem!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Gradiente"),
     "help": MessageLookupByLibrary.simpleMessage("Ajuda"),
     "help_settings": MessageLookupByLibrary.simpleMessage(
       "Configurações de ajuda",
@@ -402,7 +404,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Uso de rede, download automático",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Novo chat\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Novo chat"),
+    "new_group": MessageLookupByLibrary.simpleMessage("Novo Grupo"),
     "new_message": MessageLookupByLibrary.simpleMessage("Nova mensagem!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Não há solicitações de chat pendentes",
@@ -455,6 +458,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Por favor, digite o código de verificação",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Privacidade"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Privacidade, segurança, alterar número",
     ),
@@ -512,7 +516,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Salvar configurações",
     ),
     "settings_saved": MessageLookupByLibrary.simpleMessage(
-      "Configurações salvas",
+      "Configurações Salvas",
     ),
     "sign_out": MessageLookupByLibrary.simpleMessage("Sair"),
     "source_code": MessageLookupByLibrary.simpleMessage("Código fonte"),

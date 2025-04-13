@@ -146,11 +146,11 @@
   "chat_backdrop_color_pick": "Bir renk seç!",
   "ok": "Tamam",
 
-  "server_url_enter": "Sunucu URL'sini Girin",
+  "server_url_enter": "Sunucu URLsini Girin",
   "server_add_success": "Sunucu başarıyla eklendi!",
   "server_add": "Sunucu Ekle",
   "server_certificate_check": "Sertifikayı kontrol et",
-  "server_url_choose": "Sunucu URL'sini seçin",
+  "server_url_choose": "Sunucu URLsini seçin",
   "connect": "Bağlan",
 
   "logout_from_this_device": "Bu cihazdan çıkış yap",
@@ -193,7 +193,7 @@
   "camera": "Kamera",
 
   "whats_new": "Ne var ne yok",
-  "whats_new_title": "Hermis'teki Yeni Özellikler",
+  "whats_new_title": "Hermisteki Yeni Özellikler",
   "feature_encryption": "Geliştirilmiş şifreleme protokolleri",
   "feature_languages": "Çoklu dil desteği!",
   "feature_voice_calls": "Sesli aramalar (Erken Erişim)",
@@ -216,7 +216,7 @@
   "delete_chat": "Sohbeti sil",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Bu sohbeti silmek, önceki tüm mesajları kalıcı olarak silecektir",
   "delete_this_chat_question": "Bu sohbeti silinsin mi?",
-  "new_chat": "'Yeni sohbet'",
+  "new_chat": "Yeni sohbet",
   "incompatible_server_version_warning": "Uyumsuz sunucu sürümü! Bazı şeyler beklendiği gibi çalışmayabilir!",
   "submit": "Gönder",
   "verification": "Doğrulama",
@@ -244,5 +244,23 @@
   "unknown_size": "Bilinmeyen boyut",
   "sign_out": "Çıkış yap",
   "no_linked_devices": "Bağlı cihaz yok",
-  "link_new_device": "Yeni cihaz bağla"
+  "link_new_device": "Yeni cihaz bağla",
+
+  "custom": "Özel",
+  "gradient": "Gradyan",
+  "abstract": "Soyut",
+  "default_monotone": "Varsayılan/Tek Renkli",
+
+  "connection_refused": "Bağlantı Reddedildi!",
+  "connection_reset": "Bağlantı Sıfırlandı!",
+  "could_not_verify_server_certificate": "Sunucu sertifikası doğrulanamadı",
+
+  "privacy": "Gizlilik",
+
+  "new_group": "Yeni Grup",
+  "add_user": "Kullanıcı Ekle",
+  "choose_friends": "Arkadaşları Seç",
+
+  "chat_theme": "Sohbet Teması",
+  "settings_saved": "Ayarlar Kaydedildi"
 }

@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a ru locale. All the
 // messages from the main program should be duplicated here with the same
@@ -53,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "abstract": MessageLookupByLibrary.simpleMessage("Абстрактный"),
     "accept": MessageLookupByLibrary.simpleMessage("Принять"),
     "account": MessageLookupByLibrary.simpleMessage("Аккаунт"),
     "account_add": MessageLookupByLibrary.simpleMessage(
@@ -83,6 +68,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_settings": MessageLookupByLibrary.simpleMessage(
       "Настройки аккаунта",
     ),
+    "add_user": MessageLookupByLibrary.simpleMessage("Добавить пользователя"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Адрес не распознан!",
     ),
@@ -174,11 +160,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
       "Выбранная сессия чата не существует. (Возможно, удалена другим пользователем)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("Тема чата"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Настройки темы чата",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Чаты"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Выбрать друзей"),
     "choose_option": MessageLookupByLibrary.simpleMessage("Выберите опцию"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
       "ID клиента должен быть числом",
@@ -194,11 +182,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Вы уверены, что хотите безвозвратно удалить сообщение?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Подключиться"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Соединение отклонено!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Соединение сброшено!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Тип содержимого не реализован!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Тип содержимого неизвестен!",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Не удалось проверить сертификат сервера",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage("Создать аккаунт"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
@@ -234,9 +231,13 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Имя пользователя не соответствует требованиям!",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("Пользовательский"),
     "decline": MessageLookupByLibrary.simpleMessage("Отклонить"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Ошибка распаковки",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "По умолчанию/Монотонный",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Удалить"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Удалить чат"),
@@ -306,6 +307,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Галерея"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Понял!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Градиент"),
     "help": MessageLookupByLibrary.simpleMessage("Помощь"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Настройки помощи"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
@@ -398,7 +400,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Использование сети, автозагрузка",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Новый чат\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Новый чат"),
+    "new_group": MessageLookupByLibrary.simpleMessage("Новая группа"),
     "new_message": MessageLookupByLibrary.simpleMessage("Новое сообщение!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Нет ожидающих запросов чата",
@@ -447,6 +450,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Пожалуйста, введите код верификации",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Конфиденциальность"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Конфиденциальность, безопасность, смена номера",
     ),

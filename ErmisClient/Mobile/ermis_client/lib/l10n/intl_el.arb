@@ -200,7 +200,7 @@
   "whats_new_system_messages": "Νέα μηνύματα συστήματος",
   "got_it_button": "Το κατάλαβα!",
 
-    "are_you_sure_you_want_to_logout_from": "Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε από το {deviceInfo}?",
+  "are_you_sure_you_want_to_logout_from": "Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε από το {deviceInfo}?",
   "no_chat_requests_available": "Δεν υπάρχουν εκκρεμείς αιτήσεις συνομιλίας",
   "no_conversations_available": "Δεν υπάρχουν διαθέσιμες συνομιλίες",
   "no_chats_available_incompatible_server_version": "Δεν υπάρχουν συνομιλίες διαθέσιμες, ασύμβατη έκδοση διακομιστή",
@@ -214,7 +214,7 @@
   "delete_chat": "Διαγραφή συνομιλίας",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Η διαγραφή αυτής της συνομιλίας θα διαγράψει μόνιμα όλα τα προηγούμενα μηνύματα",
   "delete_this_chat_question": "Να διαγραφεί αυτή η συνομιλία;",
-  "new_chat": "'Νέα συνομιλία'",
+  "new_chat": "Νέα συνομιλία",
   "incompatible_server_version_warning": "Ασύμβατη έκδοση διακομιστή! Ορισμένα πράγματα ενδέχεται να μην λειτουργούν όπως αναμένεται!",
   "submit": "Υποβολή",
   "verification": "Επαλήθευση",
@@ -246,5 +246,23 @@
 
   "many_bug_fixes": "Πολλές διορθώσεις σφαλμάτων!",
   "ability_to_form_group_chats": "Δυνατότητα δημιουργίας ομαδικών συνομιλιών!",
-  "optimizations_on_data_usage": "Σημαντικές βελτιστοποιήσεις στη χρήση δεδομένων!"
+  "optimizations_on_data_usage": "Σημαντικές βελτιστοποιήσεις στη χρήση δεδομένων!",
+
+  "custom": "Προσαρμοσμένο",
+  "gradient": "Διαβάθμιση",
+  "abstract": "Αφηρημένο",
+  "default_monotone": "Προεπιλογή/Μονότονο",
+
+  "connection_refused": "Η σύνδεση απέτυχε!",
+  "connection_reset": "Η σύνδεση διακόπηκε!",
+  "could_not_verify_server_certificate": "Δεν ήταν δυνατή η επαλήθευση του πιστοποιητικού διακομιστή",
+
+  "privacy": "Απόρρητο",
+
+  "new_group": "Νέα Ομάδα",
+  "add_user": "Προσθήκη Χρήστη",
+  "choose_friends": "Επιλογή Φίλων",
+
+  "chat_theme": "Θέμα Συνομιλίας",
+  "settings_saved": "Οι ρυθμίσεις αποθηκεύτηκαν"
 }

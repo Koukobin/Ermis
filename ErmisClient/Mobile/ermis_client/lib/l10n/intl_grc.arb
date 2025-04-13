@@ -202,7 +202,7 @@
   "whats_new_system_messages": "Καιναὶ τοῦ συστήματος ἀγγελίαι",
   "got_it_button": "Συνῆκα!",
 
-    "are_you_sure_you_want_to_logout_from": "Ἆρ' οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ τοῦ {deviceInfo}?",
+    "are_you_sure_you_want_to_logout_from": "Ἆρ οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ τοῦ {deviceInfo}?",
   "no_chat_requests_available": "Οὐδεμία αἴτησις διαλόγου παρεστίν",
   "no_conversations_available": "Οὐδεμία συνδιάλεξις πάρεστι",
   "no_chats_available_incompatible_server_version": "Οὐδεὶς διάλογος πάρεστι, τῆς τοῦ ὑπηρέτου ἐκδόσεως ἀσυμβάστου οὔσης",
@@ -216,7 +216,7 @@
   "delete_chat": "Διαγράφειν διάλογον",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Ἡ τοῦ διαλόγου τούτου διαγραφή πάντα τὰ πρὸ τοῦδε μηνύματα ἀφανιεῖ",
   "delete_this_chat_question": "Διαγράψαι τοῦτον τὸν διάλογον;",
-  "new_chat": "'Νέος διάλογος'",
+  "new_chat": "Νέος διάλογος",
   "incompatible_server_version_warning": "Ἔκδοσις ὑπηρέτου ἀσύμβαστος! Τινὰ πράγματα οὐκ ἂν ὡς προσδοκᾶται γένοιντο!",
   "submit": "Προβάλλω",
   "verification": "Ἐξέτασις",
@@ -239,8 +239,8 @@
   "min_entropy": "Ἐλαχίστη ἐντροπία: {minEntropy}",
   "entropy_rough_estimate": "Ἐντροπία: {entropy} (Προσέγγισις ἀσαφής)",
   "display_name": "Ἐμφανιζόμενον ὄνομα",
-  "logout_confirmation_device": "Ἆρ' οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ τοῦ ${device.formattedInfo()}?",
-  "logout_confirmation_all_devices": "Ἆρ' οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ πάντων τῶν ${device.formattedInfo()}?",
+  "logout_confirmation_device": "Ἆρ οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ τοῦ ${device.formattedInfo()}?",
+  "logout_confirmation_all_devices": "Ἆρ οἶσθα βούλεσθαι ἀπαλλάττεσθαι ἀπὸ πάντων τῶν ${device.formattedInfo()}?",
   "unknown_size": "Μέγεθος ἄγνωστον",
   "sign_out": "Ἐξέρχομαι",
   "no_linked_devices": "Οὐδεμία συνδεδεμένη μηχανὴ πάρεστι",
@@ -248,5 +248,23 @@
 
   "many_bug_fixes": "πολλαὶ τῶν σφαλμάτων ἐπανορθώσεις!",
   "ability_to_form_group_chats": "ἡ δύναμις τοῦ συστήσασθαι ὁμιλίας κοινῇ πλειόνων!",
-  "optimizations_on_data_usage": "αἱ σπουδαῖαι βελτιώσεις τῆς χρήσεως τῶν δεδομένων!"
+  "optimizations_on_data_usage": "αἱ σπουδαῖαι βελτιώσεις τῆς χρήσεως τῶν δεδομένων!",
+
+  "custom": "Ἰδιόμορφος",
+  "gradient": "Κλῖμαξ χρωμάτων",
+  "abstract": "Ἀφηρημένος",
+  "default_monotone": "Προκαθορισμένος/Μονόχρως",
+
+  "connection_refused": "Ἡ σύνδεσις ἀπηρνήθη!",
+  "connection_reset": "Ἡ σύνδεσις ἐπανετέθη!",
+  "could_not_verify_server_certificate": "Οὐκ ἠδυνήθην τὸ πιστοποιητικὸν τοῦ διακομιστοῦ βεβαιῶσαι",
+
+  "privacy": "Τὸ ἴδιον",
+
+  "new_group": "Ὁμίλος νέος",
+  "add_user": "Προσθεῖναι χρήστην",
+  "choose_friends": "Αἱρεῖσθαι φίλους",
+
+  "chat_theme": "Τύπος διαλόγου",
+  "settings_saved": "Αἱ διατάξεις σεσῴασται"
 }

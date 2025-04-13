@@ -216,7 +216,7 @@
   "delete_chat": "Удалить чат",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "Удаление этого чата навсегда удалит все предыдущие сообщения",
   "delete_this_chat_question": "Удалить этот чат?",
-  "new_chat": "'Новый чат'",
+  "new_chat": "Новый чат",
   "incompatible_server_version_warning": "Несовместимая версия сервера! Некоторые функции могут работать не так, как ожидается!",
   "submit": "Отправить",
   "verification": "Верификация",
@@ -244,5 +244,23 @@
   "unknown_size": "Неизвестный размер",
   "sign_out": "Выйти",
   "no_linked_devices": "Нет связанных устройств",
-  "link_new_device": "Связать новое устройство"
+  "link_new_device": "Связать новое устройство",
+
+  "custom": "Пользовательский",
+  "gradient": "Градиент",
+  "abstract": "Абстрактный",
+  "default_monotone": "По умолчанию/Монотонный",
+
+  "connection_refused": "Соединение отклонено!",
+  "connection_reset": "Соединение сброшено!",
+  "could_not_verify_server_certificate": "Не удалось проверить сертификат сервера",
+
+  "privacy": "Конфиденциальность",
+
+  "new_group": "Новая группа",
+  "add_user": "Добавить пользователя",
+  "choose_friends": "Выбрать друзей",
+
+  "chat_theme": "Тема чата",
+  "settings_saved": "Настройки сохранены"
 }

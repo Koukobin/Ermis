@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -261,10 +245,10 @@ class S {
     );
   }
 
-  /// `Account doesn't exist!`
+  /// `Account doesnt exist!`
   String get login_account_not_found {
     return Intl.message(
-      'Account doesn\'t exist!',
+      'Account doesnt exist!',
       name: 'login_account_not_found',
       desc: '',
       args: [],
@@ -461,10 +445,10 @@ class S {
     );
   }
 
-  /// `Slow your horses there! You've been temporarily banned from interacting with the server for a short time interval.`
+  /// `Slow your horses there! Youve been temporarily banned from interacting with the server for a short time interval.`
   String get temp_banned {
     return Intl.message(
-      'Slow your horses there! You\'ve been temporarily banned from interacting with the server for a short time interval.',
+      'Slow your horses there! Youve been temporarily banned from interacting with the server for a short time interval.',
       name: 'temp_banned',
       desc: '',
       args: [],
@@ -1386,10 +1370,10 @@ class S {
     );
   }
 
-  /// `Chat session selected doesn't exist. (May have been deleted by the other user)`
+  /// `Chat session selected doesnt exist. (May have been deleted by the other user)`
   String get chat_session_not_found {
     return Intl.message(
-      'Chat session selected doesn\'t exist. (May have been deleted by the other user)',
+      'Chat session selected doesnt exist. (May have been deleted by the other user)',
       name: 'chat_session_not_found',
       desc: '',
       args: [],
@@ -1661,9 +1645,9 @@ class S {
     return Intl.message('Documents', name: 'documents', desc: '', args: []);
   }
 
-  /// `What's New`
+  /// `Whats New`
   String get whats_new {
-    return Intl.message('What\'s New', name: 'whats_new', desc: '', args: []);
+    return Intl.message('Whats New', name: 'whats_new', desc: '', args: []);
   }
 
   /// `New Features in Hermis`
@@ -1861,9 +1845,9 @@ class S {
     );
   }
 
-  /// `'New chat'`
+  /// `New chat`
   String get new_chat {
-    return Intl.message('\'New chat\'', name: 'new_chat', desc: '', args: []);
+    return Intl.message('New chat', name: 'new_chat', desc: '', args: []);
   }
 
   /// `Incompatible server version! Some things many not work as expected!`
@@ -2134,6 +2118,91 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Custom`
+  String get custom {
+    return Intl.message('Custom', name: 'custom', desc: '', args: []);
+  }
+
+  /// `Gradient`
+  String get gradient {
+    return Intl.message('Gradient', name: 'gradient', desc: '', args: []);
+  }
+
+  /// `Abstract`
+  String get abstract {
+    return Intl.message('Abstract', name: 'abstract', desc: '', args: []);
+  }
+
+  /// `Default/Monotone`
+  String get default_monotone {
+    return Intl.message(
+      'Default/Monotone',
+      name: 'default_monotone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connection Refused!`
+  String get connection_refused {
+    return Intl.message(
+      'Connection Refused!',
+      name: 'connection_refused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connection Reset!`
+  String get connection_reset {
+    return Intl.message(
+      'Connection Reset!',
+      name: 'connection_reset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not verify server certificate`
+  String get could_not_verify_server_certificate {
+    return Intl.message(
+      'Could not verify server certificate',
+      name: 'could_not_verify_server_certificate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Privacy`
+  String get privacy {
+    return Intl.message('Privacy', name: 'privacy', desc: '', args: []);
+  }
+
+  /// `New Group`
+  String get new_group {
+    return Intl.message('New Group', name: 'new_group', desc: '', args: []);
+  }
+
+  /// `Add User`
+  String get add_user {
+    return Intl.message('Add User', name: 'add_user', desc: '', args: []);
+  }
+
+  /// `Choose Friends`
+  String get choose_friends {
+    return Intl.message(
+      'Choose Friends',
+      name: 'choose_friends',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chat Theme`
+  String get chat_theme {
+    return Intl.message('Chat Theme', name: 'chat_theme', desc: '', args: []);
   }
 }
 

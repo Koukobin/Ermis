@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a ar locale. All the
 // messages from the main program should be duplicated here with the same
@@ -53,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "abstract": MessageLookupByLibrary.simpleMessage("مجرد"),
     "accept": MessageLookupByLibrary.simpleMessage("قبول"),
     "account": MessageLookupByLibrary.simpleMessage("الحساب"),
     "account_add": MessageLookupByLibrary.simpleMessage("إضافة حساب جديد"),
@@ -77,6 +62,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "account_delete_my": MessageLookupByLibrary.simpleMessage("حذف حسابي"),
     "account_settings": MessageLookupByLibrary.simpleMessage("إعدادات الحساب"),
+    "add_user": MessageLookupByLibrary.simpleMessage("إضافة مستخدم"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "العنوان غير معروف!",
     ),
@@ -168,11 +154,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
       "جلسة المحادثة المحددة غير موجودة. (قد يكون المستخدم الآخر قد حذفها)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("سمة الدردشة"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "إعدادات سمة المحادثة",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("المحادثات"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("اختر الأصدقاء"),
     "choose_option": MessageLookupByLibrary.simpleMessage("اختر خيارًا"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
       "يجب أن يكون معرف العميل رقمًا",
@@ -186,11 +174,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "هل أنت متأكد أنك تريد حذف الرسالة نهائيًا؟",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("اتصال"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "تم رفض الاتصال!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "تمت إعادة تعيين الاتصال!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "نوع المحتوى لم يتم تنفيذه!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "نوع المحتوى غير معروف!",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "تعذر التحقق من شهادة الخادم",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage("إنشاء حساب"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
@@ -224,9 +221,13 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "متطلبات اسم المستخدم غير مستوفاة!",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("مخصص"),
     "decline": MessageLookupByLibrary.simpleMessage("رفض"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "فشل فك الضغط",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "افتراضي/أحادي اللون",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("حذف"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("حذف الدردشة"),
@@ -292,6 +293,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("معرض الصور"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("فهمت!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("تدرج"),
     "help": MessageLookupByLibrary.simpleMessage("المساعدة"),
     "help_settings": MessageLookupByLibrary.simpleMessage("إعدادات المساعدة"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
@@ -378,7 +380,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "استخدام الشبكة، التنزيل التلقائي",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'دردشة جديدة\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("دردشة جديدة"),
+    "new_group": MessageLookupByLibrary.simpleMessage("مجموعة جديدة"),
     "new_message": MessageLookupByLibrary.simpleMessage("رسالة جديدة!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "لا توجد طلبات دردشة معلقة",
@@ -427,6 +430,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "الرجاء إدخال رمز التحقق",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("الخصوصية"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "الخصوصية، الأمان، تغيير الرقم",
     ),

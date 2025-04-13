@@ -216,7 +216,7 @@
   "delete_chat": "حذف الدردشة",
   "deleting_this_chat_will_permanently_delete_all_prior_messages": "سيؤدي حذف هذه الدردشة إلى حذف جميع الرسائل السابقة بشكل دائم",
   "delete_this_chat_question": "هل تريد حذف هذه الدردشة؟",
-  "new_chat": "'دردشة جديدة'",
+  "new_chat": "دردشة جديدة",
   "incompatible_server_version_warning": "نسخة الخادم غير متوافقة! قد لا تعمل بعض الأشياء كما هو متوقع!",
   "submit": "إرسال",
   "verification": "التحقق",
@@ -244,5 +244,23 @@
   "unknown_size": "حجم غير معروف",
   "sign_out": "تسجيل الخروج",
   "no_linked_devices": "لا توجد أجهزة مرتبطة",
-  "link_new_device": "ربط جهاز جديد"
+  "link_new_device": "ربط جهاز جديد",
+
+  "custom": "مخصص",
+  "gradient": "تدرج",
+  "abstract": "مجرد",
+  "default_monotone": "افتراضي/أحادي اللون",
+
+  "connection_refused": "تم رفض الاتصال!",
+  "connection_reset": "تمت إعادة تعيين الاتصال!",
+  "could_not_verify_server_certificate": "تعذر التحقق من شهادة الخادم",
+
+  "privacy": "الخصوصية",
+
+  "new_group": "مجموعة جديدة",
+  "add_user": "إضافة مستخدم",
+  "choose_friends": "اختر الأصدقاء",
+
+  "chat_theme": "سمة الدردشة",
+  "settings_saved": "تم حفظ الإعدادات"
 }

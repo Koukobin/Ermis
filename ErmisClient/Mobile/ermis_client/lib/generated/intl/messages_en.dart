@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a en locale. All the
 // messages from the main program should be duplicated here with the same
@@ -56,6 +40,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ability_to_form_group_chats": MessageLookupByLibrary.simpleMessage(
       "Ability to form group chats!",
     ),
+    "abstract": MessageLookupByLibrary.simpleMessage("Abstract"),
     "accept": MessageLookupByLibrary.simpleMessage("Accept"),
     "account": MessageLookupByLibrary.simpleMessage("Account"),
     "account_add": MessageLookupByLibrary.simpleMessage("Add new account"),
@@ -84,6 +69,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_settings": MessageLookupByLibrary.simpleMessage(
       "Account Settings",
     ),
+    "add_user": MessageLookupByLibrary.simpleMessage("Add User"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Address not recognized!",
     ),
@@ -171,13 +157,15 @@ class MessageLookup extends MessageLookupByLibrary {
       "Something went wrong while trying delete chat session!",
     ),
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
-      "Chat session selected doesn\'t exist. (May have been deleted by the other user)",
+      "Chat session selected doesnt exist. (May have been deleted by the other user)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("Chat Theme"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Chat Theme Settings",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Chats"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Choose Friends"),
     "choose_option": MessageLookupByLibrary.simpleMessage("Choose an option"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
       "Client id must be a number",
@@ -196,11 +184,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Are you sure you want to permanently delete message?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Connect"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Connection Refused!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Connection Reset!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Content type not implemented!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Content type not known!",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Could not verify server certificate",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage("Create Account"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
@@ -230,9 +227,13 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "credential_validation_username_invalid":
         MessageLookupByLibrary.simpleMessage("Username requirements not met!"),
+    "custom": MessageLookupByLibrary.simpleMessage("Custom"),
     "decline": MessageLookupByLibrary.simpleMessage("Decline"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Decompression failed",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "Default/Monotone",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Delete"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Delete chat"),
@@ -307,6 +308,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Got it!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Gradient"),
     "help": MessageLookupByLibrary.simpleMessage("Help"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Help Settings"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
@@ -327,7 +329,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "login": MessageLookupByLibrary.simpleMessage("Login"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
-      "Account doesn\'t exist!",
+      "Account doesnt exist!",
     ),
     "login_add_device_info": MessageLookupByLibrary.simpleMessage(
       "Add device info",
@@ -397,7 +399,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Network usage, auto-download",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'New chat\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("New chat"),
+    "new_group": MessageLookupByLibrary.simpleMessage("New Group"),
     "new_message": MessageLookupByLibrary.simpleMessage("New message!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "No pending chat requests",
@@ -451,6 +454,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Please enter the verification code",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Privacy"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Privacy, security, change number",
     ),
@@ -511,7 +515,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "storage_data": MessageLookupByLibrary.simpleMessage("Storage and Data"),
     "submit": MessageLookupByLibrary.simpleMessage("Submit"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
-      "Slow your horses there! You\'ve been temporarily banned from interacting with the server for a short time interval.",
+      "Slow your horses there! Youve been temporarily banned from interacting with the server for a short time interval.",
     ),
     "theme_dark": MessageLookupByLibrary.simpleMessage("Dark Mode"),
     "theme_light": MessageLookupByLibrary.simpleMessage("Light Mode"),
@@ -565,7 +569,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
       "Vibration is not available on this device",
     ),
-    "whats_new": MessageLookupByLibrary.simpleMessage("What\'s New"),
+    "whats_new": MessageLookupByLibrary.simpleMessage("Whats New"),
     "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(
       "New System Messages",
     ),

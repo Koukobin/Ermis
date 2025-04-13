@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a it locale. All the
 // messages from the main program should be duplicated here with the same
@@ -53,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "abstract": MessageLookupByLibrary.simpleMessage("抽象"),
     "accept": MessageLookupByLibrary.simpleMessage("Accetta"),
     "account": MessageLookupByLibrary.simpleMessage("Account"),
     "account_add": MessageLookupByLibrary.simpleMessage(
@@ -63,7 +48,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "account_delete": MessageLookupByLibrary.simpleMessage("Elimina account"),
     "account_delete_bullet1": MessageLookupByLibrary.simpleMessage(
-      "L\'account verrà eliminato definitivamente senza possibilità di recupero",
+      "Laccount verrà eliminato definitivamente senza possibilità di recupero",
     ),
     "account_delete_bullet2": MessageLookupByLibrary.simpleMessage(
       "La cronologia dei messaggi verrà cancellata",
@@ -75,7 +60,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Eliminando questo account:",
     ),
     "account_delete_error": MessageLookupByLibrary.simpleMessage(
-      "Si è verificato un errore durante l\'eliminazione dell\'account!",
+      "Si è verificato un errore durante leliminazione dellaccount!",
     ),
     "account_delete_my": MessageLookupByLibrary.simpleMessage(
       "Elimina il mio account",
@@ -83,11 +68,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_settings": MessageLookupByLibrary.simpleMessage(
       "Impostazioni account",
     ),
+    "add_user": MessageLookupByLibrary.simpleMessage("ユーザーを追加"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Indirizzo non riconosciuto!",
     ),
-    "app_info": MessageLookupByLibrary.simpleMessage("Informazioni sull\'app"),
-    "app_language": MessageLookupByLibrary.simpleMessage("Lingua dell\'app"),
+    "app_info": MessageLookupByLibrary.simpleMessage("Informazioni sullapp"),
+    "app_language": MessageLookupByLibrary.simpleMessage("Lingua dellapp"),
     "are_you_sure_you_want_to_logout_from": m0,
     "are_you_sure_you_want_to_logout_from_all_devices":
         MessageLookupByLibrary.simpleMessage(
@@ -163,25 +149,27 @@ class MessageLookup extends MessageLookupByLibrary {
       "Carica immagine personalizzata",
     ),
     "chat_request_accept_error": MessageLookupByLibrary.simpleMessage(
-      "Si è verificato un errore durante l\'accettazione della richiesta di chat!",
+      "Si è verificato un errore durante laccettazione della richiesta di chat!",
     ),
     "chat_request_decline_error": MessageLookupByLibrary.simpleMessage(
       "Si è verificato un errore durante il rifiuto della richiesta di chat!",
     ),
     "chat_session_delete_error": MessageLookupByLibrary.simpleMessage(
-      "Si è verificato un errore durante l\'eliminazione della sessione di chat!",
+      "Si è verificato un errore durante leliminazione della sessione di chat!",
     ),
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
-      "La sessione di chat selezionata non esiste. (Potrebbe essere stata eliminata dall\'altro utente)",
+      "La sessione di chat selezionata non esiste. (Potrebbe essere stata eliminata dallaltro utente)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("チャットテーマ"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Impostazioni tema chat",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Chat"),
-    "choose_option": MessageLookupByLibrary.simpleMessage("Scegli un\'opzione"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("友達を選択"),
+    "choose_option": MessageLookupByLibrary.simpleMessage("Scegli unopzione"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
-      "L\'ID cliente deve essere un numero",
+      "LID cliente deve essere un numero",
     ),
     "close": MessageLookupByLibrary.simpleMessage("Chiudi"),
     "command_not_implemented": MessageLookupByLibrary.simpleMessage(
@@ -194,31 +182,36 @@ class MessageLookup extends MessageLookupByLibrary {
       "Sei sicuro di voler eliminare definitivamente il messaggio?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Connetti"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage("接続が拒否されました！"),
+    "connection_reset": MessageLookupByLibrary.simpleMessage("接続がリセットされました！"),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Tipo di contenuto non implementato!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Tipo di contenuto sconosciuto!",
     ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "サーバー証明書を検証できませんでした",
+    ),
     "create_account": MessageLookupByLibrary.simpleMessage("Crea account"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
       "Capacità massima del database raggiunta! Purtroppo la tua richiesta non può essere elaborata.",
     ),
     "create_account_email_exists": MessageLookupByLibrary.simpleMessage(
-      "L\'email è già in uso!",
+      "Lemail è già in uso!",
     ),
     "create_account_error": MessageLookupByLibrary.simpleMessage(
-      "Si è verificato un errore durante la creazione dell\'account!",
+      "Si è verificato un errore durante la creazione dellaccount!",
     ),
     "create_account_success": MessageLookupByLibrary.simpleMessage(
       "Account creato con successo!",
     ),
     "credential_validation_client_id_error":
         MessageLookupByLibrary.simpleMessage(
-          "Impossibile generare l\'ID client!",
+          "Impossibile generare lID client!",
         ),
     "credential_validation_email_exists": MessageLookupByLibrary.simpleMessage(
-      "L\'email è già in uso!",
+      "Lemail è già in uso!",
     ),
     "credential_validation_email_invalid": MessageLookupByLibrary.simpleMessage(
       "Indirizzo email non valido",
@@ -234,10 +227,12 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "I requisiti del nome utente non sono soddisfatti!",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("カスタム"),
     "decline": MessageLookupByLibrary.simpleMessage("Rifiuta"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Decompressione fallita",
     ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage("デフォルト/モノトーン"),
     "delete": MessageLookupByLibrary.simpleMessage("Elimina"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Elimina chat"),
     "delete_this_chat_question": MessageLookupByLibrary.simpleMessage(
@@ -245,7 +240,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "deleting_this_chat_will_permanently_delete_all_prior_messages":
         MessageLookupByLibrary.simpleMessage(
-          "L\'eliminazione di questa chat cancellerà permanentemente tutti i messaggi precedenti",
+          "Leliminazione di questa chat cancellerà permanentemente tutti i messaggi precedenti",
         ),
     "display_name": MessageLookupByLibrary.simpleMessage("Nome visualizzato"),
     "display_part_of_messages_in_notifications":
@@ -255,17 +250,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "donate_to_ermis_project": MessageLookupByLibrary.simpleMessage(
       "Dona al progetto Ermis",
     ),
-    "donate_to_hoster": MessageLookupByLibrary.simpleMessage("Dona all\'host"),
+    "donate_to_hoster": MessageLookupByLibrary.simpleMessage("Dona allhost"),
     "donations": MessageLookupByLibrary.simpleMessage("Donazioni"),
     "downloaded_file": MessageLookupByLibrary.simpleMessage("File scaricato"),
     "email": MessageLookupByLibrary.simpleMessage("Email"),
     "email_address": MessageLookupByLibrary.simpleMessage("Indirizzo email"),
-    "email_is_empty": MessageLookupByLibrary.simpleMessage("L\'email è vuota!"),
+    "email_is_empty": MessageLookupByLibrary.simpleMessage("Lemail è vuota!"),
     "email_mismatch": MessageLookupByLibrary.simpleMessage(
-      "L\'email inserita non corrisponde all\'email effettiva!",
+      "Lemail inserita non corrisponde allemail effettiva!",
     ),
     "enter_client_id": MessageLookupByLibrary.simpleMessage(
-      "Inserisci l\'ID cliente",
+      "Inserisci lID cliente",
     ),
     "enter_verification_code": MessageLookupByLibrary.simpleMessage(
       "Inserisci il codice di verifica",
@@ -302,6 +297,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Galleria"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Capito!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("グラデーション"),
     "help": MessageLookupByLibrary.simpleMessage("Aiuto"),
     "help_settings": MessageLookupByLibrary.simpleMessage(
       "Impostazioni di aiuto",
@@ -328,7 +324,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "login": MessageLookupByLibrary.simpleMessage("Accedi"),
     "login_account_not_found": MessageLookupByLibrary.simpleMessage(
-      "L\'account non esiste!",
+      "Laccount non esiste!",
     ),
     "login_add_device_info": MessageLookupByLibrary.simpleMessage(
       "Aggiungi informazioni sul dispositivo",
@@ -340,7 +336,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Email errata!",
     ),
     "login_error": MessageLookupByLibrary.simpleMessage(
-      "Si è verificato un errore durante l\'accesso! Contatta l\'amministratore del server e informalo che il server non funziona.",
+      "Si è verificato un errore durante laccesso! Contatta lamministratore del server e informalo che il server non funziona.",
     ),
     "login_fetch_requirements": MessageLookupByLibrary.simpleMessage(
       "Recupera requisiti",
@@ -396,7 +392,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Utilizzo rete, download automatico",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Nuova chat\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Nuova chat"),
+    "new_group": MessageLookupByLibrary.simpleMessage("新しいグループ"),
     "new_message": MessageLookupByLibrary.simpleMessage("Nuovo messaggio!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Nessuna richiesta di chat pendente",
@@ -449,6 +446,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Inserisci il codice di verifica",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("プライバシー"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Privacy, sicurezza, cambia numero",
     ),
@@ -480,7 +478,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "save": MessageLookupByLibrary.simpleMessage("Salva"),
     "search": MessageLookupByLibrary.simpleMessage("Cerca..."),
     "select_an_option": MessageLookupByLibrary.simpleMessage(
-      "Seleziona un\'opzione",
+      "Seleziona unopzione",
     ),
     "send_chat_request": MessageLookupByLibrary.simpleMessage(
       "Invia richiesta di chat",
@@ -503,9 +501,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings": MessageLookupByLibrary.simpleMessage("Impostazioni"),
     "settings_save": MessageLookupByLibrary.simpleMessage("Salva impostazioni"),
-    "settings_saved": MessageLookupByLibrary.simpleMessage(
-      "Impostazioni salvate",
-    ),
+    "settings_saved": MessageLookupByLibrary.simpleMessage("設定を保存しました"),
     "sign_out": MessageLookupByLibrary.simpleMessage("Disconnetti"),
     "source_code": MessageLookupByLibrary.simpleMessage("Codice sorgente"),
     "storage_data": MessageLookupByLibrary.simpleMessage(
@@ -513,7 +509,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "submit": MessageLookupByLibrary.simpleMessage("Invia"),
     "temp_banned": MessageLookupByLibrary.simpleMessage(
-      "Rallenta un po\'! Sei stato temporaneamente bannato dall\'interazione con il server per un breve intervallo di tempo.",
+      "Rallenta un po! Sei stato temporaneamente bannato dallinterazione con il server per un breve intervallo di tempo.",
     ),
     "theme_dark": MessageLookupByLibrary.simpleMessage("Modalità scura"),
     "theme_light": MessageLookupByLibrary.simpleMessage("Modalità chiara"),
@@ -568,7 +564,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vibration_unavailable": MessageLookupByLibrary.simpleMessage(
       "La vibrazione non è disponibile su questo dispositivo",
     ),
-    "whats_new": MessageLookupByLibrary.simpleMessage("Cosa c\'è di nuovo"),
+    "whats_new": MessageLookupByLibrary.simpleMessage("Cosa cè di nuovo"),
     "whats_new_system_messages": MessageLookupByLibrary.simpleMessage(
       "Nuovi messaggi di sistema",
     ),

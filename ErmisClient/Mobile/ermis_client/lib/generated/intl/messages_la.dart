@@ -1,19 +1,3 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a la locale. All the
 // messages from the main program should be duplicated here with the same
@@ -53,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "abstract": MessageLookupByLibrary.simpleMessage("Abstractus"),
     "accept": MessageLookupByLibrary.simpleMessage("Accipio"),
     "account": MessageLookupByLibrary.simpleMessage("Ratio"),
     "account_add": MessageLookupByLibrary.simpleMessage("Rationem novam adde"),
@@ -81,6 +66,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_settings": MessageLookupByLibrary.simpleMessage(
       "Optiones rationis",
     ),
+    "add_user": MessageLookupByLibrary.simpleMessage("Adde usorem"),
     "address_not_recognized": MessageLookupByLibrary.simpleMessage(
       "Inscriptio non agnoscitur!",
     ),
@@ -176,11 +162,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_session_not_found": MessageLookupByLibrary.simpleMessage(
       "Sessio colloquii selecta non existit. (Fortasse ab alio usuario deleta est)",
     ),
+    "chat_theme": MessageLookupByLibrary.simpleMessage("Forma colloquii"),
     "chat_theme_settings": MessageLookupByLibrary.simpleMessage(
       "Optiones thematis colloquii",
     ),
     "chat_with": m1,
     "chats": MessageLookupByLibrary.simpleMessage("Colloquia"),
+    "choose_friends": MessageLookupByLibrary.simpleMessage("Amicos elige"),
     "choose_option": MessageLookupByLibrary.simpleMessage("Eligere optionem"),
     "client_id_must_be_a_number": MessageLookupByLibrary.simpleMessage(
       "ID clientis numerus esse debet",
@@ -196,11 +184,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Visne nuntium perpetuo delere?",
     ),
     "connect": MessageLookupByLibrary.simpleMessage("Coniunge"),
+    "connection_refused": MessageLookupByLibrary.simpleMessage(
+      "Coniunctio negata est!",
+    ),
+    "connection_reset": MessageLookupByLibrary.simpleMessage(
+      "Coniunctio iterum incepta est!",
+    ),
     "content_type_not_implemented": MessageLookupByLibrary.simpleMessage(
       "Typus contenti nondum implementatus est!",
     ),
     "content_type_unknown": MessageLookupByLibrary.simpleMessage(
       "Typus contenti ignotus!",
+    ),
+    "could_not_verify_server_certificate": MessageLookupByLibrary.simpleMessage(
+      "Testimonium servi verificare non potui",
     ),
     "create_account": MessageLookupByLibrary.simpleMessage("Crea rationem"),
     "create_account_database_full": MessageLookupByLibrary.simpleMessage(
@@ -236,9 +233,13 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Nomina usoris requisita non implentur!",
         ),
+    "custom": MessageLookupByLibrary.simpleMessage("Custumarius"),
     "decline": MessageLookupByLibrary.simpleMessage("Recuso"),
     "decompression_failed": MessageLookupByLibrary.simpleMessage(
       "Decompressio defecit",
+    ),
+    "default_monotone": MessageLookupByLibrary.simpleMessage(
+      "Defectus/Unicolor",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("Dele"),
     "delete_chat": MessageLookupByLibrary.simpleMessage("Dele colloquium"),
@@ -310,6 +311,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "gallery": MessageLookupByLibrary.simpleMessage("Pinacotheca"),
     "got_it_button": MessageLookupByLibrary.simpleMessage("Ponyal!"),
+    "gradient": MessageLookupByLibrary.simpleMessage("Gradatim coloratus"),
     "help": MessageLookupByLibrary.simpleMessage("Auxilium"),
     "help_settings": MessageLookupByLibrary.simpleMessage("Optiones auxilii"),
     "incompatible_server_version_warning": MessageLookupByLibrary.simpleMessage(
@@ -402,7 +404,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "network_usage_auto_download": MessageLookupByLibrary.simpleMessage(
       "Usus retis, auto-download",
     ),
-    "new_chat": MessageLookupByLibrary.simpleMessage("\'Novum colloquium\'"),
+    "new_chat": MessageLookupByLibrary.simpleMessage("Novum colloquium"),
+    "new_group": MessageLookupByLibrary.simpleMessage("Grex novus"),
     "new_message": MessageLookupByLibrary.simpleMessage("Nuntius novus!"),
     "no_chat_requests_available": MessageLookupByLibrary.simpleMessage(
       "Nullae petitiones colloquii pendentes sunt",
@@ -453,6 +456,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "please_enter_the_verification_code": MessageLookupByLibrary.simpleMessage(
       "Quaeso intra codicem verificationis",
     ),
+    "privacy": MessageLookupByLibrary.simpleMessage("Privata res"),
     "privacy_security_change_number": MessageLookupByLibrary.simpleMessage(
       "Privatio, securitas, numerum muta",
     ),
@@ -508,7 +512,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings": MessageLookupByLibrary.simpleMessage("Optiones"),
     "settings_save": MessageLookupByLibrary.simpleMessage("Optiones serva"),
     "settings_saved": MessageLookupByLibrary.simpleMessage(
-      "Optiones servatae sunt",
+      "Ordines servati sunt",
     ),
     "sign_out": MessageLookupByLibrary.simpleMessage("Exi"),
     "source_code": MessageLookupByLibrary.simpleMessage("Codex fons"),
