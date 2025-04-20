@@ -45,17 +45,32 @@ Moving forward, I do not have any particular plans regarding Ermis's development
 
 ## Screenshots
 
-### Login Screen
+### Login Screen (Desktop)
 <img width="1000" alt="Login Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/login-screen.png"/>
 
-### Create Account Screen
+### Create Account Screen (Desktop)
 <img width="1000" alt="Create Account screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/create_account-screen.png"/>
 
-### Messaging Interface
+### Messaging Interface (Desktop)
 <img width="1000" alt="Messaging Interface" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface.png"/>
 
-### Choose Server Screen
+### Choose Server Screen (Desktop)
 <img width="1000" alt="Choose Server Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/choose_server-screen.png"/>
+
+### Messaging Interface (Mobile)
+<img width="1000" alt="Messaging Interface" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface-mobile.png"/>
+
+### Chats Screen (Mobile)
+<img width="1000" alt="Chats Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chats-screen-mobile.png"/>
+
+### Chat Requests Screen (Mobile)
+<img width="1000" alt="Chat Requests Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chat-requests-screen-mobile.png"/>
+
+### Settings Screen (Mobile)
+<img width="1000" alt="Settings Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/settings-screen-mobile.png"/>
+
+### Profile Screen (Mobile)
+<img width="1000" alt="Profile Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/profile-screen-mobile.png"/>
 
 ## Wiki/Documentation
 
@@ -72,7 +87,9 @@ To set up the project locally, follow the instructions for each component:
 ## Potential Questions
 
 * Q: Is there a mobile version of Ermis?
-	- A: Currently, Ermis-Client is designed for desktop platforms only.
+	- A: Yes! The Ermis-Client is designed not only for desktop platforms (Linux, Windows) but also for mobile devices running Android.
+* Q: Is there a IOS version of Ermis?
+    - A: Although the mobile client is developed using Flutter - a cross-platform UI framework -, Apple's stringent/rigorous requirements make building an iOS version (IPA) a pain in the ass. Requiring Apple hardware, compiling in Xcode and I don't even know what else. One thing is for certain - I am not spending money tantamount to buying a car to solely build an iOS version. Consequently, the release of an iOS version is *non potest fieri*.
 * Q: Is there a macOS version of Ermis?
 	- A: At the moment, Ermis-Client is designed for Windows and Linux. A macOS version is not available at this time, but future updates may include support for the macOS platform as well.
 * Q: Is Ermis available for all Linux distributions?
