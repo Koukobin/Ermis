@@ -73,13 +73,13 @@ class AccountSettings extends StatefulWidget {
               const SizedBox(height: 20),
               ListTile(
                 leading: const PersonalProfilePhoto(),
-                title: Text(Client.instance().displayName!, style: TextStyle(fontSize: 18)),
+                title: Text(Client.instance().displayName!, style: const TextStyle(fontSize: 18)),
                 trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
               ),
               for (final Account account in _accounts ?? [])
                 ListTile(
                   leading: UserProfilePhoto(profileBytes: account.profilePhoto),
-                  title: Text(account.name(), style: TextStyle(fontSize: 18)),
+                  title: Text(account.name(), style:const  TextStyle(fontSize: 18)),
                   onTap: () {
                     showConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
                       ServerInfo serverDetails = UserInfoManager.serverInfo;
@@ -92,6 +92,8 @@ class AccountSettings extends StatefulWidget {
                           matchingAccount = userAccount;
                         }
                       }
+
+                      await conn.updateLastUsedAccount(serverDetails, matchingAccount!.email);
 
                       Client.instance().commands.switchAccount();
                       setupClientSession(context, matchingAccount, keepPreviousRoutes: true);
