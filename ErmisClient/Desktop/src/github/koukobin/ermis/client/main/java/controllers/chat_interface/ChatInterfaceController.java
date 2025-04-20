@@ -75,9 +75,13 @@ public class ChatInterfaceController implements Initializable {
 		dialog.showAndWait();
 		
 		if (!dialog.isCanceled()) {
-			Client.getCommands().logout();
-			closeClient();
-			Platform.exit();
+			try {
+				Client.getCommands().logout();
+				closeClient();
+				Platform.exit();
+			} catch (Exception e) {
+				Runtime.getRuntime().halt(0);
+			}
 		}
 	}
 

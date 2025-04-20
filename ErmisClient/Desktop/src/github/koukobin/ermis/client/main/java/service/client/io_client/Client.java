@@ -55,9 +55,12 @@ import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispat
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;
+import github.koukobin.ermis.common.entry.CreateAccountInfo.CredentialValidation;
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.common.entry.GeneralEntryAction;
 import github.koukobin.ermis.common.entry.LoginInfo;
+import github.koukobin.ermis.common.entry.Resultable;
+import github.koukobin.ermis.common.entry.LoginInfo.CredentialsExchange;
 import github.koukobin.ermis.common.entry.Verification;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
@@ -218,6 +221,7 @@ public class Client {
 	public static class Entry<T extends EntryType.CredentialInterface> {
 
 		private final EntryType entryType;
+		private boolean isVerificationComplete = false;
 
 		private Entry(EntryType entryType) {
 			if (isLoggedIn.get()) {
@@ -227,7 +231,7 @@ public class Client {
 			this.entryType = entryType;
 		}
 
-		public ResultHolder getResult() throws IOException {
+		public Resultable getResult() {
 			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
 					.observeMessages()
 					.ofType(EntryMessage.class)
@@ -236,12 +240,11 @@ public class Client {
 
 			ByteBuf buffer = msg.getBuffer();
 
-			boolean isSuccessful = buffer.readBoolean();
-
-			byte[] resultMessageBytes = new byte[buffer.readableBytes()];
-			buffer.readBytes(resultMessageBytes);
-
-			return new ResultHolder(isSuccessful, new String(resultMessageBytes));
+			
+			int id = buffer.readInt();
+			return entryType == EntryType.CREATE_ACCOUNT
+		            ? CredentialValidation.Result.fromId(id)
+		                    : CredentialsExchange.Result.fromId(id);
 		}
 
 		public void sendCredentials(Map<T, String> credentials) throws IOException {
@@ -261,6 +264,61 @@ public class Client {
 
 		public void sendEntryType() throws IOException {
 			out.write(Unpooled.copyInt(ClientMessageType.USER_ENTRY.id, entryType.id));
+		}
+		
+
+		public void sendVerificationCode(String verificationCode) throws IOException {
+			ByteBuf payload = Unpooled.buffer();
+			payload.writeInt(ClientMessageType.USER_ENTRY.id);
+			payload.writeInt(Integer.valueOf(verificationCode));
+
+			out.write(payload);
+		}
+
+		public EntryResult<Resultable> getVerificationResult() throws IOException {
+			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
+					.observeMessages()
+					.ofType(EntryMessage.class)
+					.firstElement()
+					.blockingGet();
+			ByteBuf payload = msg.getBuffer();
+
+			isVerificationComplete = payload.readBoolean();
+            isLoggedIn.set(payload.readBoolean());
+
+            int id = payload.readInt();
+
+			Map<AddedInfo, String> map = new EnumMap<>(AddedInfo.class);
+
+            // Reading additional information from the ByteBuf
+            while (payload.readableBytes() > 0) {
+                AddedInfo addedInfo = AddedInfo.fromId(payload.readInt());
+                int messageLength = payload.readInt();
+                byte[] messageBytes = new byte[messageLength];
+                payload.readBytes(messageBytes);
+
+                // Adding the added info to the map with the UTF-8 decoded message
+                map.put(addedInfo, new String(messageBytes));
+            }
+
+            return new EntryResult<>(
+                    entryType == EntryType.CREATE_ACCOUNT
+                    ? CredentialValidation.Result.fromId(id)
+                    : CredentialsExchange.Result.fromId(id),
+                map);
+		}
+
+		public void resendVerificationCode() throws IOException {
+			ByteBuf payload = Unpooled.buffer(3 * Integer.BYTES);
+			payload.writeInt(ClientMessageType.USER_ENTRY.id);
+			payload.writeInt(GeneralEntryAction.action.id);
+			payload.writeInt(Verification.Action.RESEND_CODE.id);
+
+			out.write(payload);
+		}
+
+		public boolean isVerificationComplete() {
+			return isVerificationComplete;
 		}
 	}
 
@@ -291,7 +349,8 @@ public class Client {
 
 	public static class BackupVerificationEntry {
 
-		public ResultHolder getResult() throws IOException {
+		@Deprecated
+		public ResultHolder getResult() {
 			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
 					.observeMessages()
 					.ofType(EntryMessage.class)
@@ -307,69 +366,6 @@ public class Client {
 			String resultMessage = new String(resultMessageBytes);
 
 			return new ResultHolder(isLoggedIn(), resultMessage);
-		}
-	}
-
-	public static class VerificationEntry {
-
-		private boolean isVerificationComplete = false;
-
-		private VerificationEntry() {}
-
-		public void sendVerificationCode(String verificationCode) throws IOException {
-			ByteBuf payload = Unpooled.buffer();
-			payload.writeInt(ClientMessageType.USER_ENTRY.id);
-			payload.writeInt(Integer.valueOf(verificationCode));
-
-			out.write(payload);
-		}
-
-		public GeneralResult getResult() throws IOException {
-			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
-					.observeMessages()
-					.ofType(EntryMessage.class)
-					.firstElement()
-					.blockingGet();
-			ByteBuf payload = msg.getBuffer();
-
-			isVerificationComplete = payload.readBoolean();
-            isLoggedIn.set(payload.readBoolean());
-
-            int resultMessageLength = payload.readInt();
-            byte[] resultMessageBytes = new byte[resultMessageLength];
-            payload.readBytes(resultMessageBytes);
-
-			Map<AddedInfo, String> map = new EnumMap<>(AddedInfo.class);
-
-			GeneralResult result = new GeneralResult(
-					new ResultHolder(isLoggedIn.get(), new String(resultMessageBytes)),
-					map);
-
-            // Reading additional information from the ByteBuf
-            while (payload.readableBytes() > 0) {
-                AddedInfo addedInfo = AddedInfo.fromId(payload.readInt());
-                int messageLength = payload.readInt();
-                byte[] messageBytes = new byte[messageLength];
-                payload.readBytes(messageBytes);
-
-                // Adding the added info to the map with the UTF-8 decoded message
-                map.put(addedInfo, new String(messageBytes));
-            }
-
-            return result;
-		}
-
-		public void resendVerificationCode() throws IOException {
-			ByteBuf payload = Unpooled.buffer(3 * Integer.BYTES);
-			payload.writeInt(ClientMessageType.USER_ENTRY.id);
-			payload.writeInt(GeneralEntryAction.action.id);
-			payload.writeInt(Verification.Action.RESEND_CODE.id);
-
-			out.write(payload);
-		}
-
-		public boolean isVerificationComplete() {
-			return isVerificationComplete;
 		}
 	}
 
@@ -485,10 +481,6 @@ public class Client {
 
 	public static void stopListeningToMessages() {
 		messageHandler.stopListeningToMessages();
-	}
-
-	public static VerificationEntry createNewVerificationEntry() {
-		return new VerificationEntry();
 	}
 
 	public static BackupVerificationEntry createNewBackupVerificationEntry() {

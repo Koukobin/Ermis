@@ -18,12 +18,12 @@ package github.koukobin.ermis.client.main.java.controllers.entry;
 import github.koukobin.ermis.client.main.java.database.ClientDatabase;
 import github.koukobin.ermis.client.main.java.database.LocalAccountInfo;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
+import github.koukobin.ermis.client.main.java.service.client.io_client.EntryResult;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
-import github.koukobin.ermis.common.results.GeneralResult;
-import github.koukobin.ermis.common.results.ResultHolder;
+import github.koukobin.ermis.common.entry.Resultable;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -92,9 +92,9 @@ public abstract sealed class GeneralEntryController implements Initializable per
 	protected boolean sendAndValidateCredentials(Client.Entry clientEntry, Map<? extends CredentialInterface, String> credentials) throws IOException {
 		clientEntry.sendCredentials(credentials);
 
-		ResultHolder entryResult = clientEntry.getResult();
+		Resultable entryResult = clientEntry.getResult();
 		boolean isSuccessful = entryResult.isSuccessful();
-		String resultMessage = entryResult.getIDable();
+		String resultMessage = entryResult.message();
 
 		if (!isSuccessful) {
 			DialogsUtil.showErrorDialog(resultMessage);
@@ -103,25 +103,24 @@ public abstract sealed class GeneralEntryController implements Initializable per
 		return isSuccessful;
 	}
 
-	protected boolean performVerification(String email) throws IOException {
-		Client.VerificationEntry verificationEntry = Client.createNewVerificationEntry();
-		VerificationDialog verificationDialog = new VerificationDialog(verificationEntry);
-		GeneralResult entryResult;
+	protected boolean performVerification(String email, Client.Entry<? extends CredentialInterface> entry) throws IOException {
+		VerificationDialog verificationDialog = new VerificationDialog(entry);
+		EntryResult<Resultable> entryResult;
 
 		boolean success = false;
 
-		while (!verificationEntry.isVerificationComplete()) {
+		while (!entry.isVerificationComplete()) {
 			verificationDialog.showAndWait();
-			verificationEntry.sendVerificationCode(verificationDialog.getVerificationCode());
+			entry.sendVerificationCode(verificationDialog.getVerificationCode());
 
-			entryResult = verificationEntry.getResult();
-			success = entryResult.isSuccessful();
-			String resultMessage = entryResult.getIDable();
+			entryResult = entry.getVerificationResult();
+			success = entryResult.resultHolder().isSuccessful();
+			String resultMessage = entryResult.resultHolder().message();
 
 			if (success) {
 				DialogsUtil.showSuccessDialog(resultMessage);
 				
-				String passwordHash = entryResult.getAddedInfo().get(AddedInfo.PASSWORD_HASH);
+				String passwordHash = entryResult.addedInfo().get(AddedInfo.PASSWORD_HASH);
 				ClientDatabase.getDBConnection().addUserAccount(Client.getServerInfo(), new LocalAccountInfo(email, passwordHash, LocalDateTime.now()));
 				break;
 			}

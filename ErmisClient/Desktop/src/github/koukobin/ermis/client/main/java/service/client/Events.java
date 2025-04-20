@@ -99,6 +99,17 @@ public final class Events {
         public LoadedInMemoryFile getFile() { return file; }
         public int getMessageID() { return messageID; }
     }
+    
+    public static class VoiceDownloadedEvent implements IMessage {
+        private final LoadedInMemoryFile file;
+        private final int messageID;
+        public VoiceDownloadedEvent(LoadedInMemoryFile file, int messageID) {
+            this.file = file;
+            this.messageID = messageID;
+        }
+        public LoadedInMemoryFile getFile() { return file; }
+        public int getMessageID() { return messageID; }
+    }
 
     public static class ClientIdEvent implements IMessage {
         private final int clientId;
@@ -110,6 +121,12 @@ public final class Events {
         private final List<ChatRequest> requests;
         public ChatRequestsEvent(List<ChatRequest> requests) { this.requests = requests; }
         public List<ChatRequest> getRequests() { return requests; }
+    }
+    
+    public static class ChatSessionsIndicesReceivedEvent implements IMessage {
+        private final List<ChatSession> sessions;
+        public ChatSessionsIndicesReceivedEvent(List<ChatSession> sessions) { this.sessions = sessions; }
+        public List<ChatSession> getSessions() { return sessions; }
     }
 
     public static class ChatSessionsEvent implements IMessage {

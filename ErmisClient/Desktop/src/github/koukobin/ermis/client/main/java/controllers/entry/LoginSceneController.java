@@ -110,13 +110,13 @@ public final class LoginSceneController extends GeneralEntryController {
 		}
 		
 		if (getPasswordType() == PasswordType.PASSWORD) {
-			isSuccessful = performVerification(loginCredentials.get(LoginInfo.Credential.EMAIL));
+			isSuccessful = performVerification(loginCredentials.get(LoginInfo.Credential.EMAIL), loginEntry);
 		} else {
 			BackupVerificationEntry backupVerificationEntry = Client.createNewBackupVerificationEntry();
 
 			ResultHolder entryResult = backupVerificationEntry.getResult();
 			isSuccessful = entryResult.isSuccessful();
-			String resultMessage = entryResult.getIDable();
+			String resultMessage = entryResult.getResultMessage();
 
 			if (isSuccessful) {
 				DialogsUtil.showSuccessDialog(resultMessage);

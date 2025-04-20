@@ -31,6 +31,7 @@ import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
 import github.koukobin.ermis.client.main.java.service.client.ChatSession;
 import github.koukobin.ermis.client.main.java.service.client.DonationHtmlPage;
+import github.koukobin.ermis.common.ClientStatus;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
@@ -51,7 +52,6 @@ public abstract class MessageHandler implements AutoCloseable {
 
 	private ByteBufInputStream in;
 	private ByteBufOutputStream out;
-
 	
 	public static class I {
 		public static String username;
@@ -156,7 +156,7 @@ public abstract class MessageHandler implements AutoCloseable {
 	public abstract void messageDeleted(ChatSession chatSession, int messageIDOfDeletedMessage);
 	public abstract void messageUnsuccessfulyDeleted(ChatSession chatSession, int messageID);
 	public abstract void iconReceived(byte[] icon);
-	
+
 	public class Commands {
 
 		public void changeDisplayName(String newDisplayName) throws IOException {
@@ -170,9 +170,9 @@ public abstract class MessageHandler implements AutoCloseable {
 
 			out.write(payload);
 		}
-		
+
 		public void changePassword(String newPassword) throws IOException {
-			
+
 			byte[] newPasswordBytes = newPassword.getBytes();
 
 			ByteBuf payload = Unpooled.buffer();
@@ -184,67 +184,86 @@ public abstract class MessageHandler implements AutoCloseable {
 		}
 
 		public void fetchUsername() throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_USERNAME.id);
-			
+
 			out.write(payload);
 		}
-		
+
 		public void fetchClientID() throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer(Integer.BYTES * 2);
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_CLIENT_ID.id);
-			
+
 			out.write(payload);
 		}
-		
+
+		void fetchProfileInformation() throws IOException {
+
+			ByteBuf payload = Unpooled.buffer();
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
+			payload.writeInt(ClientCommandType.FETCH_PROFILE_INFORMATION.id);
+
+			out.write(payload);
+		}
+
 		public void fetchWrittenText(int chatSessionIndex) throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_WRITTEN_TEXT.id);
 			payload.writeInt(chatSessionIndex);
 			payload.writeInt(I.chatSessions.get(chatSessionIndex).getMessages().size() /* Amount of messages client already has */);
-			
+
 			out.write(payload);
 		}
-		
+
 		public void fetchChatRequests() throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_CHAT_REQUESTS.id);
 
 			out.write(payload);
 		}
-		
-		public void fetchChatSessions() throws IOException {
 
+		public void fetchChatSessionIndices() throws IOException {
+			ByteBuf payload = Unpooled.buffer();
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
+			payload.writeInt(ClientCommandType.FETCH_CHAT_SESSION_INDICES.id);
+			out.write(payload);
+		}
+
+		public void fetchChatSessions() throws IOException {
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_CHAT_SESSIONS.id);
-
+			for (ChatSession session : I.chatSessions) {
+				payload.writeInt(session.getChatSessionIndex());
+				final int membersLength = 0;
+				payload.writeInt(membersLength);
+			}
 			out.write(payload);
 		}
-		
+
 		public void requestDonationHTMLPage() throws IOException {
 
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.REQUEST_DONATION_PAGE_URL.id);
-			
+
 			out.write(payload);
 		}
-		
+
 		public void requestServerSourceCodeHTMLPage() throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.REQUEST_SOURCE_CODE_PAGE_URL.id);
-			
+
 			out.write(payload);
 		}
 
@@ -254,58 +273,58 @@ public abstract class MessageHandler implements AutoCloseable {
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.SEND_CHAT_REQUEST.id);
 			payload.writeInt(userClientID);
-			
+
 			out.write(payload);
 		}
-		
+
 		public void acceptChatRequest(int userClientID) throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.ACCEPT_CHAT_REQUEST.id);
 			payload.writeInt(userClientID);
-			
+
 			out.write(payload);
-			
+
 			fetchChatRequests();
 			fetchChatSessions();
 		}
-		
+
 		public void declineChatRequest(int userClientID) throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.DECLINE_CHAT_REQUEST.id);
 			payload.writeInt(userClientID);
-			
+
 			out.write(payload);
 
 			fetchChatRequests();
 		}
-		
+
 		public void deleteChatSession(int chatSessionIndex) throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.DELETE_CHAT_SESSION.id);
 			payload.writeInt(chatSessionIndex);
-			
+
 			out.write(payload);
-			
+
 			fetchChatSessions();
 		}
-		
+
 		public void deleteMessage(int chatSessionIndex, int messageID) throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.DELETE_CHAT_MESSAGE.id);
 			payload.writeInt(chatSessionIndex);
 			payload.writeInt(messageID);
-			
+
 			out.write(payload);
 		}
-		
+
 		public void downloadFile(int messageID, int chatSessionIndex) throws IOException {
 
 			ByteBuf payload = Unpooled.buffer();
@@ -313,16 +332,16 @@ public abstract class MessageHandler implements AutoCloseable {
 			payload.writeInt(ClientCommandType.DOWNLOAD_FILE.id);
 			payload.writeInt(chatSessionIndex);
 			payload.writeInt(messageID);
-			
+
 			out.write(payload);
 		}
-		
+
 		public void logout() throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.LOGOUT_THIS_DEVICE.id);
-			
+
 			out.write(payload);
 		}
 
@@ -331,20 +350,36 @@ public abstract class MessageHandler implements AutoCloseable {
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.SET_ACCOUNT_ICON.id);
 			payload.writeBytes(Files.toByteArray(accountIcon));
-			
+
 			out.write(payload);
 		}
 
 		public void fetchAccountIcon() throws IOException {
-			
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
-			payload.writeInt(ClientCommandType.FETCH_ACCOUNT_ICON.id);		
+			payload.writeInt(ClientCommandType.FETCH_ACCOUNT_ICON.id);
+			out.write(payload);
+		}
+		
+		void setAccountStatus(ClientStatus status) throws IOException {
+			ByteBuf payload = Unpooled.buffer();
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
+			payload.writeInt(ClientCommandType.SET_ACCOUNT_STATUS.id);
+			payload.writeInt(status.id);
+
 			out.write(payload);
 		}
 
+		public void fetchAccountStatus() throws IOException {
+			ByteBuf payload = Unpooled.buffer();
+			payload.writeInt(ClientMessageType.USER_COMMAND.id);
+			payload.writeInt(ClientCommandType.FETCH_ACCOUNT_STATUS.id);
+
+			out.write(payload);
+		}
 	}
-	
+
 	/**
 	 * reads incoming messages sent from the server
 	 */
@@ -380,11 +415,11 @@ public abstract class MessageHandler implements AutoCloseable {
 //		thread.setDaemon(true);
 //		thread.start();
 
-		getCommands().fetchUsername();
-		getCommands().fetchClientID();
-		getCommands().fetchChatSessions();
-		getCommands().fetchChatRequests();
-		getCommands().fetchAccountIcon();
+		commands.fetchProfileInformation();
+		commands.fetchChatSessionIndices();
+		commands.setAccountStatus(ClientStatus.ONLINE);
+		commands.fetchChatRequests();
+		commands.fetchAccountStatus();
 	}
 
 	public void stopListeningToMessages() {

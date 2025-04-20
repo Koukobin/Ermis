@@ -15,10 +15,15 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
+import java.util.Collection;
+import java.util.List;
+
 import github.koukobin.ermis.common.ClientStatus;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
+import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
@@ -31,6 +36,17 @@ public class SetAccountStatus implements ICommand {
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		ClientStatus newStatus = ClientStatus.fromId(args.readInt());
 		clientInfo.setStatus(newStatus);
+
+		List<ClientInfo> friends = clientInfo.getChatSessions()
+				.stream()
+				.map(ChatSession::getActiveMembers)
+				.flatMap(Collection::stream)
+				.distinct()
+				.toList();
+
+		for (ClientInfo member : friends) {
+			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_STATUSES, member, Unpooled.EMPTY_BUFFER);
+		}
 	}
 
 	@Override

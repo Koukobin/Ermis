@@ -99,15 +99,15 @@ public class ChatSession {
 			return username + "@" + clientID;
 		}
 	}
-	
+
 	private final int chatSessionID;
-	private final int chatSessionIndex; // Index of chat session that the server uses to access said chat session for the specific user
-	
+	private int chatSessionIndex; // Index of chat session that the server uses to access said chat session for the specific user
+
 	private List<Member> members;
 	private List<MESSAGE> messages;
 
 	private boolean haveChatMessagesBeenCached;
-	
+
 	public ChatSession(int chatSessionID, int chatSessionIndex) {
 		this.chatSessionID = chatSessionID;
 		this.chatSessionIndex = chatSessionIndex;
@@ -131,10 +131,14 @@ public class ChatSession {
 		this.messages = messages;
 	}
 	
+	public void setChatSessionIndex(int chatSessionIndex) {
+		this.chatSessionIndex = chatSessionIndex;
+	}
+
 	public void setHaveChatMessagesBeenCached(boolean haveChatMessagesBeenCached) {
 		this.haveChatMessagesBeenCached = haveChatMessagesBeenCached;
 	}
-	
+
 	public int getChatSessionID() {
 		return chatSessionID;
 	}
@@ -150,8 +154,8 @@ public class ChatSession {
 	public List<MESSAGE> getMessages() {
 		return messages;
 	}
-	
-	public boolean haveChatMessagesBeenCached()	{
+
+	public boolean haveChatMessagesBeenCached() {
 		return haveChatMessagesBeenCached;
 	}
 
@@ -173,7 +177,7 @@ public class ChatSession {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		
+
 		ChatSession other = (ChatSession) obj;
 		return chatSessionID == other.chatSessionID 
 				&& chatSessionIndex == other.chatSessionIndex
@@ -181,7 +185,7 @@ public class ChatSession {
 				&& Objects.equals(members, other.members) 
 				&& Objects.equals(messages, other.messages);
 	}
-	
+
 	@Override
 	public String toString() {
 		StringJoiner joiner = new StringJoiner(", ");

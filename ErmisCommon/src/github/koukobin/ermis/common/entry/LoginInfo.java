@@ -124,7 +124,7 @@ public final class LoginInfo {
 	}
 
 	public static class CredentialsExchange {
-		public enum Result {
+		public enum Result implements Resultable {
             SUCCESFULLY_EXCHANGED_CREDENTIALS(1, true, "Succesfully exchanged credentials!"),
             INCORRECT_EMAIL(2, false, "Incorrect email!"),
 			ACCOUNT_DOESNT_EXIST(3, false, "Account doesn't exist!");
@@ -147,6 +147,16 @@ public final class LoginInfo {
 
 			public static Result fromId(int id) {
 				return EnumIntConverter.fromId(valuesById, id);
+			}
+
+			@Override
+			public boolean isSuccessful() {
+				return resultHolder.isSuccessful();
+			}
+
+			@Override
+			public String message() {
+				return resultHolder.getResultMessage();
 			}
 		}
 	}
