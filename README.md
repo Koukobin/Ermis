@@ -58,19 +58,19 @@ Moving forward, I do not have any particular plans regarding Ermis's development
 <img width="1000" alt="Choose Server Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/choose_server-screen.png"/>
 
 ### Messaging Interface (Mobile)
-<img width="1000" alt="Messaging Interface" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface-mobile.png"/>
+<img width="500" alt="Messaging Interface" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface-mobile.png"/>
 
 ### Chats Screen (Mobile)
-<img width="1000" alt="Chats Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chats-screen-mobile.png"/>
+<img width="500" alt="Chats Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chats-screen-mobile.png"/>
 
 ### Chat Requests Screen (Mobile)
-<img width="1000" alt="Chat Requests Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chat-requests-screen-mobile.png"/>
+<img width="500" alt="Chat Requests Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chat-requests-screen-mobile.png"/>
 
 ### Settings Screen (Mobile)
-<img width="1000" alt="Settings Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/settings-screen-mobile.png"/>
+<img width="500" alt="Settings Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/settings-screen-mobile.png"/>
 
 ### Profile Screen (Mobile)
-<img width="1000" alt="Profile Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/profile-screen-mobile.png"/>
+<img width="500" alt="Profile Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/profile-screen-mobile.png"/>
 
 ## Wiki/Documentation
 
