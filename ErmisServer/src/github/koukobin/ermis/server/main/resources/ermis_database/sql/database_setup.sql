@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     file_name TEXT,
     file_content_id TEXT, -- Hallmark name of file bytes stored on local storage
     content_type INTEGER NOT NULL,
-    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE, -- "is_received" would be a more appropriate/suitable name; but I am too lazy to make the change..
     PRIMARY KEY (chat_session_id, message_id),
     CHECK (text IS NOT NULL OR file_content_id IS NOT NULL)
 );

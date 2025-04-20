@@ -18,18 +18,11 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.ServerUDP;
-import github.koukobin.ermis.server.main.java.server.ServerUDP.VoiceChat;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.commands.CommandsHolder;
-import github.koukobin.ermis.server.main.java.server.UDPSignallingServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
  * @author Ilias Koukovinis
@@ -70,18 +63,17 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 
 	private void executeCommand(ClientCommandType commandType, ByteBuf args) {
 		CommandsHolder.executeCommand(commandType, clientInfo, args);
-//		executeCommand(clientInfo, commandType, args);
 	}
 
-	/**
-	 * This method can be used by the client to execute various commands, such as to
-	 * change his username or to get his clientID
-	 * 
-	 */
-	private static void executeCommand(ClientInfo clientInfo, ClientCommandType commandType, ByteBuf args) {
-		EpollSocketChannel channel = clientInfo.getChannel();
-
-		switch (commandType) {
+//	/**
+//	 * This method can be used by the client to execute various commands, such as to
+//	 * change his username or to get his clientID
+//	 * 
+//	 */
+//	private static void executeCommand(ClientInfo clientInfo, ClientCommandType commandType, ByteBuf args) {
+//		EpollSocketChannel channel = clientInfo.getChannel();
+//
+//		switch (commandType) {
 //		case CHANGE_USERNAME -> {
 //
 //			byte[] newUsernameBytes = new byte[args.readableBytes()];
@@ -977,8 +969,8 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 //
 //			channel.writeAndFlush(payload);
 //		}
-		case ACCEPT_VOICE_CALL -> {
-		}
+//		case ACCEPT_VOICE_CALL -> {
+//		}
 //		case START_VOICE_CALL -> {
 //			int chatSessionIndex = args.readInt();
 //			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
@@ -1046,10 +1038,10 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 //
 //			channel.writeAndFlush(payload);
 //		}
-		}
-
-	}
-
+//		}
+//
+//	}
+//
 //	/**
 //	 * Executes a given action for every active device associated with the specified
 //	 * account/clientID.

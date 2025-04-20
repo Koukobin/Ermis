@@ -26,44 +26,41 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public enum ClientCommandResultType {
-	
-    // Account Management
-    SET_ACCOUNT_ICON(100),
-    
+
+	// Account Management
+	SET_ACCOUNT_ICON(100),
+
 	// User Profile Information Requests
-    FETCH_PROFILE_INFO(200),
-    GET_DISPLAY_NAME(201),
-    GET_CLIENT_ID(202),
-    FETCH_LINKED_DEVICES(203),
-    GET_ACCOUNT_STATUS(204),
-    FETCH_ACCOUNT_ICON(205),
-    FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS(206),
-    
-    // Chat Management
-    GET_CHAT_REQUESTS(300),
-    GET_CHAT_SESSIONS(301),
-    GET_CHAT_SESSIONS_INDICES(304),
-    GET_CHAT_SESSIONS_STATUSES(305),
-    GET_WRITTEN_TEXT(302),
-    DELETE_CHAT_MESSAGE(303),
-    
-    // File Management
-    DOWNLOAD_FILE(400),
-    DOWNLOAD_IMAGE(401),
-    DOWNLOAD_VOICE(402),
-    
-    // Start voice call,
-    START_VOICE_CALL(500),
-    
-    // External Pages
-    GET_DONATION_PAGE_URL(600),
-    GET_SOURCE_CODE_PAGE_URL(601),
-    
-	// Other
-	FETCH_SIGNALLING_SERVER_PORT(700),
-	
-	motherfuckerAdded(800);
-	
+	FETCH_PROFILE_INFO(200),
+	GET_DISPLAY_NAME(201),
+	GET_CLIENT_ID(202),
+	FETCH_LINKED_DEVICES(203),
+	GET_ACCOUNT_STATUS(204),
+	FETCH_ACCOUNT_ICON(205),
+	FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS(206),
+
+	// Chat Management
+	GET_CHAT_REQUESTS(300),
+	GET_CHAT_SESSIONS(301),
+	GET_CHAT_SESSIONS_INDICES(304),
+	GET_CHAT_SESSIONS_STATUSES(305),
+	GET_WRITTEN_TEXT(302),
+	DELETE_CHAT_MESSAGE(303),
+
+	// File Management
+	DOWNLOAD_FILE(400),
+	DOWNLOAD_IMAGE(401),
+	DOWNLOAD_VOICE(402),
+
+	// Start voice call,
+	START_VOICE_CALL(500),
+	FETCH_VOICE_CALL_SIGNALLING_SERVER_PORT(501),
+	MEMBER_JOINED_VOICE_CALL(502),
+
+	// External Pages
+	GET_DONATION_PAGE_URL(600),
+	GET_SOURCE_CODE_PAGE_URL(601);
+
 	private static final HashMap<Integer, ClientCommandResultType> values;
 
 	static {
@@ -75,9 +72,9 @@ public enum ClientCommandResultType {
 
 	public final int id;
 
-    ClientCommandResultType(int id) {
-        this.id = id;
-    }
+	ClientCommandResultType(int id) {
+		this.id = id;
+	}
 
 	public static ClientCommandResultType fromId(int id) {
 		return EnumIntConverter.fromId(values, id);

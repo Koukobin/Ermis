@@ -30,13 +30,13 @@ public class AddOrSwitchToNewAccount implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
-		// Check if handler is already present in the pipeline
+		// Check if handler is already present in the pipeline - in 
+		// which case remove it and readd it.
 		ChannelHandler handler = channel.pipeline().get(StartingEntryHandler.class);
 		if (handler != null) {
-			return; // Handler already exists, so no need to add it again
+			channel.pipeline().remove(handler);
 		}
 
-		// If handler doesn't exist, add it to the pipeline
 		channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 	}
 

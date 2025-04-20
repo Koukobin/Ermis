@@ -29,7 +29,6 @@ import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.codec.Encoder;
 import github.koukobin.ermis.server.main.java.server.codec.PrimaryDecoder;
-import github.koukobin.ermis.server.main.java.server.netty_handlers.CommandHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.DispatcherHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.MessageRateLimiter;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
@@ -149,8 +148,7 @@ public final class Server {
 			throw new RuntimeException("Failed to start TCP server", e);
 		}
 
-		ServerUDP.start();
-		UDPSignallingServer.start();
+		VoiceCallSignallingServer.start();
 	}
 
 	private static class ClientConnector extends ChannelInitializer<EpollSocketChannel> {

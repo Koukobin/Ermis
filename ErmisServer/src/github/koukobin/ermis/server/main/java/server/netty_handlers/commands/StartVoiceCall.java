@@ -20,9 +20,7 @@ import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.ServerUDP;
-import github.koukobin.ermis.server.main.java.server.ServerUDP.VoiceChat;
-import github.koukobin.ermis.server.main.java.server.UDPSignallingServer;
+import github.koukobin.ermis.server.main.java.server.VoiceCallSignallingServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
 
@@ -36,20 +34,20 @@ public class StartVoiceCall implements ICommand {
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		int chatSessionIndex = args.readInt();
 		int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
-		byte[] aesKey = UDPSignallingServer.createVoiceChat(chatSessionID);
+		byte[] aesKey = VoiceCallSignallingServer.createVoiceChat(chatSessionID);
 
 		{
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.START_VOICE_CALL.id);
-			payload.writeInt(9999);
+			payload.writeInt(ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 			payload.writeBytes(aesKey);
 			channel.writeAndFlush(payload);
 		}
 
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
-		payload.writeInt(9999);
+		payload.writeInt(ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 		payload.writeInt(chatSessionID);
 		payload.writeInt(clientInfo.getClientID());
 		payload.writeBytes(aesKey);

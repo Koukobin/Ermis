@@ -20,7 +20,6 @@ import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.UDPSignallingServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
 
@@ -32,15 +31,12 @@ public class FetchSignallingPort implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
-//		byte[] cipher = UDPSignallingServer.createVoiceChat();
-//
-//		ByteBuf payload = channel.alloc().ioBuffer();
-//		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-//		payload.writeInt(ClientCommandResultType.FETCH_SIGNALLING_SERVER_PORT.id);
-//		payload.writeInt(ServerSettings.UDP_PORT);
-//		payload.writeBytes(cipher);
-//
-//		channel.writeAndFlush(payload);
+		ByteBuf payload = channel.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+		payload.writeInt(ClientCommandResultType.FETCH_VOICE_CALL_SIGNALLING_SERVER_PORT.id);
+		payload.writeInt(ServerSettings.UDP_PORT);
+
+		channel.writeAndFlush(payload);
 	}
 
 	@Override

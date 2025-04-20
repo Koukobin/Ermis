@@ -15,50 +15,22 @@
  */
 package github.koukobin.ermis.server.main.java.server;
 
-import java.io.FileInputStream;
-import java.io.OutputStream;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.security.KeyStore;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
-import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.util.EnumIntConverter;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
-import github.koukobin.ermis.server.main.java.server.ServerUDP.ServerMessage;
-import github.koukobin.ermis.server.main.java.server.ServerUDP.VoiceChat;
-import github.koukobin.ermis.server.main.java.util.AESGCMCipher;
 import github.koukobin.ermis.server.main.java.util.AESKeyGenerator;
-import github.koukobin.ermis.server.main.java.util.InsecureRandomNumberGenerator;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -72,21 +44,12 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
-import io.netty.handler.ssl.ApplicationProtocolConfig;
-import io.netty.handler.ssl.ApplicationProtocolNames;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-import io.netty.handler.ssl.SupportedCipherSuiteFilter;
-import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
-import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
-import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public final class UDPSignallingServer {
+public final class VoiceCallSignallingServer {
 
 	private static final Logger LOGGER;
 	
@@ -96,7 +59,7 @@ public final class UDPSignallingServer {
 	
 	private static AtomicBoolean isRunning;
 
-	private UDPSignallingServer() throws IllegalAccessException {
+	private VoiceCallSignallingServer() throws IllegalAccessException {
 		throw new IllegalAccessException("Server cannot be constructed since it is statically initialized!");
 	}
 
@@ -117,12 +80,12 @@ public final class UDPSignallingServer {
 	}
 
 	public static void start() {
-		if (UDPSignallingServer.isRunning.get()) {
+		if (VoiceCallSignallingServer.isRunning.get()) {
 			throw new IllegalStateException("Server cannot start since the server is already running");
 		}
 		
 		try {
-			InetSocketAddress localAddress = new InetSocketAddress(ServerSettings.SERVER_ADDRESS, 9999);
+			InetSocketAddress localAddress = new InetSocketAddress(ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 			
 			Bootstrap bootstrapUDP = new Bootstrap();
 			bootstrapUDP.group(workerGroup)
@@ -133,7 +96,7 @@ public final class UDPSignallingServer {
 	        
 			serverSocketChannel = bootstrapUDP.bind().sync().channel();
 
-			UDPSignallingServer.isRunning.set(true);
+			VoiceCallSignallingServer.isRunning.set(true);
 
 			InetSocketAddress serverAddress = (InetSocketAddress) serverSocketChannel.localAddress();
 
@@ -255,7 +218,7 @@ public final class UDPSignallingServer {
 			{
 				ByteBuf payload = ctx.alloc().ioBuffer();
 				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-				payload.writeInt(ClientCommandResultType.motherfuckerAdded.id);
+				payload.writeInt(ClientCommandResultType.MEMBER_JOINED_VOICE_CALL.id);
 				payload.writeInt(clientID);
 				payload.writeInt(chatSessionID);
 				payload.writeInt(port);
@@ -278,7 +241,7 @@ public final class UDPSignallingServer {
 					if (ciSocketAdress == null || ci.getClientID() == clientID) continue;
 					ByteBuf payload = ctx.alloc().ioBuffer();
 					payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-					payload.writeInt(ClientCommandResultType.motherfuckerAdded.id);
+					payload.writeInt(ClientCommandResultType.MEMBER_JOINED_VOICE_CALL.id);
 					payload.writeInt(ci.getClientID());
 					payload.writeInt(chatSessionID);
 					payload.writeInt(ciSocketAdress.getPort());
@@ -294,7 +257,7 @@ public final class UDPSignallingServer {
 	}
 
 	public static byte[] createVoiceChat(int chatSessionID) {
-		var rawSecretKey = AESKeyGenerator.genereateRawSecretKey();
+		var rawSecretKey = AESKeyGenerator.generateRawSecretKey();
 		List<ClientInfo> activemembers = ActiveChatSessions.getChatSession(chatSessionID).getActiveMembers();
 		for (ClientInfo client : activemembers) {
 			Test.calls2.put(client.getInetAddress(), rawSecretKey);
@@ -303,13 +266,13 @@ public final class UDPSignallingServer {
 	}
 
 	public static void stop() {
-		if (!UDPSignallingServer.isRunning.get()) {
+		if (!VoiceCallSignallingServer.isRunning.get()) {
 			throw new IllegalStateException("Server has not started therefore cannot be stopped");
 		}
 
 		workerGroup.shutdownGracefully();
 
-		UDPSignallingServer.isRunning.set(false);
+		VoiceCallSignallingServer.isRunning.set(false);
 
 		LOGGER.info("Server stopped succesfully on port {} and at address {}",
 				((InetSocketAddress) serverSocketChannel.localAddress()).getHostName(),

@@ -48,7 +48,6 @@ import github.koukobin.ermis.common.message_types.UserMessage;
 import github.koukobin.ermis.common.results.ChangePasswordResult;
 import github.koukobin.ermis.common.results.ChangeUsernameResult;
 import github.koukobin.ermis.common.results.GeneralResult;
-import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.common.util.FileUtils;
 import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.Database;
@@ -400,8 +399,6 @@ public final class ErmisDatabase {
 		 * Authenticates client and deletes account
 		 */
 		public DeleteAccountSuccess deleteAccount(String enteredEmail, String enteredPassword, int clientID) {
-			int resultUpdate = 0;
-
 			// Verify that the entered email is associated with the provided client ID
 			int associatedClientID = getClientID(enteredEmail).orElseThrow();
 			if (associatedClientID != clientID) {
@@ -417,8 +414,6 @@ public final class ErmisDatabase {
 
 			try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM users WHERE client_id=?;")) {
 				pstmt.setInt(1, clientID);
-
-				resultUpdate = pstmt.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 				return DeleteAccountSuccess.FAILURE;
