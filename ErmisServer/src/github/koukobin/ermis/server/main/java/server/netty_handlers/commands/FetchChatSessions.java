@@ -63,9 +63,9 @@ public class FetchChatSessions implements ICommand {
 			}
 
 			int chatSessionID = chatSession.getChatSessionID();
-			ClientUpdate[] members = new ClientUpdate[args.readInt()];
-			for (int j = 0; j < members.length; j++) {
-				members[j] = new ClientUpdate(args.readInt(), args.readLong());
+			ClientUpdate[] claimedMembers = new ClientUpdate[args.readInt()];
+			for (int j = 0; j < claimedMembers.length; j++) {
+				claimedMembers[j] = new ClientUpdate(args.readInt(), args.readLong());
 			}
 
 			ClientUpdate[] actualMembers;
@@ -75,8 +75,9 @@ public class FetchChatSessions implements ICommand {
 
 			// TODO: OPTIMIZE
 			List<ClientUpdate> outdatedMembersInfo = Arrays.asList(actualMembers).stream()
-					.filter((ClientUpdate member) -> !Arrays.asList(actualMembers).contains(member)
+					.filter((ClientUpdate member) -> !Arrays.asList(claimedMembers).contains(member)
 							&& clientInfo.getClientID() != member.clientID())
+					.distinct()
 					.toList();
 			List<Integer> memberIDS = outdatedMembersInfo.stream().map(ClientUpdate::clientID).toList();
 
@@ -107,7 +108,7 @@ public class FetchChatSessions implements ICommand {
 
 		}
 
-		clientInfo.getChatSessions().forEach((c) -> {
+		clientInfo.getChatSessions().forEach((ChatSession c) -> {
 			if (!c.getActiveMembers().contains(clientInfo)) {
 				c.getActiveMembers().add(clientInfo);
 			}

@@ -163,7 +163,7 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 
 		transition.run();
 	}
-	
+
 	@Override
 	public void register(ActionEvent event) throws IOException {
 		Client.CreateAccountEntry clientEntry = Client.createNewCreateAccountEntry();
@@ -183,7 +183,7 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 			return;
 		}
 
-		isSuccessful = performVerification(accountCredentials.get(CreateAccountInfo.Credential.EMAIL));
+		isSuccessful = performVerification(accountCredentials.get(CreateAccountInfo.Credential.EMAIL), clientEntry);
 
 		if (!isSuccessful) {
 			return;

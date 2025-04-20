@@ -15,13 +15,18 @@
  */
 package github.koukobin.ermis.client.main.java.service.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import github.koukobin.ermis.client.main.java.MESSAGE;
+import github.koukobin.ermis.client.main.java.service.client.ChatSession.Member;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
-import github.koukobin.ermis.client.main.java.service.client.io_client.MessageHandler.Commands;
 import github.koukobin.ermis.client.main.java.service.client.io_client.MessageHandler.I;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
@@ -61,6 +66,34 @@ public class CommandResultHandler implements MESSAGEHandler {
 
 			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ImageDownloadedEvent(new LoadedInMemoryFile(new String(fileNameBytes), fileBytes), messageID));
 		}
+		case DOWNLOAD_VOICE -> {
+			int messageID = msg.readInt();
+
+			byte[] fileNameBytes = new byte[msg.readInt()];
+			msg.readBytes(fileNameBytes);
+
+			byte[] fileBytes = new byte[msg.readableBytes()];
+			msg.readBytes(fileBytes);
+
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.VoiceDownloadedEvent(new LoadedInMemoryFile(new String(fileNameBytes), fileBytes), messageID));
+		}
+		case FETCH_PROFILE_INFO -> {
+			I.clientID = msg.readInt();
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ClientIdEvent(I.clientID));
+
+			byte[] usernameBytes = new byte[msg.readInt()];
+			msg.readBytes(usernameBytes);
+
+			I.username = new String(usernameBytes);
+
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.UsernameReceivedEvent(I.username));
+
+			long lastUpdatedEpochSecond = msg.readLong();
+
+			byte[] profilePhoto = new byte[msg.readableBytes()];
+			msg.readBytes(profilePhoto);
+			I.accountIcon = profilePhoto;
+		}
 		case GET_DISPLAY_NAME -> {
 			byte[] usernameBytes = new byte[msg.readableBytes()];
 			msg.readBytes(usernameBytes);
@@ -73,41 +106,93 @@ public class CommandResultHandler implements MESSAGEHandler {
 			I.clientID = msg.readInt();
 			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ClientIdEvent(I.clientID));
 		}
-		case GET_CHAT_SESSIONS -> {
-			I.chatSessions.clear();
-			
-			int chatSessionsSize = msg.readInt();
-			for (int i = 0; i < chatSessionsSize; i++) {
+		case GET_CHAT_SESSIONS_INDICES -> {
+			I.chatSessions = new ArrayList<>();
+
+			int i = 0;
+			while (msg.readableBytes() > 0) {
 				int chatSessionIndex = i;
 				int chatSessionID = msg.readInt();
 
-				ChatSession chatSession = new ChatSession(chatSessionID, chatSessionIndex);
-
-				int membersSize = msg.readInt();
-
-				List<ChatSession.Member> members = new ArrayList<>(membersSize);
-
-				for (int j = 0; j < membersSize; j++) {
-					int clientID = msg.readInt();
-					@SuppressWarnings("unused")
-					boolean isActive = msg.readBoolean();
-
-					byte[] usernameBytes = new byte[msg.readInt()];
-					msg.readBytes(usernameBytes);
-
-					byte[] iconBytes = new byte[msg.readInt()];
-					msg.readBytes(iconBytes);
-
-					members.add(new ChatSession.Member(new String(usernameBytes), clientID, iconBytes));
+				ChatSession chatSession = I.chatSessionIDSToChatSessions.get(chatSessionID);
+				if (chatSession == null) {
+					chatSession = new ChatSession(chatSessionID, chatSessionIndex);
+					I.chatSessionIDSToChatSessions.put(chatSessionID, chatSession);
+				} else {
+					chatSession.setChatSessionIndex(chatSessionIndex);
 				}
 
-				chatSession.setMembers(members);
+				I.chatSessions.add(chatSession);
 
-				I.chatSessions.add(chatSessionIndex, chatSession);
-				I.chatSessionIDSToChatSessions.put(chatSessionID, chatSession);
+				i++;
+			}
+
+	        GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ChatSessionsIndicesReceivedEvent(I.chatSessions));
+
+			try {
+				Client.getCommands().fetchChatSessions(); // Proceed to fetching chat sessions
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+		case GET_CHAT_SESSIONS -> {
+			Map<Integer /* client id */, Member> cache = new HashMap<>();
+
+			while (msg.readableBytes() > 0) {
+				int chatSessionIndex = msg.readInt();
+				ChatSession chatSession;
+
+				try {
+					chatSession = I.chatSessions.get(chatSessionIndex);
+				} catch (IndexOutOfBoundsException ioobe) {
+					continue; // This could happen potentially if this chat session had been cached in local
+								// database and when the conditional request was it did not know what to do and
+								// it sent -1. Outdated chat sessions will be deleted after new chat sessions
+								// have been processed
+				}
+
+				Set<Member> members = new HashSet<>(chatSession.getMembers());
+				int membersSize = msg.readInt();
+				
+				if (membersSize == -1) {
+					// Infer session has been deleted since membersSize is -1
+
+					I.chatSessions.remove(chatSessionIndex);
+					I.chatSessionIDSToChatSessions.remove(chatSession.getChatSessionID());
+
+					continue;
+				}
+
+				for (int j = 0; j < membersSize; j++) {
+					int memberID = msg.readInt();
+
+					Member member;
+					if (cache.containsKey(memberID)) {
+						member = cache.get(memberID);
+					} else {
+						int usernameLength = msg.readInt();
+						byte[] usernameBytes = new byte[usernameLength];
+						msg.readBytes(usernameBytes);
+
+						byte[] iconBytes = new byte[msg.readInt()];
+						msg.readBytes(iconBytes);
+						long iconLastUpdatedAt = msg.readLong();
+
+						member = new ChatSession.Member(new String(usernameBytes), memberID, iconBytes);
+
+						cache.put(memberID, member);
+					}
+
+					members.add(member);
+				}
+
+				chatSession.setMembers(new ArrayList<>(members));
 			}
 
 			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ChatSessionsEvent(I.chatSessions));
+		}
+		case GET_CHAT_SESSIONS_STATUSES -> {
+	        // Do nothing.
 		}
 		case GET_CHAT_REQUESTS -> {
 			I.chatRequests.clear();
@@ -159,7 +244,7 @@ public class CommandResultHandler implements MESSAGEHandler {
 					messageBytes = new byte[msg.readInt()];
 					msg.readBytes(messageBytes);
 				}
-				case FILE, IMAGE -> {
+				case FILE, IMAGE, VOICE -> {
 					fileNameBytes = new byte[msg.readInt()];
 					msg.readBytes(fileNameBytes);
 				}

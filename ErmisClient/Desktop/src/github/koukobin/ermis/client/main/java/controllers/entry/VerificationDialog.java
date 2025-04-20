@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
+import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
@@ -35,9 +36,9 @@ public class VerificationDialog {
 	private TextInputDialog verificationCodeDialog;
 	private String verificationCode;
 	
-	private Client.VerificationEntry verificationEntry;
+	private Client.Entry<? extends CredentialInterface> verificationEntry;
 	
-	public VerificationDialog(Client.VerificationEntry verificationEntry) {
+	public VerificationDialog(Client.Entry<? extends CredentialInterface> verificationEntry) {
 		this.verificationEntry = verificationEntry;
 		
 		String headerText = "Enter the code that was sent to your email to verify it is really you";

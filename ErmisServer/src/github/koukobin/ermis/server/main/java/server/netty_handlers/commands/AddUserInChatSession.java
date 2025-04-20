@@ -18,9 +18,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 import java.util.List;
 import java.util.function.Consumer;
 
-import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
@@ -49,7 +47,6 @@ public class AddUserInChatSession implements ICommand {
 
 		// TODO: Add check here to ensure member is not already in session to minimize
 		// pressure on database
-
 		if (!ActiveChatSessions.areMembersFriendOfUser(clientInfo, memberID)) {
 			return;
 		}
@@ -74,35 +71,23 @@ public class AddUserInChatSession implements ICommand {
 		if (chatSession != null) {
 			chatSession.getMembers().add(memberID);
 
-			Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> {
-				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-				payload.writeInt(ClientCommandResultType.GET_CHAT_SESSIONS.id);
-				
-				payload.writeInt(chatSessionID);
-				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-					addMemberInfoToPayload(payload, conn, memberID);
-				}
-
-				channel.writeAndFlush(payload);
-			};
-			chatSession.getActiveMembers().forEach(updateSessions::accept);
-
 			List<ClientInfo> memberActiveConnections = ActiveClients.getClient(memberID);
 			if (memberActiveConnections != null) {
 				chatSession.getActiveMembers().addAll(memberActiveConnections);
+
+				for (ClientInfo member : chatSession.getActiveMembers()) {
+					member.getChatSessions().add(chatSession);
+				}
 			}
 
 			// To ensure changes are reflected...
-			for (ClientInfo member : chatSession.getActiveMembers()) {
-				forActiveAccounts(member.getClientID(), (ClientInfo ci) -> {
-					ci.getChatSessions().add(chatSession);
+			Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> {
+				// Send updated indices to the client. This triggers a catalytic process
+				// which leads to the retrieval of current chat sessions and their statuses.
+				CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
+			};
+			chatSession.getActiveMembers().forEach(updateSessions::accept);
 
-					// Send updated indices to the client. This triggers a catalytic process
-					// which leads to the retrieval of current chat sessions and their statuses.
-					CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
-				});
-			}
 		}
 	}
 

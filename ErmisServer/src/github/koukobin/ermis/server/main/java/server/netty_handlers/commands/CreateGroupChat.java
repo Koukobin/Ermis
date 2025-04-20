@@ -75,7 +75,7 @@ public class CreateGroupChat implements ICommand {
 			ChatSession chatSession = new ChatSession(chatSessionID);
 			chatSession.setMembers(members);
 			chatSession.setActiveMembers(new ArrayList<>(members.size()));
-			for (Integer memberID : memberIdsList) {
+			for (Integer memberID : members) {
 				List<ClientInfo> member = ActiveClients.getClient(memberID);
 
 				if (member != null) {
@@ -86,13 +86,11 @@ public class CreateGroupChat implements ICommand {
 			ActiveChatSessions.addChatSession(chatSession);
 
 			for (ClientInfo member : chatSession.getActiveMembers()) {
-				forActiveAccounts(member.getClientID(), (ClientInfo ci) -> {
-					ci.getChatSessions().add(chatSession);
+				member.getChatSessions().add(chatSession);
 
-					// Send updated indices to the client. This triggers a catalytic process
-					// which leads to the retrieval of current chat sessions and their statuses.
-					CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
-				});
+				// Send updated indices to the client. This triggers a catalytic process
+				// which leads to the retrieval of current chat sessions and their statuses.
+				CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, member, Unpooled.EMPTY_BUFFER);
 			}
 		} else {
 			ByteBuf payload = channel.alloc().ioBuffer();

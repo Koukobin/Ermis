@@ -1413,22 +1413,19 @@ public final class ErmisDatabase {
 
 		public Optional<UserIcon> selectUserIcon(int clientID) {
 
-			String sql = "SELECT profile_photo_id, profile_photo_updated_at FROM user_profiles WHERE client_id = ?;";
+			String sql = "SELECT profile_photo_id FROM user_profiles WHERE client_id = ?;";
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 				pstmt.setInt(1, clientID);
 
 				try (ResultSet rs = pstmt.executeQuery()) {
 					if (rs.next()) {
 						String iconID = rs.getString(1);
-						long lastUpdatedAtEpochSecond = rs.getTimestamp(2).toInstant().getEpochSecond();
 						if (iconID == null) {
-							return Optional.of(new UserIcon(EmptyArrays.EMPTY_BYTE_ARRAY, lastUpdatedAtEpochSecond));
+							return Optional.of(UserIcon.empty());
 						}
 
 						byte[] icon = FilesStorage.loadProfilePhoto(iconID);
-						return Optional
-								.ofNullable(new UserIcon(icon, lastUpdatedAtEpochSecond))
-								.or(() -> Optional.of(new UserIcon(EmptyArrays.EMPTY_BYTE_ARRAY, lastUpdatedAtEpochSecond)));
+						return icon == null ? Optional.of(UserIcon.empty()) : Optional.of(new UserIcon(icon));
 					}
 				}
 			} catch (SQLException sqle) {

@@ -25,6 +25,7 @@ import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
@@ -55,7 +56,10 @@ public class DeleteChatSession implements ICommand {
 			if (chatSession != null) {
 				List<ClientInfo> activeMembers = chatSession.getActiveMembers();
 				for (int i = 0; i < activeMembers.size(); i++) {
-					activeMembers.get(i).getChatSessions().remove(chatSession);
+					ClientInfo member = activeMembers.get(i);
+					member.getChatSessions().remove(chatSession);
+
+					CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, member, Unpooled.EMPTY_BUFFER);
 				}
 
 				ActiveChatSessions.removeChatSession(chatSessionID);

@@ -101,7 +101,7 @@ public final class CreateAccountInfo {
 	}
 
 	public static class CredentialValidation {
-		public enum Result {
+		public enum Result implements Resultable {
 			SUCCESFULLY_EXCHANGED_CREDENTIALS(1, true, "Succesfully exchanged credentials!"),
 			UNABLE_TO_GENERATE_CLIENT_ID(2, false, "Unable to generate client id!"),
 			EMAIL_ALREADY_USED(3, false, "Email is already used!"),
@@ -126,6 +126,16 @@ public final class CreateAccountInfo {
 
 			public static Result fromId(int id) {
 				return EnumIntConverter.fromId(valuesById, id);
+			}
+
+			@Override
+			public boolean isSuccessful() {
+				return resultHolder.isSuccessful();
+			}
+
+			@Override
+			public String message() {
+				return resultHolder.getResultMessage();
 			}
 		}
 	}

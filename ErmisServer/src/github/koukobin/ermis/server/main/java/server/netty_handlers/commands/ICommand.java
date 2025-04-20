@@ -38,6 +38,7 @@ import io.netty.channel.epoll.EpollSocketChannel;
 public interface ICommand {
 
 	void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args);
+
 	ClientCommandType getCommand();
 
 	default void execute(ClientInfo clientInfo, ByteBuf args) {
@@ -68,6 +69,8 @@ public interface ICommand {
 	default void addMemberInfoToPayload(ByteBuf payload, ErmisDatabase.GeneralPurposeDBConnection conn, int clientID) {
 		List<ClientInfo> member = ActiveClients.getClient(clientID);
 
+		long lastUpdatedEpochSecond = conn.getWhenUserLastUpdatedProfile(clientID).orElse(Long.valueOf(-1));
+
 		byte[] usernameBytes;
 		UserIcon icon = conn.selectUserIcon(clientID).orElse(UserIcon.empty());
 		byte[] iconBytes = icon.iconBytes();
@@ -83,8 +86,7 @@ public interface ICommand {
 		payload.writeBytes(usernameBytes);
 		payload.writeInt(iconBytes.length);
 		payload.writeBytes(iconBytes);
-		payload.writeLong(icon.lastUpdatedEpochSecond());
-
+		payload.writeLong(lastUpdatedEpochSecond);
 	}
 
 	/**
@@ -94,11 +96,12 @@ public interface ICommand {
 	 * 
 	 * @param chatSession
 	 */
-	public static void refreshChatSessionStatuses(ChatSession chatSession) {
+	@Deprecated
+	static void refreshChatSessionStatuses(ChatSession chatSession) {
 		List<ClientInfo> activeMembers = chatSession.getActiveMembers();
 		for (int i = 0; i < activeMembers.size(); i++) {
-			CommandsHolder.getCommand(ClientCommandType.FETCH_CHAT_SESSION_STATUSES)
-			.execute(activeMembers.get(i), Unpooled.EMPTY_BUFFER);
+			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_STATUSES, activeMembers.get(i),
+					Unpooled.EMPTY_BUFFER);
 		}
 	}
 

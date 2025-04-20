@@ -979,39 +979,39 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 //		}
 		case ACCEPT_VOICE_CALL -> {
 		}
-		case START_VOICE_CALL -> {
-			int chatSessionIndex = args.readInt();
-			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
-			VoiceChat voiceChat = ServerUDP.createVoiceChat(chatSessionID);
-
-			{
-				ByteBuf payload = channel.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-				payload.writeInt(ClientCommandResultType.START_VOICE_CALL.id);
-				payload.writeInt(ServerSettings.UDP_PORT);
-				payload.writeInt(voiceChat.key());
-				payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
-				channel.writeAndFlush(payload);
-			}
-
-			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
-			payload.writeInt(ServerSettings.UDP_PORT);
-			payload.writeInt(chatSessionID);
-			payload.writeInt(voiceChat.key());
-			payload.writeInt(clientInfo.getClientID());
-			payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
-
-			for (ClientInfo activeMember : clientInfo.getChatSessions().get(chatSessionIndex).getActiveMembers()) {
-				if (activeMember.getClientID() == clientInfo.getClientID()) {
-					continue;
-				}
-
-				activeMember.getChannel().writeAndFlush(payload);
-			}
-
-			getLogger().debug("Voice chat added");
-		}
+//		case START_VOICE_CALL -> {
+//			int chatSessionIndex = args.readInt();
+//			int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+//			VoiceChat voiceChat = ServerUDP.createVoiceChat(chatSessionID);
+//
+//			{
+//				ByteBuf payload = channel.alloc().ioBuffer();
+//				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+//				payload.writeInt(ClientCommandResultType.START_VOICE_CALL.id);
+//				payload.writeInt(ServerSettings.UDP_PORT);
+//				payload.writeInt(voiceChat.key());
+//				payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
+//				channel.writeAndFlush(payload);
+//			}
+//
+//			ByteBuf payload = channel.alloc().ioBuffer();
+//			payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
+//			payload.writeInt(ServerSettings.UDP_PORT);
+//			payload.writeInt(chatSessionID);
+//			payload.writeInt(voiceChat.key());
+//			payload.writeInt(clientInfo.getClientID());
+//			payload.writeBytes(voiceChat.aesKey().getSecretKeyEncoded());
+//
+//			for (ClientInfo activeMember : clientInfo.getChatSessions().get(chatSessionIndex).getActiveMembers()) {
+//				if (activeMember.getClientID() == clientInfo.getClientID()) {
+//					continue;
+//				}
+//
+//				activeMember.getChannel().writeAndFlush(payload);
+//			}
+//
+//			getLogger().debug("Voice chat added");
+//		}
 //		case REQUEST_DONATION_PAGE_URL -> {
 //			ByteBuf payload = channel.alloc().ioBuffer();
 //			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
@@ -1028,17 +1028,17 @@ public final class CommandHandler extends AbstractChannelClientHandler {
 //
 //			channel.writeAndFlush(payload);
 //		}
-		case FETCH_SIGNALLING_SERVER_PORT -> {
-			byte[] cipher = UDPSignallingServer.createVoiceChat(clientInfo.getInetAddress());
-
-			ByteBuf payload = channel.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-			payload.writeInt(ClientCommandResultType.FETCH_SIGNALLING_SERVER_PORT.id);
-			payload.writeInt(9999);
-			payload.writeBytes(cipher);
-
-			channel.writeAndFlush(payload);
-		}
+//		case FETCH_SIGNALLING_SERVER_PORT -> {
+//			byte[] cipher = UDPSignallingServer.createVoiceChat(clientInfo.getInetAddress());
+//
+//			ByteBuf payload = channel.alloc().ioBuffer();
+//			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+//			payload.writeInt(ClientCommandResultType.FETCH_SIGNALLING_SERVER_PORT.id);
+//			payload.writeInt(9999);
+//			payload.writeBytes(cipher);
+//
+//			channel.writeAndFlush(payload);
+//		}
 //		default -> {
 //			ByteBuf payload = channel.alloc().ioBuffer();
 //			payload.writeInt(ServerMessageType.SERVER_INFO.id);

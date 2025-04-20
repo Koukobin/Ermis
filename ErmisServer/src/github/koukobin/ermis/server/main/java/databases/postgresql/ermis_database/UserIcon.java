@@ -16,7 +16,6 @@
 package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import github.koukobin.ermis.common.util.EmptyArrays;
 
@@ -24,12 +23,12 @@ import github.koukobin.ermis.common.util.EmptyArrays;
  * @author Ilias Koukovinis
  *
  */
-public record UserIcon(byte[] iconBytes, long lastUpdatedEpochSecond) {
+public record UserIcon(byte[] iconBytes) {
 
-	public static final UserIcon USER_ICON = new UserIcon(EmptyArrays.EMPTY_BYTE_ARRAY, 0);
+	public static final UserIcon EMPTY_USER_ICON = new UserIcon(EmptyArrays.EMPTY_BYTE_ARRAY);
 
 	public static UserIcon empty() {
-		return USER_ICON;
+		return EMPTY_USER_ICON;
 	}
 
 	@Override
@@ -37,7 +36,6 @@ public record UserIcon(byte[] iconBytes, long lastUpdatedEpochSecond) {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(iconBytes);
-		result = prime * result + Objects.hash(lastUpdatedEpochSecond);
 		return result;
 	}
 
@@ -46,23 +44,22 @@ public record UserIcon(byte[] iconBytes, long lastUpdatedEpochSecond) {
 		if (this == obj) {
 			return true;
 		}
-		
+
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		
+
 		UserIcon other = (UserIcon) obj;
-		return Arrays.equals(iconBytes, other.iconBytes) && lastUpdatedEpochSecond == other.lastUpdatedEpochSecond;
+		return Arrays.equals(iconBytes, other.iconBytes);
 	}
 
 	@Override
 	public String toString() {
-		return "UserIcon [iconBytes=" + Arrays.toString(iconBytes) + ", lastUpdatedEpochSecond="
-				+ lastUpdatedEpochSecond + "]";
+		return "UserIcon [iconBytes=" + Arrays.toString(iconBytes) + "]";
 	}
 	
 	

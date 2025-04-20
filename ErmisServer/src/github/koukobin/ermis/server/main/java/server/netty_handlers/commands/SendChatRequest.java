@@ -15,10 +15,13 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
+import java.util.Collection;
+
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
+import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -35,12 +38,22 @@ public class SendChatRequest implements ICommand {
 		int receiverID = args.readInt();
 		int senderClientID = clientInfo.getClientID();
 
-		// TODO: why does it not check if they are already friends?
 		if (receiverID == senderClientID) {
 			getLogger().debug("You can't create chat session with yourself");
 			return;
 		}
 
+		// TODO: optimize
+		if (clientInfo.getChatSessions()
+				.stream()
+				.map(ChatSession::getActiveMembers)
+				.flatMap(Collection::stream)
+				.filter((ClientInfo ci) -> ci.getClientID() == receiverID)
+				.count() != 0) {
+			getLogger().debug("You can't create chat session with yourself");
+			return;
+		}
+		
 		boolean success;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 			success = conn.sendChatRequest(receiverID, senderClientID);
