@@ -15,8 +15,10 @@
  */
 
 import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_client/core/util/permissions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 typedef ReplyCallBack = void Function(String message);
 
@@ -95,6 +97,23 @@ class NotificationService {
   }
 
   static Future<void> showIconNotification(Uint8List iconBytes, String title, String body) async {
+    if (!await checkAndRequestPermission(Permission.notification)) {
+      if (kDebugMode) {
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+      }
+
+      return;
+    }
+
     // Define Notification Details
     NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -111,24 +130,40 @@ class NotificationService {
     return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
   }
 
-  static Future<void> showIconNotification1(String iconPath, String title, String body) async {
-    // Define Notification Details
-    NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: AndroidNotificationDetails(
-        "channelId",
-        "channelName",
-        importance: Importance.defaultImportance,
-        priority: Priority.defaultPriority,
-        playSound: false,
-        visibility: NotificationVisibility.secret,
-        largeIcon: FilePathAndroidBitmap(iconPath),
-      ),
-    );
+  // static Future<void> showIconNotification1(String iconPath, String title, String body) async {
+  //   // Define Notification Details
+  //   NotificationDetails platformChannelSpecifics = NotificationDetails(
+  //     android: AndroidNotificationDetails(
+  //       "channelId",
+  //       "channelName",
+  //       importance: Importance.defaultImportance,
+  //       priority: Priority.defaultPriority,
+  //       playSound: false,
+  //       visibility: NotificationVisibility.secret,
+  //       largeIcon: FilePathAndroidBitmap(iconPath),
+  //     ),
+  //   );
 
-    return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
-  }
+  //   return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
+  // }
 
   static Future<void> showSimpleNotification({required String body}) async {
+    if (!await checkAndRequestPermission(Permission.notification)) {
+      if (kDebugMode) {
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+      }
+
+      return;
+    }
     // Define Notification Details
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
@@ -151,6 +186,23 @@ class NotificationService {
     required String callerName,
     required VoidCallback onAccept,
   }) async {
+    if (!await checkAndRequestPermission(Permission.notification)) {
+      if (kDebugMode) {
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+      }
+
+      return;
+    }
+
     voiceCall = onAccept;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -159,7 +211,7 @@ class NotificationService {
         channelDescription: 'Detailed notification example',
         importance: Importance.high,
         priority: Priority.high,
-        largeIcon: ByteArrayAndroidBitmap(icon),
+        // largeIcon: ByteArrayAndroidBitmap(icon), For some reason causes notification not to show in release mode
         ongoing: true, // Keeps the notification persistent
         autoCancel: false, // Prevents swiping it away
         playSound: true,
@@ -193,6 +245,27 @@ class NotificationService {
     required String contentText,
     required ReplyCallBack replyCallBack,
   }) async {
+    if (!await checkAndRequestPermission(Permission.notification)) {
+      if (kDebugMode) {
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+        debugPrint("PERMISSION NOTIFICATION DENIED");
+      }
+
+      return;
+    }
+
+    /**
+    ));
+     */
+
     NotificationService.replyCallBack = replyCallBack;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
@@ -201,12 +274,12 @@ class NotificationService {
       channelDescription: 'Detailed notification example',
       importance: Importance.high,
       priority: Priority.high,
-      largeIcon: ByteArrayAndroidBitmap(icon),
+      // largeIcon: ByteArrayAndroidBitmap(icon), For some reason causes notification not to show in release mode
       additionalFlags: Int32List.fromList(<int>[4]),
       playSound: false,
       visibility: NotificationVisibility.secret,
-      enableVibration: true,
-      vibrationPattern: Int64List.fromList([500, 500, 200, 500, 200, 500]),
+      // enableVibration: true,
+      // vibrationPattern: Int64List.fromList([500, 500, 200, 500, 200, 500]),
       actions: [
         AndroidNotificationAction(
           NotificationAction.actionReply.id,

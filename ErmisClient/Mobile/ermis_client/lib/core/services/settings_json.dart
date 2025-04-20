@@ -39,7 +39,7 @@ enum NotificationSound {
     try {
       return NotificationSound.values.firstWhere((type) => type.id == id);
     } catch (e) {
-      throw EnumNotFoundException('No NotificationSound found for id $id');
+      throw EnumNotFoundException('No $NotificationSound found for id $id');
     }
   }
 }
@@ -117,16 +117,15 @@ class SettingsJson {
 
   bool get useSystemDefaultTheme => _settingsJson["useSystemDefaultTheme"];
   bool get isDarkModeEnabled => _settingsJson["darkMode"];
-  ChatBackDrop get chatsBackDrop =>
-      ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
+  ChatBackDrop get chatsBackDrop => ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
   List<Color> get gradientColors => (_settingsJson['gradientColors'] as List)
       .map((colorInt) => Color(colorInt))
       .toList();
-  bool get notificationsEnabled => _settingsJson["notificationsEnabled"];
-  NotificationSound get notificationSound => NotificationSound.fromId(_settingsJson["notificationsSound"]);
+  bool get notificationsEnabled => _settingsJson["notificationsEnabled"] ?? true;
+  NotificationSound get notificationSound => NotificationSound.fromId(_settingsJson["notificationsSound"] ?? NotificationSound.osDefault);
 
-  bool get showMessagePreview => _settingsJson["showMessagePreview"];
-  bool get vibrationEnabled => _settingsJson["vibrationEnabled"];
+  bool get showMessagePreview => _settingsJson["showMessagePreview"] ?? false;
+  bool get vibrationEnabled => _settingsJson["vibrationEnabled"] ?? false;
 
   Locale? get getLocale {
     String? languageCode = _settingsJson['languageCode'];

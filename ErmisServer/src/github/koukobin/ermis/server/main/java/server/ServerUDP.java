@@ -298,7 +298,7 @@ public final class ServerUDP {
 			LOGGER.debug("Packet received");
 			ByteBuf content = packet.content();
 
-			SecretKey secretKey = calls.get(socks.get(packet.sender().getAddress())).aesKey.getSecretKey();
+			byte[] secretKey = calls.get(socks.get(packet.sender().getAddress())).aesKey.getSecretKeyEncoded();
 			int chatSessionID = content.readInt();
 			ByteBuf encryptedContent;
 			ByteBuf decryptedContent;
@@ -306,7 +306,7 @@ public final class ServerUDP {
 				encryptedContent = content.slice();
 				byte[] a = new byte[encryptedContent.readableBytes()];
 				encryptedContent.readBytes(a);
-				byte[] b = AESKeyGenerator.decrypt(secretKey, a);
+				byte[] b = AESKeyGenerator.decrypt(secretKey, new byte[]{}, a);
 
 				decryptedContent = ctx.alloc().ioBuffer();
 				decryptedContent.writeBytes(b);

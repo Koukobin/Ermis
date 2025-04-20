@@ -15,17 +15,11 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:encrypt/encrypt.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/message.dart';
-import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
@@ -36,14 +30,10 @@ import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/util/notifications_util.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
-import 'package:ermis_client/web_rtc/main.dart' as MyApp;
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
 // import 'package:flutter_webrtc/flutter_webrtc.dart';
 // import 'package:http/http.dart' as http;
-import 'package:vibration/vibration.dart';
 
 import 'core/event_bus/app_event_bus.dart';
 import 'core/models/message_events.dart';
@@ -100,23 +90,6 @@ void main() async {
     themeData = ThemeMode.light;
   }
 
-  final random = Random();
-  final key = encrypt.Key(Uint8List.fromList(List.generate(32, (int index) {
-    return random.nextInt(192);  // Generate a 16-byte IV for AES
-  })));  // 256-bit key
-  final iv = IV(Uint8List.fromList(List.generate(12, (int index) {
-    return random.nextInt(192);  // Generate a 16-byte IV for AES
-  })));
-
-  final encrypter = Encrypter(AES(key, mode: AESMode.gcm));  // Use CBC mode
-
-  final Encrypted encrypted = encrypter.encryptBytes(
-    ['h'.codeUnitAt(0), 'i'.codeUnitAt(0)],  // 'h' and 'i' as byte list
-    iv: iv,
-  );
-
-  print('Encrypted bytes: ${encrypted.bytes}');
-  print('Encrypted size: ${encrypted.bytes.length}');  // Should print the length of the encrypted data
 
   // Future<void> startWebRTC() async {
   //   RTCPeerConnection peerConnection = await createPeerConnection({
@@ -167,6 +140,7 @@ void main() async {
     darkAppColors: AppConstants.darkAppColors,
     themeMode: themeData,
   ));
+
 }
 
 void startBackgroundService() {

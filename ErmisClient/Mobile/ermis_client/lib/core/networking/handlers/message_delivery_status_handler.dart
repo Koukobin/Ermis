@@ -17,7 +17,6 @@
 import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/networking/message_transmitter.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import '../../event_bus/app_event_bus.dart';

@@ -68,7 +68,12 @@ class ClientMessageHandler {
     message.setText(text);
     message.setFileName(fileNameBytes);
     message.setEpochSecond(epochSecond);
-    message.setDeliveryStatus(MessageDeliveryStatus.delivered);
+
+    if (message.clientID == UserInfoManager.clientID) {
+      message.setDeliveryStatus(MessageDeliveryStatus.serverReceived);
+    } else {
+      message.setDeliveryStatus(MessageDeliveryStatus.delivered);
+    }
 
     ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
     if (chatSession.haveChatMessagesBeenCached) {

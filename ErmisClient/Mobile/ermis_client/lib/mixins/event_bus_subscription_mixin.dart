@@ -15,9 +15,12 @@
  */
 
 import 'dart:async';
-
 import 'package:flutter/widgets.dart';
+import '../core/event_bus/event_bus.dart';
 
+/// This mixin is designed to facilitate the use of the global [EventBus]
+/// by automating the release of subscriptions to it, minimizing risk of
+/// potential memory leaks.
 mixin EventBusSubscriptionMixin<T extends StatefulWidget> on State<T> {
   final List<StreamSubscription> _subscriptions = [];
 

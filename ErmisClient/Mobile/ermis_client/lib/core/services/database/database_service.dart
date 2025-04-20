@@ -14,15 +14,18 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/chat_session.dart';
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/member_icon.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_client/core/services/database/content_type_converter.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -69,13 +72,14 @@ class DBConnection {
       onDowngrade: (Database db, int oldVersion, int newVersion) async {},
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         if (oldVersion < 2) {
+          await db.execute('DROP TABLE server_profiles;');
           await db.execute('DROP TABLE members;');
           await db.execute('DROP TABLE chat_session_members;');
           await db.execute('DROP TABLE chat_sessions;');
           await db.execute('DROP TABLE chat_messages;');
         }
       },
-      version: 2,
+      version: 3,
     );
 
     // Create the 'servers' table
@@ -147,7 +151,7 @@ class DBConnection {
       CREATE TABLE IF NOT EXISTS chat_session_members (
         server_url TEXT NOT NULL REFERENCES members(server_url) ON DELETE CASCADE,
         chat_session_id INTEGER NOT NULL REFERENCES chat_sessions (chat_session_id) ON DELETE CASCADE,
-        client_id INTEGER NOT NULL REFERENCES members (client_id),
+        client_id INTEGER NOT NULL REFERENCES members (client_id) ON DELETE CASCADE,
         PRIMARY KEY (server_url, chat_session_id, client_id)
       );
     ''');
@@ -217,9 +221,10 @@ class DBConnection {
     final String lastUsed = firstRow['last_used'] as String;
 
     return LocalAccountInfo(
-        email: email,
-        passwordHash: passwordHash,
-        lastUsed: DateTime.parse(lastUsed));
+      email: email,
+      passwordHash: passwordHash,
+      lastUsed: DateTime.parse(lastUsed),
+    );
   }
 
   /// Retrieves the list of user accounts associated with a specified server.
@@ -240,9 +245,10 @@ class DBConnection {
       final String passwordHash = record['password_hash'] as String;
       final String lastUsed = record['last_used'] as String;
       return LocalAccountInfo(
-          email: email,
-          passwordHash: passwordHash,
-          lastUsed: DateTime.parse(lastUsed));
+        email: email,
+        passwordHash: passwordHash,
+        lastUsed: DateTime.parse(lastUsed),
+      );
     }).toList();
 
     userAccounts.sort((a, b) {
@@ -253,6 +259,19 @@ class DBConnection {
     });
 
     return userAccounts;
+  }
+
+  Future<void> updateLastUsedAccount(ServerInfo serverInfo, String email) async {
+    final db = await _database;
+
+    await db.update(
+      "server_accounts",
+      {
+        "last_used": DateTime.now().toIso8601String(),
+      },
+      where: "server_url = ? AND email = ?",
+      whereArgs: [serverInfo.toString(), email],
+    );
   }
 
   Future<LocalUserInfo?> getLocalUserInfo(ServerInfo serverInfo, String email) async {
@@ -285,19 +304,6 @@ class DBConnection {
   Future<void> insertLocalUserInfo(ServerInfo serverInfo, LocalUserInfo info) async {
     final db = await _database;
 
-    /**
-     *     await db.execute('''
-      CREATE TABLE IF NOT EXISTS server_profiles (
-        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
-        email TEXT NOT NULL REFERENCES server_accounts(email) ON DELETE CASCADE,
-        display_name TEXT NOT NULL,
-        client_id INTEGER NOT NULL,
-        profile_photo BLOB NOT NULL,
-        last_updated_at TIMESTAMP NOT NULL,
-        PRIMARY KEY (server_url, email, client_id)
-      );
-     */
-    
     String emailAssociatedWithProfile = (await getLastUsedAccount(serverInfo))!.email;
 
     // For some reason "conflictAlgorithm: ConflictAlgorithm.replace"
@@ -396,7 +402,7 @@ class DBConnection {
         'display_name': member.username,
         'client_id': member.clientID,
         'profile_photo': member.icon.profilePhoto,
-        'last_updated_at': member.icon.lastUpdatedAtEpochSecond,
+        'last_updated_at': member.lastUpdatedAtEpochSecond,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -422,25 +428,27 @@ class DBConnection {
       return Member(
         displayName,
         clientID,
-        MemberIcon(profilePhoto, lastUpdatedAtEpochSecond),
+        MemberIcon(profilePhoto),
         ClientStatus.offline,
+        lastUpdatedAtEpochSecond,
       );
     }).toList();
 
     return members;
   }
 
-  Future<List<int>> fetchChatSessions({
+  Future<List<int>> fetchChatSessionIDS({
     required ServerInfo server,
+    required String email,
   }) async {
     final db = await _database;
 
     final List<Map<String, dynamic>> results = await db.rawQuery(
       '''
-    SELECT *
-    FROM chat_sessions
-    WHERE server_url = ?
-  ''',
+        SELECT *
+        FROM chat_sessions
+        WHERE server_url = ?
+      ''',
       [server.toString()],
     );
 
@@ -450,6 +458,57 @@ class DBConnection {
     }).toList();
 
     return members;
+  }
+
+  Future<List<ChatSession>> fetchChatSessions({
+    required ServerInfo server,
+    required int clientIDExclude,
+  }) async {
+    final db = await _database;
+
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      '''
+        SELECT * 
+        FROM chat_session_members AS csm
+        INNER JOIN members AS m ON m.client_id = csm.client_id
+        WHERE m.server_url = ? AND NOT m.client_id = ? 
+      ''',
+      [server.toString(), clientIDExclude],
+    );
+
+    Map<int, ChatSession> chatSessions = {};
+    Map<int, Member> cache = {};
+
+    for (Map<String, dynamic> record in results) {
+      final int clientID = record['client_id'] as int;
+      final int chatSessionID = record['chat_session_id'] as int;
+
+      chatSessions.putIfAbsent(chatSessionID, () => ChatSession(chatSessionID, -1));
+
+      Member? cached = cache[clientID];
+      if (cached != null) {
+        chatSessions[chatSessionID]!.members.add(cached);
+        continue;
+      }
+
+      final String displayName = record['display_name'] as String;
+      final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
+      final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
+
+      Member member = Member(
+        displayName,
+        clientID,
+        MemberIcon(profilePhoto),
+        ClientStatus.offline,
+        lastUpdatedAtEpochSecond,
+      );
+
+      chatSessions[chatSessionID]!.members.add(member);
+
+      cache[clientID] = member;
+    }
+
+    return chatSessions.values.toList();
   }
 
   Future<List<Member>> fetchMembersAssociatedWithChatSession({
@@ -483,8 +542,9 @@ class DBConnection {
       return Member(
         displayName,
         clientID,
-        MemberIcon(profilePhoto, lastUpdatedAtEpochSecond),
+        MemberIcon(profilePhoto),
         ClientStatus.offline,
+        lastUpdatedAtEpochSecond,
       );
     }).toList();
 
@@ -541,7 +601,7 @@ class DBConnection {
         'display_name': member.username,
         'client_id': member.clientID,
         'profile_photo': member.icon.profilePhoto,
-        'last_updated_at': member.icon.lastUpdatedAtEpochSecond,
+        'last_updated_at': member.lastUpdatedAtEpochSecond,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -583,6 +643,29 @@ class DBConnection {
   Future<void> insertChatMessage({required ServerInfo serverInfo, required Message message}) async {
     final db = await _database;
 
+    final epochSecond = message.epochSecond;
+    
+    late final String tsEntered;
+
+    // Ensure epochSecond is within valid DateTime range
+    if (epochSecond < -8640000000000 ~/ 1000 || epochSecond > 8640000000000 ~/ 1000) {
+      tsEntered = DateTime.fromMillisecondsSinceEpoch(epochSecond).toIso8601String();
+
+      if (kDebugMode) {
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+        debugPrint("EPOCH SECOND $epochSecond IS OUT OF VALID $DateTime RANGE");
+      }
+    }
+    tsEntered = DateTime.fromMillisecondsSinceEpoch(epochSecond * 1000).toIso8601String();
+
     await db.insert(
       'chat_messages',
       {
@@ -595,7 +678,7 @@ class DBConnection {
         'file_name': message.fileName,
         'content_type': ContentTypeConverter.contentTypesToDatabaseInts[message.contentType],
         'delivery_status': DeliveryStatusConverter.deliveryStatusToDatabaseInts[message.deliveryStatus],
-        'ts_entered': DateTime.fromMicrosecondsSinceEpoch(message.epochSecond).toIso8601String(),
+        'ts_entered': tsEntered,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -632,7 +715,7 @@ class DBConnection {
       final MessageContentType contentType = ContentTypeConverter.databaseIntsToContentTypes[record['content_type'] as int]!;
       final MessageDeliveryStatus deliveryStatus = DeliveryStatusConverter.databaseIntsToDeliveryStatus[record['delivery_status'] as int]!;
       final String? text = record['text'] as String?;
-      final String? fileName = record['text'] as String?;
+      final String? fileName = record['file_name'] as String?;
 
       return Message(
         username: displayName,
@@ -640,9 +723,9 @@ class DBConnection {
         messageID: messageID,
         chatSessionID: chatSessionID,
         chatSessionIndex: -1,
-        epochSecond: DateTime.parse(timeWritten).millisecondsSinceEpoch * 1000,
-        text: text != null ? Uint8List.fromList(text.codeUnits) : null,
-        fileName: fileName != null ? Uint8List.fromList(fileName.codeUnits) : null,
+        epochSecond: (DateTime.parse(timeWritten).millisecondsSinceEpoch / 1000).toInt(),
+        text: text != null ? utf8.encode(text) : null,
+        fileName: fileName != null ? utf8.encode(fileName) : null,
         contentType: contentType,
         deliveryStatus: deliveryStatus,
       );

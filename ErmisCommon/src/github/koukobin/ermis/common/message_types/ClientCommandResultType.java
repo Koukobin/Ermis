@@ -60,7 +60,9 @@ public enum ClientCommandResultType {
     GET_SOURCE_CODE_PAGE_URL(601),
     
 	// Other
-	FETCH_SIGNALLING_SERVER_PORT(700);
+	FETCH_SIGNALLING_SERVER_PORT(700),
+	
+	motherfuckerAdded(800);
 	
 	private static final HashMap<Integer, ClientCommandResultType> values;
 

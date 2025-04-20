@@ -99,7 +99,9 @@ class MessageBubble extends StatelessWidget {
                         : null,
                     color: isMessageOwner
                         ? null
-                        : const Color.fromARGB(255, 50, 50, 50),
+                        : MediaQuery.of(context).platformBrightness == Brightness.dark
+                            ? const Color.fromARGB(255, 50, 50, 50)
+                            : const Color.fromARGB(255, 150, 150, 150),
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(isMessageOwner ? 10 : 2),
                         topRight: Radius.circular(isMessageOwner ? 2 : 10),
@@ -122,7 +124,9 @@ class MessageBubble extends StatelessWidget {
                             Text(
                               CustomDateFormatter.formatDate(currentMessageDate, "HH:mm"),
                               style: TextStyle(
-                                  color: appColors.inferiorColor, fontSize: 12),
+                                color: appColors.inferiorColor,
+                                fontSize: 12,
+                              ),
                             ),
                             const SizedBox(width: 3), // Small spacing
                             if (isMessageOwner)

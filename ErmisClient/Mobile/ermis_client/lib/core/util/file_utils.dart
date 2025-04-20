@@ -57,7 +57,7 @@ class MyCamera {
 }
 
 Future<String?> saveFileToDownloads(String fileName, Uint8List fileData) async {
-  bool isSuccessful = await requestPermissions();
+  bool isSuccessful = await requestAllPermissions();
 
   if (!isSuccessful) {
     return null;
@@ -105,7 +105,7 @@ Future<File> createTempFile(Uint8List fileData, String fileName) async {
 }
 
 Future<void> attachSingleFile(BuildContext context /* Unused; should remove */, FileCallBack onFinished) async {
-  bool isSuccessful = await requestPermissions();
+  bool isSuccessful = await requestAllPermissions();
 
   if (!isSuccessful) {
     return;
@@ -131,6 +131,12 @@ Future<void> attachSingleFile(BuildContext context /* Unused; should remove */, 
 Future<String> readFileFromPath(String filePath) async {
   final file = File(filePath);
   return await file.readAsString();
+}
+
+Future<void> deleteAndCreateFile(String filePath) async {
+  final file = File(filePath);
+  await file.delete(recursive: true);
+  await file.create(exclusive: true);
 }
 
 Future<String> loadAssetFile(String assetPath) async {

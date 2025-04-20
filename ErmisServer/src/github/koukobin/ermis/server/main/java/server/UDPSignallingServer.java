@@ -49,6 +49,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
+import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.util.EnumIntConverter;
@@ -140,7 +141,7 @@ public final class UDPSignallingServer {
 					serverAddress.getHostName());
 			LOGGER.info("Waiting for incoming calls...");
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to start UDP server", e);
+			throw new RuntimeException("Failed to start UDP Signalling Server", e);
 		}
 	}
 
@@ -214,64 +215,91 @@ public final class UDPSignallingServer {
 
 	private static class Test extends SimpleChannelInboundHandler<DatagramPacket> {
 
-		private static final Map<InetAddress, byte[]> socks = new ConcurrentHashMap<>();
+		private static final Map<InetAddress, byte[]> calls2 = new ConcurrentHashMap<>();
+		private static final Map<Integer, InetSocketAddress> calls3 = new ConcurrentHashMap<>();
 
 		@Override
 		public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
 			LOGGER.debug("Packet received");
 			InetAddress address = packet.sender().getAddress();
-			ByteBuf content = packet.content();
+			final int port = packet.sender().getPort();
 
-			byte[] secretKey = socks.get(packet.sender().getAddress());
-			ByteBuf decryptedContent;
+			ByteBuf content;
 			{
-				ByteBuf encryptedContent = content.slice();
-				byte[] a = new byte[encryptedContent.readableBytes()];
-				encryptedContent.readBytes(a);
-				byte[] b = AESKeyGenerator.decrypt(new SecretKeySpec(secretKey, "AES"), a);
+				ByteBuf encryptedContent = packet.content();
 
-				decryptedContent = ctx.alloc().ioBuffer();
-				decryptedContent.writeBytes(b);
+				byte[] array = new byte[encryptedContent.readableBytes()];
+				encryptedContent.readBytes(array);
+				byte[] decrypted = AESKeyGenerator.decrypt(calls2.get(packet.sender().getAddress()), Arrays.copyOfRange(array, 0, 12), Arrays.copyOfRange(array, 12, array.length));
+
+				content = Unpooled.wrappedBuffer(decrypted);
+			}
+			int clientID = content.readInt();
+
+			List<ClientInfo> z = ActiveClients.getClient(clientID).stream().filter((ClientInfo ci) -> ci.getInetAddress().equals(address)).toList();
+
+			if (z.isEmpty()) {
+				LOGGER.debug("USER NOT AUTHORIZED!");
 			}
 
 			int chatSessionID = content.readInt();
 
-			List<ClientInfo> activeMembers = ActiveChatSessions.getChatSession(chatSessionID).getActiveMembers();
-			Optional<ClientInfo> a = activeMembers.stream().filter((ClientInfo clientInfo) -> clientInfo.getInetAddress().equals(address)).findFirst();
-			if (!a.isPresent()) {
+			if (z.get(0).getChatSessions().stream().noneMatch((ChatSession session) -> session.getChatSessionID() == chatSessionID)) {
 				LOGGER.debug("USER NOT PART OF CHAT SESSION");
-				return;
 			}
 
-			ClientInfo initiator = a.get();
+			List<ClientInfo> activeMembers = ActiveChatSessions.getChatSession(chatSessionID).getActiveMembers();
 
-//			List<InetSocketAddress> recipients = activeMembers.stream().map((ClientInfo clientInfo) -> {
-//				return clientInfo.getInetSocketAddress();
-//			}).toList();
+			calls3.put(clientID, packet.sender());
+			
+			{
+				ByteBuf payload = ctx.alloc().ioBuffer();
+				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+				payload.writeInt(ClientCommandResultType.motherfuckerAdded.id);
+				payload.writeInt(clientID);
+				payload.writeInt(chatSessionID);
+				payload.writeInt(port);
+				payload.writeBytes(address.getAddress());
 
-			ByteBuf payload = ctx.alloc().ioBuffer();
-			payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
-			payload.writeInt(packet.sender().getPort());
-			payload.writeInt(chatSessionID);
-			payload.writeInt(initiator.getClientID());
-			payload.writeBytes(secretKey);
-
-			for (ClientInfo activeMember : activeMembers) {
-				if (activeMember.getClientID() == initiator.getClientID()) {
-					continue;
+				for (ClientInfo ci : activeMembers) {
+					if (ci.getClientID() == clientID) continue;
+					payload.retain();
+					System.out.println(ci.getClientID());
+					System.out.println(String.format("%d -> %d", clientID, ci.getClientID()));
+					ci.getChannel().writeAndFlush(payload.duplicate());
 				}
 
-				activeMember.getChannel().writeAndFlush(payload);
+				payload.retain();
 			}
 
-			LOGGER.debug("Voice chat added");
+			{
+				for (ClientInfo ci : activeMembers) {
+					InetSocketAddress ciSocketAdress = calls3.get(ci.getClientID());
+					if (ciSocketAdress == null || ci.getClientID() == clientID) continue;
+					ByteBuf payload = ctx.alloc().ioBuffer();
+					payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+					payload.writeInt(ClientCommandResultType.motherfuckerAdded.id);
+					payload.writeInt(ci.getClientID());
+					payload.writeInt(chatSessionID);
+					payload.writeInt(ciSocketAdress.getPort());
+					payload.writeBytes(ciSocketAdress.getAddress().getAddress());
+
+					System.out.println(String.format("%d -> %d", ci.getClientID(), clientID));
+					ActiveClients.getClient(clientID).get(0).getChannel().writeAndFlush(payload);
+				}
+			}
+
+			LOGGER.debug("Success");
 		}
 	}
 
-	public static byte[] createVoiceChat(InetAddress address) {
-		var a = AESKeyGenerator.genereateRawSecretKey();
-		Test.socks.put(address, a);
-		return a;
+	public static byte[] createVoiceChat(int chatSessionID) {
+		var rawSecretKey = AESKeyGenerator.genereateRawSecretKey();
+		List<ClientInfo> activemembers = ActiveChatSessions.getChatSession(chatSessionID).getActiveMembers();
+		for (ClientInfo client : activemembers) {
+			Test.calls2.put(client.getInetAddress(), rawSecretKey);
+		}
+		return rawSecretKey;
 	}
 
 	public static void stop() {

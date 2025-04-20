@@ -18,7 +18,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:encrypt/encrypt.dart';
 import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 // import 'dart:ffi' as ffi;
@@ -50,50 +49,59 @@ enum VoiceCallClientMessage {
 class VoiceCallUDPSocket {
   late RawDatagramSocket _udpSocket;
 
-  late InternetAddress _remoteAddress;
-  late int _remotePort;
+  late InternetAddress remoteAddress;
+  late int remotePort;
 
   late int _chatSessionID;
-  late int _key;
-  late encrypt.Key _aesKey;
+  late Key _aesKey;
   late Encrypter _encrypter;
 
-  VoiceCallUDPSocket();
-
   set chatSessionID(int chatSessionID) => _chatSessionID = chatSessionID;
-  set key(int key) => _key = key;
-  set aesKey(Uint8List aesKey) => _aesKey = encrypt.Key(aesKey);
+  set aesKey(Uint8List aesKey) => _aesKey = Key(aesKey);
 
-  Future<void> initialize(Uint8List aesKey) async {
+  Future<void> openSocket() async {
+    Random rng = Random();
     _udpSocket = await RawDatagramSocket.bind(
       InternetAddress.anyIPv4,
-      9090,
+      rng.nextInt(1000) + 9000,
     );
+  }
+
+  Future<void> initialize(Uint8List aesKey) async {
+    _aesKey = Key(aesKey);
 
     _encrypter = Encrypter(
       AES(
-        encrypt.Key(aesKey),
+        _aesKey,
         mode: AESMode.gcm,
-        padding: null,
       ),
     );
 
   }
 
-  void listen(
-    void Function(Uint8List data)? onData, {
+  Stream<Uint8List?> get stream => _udpSocket.map((RawSocketEvent event) {
+        Datagram? datagram = _udpSocket.receive();
+        if (datagram == null) {
+          return null;
+        }
+
+        return aesGcmDecrypt(datagram.data);
+      });
+
+  StreamSubscription<RawSocketEvent> listen(
+    void Function(Uint8List data) onData, {
     void Function()? onError,
     void Function()? onDone,
     bool? cancelOnError,
   }) {
-    _udpSocket.listen(
+    return _udpSocket.listen(
       (event) {
         Datagram? datagram = _udpSocket.receive();
         if (datagram == null) {
           return;
         }
 
-        onData?.call(aesGcmDecrypt(datagram.data));
+        onData(aesGcmDecrypt(datagram.data));
       },
       onError: onError,
       onDone: onDone,
@@ -101,79 +109,94 @@ class VoiceCallUDPSocket {
     );
   }
 
-  void rawSecureSend(List<int> message, InternetAddress address, int port) {
-    Random random = Random();
-    final Encrypted encrypted = _encrypter.encryptBytes(
-      message,
-      iv: IV(Uint8List.fromList(List.generate(12, (int index) {
-        return random.nextInt(10);
-      }))),
-    ); // IV probably not need in this context
-    _udpSocket.send(encrypted.bytes, address, port);
-    print(encrypted.bytes);
-  }
+  // void rawSend(Uint8List buffer, InternetAddress address, int port) {
+  //   if (buffer.length <= 32768) {
+  //     _udpSocket.send(buffer, address, port);
+  //   } else {
+  //     // ΕΔΩ ΕΓΚΕΙΤΑΙ ΤΟ ΠΡΟΒΛΗΜΑ
+  //     for (int i = 0; i < buffer.length; i += 1024) {
+  //       int end = (i + 1024).clamp(0, buffer.length);
+  //       _udpSocket.send(buffer.sublist(i, end), address, port);
+  //     }
+  //   }
+  // }
 
-  void send(Uint8List message) {
-    // If message greater than 4096 send message in chunks
-    if (message.length <= 32768) {
-      _sendSingleMessage(message);
+  void rawSecureSendByteBuf(ByteBuf message, InternetAddress address, int port) {
+    final encrypted = aesGcmEncrypt(message.buffer);
+
+    if (encrypted.length <= 32768) {
+      _udpSocket.send(encrypted, address, port);
     } else {
       // ΕΔΩ ΕΓΚΕΙΤΑΙ ΤΟ ΠΡΟΒΛΗΜΑ
-      for (int i = 0; i < message.length; i += 1024) {
-        int end = (i + 1024 < message.length) ? i + 1024 : message.length;
-        _sendSingleMessage(
-            Uint8List.fromList(message.getRange(i, end).toList()));
+      for (int i = 0; i < encrypted.length; i += 1024) {
+        int end = (i + 1024).clamp(0, encrypted.length);
+        _udpSocket.send(encrypted.sublist(i, end), address, port);
       }
     }
   }
 
-  void _sendSingleMessage(Uint8List message) {
-    final payload = ByteBuf.smallBuffer(growable: true);
-    payload.writeInt32(_chatSessionID);
-    payload.writeInt32(VoiceCallClientMessage.voice.id);
-    payload.writeInt32(_key);
-    payload.writeBytes(message);
-    _udpSocket.send(aesGcmEncrypt(payload.buffer), _remoteAddress, _remotePort);
+  void rawSecureSend(Uint8List message, InternetAddress address, int port) {
+    final encrypted = aesGcmEncrypt(message);
+
+    if (encrypted.length <= 32768) {
+      _udpSocket.send(encrypted, address, port);
+    } else {
+      // ΕΔΩ ΕΓΚΕΙΤΑΙ ΤΟ ΠΡΟΒΛΗΜΑ
+      for (int i = 0; i < encrypted.length; i += 1024) {
+        int end = (i + 1024).clamp(0, encrypted.length);
+        _udpSocket.send(encrypted.sublist(i, end), address, port);
+      }
+    }
   }
 
+  // void send(Uint8List message) {
+  //   // If message greater than 4096 send message in chunks
+  //   if (message.length <= 32768) {
+  //     _sendSingleMessage(message);
+  //   } else {
+  //     // ΕΔΩ ΕΓΚΕΙΤΑΙ ΤΟ ΠΡΟΒΛΗΜΑ
+  //     for (int i = 0; i < message.length; i += 1024) {
+  //       int end = (i + 1024).clamp(0, message.length);
+  //       _sendSingleMessage(message.sublist(i, end));
+  //     }
+  //   }
+  // }
+
+  // void _sendSingleMessage(Uint8List message) {
+  //   _udpSocket.send(aesGcmEncrypt(message), remoteAddress, remotePort);
+  // }
+
   void close() {
-    ByteBuf buffer = ByteBuf.smallBuffer();
-    buffer.writeInt32(_chatSessionID);
-    buffer.writeInt32(VoiceCallClientMessage.endCall.id);
-    send(buffer.buffer);
+    // ByteBuf buffer = ByteBuf.smallBuffer();
+    // buffer.writeInt32(_chatSessionID);
+    // buffer.writeInt32(VoiceCallClientMessage.endCall.id);
+    // send(buffer.buffer);
     _udpSocket.close();
   }
 
   Uint8List aesGcmEncrypt(Uint8List plainText) {
-    final iv = encrypt.IV.fromSecureRandom(12);
-    final encrypter = encrypt.Encrypter(
-      encrypt.AES(
-        _aesKey,
-        mode: encrypt.AESMode.gcm,
-        padding: null,
-      ),
-    );
+    final random = Random();
 
-    final encrypted = encrypter.encryptBytes(
+    final iv = IV(Uint8List.fromList(List.generate(12, (int index) {
+      return random.nextInt(192);
+    })));
+
+    final Encrypted encrypted = _encrypter.encryptBytes(
       plainText,
       iv: iv,
     );
 
-    return encrypted.bytes;
+    return Uint8List.fromList(iv.bytes + encrypted.bytes);
   }
 
   Uint8List aesGcmDecrypt(Uint8List ciphertext) {
-    final encrypter = encrypt.Encrypter(
-      encrypt.AES(
-        _aesKey,
-        mode: encrypt.AESMode.gcm,
-        padding: null,
-      ),
-    );
+    ByteBuf buffer = ByteBuf.wrap(ciphertext);
+    Uint8List iv = buffer.readBytes(12);
+    Uint8List rest = buffer.readAllBytes();
 
-    final List<int> decrypted = encrypter.decryptBytes(
-      encrypt.Encrypted(ciphertext),
-      iv: encrypt.IV.allZerosOfLength(12),
+    final List<int> decrypted = _encrypter.decryptBytes(
+      Encrypted(rest),
+      iv: IV(iv),
     );
 
     return Uint8List.fromList(decrypted);

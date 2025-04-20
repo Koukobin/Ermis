@@ -173,7 +173,7 @@ Future<T> showLoadingDialog<T>(BuildContext context, Future<T> executeWhileLoadi
     context: context,
     barrierDismissible: false, // Prevent dismissal by tapping outside
     builder: (BuildContext context) {
-      return Center(
+      return const Center(
         child: CircularProgressIndicator(),
       );
     },

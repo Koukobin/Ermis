@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
@@ -50,8 +51,6 @@ import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/scroll/infinite_scroll_list.dart';
 import '../../chats/widgets/user_avatar.dart';
 
-enum _IsOnScreen { hidden, visible }
-
 class MessagingInterface extends StatefulWidget {
   final int chatSessionIndex;
   final ChatSession chatSession;
@@ -66,12 +65,8 @@ class MessagingInterface extends StatefulWidget {
   State<MessagingInterface> createState() => MessagingInterfaceState();
 }
 
-class MessagingInterfaceState extends LoadingState<MessagingInterface> with WidgetsBindingObserver, EventBusSubscriptionMixin {
-  AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+class MessagingInterfaceState extends LoadingState<MessagingInterface> with EventBusSubscriptionMixin {
 
-  /// Used to determine whether to send push notification or not
-  static final Map<ChatSession, _IsOnScreen> _sessions = {};
-  
   late final int _chatSessionIndex;
   late ChatSession _chatSession; // Not final because can be updated by server
 
@@ -80,17 +75,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    setState(() {
-      _appLifecycleState = state;
-    });
-  }
+  static StreamSubscription<MessageReceivedEvent>? messager;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
 
     _chatSessionIndex = widget.chatSessionIndex;
     _chatSession = widget.chatSession;
@@ -108,9 +97,9 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
           });
         }
 
-        if (messages.length < 30) {
-          Client.instance().commands.fetchWrittenText(_chatSessionIndex);
-        }
+        // Ensure messages are up to date
+        Client.instance().commands.fetchWrittenText(_chatSessionIndex);
+        Client.instance().commands.refetchWrittenText(_chatSessionIndex);
       } else {
         setState(() {
           _messages = _chatSession.messages;
@@ -126,6 +115,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
       UserInfoManager.serverInfo,
       _chatSession.chatSessionID,
     );
+
     for (final m in messages) {
       m.setChatSessionIndex(_chatSessionIndex);
     }
@@ -134,7 +124,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
   }
 
   void _setupListeners() {
-    _sessions[_chatSession] = _IsOnScreen.visible;
+    messager?.cancel();
+
+    subscribe(AppEventBus.instance.on<ChatSessionsStatusesEvent>(), (event) {
+      setState(() {}); // Since chat sessions were updated simply setState
+    });
 
     subscribe(AppEventBus.instance.on<WrittenTextEvent>(), (event) {
       List<Message> messages = event.chatSession.messages;
@@ -152,26 +146,14 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
     });
 
     subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) {
-      ChatSession chatSession = event.chatSession;
+      // Since messages was updated by the message handler simply setState
+      setState(() {});
 
-      Message msg = event.message;
-
-      // If message does not originate from the active chat session or the app is in
-      // the active state (resumed), abstain from showing the notification
-      if (_sessions[_chatSession] == _IsOnScreen.visible && _appLifecycleState == AppLifecycleState.resumed && mounted) {
-        setState(() {}); // Since messages was updated by the message handler simply setState
-        return;
-      }
-
-      // This instance would occur when the client is connected
-      // on a given ermis server from two distinct devices
-      if (msg.clientID == Client.instance().clientID) {
-        return;
-      }
+      if (event.chatSession.chatSessionID == _chatSession.chatSessionID) return;
 
       SettingsJson settingsJson = SettingsJson();
       settingsJson.loadSettingsJson();
-      handleChatMessageNotificationForeground(chatSession, msg, settingsJson, _sendTextMessage);
+      handleChatMessageNotificationForeground(event.chatSession, event.message, settingsJson, _sendTextMessage,);
     });
 
     subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) async {
@@ -231,8 +213,20 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Widg
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _sessions[_chatSession] = _IsOnScreen.hidden;
+    messager = AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
+      ChatSession chatSession = event.chatSession;
+      Message msg = event.message;
+
+      // This instance would occur when the client is connected
+      // on a given ermis server from two distinct devices
+      if (msg.clientID == Client.instance().clientID) {
+        return;
+      }
+
+      SettingsJson settingsJson = SettingsJson();
+      settingsJson.loadSettingsJson();
+      handleChatMessageNotificationForeground(chatSession, msg, settingsJson, _sendTextMessage);
+    });
     super.dispose();
   }
 

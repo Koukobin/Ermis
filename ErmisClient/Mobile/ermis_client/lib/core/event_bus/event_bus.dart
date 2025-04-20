@@ -62,6 +62,11 @@ class EventBus {
     streamController.add(event);
   }
 
+  /// Retrieves the streams satisfying [test], or an empty stream if there are none.
+  Stream<T> where<T>(bool Function(dynamic event) test) {
+    return _streamController.stream.where(test) as Stream<T>;
+  }
+
   /// Closes the [EventBus].
   void destroy() {
     _streamController.close();

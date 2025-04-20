@@ -16,6 +16,7 @@
 
 import 'dart:convert';
 
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/networking/common/message_types/download_file_type.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
@@ -190,7 +191,7 @@ class MessageTransmitter {
         // debugPrint(chatSessions.toString());
         // debugPrint(Info.accountStatus.toString());
         return (username == null ||
-            UserInfoManager.profilePhoto == null ||
+            profilePhoto == null ||
             chatRequests == null ||
             chatSessions == null ||
             UserInfoManager.accountStatus == null);
@@ -350,7 +351,7 @@ class Commands {
       payload.writeInt32(members.length);
       for (Member member in members) {
         payload.writeInt32(member.clientID);
-        payload.writeInt64(member.icon.lastUpdatedAtEpochSecond);
+        payload.writeInt64(member.lastUpdatedAtEpochSecond);
       }
     }
 
@@ -425,8 +426,6 @@ class Commands {
     payload.writeInt32(chatSessionIndex);
 
     out.write(payload);
-
-    fetchChatSessions();
   }
 
   void addUsersInChatSession(int chatSessionIndex, List<int> memberIds) {
@@ -588,15 +587,15 @@ class Commands {
   }
 
   void switchAccount() {
-    ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt32(ClientMessageType.command.id);
-    payload.writeInt32(ClientCommandType.addOrSwitchToNewAccount.id);
-    out.write(payload);
-
     // Reset user information before switching to ensure that 
     // user information from this account is not transferred 
     // to the next
     UserInfoManager.resetUserInformation();
+
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.addOrSwitchToNewAccount.id);
+    out.write(payload);
   }
 
   // void acceptVoiceCall(int chatSessionID) {

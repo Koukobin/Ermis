@@ -24,7 +24,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'dialogs_utils.dart';
 
-Future<bool> checkPermission(Permission permission) async {
+Future<bool> checkAndRequestPermission(Permission permission) async {
   if (await permission.request().isPermanentlyDenied ||
       await permission.request().isDenied) {
     return false;
@@ -32,7 +32,7 @@ Future<bool> checkPermission(Permission permission) async {
   return true;
 }
 
-Future<bool> requestPermissions() async {
+Future<bool> requestAllPermissions() async {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
@@ -44,21 +44,23 @@ Future<bool> requestPermissions() async {
   bool success = true;
 
   if (androidInfo.version.sdkInt <= 29) {
-    success = await checkPermission(Permission.storage);
+    success = await checkAndRequestPermission(Permission.storage);
   } else if (androidInfo.version.sdkInt < 33) {
-    success = await checkPermission(Permission.manageExternalStorage);
+    success = await checkAndRequestPermission(Permission.manageExternalStorage);
   } else if (androidInfo.version.sdkInt >= 33) {
     const permissions = [
       Permission.photos,
       Permission.audio,
       Permission.videos,
-      Permission.microphone
+      Permission.microphone,
     ];
 
     for (Permission permission in permissions) {
-      success &= await checkPermission(permission);
+      success &= await checkAndRequestPermission(permission);
     }
   }
+
+  success &= await checkAndRequestPermission(Permission.notification);
 
   if (!success) openAppSettings();
   return success;

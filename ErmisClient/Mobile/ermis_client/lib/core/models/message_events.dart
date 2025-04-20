@@ -19,9 +19,11 @@
 /// e.g receiving the username.
 library;
 
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/chat_request.dart';
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/models/user_device.dart';
@@ -131,6 +133,11 @@ class ChatSessionsEvent {
   const ChatSessionsEvent(this.sessions);
 }
 
+class ChatSessionsStatusesEvent {
+  final List<ChatSession> sessions;
+  const ChatSessionsStatusesEvent(this.sessions);
+}
+
 class OtherAccountsEvent {
   final List<Account> accounts;
   const OtherAccountsEvent(this.accounts);
@@ -140,21 +147,42 @@ class VoiceCallIncomingEvent {
   final int chatSessionID;
   final int chatSessionIndex;
   final Uint8List aesKey;
-  final int mansPort;
   final Member member;
+  final int signallingPort;
   const VoiceCallIncomingEvent({
     required this.chatSessionID,
     required this.chatSessionIndex,
     required this.aesKey,
     required this.member,
-    required this.mansPort,
+    required this.signallingPort,
+  });
+}
+
+class InetSocketAddress {
+  final InternetAddress address;
+  final int port;
+
+  InetSocketAddress(this.address, this.port);
+
+  @override
+  String toString() => '${address.address}:$port';
+}
+
+class MotherfuckerAdded {
+  final int chatSessionID;
+  final int clientID;
+  final InetSocketAddress motherFuckersAddress;
+  const MotherfuckerAdded({
+    required this.chatSessionID,
+    required this.clientID,
+    required this.motherFuckersAddress,
   });
 }
 
 class StartVoiceCallResultEvent {
-  final int key;
+  final Uint8List aesKey;
   final int udpServerPort;
-  const StartVoiceCallResultEvent(this.key, this.udpServerPort);
+  const StartVoiceCallResultEvent(this.aesKey, this.udpServerPort);
 }
 
 class MessageDeletionUnsuccessfulEvent {

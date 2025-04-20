@@ -17,6 +17,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/networking/handlers/chat_sessions_service.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
@@ -126,8 +127,9 @@ class CommandResultHandler {
           if (chatSession == null) {
             chatSession = ChatSession(chatSessionID, chatSessionIndex);
             UserInfoManager.chatSessionIDSToChatSessions[chatSessionID] = chatSession;
+          } else {
+            chatSession.chatSessionIndex = i;
           }
-          chatSession.chatSessionIndex = i;
 
           UserInfoManager.chatSessions!.add(chatSession);
 
@@ -139,9 +141,8 @@ class CommandResultHandler {
         Client.instance().commands.fetchChatSessions(); // Proceed to fetching chat sessions
         break;
       case ClientCommandResultType.getChatSessions:
-        Map<int, Member> cache = {};
+        Map<int /* client id */, Member> cache = {};
 
-        int i = 0;
         while (msg.readableBytes > 0) {
           int chatSessionIndex = msg.readInt32();
           ChatSession chatSession;
@@ -179,13 +180,14 @@ class CommandResultHandler {
               int usernameLength = msg.readInt32();
               String username = utf8.decode(msg.readBytes(usernameLength));
               Uint8List iconBytes = msg.readBytes(msg.readInt32());
-              int iconLastUpdatedAt = msg.readInt64();
+              int lastUpdatedAtEpochSecond = msg.readInt64();
 
               member = Member(
                 username,
                 memberID,
-                MemberIcon(iconBytes, iconLastUpdatedAt),
-                ClientStatus.offline
+                MemberIcon(iconBytes),
+                ClientStatus.offline,
+                lastUpdatedAtEpochSecond,
               );
 
               cache[memberID] = member;
@@ -200,8 +202,6 @@ class CommandResultHandler {
             server: UserInfoManager.serverInfo,
             session: chatSession,
           );
-
-          i++;
         }
         
         // Delete outdated chat sessions
@@ -230,6 +230,7 @@ class CommandResultHandler {
           }
         }
         
+        _eventBus.fire(ChatSessionsStatusesEvent(UserInfoManager.chatSessions!));
         break;
       case ClientCommandResultType.getChatRequests:
         UserInfoManager.chatRequests = [];
@@ -352,20 +353,62 @@ class CommandResultHandler {
         break;
       case ClientCommandResultType.startVoiceCall:
         int udpServerPort = msg.readInt32();
-        int voiceCallKey = msg.readInt32();
         Uint8List aesKey = msg.readBytes(msg.readableBytes);
 
-        RawDatagramSocket socket = await RawDatagramSocket.bind(
-          UserInfoManager.serverInfo.address.type,
-          0,
-        );
-
-        RawSocketEvent event = await socket.first;
-        Datagram datagram = socket.receive()!;
-
-        datagram.port;
-
-        _eventBus.fire(StartVoiceCallResultEvent(voiceCallKey, udpServerPort));
+        _eventBus.fire(StartVoiceCallResultEvent(aesKey, udpServerPort));
+        break;
+      case ClientCommandResultType.motherfuckerAdded:
+        int clientID = msg.readInt32();
+        int chatSessionID = msg.readInt32();
+        int port = msg.readInt32();
+        Uint8List rawAddress = msg.readAllBytes();
+        _eventBus.fire(MotherfuckerAdded(
+          clientID: clientID,
+          chatSessionID: chatSessionID,
+          motherFuckersAddress: InetSocketAddress(InternetAddress.fromRawAddress(rawAddress), port),
+        ));
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
+        print("Mother fucking eventbus");
         break;
       case ClientCommandResultType.getDonationPageURL:
         Uint8List donationPageURL = msg.readBytes(msg.readableBytes);

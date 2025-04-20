@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
@@ -144,6 +145,10 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
       _updateChatSessions(event.sessions);
+    });
+
+    subscribe(AppEventBus.instance.on<ChatSessionsStatusesEvent>(), (event) {
+      setState(() {}); // Since chat sessions were updated simply setState
     });
 
     // Whenever text changes performs search

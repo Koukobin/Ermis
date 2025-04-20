@@ -51,7 +51,9 @@ enum ClientCommandResultType {
   getSourceCodePageURL(601),
 
   // Other
-  fetchSignallingServerPort(700);
+  fetchSignallingServerPort(700),
+
+  motherfuckerAdded(800);
 
   final int id;
   const ClientCommandResultType(this.id);
