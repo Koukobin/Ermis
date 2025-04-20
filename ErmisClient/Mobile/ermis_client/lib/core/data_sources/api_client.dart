@@ -186,6 +186,7 @@ class Client {
     broadcastStream = null;
     _isMessageDispatcherRunning = false;
     UserInfoManager.resetUserInformation();
+    UserInfoManager.resetServerInformation();
   }
 
   Commands get commands => _messageTransmitter.commands;
@@ -287,7 +288,7 @@ class Entry<T extends CredentialInterface> {
     isLoggedIn = payload.readBoolean();
 
     Client.instance()._isLoggedIn = isLoggedIn;
-    int resultMessageBytes = payload.readInt32();
+    int id = payload.readInt32();
 
     Map<AddedInfo, String> map = HashMap();
 
@@ -299,8 +300,8 @@ class Entry<T extends CredentialInterface> {
 
     EntryResult result = EntryResult(
         entryType == EntryType.createAccount
-            ? CreateAccountResult.fromId(resultMessageBytes)!
-            : LoginResult.fromId(resultMessageBytes)!,
+            ? CreateAccountResult.fromId(id)!
+            : LoginResult.fromId(id)!,
         map);
 
     return result;

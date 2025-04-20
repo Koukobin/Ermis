@@ -55,22 +55,14 @@ class UserInfoManager {
   }
 
   static Future<List<ChatSession>> fetchLocalChatSessions() async {
-    List<int> sessions = await IntermediaryService().fetchChatSessions(server: serverInfo);
+    List<ChatSession> sessions = await IntermediaryService().fetchChatSessions(server: serverInfo);
 
-    for (int sessionID in sessions) {
-      List<Member> members = await IntermediaryService().fetchMembersAssociatedWithChatSession(
-        server: serverInfo,
-        chatSessionID: sessionID,
-      );
-
-      ChatSession chatSession = ChatSession(sessionID, -1);
-      chatSession.setMembers(members);
-
-      chatSessionIDSToChatSessions[sessionID] = chatSession;
+    for (ChatSession session in sessions) {
+      chatSessionIDSToChatSessions[session.chatSessionID] = session;
     }
 
-    chatSessions = chatSessionIDSToChatSessions.values.toList();
-    return chatSessions!;
+    chatSessions = sessions;
+    return sessions;
   }
 
   /// Resets all user information; useful for when switching between accounts
@@ -88,5 +80,9 @@ class UserInfoManager {
     otherAccounts = null;
     pendingMessagesQueue.clear();
     lastPendingMessageID = 0;
+  }
+
+  static void resetServerInformation() {
+    serverInfo = ServerInfo(Uri());
   }
 }

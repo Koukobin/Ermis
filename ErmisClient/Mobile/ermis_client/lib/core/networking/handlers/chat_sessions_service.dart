@@ -15,12 +15,25 @@
  */
 
 import 'package:ermis_client/core/models/chat_session.dart';
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 
 class IntermediaryService {
   final DBConnection _databaseService = ErmisDB.getConnection();
 
   IntermediaryService();
+
+  Future<List<ChatSession>> fetchChatSessions({
+    required ServerInfo server,
+  }) async {
+    // A bit lazy, but will suffice for now
+    LocalAccountInfo? accountInfo = await _databaseService.getLastUsedAccount(server);
+    LocalUserInfo? userInfo =  await _databaseService.getLocalUserInfo(server, accountInfo!.email);
+    return await _databaseService.fetchChatSessions(
+      server: server,
+      clientIDExclude: userInfo!.clientID,
+    );
+  }
 
   Future<List<Member>> fetchMembersAssociatedWithChatSession({
     required ServerInfo server,
@@ -32,10 +45,12 @@ class IntermediaryService {
     );
   }
 
-  Future<List<int>> fetchChatSessions({
+  Future<List<int>> fetchChatSessionsIDs({
     required ServerInfo server,
   }) async {
-    return await _databaseService.fetchChatSessions(server: server);
+    // A bit lazy, but will suffice for now
+    LocalAccountInfo? accountInfo = await _databaseService.getLastUsedAccount(server);
+    return await _databaseService.fetchChatSessionIDS(server: server, email: accountInfo!.email);
   }
 
   void insertChatSession({

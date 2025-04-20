@@ -14,12 +14,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_client/core/util/datetime_utils.dart';
 import 'package:ermis_client/core/util/custom_date_formatter.dart';
-import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
-
-import 'member_icon.dart';
 import 'message.dart';
 
 class ChatSession {
@@ -107,29 +105,4 @@ class ChatSession {
   String toString() {
     return _members.map((member) => member.toString()).join(', ');
   }
-}
-
-class Member {
-  String username;
-  int clientID;
-  MemberIcon icon;
-  ClientStatus status;
-
-  Member(this.username, this.clientID, this.icon, this.status);
-
-  @override
-  int get hashCode => clientID.hashCode;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! Member) return false;
-    return clientID == other.clientID &&
-        icon == other.icon &&
-        username == other.username;
-        // status == other.status; For obvious reasons do not check status
-  }
-
-  @override
-  String toString() => '$username@$clientID';
 }

@@ -20,6 +20,7 @@ import 'event_bus.dart';
 class AppEventBus {
   static final EventBus _eventBus = EventBus();
 
+  /// Prevent instantiation
   AppEventBus._();
 
   static EventBus get instance => _eventBus;
