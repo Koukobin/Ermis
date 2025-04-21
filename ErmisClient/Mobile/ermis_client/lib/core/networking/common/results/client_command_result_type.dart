@@ -14,7 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 import '../../../exceptions/EnumNotFoundException.dart';
 
 enum ClientCommandResultType {
@@ -45,19 +44,16 @@ enum ClientCommandResultType {
 
   // Start voice call
   startVoiceCall(500),
+  fetchSignallingServerPort(501),
+  memberJoinedVoiceCall(502),
 
   // External Pages
   getDonationPageURL(600),
-  getSourceCodePageURL(601),
-
-  // Other
-  fetchSignallingServerPort(700),
-
-  motherfuckerAdded(800);
+  getSourceCodePageURL(601);
 
   final int id;
   const ClientCommandResultType(this.id);
-  
+
   static ClientCommandResultType fromId(int id) {
     try {
       return ClientCommandResultType.values

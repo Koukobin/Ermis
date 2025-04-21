@@ -47,23 +47,11 @@ public interface ICommand {
 	}
 
 	/**
-	 * Executes a given action for every active device associated with the specified
-	 * account/clientID.
-	 *
-	 * @param clientID the ID of the account whose active devices are to be
-	 *                 processed
-	 * @param action   the operation to perform on each active device
+	 * Convience method for calling
+	 * {@link github.koukobin.ermis.server.main.java.server.ActiveClients#forActiveAccounts(int, Consumer)}
 	 */
 	default void forActiveAccounts(int clientID, Consumer<ClientInfo> action) {
-		List<ClientInfo> activeClients = ActiveClients.getClient(clientID);
-
-		if (activeClients == null) {
-			return;
-		}
-
-		for (ClientInfo clientInfo : activeClients) {
-			action.accept(clientInfo);
-		}
+		ActiveClients.forActiveAccounts(clientID, action);
 	}
 
 	default void addMemberInfoToPayload(ByteBuf payload, ErmisDatabase.GeneralPurposeDBConnection conn, int clientID) {

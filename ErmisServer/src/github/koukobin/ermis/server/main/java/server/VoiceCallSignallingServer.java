@@ -248,7 +248,9 @@ public final class VoiceCallSignallingServer {
 					payload.writeBytes(ciSocketAdress.getAddress().getAddress());
 
 					System.out.println(String.format("%d -> %d", ci.getClientID(), clientID));
-					ActiveClients.getClient(clientID).get(0).getChannel().writeAndFlush(payload);
+					ActiveClients.forActiveAccounts(clientID, (ClientInfo activeAccount) -> {
+						activeAccount.getChannel().writeAndFlush(payload);
+					});
 				}
 			}
 

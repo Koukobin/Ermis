@@ -56,6 +56,9 @@ class VoiceCallUDPSocket {
   late Key _aesKey;
   late Encrypter _encrypter;
 
+  bool _isEncryptedInitialized = false;
+  bool get isInitialized => _isEncryptedInitialized;
+
   set chatSessionID(int chatSessionID) => _chatSessionID = chatSessionID;
   set aesKey(Uint8List aesKey) => _aesKey = Key(aesKey);
 
@@ -77,6 +80,7 @@ class VoiceCallUDPSocket {
       ),
     );
 
+    _isEncryptedInitialized = true;
   }
 
   Stream<Uint8List?> get stream => _udpSocket.map((RawSocketEvent event) {

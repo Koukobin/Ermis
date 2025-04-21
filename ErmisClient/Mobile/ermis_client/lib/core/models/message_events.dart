@@ -162,10 +162,26 @@ class InetSocketAddress {
   final InternetAddress address;
   final int port;
 
-  InetSocketAddress(this.address, this.port);
+  const InetSocketAddress(this.address, this.port);
+
+  @override
+  int get hashCode => address.hashCode * port.hashCode;
 
   @override
   String toString() => '${address.address}:$port';
+  
+  @override
+  bool operator ==(Object other) {
+    if (this == other) {
+      return true;
+    }
+
+    if (other is! InetSocketAddress) {
+      return false;
+    }
+
+    return address == other.address && port == other.port;
+  }
 }
 
 class MotherfuckerAdded {

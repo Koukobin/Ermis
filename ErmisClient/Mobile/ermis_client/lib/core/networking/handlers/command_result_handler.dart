@@ -357,7 +357,7 @@ class CommandResultHandler {
 
         _eventBus.fire(StartVoiceCallResultEvent(aesKey, udpServerPort));
         break;
-      case ClientCommandResultType.motherfuckerAdded:
+      case ClientCommandResultType.memberJoinedVoiceCall:
         int clientID = msg.readInt32();
         int chatSessionID = msg.readInt32();
         int port = msg.readInt32();
@@ -367,43 +367,6 @@ class CommandResultHandler {
           chatSessionID: chatSessionID,
           motherFuckersAddress: InetSocketAddress(InternetAddress.fromRawAddress(rawAddress), port),
         ));
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
         print("Mother fucking eventbus");
         print("Mother fucking eventbus");
         print("Mother fucking eventbus");

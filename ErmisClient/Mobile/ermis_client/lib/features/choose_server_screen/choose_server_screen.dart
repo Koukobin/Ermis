@@ -232,8 +232,6 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                             : ServerCertificateVerification.ignore,
                       );
                     } catch (e) {
-                      setState(() => _isConnectingToServer = false);
-
                       UserInfoManager.serverInfo = serverInfo;
                       await UserInfoManager.fetchProfileInformation();
                       await UserInfoManager.fetchLocalChatSessions();
@@ -254,13 +252,6 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                         await showToastDialog(S.current.could_not_verify_server_certificate);
                         return;
                       }
-
-                      // Navigator.pushAndRemoveUntil(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //       builder: (context) => MainInterface()),
-                      //   (route) => false, // Removes all previous routes.
-                      // );
 
                       rethrow;
                     }

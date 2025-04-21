@@ -65,7 +65,7 @@ class VoiceCallHandler {
                   aesKey: aesKey,
                 ));
 
-            await Future.delayed(const Duration(seconds: 1));
+            await Future.delayed(const Duration(seconds: 5));
 
             await udpSocket.initialize(aesKey);
             udpSocket.rawSecureSendByteBuf(
@@ -109,7 +109,7 @@ class VoiceCallHandler {
           aesKey: aesKey,
         ));
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 5));
 
     await udpSocket.initialize(aesKey);
     udpSocket.rawSecureSendByteBuf(
@@ -173,20 +173,17 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
 
   final StreamController<Uint8List> _controller = StreamController<Uint8List>();
 
-  static const bool shouldPrint = false;
+  static const bool shouldPrint = false && kDebugMode;
 
-  Set<InetSocketAddress> bruh = {};
+  Set<InetSocketAddress> ips = {};
 
   @override
   void initState() {
     super.initState();
-    _initiate();
-  }
 
-  Future<void> _initiate() async {
-    await checkAndRequestPermission(Permission.microphone);
-    await checkAndRequestPermission(Permission.camera);
-    await checkAndRequestPermission(Permission.audio);
+    for (InetSocketAddress socketAddress in widget.mansPort) {
+      ips.add(socketAddress);
+    }
 
     subscribe(AppEventBus.instance.on<MotherfuckerAdded>(), (event) async {
       // Ensure mother fucker added belongs to current chat session
@@ -200,8 +197,21 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
         debugPrint("Received");
       }
 
-      bruh.add(event.motherFuckersAddress);
+      ips.add(event.motherFuckersAddress);
     });
+
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (ips.isEmpty || !udpSocket.isInitialized) return;
+
+      _initiate();
+      timer.cancel();
+    });
+  }
+
+  Future<void> _initiate() async {
+    await checkAndRequestPermission(Permission.microphone);
+    await checkAndRequestPermission(Permission.camera);
+    await checkAndRequestPermission(Permission.audio);
 
     player = FlutterSoundPlayer();
     await player.openPlayer();
@@ -212,10 +222,6 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
       bufferSize: 512,
       interleaved: true,
     );
-
-    for (InetSocketAddress socketAddress in widget.mansPort) {
-      bruh.add(socketAddress);
-    }
 
     subscribe(udpSocket.stream, (Uint8List? data) async {
       if (data == null) return;
@@ -228,7 +234,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
       }
       await player.feedUint8FromStream(data);
       double rms = calculateRMS(data);
-      if (kDebugMode) debugPrint('RMS: $rms');
+      if (shouldPrint) debugPrint('RMS: $rms');
       setState(() {
         this.callStatus = CallStatus.active;
         this.rms = rms;
@@ -252,8 +258,6 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
     // });
 
     _startAudioRecording();
-
-    Timer.periodic(const Duration(seconds: 1), (timer) => setState(() {}));
   }
 
   double calculateRMS(Uint8List audioChunk) {
@@ -300,8 +304,8 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
       debugPrint("LISTENING");
     }
     _controller.stream.listen((Uint8List data) {
-      if (shouldPrint) debugPrint(bruh.toString());
-      for (InetSocketAddress value in bruh) {
+      if (shouldPrint) debugPrint(ips.toString());
+      for (InetSocketAddress value in ips) {
         // print("Audio data sent: $data");
         udpSocket.rawSecureSend(data, value.address, value.port);
       }
@@ -404,9 +408,9 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
                     child: SizedBox(
                       height: 100,
                       child: ListView.builder(
-                        itemCount: bruh.length,
+                        itemCount: ips.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return Text(bruh.toList()[index].toString());
+                          return Text(ips.toList()[index].toString());
                         },
                       ),
                     ),

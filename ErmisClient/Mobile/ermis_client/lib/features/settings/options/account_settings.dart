@@ -73,27 +73,39 @@ class AccountSettings extends StatefulWidget {
               const SizedBox(height: 20),
               ListTile(
                 leading: const PersonalProfilePhoto(),
-                title: Text(Client.instance().displayName!, style: const TextStyle(fontSize: 18)),
+                title: Text(Client.instance().displayName ?? "", style: const TextStyle(fontSize: 18)),
                 trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
               ),
-              for (final Account account in _accounts ?? [])
+              for (final Account serverAccount in _accounts ?? [])
                 ListTile(
-                  leading: UserProfilePhoto(profileBytes: account.profilePhoto),
-                  title: Text(account.name(), style:const  TextStyle(fontSize: 18)),
+                  leading: UserProfilePhoto(profileBytes: serverAccount.profilePhoto),
+                  title: Text(serverAccount.name(), style: const TextStyle(fontSize: 18)),
                   onTap: () {
-                    showConfirmationDialog(context, "Are you sure you want to switch to ${account.name()}?", () async {
+                    showConfirmationDialog(context, "Are you sure you want to switch to ${serverAccount.name()}?", () async {
                       ServerInfo serverDetails = UserInfoManager.serverInfo;
                       final DBConnection conn = ErmisDB.getConnection();
-                      List<LocalAccountInfo> allUserAccounts = await conn.getUserAccounts(serverDetails);
+                      List<LocalAccountInfo> localAccounts = await conn.getUserAccounts(serverDetails);
                       LocalAccountInfo? matchingAccount;
 
-                      for (LocalAccountInfo userAccount in allUserAccounts) {
-                        if (userAccount.email == account.email) {
-                          matchingAccount = userAccount;
+                      for (LocalAccountInfo localAccount in localAccounts) {
+                        if (localAccount.email == serverAccount.email) {
+                          matchingAccount = localAccount;
                         }
                       }
 
-                      await conn.updateLastUsedAccount(serverDetails, matchingAccount!.email);
+                      if (matchingAccount != null) {
+                        await conn.updateLastUsedAccount(
+                          serverDetails,
+                          matchingAccount.email,
+                        );
+                      }
+
+                      // Pick arbitrary parameters in case of no match
+                      matchingAccount ??= LocalAccountInfo(
+                        email: serverAccount.email,
+                        passwordHash: "",
+                        lastUsed: DateTime.now(),
+                      );
 
                       Client.instance().commands.switchAccount();
                       setupClientSession(context, matchingAccount, keepPreviousRoutes: true);

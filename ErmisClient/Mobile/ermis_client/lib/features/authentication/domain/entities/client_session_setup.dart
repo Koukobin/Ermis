@@ -46,6 +46,7 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
     );
     return;
   }
+
   bool success = await showLoadingDialog(context, Client.instance().attemptHashedLogin(userInfo));
 
   if (!success) {

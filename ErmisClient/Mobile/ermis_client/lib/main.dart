@@ -228,6 +228,12 @@ void maintainWebSocketConnection(ServiceInstance service) async {
     AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
       ChatSession chatSession = event.chatSession;
       Message msg = event.message;
+
+      ErmisDB.getConnection().insertChatMessage(
+        serverInfo: Client.instance().serverInfo!,
+        message: msg,
+      );
+
       handleChatMessageNotificationBackground(chatSession, msg, settingsJson, (String text) {
         Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex);
       });

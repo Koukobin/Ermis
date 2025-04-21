@@ -179,7 +179,7 @@ class Client {
   }
 
   void disconnect() async {
-    await _sslSocket!.close();
+    await _sslSocket?.close();
     _sslSocket = null;
     _outputStream = null;
     _inputStream = null;

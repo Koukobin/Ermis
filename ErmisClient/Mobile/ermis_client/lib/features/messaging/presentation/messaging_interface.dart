@@ -149,11 +149,23 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
       // Since messages was updated by the message handler simply setState
       setState(() {});
 
-      if (event.chatSession.chatSessionID == _chatSession.chatSessionID) return;
+      Message message = event.message;
 
-      SettingsJson settingsJson = SettingsJson();
-      settingsJson.loadSettingsJson();
-      handleChatMessageNotificationForeground(event.chatSession, event.message, settingsJson, _sendTextMessage,);
+      ErmisDB.getConnection().insertChatMessage(
+        serverInfo: Client.instance().serverInfo!,
+        message: message,
+      );
+
+      if (event.chatSession.chatSessionID != _chatSession.chatSessionID) {
+        SettingsJson settingsJson = SettingsJson();
+        settingsJson.loadSettingsJson();
+        handleChatMessageNotificationForeground(
+          event.chatSession,
+          message,
+          settingsJson,
+          _sendTextMessage,
+        );
+      }
     });
 
     subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) async {
@@ -216,6 +228,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
     messager = AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
       ChatSession chatSession = event.chatSession;
       Message msg = event.message;
+
+      ErmisDB.getConnection().insertChatMessage(
+        serverInfo: Client.instance().serverInfo!,
+        message: msg,
+      );
 
       // This instance would occur when the client is connected
       // on a given ermis server from two distinct devices

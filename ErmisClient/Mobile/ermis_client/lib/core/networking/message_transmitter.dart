@@ -176,6 +176,11 @@ class MessageTransmitter {
   }
 
   Future<void> fetchUserInformation() async {
+    // Proactively reset user information to ensure that
+    // user information does not leak into this account
+    // in case of an account switch
+    UserInfoManager.resetUserInformation();
+
     commands.fetchProfileInformation();
     commands.fetchChatSessionIndices();
     commands.setAccountStatus(ClientStatus.online);
@@ -587,24 +592,11 @@ class Commands {
   }
 
   void switchAccount() {
-    // Reset user information before switching to ensure that 
-    // user information from this account is not transferred 
-    // to the next
-    UserInfoManager.resetUserInformation();
-
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.addOrSwitchToNewAccount.id);
     out.write(payload);
   }
-
-  // void acceptVoiceCall(int chatSessionID) {
-  //   ByteBuf payload = ByteBuf.smallBuffer();
-  //   payload.writeInt(ClientMessageType.command.id);
-  //   payload.writeInt(ClientCommandType.acceptVoiceCall.id);
-  //   payload.writeInt(chatSessionID);
-  //   out.write(payload);
-  // }
 
   void startVoiceCall(int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();

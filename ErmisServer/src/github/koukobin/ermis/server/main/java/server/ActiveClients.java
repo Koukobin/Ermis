@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 
@@ -32,30 +33,50 @@ public class ActiveClients {
 	 * Map to track active clients
 	 */
 	private static final Map<Integer, List<ClientInfo>> clientIDSToActiveClients = new ConcurrentHashMap<>(ServerSettings.SERVER_BACKLOG);
-	
+
 	private ActiveClients() {}
-	
+
 	public static List<ClientInfo> getClient(int clientID) {
 		return clientIDSToActiveClients.get(clientID);
 	}
-	
+
 	public static void addClient(ClientInfo clientInfo) {
 		clientIDSToActiveClients.putIfAbsent(clientInfo.getClientID(), new ArrayList<>());
 		clientIDSToActiveClients.get(clientInfo.getClientID()).add(clientInfo);
 	}
-	
+
 	public static void removeClient(ClientInfo clientInfo) {
 		int clientID = clientInfo.getClientID();
 		List<ClientInfo> clients = clientIDSToActiveClients.get(clientID);
-		
+
 		if (clients == null) {
 			return;
 		}
-		
+
 		clients.remove(clientInfo);
-		
+
 		if (clients.isEmpty()) {
 			clientIDSToActiveClients.remove(clientID);
+		}
+	}
+
+	/**
+	 * Executes a given action for every active device associated with the specified
+	 * account/clientID.
+	 *
+	 * @param clientID the ID of the account whose active devices are to be
+	 *                 processed
+	 * @param action   the operation to perform on each active device
+	 */
+	public static void forActiveAccounts(int clientID, Consumer<ClientInfo> action) {
+		List<ClientInfo> activeClients = ActiveClients.getClient(clientID);
+
+		if (activeClients == null) {
+			return;
+		}
+
+		for (ClientInfo clientInfo : activeClients) {
+			action.accept(clientInfo);
 		}
 	}
 
