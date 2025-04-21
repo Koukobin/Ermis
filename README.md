@@ -57,28 +57,28 @@ Moving forward, I do not have any particular plans regarding Ermis's development
 ### Choose Server Screen (Desktop)
 <img width="1000" alt="Choose Server Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/choose_server-screen.png"/>
 
-### Messaging Interface (Mobile)
 <div align="center">
+    <h3>Messaging Interface (Mobile)</h3>
     <img width="500" alt="Messaging Interface" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface-mobile.png"/>
 </div>
 
-### Chats Screen (Mobile)
 <div align="center">
+    <h3>Chats Screen (Mobile)</h3>
     <img width="500" alt="Chats Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chats-screen-mobile.png"/>
 </div>
 
-### Chat Requests Screen (Mobile)
 <div align="center">
+    <h3>Chat Requests Screen (Mobile)</h3>
     <img width="500" alt="Chat Requests Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chat-requests-screen-mobile.png"/>
 </div>
 
-### Settings Screen (Mobile)
 <div align="center">
+    <h3>Settings Screen (Mobile)</h3>
     <img width="500" alt="Settings Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/settings-screen-mobile.png"/>
 </div>
 
-### Profile Screen (Mobile)
 <div align="center">
+    <h3>Profile Screen (Mobile)</h3>
     <img width="500" alt="Profile Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/profile-screen-mobile.png"/>
 </div>
 
