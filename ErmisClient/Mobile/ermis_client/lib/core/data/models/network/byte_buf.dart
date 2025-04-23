@@ -32,13 +32,27 @@ class ByteBuf {
   int _markedReaderIndex = 0;
   int _markedWriterIndex = 0;
 
-  /// Creates a `ByteBuf` with a specified capacity.
+  /// Creates a [ByteBuf] with a specified capacity.
   ///
   /// If `growable` is set to `true`, the buffer will expand when needed.
   ByteBuf(int capacity, {this.growable = false}) : _buffer = Uint8List(capacity);
 
-  /// Wraps an existing `Uint8List` buffer into a `ByteBuf`.
-  factory ByteBuf.wrap(Uint8List buffer, {growable = false}) {
+  /// Wraps an existing [Uint8List] buffer into a [ByteBuf].
+  /// 
+  /// This constructor creates a shallow wrapper around the provided [Uint8List] buffer.
+  /// A shallow wrap means the [ByteBuf] directly references the original buffer without 
+  /// copying its contents. Consequently, any changes made to the original [Uint8List] 
+  /// buffer will also be reflected to the [ByteBuf] buffer as well - and vice versa.
+  ByteBuf.shallowWrap(Uint8List buffer, {this.growable = false}) : _buffer = buffer;
+
+  /// Wraps an existing [Uint8List] buffer into a [ByteBuf].
+  ///
+  /// This factory creates a deep wrapper around the provided [Uint8List] buffer.
+  /// A deep wrap means the [ByteBuf] instance copies the contents of the original
+  /// [Uint8List] buffer into it. Consequently, these two buffers are completely
+  /// independent from each other, and any changes made to the original [Uint8List]
+  /// buffer will not be reflected to the [ByteBuf] buffer.
+  factory ByteBuf.deepWrap(Uint8List buffer, {growable = false}) {
     return ByteBuf(buffer.length, growable: growable)..writeBytes(buffer);
   }
 
@@ -50,7 +64,7 @@ class ByteBuf {
 
   /// Reads all readable bytes from the buffer.
   ///
-  Uint8List readAllBytes() {
+  Uint8List readRemainingBytes() {
     int newReaderIndex = _readerIndex + readableBytes;
     Uint8List bytes = _buffer.sublist(_readerIndex, newReaderIndex);
     _readerIndex = newReaderIndex;
@@ -70,7 +84,7 @@ class ByteBuf {
     return bytes;
   }
 
-  /// Writes a `Uint8List` of bytes into the buffer.
+  /// Writes a [Uint8List] of bytes into the buffer.
   ///
   /// Expands the buffer if `growable` is enabled and there is insufficient space.
   void writeBytes(Uint8List bytes) {
@@ -92,7 +106,7 @@ class ByteBuf {
     if (_writerIndex > _writtenBytes) _writtenBytes += bytes.length;
   }
 
-  /// Writes another `ByteBuf` into this buffer.
+  /// Writes another [ByteBuf] into this buffer.
   void writeByteBuf(ByteBuf bytebuf) {
     writeBytes(bytebuf.buffer);
   }
