@@ -55,12 +55,12 @@ class ChatUserAvatar extends InteractiveUserAvatar {
     super.key,
     required super.chatSession,
     required super.member,
-  }) : super(onAvatarClicked: (BuildContext context, VoidCallback popContext) {
+  }) : super(onAvatarClicked: (BuildContext context, FutureVoidCallback popContext) {
           final appColors = Theme.of(context).extension<AppColors>()!;
           return [
             IconButton(
-                onPressed: () {
-                  popContext();
+                onPressed: () async {
+                  await popContext();
                   _pushMessageInterface(context, chatSession);
                 },
                 icon: Icon(

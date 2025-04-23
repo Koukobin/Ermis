@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ermis_client/core/networking/user_info_manager.dart';
@@ -97,6 +98,19 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    // Future(() async {
+    //   final z = StreamController<Uint8List>();
+    //   final newPlayer = AudioPlayer();
+    //   await newPlayer.setAudioSource(
+    //     MyUint8ListStreamAudioSource(
+    //       audioStream: z.stream,
+    //     ),
+    //   );
+    //   newPlayer.play();
+    //   z.add(Uint8List.fromList([0,3,65,67,4,78,2345,7,7,23,25,7,45623,]));
+    // });
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.fromLTRB(16.0, 100.0, 16.0, 200.0),

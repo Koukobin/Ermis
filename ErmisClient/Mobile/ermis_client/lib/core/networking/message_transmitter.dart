@@ -234,7 +234,7 @@ class Commands {
   }
 
   void changeDisplayName(String newDisplayName) {
-    var newUsernameBytes = utf8.encode(newDisplayName);
+    final newUsernameBytes = utf8.encode(newDisplayName);
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
@@ -535,14 +535,12 @@ class Commands {
     out.write(payload);
   }
 
-  static Uint8List? pendingAccountIcon;
-
   Future<void> setAccountIcon(Uint8List accountIconBytes) async {
     ByteBuf payload = ByteBuf.smallBuffer(growable: true);
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.addAccountIcon.id);
     payload.writeBytes(accountIconBytes);
-    pendingAccountIcon = accountIconBytes;
+    UserInfoManager.pendingAccountIcon = accountIconBytes;
 
     out.write(payload);
   }

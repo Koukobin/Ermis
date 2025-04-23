@@ -54,7 +54,7 @@ extension ToHashOnlySet<T> on Iterable<T> {
   /// hash code, they will all be added to the set unless they are also considered 
   /// equal via ==.
   /// 
-  /// This is truly a horrible design choice. Why? I love Dart - but this is a very 
+  /// This is truly a horrible design choice. Like Why? I love Dart - but this is a very 
   /// questionable choice. Nevertheless, I am sure they had their reasons.
   Iterable<T> toHashOnlySet() {
     return HashSet(equals: (p0, p1) => true)..addAll(this);

@@ -32,6 +32,7 @@ Future<void> _showVerificationDialog({
 }) async {
   final TextEditingController codeController = TextEditingController();
   bool isSubmitting = false;
+
   await showDialog(
     context: context,
     barrierDismissible: false, // Prevents exiting dialog from tapping out of it
@@ -48,6 +49,7 @@ Future<void> _showVerificationDialog({
                   const SizedBox(height: 16.0),
                   TextField(
                     controller: codeController,
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: S.current.enter_verification_code,
                       border: const OutlineInputBorder(),
@@ -102,7 +104,7 @@ Future<void> _showVerificationDialog({
                             ? const SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: const CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Text(S.current.submit),
                       ),
@@ -131,7 +133,7 @@ mixin Verification {
           context: context,
           title: S.current.verification,
           promptMessage: S.current.enter_verification_code_sent_to_your_email,
-          onResendCode: () => verificationEntry.resendVerificationCode(),
+          onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
       entryResult = await verificationEntry.getResult();

@@ -26,7 +26,7 @@ import 'package:ermis_client/features/messaging/presentation/input_field.dart';
 import 'package:ermis_client/features/messaging/presentation/message_bubble.dart';
 import 'package:ermis_client/features/messaging/presentation/choose_friends_screen.dart';
 import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/features/chats/voice_call.dart';
+import 'package:ermis_client/features/voice_call/voice_call.dart';
 import 'package:ermis_client/features/settings/options/theme_settings.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/widgets/scroll/custom_scroll_view.dart';
@@ -152,7 +152,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
       Message message = event.message;
 
       ErmisDB.getConnection().insertChatMessage(
-        serverInfo: Client.instance().serverInfo!,
+        serverInfo: UserInfoManager.serverInfo,
         message: message,
       );
 
@@ -220,7 +220,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
       });
     });
 
-    VoiceCallHandler.startListeningForIncomingCalls(context);
   }
 
   @override
@@ -321,7 +320,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
               children: [
                 IconButton(
                   onPressed: () {
-                    VoiceCallHandler.initiateVoiceCall(
+                    VoiceCallThing.initiateVoiceCall(
                       context,
                       chatSessionIndex: _chatSessionIndex,
                       chatSessionID: _chatSession.chatSessionID,

@@ -147,7 +147,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                   ],
                 ),
                 onTap: () {
-                  createModalBottomSheet();
+                  showChangeDisplayNameModalBottomSheet();
                 },
               ),
               ListTile(
@@ -200,7 +200,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
   void onChangeProfileImage() {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
@@ -211,7 +211,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
             children: [
               Text(
                 S.current.profile_photo,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
               Row(
@@ -223,8 +223,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                     label: S.current.profile_gallery,
                     onTap: () async {
                       Navigator.pop(context);
-                      attachSingleFile(context,
-                          (String fileName, Uint8List fileBytes) {
+                      attachSingleFile(context, (String fileName, Uint8List fileBytes) {
                         Client.instance().commands.setAccountIcon(fileBytes);
                       });
                     },
@@ -283,20 +282,21 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
             ),
           ),
           SizedBox(height: 8),
-          Text(label, style: TextStyle(fontSize: 14)),
+          Text(label, style: const TextStyle(fontSize: 14)),
         ],
       ),
     );
   }
 
-  Future createModalBottomSheet() {
+  Future showChangeDisplayNameModalBottomSheet() {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final TextEditingController displayNameController = TextEditingController();
     displayNameController.text = Client.instance().displayName!;
+
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
@@ -312,7 +312,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
             children: [
               Text(
                 S.current.name_enter,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Row(

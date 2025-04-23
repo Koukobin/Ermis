@@ -204,8 +204,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                           isSuccessful = await performVerification(context, _emailController.text);
                       
                           if (isSuccessful) {
-                            await showLoadingDialog(context,
-                                Client.instance().fetchUserInformation());
+                            await showLoadingDialog(context, Client.instance().fetchUserInformation());
                             // Navigate to the main interface
                             Navigator.pushAndRemoveUntil(
                               context,

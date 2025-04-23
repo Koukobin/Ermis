@@ -86,8 +86,7 @@ class SettingsJson {
   }
 
   void setGradientColors(List<Color> colors) {
-    _settingsJson["gradientColors"] =
-        colors.map((color) => color.value).toList();
+    _settingsJson["gradientColors"] = colors.map((color) => color.value).toList();
   }
 
   void setNotificationsEnabled(bool enabled) {
@@ -122,7 +121,7 @@ class SettingsJson {
       .map((colorInt) => Color(colorInt))
       .toList();
   bool get notificationsEnabled => _settingsJson["notificationsEnabled"] ?? true;
-  NotificationSound get notificationSound => NotificationSound.fromId(_settingsJson["notificationsSound"] ?? NotificationSound.osDefault);
+  NotificationSound get notificationSound => NotificationSound.fromId(_settingsJson["notificationsSound"] ?? NotificationSound.ermis);
 
   bool get showMessagePreview => _settingsJson["showMessagePreview"] ?? false;
   bool get vibrationEnabled => _settingsJson["vibrationEnabled"] ?? false;
@@ -172,6 +171,7 @@ class SettingsJson {
       "gradientColors": [Colors.blue.value, Colors.green.value],
       "notificationsEnabled": true,
       "showMessagePreview": true,
+      "notificationsSound": NotificationSound.ermis,
       "vibrationEnabled": false,
     };
     await file.writeAsString(jsonEncode(_settingsJson));
@@ -181,6 +181,7 @@ class SettingsJson {
 
 // Similar to the code above, but instead of manually storing the json 
 // to a file, it utilizes a plugin called 'shared_preferences' to do so.
+// Kept it here just in case it is useful in the future.
 
 // import 'dart:convert';
 

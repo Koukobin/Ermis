@@ -33,7 +33,13 @@ mixin EventBusSubscriptionMixin<T extends StatefulWidget> on State<T> {
   }
 
   @protected
-  void subscribe<E>(Stream<E> stream, void Function(E event) onData) {
+  void subscribe<E>(
+    Stream<E> stream,
+    void Function(E data) onData, {
+    void Function()? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
     if (!mounted) return;
 
     _subscriptions.add(stream.listen((event) {

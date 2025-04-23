@@ -18,6 +18,7 @@ import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<void> showToastDialog(String msg) async {
   await Fluttertoast.showToast(
@@ -103,6 +104,26 @@ Future<void> showWhatsAppDialog(
               actions: [...buttons],
             ),
           ));
+}
+
+Future<void> showPermissionDeniedDialog(BuildContext context, Permission permission) async {
+  await showWhatsAppDialog(
+    context,
+    buttons: [
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+          openAppSettings();
+        },
+        child: const Text("Open Settings"),
+      ),
+      TextButton(
+        onPressed: Navigator.of(context).pop,
+        child: const Text("Ok"),
+      ),
+    ],
+    content: "$permission is denied",
+  );
 }
 
 Future<void> showConfirmationDialog(BuildContext context, String content, GestureTapCallback runOnConfirmation) async {

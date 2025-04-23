@@ -36,11 +36,28 @@ class UserInfoManager {
   static List<ChatSession>? chatSessions;
   static List<ChatRequest>? chatRequests;
   static List<Account>? otherAccounts;
-
+  
   static final Map<int /* temporary message id */, Message> pendingMessagesQueue = {};
   static int lastPendingMessageID = 0;
 
   static late ServerInfo serverInfo;
+
+  static Uint8List? _pendingAccountIcon;
+  static set pendingAccountIcon(Uint8List pendingAccountIcon) => _pendingAccountIcon = pendingAccountIcon;
+  static void commitPendingProfilePhoto(int lastUpdatedEpochSecond) {
+    UserInfoManager.profilePhoto = UserInfoManager._pendingAccountIcon;
+    _pendingAccountIcon = null;
+
+    IntermediaryService().addLocalUserInfo(
+      server: serverInfo,
+      info: LocalUserInfo(
+        displayName: username!,
+        clientID: clientID,
+        profilePhoto: profilePhoto!,
+        lastUpdatedEpochSecond: lastUpdatedEpochSecond,
+      ),
+    );
+  }
 
   static Future<LocalUserInfo?> fetchProfileInformation() async {
     LocalUserInfo? userInfo = await IntermediaryService().fetchLocalUserInfo(server: serverInfo);
@@ -83,6 +100,6 @@ class UserInfoManager {
   }
 
   static void resetServerInformation() {
-    serverInfo = ServerInfo(Uri());
+    serverInfo = ServerInfo.empty();
   }
 }

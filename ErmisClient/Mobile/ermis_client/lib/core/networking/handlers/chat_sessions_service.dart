@@ -31,7 +31,7 @@ class IntermediaryService {
     LocalUserInfo? userInfo =  await _databaseService.getLocalUserInfo(server, accountInfo!.email);
     return await _databaseService.fetchChatSessions(
       server: server,
-      clientIDExclude: userInfo!.clientID,
+      clientIDExclude: userInfo?.clientID ?? -1,
     );
   }
 

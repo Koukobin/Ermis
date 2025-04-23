@@ -106,7 +106,7 @@ class Client {
 
   Future<String> readServerVersion() async {
     ByteBuf payload = await _inputStream!.read();
-    return String.fromCharCodes(payload.readAllBytes().toList());
+    return String.fromCharCodes(payload.readRemainingBytes().toList());
   }
 
   /// Attempts to authenticate user by sending their email and password hash
@@ -238,7 +238,7 @@ class Entry<T extends CredentialInterface> {
       ByteBuf payload = ByteBuf.smallBuffer();
       payload.writeInt32(ClientMessageType.entry.id);
       payload.writeInt32(credentialInt);
-      payload.writeBytes(Uint8List.fromList(credentialValue.codeUnits));
+      payload.writeBytes(utf8.encode(credentialValue));
 
       outputStream.write(payload);
     }
@@ -307,7 +307,7 @@ class Entry<T extends CredentialInterface> {
     return result;
   }
 
-  Future<void> resendVerificationCode() async {
+  Future<void> resendVerificationCodeToEmail() async {
     bool isAction = true;
 
     ByteBuf payload = ByteBuf.smallBuffer();
@@ -384,7 +384,7 @@ class LoginEntry extends Entry<LoginCredential> {
 
   /// Switches between authenticating via password or backup verification code.
   /// This is useful for users who have lost their primary password and need an alternative method.
-  void togglePasswordType() {
+  void setPasswordType(PasswordType type) {
     bool isAction = true;
     int actionId = LoginAction.togglePasswordType.id;
 
@@ -392,6 +392,7 @@ class LoginEntry extends Entry<LoginCredential> {
     payload.writeInt32(ClientMessageType.entry.id);
     payload.writeInt32(GeneralEntryAction.action.id);
     payload.writeInt32(actionId);
+    payload.writeInt32(type.id);
 
     outputStream.write(payload);
   }

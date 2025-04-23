@@ -23,6 +23,7 @@ import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_client/features/voice_call/voice_call.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/splash_screen/splash_screen.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
@@ -179,12 +180,6 @@ void maintainWebSocketConnection(ServiceInstance service) async {
   debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
   debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
   debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
 
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -193,7 +188,7 @@ void maintainWebSocketConnection(ServiceInstance service) async {
     debugPrint("background process is now stopped");
   });
 
-  service.on("sex").listen((event) async {
+  service.on("start_listening_for_messages").listen((event) async {
     await AppConstants.initialize();
     await NotificationService.init();
 
@@ -249,13 +244,6 @@ void maintainWebSocketConnection(ServiceInstance service) async {
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
   });
 
 }
@@ -289,19 +277,13 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.paused:
         // App is moved to the background
-        saveAppState("appState", "paused");
         break;
       case AppLifecycleState.resumed:
         // App is brought back to the foreground
-        loadAppState("appState").then((value) {
-          debugPrint("State loaded: $value");
-        });
         break;
       case AppLifecycleState.detached:
         // App is being terminated
-        print("i like thick booty latinas");
-        FlutterBackgroundService().invoke("sex");
-        saveAppState("appState", "detached");
+        FlutterBackgroundService().invoke("start_listening_for_messages");
         break;
       case AppLifecycleState.inactive:
         // App is temporarily inactive
@@ -312,17 +294,6 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
     }
   }
 
-  void saveAppState(String key, String value) async {
-    // final prefs = await SharedPreferences.getInstance();
-    // prefs.setString(key, value);
-  }
-
-  Future<String?> loadAppState(String key) async {
-    return null;
-  
-    // final prefs = await SharedPreferences.getInstance();
-    // // return prefs.getString(key);
-  }
 
   @override
   void dispose() {
@@ -375,6 +346,11 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
     subscribe(AppEventBus.instance.on<ConnectionResetEvent>(), (event) {
       showToastDialog(S.current.connection_reset);
     });
+
+    subscribe(
+      AppEventBus.instance.on<VoiceCallIncomingEvent>(),
+      VoiceCallThing.startListeningForIncomingCalls(context),
+    );
   }
 
   @override

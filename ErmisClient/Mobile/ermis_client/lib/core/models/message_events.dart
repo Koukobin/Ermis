@@ -19,10 +19,10 @@
 /// e.g receiving the username.
 library;
 
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/chat_request.dart';
+import 'package:ermis_client/core/models/inet_socket_address.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
@@ -158,40 +158,14 @@ class VoiceCallIncomingEvent {
   });
 }
 
-class InetSocketAddress {
-  final InternetAddress address;
-  final int port;
-
-  const InetSocketAddress(this.address, this.port);
-
-  @override
-  int get hashCode => address.hashCode * port.hashCode;
-
-  @override
-  String toString() => '${address.address}:$port';
-  
-  @override
-  bool operator ==(Object other) {
-    if (this == other) {
-      return true;
-    }
-
-    if (other is! InetSocketAddress) {
-      return false;
-    }
-
-    return address == other.address && port == other.port;
-  }
-}
-
-class MotherfuckerAdded {
+class MemberAddedToVoiceCalll {
   final int chatSessionID;
   final int clientID;
-  final InetSocketAddress motherFuckersAddress;
-  const MotherfuckerAdded({
+  final JavaInetSocketAddress socket;
+  const MemberAddedToVoiceCalll({
     required this.chatSessionID,
     required this.clientID,
-    required this.motherFuckersAddress,
+    required this.socket,
   });
 }
 

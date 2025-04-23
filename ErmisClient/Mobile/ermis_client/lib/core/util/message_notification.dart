@@ -16,6 +16,7 @@
 
 import 'dart:typed_data';
 
+import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -74,7 +75,7 @@ void handleChatMessageNotification(ChatSession chatSession, Message msg, Setting
     case NotificationSound.osDefault:
       FlutterRingtonePlayer().playNotification();
     case NotificationSound.ermis:
-      FlutterRingtonePlayer().play(fromAsset: "assets/sounds/ermis_notification.wav");
+      FlutterRingtonePlayer().play(fromAsset: AppConstants.ermisNotificationSoundPath);
   }
 
   if (!settingsJson.showMessagePreview) {

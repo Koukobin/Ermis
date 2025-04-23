@@ -17,6 +17,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:ermis_client/core/models/inet_socket_address.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/networking/handlers/chat_sessions_service.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
@@ -26,7 +27,6 @@ import 'package:ermis_client/core/networking/common/results/client_command_resul
 import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 import 'package:ermis_client/core/extensions/iterable_extensions.dart';
 import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/networking/message_transmitter.dart';
 import 'package:ermis_client/core/models/account.dart';
 import 'package:ermis_client/core/models/chat_request.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
@@ -347,8 +347,11 @@ class CommandResultHandler {
         if (!isSuccessful) {
           break;
         }
-        
-        UserInfoManager.profilePhoto = Commands.pendingAccountIcon;
+
+        // Deduce epoch second
+        int lastUpdatedEpochSecond = (DateTime.now().millisecondsSinceEpoch / 1000).toInt();
+        UserInfoManager.commitPendingProfilePhoto(lastUpdatedEpochSecond);
+
         _eventBus.fire(AddProfilePhotoResultEvent(isSuccessful));
         break;
       case ClientCommandResultType.startVoiceCall:
@@ -361,11 +364,11 @@ class CommandResultHandler {
         int clientID = msg.readInt32();
         int chatSessionID = msg.readInt32();
         int port = msg.readInt32();
-        Uint8List rawAddress = msg.readAllBytes();
-        _eventBus.fire(MotherfuckerAdded(
+        Uint8List rawAddress = msg.readRemainingBytes();
+        _eventBus.fire(MemberAddedToVoiceCalll(
           clientID: clientID,
           chatSessionID: chatSessionID,
-          motherFuckersAddress: InetSocketAddress(InternetAddress.fromRawAddress(rawAddress), port),
+          socket: JavaInetSocketAddress(InternetAddress.fromRawAddress(rawAddress), port),
         ));
         print("Mother fucking eventbus");
         print("Mother fucking eventbus");

@@ -24,12 +24,21 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'dialogs_utils.dart';
 
-Future<bool> checkAndRequestPermissions(List<Permission> otherPermissions) async {
+Future<(bool, List<Permission>?)> checkAndRequestPermissions(List<Permission> permissions) async {
   bool isPermitted = true;
-  for (Permission permission in otherPermissions) {
-    isPermitted &= await checkAndRequestPermission(permission);
+  List<Permission>? permissionsDenied;
+
+  for (Permission permission in permissions) {
+    bool isSpecificPermissionPermitted = await checkAndRequestPermission(permission);
+    isPermitted &= isSpecificPermissionPermitted;
+
+    if (!isSpecificPermissionPermitted) {
+      permissionsDenied ??= [];
+      permissionsDenied.add(permission);
+    }
   }
-  return isPermitted;
+
+  return (isPermitted, permissionsDenied);
 }
 
 Future<bool> checkAndRequestPermission(Permission permission) async {

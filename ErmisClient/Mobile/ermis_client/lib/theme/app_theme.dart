@@ -23,6 +23,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../core/services/locale_provider.dart';
+import '../core/services/navigation_service.dart';
 
 class AppTheme extends StatefulWidget {
   final Widget home;
@@ -357,6 +358,7 @@ class AppThemeState extends State<AppTheme> {
             //   }
             //   return null; // Result to default behavior
             // },
+            navigatorKey: NavigationService.navigatorKey, // Set global context of Material App
             themeMode: _themeMode,
             darkTheme: buildDarkThemeData(),
             theme: buildLightThemeData(),

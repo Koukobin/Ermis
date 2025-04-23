@@ -20,6 +20,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../services/navigation_service.dart';
+import 'dialogs_utils.dart';
+
 typedef ReplyCallBack = void Function(String message);
 
 enum NotificationAction {
@@ -98,19 +101,7 @@ class NotificationService {
 
   static Future<void> showIconNotification(Uint8List iconBytes, String title, String body) async {
     if (!await checkAndRequestPermission(Permission.notification)) {
-      if (kDebugMode) {
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-      }
-
+      showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
       return;
     }
 
@@ -149,21 +140,10 @@ class NotificationService {
 
   static Future<void> showSimpleNotification({required String body}) async {
     if (!await checkAndRequestPermission(Permission.notification)) {
-      if (kDebugMode) {
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-      }
-
+      showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
       return;
     }
+
     // Define Notification Details
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
@@ -187,19 +167,7 @@ class NotificationService {
     required VoidCallback onAccept,
   }) async {
     if (!await checkAndRequestPermission(Permission.notification)) {
-      if (kDebugMode) {
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-      }
-
+      showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
       return;
     }
 
@@ -246,25 +214,9 @@ class NotificationService {
     required ReplyCallBack replyCallBack,
   }) async {
     if (!await checkAndRequestPermission(Permission.notification)) {
-      if (kDebugMode) {
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-        debugPrint("PERMISSION NOTIFICATION DENIED");
-      }
-
+      showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
       return;
     }
-
-    /**
-    ));
-     */
 
     NotificationService.replyCallBack = replyCallBack;
     NotificationDetails platformChannelSpecifics = NotificationDetails(

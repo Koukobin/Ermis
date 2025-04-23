@@ -23,7 +23,9 @@ import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-typedef AvatarClicked = List<Widget> Function(BuildContext context, VoidCallback popContext);
+typedef FutureVoidCallback = Future<void> Function();
+
+typedef AvatarClicked = List<Widget> Function(BuildContext context, FutureVoidCallback popContext);
 List<Widget> _defaultAvatarClickedAction(BuildContext _, VoidCallback __) => const [];
 
 class InteractiveUserAvatar extends StatelessWidget {
@@ -123,21 +125,20 @@ class InteractiveUserAvatar extends StatelessWidget {
         builder: (context, void Function(VoidCallback) setState) {
           if (!isInitialized) {
             isInitialized = true;
-            Future.delayed(Duration(milliseconds: 50), () {
+            Future.delayed(const Duration(milliseconds: 50), () {
               setState(() {
                 isVisible = true; // Trigger the animation after build
               });
             });
           }
 
-          void popContext() {
+          Future<void> popContext() async {
             setState(() {
               isVisible = false;
-              Future.delayed(
-                Duration(milliseconds: 300),
-                Navigator.of(context).pop,
-              );
             });
+            Navigator.of(context).pop();
+
+            await Future.delayed(const Duration(milliseconds: 300));
           }
 
           return GestureDetector(
@@ -154,7 +155,7 @@ class InteractiveUserAvatar extends StatelessWidget {
                         topRight: Radius.circular(12),
                       ),
                       child: InteractiveViewer(
-                        boundaryMargin: EdgeInsets.all(20),
+                        boundaryMargin: const EdgeInsets.all(20),
                         minScale: 1.0,
                         maxScale: 8.0,
                         child: Hero(
@@ -166,7 +167,7 @@ class InteractiveUserAvatar extends StatelessWidget {
                                     radius: 180,
                                     backgroundColor: Colors.grey[200],
                                     backgroundImage: null,
-                                    child: Icon(
+                                    child: const Icon(
                                       Icons.person,
                                       size: 180,
                                       color: Colors.grey,

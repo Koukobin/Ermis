@@ -157,14 +157,13 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                           loginEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
 
                           if (_useBackupverificationCode) {
-                            loginEntry.togglePasswordType();
+                            loginEntry.setPasswordType(PasswordType.backupVerificationCode);
                           }
 
                           loginEntry.sendCredentials({
                             LoginCredential.email: _emailController.text,
                             LoginCredential.password: _useBackupverificationCode ? _backupVerificationController.text : _passwordController.text,
                           });
-
                           
                           Resultable entryResult;
                           if (!_useBackupverificationCode) {

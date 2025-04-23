@@ -90,7 +90,7 @@ class ByteBufInputStreamDecoder {
         }
 
         buffer.discardReadBytes();
-        return ByteBuf.wrap(message);
+        return ByteBuf.deepWrap(message);
       }
 
       buffer.resetReaderIndex();

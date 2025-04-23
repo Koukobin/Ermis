@@ -102,6 +102,10 @@ class DBConnection {
       );
     ''');
 
+    // await db.execute('''
+    //   DROP TABLE server_profiles;
+    // ''');
+
     // Create 'server_profiles' table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS server_profiles (
@@ -114,6 +118,7 @@ class DBConnection {
         PRIMARY KEY (server_url, email, client_id)
       );
     ''');
+
 
     // await db.execute('''
     //   DROP TABLE members;
@@ -802,6 +807,12 @@ class ServerInfo {
   final InternetAddress _address;
   final int _port;
   DateTime lastUsed;
+
+  ServerInfo.empty()
+      : _serverUrl = Uri(),
+        _address = InternetAddress("localhost"),
+        _port = -1,
+        lastUsed = DateTime.fromMillisecondsSinceEpoch(0);
 
   factory ServerInfo(Uri serverUrl, [DateTime? lastUsed]) {
     if (!serverUrl.toString().startsWith("https://")) {
