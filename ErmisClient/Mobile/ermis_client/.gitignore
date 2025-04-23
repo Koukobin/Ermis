@@ -33,6 +33,9 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Automatically generated dart language files
+/lib/generated
+
 # Symbolication related
 app.*.symbols
 
@@ -44,5 +47,3 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Automatically generated dart language files
-/lib/generated/
