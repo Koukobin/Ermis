@@ -18,6 +18,8 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:ermis_client/core/extensions/iterable_extensions.dart';
+import 'package:ermis_client/core/models/inet_socket_address.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
@@ -38,37 +40,40 @@ import '../../core/util/notifications_util.dart';
 import '../../core/util/permissions.dart';
 import '../../core/util/transitions_util.dart';
 
-VoiceCallUDPSocket udpSocket = VoiceCallUDPSocket();
+final VoiceCallUDPSocket _udpSocket = VoiceCallUDPSocket();
 
-class VoiceCallHandler {
-  static void startListeningForIncomingCalls(BuildContext context) {
-    AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
+class VoiceCallThing {
+  static void Function(VoiceCallIncomingEvent) startListeningForIncomingCalls(BuildContext context) {
+    return (VoiceCallIncomingEvent event) {
       Member member = event.member;
 
       NotificationService.showVoiceCallNotification(
           icon: member.icon.profilePhoto,
           callerName: member.username,
           onAccept: () async {
+            bool permission = await ligma(context);
+            if (!permission) return;
             final int port = event.signallingPort;
             final Uint8List aesKey = event.aesKey;
             final int chatSessionID = event.chatSessionID;
+            final int chatSessionIndex = event.chatSessionIndex;
 
-            await udpSocket.openSocket();
+            await _udpSocket.openSocket();
 
             navigateWithFade(
                 context,
                 VoiceCallScreen._(
                   chatSessionID: chatSessionID,
-                  chatSessionIndex: event.chatSessionIndex,
-                  mansPort: [],
+                  chatSessionIndex: chatSessionIndex,
+                  otherIps: [],
                   member: member,
                   aesKey: aesKey,
                 ));
 
             await Future.delayed(const Duration(seconds: 5));
 
-            await udpSocket.initialize(aesKey);
-            udpSocket.rawSecureSendByteBuf(
+            await _udpSocket.initialize(aesKey);
+            _udpSocket.rawSecureSend(
               ByteBuf.smallBuffer()
                 ..writeInt32(UserInfoManager.clientID)
                 ..writeInt32(chatSessionID),
@@ -76,7 +81,18 @@ class VoiceCallHandler {
               port,
             );
           });
-    });
+    };
+  }
+
+  static Future<bool> ligma(BuildContext context) async {
+    (bool, List<Permission>?) result = await checkAndRequestPermissions([Permission.microphone, Permission.camera]);
+    if (!result.$1) {
+      for (Permission per in result.$2!) {
+        showPermissionDeniedDialog(context, per);
+      }
+    }
+
+    return result.$1;
   }
 
   static Future<void> initiateVoiceCall(
@@ -84,35 +100,31 @@ class VoiceCallHandler {
     required int chatSessionIndex,
     required int chatSessionID,
   }) async {
-    // WebRTCService.startCall(chatSessionID);
+    bool permission = await ligma(context);
+    if (!permission) return;
 
-    // Client.instance().commands.startVoiceCall(chatSessionIndex);
-    // await AppEventBus.instance.on<StartVoiceCallResultEvent>().first.then((event) {
-    //   voiceCallKey = event.key;
-    //   port = event.udpServerPort;
-    // });
     Client.instance().commands.startVoiceCall(chatSessionIndex);
 
     final event = await AppEventBus.instance.on<StartVoiceCallResultEvent>().first;
     final int port = event.udpServerPort;
     final Uint8List aesKey = event.aesKey;
 
-    await udpSocket.openSocket();
+    await _udpSocket.openSocket();
 
     navigateWithFade(
         context,
         VoiceCallScreen._(
           chatSessionIndex: chatSessionIndex,
           chatSessionID: chatSessionID,
-          mansPort: [],
+          otherIps: [],
           member: UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.members[0],
           aesKey: aesKey,
         ));
 
     await Future.delayed(const Duration(seconds: 5));
 
-    await udpSocket.initialize(aesKey);
-    udpSocket.rawSecureSendByteBuf(
+    await _udpSocket.initialize(aesKey);
+    _udpSocket.rawSecureSend(
       ByteBuf.smallBuffer()
         ..writeInt32(UserInfoManager.clientID)
         ..writeInt32(chatSessionID),
@@ -125,25 +137,20 @@ class VoiceCallHandler {
 class VoiceCallScreen extends StatefulWidget {
   final int chatSessionID;
   final int chatSessionIndex;
-  final List<InetSocketAddress> mansPort;
+  final List<JavaInetSocketAddress> otherIps;
   final Uint8List aesKey;
   final Member? member;
   const VoiceCallScreen._({
     super.key,
     required this.chatSessionID,
     required this.chatSessionIndex,
-    required this.mansPort,
+    required this.otherIps,
     required this.member,
     required this.aesKey,
   });
 
   @override
   State<VoiceCallScreen> createState() => VoiceCallScreenState();
-}
-
-enum VoiceCall {
-  accept,
-  create;
 }
 
 enum CallStatus {
@@ -158,38 +165,40 @@ enum CallStatus {
 }
 
 class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscriptionMixin {
-  late final FlutterSoundRecorder _recorder;
-  late final FlutterSoundPlayer player;
-  // late final String audioFilePath;
+  final FlutterSoundPlayer _player = FlutterSoundPlayer()..openPlayer().then((player) {
+  player!.startPlayerFromStream(
+      codec: Codec.pcm16,
+      sampleRate: 8000,
+      numChannels: 1,
+      bufferSize: 512,
+      interleaved: true,
+    );
+  });
 
+  final StreamController<Uint8List> _controller = StreamController<Uint8List>();
+  
   double rms = 0.0;
 
   bool isMuted = false;
   bool isShowingVideo = false;
 
-  int lastReadPosition = 0;
-
   CallStatus callStatus = CallStatus.calling;
 
-  final StreamController<Uint8List> _controller = StreamController<Uint8List>();
+  static const bool logInDetail = false && kDebugMode;
 
-  static const bool shouldPrint = false && kDebugMode;
-
-  Set<InetSocketAddress> ips = {};
+  Set<JavaInetSocketAddress> ips = {};
 
   @override
   void initState() {
     super.initState();
 
-    for (InetSocketAddress socketAddress in widget.mansPort) {
-      ips.add(socketAddress);
-    }
+    ips.addAll(widget.otherIps);
 
-    subscribe(AppEventBus.instance.on<MotherfuckerAdded>(), (event) async {
-      // Ensure mother fucker added belongs to current chat session
+    subscribe(AppEventBus.instance.on<MemberAddedToVoiceCalll>(), (event) async {
+      // Ensure motherfucker added belongs to current chat session
       if (event.chatSessionID != widget.chatSessionID) return;
 
-      if (shouldPrint) {
+      if (logInDetail) {
         debugPrint("Received");
         debugPrint("Received");
         debugPrint("Received");
@@ -197,11 +206,21 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
         debugPrint("Received");
       }
 
-      ips.add(event.motherFuckersAddress);
+      ips.add(event.socket);
+    }, onDone: Navigator.of(context).pop);
+
+    final FlutterSoundRecorder _recorder = FlutterSoundRecorder()..openRecorder().then((recorder) {
+      recorder!.startRecorder(
+        codec: Codec.pcm16,
+        sampleRate: 8000,
+        numChannels: 1,
+        bufferSize: 512,
+        toStream: _controller,
+      );
     });
 
     Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (ips.isEmpty || !udpSocket.isInitialized) return;
+      if (ips.isEmpty || !_udpSocket.isInitialized) return;
 
       _initiate();
       timer.cancel();
@@ -209,64 +228,38 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
   }
 
   Future<void> _initiate() async {
-    await checkAndRequestPermission(Permission.microphone);
-    await checkAndRequestPermission(Permission.camera);
-    await checkAndRequestPermission(Permission.audio);
-
-    player = FlutterSoundPlayer();
-    await player.openPlayer();
-    await player.startPlayerFromStream(
-      codec: Codec.pcm16,
-      sampleRate: 8000,
-      numChannels: 1,
-      bufferSize: 512,
-      interleaved: true,
-    );
-
-    subscribe(udpSocket.stream, (Uint8List? data) async {
+    subscribe(_udpSocket.stream, (Uint8List? data) async {
       if (data == null) return;
-      if (shouldPrint) {
+
+      if (logInDetail) {
         debugPrint("RETRIEVING DATA");
         debugPrint("RETRIEVING DATA");
         debugPrint("RETRIEVING DATA");
         debugPrint("RETRIEVING DATA");
         debugPrint("RETRIEVING DATA");
       }
-      await player.feedUint8FromStream(data);
+
+      await _player.feedUint8FromStream(data);
       double rms = calculateRMS(data);
-      if (shouldPrint) debugPrint('RMS: $rms');
+      if (logInDetail) debugPrint('RMS: $rms');
       setState(() {
         this.callStatus = CallStatus.active;
         this.rms = rms;
       });
     });
-    // udpSocket.listen((Uint8List data) async {
-    //   if (shouldPrint) {
-    //     debugPrint("RETRIEVING DATA");
-    //     debugPrint("RETRIEVING DATA");
-    //     debugPrint("RETRIEVING DATA");
-    //     debugPrint("RETRIEVING DATA");
-    //     debugPrint("RETRIEVING DATA");
-    //   }
-    //   await player.feedUint8FromStream(data);
-    //   double rms = calculateRMS(data);
-    //   if (kDebugMode) debugPrint('RMS: $rms');
-    //   setState(() {
-    //     this.callStatus = CallStatus.active;
-    //     this.rms = rms;
-    //   });
-    // });
 
     _startAudioRecording();
   }
 
   double calculateRMS(Uint8List audioChunk) {
     if (audioChunk.isEmpty) {
-      if (shouldPrint) {
+      if (logInDetail) {
         debugPrint("Empty?");
       }
+
       return 0.0; // Return 0 for empty audio samples.
     }
+
     Int16List audioSamples = audioChunk.buffer.asInt16List();
     num sumOfSquares = audioSamples
         .map((int sample) => pow(sample, 2))
@@ -275,85 +268,28 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
   }
 
   Future<void> _startAudioRecording() async {
-    // audioFilePath = '${(await getTemporaryDirectory()).path}/recording.wav';
-    // await deleteAndCreateFile(audioFilePath);
-
-    _recorder = FlutterSoundRecorder();
-    await _recorder.openRecorder();
-    await _recorder.startRecorder(
-      codec: Codec.pcm16,
-      sampleRate: 8000,
-      numChannels: 1,
-      bufferSize: 512,
-      toStream: _controller,
-    );
-
     isMuted = false;
     _listenAndSendAudio();
   }
 
-  // final _lock = Lock();
-
   // Listen to the audio file and send it to the server in chunks
   Future<void> _listenAndSendAudio() async {
-    if (shouldPrint) {
+    if (logInDetail) {
       debugPrint("LISTENING");
       debugPrint("LISTENING");
       debugPrint("LISTENING");
       debugPrint("LISTENING");
       debugPrint("LISTENING");
     }
+
     _controller.stream.listen((Uint8List data) {
-      if (shouldPrint) debugPrint(ips.toString());
-      for (InetSocketAddress value in ips) {
+      if (logInDetail) debugPrint(ips.hashCodeDistinct().toString());
+
+      for (JavaInetSocketAddress socket in ips.hashCodeDistinct()) {
         // print("Audio data sent: $data");
-        udpSocket.rawSecureSend(data, value.address, value.port);
+        _udpSocket.sendSecureVoice(data, socket);
       }
     });
-
-    // Timer.periodic(const Duration(milliseconds: 50), (Timer timer) {
-    //   _lock.synchronized(() async {
-    //     if (callStatus == CallStatus.ended) {
-    //       timer.cancel();
-    //       return;
-    //     }
-
-    //     if (isMuted) {
-    //       showExceptionDialog(context, "canceled?");
-    //       return;
-    //     }
-
-    //     // Check if the file exists and has content
-    //     File audioFile = File(audioFilePath);
-
-    //     // Open the file and only read from the last read position
-    //     final RandomAccessFile raf = await audioFile.open();
-    //     final int currentLength = await raf.length();
-    //     print(currentLength);
-
-    //     if (currentLength > lastReadPosition) {
-    //       // Read new data from the last read position
-    //       final int bytesToRead = currentLength - lastReadPosition;
-    //       print("$currentLength - $lastReadPosition = $bytesToRead");
-    //       await raf.setPosition(lastReadPosition);
-    //       final audioData = await raf.read(bytesToRead);
-
-    //       print(audioData.lengthInBytes == bytesToRead); // should print true; it does
-
-    //       // Update the last read position
-    //       lastReadPosition = currentLength;
-
-    //       // Transmit the new audio data to all users
-    //       print(bruh);
-    //       for (InetSocketAddress value in bruh) {
-    //         // print("Audio data sent: $audioData");
-    //         udpSocket.rawSecureSend(audioData, value.address, value.port);
-    //       }
-    //     }
-
-    //     await raf.close();
-    //   });
-    // });
   }
 
   // Stop recording
@@ -477,7 +413,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
     setState(() {
       callStatus = CallStatus.ended;
     });
-    udpSocket.close();
+    _udpSocket.close(ips);
     Navigator.pop(context);
   }
 }

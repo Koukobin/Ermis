@@ -42,7 +42,9 @@
         android:label="Ermis"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        tools:replace="android:label">
+        tools:replace="android:label"
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config">
         <service
             android:name="com.pravera.flutter_foreground_task.service.FlutterBackgroundService"
             android:foregroundServiceType="mediaProjection|dataSync"
