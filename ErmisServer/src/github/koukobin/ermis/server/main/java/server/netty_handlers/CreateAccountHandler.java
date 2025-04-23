@@ -142,7 +142,6 @@ final class CreateAccountHandler extends EntryHandler {
 
 			@Override
 			public GeneralResult executeWhenVerificationSuccessful() {
-
 				String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
 				String username = credentials.get(Credential.USERNAME);
 				String password = credentials.get(Credential.PASSWORD);

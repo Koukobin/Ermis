@@ -17,7 +17,9 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Map.Entry;
+
+import javax.annotation.Nullable;
+import javax.mail.MessagingException;
 
 import github.koukobin.ermis.common.DeviceType;
 import github.koukobin.ermis.common.UserDeviceInfo;
@@ -31,6 +33,7 @@ import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
+import github.koukobin.ermis.server.main.java.server.util.EmailerService;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -60,10 +63,7 @@ final class LoginHandler extends EntryHandler {
 
 		switch (action) {
 		case TOGGLE_PASSWORD_TYPE -> {
-			passwordType = switch (passwordType) {
-			case PASSWORD -> PasswordType.BACKUP_VERIFICATION_CODE;
-			case BACKUP_VERIFICATION_CODE -> PasswordType.PASSWORD;
-			};
+			passwordType = PasswordType.fromId(msg.readInt());
 		}
 		case ADD_DEVICE_INFO -> {
 			deviceType = DeviceType.fromId(msg.readInt());
@@ -114,6 +114,8 @@ final class LoginHandler extends EntryHandler {
 	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
 		String email = credentials.get(Credential.EMAIL);
 		String password = credentials.get(Credential.PASSWORD);
+		
+		System.out.println(passwordType);
 
 		switch (passwordType) {
 		case BACKUP_VERIFICATION_CODE -> {
@@ -128,6 +130,16 @@ final class LoginHandler extends EntryHandler {
 			if (entryResult.isSuccessful()) {
 				clientInfo.setEmail(email);
 				login(ctx, clientInfo);
+
+				@Nullable String newlyGeneratedBackupVerificationCodes = entryResult.getAddedInfo().get(AddedInfo.BACKUP_VERIFICATION_CODES);
+
+				if (newlyGeneratedBackupVerificationCodes != null) {
+					try {
+						EmailerService.sendEmail("Backup verification codes", newlyGeneratedBackupVerificationCodes, email);
+					} catch (MessagingException me) {
+						getLogger().error("An error occured while trying to send email", me);
+					}
+				}
 			} else {
 //				EntryHandler.registrationFailed(ctx);
 			}
@@ -136,12 +148,6 @@ final class LoginHandler extends EntryHandler {
 			payload.writeInt(ServerMessageType.ENTRY.id);
 			payload.writeBoolean(entryResult.isSuccessful());
 			payload.writeInt(entryResult.getIDable().getID());
-			for (Entry<AddedInfo, String> addedInfo : entryResult.getAddedInfo().entrySet()) {
-				payload.writeInt(addedInfo.getKey().id);
-				byte[] info = addedInfo.getValue().getBytes();
-				payload.writeInt(info.length);
-				payload.writeBytes(info);
-			}
 
 			ctx.channel().writeAndFlush(payload);
 		}

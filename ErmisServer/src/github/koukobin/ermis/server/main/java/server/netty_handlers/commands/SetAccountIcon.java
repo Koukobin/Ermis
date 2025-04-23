@@ -34,16 +34,16 @@ public class SetAccountIcon implements ICommand {
 		byte[] icon = new byte[args.readableBytes()];
 		args.readBytes(icon);
 
-		int resultUpdate;
+		boolean isSuccessful;
 
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			resultUpdate = conn.setProfilePhoto(clientInfo.getClientID(), icon);
+			isSuccessful = conn.setProfilePhoto(clientInfo.getClientID(), icon);
 		}
 
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 		payload.writeInt(ClientCommandResultType.SET_ACCOUNT_ICON.id);
-		payload.writeBoolean(resultUpdate == 1);
+		payload.writeBoolean(isSuccessful);
 
 		channel.writeAndFlush(payload);
 	}

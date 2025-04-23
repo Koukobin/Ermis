@@ -16,7 +16,6 @@
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
 import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.ChangeUsernameResult;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
@@ -38,18 +37,18 @@ public class ChangeUsername implements ICommand {
 		String newUsername = new String(newUsernameBytes);
 		String currentUsername = clientInfo.getUsername();
 
-		ByteBuf payload = channel.alloc().ioBuffer();
-		payload.writeInt(ServerMessageType.SERVER_INFO.id);
+//		ByteBuf payload = channel.alloc().ioBuffer();
+//		payload.writeInt(ServerMessageType.SERVER_INFO.id);
 
 		if (newUsername.equals(currentUsername)) {
-			payload.writeInt(ChangeUsernameResult.ERROR_WHILE_CHANGING_USERNAME.id);
+//			payload.writeInt(ChangeUsernameResult.ERROR_WHILE_CHANGING_USERNAME.id);
 		} else {
 			ChangeUsernameResult result;
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				result = conn.changeDisplayName(clientInfo.getClientID(), newUsername);
 			}
 
-			payload.writeInt(result.id);
+//			payload.writeInt(result.id);
 
 			if (result.resultHolder.isSuccessful()) {
 				clientInfo.setUsername(newUsername);
@@ -59,7 +58,7 @@ public class ChangeUsername implements ICommand {
 			}
 		}
 
-		channel.writeAndFlush(payload);
+//		channel.writeAndFlush(payload);
 	}
 
 	@Override

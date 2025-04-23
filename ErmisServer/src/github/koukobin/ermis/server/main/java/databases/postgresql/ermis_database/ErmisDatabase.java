@@ -1365,11 +1365,9 @@ public final class ErmisDatabase {
 		}
 
 		public boolean accountWithEmailExists(String email) {
-
 			boolean accountExists = false;
 
 			try (PreparedStatement getEmailAddress = conn.prepareStatement("SELECT 1 FROM users WHERE email=?;")) {
-
 				getEmailAddress.setString(1, email);
 				ResultSet rs = getEmailAddress.executeQuery();
 
@@ -1381,16 +1379,15 @@ public final class ErmisDatabase {
 			return accountExists;
 		}
 
-		public int setProfilePhoto(int clientID, byte[] icon) {
-
-			int resultUpdate = 0;
+		public boolean setProfilePhoto(int clientID, byte[] icon) {
+			boolean success = false;
 
 			String profilePhotoID;
 			try {
 				profilePhotoID = FilesStorage.storeProfilePhoto(icon);
 			} catch (IOException ioe) {
 				logger.error("An error occured while trying to create profile photo file", ioe);
-				return resultUpdate;
+				return success;
 			}
 
 			String sql = "UPDATE user_profiles SET profile_photo_id = ? WHERE client_id = ?;";
@@ -1398,12 +1395,12 @@ public final class ErmisDatabase {
 				pstmt.setString(1, profilePhotoID);
 				pstmt.setInt(2, clientID);
 
-				resultUpdate = pstmt.executeUpdate();
+				success = pstmt.executeUpdate() == 1;
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return resultUpdate;
+			return success;
 		}
 
 		public Optional<UserIcon> selectUserIcon(int clientID) {
