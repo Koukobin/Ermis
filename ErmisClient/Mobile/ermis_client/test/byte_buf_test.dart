@@ -101,7 +101,7 @@ void main() {
 
     test('ByteBuf.wrap works', () {
       Uint8List list = Uint8List.fromList([10, 20, 30]);
-      ByteBuf buf = ByteBuf.wrap(list);
+      ByteBuf buf = ByteBuf.deepWrap(list);
       expect(buf.capacity, list.length);
       expect(buf.readBytes(3), [10, 20, 30]);
     });
