@@ -92,7 +92,7 @@ dependencies:
   logging: ^1.1.1
   # http: ^1.3.0
   # web_socket_channel: ^2.4.4
-  flutter_sound: ^9.22.0
+  flutter_sound: ^9.28.0
   # record: ^5.2.0
   flutter_localizations:
     sdk: flutter
@@ -142,7 +142,7 @@ flutter:
     - assets/primary_application_icon_alter.png
     - assets/primary_application_icon.png
     - assets/LICENCE.txt
-    - assets/sounds/ermis_notification.wav
+    - assets/sounds/ermis_notification.mp3
     - assets/ermis/ermis_mascot.png
     - assets/ermis/crying-ermis.png
     - assets/background/parthenon.jpg
