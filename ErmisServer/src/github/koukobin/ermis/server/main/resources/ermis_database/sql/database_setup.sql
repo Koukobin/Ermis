@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE INDEX IF NOT EXISTS users_client_id_index ON users (client_id);
 CREATE INDEX IF NOT EXISTS users_email_index ON users (email);
 
+-- Create user_profiles table
 CREATE TABLE IF NOT EXISTS user_profiles (
     client_id INTEGER NOT NULL REFERENCES users(client_id) ON DELETE CASCADE,
     display_name VARCHAR(DISPLAY_LENGTH) NOT NULL,
@@ -43,6 +44,22 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 
 CREATE INDEX IF NOT EXISTS user_profiles_display_name_index ON user_profiles (display_name);
 CREATE INDEX IF NOT EXISTS user_profiles_about_index ON user_profiles (about);
+
+-- Create trigger to ensure that last_updated_at is automatically updated whenever the row is modified
+CREATE OR REPLACE FUNCTION update_last_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF row(NEW.*) IS DISTINCT FROM row(OLD.*) THEN
+        NEW.last_updated_at = now();
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_last_updated_at
+BEFORE UPDATE ON user_profiles
+FOR EACH ROW
+EXECUTE FUNCTION update_last_updated_at();
 
 -- Create device type enum table
 --DO $$
