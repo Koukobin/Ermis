@@ -149,10 +149,6 @@ public final class ErmisDatabase {
 		return new WriteChatMessagesDBConnection();
 	}
 
-	public enum DeleteAccountSuccess {
-		SUCCESS, EMAIL_ENTERED_DOES_NOT_MATCH_ACCOUNT, AUTHENTICATION_FAILED, FAILURE;
-	}
-
 	public enum Insert {
 		SUCCESSFUL_INSERT, DUPLICATE_ENTRY, NOTHING_CHANGED, INTERNAL_ERROR;
 	}
@@ -398,28 +394,28 @@ public final class ErmisDatabase {
 		/**
 		 * Authenticates client and deletes account
 		 */
-		public DeleteAccountSuccess deleteAccount(String enteredEmail, String enteredPassword, int clientID) {
+		public GeneralResult deleteAccount(String enteredEmail, String enteredPassword, int clientID) {
 			// Verify that the entered email is associated with the provided client ID
 			int associatedClientID = getClientID(enteredEmail).orElseThrow();
 			if (associatedClientID != clientID) {
-				return DeleteAccountSuccess.EMAIL_ENTERED_DOES_NOT_MATCH_ACCOUNT;
+				return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
 			}
 
 			// Perform authentication to ensure email and password match
 			Optional<String> passwordHash = checkAuthentication(enteredEmail, enteredPassword);
 
 			if (passwordHash.isEmpty()) {
-				return DeleteAccountSuccess.AUTHENTICATION_FAILED;
+				return new GeneralResult(LoginInfo.Login.Result.INCORRECT_PASSWORD, false);
 			}
 
 			try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM users WHERE client_id=?;")) {
 				pstmt.setInt(1, clientID);
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
-				return DeleteAccountSuccess.FAILURE;
+				return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
 			}
 
-			return DeleteAccountSuccess.SUCCESS;
+			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, false);
 		}
 
 		public boolean checkAuthenticationViaHash(String email, String enteredPasswordpasswordHash) {
@@ -1496,24 +1492,14 @@ public final class ErmisDatabase {
 		public UserMessage[] selectMessages(int chatSessionID, int offset, int limit, int requestingClientID) {
 			UserMessage[] messages = EmptyArrays.EMPTY_USER_MESSAGES_ARRAY;
 
-			String sql = """
-					with messages AS (
-						SELECT message_id, client_id, text, file_name, ts_entered, content_type, is_read
+			String fetchMessagesSql = """
+					SELECT message_id, client_id, text, file_name, ts_entered, content_type, is_read
 						FROM chat_messages
 						WHERE chat_session_id = ?
 						ORDER BY message_id DESC
 						LIMIT ? OFFSET ?
-					),
-					updated AS (
-					    UPDATE chat_messages
-					    SET is_read = TRUE
-					    WHERE chat_session_id = ?
-					    AND client_id <> ?
-					    RETURNING message_id
-					)
-					SELECT * FROM messages;
 					""";
-			try (PreparedStatement selectMessages = conn.prepareStatement(sql,
+			try (PreparedStatement selectMessages = conn.prepareStatement(fetchMessagesSql,
 					ResultSet.TYPE_SCROLL_SENSITIVE,
 					ResultSet.CONCUR_UPDATABLE /*
 												 * Pass these parameters so ResultSets can move forwards and backwards
@@ -1522,8 +1508,6 @@ public final class ErmisDatabase {
 				selectMessages.setInt(1, chatSessionID);
 				selectMessages.setInt(2, limit);
 				selectMessages.setInt(3, offset);
-				selectMessages.setInt(4, chatSessionID);
-				selectMessages.setInt(5, requestingClientID);
 				ResultSet rs = selectMessages.executeQuery();
 
 				if (!rs.next()) {
@@ -1570,6 +1554,30 @@ public final class ErmisDatabase {
 							isRead,
 							contentType);
 				}
+			} catch (SQLException sqle) {
+				logger.error(Throwables.getStackTraceAsString(sqle));
+			}
+
+			String updateIsReadSql = """
+						UPDATE chat_messages
+					    SET is_read = TRUE
+					    WHERE message_id IN (
+						    SELECT message_id
+						    FROM chat_messages
+						    WHERE chat_session_id = ?
+						      AND client_id <> ?
+						      AND is_read = FALSE
+						    ORDER BY message_id DESC
+						    LIMIT ? OFFSET ?
+						);
+					""";
+			try (PreparedStatement updateIsRead = conn.prepareStatement(updateIsReadSql)) {
+				updateIsRead.setInt(1, chatSessionID);
+				updateIsRead.setInt(2, requestingClientID);
+				updateIsRead.setInt(3, limit);
+				updateIsRead.setInt(4, offset);
+
+				updateIsRead.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}

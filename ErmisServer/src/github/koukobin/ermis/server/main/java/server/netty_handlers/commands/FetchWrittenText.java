@@ -58,7 +58,7 @@ public class FetchWrittenText implements ICommand {
 
 		for (int i = 0; i < messages.length; i++) {
 			UserMessage message = messages[i];
-			int messageSenderClientID = message.getClientID();
+			int senderClientID = message.getClientID();
 			int messageID = message.getMessageID();
 			byte[] messageBytes = message.getText();
 			byte[] fileNameBytes = message.getFileName();
@@ -67,14 +67,14 @@ public class FetchWrittenText implements ICommand {
 			ClientContentType contentType = message.getContentType();
 
 			payload.writeInt((contentType.id));
-			payload.writeInt(messageSenderClientID);
+			payload.writeInt(senderClientID);
 			payload.writeInt(messageID);
 
 			payload.writeInt(usernameBytes.length);
 			payload.writeBytes(usernameBytes);
 
 			payload.writeLong(timeWritten);
-			if (messageSenderClientID == clientInfo.getClientID()) {
+			if (senderClientID == clientInfo.getClientID()) {
 				payload.writeBoolean(message.isRead());
 			} else {
 				if (!message.isRead()) {
@@ -83,9 +83,9 @@ public class FetchWrittenText implements ICommand {
 					s.writeInt(MessageDeliveryStatus.LATE_DELIVERED.id);
 					s.writeInt(chatSessionID);
 					s.writeInt(messageID);
-					forActiveAccounts(messageSenderClientID, (ClientInfo ci) -> {
+					forActiveAccounts(senderClientID, (ClientInfo ci) -> {
 						s.retain();
-						clientInfo.getChannel().writeAndFlush(s);
+						ci.getChannel().writeAndFlush(s);
 					});
 					s.release();
 					assert s.refCnt() == 0;

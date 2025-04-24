@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 CREATE INDEX IF NOT EXISTS user_profiles_display_name_index ON user_profiles (display_name);
 CREATE INDEX IF NOT EXISTS user_profiles_about_index ON user_profiles (about);
 
--- Create trigger to ensure that last_updated_at is automatically updated whenever the row is modified
+-- Create trigger for "user_profiles" to ensure that "last_updated_at" 
+-- is automatically renewed whenever the row is modified
 CREATE OR REPLACE FUNCTION update_last_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -56,7 +57,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_update_last_updated_at
+CREATE OR REPLACE TRIGGER trg_update_last_updated_at
 BEFORE UPDATE ON user_profiles
 FOR EACH ROW
 EXECUTE FUNCTION update_last_updated_at();
