@@ -116,7 +116,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Colors.green, // Online or offline color
+                            color: appColors.primaryColor,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(

@@ -43,7 +43,7 @@ import static github.koukobin.ermis.server.main.java.configs.ServerSettings.Emai
  * @author Ilias Koukovinis
  * 
  */
-final class LoginHandler extends EntryHandler {
+public final class LoginHandler extends EntryHandler {
 
 	private PasswordType passwordType = PasswordType.PASSWORD;
 	private DeviceType deviceType = DeviceType.UNSPECIFIED;

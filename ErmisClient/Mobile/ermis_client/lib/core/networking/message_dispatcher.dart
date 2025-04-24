@@ -44,7 +44,6 @@ class MessageDispatcher {
       },
       onDone: () {
         _inputStream.socket.destroy();
-        // SystemNavigator.pop();
         _eventBus.fire(const ConnectionResetEvent());
       },
       onError: (dynamic e) {

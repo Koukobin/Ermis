@@ -122,6 +122,40 @@ Future<void> _showVerificationDialog({
 
 mixin Verification {
 
+  Future<bool> performDeleteAccountVerification(BuildContext context, String email) async {
+    Entry verificationEntry = Client.instance().createNewVerificationEntry();
+    EntryResult entryResult;
+
+    bool isSuccessful = false;
+
+    while (!verificationEntry.isVerificationComplete) {
+      await _showVerificationDialog(
+          context: context,
+          title: S.current.verification,
+          promptMessage: S.current.enter_verification_code_sent_to_your_email,
+          onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
+          onSumbittedCode: verificationEntry.sendVerificationCode);
+
+      entryResult = await verificationEntry.getResult();
+      isSuccessful = entryResult.resultHolder.isSuccessful;
+      String resultMessage = entryResult.resultHolder.message;
+
+      if (isSuccessful) {
+        showToastDialog(resultMessage);
+
+        // Reset user information before switching to ensure that
+        // user information from this account is not transferred
+        // to the next
+        UserInfoManager.resetUserInformation();
+        break;
+      }
+
+      showToastDialog(resultMessage);
+    }
+
+    return isSuccessful;
+  }
+
   Future<bool> performVerification(BuildContext context, String email) async {
     Entry verificationEntry = Client.instance().createNewVerificationEntry();
     EntryResult entryResult;

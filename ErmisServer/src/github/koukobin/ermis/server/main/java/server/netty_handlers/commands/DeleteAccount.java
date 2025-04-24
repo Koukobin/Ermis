@@ -15,9 +15,20 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
+import java.io.IOException;
+
 import github.koukobin.ermis.common.message_types.ClientCommandType;
+import github.koukobin.ermis.common.results.GeneralResult;
+import github.koukobin.ermis.server.main.java.configs.ServerSettings;
+import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.CreateAccountHandler;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.LoginHandler;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.VerificationHandler;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
@@ -28,7 +39,6 @@ public class DeleteAccount implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
-
 		byte[] emailAddress = new byte[args.readInt()];
 		args.readBytes(emailAddress);
 
@@ -37,41 +47,52 @@ public class DeleteAccount implements ICommand {
 
 		String email = new String(emailAddress);
 
-//		channel.pipeline().addLast(DeleteAccountVerificationHandler.class.getName(),
-//				new DeleteAccountVerificationHandler(clientInfo, clientInfo.getEmail()) {
-//
-//					@Override
-//					public GeneralResult executeWhenVerificationSuccessful() throws IOException {
-//						String password = new String(passwordBytes);
-//
-//						DeleteAccountSuccess result;
-//						try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-//							result = conn.deleteAccount(email, password, clientInfo.getClientID());
-//						}
-//
-//						switch (result) {
-//						case SUCCESS -> {
-//							channel.close();
-//						}
-//						case EMAIL_ENTERED_DOES_NOT_MATCH_ACCOUNT -> {
-//							MessageByteBufCreator.sendMessageInfo(channel, "Email entered does not match actual email!");
-//						}
-//						case AUTHENTICATION_FAILED -> {
-//							MessageByteBufCreator.sendMessageInfo(channel, "Authentication Failed!");
-//						}
-//						case FAILURE -> {
-//							MessageByteBufCreator.sendMessageInfo(channel, "An error occured while trying to delete your account!");
-//						}
-//						}
-//	
-//						return null;
-//			}
-//			
-//			@Override
-//			public String createEmailMessage(String account, String generatedVerificationCode) {
-//				return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
-//			}
-//		});
+		{
+			ChannelHandler handler = channel.pipeline().get(StartingEntryHandler.class);
+			if (handler != null) {
+				channel.pipeline().remove(handler);
+			}
+		}
+
+		{
+			ChannelHandler handler = channel.pipeline().get(CreateAccountHandler.class);
+			if (handler != null) {
+				channel.pipeline().remove(handler);
+			}
+		}
+
+		{
+			ChannelHandler handler = channel.pipeline().get(LoginHandler.class);
+			if (handler != null) {
+				channel.pipeline().remove(handler);
+			}
+		}
+
+		channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
+		channel.pipeline().addLast(VerificationHandler.class.getName(),
+				new VerificationHandler(clientInfo, clientInfo.getEmail()) {
+
+					@Override
+					public GeneralResult executeWhenVerificationSuccessful() throws IOException {
+						String password = new String(passwordBytes);
+
+						GeneralResult result;
+						try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+							result = conn.deleteAccount(email, password, clientInfo.getClientID());
+						}
+
+						if (result.isSuccessful()) {
+							channel.close();
+						}
+
+						return result;
+					}
+
+			@Override
+			public String createEmailMessage(String account, String generatedVerificationCode) {
+				return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
+			}
+		});
 	}
 
 	@Override

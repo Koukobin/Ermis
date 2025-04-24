@@ -24,9 +24,11 @@ import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/networking/user_info_manager.dart';
+import '../../../core/widgets/custom_textfield.dart';
 import '../../../generated/l10n.dart';
 import '../../../core/data_sources/api_client.dart';
 import '../../../core/services/database/database_service.dart';
@@ -34,6 +36,8 @@ import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../authentication/register_interface.dart';
 import '../../authentication/domain/entities/client_session_setup.dart';
+import 'package:ermis_client/features/authentication/verification_mixin.dart';
+
 
 List<Account>? get _accounts {
   return Client.instance().otherAccounts;
@@ -193,9 +197,9 @@ class DeleteAccountSettings extends StatefulWidget {
   State<DeleteAccountSettings> createState() => _DeleteAccountSettingsState();
 }
 
-class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Verification {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -257,26 +261,21 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
             const SizedBox(height: 35),
 
             // Input field for email address
-            TextField(
-              controller: emailController,
+            CustomTextField(
+              controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                labelText: S.current.email_address,
-                border: const OutlineInputBorder(),
-              ),
+              hint: S.current.email,
             ),
 
             // Add space below the email input field
             const SizedBox(height: 10),
 
             // Input field for password
-            TextField(
-              controller: passwordController,
-              keyboardType: TextInputType.visiblePassword,
-              decoration: InputDecoration(
-                labelText: S.current.password,
-                border: const OutlineInputBorder(),
-              ),
+            CustomTextField(
+              keyboardType: TextInputType.text,
+              controller: _passwordController,
+              hint: S.current.password,
+              obscureText: true,
             ),
 
             // Add space below the password input field
@@ -284,8 +283,13 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
 
             // Button to delete the account
             ElevatedButton(
-              onPressed: () {
-                Client.instance().commands.deleteAccount(emailController.text, passwordController.text);
+              onPressed: () async {
+                Client.instance().commands.deleteAccount(_emailController.text, _passwordController.text);
+                final isSuccessful = await performDeleteAccountVerification(context, _emailController.text);
+
+                if (isSuccessful) {
+                  SystemNavigator.pop();
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -333,7 +337,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {

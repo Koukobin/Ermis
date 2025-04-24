@@ -36,7 +36,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Ilias Koukovinis
  * 
  */
-abstract non-sealed class VerificationHandler extends EntryHandler {
+public abstract non-sealed class VerificationHandler extends EntryHandler {
 
 	private static final int ATTEMPTS = 3;
 	private static final int GENERATED_VERIFICATION_CODE_LENGTH = 5;
@@ -54,7 +54,7 @@ abstract non-sealed class VerificationHandler extends EntryHandler {
 		generatedVerificationCode = InsecureRandomNumberGenerator.generateRandomNumber(GENERATED_VERIFICATION_CODE_LENGTH);
 	}
 	
-	VerificationHandler(ClientInfo clientInfo, String email) {
+	protected VerificationHandler(ClientInfo clientInfo, String email) {
 		super(clientInfo);
 		this.emailAddress = email;
 	}

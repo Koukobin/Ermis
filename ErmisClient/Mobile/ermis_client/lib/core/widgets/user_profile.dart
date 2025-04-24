@@ -106,6 +106,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
         });
         return;
       }
+
       showSnackBarDialog(
           context: context,
           content: "An error occured while trying to change profile photo");

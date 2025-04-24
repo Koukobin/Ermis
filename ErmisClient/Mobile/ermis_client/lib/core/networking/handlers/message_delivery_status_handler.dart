@@ -36,7 +36,7 @@ class MessageDeliveryStatusHandler {
 
       pendingMessage = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!
           .messages
-          .firstWhere((m) => m.messageID == generatedMessageID);
+          .firstWhere((Message m) => m.messageID == generatedMessageID);
     } else if (status == MessageDeliveryStatus.rejected) {
       int tempMessageID = msg.readInt32();
       pendingMessage = UserInfoManager.pendingMessagesQueue.remove(tempMessageID)!;
@@ -54,6 +54,7 @@ class MessageDeliveryStatusHandler {
 
     pendingMessage.setDeliveryStatus(status);
 
+    print(status);
     _eventBus.fire(MessageDeliveryStatusEvent(
       deliveryStatus: status,
       message: pendingMessage,

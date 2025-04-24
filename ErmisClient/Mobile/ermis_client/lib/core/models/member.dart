@@ -35,8 +35,8 @@ class Member {
     if (other is! Member) return false;
     return clientID == other.clientID &&
         icon == other.icon &&
-        username == other.username;
-        // status == other.status; For obvious reasons do not check status
+        username == other.username &&
+        status == other.status;
   }
 
   @override

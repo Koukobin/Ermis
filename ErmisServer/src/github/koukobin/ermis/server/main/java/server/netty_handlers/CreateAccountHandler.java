@@ -43,7 +43,7 @@ import static github.koukobin.ermis.server.main.java.configs.ServerSettings.Emai
  * @author Ilias Koukovinis
  * 
  */
-final class CreateAccountHandler extends EntryHandler {
+public final class CreateAccountHandler extends EntryHandler {
 
 	private DeviceType deviceType = DeviceType.UNSPECIFIED;
 	private String osName = "Unknown";

@@ -153,7 +153,7 @@ class CommandResultHandler {
             continue; // This could happen potentially if this chat session had been cached in local database and when the conditional request was it did not know what to do and it sent -1. Outdated chat sessions will be deleted  after new chat sessions have been processed
           }
 
-          Set<Member> members = chatSession.members.toSet();
+          List<Member> members = chatSession.members;
 
           int membersSize = msg.readInt32();
           if (membersSize == -1) {
@@ -193,6 +193,8 @@ class CommandResultHandler {
               cache[memberID] = member;
             }
 
+            // Remove outdated member info before adding renewed one
+            members.removeWhere((Member member) => member.clientID == memberID);
             members.add(member);
           }
 

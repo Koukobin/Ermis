@@ -24,6 +24,7 @@ import javax.mail.MessagingException;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.Verification.Action;
 import github.koukobin.ermis.common.entry.Verification.Result;
+import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
@@ -35,7 +36,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Ilias Koukovinis
  *
  */
-abstract non-sealed class DeleteAccountVerificationHandler extends EntryHandler {
+public abstract non-sealed class DeleteAccountVerificationHandler extends EntryHandler {
 
 	private static final int ATTEMPTS = 3;
 	private static final int GENERATED_VERIFICATION_CODE_LENGTH = 5;
@@ -47,17 +48,17 @@ abstract non-sealed class DeleteAccountVerificationHandler extends EntryHandler 
 	private final int generatedVerificationCode;
 
 	private final String emailAddress;
-	
+
 	{
 		attemptsRemaining = ATTEMPTS;
 		generatedVerificationCode = InsecureRandomNumberGenerator.generateRandomNumber(GENERATED_VERIFICATION_CODE_LENGTH);
 	}
 
-	DeleteAccountVerificationHandler(ClientInfo clientInfo, String email) {
+	protected DeleteAccountVerificationHandler(ClientInfo clientInfo, String email) {
 		super(clientInfo);
 		this.emailAddress = email;
 	}
-	
+
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) {
 		sendVerificationCode();
@@ -74,7 +75,7 @@ abstract non-sealed class DeleteAccountVerificationHandler extends EntryHandler 
 			}
 		});
 	}
-	
+
 	@Override
 	public void executeEntryAction(ChannelHandlerContext ctx, ByteBuf msg) {
 		Action action = Action.fromId(msg.readInt());
@@ -86,52 +87,53 @@ abstract non-sealed class DeleteAccountVerificationHandler extends EntryHandler 
 
 	@Override
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-//		GeneralResult entryResult;
-//		attemptsRemaining--;
-//
-//		boolean isVerificationComplete = false;
-//
-//		int clientGuessForVerificationCode = msg.readInt();
-//		getLogger().debug("Client guessed: {}", clientGuessForVerificationCode);
-//
-//		if (generatedVerificationCode == clientGuessForVerificationCode) {
-//			entryResult = executeWhenVerificationSuccessful();
-//			isVerificationComplete = true;
-//		} else if (attemptsRemaining == 0) {
-//			entryResult = new GeneralResult(Result.RUN_OUT_OF_ATTEMPTS.resultHolder);
-//			isVerificationComplete = true;
-//		} else {
-//			entryResult = new GeneralResult(Result.WRONG_CODE.resultHolder);
-//		}
-//
-//		if (entryResult == null) {
-//			return;
-//		}
-//
-//		byte[] resultMessageBytes = entryResult.getIDable().getBytes();
-//
-//		ByteBuf payload = ctx.alloc().ioBuffer();
-//		payload.writeBoolean(isVerificationComplete);
-//		payload.writeBoolean(entryResult.isSuccessful());
-//		payload.writeInt(resultMessageBytes.length);
-//		payload.writeBytes(resultMessageBytes);
-//		for (Entry<AddedInfo, String> addedInfo : entryResult.getAddedInfo().entrySet()) {
-//			payload.writeInt(addedInfo.getKey().id);
-//			byte[] info = addedInfo.getValue().getBytes();
-//			payload.writeInt(info.length);
-//			payload.writeBytes(info);
-//		}
-//
-//		ctx.channel().writeAndFlush(payload);
-//
-//		if (isVerificationComplete) {
-//			ctx.pipeline().remove(this);
-//		}
+		GeneralResult entryResult = new GeneralResult(Result.WRONG_CODE, Result.WRONG_CODE.resultHolder.isSuccessful());
+		attemptsRemaining--;
+
+		boolean isVerificationComplete = false;
+
+		int clientGuessForVerificationCode = msg.readInt();
+		getLogger().debug("Client guessed: {}", clientGuessForVerificationCode);
+
+		if (generatedVerificationCode == clientGuessForVerificationCode) {
+			entryResult = executeWhenVerificationSuccessful();
+			isVerificationComplete = true;
+		} else if (attemptsRemaining == 0) {
+			entryResult = new GeneralResult(Result.RUN_OUT_OF_ATTEMPTS, Result.RUN_OUT_OF_ATTEMPTS.resultHolder.isSuccessful());
+			isVerificationComplete = true;
+		}
+
+		if (entryResult == null) {
+			return;
+		}
+
+		ByteBuf payload = ctx.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.ENTRY.id);
+		payload.writeBoolean(isVerificationComplete);
+		payload.writeBoolean(entryResult.isSuccessful());
+		payload.writeInt(entryResult.getIDable().getID());
+		for (Entry<AddedInfo, String> addedInfo : entryResult.getAddedInfo().entrySet()) {
+			payload.writeInt(addedInfo.getKey().id);
+			byte[] info = addedInfo.getValue().getBytes();
+			payload.writeInt(info.length);
+			payload.writeBytes(info);
+		}
+
+		ctx.channel().writeAndFlush(payload);
+
+		if (isVerificationComplete) {
+			if (entryResult.isSuccessful()) {
+				registrationSuccessful(ctx);
+				ctx.pipeline().remove(ctx.handler());
+				return;
+			}
+			registrationFailed(ctx);
+		}
 	}
 
 	public abstract String createEmailMessage(String account, String generatedVerificationCode);
 	public abstract GeneralResult executeWhenVerificationSuccessful() throws IOException;
-	
+
 	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
 		login(ctx, clientInfo);
 	}

@@ -98,8 +98,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
         }
 
         // Ensure messages are up to date
-        Client.instance().commands.fetchWrittenText(_chatSessionIndex);
-        Client.instance().commands.refetchWrittenText(_chatSessionIndex);
+        Client.instance().commands.refetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
+        Client.instance().commands.fetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
       } else {
         setState(() {
           _messages = _chatSession.messages;
@@ -211,6 +211,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
       if (message.chatSessionID == _chatSession.chatSessionID) {
         setState(() {});
       }
+
+      ErmisDB.getConnection().insertChatMessage(
+        serverInfo: UserInfoManager.serverInfo,
+        message: message,
+      );
     });
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {

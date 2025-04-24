@@ -115,15 +115,16 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                         switchOutCurve: Curves.easeInOut,
                         child: _useBackupverificationCode
                             ? CustomTextField(
-                                key: ValueKey('backupCode'), // Unique key for backup verification code
+                                key: const ValueKey('backupCode'), // Unique key for backup verification code
                                 controller: _backupVerificationController,
                                 hint: S.current.backup_verification_code,
                               )
                             : CustomTextField(
-                                keyboardType: TextInputType.twitter,
+                                keyboardType: TextInputType.text,
                                 controller: _passwordController,
                                 hint: S.current.password,
-                                obscureText: true),
+                                obscureText: true,
+                              ),
                         transitionBuilder: (Widget child, Animation<double> animation) {
                           // return ScaleTransition(scale: animation, child: child,);
                           // return SizeTransition(sizeFactor: animation, child: child,);
