@@ -46,7 +46,6 @@ abstract sealed class EntryHandler extends AbstractChannelClientHandler permits 
 	public final void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 		msg.markReaderIndex();
 		int isAction = msg.readInt();
-		System.out.println(isAction);
 		
 		if (isAction == GeneralEntryAction.action.id) {
 			executeEntryAction(ctx, msg);

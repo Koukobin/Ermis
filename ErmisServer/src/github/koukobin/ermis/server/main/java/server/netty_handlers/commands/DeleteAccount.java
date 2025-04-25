@@ -17,6 +17,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
 import java.io.IOException;
 
+import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
@@ -45,7 +46,7 @@ public class DeleteAccount implements ICommand {
 		byte[] passwordBytes = new byte[args.readInt()];
 		args.readBytes(passwordBytes);
 
-		String email = new String(emailAddress);
+		String enteredEmail = new String(emailAddress);
 
 		{
 			ChannelHandler handler = channel.pipeline().get(StartingEntryHandler.class);
@@ -74,11 +75,19 @@ public class DeleteAccount implements ICommand {
 
 					@Override
 					public GeneralResult executeWhenVerificationSuccessful() throws IOException {
+						// Although database performs authentication and verifies entered email is
+						// indeed associated with the actual user account, confirm it proactively here
+						// as well
+
+						if (!clientInfo.getEmail().equals(enteredEmail)) {
+							return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
+						}
+
 						String password = new String(passwordBytes);
 
 						GeneralResult result;
 						try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-							result = conn.deleteAccount(email, password, clientInfo.getClientID());
+							result = conn.deleteAccount(enteredEmail, password, clientInfo.getClientID());
 						}
 
 						if (result.isSuccessful()) {
@@ -90,7 +99,7 @@ public class DeleteAccount implements ICommand {
 
 			@Override
 			public String createEmailMessage(String account, String generatedVerificationCode) {
-				return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
+				return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(clientInfo.getEmail(), account, generatedVerificationCode));
 			}
 		});
 	}

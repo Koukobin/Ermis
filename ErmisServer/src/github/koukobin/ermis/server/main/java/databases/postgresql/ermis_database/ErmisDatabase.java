@@ -396,8 +396,8 @@ public final class ErmisDatabase {
 		 */
 		public GeneralResult deleteAccount(String enteredEmail, String enteredPassword, int clientID) {
 			// Verify that the entered email is associated with the provided client ID
-			int associatedClientID = getClientID(enteredEmail).orElseThrow();
-			if (associatedClientID != clientID) {
+			Optional<Integer> associatedClientID = getClientID(enteredEmail);
+			if (associatedClientID.isEmpty() || associatedClientID.get() != clientID) {
 				return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
 			}
 
@@ -410,12 +410,17 @@ public final class ErmisDatabase {
 
 			try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM users WHERE client_id=?;")) {
 				pstmt.setInt(1, clientID);
+
+				int resultUpdate = pstmt.executeUpdate();
+
+				if (resultUpdate == 1 /* SUCCESS */) {
+					return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, false);
+				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
-				return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
 			}
 
-			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, false);
+			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
 		}
 
 		public boolean checkAuthenticationViaHash(String email, String enteredPasswordpasswordHash) {
