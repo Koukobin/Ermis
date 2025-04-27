@@ -74,6 +74,7 @@ class _ChooseFriendScreenState extends State<ChooseFriendScreen> {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+
     return Scaffold(
       appBar: AppBar(
           leading: BackButton(

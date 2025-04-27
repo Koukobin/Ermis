@@ -34,9 +34,7 @@ public class LogoutAllDevices implements ICommand {
 		}
 
 		// Close all channels associated with this client id
-		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
-			ci.getChannel().close();
-		});
+		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> ci.getChannel().close());
 	}
 
 	@Override

@@ -53,10 +53,10 @@ public class t {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		byte[] key = {63, 13, 12, 64, 102, 21, 59, 12, 107, 29, 92, 96, (byte) 178, 127, 69, (byte)138, 88, 122, (byte)167, (byte)150, (byte)137, 79, 21, 34, 5, 106, 82, 56, 94, (byte)161, (byte)164, (byte)143};
-		byte[] encrypted = {54, (byte) 162, 107, 17, (byte)138, 106, (byte)163, (byte)151, (byte)164, 97, (byte)185, (byte)172, (byte)238, 17, (byte)247, (byte)237, (byte)132, (byte)133, 75, (byte)152, (byte)219, 118, (byte)150, (byte)212, (byte)184, (byte)223, (byte)179, (byte)165, (byte)191, (byte)183};
-
-		System.out.println(new String(AESKeyGenerator.decrypt(key, Arrays.copyOfRange(encrypted, 0, 12), Arrays.copyOfRange(encrypted, 12, encrypted.length))));
+//		byte[] key = {63, 13, 12, 64, 102, 21, 59, 12, 107, 29, 92, 96, (byte) 178, 127, 69, (byte)138, 88, 122, (byte)167, (byte)150, (byte)137, 79, 21, 34, 5, 106, 82, 56, 94, (byte)161, (byte)164, (byte)143};
+//		byte[] encrypted = {54, (byte) 162, 107, 17, (byte)138, 106, (byte)163, (byte)151, (byte)164, 97, (byte)185, (byte)172, (byte)238, 17, (byte)247, (byte)237, (byte)132, (byte)133, 75, (byte)152, (byte)219, 118, (byte)150, (byte)212, (byte)184, (byte)223, (byte)179, (byte)165, (byte)191, (byte)183};
+//
+//		System.out.println(new String(AESKeyGenerator.decrypt(key, Arrays.copyOfRange(encrypted, 0, 12), Arrays.copyOfRange(encrypted, 12, encrypted.length))));
 //		byte[] key = AESKeyGenerator.genereateRawSecretKey();
 //		
 //		System.out.println(new String(key, StandardCharsets.UTF_8));

@@ -43,6 +43,42 @@ import '../../core/util/transitions_util.dart';
 final VoiceCallUDPSocket _udpSocket = VoiceCallUDPSocket();
 
 class VoiceCallThing {
+  static void Function(VoiceCallIncomingEvent event, BuildContext context) get() {
+    return (VoiceCallIncomingEvent event, BuildContext context) async {
+      bool permission = await ligma(context);
+      if (!permission) return;
+
+      Member member = event.member;
+
+      final int port = event.signallingPort;
+      final Uint8List aesKey = event.aesKey;
+      final int chatSessionID = event.chatSessionID;
+      final int chatSessionIndex = event.chatSessionIndex;
+
+      await _udpSocket.openSocket();
+
+      navigateWithFade(
+          context,
+          VoiceCallScreen._(
+            chatSessionID: chatSessionID,
+            chatSessionIndex: chatSessionIndex,
+            otherIps: [],
+            member: member,
+            aesKey: aesKey,
+          ));
+
+      await Future.delayed(const Duration(seconds: 5));
+
+      await _udpSocket.initialize(aesKey);
+      _udpSocket.rawSecureSend(
+        ByteBuf.smallBuffer()
+          ..writeInt32(UserInfoManager.clientID)
+          ..writeInt32(chatSessionID),
+        UserInfoManager.serverInfo.address,
+        port,
+      );
+    };
+  }
   static void Function(VoiceCallIncomingEvent) startListeningForIncomingCalls(BuildContext context) {
     return (VoiceCallIncomingEvent event) {
       Member member = event.member;
@@ -53,6 +89,9 @@ class VoiceCallThing {
           onAccept: () async {
             bool permission = await ligma(context);
             if (!permission) return;
+
+            Member member = event.member;
+
             final int port = event.signallingPort;
             final Uint8List aesKey = event.aesKey;
             final int chatSessionID = event.chatSessionID;
@@ -172,9 +211,10 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
       numChannels: 1,
       bufferSize: 512,
       interleaved: true,
-    );
-  });
+      );
+    });
 
+  late final FlutterSoundRecorder _recorder;
   final StreamController<Uint8List> _controller = StreamController<Uint8List>();
   
   double rms = 0.0;
@@ -209,7 +249,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
       ips.add(event.socket);
     }, onDone: Navigator.of(context).pop);
 
-    final FlutterSoundRecorder _recorder = FlutterSoundRecorder()..openRecorder().then((recorder) {
+    _recorder = FlutterSoundRecorder()..openRecorder().then((recorder) {
       recorder!.startRecorder(
         codec: Codec.pcm16,
         sampleRate: 8000,
@@ -414,6 +454,9 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
       callStatus = CallStatus.ended;
     });
     _udpSocket.close(ips);
+
+    _recorder.closeRecorder();
+    _player.closePlayer();
     Navigator.pop(context);
   }
 }

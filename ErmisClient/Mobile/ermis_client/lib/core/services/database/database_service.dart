@@ -16,7 +16,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/member.dart';
@@ -68,10 +67,12 @@ class DBConnection {
 
     Database db = await openDatabase(
       path,
+      readOnly: false,
+      singleInstance: true,
       onCreate: (Database db, int version) async {},
       onDowngrade: (Database db, int oldVersion, int newVersion) async {},
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
-        if (oldVersion < 2) {
+        if (oldVersion < newVersion) {
           await db.execute('DROP TABLE server_profiles;');
           await db.execute('DROP TABLE members;');
           await db.execute('DROP TABLE chat_session_members;');
@@ -249,6 +250,7 @@ class DBConnection {
       final String email = record['email'] as String;
       final String passwordHash = record['password_hash'] as String;
       final String lastUsed = record['last_used'] as String;
+
       return LocalAccountInfo(
         email: email,
         passwordHash: passwordHash,
@@ -354,7 +356,6 @@ class DBConnection {
   }
 
   Future<void> removeServerInfo(ServerInfo info) async {
-
     final db = await _database;
 
     await db.delete(
@@ -628,6 +629,17 @@ class DBConnection {
   Future<void> deleteChatSession(String serverUrl, int chatSessionId) async {
     final db = await _database;
 
+    // For some reason, they have to be deleted individually each
+    await db.delete(
+      'chat_messages',
+      where: 'server_url = ? AND chat_session_id = ?',
+      whereArgs: [serverUrl, chatSessionId],
+    );
+    await db.delete(
+      'chat_session_members',
+      where: 'server_url = ? AND chat_session_id = ?',
+      whereArgs: [serverUrl, chatSessionId],
+    );
     await db.delete(
       'chat_sessions',
       where: 'server_url = ? AND chat_session_id = ?',

@@ -222,8 +222,6 @@ class Entry<T extends CredentialInterface> {
       buffer = msg.buffer;
     });
 
-    if (buffer == null) throw Exception("Buffer is null");
-
     int id = buffer!.readInt32();
     return entryType == EntryType.createAccount
             ? CredentialValidationResult.fromId(id)!
@@ -245,18 +243,13 @@ class Entry<T extends CredentialInterface> {
   }
 
   Future<Resultable> getBackupVerificationCodeResult() async {
-    ByteBuf? payload;
-    await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
-      payload = msg.buffer;
-    });
+    ByteBuf payload = (await AppEventBus.instance.on<EntryMessage>().first).buffer;
 
-    if (payload == null) throw Exception("Buffer is null");
-
-    isLoggedIn = payload!.readBoolean();
+    isLoggedIn = payload.readBoolean();
     Client.instance()._isLoggedIn = isLoggedIn;
 
-    int id = payload!.readInt32();
-    return LoginCredentialResult.fromId(id)!;
+    int id = payload.readInt32();
+    return LoginResult.fromId(id)!;
   }
 
   void sendEntryType() {

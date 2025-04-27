@@ -32,7 +32,7 @@ enum MessageDeliveryStatus {
     try {
       return MessageDeliveryStatus.values.firstWhere((type) => type.id == id);
     } catch (e) {
-      throw EnumNotFoundException('No ServerMessageType found for id $id');
+      throw EnumNotFoundException('No $MessageDeliveryStatus found for id $id');
     }
   }
 }

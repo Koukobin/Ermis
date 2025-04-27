@@ -34,11 +34,11 @@ public class LogoutThisDevices implements ICommand {
 			conn.logout(channel.remoteAddress().getAddress(), clientInfo.getClientID());
 		}
 
-		channel.close();
-
 		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
 			CommandsHolder.executeCommand(ClientCommandType.FETCH_LINKED_DEVICES, clientInfo, Unpooled.EMPTY_BUFFER);
 		});
+
+		channel.close();
 	}
 
 	@Override

@@ -42,7 +42,6 @@ public class FetchWrittenText implements ICommand {
 		getLogger().debug("Num of messages already selected: {}", numOfMessagesAlreadySelected);
 
 		UserMessage[] messages;
-
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 			messages = conn.selectMessages(chatSessionID, numOfMessagesAlreadySelected,
 					ServerSettings.NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME,

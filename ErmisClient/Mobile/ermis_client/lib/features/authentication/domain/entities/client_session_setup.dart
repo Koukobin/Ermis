@@ -14,6 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/core/networking/user_info_manager.dart';
+import 'package:flutter/foundation.dart';
+
 import '../../../../constants/app_constants.dart';
 import '../../../../generated/l10n.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +27,8 @@ import '../../../../core/services/database/database_service.dart';
 import '../../../../core/util/dialogs_utils.dart';
 import '../../register_interface.dart';
 
-Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo, {bool keepPreviousRoutes = false}) async {
+/// Setups client session in accordance to the most recently used accounts associated with server
+Future<void> setupClientSession(BuildContext context, {LocalAccountInfo? accountInfo, bool keepPreviousRoutes = false}) async {
   String serverVersion = await Client.instance().readServerVersion();
 
   // Check if the first digit of the application version - which is also the most significant -
@@ -37,19 +41,33 @@ Future<void> setupClientSession(BuildContext context, LocalAccountInfo? userInfo
 
   Client.instance().startMessageDispatcher();
 
-  if (userInfo == null) {
-    // Navigate to the Registration interface
-    Navigator.pushAndRemoveUntil(
+  bool authenticationSuccess = false;
+  if (accountInfo == null) {
+    final DBConnection conn = ErmisDB.getConnection();
+    List<LocalAccountInfo> userAccounts = await conn.getUserAccounts(UserInfoManager.serverInfo);
+
+    for (LocalAccountInfo userInfo in userAccounts) {
+      if (kDebugMode) {
+        debugPrint(userInfo.email);
+        debugPrint(userInfo.passwordHash);
+      }
+
+      authenticationSuccess = await showLoadingDialog(
+        context,
+        Client.instance().attemptHashedLogin(userInfo),
+      );
+
+      if (authenticationSuccess) break;
+    }
+  } else {
+    authenticationSuccess = await showLoadingDialog(
       context,
-      MaterialPageRoute(builder: (context) => const CreateAccountInterface()),
-      (route) => keepPreviousRoutes, // Removes all previous routes.
+      Client.instance().attemptHashedLogin(accountInfo),
     );
-    return;
   }
 
-  bool success = await showLoadingDialog(context, Client.instance().attemptHashedLogin(userInfo));
-
-  if (!success) {
+  if (!authenticationSuccess) {
+    // Navigate to the Registration interface
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const CreateAccountInterface()),

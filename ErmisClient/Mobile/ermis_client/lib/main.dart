@@ -19,8 +19,10 @@ import 'dart:ui';
 
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
+import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_client/core/services/navigation_service.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/features/voice_call/voice_call.dart';
@@ -232,6 +234,15 @@ void maintainWebSocketConnection(ServiceInstance service) async {
       handleChatMessageNotificationBackground(chatSession, msg, settingsJson, (String text) {
         Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex);
       });
+    });
+
+    AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
+      Member member = event.member;
+
+      NotificationService.showVoiceCallNotification(
+          icon: member.icon.profilePhoto,
+          callerName: member.username,
+          onAccept: () => VoiceCallThing.startListeningForIncomingCalls(NavigationService.currentContext));
     });
 
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");

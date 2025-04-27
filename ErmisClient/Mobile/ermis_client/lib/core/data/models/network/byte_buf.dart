@@ -76,7 +76,7 @@ class ByteBuf {
   /// Throws an exception if there are not enough readable bytes.
   Uint8List readBytes(int length) {
     if (readableBytes < length) {
-      throw Exception("Not enough readable bytes");
+      throw Exception("Not enough readable bytes; readable bytes = $readableBytes and length $length");
     }
     int newReaderIndex = _readerIndex + length;
     Uint8List bytes = _buffer.sublist(_readerIndex, newReaderIndex);

@@ -85,7 +85,7 @@ class ChatSession {
     return CustomDateFormatter.formatDate(localTime, "HH:mm");
   }
 
-  bool get haveChatMessagesBeenCached => _haveChatMessagesBeenCached;
+  bool get areChatMessagesUpToDate => _haveChatMessagesBeenCached;
 
   @override
   int get hashCode => chatSessionID.hashCode ^ chatSessionIndex.hashCode;

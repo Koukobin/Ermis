@@ -80,6 +80,7 @@ class CommandResultHandler {
         // ClientID
         UserInfoManager.clientID = msg.readInt32();
         _eventBus.fire(ClientIdEvent(UserInfoManager.clientID));
+        print(UserInfoManager.clientID);
 
         // Username
         final usernameBytes = msg.readBytes(msg.readInt32());
@@ -134,6 +135,18 @@ class CommandResultHandler {
           UserInfoManager.chatSessions!.add(chatSession);
 
           i++;
+        }
+
+        for (ChatSession session in UserInfoManager.chatSessions!) {
+          if (session.chatSessionIndex == -1) {
+            UserInfoManager.chatSessions!.remove(session);
+            UserInfoManager.chatSessionIDSToChatSessions.remove(session.chatSessionID);
+
+            IntermediaryService().deleteChatSession(
+              server: UserInfoManager.serverInfo,
+              session: session,
+            );
+          }
         }
 
         _eventBus.fire(ChatSessionsIndicesReceivedEvent(UserInfoManager.chatSessions!));
@@ -268,7 +281,7 @@ class CommandResultHandler {
 
         while (msg.readableBytes > 0) {
           MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
-          int clientID = msg.readInt32();
+          int senderClientID = msg.readInt32();
           int messageID = msg.readInt32();
           String username = utf8.decode(msg.readBytes(msg.readInt32()));
 
@@ -276,7 +289,7 @@ class CommandResultHandler {
           Uint8List? fileNameBytes;
           int epochSecond = msg.readInt64();
           bool isRead;
-          if (clientID == UserInfoManager.clientID) {
+          if (senderClientID == UserInfoManager.clientID) {
             isRead = msg.readBoolean();
           } else {
             isRead = true;
@@ -294,7 +307,7 @@ class CommandResultHandler {
           messagesSet.removeWhere((message) => message.messageID == messageID);
           messagesSet.add(Message(
             username: username,
-            clientID: clientID,
+            clientID: senderClientID,
             messageID: messageID,
             chatSessionID: chatSession.chatSessionID,
             chatSessionIndex: chatSessionIndex,

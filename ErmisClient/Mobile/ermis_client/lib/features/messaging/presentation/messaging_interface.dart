@@ -75,7 +75,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
 
-  static StreamSubscription<MessageReceivedEvent>? messager;
+  static StreamSubscription<MessageReceivedEvent>? messenger;
 
   @override
   void initState() {
@@ -86,7 +86,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
 
     Future(() async {
       // Fetch cached messages or load from the server
-      if (!_chatSession.haveChatMessagesBeenCached) {
+      if (!_chatSession.areChatMessagesUpToDate) {
         List<Message> messages = await _retrieveLocalMessages();
         _chatSession.setMessages(messages);
 
@@ -99,7 +99,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
 
         // Ensure messages are up to date
         Client.instance().commands.refetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
-        Client.instance().commands.fetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
+        Client.instance().commands.refetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
       } else {
         setState(() {
           _messages = _chatSession.messages;
@@ -124,7 +124,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
   }
 
   void _setupListeners() {
-    messager?.cancel();
+    messenger?.cancel();
 
     subscribe(AppEventBus.instance.on<ChatSessionsStatusesEvent>(), (event) {
       setState(() {}); // Since chat sessions were updated simply setState
@@ -229,7 +229,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
 
   @override
   void dispose() {
-    messager = AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
+    messenger = AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
       ChatSession chatSession = event.chatSession;
       Message msg = event.message;
 

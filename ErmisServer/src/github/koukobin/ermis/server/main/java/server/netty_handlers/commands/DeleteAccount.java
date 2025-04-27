@@ -48,26 +48,7 @@ public class DeleteAccount implements ICommand {
 
 		String enteredEmail = new String(emailAddress);
 
-		{
-			ChannelHandler handler = channel.pipeline().get(StartingEntryHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
-
-		{
-			ChannelHandler handler = channel.pipeline().get(CreateAccountHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
-
-		{
-			ChannelHandler handler = channel.pipeline().get(LoginHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
+		removeAuthenticationHandlers(channel);
 
 		channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 		channel.pipeline().addLast(VerificationHandler.class.getName(),
@@ -102,6 +83,39 @@ public class DeleteAccount implements ICommand {
 				return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(clientInfo.getEmail(), account, generatedVerificationCode));
 			}
 		});
+	}
+
+	/**
+	 * Check if authentication handlers are already present in the pipeline - in
+	 * which case remove them and readd them.
+	 * 
+	 * This exact code also exists in {@link AddOrSwitchToNewAccount}; perhaps this
+	 * should be refactored to utilize reflection in order to fetch all subclasses
+	 * of {@link EntryHandler} and {@link StartingEntryHandler} and subsequently
+	 * remove them (This could easily be done via the Reflections API
+	 * {@link Reflections}).
+	 */
+	private static void removeAuthenticationHandlers(EpollSocketChannel channel) {
+		{
+			ChannelHandler handler = channel.pipeline().get(StartingEntryHandler.class);
+			if (handler != null) {
+				channel.pipeline().remove(handler);
+			}
+		}
+
+		{
+			ChannelHandler handler = channel.pipeline().get(CreateAccountHandler.class);
+			if (handler != null) {
+				channel.pipeline().remove(handler);
+			}
+		}
+
+		{
+			ChannelHandler handler = channel.pipeline().get(LoginHandler.class);
+			if (handler != null) {
+				channel.pipeline().remove(handler);
+			}
+		}
 	}
 
 	@Override

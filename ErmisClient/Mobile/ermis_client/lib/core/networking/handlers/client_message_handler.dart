@@ -76,7 +76,7 @@ class ClientMessageHandler {
     }
 
     ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
-    if (chatSession.haveChatMessagesBeenCached) {
+    if (chatSession.areChatMessagesUpToDate) {
       chatSession.messages.add(message);
     }
 

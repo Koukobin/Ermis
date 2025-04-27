@@ -30,8 +30,8 @@ Future<T> pushSlideTransition<T>(BuildContext context, Widget newPage) async {
   ));
 }
 
-void navigateWithFade(BuildContext context, Widget newScreen) {
-  Navigator.of(context).push(PageRouteBuilder(
+Future<T?> navigateWithFade<T extends Object?>(BuildContext context, Widget newScreen) async {
+  return await Navigator.of(context).push(PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => newScreen,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       return FadeTransition(

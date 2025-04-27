@@ -112,7 +112,7 @@ class AccountSettings extends StatefulWidget {
                       );
 
                       Client.instance().commands.switchAccount();
-                      setupClientSession(context, matchingAccount, keepPreviousRoutes: true);
+                      setupClientSession(context, accountInfo: matchingAccount, keepPreviousRoutes: true);
                     });
                   },
                 ),

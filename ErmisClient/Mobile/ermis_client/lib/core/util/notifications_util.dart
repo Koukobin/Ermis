@@ -54,7 +54,7 @@ class NotificationService {
     NotificationAction na = NotificationAction.fromId(actionId);
     switch (na) {
       case NotificationAction.acceptVoiceCall:
-        voiceCall!();
+        voiceCall?.call();
         break;
       case NotificationAction.ignoreVoiceCall:
         // Do nothing
@@ -189,7 +189,7 @@ class NotificationService {
           AndroidNotificationAction(
             NotificationAction.acceptVoiceCall.id,
             'Accept',
-            showsUserInterface: true,
+            showsUserInterface: true, // Brings UI to the foreground
           ),
           AndroidNotificationAction(
             NotificationAction.ignoreVoiceCall.id,

@@ -115,8 +115,6 @@ public final class LoginHandler extends EntryHandler {
 		String email = credentials.get(Credential.EMAIL);
 		String password = credentials.get(Credential.PASSWORD);
 		
-		System.out.println(passwordType);
-
 		switch (passwordType) {
 		case BACKUP_VERIFICATION_CODE -> {
 			GeneralResult entryResult;

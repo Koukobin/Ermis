@@ -54,7 +54,6 @@ class MessageDeliveryStatusHandler {
 
     pendingMessage.setDeliveryStatus(status);
 
-    print(status);
     _eventBus.fire(MessageDeliveryStatusEvent(
       deliveryStatus: status,
       message: pendingMessage,

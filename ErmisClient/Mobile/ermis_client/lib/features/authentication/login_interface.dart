@@ -48,9 +48,15 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _backupVerificationController = TextEditingController();
 
-  bool _useBackupverificationCode = false;
+  PasswordType passwordType = PasswordType.password;
 
   LoginEntry loginEntry = Client.instance().createNewLoginEntry();
+  
+  bool get _useBackupverificationCode => passwordType == PasswordType.backupVerificationCode;
+  bool get _usePassword => passwordType == PasswordType.password;
+
+  set _useBackupverificationCode(bool useBackup) => passwordType = useBackup ? PasswordType.backupVerificationCode : PasswordType.password;
+  set _usePassword(bool usePassword) => passwordType = usePassword ? PasswordType.password : PasswordType.backupVerificationCode;
 
   @override
   void initState() {
@@ -130,7 +136,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                           // return SizeTransition(sizeFactor: animation, child: child,);
                           return SlideTransition(
                             position: Tween<Offset>(
-                              begin: _useBackupverificationCode ? Offset(1, 0) : Offset(-1, 0),
+                              begin: _useBackupverificationCode ? const Offset(1, 0) : const Offset(-1, 0),
                               end: Offset.zero,
                             ).animate(animation),
                             child: child,
@@ -156,37 +162,34 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
 
                           loginEntry.sendEntryType();
                           loginEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
-
-                          if (_useBackupverificationCode) {
-                            loginEntry.setPasswordType(PasswordType.backupVerificationCode);
-                          }
+                          loginEntry.setPasswordType(passwordType);
 
                           loginEntry.sendCredentials({
                             LoginCredential.email: _emailController.text,
                             LoginCredential.password: _useBackupverificationCode ? _backupVerificationController.text : _passwordController.text,
                           });
                           
-                          Resultable entryResult;
-                          if (!_useBackupverificationCode) {
-                            entryResult = await loginEntry.getCredentialsExchangeResult();
-                          } else {
-                            entryResult = await loginEntry.getBackupVerificationCodeResult();
-                          }
+                          Resultable entryResult = await loginEntry.getCredentialsExchangeResult();
 
-                          bool isSuccessful = entryResult.isSuccessful;
+                          bool isExchangeSuccessful = entryResult.isSuccessful;
                           String resultMessage = entryResult.message;
 
-                          if (!isSuccessful) {
+                          if (!isExchangeSuccessful) {
                             showSnackBarDialog(
                                 context: context,
-                                content: S.current
-                                    .registration_failed(resultMessage));
+                                content: S.current.registration_failed(resultMessage));
                             return;
                           }
+                          
+                          bool isSuccessful = false;
 
                           // If password is used, further verification/authentication is required
-                          if (!_useBackupverificationCode) {
-                            isSuccessful = await performVerification(context, _emailController.text);
+                          if (_usePassword) {
+                            isSuccessful = await performRegistrationVerification(context, _emailController.text);
+                          } else {
+                            entryResult = await loginEntry.getBackupVerificationCodeResult();
+                            isSuccessful = entryResult.isSuccessful;
+                            showToastDialog(entryResult.message);
                           }
 
                           if (isSuccessful) {
@@ -195,7 +198,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MainInterface()),
+                                  builder: (context) => const MainInterface()),
                               (route) => false, // Removes all previous routes.
                             );
                           }
@@ -237,14 +240,14 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                           },
                           child: _useBackupverificationCode
                               ? Text(
-                                  key: ValueKey("sex"),
+                                  key: const ValueKey("switch-to-password"),
                                   "Use Password",
                                   style: TextStyle(
                                       fontSize: 18,
                                       color: appColors.inferiorColor),
                                 )
                               : Text(
-                                  key: ValueKey("anal"),
+                                  key: const ValueKey("switch-to-backup-verification-code"),
                                   "Use Backup-Verification Code",
                                   style: TextStyle(
                                       fontSize: 18,

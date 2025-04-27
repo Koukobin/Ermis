@@ -156,7 +156,7 @@ mixin Verification {
     return isSuccessful;
   }
 
-  Future<bool> performVerification(BuildContext context, String email) async {
+  Future<bool> performRegistrationVerification(BuildContext context, String email) async {
     Entry verificationEntry = Client.instance().createNewVerificationEntry();
     EntryResult entryResult;
 

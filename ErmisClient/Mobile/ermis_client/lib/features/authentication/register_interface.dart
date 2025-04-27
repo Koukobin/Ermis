@@ -201,7 +201,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                             return;
                           }
                       
-                          isSuccessful = await performVerification(context, _emailController.text);
+                          isSuccessful = await performRegistrationVerification(context, _emailController.text);
                       
                           if (isSuccessful) {
                             await showLoadingDialog(context, Client.instance().fetchUserInformation());
@@ -209,7 +209,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MainInterface()),
+                                  builder: (context) => const MainInterface()),
                               (route) => false, // Removes all previous routes.
                             );
                           }

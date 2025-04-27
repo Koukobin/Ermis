@@ -232,11 +232,6 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
 
                     final DBConnection conn = ErmisDB.getConnection();
                     conn.updateServerUrlLastUsed(serverInfo);
-                    LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
-                    if (kDebugMode) {
-                      debugPrint(userInfo?.email);
-                      debugPrint(userInfo?.passwordHash);
-                    }
 
                     try {
                       await Client.instance().initialize(
@@ -270,7 +265,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                       rethrow;
                     }
 
-                    setupClientSession(context, userInfo);
+                    setupClientSession(context);
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: appColors.inferiorColor, // Splash color
