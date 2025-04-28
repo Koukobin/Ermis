@@ -20,9 +20,10 @@ import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/models/user_device.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_client/core/services/database/models/local_user_info.dart';
+import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:flutter/foundation.dart';
 
-import '../services/database/database_service.dart';
 import 'handlers/chat_sessions_service.dart';
 
 class UserInfoManager {

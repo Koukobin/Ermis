@@ -22,6 +22,8 @@ import 'dart:async';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/account.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
+import 'package:ermis_client/core/services/database/models/local_account_info.dart';
+import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:ermis_client/features/authentication/domain/entities/requirements.dart';
 import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 import 'package:ermis_client/core/networking/message_dispatcher.dart';

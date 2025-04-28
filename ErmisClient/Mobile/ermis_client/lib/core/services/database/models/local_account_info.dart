@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2024 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -14,12 +14,33 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:flutter/widgets.dart';
+class LocalAccountInfo {
+  final String email;
+  final String passwordHash;
+  final DateTime lastUsed;
 
-/// Service which keeps global [BuildContext] of App, so 
-/// I don't to have to constantly pass around the context
-class NavigationService {
-  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  factory LocalAccountInfo.fuck({
+    required String email,
+    required String passwordHash,
+  }) {
+    return LocalAccountInfo(
+      email: email,
+      passwordHash: passwordHash,
+      lastUsed: DateTime.now(),
+    );
+  }
 
-  static BuildContext get currentContext => navigatorKey.currentContext!;
+  const LocalAccountInfo({
+    required this.email,
+    required this.passwordHash,
+    required this.lastUsed,
+  });
+
+  Map<String, Object?> toMap() {
+    return {
+      'email': email,
+      'password_hash': passwordHash,
+      'last_used': lastUsed.toIso8601String()
+    };
+  }
 }

@@ -17,6 +17,12 @@
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
+import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
+import 'package:ermis_client/core/services/database/extensions/chat_sessions_extension.dart';
+import 'package:ermis_client/core/services/database/extensions/members_extension.dart';
+import 'package:ermis_client/core/services/database/models/local_account_info.dart';
+import 'package:ermis_client/core/services/database/models/local_user_info.dart';
+import 'package:ermis_client/core/services/database/models/server_info.dart';
 
 class IntermediaryService {
   final DBConnection _databaseService = ErmisDB.getConnection();
@@ -39,8 +45,11 @@ class IntermediaryService {
     required ServerInfo server,
     required int chatSessionID,
   }) async {
+    String email = (await _databaseService.getLastUsedAccount(server))!.email;
+
     return await _databaseService.fetchMembersAssociatedWithChatSession(
       server: server,
+      serverAccountEmail: email,
       chatSessionID: chatSessionID,
     );
   }

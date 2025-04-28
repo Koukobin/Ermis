@@ -18,7 +18,6 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 
@@ -58,6 +57,7 @@ public class AcceptChatRequest implements ICommand {
 			channel.writeAndFlush(payload);
 			return;
 		}
+
 		int chatSessionID = optionalChatSessionID.get();
 
 		List<Integer> members = Lists.newArrayList(receiverClientID, senderClientID);
@@ -66,9 +66,11 @@ public class AcceptChatRequest implements ICommand {
 		ChatSession chatSession = new ChatSession(chatSessionID, activeMembers, members);
 		ActiveChatSessions.addChatSession(chatSession);
 
-		clientInfo.getChatRequests().remove(Integer.valueOf(senderClientID));
+		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
+			ci.getChatRequests().remove(Integer.valueOf(senderClientID));
+		});
 
-		Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> {
+		forActiveAccounts(receiverClientID, (ClientInfo ci) -> {
 			ci.getChatSessions().add(chatSession);
 
 			// Send updated indices to the client. This triggers the
@@ -77,9 +79,14 @@ public class AcceptChatRequest implements ICommand {
 
 			// Update chat requests as well
 			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_REQUESTS, clientInfo, args);
-		};
-		forActiveAccounts(receiverClientID, updateSessions);
-		forActiveAccounts(senderClientID, updateSessions);
+		});
+		forActiveAccounts(senderClientID, (ClientInfo ci) -> {
+			ci.getChatSessions().add(chatSession);
+
+			// Send updated indices to the client. This triggers the
+			// retrieval of current chat sessions and their statuses.
+			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
+		});
 	}
 
 	@Override

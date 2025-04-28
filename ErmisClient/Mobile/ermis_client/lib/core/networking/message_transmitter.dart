@@ -22,8 +22,8 @@ import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_client/core/services/database/models/local_user_info.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/account.dart';

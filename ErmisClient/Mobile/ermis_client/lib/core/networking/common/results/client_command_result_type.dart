@@ -32,10 +32,10 @@ enum ClientCommandResultType {
   // Chat Management
   getChatRequests(300),
   getChatSessions(301),
-  getChatSessionIndices(304),
-  getChatSessionStatuses(305),
-  getWrittenText(302),
-  deleteChatMessage(303),
+  getChatSessionIndices(302),
+  getChatSessionStatuses(303),
+  getWrittenText(305),
+  deleteChatMessage(306),
 
   // File Management
   downloadFile(400),
