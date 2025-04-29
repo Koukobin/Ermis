@@ -25,30 +25,26 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  * @author Ilias Koukovinis
  *
  */
-public enum ServerMessageType {
-    CLIENT_MESSAGE(0),
-    MESSAGE_DELIVERY_STATUS(1),
-    VOICE_CALLS(2),
-	SERVER_INFO(3),
-    ENTRY(4),
-    COMMAND_RESULT(5);
+public enum VoiceCallMessageType {
+	INCOMING_VOICE_CALL(0),
+	USER_JOINED_VOICE_CALL(1);
 
-	private static final HashMap<Integer, ServerMessageType> values;
-
+	private static final HashMap<Integer, VoiceCallMessageType> values;
+	
 	static {
 		values = new HashMap<>(
-				Arrays.stream(ServerMessageType.values())
-				.collect(Collectors.toMap(type -> type.id, type -> type))
+				Arrays.stream(VoiceCallMessageType.values())
+				.collect(Collectors.toUnmodifiableMap(type -> type.id, type -> type))
 				);
 	}
 	
     public final int id;
 
-    ServerMessageType(int id) {
+    VoiceCallMessageType(int id) {
         this.id = id;
     }
 
-	public static ServerMessageType fromId(int id) {
+	public static VoiceCallMessageType fromId(int id) {
 		return EnumIntConverter.fromId(values, id);
 	}
 }

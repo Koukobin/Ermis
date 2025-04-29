@@ -229,11 +229,14 @@ class _InputFieldState extends State<InputField> {
                                         onPressed: () async {
                                           setState(() {
                                             _isMakingVoiceMessage = true;
-                                          });
-                                          if (recorderController.hasPermission) {
-                                            recorderController.record();
-                                          }
-                                        },
+                                        });
+                                        if (recorderController.hasPermission) {
+                                          recorderController.record(
+                                            sampleRate: 48000, // High sample rate for high quality audio
+                                            bitRate: 1000, // High bit rate for high quality audio
+                                          );
+                                        }
+                                      },
                                         icon: Icon(
                                           Icons.mic,
                                           color: appColors.secondaryColor,

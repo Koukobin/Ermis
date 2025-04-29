@@ -15,9 +15,7 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
-import 'package:ermis_client/core/models/inet_socket_address.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/networking/handlers/chat_sessions_service.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
@@ -374,22 +372,6 @@ class CommandResultHandler {
         Uint8List aesKey = msg.readBytes(msg.readableBytes);
 
         _eventBus.fire(StartVoiceCallResultEvent(aesKey, udpServerPort));
-        break;
-      case ClientCommandResultType.memberJoinedVoiceCall:
-        int clientID = msg.readInt32();
-        int chatSessionID = msg.readInt32();
-        int port = msg.readInt32();
-        Uint8List rawAddress = msg.readRemainingBytes();
-        _eventBus.fire(MemberAddedToVoiceCalll(
-          clientID: clientID,
-          chatSessionID: chatSessionID,
-          socket: JavaInetSocketAddress(InternetAddress.fromRawAddress(rawAddress), port),
-        ));
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
-        print("Mother fucking eventbus");
         break;
       case ClientCommandResultType.getDonationPageURL:
         Uint8List donationPageURL = msg.readBytes(msg.readableBytes);

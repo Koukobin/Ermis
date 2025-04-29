@@ -17,7 +17,7 @@
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-import '../../features/chats/widgets/user_avatar.dart';
+import '../widgets/profile_photos/user_avatar.dart';
 
 SizedBox createSimpleButton(BuildContext context, String text, IconData iconData, GestureTapCallback onTap) {
   final appColors = Theme.of(context).extension<AppColors>()!;

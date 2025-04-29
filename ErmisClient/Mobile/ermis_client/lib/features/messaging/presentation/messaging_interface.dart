@@ -51,7 +51,7 @@ import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/file_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/scroll/infinite_scroll_list.dart';
-import '../../chats/widgets/user_avatar.dart';
+import '../../../core/widgets/profile_photos/user_avatar.dart';
 
 class MessagingInterface extends StatefulWidget {
   final int chatSessionIndex;

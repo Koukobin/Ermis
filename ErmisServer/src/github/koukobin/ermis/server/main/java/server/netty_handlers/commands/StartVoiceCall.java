@@ -46,7 +46,7 @@ public class StartVoiceCall implements ICommand {
 		}
 
 		ByteBuf payload = channel.alloc().ioBuffer();
-		payload.writeInt(ServerMessageType.VOICE_CALL_INCOMING.id);
+		payload.writeInt(ServerMessageType.VOICE_CALLS.id);
 		payload.writeInt(ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 		payload.writeInt(chatSessionID);
 		payload.writeInt(clientInfo.getClientID());

@@ -45,7 +45,6 @@ enum ClientCommandResultType {
   // Start voice call
   startVoiceCall(500),
   fetchSignallingServerPort(501),
-  memberJoinedVoiceCall(502),
 
   // External Pages
   getDonationPageURL(600),

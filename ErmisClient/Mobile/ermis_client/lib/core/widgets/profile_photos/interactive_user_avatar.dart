@@ -25,7 +25,7 @@ import 'package:flutter/material.dart';
 
 typedef FutureVoidCallback = Future<void> Function();
 
-typedef AvatarClicked = List<Widget> Function(BuildContext context, FutureVoidCallback popContext);
+typedef AvatarClickedCallback = List<Widget> Function(BuildContext context, FutureVoidCallback popContext);
 List<Widget> _defaultAvatarClickedAction(BuildContext _, VoidCallback __) => const [];
 
 class InteractiveUserAvatar extends StatelessWidget {
@@ -37,7 +37,7 @@ class InteractiveUserAvatar extends StatelessWidget {
   final Member member;
   final String avatarID;
 
-  final AvatarClicked onAvatarClicked;
+  final AvatarClickedCallback onAvatarClicked;
 
   InteractiveUserAvatar({
     super.key,

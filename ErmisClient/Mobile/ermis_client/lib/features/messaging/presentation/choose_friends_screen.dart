@@ -18,7 +18,7 @@ import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/core/extensions/iterable_extensions.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/features/chats/widgets/user_avatar.dart';
+import 'package:ermis_client/core/widgets/profile_photos/user_avatar.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 

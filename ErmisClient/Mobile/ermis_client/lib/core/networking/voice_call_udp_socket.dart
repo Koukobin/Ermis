@@ -186,5 +186,6 @@ class VoiceCallUDPSocket with AesGcmCryto {
 
     _udpSocket!.close();
     _udpSocket = null;
+    _isInitialized = false;
   }
 }

@@ -23,7 +23,7 @@ import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/features/chats/widgets/interactive_user_avatar.dart';
+import 'package:ermis_client/core/widgets/profile_photos/interactive_user_avatar.dart';
 import 'package:ermis_client/features/chats/temp.dart';
 import 'package:ermis_client/features/settings/options/linked_devices_settings.dart';
 import 'package:ermis_client/features/settings/primary_settings_interface.dart';

@@ -24,7 +24,7 @@ import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/networking/voice_call_udp_socket.dart';
-import 'package:ermis_client/core/widgets/user_profile.dart';
+import 'package:ermis_client/core/widgets/profile_photos/user_profile_photo.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/core/util/top_app_bar_utils.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
@@ -209,7 +209,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
       codec: Codec.pcm16,
       sampleRate: 8000,
       numChannels: 1,
-      bufferSize: 512,
+      bufferSize: 768,
       interleaved: true,
       );
     });
@@ -254,7 +254,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
         codec: Codec.pcm16,
         sampleRate: 8000,
         numChannels: 1,
-        bufferSize: 512,
+        bufferSize: 768,
         toStream: _controller,
       );
     });
@@ -355,7 +355,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
                 children: [
                   Text(
                     "ChatSession: ${widget.chatSessionID}",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   Text(callStatus.text)
                 ],
@@ -364,7 +364,7 @@ class VoiceCallScreenState extends State<VoiceCallScreen> with EventBusSubscript
                 alignment: Alignment.center,
                 children: [
                   AnimatedSize(
-                    duration: Duration(milliseconds: 100),
+                    duration: const Duration(milliseconds: 100),
                     child: CircleAvatar(
                       radius: (100 + rms) >= 200 ? 200 : 100 + rms,
                       backgroundColor: const Color.fromRGBO(158, 158, 158, 0.4),

@@ -87,7 +87,7 @@ public final class GlobalMessageDispatcher {
 				messageSubject.onNext(new ServerMessageInfoEvent(new String(content)));
 			}
 		});
-		handlers.put(ServerMessageType.VOICE_CALL_INCOMING, new MESSAGEHandler() {
+		handlers.put(ServerMessageType.VOICE_CALLS, new MESSAGEHandler() {
 
 			@Override
 			public void handleMessage(ByteBuf msg) {

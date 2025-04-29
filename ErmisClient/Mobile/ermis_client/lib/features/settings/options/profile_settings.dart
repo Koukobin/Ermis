@@ -17,6 +17,7 @@
 import 'package:camera/camera.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/core/widgets/profile_photos/personal_profile_photo.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
@@ -27,7 +28,6 @@ import '../../../core/data_sources/api_client.dart';
 import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/util/file_utils.dart';
-import '../../../core/widgets/user_profile.dart';
 
 class ProfileSettings extends StatefulWidget {
   const ProfileSettings({super.key});

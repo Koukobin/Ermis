@@ -27,7 +27,7 @@ import '../../core/models/chat_request.dart';
 import '../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../core/util/top_app_bar_utils.dart';
 import '../../core/widgets/loading_state.dart';
-import 'widgets/user_avatar.dart';
+import '../../core/widgets/profile_photos/user_avatar.dart';
 
 class ChatRequests extends StatefulWidget {
   const ChatRequests({super.key});

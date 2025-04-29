@@ -16,6 +16,7 @@
 
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/core/widgets/profile_photos/personal_profile_photo.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/features/settings/options/account_settings.dart';
 import 'package:ermis_client/features/settings/options/notification_settings.dart';
@@ -30,7 +31,6 @@ import '../../core/data_sources/api_client.dart';
 import '../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../core/util/dialogs_utils.dart';
 import '../../core/util/top_app_bar_utils.dart';
-import '../../core/widgets/user_profile.dart';
 import 'options/help_settings.dart';
 import 'options/language_settings.dart';
 import 'options/linked_devices_settings.dart';

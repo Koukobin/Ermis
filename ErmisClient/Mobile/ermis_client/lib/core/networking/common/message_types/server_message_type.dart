@@ -19,7 +19,7 @@ import '../../../exceptions/EnumNotFoundException.dart';
 enum ServerMessageType {
   clientMessage(0),
   messageDeliveryStatus(1),
-  voiceCallIncoming(2),
+  voiceCalls(2),
   serverMessageInfo(3),
   entry(4),
   commandResult(5);
@@ -32,7 +32,7 @@ enum ServerMessageType {
     try {
       return ServerMessageType.values.firstWhere((type) => type.id == id);
     } catch (e) {
-      throw EnumNotFoundException('No ServerMessageType found for id $id');
+      throw EnumNotFoundException('No $ServerMessageType found for id $id');
     }
   }
 }

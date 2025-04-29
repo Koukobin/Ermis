@@ -65,7 +65,7 @@ class MessageDispatcher {
           ServerInfoMessage? infoMessage = ServerInfoMessage.fromId(data.readInt32());
           _eventBus.fire(ServerMessageInfoEvent(infoMessage!.stringMessage));
           break;
-        case ServerMessageType.voiceCallIncoming:
+        case ServerMessageType.voiceCalls:
           VoiceCallHandler.handle(data);
           break;
         case ServerMessageType.messageDeliveryStatus:

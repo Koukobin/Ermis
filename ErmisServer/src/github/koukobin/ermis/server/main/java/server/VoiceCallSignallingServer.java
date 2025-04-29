@@ -27,8 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
+import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.util.AESKeyGenerator;
 import io.netty.bootstrap.Bootstrap;
@@ -214,11 +214,11 @@ public final class VoiceCallSignallingServer {
 			List<ClientInfo> activeMembers = ActiveChatSessions.getChatSession(chatSessionID).getActiveMembers();
 
 			calls3.put(clientID, packet.sender());
-			
+
 			{
 				ByteBuf payload = ctx.alloc().ioBuffer();
-				payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-				payload.writeInt(ClientCommandResultType.MEMBER_JOINED_VOICE_CALL.id);
+				payload.writeInt(ServerMessageType.VOICE_CALLS.id);
+				payload.writeInt(VoiceCallMessageType.USER_JOINED_VOICE_CALL.id);
 				payload.writeInt(clientID);
 				payload.writeInt(chatSessionID);
 				payload.writeInt(port);
@@ -240,8 +240,8 @@ public final class VoiceCallSignallingServer {
 					InetSocketAddress ciSocketAdress = calls3.get(ci.getClientID());
 					if (ciSocketAdress == null || ci.getClientID() == clientID) continue;
 					ByteBuf payload = ctx.alloc().ioBuffer();
-					payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-					payload.writeInt(ClientCommandResultType.MEMBER_JOINED_VOICE_CALL.id);
+					payload.writeInt(ServerMessageType.VOICE_CALLS.id);
+					payload.writeInt(VoiceCallMessageType.USER_JOINED_VOICE_CALL.id);
 					payload.writeInt(ci.getClientID());
 					payload.writeInt(chatSessionID);
 					payload.writeInt(ciSocketAdress.getPort());
