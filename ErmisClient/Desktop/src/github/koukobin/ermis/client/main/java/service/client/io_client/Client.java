@@ -32,7 +32,6 @@ import java.security.cert.X509Certificate;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -42,8 +41,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
-import com.google.common.eventbus.EventBus;
 
 import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.database.LocalAccountInfo;
@@ -64,15 +61,9 @@ import github.koukobin.ermis.common.entry.LoginInfo.CredentialsExchange;
 import github.koukobin.ermis.common.entry.Verification;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.common.results.ResultHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.annotations.Nullable;
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.core.SingleEmitter;
 
 /**
  * 
@@ -239,7 +230,6 @@ public class Client {
 					.blockingGet();
 
 			ByteBuf buffer = msg.getBuffer();
-
 			
 			int id = buffer.readInt();
 			return entryType == EntryType.CREATE_ACCOUNT
@@ -249,7 +239,6 @@ public class Client {
 
 		public void sendCredentials(Map<T, String> credentials) throws IOException {
 			for (Map.Entry<T, String> credential : credentials.entrySet()) {
-
 				int credentialInt = credential.getKey().id();
 				byte[] credentialValueBytes = credential.getValue().getBytes();
 

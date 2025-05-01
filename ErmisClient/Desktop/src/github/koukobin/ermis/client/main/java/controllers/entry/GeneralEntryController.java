@@ -28,6 +28,7 @@ import github.koukobin.ermis.common.entry.Resultable;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import com.jfoenix.controls.JFXCheckBox;
 
@@ -40,6 +41,7 @@ import javafx.scene.Node;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  * @author Ilias Koukovinis
@@ -59,7 +61,7 @@ public abstract sealed class GeneralEntryController implements Initializable per
 	protected PasswordField passwordFieldTextHidden;
 	@FXML
 	protected JFXCheckBox changePasswordVisibilityCheckBox;
-	
+
 	public void closeEntry(ActionEvent event) {
 		Platform.runLater(() -> {
 			Node node = (Node) event.getSource();
@@ -89,8 +91,19 @@ public abstract sealed class GeneralEntryController implements Initializable per
 	public abstract void register(ActionEvent event)  throws IOException;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected boolean sendAndValidateCredentials(Client.Entry clientEntry, Map<? extends CredentialInterface, String> credentials) throws IOException {
-		clientEntry.sendCredentials(credentials);
+	protected boolean sendAndValidateCredentials(Client.Entry clientEntry, Map<? extends CredentialInterface, String> credentials) {
+		// Artificial wait before sending credentials because in a testing enviroment,
+		// there is a high probability of receiveing server response so quickly
+		// that the client doesn't have enough time to start listening for the result
+		// before it arrives.
+		CompletableFuture.runAsync(() -> {
+			try {
+				Thread.sleep(100);
+				clientEntry.sendCredentials(credentials);
+			} catch (IOException | InterruptedException ioe) {
+				ioe.printStackTrace();
+			}
+		});
 
 		Resultable entryResult = clientEntry.getResult();
 		boolean isSuccessful = entryResult.isSuccessful();

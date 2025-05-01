@@ -34,7 +34,6 @@ public final class Threads {
 	 * @param continuation
 	 */
 	public static void delay(long millis, Runnable... continuation) {
-
 		Task<Void> sleeper = new Task<>() {
 			@Override
 			protected Void call() throws Exception {

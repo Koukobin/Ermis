@@ -53,20 +53,20 @@ public final class ClientDatabase {
 	public static class DBConnection {
 
 		private static final String JDBC_URL;
-		
+
 		static {
 			JDBC_URL = "jdbc:sqlite:" + GeneralAppInfo.CLIENT_DATABASE_PATH;
 		}
 
 		private final Connection conn;
-		
+
 		private DBConnection() {
 			try {
 				conn = createConnection();
-				
+
 				class DatabaseSetup {
 					private static boolean isInitialized = false;
-					
+
 					private DatabaseSetup() {}
 
 					public static void initialize(Connection conn) {
@@ -101,56 +101,54 @@ public final class ClientDatabase {
 		private static Connection createConnection() throws SQLException {
 			return DriverManager.getConnection(JDBC_URL);
 		}
-		
+
 		public int addServerInfo(ServerInfo serverInfo) {
 			int resultUpdate = 0;
 
 			try (PreparedStatement addServerInfo = conn.prepareStatement("INSERT INTO server_info (server_url) VALUES(?);")) {
-				
 				addServerInfo.setString(1, serverInfo.getURL().toString());
+
 				resultUpdate = addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
 				sqle.printStackTrace();
 			}
-			
+
 			return resultUpdate;
 		}
-		
+
 		public int removeServerInfo(ServerInfo serverInfo) {
 			int resultUpdate = 0;
 
 			try (PreparedStatement addServerInfo = conn.prepareStatement("DELETE FROM server_info WHERE server_url=?;")) {
-				
 				addServerInfo.setString(1, serverInfo.getURL().toString());
+
 				resultUpdate = addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
 				sqle.printStackTrace();
 			}
-			
+
 			return resultUpdate;
 		}
-		
+
 		public int setServerInfo(ServerInfo serverInfo) {
 			int resultUpdate = 0;
 
 			try (PreparedStatement addServerInfo = conn.prepareStatement("UPDATE server_info SET server_url=?;")) {
-				
 				addServerInfo.setString(1, serverInfo.getURL().toString());
-				
+
 				resultUpdate = addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
 				sqle.printStackTrace();
 			}
-			
+
 			return resultUpdate;
 		}
-		
+
 		public ServerInfo[] getServerInfos() {
 			List<ServerInfo> serverInfos = new ArrayList<>();
 			try (PreparedStatement addServerInfo = conn.prepareStatement("SELECT * FROM server_info;")) {
-				
 				ResultSet rs = addServerInfo.executeQuery();
-				
+
 				while (rs.next()) {
 					String serverURL = rs.getString(1);
 					serverInfos.add(new ServerInfo(new URL(serverURL)));
@@ -158,26 +156,27 @@ public final class ClientDatabase {
 			} catch (SQLException | UnknownHostException | PortUnreachableException | MalformedURLException e) {
 				e.printStackTrace();
 			}
-			
+
 			return serverInfos.toArray(new ServerInfo[] {});
 		}
-		
+
 		public int addUserAccount(ServerInfo serverInfo, LocalAccountInfo userAccount) {
-		    int result = 0;
-		    String sql = "INSERT INTO server_accounts (server_url, email, password_hash, last_used) VALUES (?, ?, ?, ?);";
+			int result = 0;
+			String sql = "INSERT OR REPLACE INTO server_accounts (server_url, email, password_hash, last_used) VALUES (?, ?, ?, ?);";
 
 			try (PreparedStatement ps = conn.prepareStatement(sql)) {
 				Timestamp timeStamp = new Timestamp(userAccount.getLastUsed().toEpochSecond(ZoneOffset.UTC));
 				ps.setString(1, serverInfo.getURL().toString());
 				ps.setString(2, userAccount.getEmail());
-		        ps.setString(3, userAccount.getPasswordHash());
-		        ps.setTimestamp(4, timeStamp);
-		        result = ps.executeUpdate();
-		    } catch (SQLException e) {
-		        e.printStackTrace();
-		    }
-		    
-		    return result;
+				ps.setString(3, userAccount.getPasswordHash());
+				ps.setTimestamp(4, timeStamp);
+
+				result = ps.executeUpdate();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			return result;
 		}
 
 		public Optional<LocalAccountInfo> getLastUsedAccount(ServerInfo serverInfo) {
@@ -202,78 +201,81 @@ public final class ClientDatabase {
 		}
 
 		public List<LocalAccountInfo> getUserAccounts(ServerInfo serverInfo) {
-		    List<LocalAccountInfo> accounts = new ArrayList<>();
-		    String sql = "SELECT email, password_hash, last_used FROM server_accounts WHERE server_url = ?;";
-		    
-		    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-		        ps.setString(1, serverInfo.getURL().toString());
-		        ResultSet rs = ps.executeQuery();
-		        
+			List<LocalAccountInfo> accounts = new ArrayList<>();
+			String sql = "SELECT email, password_hash, last_used FROM server_accounts WHERE server_url = ?;";
+
+			try (PreparedStatement ps = conn.prepareStatement(sql)) {
+				ps.setString(1, serverInfo.getURL().toString());
+				ResultSet rs = ps.executeQuery();
+
 				while (rs.next()) {
 					String email = rs.getString("email");
 					String passwordHash = rs.getString("password_hash");
 					Timestamp lastUsed = rs.getTimestamp("last_used");
 					accounts.add(new LocalAccountInfo(email, passwordHash, lastUsed.toLocalDateTime()));
 				}
-		    } catch (SQLException e) {
-		        e.printStackTrace();
-		    }
-		    
-		    return accounts;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			return accounts;
 		}
 
 		public int addChatSession(ServerInfo serverInfo, int chatSessionId) {
-		    int result = 0;
-		    String sql = "INSERT INTO chat_sessions (server_url, chat_session_id) VALUES (?, ?);";
-		    
-		    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-		        ps.setString(1, serverInfo.getURL().toString());
-		        ps.setInt(2, chatSessionId);
-		        result = ps.executeUpdate();
-		    } catch (SQLException e) {
-		        e.printStackTrace();
-		    }
-		    
-		    return result;
+			int result = 0;
+			String sql = "INSERT INTO chat_sessions (server_url, chat_session_id) VALUES (?, ?);";
+
+			try (PreparedStatement ps = conn.prepareStatement(sql)) {
+				ps.setString(1, serverInfo.getURL().toString());
+				ps.setInt(2, chatSessionId);
+
+				result = ps.executeUpdate();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			return result;
 		}
 
 		public int removeChatSession(ServerInfo serverInfo, int chatSessionId) {
-		    int result = 0;
-		    String sql = "DELETE FROM chat_sessions WHERE server_url = ? AND chat_session_id = ?;";
-		    
-		    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-		        ps.setString(1, serverInfo.getURL().toString());
-		        ps.setInt(2, chatSessionId);
-		        result = ps.executeUpdate();
-		    } catch (SQLException sqle) {
-		        sqle.printStackTrace();
-		    }
-		    
-		    return result;
+			int result = 0;
+			String sql = "DELETE FROM chat_sessions WHERE server_url = ? AND chat_session_id = ?;";
+
+			try (PreparedStatement ps = conn.prepareStatement(sql)) {
+				ps.setString(1, serverInfo.getURL().toString());
+				ps.setInt(2, chatSessionId);
+
+				result = ps.executeUpdate();
+			} catch (SQLException sqle) {
+				sqle.printStackTrace();
+			}
+
+			return result;
 		}
 
 		public int addChatMessage(ServerInfo serverInfo, Message message) {
-		    int result = 0;
-		    String sql = "INSERT INTO chat_messages (server_url, chat_session_id, message_id, client_id, text, file_name, content_type, ts_entered) " +
-		            "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-		    
+			int result = 0;
+			String sql = "INSERT INTO chat_messages (server_url, chat_session_id, message_id, client_id, text, file_name, content_type, ts_entered) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+
 			try (PreparedStatement ps = conn.prepareStatement(sql)) {
 				Timestamp date = new Timestamp(message.getTimeWritten());
 
 				ps.setString(1, serverInfo.getURL().toString());
 				ps.setInt(2, message.getChatSessionID());
-		        ps.setInt(3, message.getMessageID());
-		        ps.setInt(4, message.getClientID());
-		        ps.setString(5, message.getText());
-		        ps.setString(6, new String(message.getFileName()));
-		        ps.setInt(7, message.getContentType().id);
-		        ps.setTimestamp(8, date);
-		        result = ps.executeUpdate();
-		    } catch (SQLException sqle) {
-		        sqle.printStackTrace();
-		    }
-		    
-		    return result;
+				ps.setInt(3, message.getMessageID());
+				ps.setInt(4, message.getClientID());
+				ps.setString(5, message.getText());
+				ps.setString(6, new String(message.getFileName()));
+				ps.setInt(7, message.getContentType().id);
+				ps.setTimestamp(8, date);
+
+				result = ps.executeUpdate();
+			} catch (SQLException sqle) {
+				sqle.printStackTrace();
+			}
+
+			return result;
 		}
 
 		public int removeChatMessage(ServerInfo serverInfo, int chatSessionId, int messageID) {
@@ -285,6 +287,7 @@ public final class ClientDatabase {
 				ps.setInt(2, chatSessionId);
 				ps.setInt(3, messageID);
 				result = ps.executeUpdate();
+
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
