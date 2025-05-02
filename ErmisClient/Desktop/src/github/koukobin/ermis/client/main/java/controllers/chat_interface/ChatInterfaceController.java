@@ -45,13 +45,13 @@ public class ChatInterfaceController implements Initializable {
 
 	@FXML
 	public StackPane stackPane;
-	
+
 	private Stage stage;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		try {
-			new ImplementedMessageHandler(stage, rootBorderPane).a();
+			EventListenersInitiator.initiateEventListeners(stage, rootBorderPane);
 			Client.startMessageHandler();
 
 			RootReferences.initializeAll();
@@ -122,5 +122,5 @@ public class ChatInterfaceController implements Initializable {
 			ioe.printStackTrace();
 		}
 	}
-	
+
 }

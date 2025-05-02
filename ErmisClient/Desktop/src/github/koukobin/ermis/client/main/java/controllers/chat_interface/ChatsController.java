@@ -61,30 +61,30 @@ public class ChatsController extends GeneralController {
 
 	@FXML
 	private JFXListView<ChatSession> chatSessionsListView;
-	
+
 	@FXML
 	private TextField searchForChatSessionsTextField;
-	
+
 	private Cell currentlySelectedCell;
-	
+
 	class Cell extends JFXListCell<ChatSession> {
 
 		public Cell() {
 			super();
-			
+
 			setOnMouseClicked((MouseEvent e) -> {
-				
 				if (e.getButton() != MouseButton.PRIMARY /* Left Click */) {
 					return;
 				}
-				
+
 				// If the user clicked the same active cell simply return
 				if (this.equals(currentlySelectedCell)) {
 					return;
 				}
-				
+				currentlySelectedCell = this;
+
 				ChatSession chatSession = this.getItem();
-				
+
 				RootReferences.getMessagingController().clearMessages();
 				if (!chatSession.haveChatMessagesBeenCached()) {
 					try {
@@ -99,10 +99,8 @@ public class ChatsController extends GeneralController {
 							chatSession.getChatSessionIndex(),
 							getActiveChatSessionIndex());
 				}
-				
-				currentlySelectedCell = this;
 			});
-			
+
 			MyContextMenuItem delete = new MyContextMenuItem("Delete");
 			delete.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
@@ -121,7 +119,7 @@ public class ChatsController extends GeneralController {
 		@Override
 		public void updateItem(ChatSession chatSession, boolean empty) {
 			super.updateItem(chatSession, empty);
-			
+
 			setText(null);
 			setGraphic(null);
 
@@ -132,12 +130,12 @@ public class ChatsController extends GeneralController {
 			HBox hbox = new HBox();
 			hbox.setAlignment(Pos.CENTER_LEFT);
 			hbox.setPadding(new Insets(10));
-			
+
 			List<Member> members = chatSession.getMembers();
 			for (int i = 0; i < members.size(); i++) {
-				
+
 				byte[] iconBytes = members.get(i).getIcon();
-				
+
 				Image profilePhoto;
 				if (iconBytes.length > 0) {
 					profilePhoto = new Image(new ByteArrayInputStream(members.get(i).getIcon()));
@@ -157,7 +155,7 @@ public class ChatsController extends GeneralController {
 
 			setGraphic(hbox);
 		}
-		
+
 	}
 
 	@Override
@@ -167,7 +165,6 @@ public class ChatsController extends GeneralController {
 
 	@FXML
 	public void searchChatSession(KeyEvent event) {
-
 		String search = searchForChatSessionsTextField.getText();
 
 		List<ChatSession> items = chatSessionsListView.getItems();
@@ -193,7 +190,7 @@ public class ChatsController extends GeneralController {
 			RootReferences.getMessagingController().clearMessages();
 			MFXProgressSpinner progressSpinner = new MFXProgressSpinner();
 			Button refreshButton = (Button) event.getSource();
-			
+
 			refreshButton.setDisable(true);
 			getRoot().getChildren().remove(chatSessionsListView);
 			getRoot().getChildren().add(progressSpinner);
@@ -215,13 +212,13 @@ public class ChatsController extends GeneralController {
 	public void clearChatSessions() {
 		chatSessionsListView.getItems().clear();
 	}
-	
+
 	public void addChatSessions(Iterable<ChatSession> chatSessions) {
 		for (ChatSession chatSession : chatSessions) {
 			addChatSession(chatSession);
 		}
 	}
-	
+
 	public void addChatSession(ChatSession chatSession) {
 		chatSessionsListView.getItems().add(chatSession);
 	}
@@ -237,6 +234,5 @@ public class ChatsController extends GeneralController {
 	public ChatSession getActiveChatSession() {
 		return chatSessionsListView.getSelectionModel().getSelectedItem();
 	}
-	
-}
 
+}

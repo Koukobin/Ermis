@@ -78,15 +78,15 @@ public class Client {
 
 	private static AtomicBoolean isLoggedIn = new AtomicBoolean(false);
 
-	private static MessageHandler messageHandler;
+	private static MessageTransmitter messageTransmitter;
 
 	private static ServerInfo serverInfo;
 
 	public enum ServerCertificateVerification {
 		VERIFY, IGNORE
 	}
-	
-    /** Don't let anyone else instantiate this class */
+
+	/** Don't let anyone else instantiate this class */
     private Client() {}
 
 	public static void initialize(ServerInfo serverInfo, ServerCertificateVerification scv) throws ClientInitializationException {
@@ -254,7 +254,6 @@ public class Client {
 		public void sendEntryType() throws IOException {
 			out.write(Unpooled.copyInt(ClientMessageType.USER_ENTRY.id, entryType.id));
 		}
-		
 
 		public void sendVerificationCode(String verificationCode) throws IOException {
 			ByteBuf payload = Unpooled.buffer();
@@ -363,113 +362,21 @@ public class Client {
 			throw new IllegalStateException("User can't start writing server if he isn't logged in");
 		}
 
-		Client.messageHandler = new MessageHandler() {
-			
-			@Override
-			public void usernameReceived(String username) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void serverSourceCodeReceived(String serverSourceCodeURL) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void serverMessageReceived(String message) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void messageUnsuccessfulyDeleted(ChatSession chatSession, int messageID) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void messageSuccesfullySentReceived(MessageDeliveryStatus status, MESSAGE pendingMessage) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void messageReceived(MESSAGE message, int chatSessionIndex) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void messageDeleted(ChatSession chatSession, int messageIDOfDeletedMessage) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void imageDownloaded(LoadedInMemoryFile file) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void iconReceived(byte[] icon) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void fileDownloaded(LoadedInMemoryFile file) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void donationPageReceived(String donationPage) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void clientIDReceived(int clientID) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void chatSessionsReceived(List<ChatSession> chatSessions) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void chatRequestsReceived(List<ChatRequest> chatRequests) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void alreadyWrittenTextReceived(ChatSession chatSession) {
-				// TODO Auto-generated method stub
-				
-			}
-		};
-		Client.messageHandler.setByteBufInputStream(in);
-		Client.messageHandler.setByteBufOutputStream(out);
-		Client.messageHandler.startListeningToMessages();
+		Client.messageTransmitter = new MessageTransmitter() {};
+		Client.messageTransmitter.setByteBufOutputStream(out);
+		Client.messageTransmitter.startListeningToMessages();
 	}
 
 	public static void sendMessageToClient(String message, int chatSessionIndex) throws IOException {
-		messageHandler.sendMessageToClient(message, chatSessionIndex);
+		messageTransmitter.sendMessageToClient(message, chatSessionIndex);
 	}
 
 	public static void sendFile(File file, int chatSessionIndex) throws IOException {
-		messageHandler.sendFile(file, chatSessionIndex);
+		messageTransmitter.sendFile(file, chatSessionIndex);
 	}
 
 	public static void stopListeningToMessages() {
-		messageHandler.stopListeningToMessages();
+		messageTransmitter.stopListeningToMessages();
 	}
 
 	public static BackupVerificationEntry createNewBackupVerificationEntry() {
@@ -489,31 +396,31 @@ public class Client {
 	}
 
 	public static boolean isClientListeningToMessages() {
-		return messageHandler.isClientListeningToMessages();
+		return messageTransmitter.isClientListeningToMessages();
 	}
 
 	public static String getDisplayName() {
-		return messageHandler.getUsername();
+		return messageTransmitter.getUsername();
 	}
 
 	public static int getClientID() {
-		return messageHandler.getClientID();
+		return messageTransmitter.getClientID();
 	}
 
 	public static byte[] getAccountIcon() {
-		return messageHandler.getAccountIcon();
+		return messageTransmitter.getAccountIcon();
 	}
 
 	public static List<ChatSession> getChatSessions() {
-		return messageHandler.getChatSessions();
+		return messageTransmitter.getChatSessions();
 	}
 
 	public static List<ChatRequest> getFriendRequests() {
-		return messageHandler.getChatRequests();
+		return messageTransmitter.getChatRequests();
 	}
 
-	public static MessageHandler.Commands getCommands() {
-		return messageHandler.getCommands();
+	public static MessageTransmitter.Commands getCommands() {
+		return messageTransmitter.getCommands();
 	}
 
 	public static ByteBufInputStream getByteBufInputStream() {
@@ -524,8 +431,8 @@ public class Client {
 		return out;
 	}
 
-	public static MessageHandler getMessageHandler() {
-		return messageHandler;
+	public static MessageTransmitter getMessageHandler() {
+		return messageTransmitter;
 	}
 
 	public static ServerInfo getServerInfo() {
@@ -533,7 +440,7 @@ public class Client {
 	}
 
 	public static void close() throws IOException {
-		messageHandler.close();
+		messageTransmitter.close();
 		out.close();
 		in.close();
 		sslSocket.close();

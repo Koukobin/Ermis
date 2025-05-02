@@ -46,8 +46,6 @@ public class DeleteAccount implements ICommand {
 		byte[] passwordBytes = new byte[args.readInt()];
 		args.readBytes(passwordBytes);
 
-		String enteredEmail = new String(emailAddress);
-
 		removeAuthenticationHandlers(channel);
 
 		channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
@@ -59,6 +57,7 @@ public class DeleteAccount implements ICommand {
 						// Although database performs authentication and verifies entered email is
 						// indeed associated with the actual user account, confirm it proactively here
 						// as well
+						String enteredEmail = new String(emailAddress);
 
 						if (!clientInfo.getEmail().equals(enteredEmail)) {
 							return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);

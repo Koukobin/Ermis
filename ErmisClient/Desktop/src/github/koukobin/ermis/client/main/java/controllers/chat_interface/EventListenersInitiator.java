@@ -29,29 +29,23 @@ import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.info.GeneralAppInfo;
 import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
 import github.koukobin.ermis.client.main.java.service.client.ChatSession;
-import github.koukobin.ermis.client.main.java.service.client.DonationHtmlPage;
 import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
 import github.koukobin.ermis.client.main.java.service.client.Events.ChatRequestsEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ChatSessionsEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.DonationPageEvent;
-import github.koukobin.ermis.client.main.java.service.client.Events.EntryMessage;
 import github.koukobin.ermis.client.main.java.service.client.Events.FileDownloadedEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ImageDownloadedEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.MessageDeletedEvent;
-import github.koukobin.ermis.client.main.java.service.client.Events.MessageDeletionUnsuccessfulEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.MessageDeliveryStatusEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.MessageReceivedEvent;
-import github.koukobin.ermis.client.main.java.service.client.Events.ProfilePhotoEvent;
+import github.koukobin.ermis.client.main.java.service.client.Events.ReceivedProfilePhotoEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ServerMessageInfoEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ServerSourceCodeEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.WrittenTextEvent;
-import github.koukobin.ermis.client.main.java.service.client.io_client.MessageHandler;
+import github.koukobin.ermis.client.main.java.service.client.io_client.MessageTransmitter;
 import github.koukobin.ermis.client.main.java.util.HostServicesUtil;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.client.main.java.util.dialogs.MFXDialogsUtil;
-import github.koukobin.ermis.common.LoadedInMemoryFile;
-import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
-import github.koukobin.ermis.common.message_types.UserMessage;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -60,17 +54,11 @@ import javafx.stage.Stage;
  * @author Ilias Koukovinis
  *
  */
-class ImplementedMessageHandler extends MessageHandler {
-	
-	private Stage stage;
-	private Pane rootPane;
-	
-	public ImplementedMessageHandler(Stage stage, Pane rootPane) {
-		this.stage = stage;
-		this.rootPane = rootPane;
-	}
-	
-	void a() {
+class EventListenersInitiator extends MessageTransmitter {
+
+	private EventListenersInitiator() {}
+
+	static void initiateEventListeners(Stage stage, Pane rootPane) {
 		// Server Message
 		GlobalMessageDispatcher.getDispatcher()
 		.observeMessages()
@@ -183,8 +171,8 @@ class ImplementedMessageHandler extends MessageHandler {
 
 		GlobalMessageDispatcher.getDispatcher()
 		.observeMessages()
-		.ofType(ProfilePhotoEvent.class)
-		.subscribe((ProfilePhotoEvent event) -> {
+		.ofType(ReceivedProfilePhotoEvent.class)
+		.subscribe((ReceivedProfilePhotoEvent event) -> {
 			Platform.runLater(() -> RootReferences.getAccountSettingsController().setIcon(event.getPhotoBytes()));
 		});
 	
@@ -260,71 +248,6 @@ class ImplementedMessageHandler extends MessageHandler {
 		.subscribe((ImageDownloadedEvent event) -> {
 			
 		});
-	
-		// Message deleted unseuccesfully
-
-		// TODO Auto-generated method stub
-		GlobalMessageDispatcher.getDispatcher()
-		.observeMessages()
-		.ofType(MessageDeletionUnsuccessfulEvent.class)
-		.subscribe((MessageDeletionUnsuccessfulEvent event) -> {
-			
-		});		
-	
 	}
-	
-	@Override
-	public void serverMessageReceived(String message) {
-	}
-	
-	@Override
-	public void messageReceived(MESSAGE message, int chatSessionIndex) {
-	}
-	
-	@Override
-	public void messageSuccesfullySentReceived(MessageDeliveryStatus status, MESSAGE message) {
-
-	}
-
-	@Override
-	public void alreadyWrittenTextReceived(ChatSession chatSession) {}
-
-	@Override
-	public void fileDownloaded(LoadedInMemoryFile file) {}
-	
-	@Override
-	public void donationPageReceived(String donationPageUrl) {}
-	
-	@Override
-	public void serverSourceCodeReceived(String serverSourceCodeURL) {}
-
-	@Override
-	public void usernameReceived(String username) {
-		// Do nothing.
-	}
-	
-	@Override
-	public void clientIDReceived(int clientID) {
-		// Do nothing.
-	}
-	
-	@Override
-	public void iconReceived(byte[] icon) {}
-
-	@Override
-	public void chatSessionsReceived(List<ChatSession> chatSessions) {}
-	
-	@Override
-	public void chatRequestsReceived(List<ChatRequest> chatRequests) {}
-
-	@Override
-	public void messageDeleted(ChatSession chatSession, int messageIDOfDeletedMessage) {}
-
-	@Override
-	public void imageDownloaded(LoadedInMemoryFile file) {}
-
-	@Override
-	public void messageUnsuccessfulyDeleted(ChatSession chatSession, int messageID) {}
 }
-
 

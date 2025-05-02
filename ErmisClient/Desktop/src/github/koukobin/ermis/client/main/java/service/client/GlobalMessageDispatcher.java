@@ -57,14 +57,14 @@ public final class GlobalMessageDispatcher {
 		listeners.remove(listener);
 	}
 
-	private Map<ServerMessageType, MESSAGEHandler> handlers = new EnumMap<>(ServerMessageType.class);
+	private Map<ServerMessageType, MessageHandler> handlers = new EnumMap<>(ServerMessageType.class);
     public final PublishSubject<IMessage> messageSubject = PublishSubject.create();
 
 	public GlobalMessageDispatcher() {
 		// Register handlers for different message types
 		handlers.put(ServerMessageType.CLIENT_MESSAGE, new ClientMessageHandler());
 		handlers.put(ServerMessageType.COMMAND_RESULT, new CommandResultHandler());
-		handlers.put(ServerMessageType.ENTRY, new MESSAGEHandler() {
+		handlers.put(ServerMessageType.ENTRY, new MessageHandler() {
 
 			@Override
 			public void handleMessage(ByteBuf msg) {
@@ -77,7 +77,7 @@ public final class GlobalMessageDispatcher {
 			}
 		});
 		handlers.put(ServerMessageType.MESSAGE_DELIVERY_STATUS, new MessageDeliveryStatusHandler());
-		handlers.put(ServerMessageType.SERVER_INFO, new MESSAGEHandler() {
+		handlers.put(ServerMessageType.SERVER_INFO, new MessageHandler() {
 
 			@Override
 			public void handleMessage(ByteBuf msg) {
@@ -87,7 +87,7 @@ public final class GlobalMessageDispatcher {
 				messageSubject.onNext(new ServerMessageInfoEvent(new String(content)));
 			}
 		});
-		handlers.put(ServerMessageType.VOICE_CALLS, new MESSAGEHandler() {
+		handlers.put(ServerMessageType.VOICE_CALLS, new MessageHandler() {
 
 			@Override
 			public void handleMessage(ByteBuf msg) {
@@ -98,7 +98,7 @@ public final class GlobalMessageDispatcher {
 
 	public void dispatchMessage(ByteBuf message) {
 		ServerMessageType msgType = ServerMessageType.fromId(message.readInt());
-		MESSAGEHandler handler = handlers.get(msgType);
+		MessageHandler handler = handlers.get(msgType);
 		if (handler != null) {
 			handler.handleMessage(message);
 		} else {

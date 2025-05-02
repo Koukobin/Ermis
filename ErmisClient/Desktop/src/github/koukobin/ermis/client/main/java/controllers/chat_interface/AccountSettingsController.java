@@ -25,11 +25,17 @@ import com.jfoenix.controls.JFXButton;
 
 import github.koukobin.ermis.client.main.java.info.Icons;
 import github.koukobin.ermis.client.main.java.info.chat_interface.SettingsInfo;
+import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
+import github.koukobin.ermis.client.main.java.service.client.Events.AddProfilePhotoResultEvent;
+import github.koukobin.ermis.client.main.java.service.client.Events.ReceivedProfilePhotoEvent;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
+import github.koukobin.ermis.client.main.java.service.client.io_client.UserInfoManager;
 import github.koukobin.ermis.client.main.java.util.UITransitions;
 import github.koukobin.ermis.client.main.java.util.UITransitions.Direction.Which;
+import github.koukobin.ermis.client.main.java.util.dialogs.MFXDialogsUtil;
 import io.github.palexdev.materialfx.controls.MFXPasswordField;
 import javafx.animation.Interpolator;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -71,46 +77,79 @@ public class AccountSettingsController extends GeneralController {
 	@FXML private JFXButton changePasswordButton;
 	@FXML private ImageView passwordButtonImageView;
 	@FXML private HBox changePasswordHbox;
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
 		{
 			// Change cursor when hovering over the button
 			addProfilePhotoIcon.setOnMouseEntered(event -> addProfilePhotoIcon.setCursor(Cursor.HAND));
 			addProfilePhotoIcon.setOnMouseExited(event -> addProfilePhotoIcon.setCursor(Cursor.DEFAULT));
+
+			boolean isProfileEmpty = UserInfoManager.accountIcon == null;
 			
-			addProfilePhotoIcon.setFill(new ImagePattern(Icons.ACCOUNT_HIGH_RES));
+			if (isProfileEmpty) {
+				addProfilePhotoIcon.setFill(new ImagePattern(Icons.ACCOUNT_HIGH_RES));
+				addProfilePhotoIcon.setEffect(new DropShadow(+10d, 0d, +2d, Color.DARKSEAGREEN));
+			} else {
+				addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(UserInfoManager.accountIcon))));
+			}
+
 			addProfilePhotoIcon.setStroke(Color.SEAGREEN);
-			addProfilePhotoIcon.setEffect(new DropShadow(+10d, 0d, +2d, Color.DARKSEAGREEN));
 		}
 		
-		clientIDLabel.setText(String.valueOf(Client.getClientID()));
+		GlobalMessageDispatcher.getDispatcher()
+			.observeMessages()
+			.ofType(ReceivedProfilePhotoEvent.class)
+			.subscribe((ReceivedProfilePhotoEvent event) -> {
+				Platform.runLater(() -> {
+					addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(event.getPhotoBytes()))));
+					addProfilePhotoIcon.setStroke(Color.SEAGREEN);
+					addProfilePhotoIcon.setEffect(null);
+				});
+		});
 		
+		GlobalMessageDispatcher.getDispatcher()
+			.observeMessages()
+			.ofType(AddProfilePhotoResultEvent.class)
+			.subscribe((AddProfilePhotoResultEvent event) -> {
+				if (event.isSuccess()) {
+					Platform.runLater(() -> {
+						addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(UserInfoManager.accountIcon))));
+						addProfilePhotoIcon.setStroke(Color.SEAGREEN);
+						addProfilePhotoIcon.setEffect(null);
+					});
+					return;
+				}
+
+				MFXDialogsUtil.showSimpleInformationDialog(getStage(), getRoot(), "Failed to add profile photo");
+		});
+
+		clientIDLabel.setText(String.valueOf(Client.getClientID()));
+
 		changeDisplayNameTextField.setText(Client.getDisplayName());
 		disableDisplayNameTextField();
 		disablePasswordTextField();
 
 		EventHandler<ActionEvent> handler = new EventHandler<ActionEvent>() {
-			
+
 			private int count = 0;
-			
+
 			@Override
 			public void handle(ActionEvent event) {
-				
+
 				enableDisplayNameTextField();
-				
+
 				changeDisplayNameButton.setOnAction(new EventHandler<ActionEvent>() {
-					
+
 					@Override
 					public void handle(ActionEvent event) {
-						
+
 						String newDisplayName = changeDisplayNameTextField.getText();
-						
+
 						if (newDisplayName.isBlank()) {
 							return;
 						}
-						
+
 						try {
 							Client.getCommands().changeDisplayName(newDisplayName);
 						} catch (IOException ioe) {
@@ -118,12 +157,12 @@ public class AccountSettingsController extends GeneralController {
 						}
 					}
 				});
-				
+
 				// Listener to disable textfield and remove CSS once it loses focus
 				ChangeListener<Boolean> focusListener = new ChangeListener<>() {
 
 					private boolean set = false;
-					
+
 					@Override
 					public void changed(ObservableValue<? extends Boolean> observable, 
 							Boolean oldValue,
@@ -132,12 +171,12 @@ public class AccountSettingsController extends GeneralController {
 						if (Boolean.TRUE.equals(newValue)) {
 							return;
 						}
-						
+
 						if (!set) {
 							count++;
 							set = true;
 						}
-						
+
 						if (count == 2) {
 							disableDisplayNameTextField();
 							changeDisplayNameTextField.focusedProperty().removeListener(this);
@@ -147,12 +186,12 @@ public class AccountSettingsController extends GeneralController {
 						}
 					}
 				};
-				
+
 				// Listener to disable textfield and remove CSS once it loses focus
 				ChangeListener<Boolean> focusListener2 = new ChangeListener<>() {
 
 					private boolean set = false;
-					
+
 					@Override
 					public void changed(ObservableValue<? extends Boolean> observable, 
 							Boolean oldValue,
@@ -161,41 +200,41 @@ public class AccountSettingsController extends GeneralController {
 						if (Boolean.TRUE.equals(newValue)) {
 							return;
 						}
-						
+
 						if (!set) {
 							count++;
 							set = true;
 						}
 					}
 				};
-				
+
 				changeDisplayNameButton.focusedProperty().addListener(focusListener);
 				changeDisplayNameTextField.focusedProperty().addListener(focusListener2);
 			}
 		};
-		
+
 		changeDisplayNameButton.setOnAction(handler);
-		
+
 		EventHandler<ActionEvent> handler2 = new EventHandler<ActionEvent>() {
-			
+
 			private int count = 0;
-			
+
 			@Override
 			public void handle(ActionEvent event) {
-				
+
 				enablePasswordTextField();
-				
+
 				changePasswordButton.setOnAction(new EventHandler<ActionEvent>() {
-					
+
 					@Override
 					public void handle(ActionEvent event) {
-						
+
 						String newPassword = changePasswordField.getText();
-						
+
 						if (newPassword.isBlank()) {
 							return;
 						}
-						
+
 						try {
 							Client.getCommands().changePassword(newPassword);
 						} catch (IOException ioe) {
@@ -203,12 +242,12 @@ public class AccountSettingsController extends GeneralController {
 						}
 					}
 				});
-				
+
 				// Listener to disable textfield and remove CSS once it loses focus
 				ChangeListener<Boolean> focusListener = new ChangeListener<>() {
 
 					private boolean set = false;
-					
+
 					@Override
 					public void changed(ObservableValue<? extends Boolean> observable, 
 							Boolean oldValue,
@@ -217,12 +256,12 @@ public class AccountSettingsController extends GeneralController {
 						if (Boolean.TRUE.equals(newValue)) {
 							return;
 						}
-						
+
 						if (!set) {
 							count++;
 							set = true;
 						}
-						
+
 						if (count == 2) {
 							disablePasswordTextField();
 							changePasswordField.focusedProperty().removeListener(this);
@@ -232,12 +271,12 @@ public class AccountSettingsController extends GeneralController {
 						}
 					}
 				};
-				
+
 				// Listener to disable textfield and remove CSS once it loses focus
 				ChangeListener<Boolean> focusListener2 = new ChangeListener<>() {
 
 					private boolean set = false;
-					
+
 					@Override
 					public void changed(ObservableValue<? extends Boolean> observable, 
 							Boolean oldValue,
@@ -246,38 +285,38 @@ public class AccountSettingsController extends GeneralController {
 						if (Boolean.TRUE.equals(newValue)) {
 							return;
 						}
-						
+
 						if (!set) {
 							count++;
 							set = true;
 						}
 					}
 				};
-				
+
 				changePasswordButton.focusedProperty().addListener(focusListener);
 				changePasswordField.focusedProperty().addListener(focusListener2);
 			}
 		};
-		
+
 		changePasswordButton.setOnAction(handler2);
 	}
-	
+
 	private void enableDisplayNameTextField() {
 		enableTextField(changeDisplayNameHbox, changeDisplayNameTextField, displayNameButtonImageView);
 	}
-	
+
 	private void disableDisplayNameTextField() {
 		disableTextField(changeDisplayNameHbox, changeDisplayNameTextField, displayNameButtonImageView);
 	}
-	
+
 	private void enablePasswordTextField() {
 		enableTextField(changePasswordHbox, changePasswordField, passwordButtonImageView);
 	}
-	
+
 	private void disablePasswordTextField() {
 		disableTextField(changePasswordHbox, changePasswordField, passwordButtonImageView);
 	}
-	
+
 	private static void enableTextField(HBox hbox, TextField textField, ImageView textFieldButtonImageView) {
 		textField.setDisable(false);
 		textField.setEditable(true);
@@ -286,7 +325,7 @@ public class AccountSettingsController extends GeneralController {
 		hbox.getStylesheets().add(SettingsInfo.AccountSettings.ACCOUNT_SETTINGS_FOCUSED_CSS_LOCATION);
 		textFieldButtonImageView.setImage(Icons.CHECK);
 	}
-	
+
 	private static void disableTextField(HBox hbox, TextField textField, ImageView textFieldButtonImageView) {
 		textField.setDisable(true);
 		textField.setEditable(false);
@@ -294,14 +333,13 @@ public class AccountSettingsController extends GeneralController {
 		hbox.getStylesheets().remove(SettingsInfo.AccountSettings.ACCOUNT_SETTINGS_FOCUSED_CSS_LOCATION);
 		textFieldButtonImageView.setImage(Icons.EDIT);
 	}
-	
+
 	public void setIcon(byte[] iconBytes) {
 		addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(iconBytes))));
 	}
-	
+
 	@FXML
 	public void addAccountIcon(MouseEvent event) throws IOException {
-		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Add account icon");
 		File iconFile = fileChooser.showOpenDialog(getStage());
@@ -309,13 +347,12 @@ public class AccountSettingsController extends GeneralController {
 		if (iconFile == null) {
 			return;
 		}
-		
+
 		Client.getCommands().addAccountIcon(iconFile);
 	}
-	
+
 	@FXML
 	public void transitionBackToPlainSettings(ActionEvent event) {
-
 		Runnable transition = UITransitions.newBuilder()
 				.setDirection(UITransitions.Direction.XAxis.LEFT_TO_RIGHT)
 				.setDuration(Duration.seconds(0.5))

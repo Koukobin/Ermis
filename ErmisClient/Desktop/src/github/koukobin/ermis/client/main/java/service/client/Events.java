@@ -141,9 +141,9 @@ public final class Events {
         public List<Account> getAccounts() { return accounts; }
     }
 
-    public static class ProfilePhotoEvent implements IMessage {
+    public static class ReceivedProfilePhotoEvent implements IMessage {
         private final byte[] photoBytes;
-        public ProfilePhotoEvent(byte[] photoBytes) { this.photoBytes = photoBytes; }
+        public ReceivedProfilePhotoEvent(byte[] photoBytes) { this.photoBytes = photoBytes; }
         public byte[] getPhotoBytes() { return photoBytes; }
     }
     

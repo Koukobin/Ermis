@@ -16,7 +16,7 @@
 package github.koukobin.ermis.client.main.java.service.client;
 
 import github.koukobin.ermis.client.main.java.MESSAGE;
-import github.koukobin.ermis.client.main.java.service.client.io_client.MessageHandler.I;
+import github.koukobin.ermis.client.main.java.service.client.io_client.UserInfoManager;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import io.netty.buffer.ByteBuf;
 
@@ -24,7 +24,7 @@ import io.netty.buffer.ByteBuf;
  * @author Ilias Koukovinis
  *
  */
-public class MessageDeliveryStatusHandler implements MESSAGEHandler {
+public class MessageDeliveryStatusHandler implements MessageHandler {
 
 	@Override
 	public void handleMessage(ByteBuf msg) {
@@ -36,7 +36,7 @@ public class MessageDeliveryStatusHandler implements MESSAGEHandler {
 		    int chatSessionID = msg.readInt();
 		    int generatedMessageID = msg.readInt();
 
-		    pendingMessage = I.chatSessionIDSToChatSessions.get(chatSessionID)
+		    pendingMessage = UserInfoManager.chatSessionIDSToChatSessions.get(chatSessionID)
 		            .getMessages()
 		            .stream()
 		            .filter(m -> m.getMessageID() == generatedMessageID)
@@ -44,14 +44,14 @@ public class MessageDeliveryStatusHandler implements MESSAGEHandler {
 		            .orElseThrow();
 		} else if (status == MessageDeliveryStatus.REJECTED) {
 		    int tempMessageID = msg.readInt();
-		    pendingMessage = I.pendingMessagesQueue.remove(tempMessageID);
+		    pendingMessage = UserInfoManager.pendingMessagesQueue.remove(tempMessageID);
 		} else {
 		    int tempMessageID = msg.readInt();
 		    int generatedMessageID = msg.readInt();
 
-		    pendingMessage = I.pendingMessagesQueue.get(tempMessageID);
+		    pendingMessage = UserInfoManager.pendingMessagesQueue.get(tempMessageID);
 		    if (status == MessageDeliveryStatus.DELIVERED) {
-		        I.pendingMessagesQueue.remove(tempMessageID);
+		        UserInfoManager.pendingMessagesQueue.remove(tempMessageID);
 		    }
 
 		    pendingMessage.setMessageID(generatedMessageID);

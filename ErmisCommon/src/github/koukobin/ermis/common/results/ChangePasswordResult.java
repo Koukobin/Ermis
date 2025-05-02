@@ -19,17 +19,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import github.koukobin.ermis.common.IDable;
 import github.koukobin.ermis.common.util.EnumIntConverter;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public enum ChangePasswordResult {
-    SUCCESFULLY_CHANGED_PASSWORD(0, true, "Succesfully changed password!"),
-    ERROR_WHILE_CHANGING_PASSWORD(1, false, "There was an error while trying to change password!");
+public enum ChangePasswordResult implements IDable {
+	SUCCESFULLY_CHANGED_PASSWORD(0, true, "Succesfully changed password!"),
+	ERROR_WHILE_CHANGING_PASSWORD(1, false, "There was an error while trying to change password!");
 
-    private static final HashMap<Integer, ChangePasswordResult> values;
+	private static final HashMap<Integer, ChangePasswordResult> values;
 
     static {
 		values = new HashMap<>(
@@ -38,13 +39,18 @@ public enum ChangePasswordResult {
 				);
     }
 
-    public final ResultHolder resultHolder;
-    public final int id;
+	public final ResultHolder resultHolder;
+	public final int id;
 
-    ChangePasswordResult(int id, boolean isSuccesfull, String message) {
-        resultHolder = new ResultHolder(isSuccesfull, message);
-        this.id = id;
-    }
+	ChangePasswordResult(int id, boolean isSuccesfull, String message) {
+		resultHolder = new ResultHolder(isSuccesfull, message);
+		this.id = id;
+	}
+
+	@Override
+	public int getID() {
+		return id;
+	}
 
     public static ChangePasswordResult fromId(int id) {
         return EnumIntConverter.fromId(values, id);

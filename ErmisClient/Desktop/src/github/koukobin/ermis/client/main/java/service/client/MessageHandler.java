@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBuf;
  * @author Ilias Koukovinis
  *
  */
-public interface MESSAGEHandler {
+public interface MessageHandler {
     void handleMessage(ByteBuf msg);
 }
 

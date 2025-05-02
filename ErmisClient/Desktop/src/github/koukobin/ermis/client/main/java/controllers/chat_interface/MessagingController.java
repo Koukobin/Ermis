@@ -36,7 +36,6 @@ import com.jfoenix.controls.JFXButton;
 import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.context_menu.MyContextMenuItem;
 import github.koukobin.ermis.client.main.java.info.Icons;
-import github.koukobin.ermis.client.main.java.service.client.ChatSession;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
 import github.koukobin.ermis.client.main.java.util.ContextMenusUtil;
 import github.koukobin.ermis.client.main.java.util.NotificationsUtil;
@@ -44,7 +43,6 @@ import github.koukobin.ermis.client.main.java.util.Threads;
 import github.koukobin.ermis.client.main.java.util.dialogs.MFXDialogsUtil;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
-import github.koukobin.ermis.common.message_types.UserMessage;
 import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import javafx.application.Platform;
@@ -79,15 +77,15 @@ public class MessagingController extends GeneralController {
 
 	@FXML
 	private VBox messagingBox;
-	
+
 	@FXML
 	private MFXScrollPane chatBoxScrollpane;
-	
+
 	@FXML
 	private TextField inputField;
-	
+
 	private Queue<MESSAGE> pendingMessages = new ArrayDeque<>();
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		// This basically retrieves more messages from the conversation once user scrolls to the top
@@ -97,7 +95,6 @@ public class MessagingController extends GeneralController {
 
 			@Override
 			public void handle(ScrollEvent event) {
-
 				long elapsedSeconds = Instant.now().getEpochSecond() - lastTimeRequrestedMoreMessages.getEpochSecond();
 
 				// Have a time limit since if user sends to many requests to get messages then
@@ -115,25 +112,24 @@ public class MessagingController extends GeneralController {
 						ioe.printStackTrace();
 					}
 				}
-				
+
 			}
 		});
 	}
-	
+
 	public void addMessages(MESSAGE[] messages, int chatSessionIndex, int activeChatSessionIndex) {
 		for (int i = 0; i < messages.length; i++) {
 			addMessage(messages[i], chatSessionIndex, activeChatSessionIndex);
 		}
 	}
-	
+
 	public void addMessage(MESSAGE message, int chatSessionIndex, int activeChatSessionIndex) {
 		printToMessageArea(message, chatSessionIndex, activeChatSessionIndex);
 	}
-	
+
 	private HBox createClientMessage(MESSAGE message) {
-		
 		ClientContentType contentType = message.getContentType();
-		
+
 		Instant instant = Instant.ofEpochSecond(message.getEpochSecond());
 		ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
 
@@ -145,25 +141,25 @@ public class MessagingController extends GeneralController {
 
 		Label timeLabel = new Label();
 		timeLabel.setText(zonedDateTime.format(dateFormat));
-		
+
 		Label messageLabel = new Label();
-		
+
 		HBox hbox = new HBox();
 
 		int clientID = message.getClientID();
-		
+
 		// In case that this message is the user's, the message label differs
 		if (clientID == Client.getClientID()) {
 			messageLabel.setId("userMessageLabel");
 			hbox.setAlignment(Pos.CENTER_RIGHT);
 			hbox.getChildren().add(messageLabel);
-			
+
 			// Small gap between messageLabel and timeLabel
 			Region region = new Region();
 			region.setPrefWidth(10);
 			hbox.getChildren().add(region);
 			// Small gap between messageLabel and timeLabel
-			
+
 			hbox.getChildren().add(timeLabel);
 		} else {
 			messageLabel.setId("otherMessageLabel");
@@ -171,7 +167,7 @@ public class MessagingController extends GeneralController {
 			hbox.getChildren().add(timeLabel);
 			hbox.getChildren().add(messageLabel);
 		}
-		
+
 		MyContextMenuItem delete = new MyContextMenuItem("Delete");
 		delete.setOnAction(e -> {
 			try {
@@ -180,52 +176,52 @@ public class MessagingController extends GeneralController {
 				ioe.printStackTrace();
 			}
 		});
-		
+
 		MyContextMenuItem copy = new MyContextMenuItem("Copy");
 		copy.setOnAction((e) -> {
-			
+
 			Clipboard clipboard = Clipboard.getSystemClipboard();
 			ClipboardContent clipboardContent = new ClipboardContent();
-			
+
 			clipboardContent.putString(messageLabel.getText());
 			clipboard.setContent(clipboardContent);
 		});
-		
+
 		ContextMenusUtil.installContextMenu(messageLabel, Duration.millis(200), delete, copy);
-		
-		switch(contentType) {
+
+		switch (contentType) {
 		case TEXT -> {
 			messageLabel.setText(messageLabel.getText() + new String(message.getText()));
 		}
-		case FILE, IMAGE -> {
-			
+		case FILE, IMAGE, VOICE -> {
+
 			String fileName = new String(message.getFileName());
 			messageLabel.setText(messageLabel.getText() + fileName);
 
 			JFXButton downloadButton = new JFXButton();
 			downloadButton.setId("downloadFileButton");
-	        downloadButton.managedProperty().bind(messageLabel.textProperty().isEmpty().not());
-	        downloadButton.setFocusTraversable(false);
-	        downloadButton.setPadding(new Insets(0.0, 4.0, 0.0, 4.0));
-	        downloadButton.setOnAction(actionEvent -> {
+			downloadButton.managedProperty().bind(messageLabel.textProperty().isEmpty().not());
+			downloadButton.setFocusTraversable(false);
+			downloadButton.setPadding(new Insets(0.0, 4.0, 0.0, 4.0));
+			downloadButton.setOnAction(actionEvent -> {
 				try {
 					MFXDialogsUtil.showSimpleInformationDialog(getStage(), getParentRoot(), "Downloading file...");
 					Client.getCommands().downloadFile(message.getMessageID(), RootReferences.getChatsController().getActiveChatSessionIndex());
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
-	        });
-	        ImageView downloadImage = new ImageView(Icons.DOWNLOAD);
-	        downloadImage.setFitWidth(31);
-	        downloadImage.setFitHeight(31);
-	        downloadButton.setGraphic(downloadImage);
+			});
+			ImageView downloadImage = new ImageView(Icons.DOWNLOAD);
+			downloadImage.setFitWidth(31);
+			downloadImage.setFitHeight(31);
+			downloadButton.setGraphic(downloadImage);
 	        
-	        messageLabel.setGraphic(downloadButton);
-	        messageLabel.setContentDisplay(ContentDisplay.RIGHT);
-		
+			messageLabel.setGraphic(downloadButton);
+			messageLabel.setContentDisplay(ContentDisplay.RIGHT);
+
 		}
 		}
-		
+
 		return hbox;
 	}
 
@@ -369,7 +365,6 @@ public class MessagingController extends GeneralController {
 
 	@FXML
 	public void sendMessageFile(ActionEvent event) {
-
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Send file");
 		File file = fileChooser.showOpenDialog(getStage());
@@ -401,7 +396,6 @@ public class MessagingController extends GeneralController {
 	}
 
 	private void sendMessageText() {
-
 		inputField.requestFocus();
 
 		String message = inputField.getText();
@@ -419,7 +413,7 @@ public class MessagingController extends GeneralController {
 
 		inputField.setText("");
 	}
-	
+
 	void addPendingMessage(byte[] text, byte[] fileName, ClientContentType contentType) {
 //		MESSAGE pendingMessage = new MESSAGE(
 //				Client.getDisplayName(),

@@ -21,7 +21,6 @@ import github.koukobin.ermis.client.main.java.controllers.chat_interface.ChatInt
 import github.koukobin.ermis.client.main.java.info.GeneralAppInfo;
 import github.koukobin.ermis.client.main.java.info.Icons;
 import github.koukobin.ermis.client.main.java.info.chat_interface.ChatInterfaceInfo;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;

@@ -27,7 +27,7 @@ import java.util.Set;
 import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.service.client.ChatSession.Member;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
-import github.koukobin.ermis.client.main.java.service.client.io_client.MessageHandler.I;
+import github.koukobin.ermis.client.main.java.service.client.io_client.UserInfoManager;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
@@ -38,7 +38,7 @@ import io.netty.buffer.ByteBuf;
  * @author Ilias Koukovinis
  *
  */
-public class CommandResultHandler implements MESSAGEHandler {
+public class CommandResultHandler implements MessageHandler {
 
 	@Override
 	public void handleMessage(ByteBuf msg) {
@@ -78,56 +78,58 @@ public class CommandResultHandler implements MESSAGEHandler {
 			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.VoiceDownloadedEvent(new LoadedInMemoryFile(new String(fileNameBytes), fileBytes), messageID));
 		}
 		case FETCH_PROFILE_INFO -> {
-			I.clientID = msg.readInt();
-			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ClientIdEvent(I.clientID));
+			UserInfoManager.clientID = msg.readInt();
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ClientIdEvent(UserInfoManager.clientID));
 
 			byte[] usernameBytes = new byte[msg.readInt()];
 			msg.readBytes(usernameBytes);
 
-			I.username = new String(usernameBytes);
+			UserInfoManager.username = new String(usernameBytes);
 
-			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.UsernameReceivedEvent(I.username));
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.UsernameReceivedEvent(UserInfoManager.username));
 
 			long lastUpdatedEpochSecond = msg.readLong();
 
 			byte[] profilePhoto = new byte[msg.readableBytes()];
 			msg.readBytes(profilePhoto);
-			I.accountIcon = profilePhoto;
+			UserInfoManager.accountIcon = profilePhoto;
+			
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ReceivedProfilePhotoEvent(UserInfoManager.accountIcon));
 		}
 		case GET_DISPLAY_NAME -> {
 			byte[] usernameBytes = new byte[msg.readableBytes()];
 			msg.readBytes(usernameBytes);
 
-			I.username = new String(usernameBytes);
+			UserInfoManager.username = new String(usernameBytes);
 
-			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.UsernameReceivedEvent(I.username));
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.UsernameReceivedEvent(UserInfoManager.username));
 		}
 		case GET_CLIENT_ID -> {
-			I.clientID = msg.readInt();
-			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ClientIdEvent(I.clientID));
+			UserInfoManager.clientID = msg.readInt();
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ClientIdEvent(UserInfoManager.clientID));
 		}
 		case GET_CHAT_SESSIONS_INDICES -> {
-			I.chatSessions = new ArrayList<>();
+			UserInfoManager.chatSessions = new ArrayList<>();
 
 			int i = 0;
 			while (msg.readableBytes() > 0) {
 				int chatSessionIndex = i;
 				int chatSessionID = msg.readInt();
 
-				ChatSession chatSession = I.chatSessionIDSToChatSessions.get(chatSessionID);
+				ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions.get(chatSessionID);
 				if (chatSession == null) {
 					chatSession = new ChatSession(chatSessionID, chatSessionIndex);
-					I.chatSessionIDSToChatSessions.put(chatSessionID, chatSession);
+					UserInfoManager.chatSessionIDSToChatSessions.put(chatSessionID, chatSession);
 				} else {
 					chatSession.setChatSessionIndex(chatSessionIndex);
 				}
 
-				I.chatSessions.add(chatSession);
+				UserInfoManager.chatSessions.add(chatSession);
 
 				i++;
 			}
 
-	        GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ChatSessionsIndicesReceivedEvent(I.chatSessions));
+	        GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ChatSessionsIndicesReceivedEvent(UserInfoManager.chatSessions));
 
 			try {
 				Client.getCommands().fetchChatSessions(); // Proceed to fetching chat sessions
@@ -143,7 +145,7 @@ public class CommandResultHandler implements MESSAGEHandler {
 				ChatSession chatSession;
 
 				try {
-					chatSession = I.chatSessions.get(chatSessionIndex);
+					chatSession = UserInfoManager.chatSessions.get(chatSessionIndex);
 				} catch (IndexOutOfBoundsException ioobe) {
 					continue; // This could happen potentially if this chat session had been cached in local
 								// database and when the conditional request was it did not know what to do and
@@ -153,12 +155,12 @@ public class CommandResultHandler implements MESSAGEHandler {
 
 				Set<Member> members = new HashSet<>(chatSession.getMembers());
 				int membersSize = msg.readInt();
-				
+
 				if (membersSize == -1) {
 					// Infer session has been deleted since membersSize is -1
 
-					I.chatSessions.remove(chatSessionIndex);
-					I.chatSessionIDSToChatSessions.remove(chatSession.getChatSessionID());
+					UserInfoManager.chatSessions.remove(chatSessionIndex);
+					UserInfoManager.chatSessionIDSToChatSessions.remove(chatSession.getChatSessionID());
 
 					continue;
 				}
@@ -189,28 +191,28 @@ public class CommandResultHandler implements MESSAGEHandler {
 				chatSession.setMembers(new ArrayList<>(members));
 			}
 
-			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ChatSessionsEvent(I.chatSessions));
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ChatSessionsEvent(UserInfoManager.chatSessions));
 		}
 		case GET_CHAT_SESSIONS_STATUSES -> {
 	        // Do nothing.
 		}
 		case GET_CHAT_REQUESTS -> {
-			I.chatRequests.clear();
+			UserInfoManager.chatRequests.clear();
 
 			int friendRequestsLength = msg.readInt();
 
 			for (int i = 0; i < friendRequestsLength; i++) {
 				int clientID = msg.readInt();
-				I.chatRequests.add(new ChatRequest(clientID));
+				UserInfoManager.chatRequests.add(new ChatRequest(clientID));
 			}
 
-			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ChatRequestsEvent(I.chatRequests));
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ChatRequestsEvent(UserInfoManager.chatRequests));
 		}
 		case GET_WRITTEN_TEXT -> {
 			ChatSession chatSession;
 
 			int chatSessionIndex = msg.readInt();
-			chatSession = I.chatSessions.get(chatSessionIndex);
+			chatSession = UserInfoManager.chatSessions.get(chatSessionIndex);
 
 			List<MESSAGE> messages = chatSession.getMessages();
 			while (msg.readableBytes() > 0) {
@@ -284,12 +286,12 @@ public class CommandResultHandler implements MESSAGEHandler {
 			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ServerSourceCodeEvent(new String(htmlPageURL)));
 		}
 		case FETCH_ACCOUNT_ICON -> {
-			I.accountIcon = new byte[msg.readableBytes()];
+			UserInfoManager.accountIcon = new byte[msg.readableBytes()];
 			
-			if (I.accountIcon.length > 0) {
-				msg.readBytes(I.accountIcon);
+			if (UserInfoManager.accountIcon.length > 0) {
+				msg.readBytes(UserInfoManager.accountIcon);
 				
-	            GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ProfilePhotoEvent(I.accountIcon));
+	            GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ReceivedProfilePhotoEvent(UserInfoManager.accountIcon));
 			}
 		}
 		case SET_ACCOUNT_ICON -> {
@@ -298,8 +300,8 @@ public class CommandResultHandler implements MESSAGEHandler {
 				break;
 			}
 
-//			I.accountIcon = Commands. pendingAccountIcon;
-			// TODO
+			UserInfoManager.commitPendingProfilePhoto();
+			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.AddProfilePhotoResultEvent(isSuccessful));
 		}
 		case FETCH_LINKED_DEVICES -> {
 			// TODO
@@ -320,7 +322,7 @@ public class CommandResultHandler implements MESSAGEHandler {
 	            }
 
 
-	            GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.MessageDeletedEvent(I.chatSessionIDSToChatSessions.get(chatSessionID), messageID));
+	            GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.MessageDeletedEvent(UserInfoManager.chatSessionIDSToChatSessions.get(chatSessionID), messageID));
 			}
 		}
 		}

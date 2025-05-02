@@ -16,7 +16,7 @@
 package github.koukobin.ermis.client.main.java.service.client;
 
 import github.koukobin.ermis.client.main.java.MESSAGE;
-import github.koukobin.ermis.client.main.java.service.client.io_client.MessageHandler.I;
+import github.koukobin.ermis.client.main.java.service.client.io_client.UserInfoManager;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import io.netty.buffer.ByteBuf;
@@ -25,7 +25,7 @@ import io.netty.buffer.ByteBuf;
  * @author Ilias Koukovinis
  *
  */
-public class ClientMessageHandler implements MESSAGEHandler {
+public class ClientMessageHandler implements MessageHandler {
 
 	@Override
 	public void handleMessage(ByteBuf msg) {
@@ -42,7 +42,7 @@ public class ClientMessageHandler implements MESSAGEHandler {
 			text = new byte[msg.readInt()];
 			msg.readBytes(text);
 		}
-		case FILE, IMAGE -> {
+		case FILE, IMAGE, VOICE -> {
 			fileNameBytes = new byte[msg.readInt()];
 			msg.readBytes(fileNameBytes);
 		}
@@ -62,14 +62,14 @@ public class ClientMessageHandler implements MESSAGEHandler {
 		message.setMessageID(messageID);
 		message.setChatSessionID(chatSessionID);
 		message.setChatSessionIndex(
-				I.chatSessionIDSToChatSessions.get(chatSessionID).getChatSessionIndex()
+				UserInfoManager.chatSessionIDSToChatSessions.get(chatSessionID).getChatSessionIndex()
 		);
 		message.setText(text);
 		message.setFileName(fileNameBytes);
 		message.setEpochSecond(epochSecond);
 		message.setDeliveryStatus(MessageDeliveryStatus.DELIVERED);
 		
-		ChatSession chatSession = I.chatSessionIDSToChatSessions.get(chatSessionID);
+		ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions.get(chatSessionID);
 		
 		if (chatSession.haveChatMessagesBeenCached()) {
 			chatSession.getMessages().add(message);

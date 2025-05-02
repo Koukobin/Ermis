@@ -38,7 +38,6 @@ public class SettingsController extends GeneralController {
 
 	@FXML
 	public void transitionToAccountSettings(ActionEvent event) {
-		
 		Runnable transition = UITransitions.newBuilder()
 				.setDirection(UITransitions.Direction.XAxis.RIGHT_TO_LEFT)
 				.setDuration(Duration.seconds(0.5))
@@ -47,14 +46,12 @@ public class SettingsController extends GeneralController {
 				.setOldComponent(getRoot())
 				.setParentContainer((StackPane) getRoot().getParent())
 				.build();
-		
-		
+
 		transition.run();
 	}
-	
+
 	@FXML
 	public void transitionToHelpSettings(ActionEvent event) {
-		
 		Runnable transition = UITransitions.newBuilder()
 				.setDirection(UITransitions.Direction.XAxis.RIGHT_TO_LEFT)
 				.setDuration(Duration.seconds(0.5))
@@ -63,7 +60,7 @@ public class SettingsController extends GeneralController {
 				.setOldComponent(getRoot())
 				.setParentContainer((StackPane) getRoot().getParent())
 				.build();
-		
+
 		transition.run();
 	}
 }

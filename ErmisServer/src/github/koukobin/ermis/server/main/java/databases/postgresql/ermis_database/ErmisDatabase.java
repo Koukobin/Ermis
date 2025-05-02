@@ -586,31 +586,35 @@ public final class ErmisDatabase {
 			return ChangeUsernameResult.ERROR_WHILE_CHANGING_USERNAME;
 		}
 
-		public ChangePasswordResult changePassword(String emailAddress, String newPassword) {
-			if (!passwordComplexityChecker.estimate(newPassword)) {
-				return ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD;
+		public GeneralResult changePassword(String enteredEmail, String newPassword, int clientID) {
+			// Verify that the entered email is associated with the provided client ID
+			Optional<Integer> associatedClientID = getClientID(enteredEmail);
+			if (associatedClientID.isEmpty() || associatedClientID.get() != clientID) {
+				return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
 			}
 
-			String salt = getSalt(emailAddress);
+			if (!passwordComplexityChecker.estimate(newPassword)) {
+				return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD, false);
+			}
 
+			String salt = getSalt(enteredEmail);
 			SimpleHash passwordHash = HashUtil.createHash(newPassword, salt, DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
 
 			try (PreparedStatement changePassword = conn
 					.prepareStatement("UPDATE users SET password_hash=? WHERE email=?")) {
 
 				changePassword.setString(1, passwordHash.getHashString());
-				changePassword.setString(2, emailAddress);
+				changePassword.setString(2, enteredEmail);
 
 				int resultUpdate = changePassword.executeUpdate();
-
 				if (resultUpdate == 1) {
-					return ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD;
+					return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD, true);
 				}
 			} catch (SQLException sqle) {
 				logger.error(Throwables.getStackTraceAsString(sqle));
 			}
 
-			return ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD;
+			return new GeneralResult(ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD, false);
 		}
 
 		public Optional<String> getUsername(int clientID) {

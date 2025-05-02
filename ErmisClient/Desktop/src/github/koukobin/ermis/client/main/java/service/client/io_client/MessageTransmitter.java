@@ -18,9 +18,6 @@ package github.koukobin.ermis.client.main.java.service.client.io_client;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,16 +27,11 @@ import com.google.common.io.Files;
 import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
 import github.koukobin.ermis.client.main.java.service.client.ChatSession;
-import github.koukobin.ermis.client.main.java.service.client.DonationHtmlPage;
 import github.koukobin.ermis.common.ClientStatus;
-import github.koukobin.ermis.common.LoadedInMemoryFile;
-import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ClientContentType;
-import github.koukobin.ermis.common.message_types.UserMessage;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -48,29 +40,14 @@ import io.netty.buffer.Unpooled;
  * @author Ilias Koukovinis
  * 
  */
-public abstract class MessageHandler implements AutoCloseable {
+public abstract class MessageTransmitter implements AutoCloseable {
 
-	private ByteBufInputStream in;
 	private ByteBufOutputStream out;
-	
-	public static class I {
-		public static String username;
-		public static int clientID;
-		public static byte[] accountIcon;
-		public static final Map<Integer, ChatSession> chatSessionIDSToChatSessions = new HashMap<>();
-		public static final Map<Integer, MESSAGE> pendingMessagesQueue = new HashMap<>();
-		public static List<ChatSession> chatSessions = new ArrayList<>();
-		public static List<ChatRequest> chatRequests = new ArrayList<>();
-	}
 
 	private AtomicBoolean isClientListeningToMessages = new AtomicBoolean(false);
 	private Commands commands = new Commands();
 
 	int lastPendingMessageID = 0;
-
-	void setByteBufInputStream(ByteBufInputStream in) {
-		this.in = in;
-	}
 
 	void setByteBufOutputStream(ByteBufOutputStream out) {
 		this.out = out;
@@ -91,7 +68,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		
 		return createPendingMessage(textBytes, null, 
 				ClientContentType.TEXT,
-				I.chatSessions.get(chatSessionIndex).getChatSessionID(), 
+				UserInfoManager.chatSessions.get(chatSessionIndex).getChatSessionID(), 
 				chatSessionIndex,
 				lastPendingMessageID);
 	}
@@ -114,7 +91,7 @@ public abstract class MessageHandler implements AutoCloseable {
 		return createPendingMessage(null, 
 				fileNameBytes, 
 				ClientContentType.FILE,
-				I.chatSessions.get(chatSessionIndex).getChatSessionID(), 
+				UserInfoManager.chatSessions.get(chatSessionIndex).getChatSessionID(), 
 				chatSessionIndex,
 				lastPendingMessageID);
 	}
@@ -137,25 +114,9 @@ public abstract class MessageHandler implements AutoCloseable {
              	contentType,
 				MessageDeliveryStatus.SENDING);
 
-		I.pendingMessagesQueue.put(tempMessageID, m);
+		UserInfoManager.pendingMessagesQueue.put(tempMessageID, m);
 		return m;
 	}
-
-	public abstract void usernameReceived(String username);
-	public abstract void messageReceived(MESSAGE message, int chatSessionIndex);
-	public abstract void messageSuccesfullySentReceived(MessageDeliveryStatus status, MESSAGE pendingMessage);
-	public abstract void alreadyWrittenTextReceived(ChatSession chatSession);
-	public abstract void serverMessageReceived(String message);
-	public abstract void fileDownloaded(LoadedInMemoryFile file);
-	public abstract void imageDownloaded(LoadedInMemoryFile file);
-	public abstract void donationPageReceived(String donationPage);
-	public abstract void serverSourceCodeReceived(String serverSourceCodeURL);
-	public abstract void clientIDReceived(int clientID);
-	public abstract void chatRequestsReceived(List<ChatRequest> chatRequests);
-	public abstract void chatSessionsReceived(List<ChatSession> chatSessions);
-	public abstract void messageDeleted(ChatSession chatSession, int messageIDOfDeletedMessage);
-	public abstract void messageUnsuccessfulyDeleted(ChatSession chatSession, int messageID);
-	public abstract void iconReceived(byte[] icon);
 
 	public class Commands {
 
@@ -216,7 +177,7 @@ public abstract class MessageHandler implements AutoCloseable {
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_WRITTEN_TEXT.id);
 			payload.writeInt(chatSessionIndex);
-			payload.writeInt(I.chatSessions.get(chatSessionIndex).getMessages().size() /* Amount of messages client already has */);
+			payload.writeInt(UserInfoManager.chatSessions.get(chatSessionIndex).getMessages().size() /* Amount of messages client already has */);
 
 			out.write(payload);
 		}
@@ -241,11 +202,13 @@ public abstract class MessageHandler implements AutoCloseable {
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.FETCH_CHAT_SESSIONS.id);
-			for (ChatSession session : I.chatSessions) {
+
+			final int membersLength = 0;
+			for (ChatSession session : UserInfoManager.chatSessions) {
 				payload.writeInt(session.getChatSessionIndex());
-				final int membersLength = 0;
 				payload.writeInt(membersLength);
 			}
+
 			out.write(payload);
 		}
 
@@ -346,12 +309,16 @@ public abstract class MessageHandler implements AutoCloseable {
 		}
 
 		public void addAccountIcon(File accountIcon) throws IOException {
+			byte[] profilePhotoBytes = Files.toByteArray(accountIcon);
+
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.SET_ACCOUNT_ICON.id);
-			payload.writeBytes(Files.toByteArray(accountIcon));
+			payload.writeBytes(profilePhotoBytes);
 
 			out.write(payload);
+
+			UserInfoManager.pendingAccountIcon(profilePhotoBytes);
 		}
 
 		public void fetchAccountIcon() throws IOException {
@@ -439,27 +406,27 @@ public abstract class MessageHandler implements AutoCloseable {
 	}
 
 	public Map<Integer, ChatSession> getChatSessionIDSToChatSessions() {
-		return I.chatSessionIDSToChatSessions;
+		return UserInfoManager.chatSessionIDSToChatSessions;
 	}
 
 	public List<ChatSession> getChatSessions() {
-		return I.chatSessions;
+		return UserInfoManager.chatSessions;
 	}
 
 	public List<ChatRequest> getChatRequests() {
-		return I.chatRequests;
+		return UserInfoManager.chatRequests;
 	}
 
 	public String getUsername() {
-		return I.username;
+		return UserInfoManager.username;
 	}
 
 	public int getClientID() {
-		return I.clientID;
+		return UserInfoManager.clientID;
 	}
 
 	public byte[] getAccountIcon() {
-		return I.accountIcon;
+		return UserInfoManager.accountIcon;
 	}
 
 	@Override
