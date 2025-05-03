@@ -20,6 +20,7 @@ import 'dart:typed_data';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:zstandard/zstandard.dart';
 
 import '../../../models/chat_session.dart';
 import '../../../models/member.dart';
@@ -82,13 +83,15 @@ extension ChatSessionsExtension on DBConnection {
       }
 
       final String displayName = record['display_name'] as String;
-      final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
       final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
+            
+      final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
+      final Uint8List decompressedProfile = (await compressedProfilePhoto.decompress())!;
 
       Member member = Member(
         displayName,
         clientID,
-        MemberIcon(profilePhoto),
+        MemberIcon(decompressedProfile),
         ClientStatus.offline,
         lastUpdatedAtEpochSecond,
       );

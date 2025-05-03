@@ -46,7 +46,6 @@ class IntermediaryService {
     required int chatSessionID,
   }) async {
     String email = (await _databaseService.getLastUsedAccount(server))!.email;
-
     return await _databaseService.fetchMembersAssociatedWithChatSession(
       server: server,
       serverAccountEmail: email,

@@ -77,7 +77,7 @@ class CommandResultHandler {
       case ClientCommandResultType.fetchProfileInfo:
         // ClientID
         UserInfoManager.clientID = msg.readInt32();
-        _eventBus.fire(ClientIdEvent(UserInfoManager.clientID));
+        _eventBus.fire(ClientIdReceivedEvent(UserInfoManager.clientID));
         print(UserInfoManager.clientID);
 
         // Username
@@ -89,7 +89,7 @@ class CommandResultHandler {
 
         // Profile photo
         UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(ProfilePhotoEvent(UserInfoManager.profilePhoto!));
+        _eventBus.fire(ProfilePhotoReceivedEvent(UserInfoManager.profilePhoto!));
 
         IntermediaryService().addLocalUserInfo(
           server: UserInfoManager.serverInfo,
@@ -108,7 +108,7 @@ class CommandResultHandler {
         break;
       case ClientCommandResultType.getClientId:
         UserInfoManager.clientID = msg.readInt32();
-        _eventBus.fire(ClientIdEvent(UserInfoManager.clientID));
+        _eventBus.fire(ClientIdReceivedEvent(UserInfoManager.clientID));
         break;
       case ClientCommandResultType.fetchAccountStatus:
         UserInfoManager.accountStatus = ClientStatus.fromId(msg.readInt32());
@@ -181,6 +181,11 @@ class CommandResultHandler {
             continue;
           }
 
+          bool isChatSessionChanged = false;
+          if (membersSize > 0) {
+            isChatSessionChanged = true;
+          }
+
           for (int j = 0; j < membersSize; j++) {
             int memberID = msg.readInt32();
 
@@ -211,17 +216,22 @@ class CommandResultHandler {
 
           chatSession.setMembers(members.toList());
 
-          IntermediaryService().insertChatSession(
-            server: UserInfoManager.serverInfo,
-            session: chatSession,
-          );
+          if (isChatSessionChanged) {
+            IntermediaryService().insertChatSession(
+              server: UserInfoManager.serverInfo,
+              session: chatSession,
+            );
+          }
         }
         
         // Delete outdated chat sessions
         for (final session in UserInfoManager.chatSessionIDSToChatSessions.values) {
           if (UserInfoManager.chatSessions!.contains(session)) continue;
 
-          IntermediaryService().deleteChatSession(server: UserInfoManager.serverInfo, session: session);
+          IntermediaryService().deleteChatSession(
+            server: UserInfoManager.serverInfo,
+            session: session,
+          );
         }
 
         _eventBus.fire(ChatSessionsEvent(UserInfoManager.chatSessions!));
@@ -342,7 +352,7 @@ class CommandResultHandler {
         break;
       case ClientCommandResultType.fetchAccountIcon:
         UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(ProfilePhotoEvent(UserInfoManager.profilePhoto!));
+        _eventBus.fire(ProfilePhotoReceivedEvent(UserInfoManager.profilePhoto!));
         break;
       case ClientCommandResultType.fetchUserDevices:
         UserInfoManager.userDevices = [];

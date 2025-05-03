@@ -67,9 +67,8 @@ class DBConnection {
           await db.execute('DROP TABLE chat_messages;');
         }
       },
-      version: 3,
+      version: 6,
     );
-
     // Create the 'servers' table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS servers (

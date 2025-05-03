@@ -88,12 +88,20 @@ class ChatSession {
   bool get areChatMessagesUpToDate => _haveChatMessagesBeenCached;
 
   @override
-  int get hashCode => chatSessionID.hashCode ^ chatSessionIndex.hashCode;
+  int get hashCode => Object.hash(
+        chatSessionID,
+        chatSessionIndex,
+        Object.hashAll(_members),
+        Object.hashAll(memberIDs),
+        Object.hashAll(_messages),
+        _haveChatMessagesBeenCached,
+      );
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! ChatSession) return false;
+
     return chatSessionID == other.chatSessionID &&
         chatSessionIndex == other.chatSessionIndex &&
         _haveChatMessagesBeenCached == other._haveChatMessagesBeenCached &&

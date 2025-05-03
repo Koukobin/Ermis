@@ -244,12 +244,15 @@ class Commands {
     out.write(payload);
   }
 
-  void changePassword(String newPassword) {
-    var newPasswordBytes = utf8.encode(newPassword);
+  void changePassword(String emailAddress, String newPassword) {
+    final emailAddressBytes = utf8.encode(emailAddress);
+    final newPasswordBytes = utf8.encode(newPassword);
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.changePassword.id);
+    payload.writeInt32(emailAddressBytes.length);
+    payload.writeBytes(emailAddressBytes);
     payload.writeBytes(newPasswordBytes);
 
     out.write(payload);

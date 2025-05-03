@@ -44,7 +44,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
     // Determine initial loading state based on availability of profile photo
     isLoading = _profileBytes == null;
 
-    AppEventBus.instance.on<ProfilePhotoEvent>().listen((event) async {
+    AppEventBus.instance.on<ProfilePhotoReceivedEvent>().listen((event) async {
       if (!mounted) return;
       setState(() {
         _profileBytes = event.photoBytes;

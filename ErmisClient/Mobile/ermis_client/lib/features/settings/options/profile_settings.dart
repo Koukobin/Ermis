@@ -47,7 +47,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
   void initState() {
     super.initState();
 
-    subscribe(AppEventBus.instance.on<ClientIdEvent>(), (event) async {
+    subscribe(AppEventBus.instance.on<ClientIdReceivedEvent>(), (event) async {
       if (!mounted) return;
       setState(() {
         _clientID = event.clientId;

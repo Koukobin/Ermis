@@ -33,6 +33,7 @@ class Member {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Member) return false;
+
     return clientID == other.clientID &&
         icon == other.icon &&
         username == other.username &&

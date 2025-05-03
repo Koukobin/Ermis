@@ -128,9 +128,9 @@ Future<void> attachSingleFile(BuildContext context /* Unused; should remove */, 
   }
 }
 
-Future<String> readFileFromPath(String filePath) async {
+Future<Uint8List> readFileFromPath(String filePath) async {
   final file = File(filePath);
-  return await file.readAsString();
+  return await file.readAsBytes();
 }
 
 Future<void> deleteAndCreateFile(String filePath) async {

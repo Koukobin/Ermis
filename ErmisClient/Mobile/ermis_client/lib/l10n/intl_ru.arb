@@ -108,7 +108,7 @@
 
   "settings": "Настройки",
   "profile_change_name_id": "Профиль, изменение имени, ID",
-  "privacy_security_change_number": "Конфиденциальность, безопасность, смена номера",
+  "privacy_security_change_password": "Конфиденциальность, безопасность, смена номера",
   "chats": "Чаты",
   "theme_wallpapers_chat_history": "Тема, обои, история чатов",
   "notifications": "Уведомления",

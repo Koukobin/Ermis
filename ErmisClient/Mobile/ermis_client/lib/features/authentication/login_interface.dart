@@ -56,6 +56,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
   bool get _usePassword => passwordType == PasswordType.password;
 
   set _useBackupverificationCode(bool useBackup) => passwordType = useBackup ? PasswordType.backupVerificationCode : PasswordType.password;
+  // ignore: unused_element
   set _usePassword(bool usePassword) => passwordType = usePassword ? PasswordType.password : PasswordType.backupVerificationCode;
 
   @override

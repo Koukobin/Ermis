@@ -16,37 +16,22 @@
 
 
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_client/core/services/database/models/local_user_info.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:zstandard/zstandard.dart';
 
 import '../../../models/member.dart';
 import '../../../models/member_icon.dart';
 import '../../../networking/common/message_types/client_status.dart';
+import '../../../util/image_utils.dart';
 
 extension MembersExtension on DBConnection {
-  Future<void> storeMemberInfo({
-    required ServerInfo serverInfo,
-    required Member member,
-  }) async {
-    final db = await database;
-
-    await db.insert(
-      'members',
-      {
-        'server_url': serverInfo.toString(),
-        'display_name': member.username,
-        'client_id': member.clientID,
-        'profile_photo': member.icon.profilePhoto,
-        'last_updated_at': member.lastUpdatedAtEpochSecond,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
   Future<List<Member>> fetchMemberInfo({
     required ServerInfo server,
   }) async {
@@ -58,20 +43,22 @@ extension MembersExtension on DBConnection {
       whereArgs: [server.toString()],
     );
 
-    List<Member> members = membersMap.map((record) {
+    List<Member> members = await Future.wait(membersMap.map((record) async {
       final String displayName = record['display_name'] as String;
       final int clientID = record['client_id'] as int;
-      final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
       final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
+
+      final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
+      final Uint8List decompressedProfile = (await compressedProfilePhoto.decompress())!;
 
       return Member(
         displayName,
         clientID,
-        MemberIcon(profilePhoto),
+        MemberIcon(decompressedProfile),
         ClientStatus.offline,
         lastUpdatedAtEpochSecond,
       );
-    }).toList();
+    }).toList());
 
     return members;
   }
@@ -98,20 +85,22 @@ extension MembersExtension on DBConnection {
       [localInfo.clientID, chatSessionID, server.toString()],
     );
 
-    List<Member> members = results.map((Map<String, dynamic> record) {
+    List<Member> members = await Future.wait(results.map((Map<String, dynamic> record) async {
       final String displayName = record['display_name'] as String;
       final int clientID = record['client_id'] as int;
-      final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
       final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
+
+      final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
+      final Uint8List decompressedProfile = (await compressedProfilePhoto.decompress())!;
 
       return Member(
         displayName,
         clientID,
-        MemberIcon(profilePhoto),
+        MemberIcon(decompressedProfile),
         ClientStatus.offline,
         lastUpdatedAtEpochSecond,
       );
-    }).toList();
+    }).toList());
 
     return members;
   }
@@ -131,13 +120,26 @@ extension MembersExtension on DBConnection {
   }) async {
     final db = await database;
 
+    Size size = ImageUtils.resizeImage(
+      imageBytes: member.icon.profilePhoto,
+      maxWidth: 250,
+      maxHeight: 250,
+    );
+
+    Uint8List compressedProfile = await FlutterImageCompress.compressWithList(
+      member.icon.profilePhoto,
+      quality: 80,
+      minHeight: size.height.toInt(),
+      minWidth: size.width.toInt(),
+    );
+
     await db.insert(
       'members',
       {
         'server_url': serverUrl,
         'display_name': member.username,
         'client_id': member.clientID,
-        'profile_photo': member.icon.profilePhoto,
+        'profile_photo': await compressedProfile.compress(compressionLevel: 12),
         'last_updated_at': member.lastUpdatedAtEpochSecond,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,

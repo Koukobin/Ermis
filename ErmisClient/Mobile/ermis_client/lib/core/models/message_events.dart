@@ -86,7 +86,6 @@ class VoiceDownloadedEvent {
   const VoiceDownloadedEvent(this.file, this.messageID);
 }
 
-
 class DonationPageEvent {
   final String donationPageURL;
   const DonationPageEvent(this.donationPageURL);
@@ -108,9 +107,9 @@ class SignallingServerPortEvent {
   const SignallingServerPortEvent(this.port, this.aesKey);
 }
 
-class ClientIdEvent {
+class ClientIdReceivedEvent {
   final int clientId;
-  const ClientIdEvent(this.clientId);
+  const ClientIdReceivedEvent(this.clientId);
 }
 
 class AccountStatusEvent {
@@ -185,9 +184,9 @@ class MessageDeletedEvent {
   const MessageDeletedEvent(this.chatSession, this.messageId);
 }
 
-class ProfilePhotoEvent {
+class ProfilePhotoReceivedEvent {
   final Uint8List photoBytes;
-  const ProfilePhotoEvent(this.photoBytes);
+  const ProfilePhotoReceivedEvent(this.photoBytes);
 }
 
 class AddProfilePhotoResultEvent {
