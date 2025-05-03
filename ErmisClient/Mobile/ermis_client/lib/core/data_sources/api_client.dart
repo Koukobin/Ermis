@@ -31,6 +31,7 @@ import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
 import 'package:flutter/foundation.dart';
 
+import '../networking/common/results/change_password_result.dart';
 import '../services/database/database_service.dart';
 import '../models/chat_request.dart';
 import '../models/chat_session.dart';
@@ -261,14 +262,39 @@ class Entry<T extends CredentialInterface> {
   }
 
   Future<void> sendVerificationCode(int verificationCode) async {
-    bool isAction = false;
-
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
     payload.writeInt32(verificationCode);
 
     outputStream.write(payload);
   }
+
+  Future<EntryResult> getChangePasswordResult() async {
+    ByteBuf? buffer;
+    await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
+      buffer = msg.buffer;
+    });
+
+    if (buffer == null) throw Exception("Buffer is null");
+    ByteBuf payload = buffer!;
+
+    isVerificationComplete = payload.readBoolean();
+    bool isSuccessful = payload.readBoolean();
+
+    int id = payload.readInt32();
+
+    Map<AddedInfo, String> map = HashMap();
+
+    while (payload.readableBytes > 0) {
+      AddedInfo addedInfo = AddedInfo.fromId(payload.readInt32());
+      Uint8List message = payload.readBytes(payload.readInt32());
+      map[addedInfo] = utf8.decode(message.toList());
+    }
+
+    EntryResult result = EntryResult(ChangePasswordResult.fromId(id), map);
+
+    return result;
+  }  
 
   Future<EntryResult> getResult() async {
     ByteBuf? buffer;

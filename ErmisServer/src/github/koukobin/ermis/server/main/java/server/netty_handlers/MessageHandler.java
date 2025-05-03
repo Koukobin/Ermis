@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -18,7 +18,6 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 

@@ -122,26 +122,36 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Email Address
                       CustomTextField(
-                          keyboardType: TextInputType.emailAddress,
-                          controller: _emailController,
-                          hint: S.current.email),
+                        keyboardType: TextInputType.emailAddress,
+                        controller: _emailController,
+                        hint: S.current.email,
+                      ),
                       const SizedBox(height: 8),
+
+                      // Username
                       CustomTextField(
-                          maxLength: _usernameRequirements.maxLength,
-                          illegalCharacters: _usernameRequirements.invalidCharacters,
-                          keyboardType: TextInputType.name,
-                          controller: _usernameController,
-                          hint: S.current.display_name),
+                        maxLength: _usernameRequirements.maxLength,
+                        illegalCharacters: _usernameRequirements.invalidCharacters,
+                        keyboardType: TextInputType.name,
+                        controller: _usernameController,
+                        hint: S.current.display_name,
+                      ),
                       const SizedBox(height: 8),
+
+                      // Password
                       CustomTextField(
-                          maxLength: _passwordRequirements.maxLength,
-                          illegalCharacters: _passwordRequirements.invalidCharacters,
-                          keyboardType: TextInputType.twitter,
-                          controller: _passwordController,
-                          hint: S.current.password,
-                          obscureText: true),
+                        maxLength: _passwordRequirements.maxLength,
+                        illegalCharacters: _passwordRequirements.invalidCharacters,
+                        keyboardType: TextInputType.twitter,
+                        controller: _passwordController,
+                        hint: S.current.password,
+                        obscureText: true,
+                      ),
                       const SizedBox(height: 4),
+
+                      // Entropy
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -174,6 +184,8 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                         ),
                       ),
                       const SizedBox(height: 6),
+
+                      // Register
                       buildButton(
                         label: S.current.create_account,
                         icon: Icons.account_circle,
@@ -183,12 +195,9 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                           createAccountEntry.sendEntryType();
                           createAccountEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
                           createAccountEntry.sendCredentials({
-                            CreateAccountCredential.email:
-                                _emailController.text,
-                            CreateAccountCredential.username:
-                                _usernameController.text,
-                            CreateAccountCredential.password:
-                                _passwordController.text,
+                            CreateAccountCredential.email: _emailController.text,
+                            CreateAccountCredential.username: _usernameController.text,
+                            CreateAccountCredential.password: _passwordController.text,
                           });
                       
                           Resultable entryResult = await createAccountEntry.getCredentialsExchangeResult();
@@ -219,6 +228,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
               ),
             ),
 
+            // Switch to login
             buildButton(
               label: S.current.login,
               icon: Icons.login,

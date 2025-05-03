@@ -64,7 +64,7 @@ public final class FilesStorage {
 			throw new RuntimeException(ioe);
 		}
 	}
-	
+
 	static {
 		final int maxWeight = 50 * 1024 * 1024; // 50 MB
 		filesCache = CacheBuilder.newBuilder()

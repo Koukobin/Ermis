@@ -14,9 +14,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
+import 'package:ermis_client/generated/l10n.dart';
+
 import '../../../exceptions/EnumNotFoundException.dart';
 
-enum ChangePasswordResult {
+enum ChangePasswordResult implements Resultable {
   successfullyChangedPassword(
     id: 0,
     success: true,
@@ -33,6 +36,15 @@ enum ChangePasswordResult {
     required this.id,
     required this.success,
   });
+
+  @override
+  bool get isSuccessful => success;
+  
+  @override
+  String get message => switch(ChangePasswordResult.fromId(id)) {
+    ChangePasswordResult.successfullyChangedPassword => S.current.change_password_success,
+    ChangePasswordResult.errorWhileChangingPassword => S.current.change_password_error
+  };
 
   static ChangePasswordResult fromId(int id) {
     try {

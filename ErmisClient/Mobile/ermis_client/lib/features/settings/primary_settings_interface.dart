@@ -80,7 +80,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             ListTile(
               leading: const Icon(Icons.key),
               title: Text(S.current.account),
-              subtitle: Text(S.current.privacy_security_change_number),
+              subtitle: Text(S.current.privacy_security_change_password),
               onTap: () {
                 pushSlideTransition(context, const AccountSettings());
               },

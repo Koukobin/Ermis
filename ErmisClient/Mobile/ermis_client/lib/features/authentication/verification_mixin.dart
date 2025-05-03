@@ -158,6 +158,35 @@ mixin Verification {
     return isSuccessful;
   }
 
+  Future<bool> performChangePasswordVerification(BuildContext context, String email) async {
+    Entry verificationEntry = Client.instance().createNewVerificationEntry();
+    EntryResult entryResult;
+
+    bool isSuccessful = false;
+
+    while (!verificationEntry.isVerificationComplete) {
+      await _showVerificationDialog(
+          context: context,
+          title: S.current.verification,
+          promptMessage: S.current.enter_verification_code_sent_to_your_email,
+          onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
+          onSumbittedCode: verificationEntry.sendVerificationCode);
+
+      entryResult = await verificationEntry.getChangePasswordResult();
+      isSuccessful = entryResult.resultHolder.isSuccessful;
+      String resultMessage = entryResult.resultHolder.message;
+
+      if (isSuccessful) {
+        showToastDialog(resultMessage);
+        break;
+      }
+
+      showToastDialog(resultMessage);
+    }
+
+    return isSuccessful;
+  }
+
   Future<bool> performRegistrationVerification(BuildContext context, String email) async {
     Entry verificationEntry = Client.instance().createNewVerificationEntry();
     EntryResult entryResult;

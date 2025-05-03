@@ -16,12 +16,17 @@
 
 
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/models/local_account_info.dart';
 import 'package:ermis_client/core/services/database/models/local_user_info.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:zstandard/zstandard.dart';
+
+import '../../../util/image_utils.dart';
 
 extension AccountsExtension on DBConnection {
   Future<void> addUserAccount(LocalAccountInfo userAccount, ServerInfo serverInfo) async {
@@ -131,13 +136,15 @@ extension AccountsExtension on DBConnection {
 
     final String displayName = record['display_name'] as String;
     final int clientID = record['client_id'] as int;
-    final Uint8List profilePhoto = record['profile_photo'] as Uint8List;
+    final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
     final int lastUsed = record['last_updated_at'] as int;
+
+    Uint8List decompressedProfile = (await compressedProfilePhoto.decompress())!;
 
     return LocalUserInfo(
       displayName: displayName,
       clientID: clientID,
-      profilePhoto: profilePhoto,
+      profilePhoto: decompressedProfile,
       lastUpdatedEpochSecond: lastUsed,
     );
   }
@@ -154,15 +161,33 @@ extension AccountsExtension on DBConnection {
       where: "email = ?",
       whereArgs: [emailAssociatedWithProfile],
     );
+
+    Size size = ImageUtils.resizeImage(
+      imageBytes: info.profilePhoto,
+      maxWidth: 250,
+      maxHeight: 250,
+    );
+
+    Uint8List compressedProfile = await FlutterImageCompress.compressWithList(
+      info.profilePhoto,
+      quality: 70,
+      minHeight: size.height.toInt(),
+      minWidth: size.width.toInt(),
+    );
+
     db.insert(
       "server_profiles",
       {
         "server_url": serverInfo.toString(),
         "email": emailAssociatedWithProfile,
-        ...info.toMap()
+        'display_name': info.displayName,
+        'client_id': info.clientID,
+        'profile_photo': await compressedProfile.compress(compressionLevel: 12),
+        'last_updated_at': info.lastUpdatedEpochSecond,
       },
       conflictAlgorithm: ConflictAlgorithm.replace, // Why the fuck was there a comment "Why the fuck this does not work?"
     );
+    
   }
 
   Future<void> insertAccountKeyPairs({

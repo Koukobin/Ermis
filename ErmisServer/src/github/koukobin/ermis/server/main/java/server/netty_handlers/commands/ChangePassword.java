@@ -78,11 +78,6 @@ public class ChangePassword implements ICommand {
 				return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(clientInfo.getEmail(), account, generatedVerificationCode));
 			}
 		});
-
-//		ByteBuf payload = channel.alloc().ioBuffer();
-//		payload.writeInt(ServerMessageType.SERVER_INFO.id);
-//		payload.writeInt(result.id);
-//		channel.writeAndFlush(payload);
 	}
 
 	/**

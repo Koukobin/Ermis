@@ -29,6 +29,7 @@ import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/networking/user_info_manager.dart';
@@ -42,6 +43,7 @@ import '../../authentication/register_interface.dart';
 import '../../authentication/domain/entities/client_session_setup.dart';
 import 'package:ermis_client/features/authentication/verification_mixin.dart';
 
+import '../../authentication/utils/entry_buttons.dart';
 
 List<Account>? get _accounts {
   return Client.instance().otherAccounts;
@@ -75,24 +77,32 @@ class AccountSettings extends StatefulWidget {
               Center(
                 child: Text(
                   S.current.profile,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 20),
               ListTile(
                 leading: const PersonalProfilePhoto(),
-                title: Text(Client.instance().displayName ?? "", style: const TextStyle(fontSize: 18)),
-                trailing: const Icon(Icons.check_circle, color: Colors.greenAccent),
+                title: Text(Client.instance().displayName ?? "",
+                    style: const TextStyle(fontSize: 18)),
+                trailing:
+                    const Icon(Icons.check_circle, color: Colors.greenAccent),
               ),
               for (final Account serverAccount in _accounts ?? [])
                 ListTile(
-                  leading: UserProfilePhoto(profileBytes: serverAccount.profilePhoto),
-                  title: Text(serverAccount.name(), style: const TextStyle(fontSize: 18)),
+                  leading: UserProfilePhoto(
+                      profileBytes: serverAccount.profilePhoto),
+                  title: Text(serverAccount.name(),
+                      style: const TextStyle(fontSize: 18)),
                   onTap: () {
-                    showConfirmationDialog(context, "Are you sure you want to switch to ${serverAccount.name()}?", () async {
+                    showConfirmationDialog(context,
+                        "Are you sure you want to switch to ${serverAccount.name()}?",
+                        () async {
                       ServerInfo serverDetails = UserInfoManager.serverInfo;
                       final DBConnection conn = ErmisDB.getConnection();
-                      List<LocalAccountInfo> localAccounts = await conn.getUserAccounts(serverDetails);
+                      List<LocalAccountInfo> localAccounts =
+                          await conn.getUserAccounts(serverDetails);
                       LocalAccountInfo? matchingAccount;
 
                       for (LocalAccountInfo localAccount in localAccounts) {
@@ -116,7 +126,9 @@ class AccountSettings extends StatefulWidget {
                       );
 
                       Client.instance().commands.switchAccount();
-                      setupClientSession(context, accountInfo: matchingAccount, keepPreviousRoutes: true);
+                      setupClientSession(context,
+                          accountInfo: matchingAccount,
+                          keepPreviousRoutes: true);
                     });
                   },
                 ),
@@ -133,7 +145,8 @@ class AccountSettings extends StatefulWidget {
                       onPressed: () {
                         Navigator.of(context).pop();
                         Client.instance().commands.addNewAccount();
-                        pushSlideTransition(context, const CreateAccountInterface());
+                        pushSlideTransition(
+                            context, const CreateAccountInterface());
                       },
                       child: Text(S.current.account_add))
                 ],
@@ -146,8 +159,8 @@ class AccountSettings extends StatefulWidget {
   }
 }
 
-class _AccountSettingsState extends State<AccountSettings> with EventBusSubscriptionMixin {
-
+class _AccountSettingsState extends State<AccountSettings>
+    with EventBusSubscriptionMixin {
   @override
   void initState() {
     super.initState();
@@ -172,6 +185,13 @@ class _AccountSettingsState extends State<AccountSettings> with EventBusSubscrip
         child: ListView(
           children: [
             ListTile(
+              leading: const Icon(Icons.password),
+              title: Text("Change password"),
+              onTap: () async {
+                pushSlideTransition(context, const ChangePasswordSettings());
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.person_add_alt),
               title: Text(S.current.account_add),
               onTap: () async {
@@ -179,7 +199,8 @@ class _AccountSettingsState extends State<AccountSettings> with EventBusSubscrip
               },
             ),
             ListTile(
-              leading: const Icon(FontAwesomeIcons.solidTrashCan, color: Colors.redAccent),
+              leading: const Icon(FontAwesomeIcons.solidTrashCan,
+                  color: Colors.redAccent),
               title: Text(S.current.account_delete),
               onTap: () {
                 pushSlideTransition(context, const DeleteAccountSettings());
@@ -190,9 +211,78 @@ class _AccountSettingsState extends State<AccountSettings> with EventBusSubscrip
       ),
     );
   }
-
 }
 
+class ChangePasswordSettings extends StatefulWidget {
+  const ChangePasswordSettings({super.key});
+
+  @override
+  State<ChangePasswordSettings> createState() => _ChangePasswordPageState();
+}
+
+class _ChangePasswordPageState extends State<ChangePasswordSettings>
+    with Verification, EntryButtons {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<void> _changePassword() async {
+    Client.instance().commands.changePassword(_emailController.text, _passwordController.text);
+    await performChangePasswordVerification(context, _emailController.text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+    return Scaffold(
+      appBar: ErmisAppBar(titleText: "Change Password"),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 200.0, horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
+              if (isKeyboardVisible) {
+                return const SizedBox.shrink();
+              }
+              return Container(margin: const EdgeInsets.only(top: 30));
+            }),
+
+            // Input field for email address
+            CustomTextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              hint: S.current.email,
+            ),
+
+            // Add space below the email input field
+            const SizedBox(height: 10),
+
+            // Input field for password
+            CustomTextField(
+              keyboardType: TextInputType.text,
+              controller: _passwordController,
+              hint: S.current.password,
+              obscureText: true,
+            ),
+
+            // Add space below the password input field
+            const SizedBox(height: 20),
+
+            // Button to change password
+            buildButton(
+              label: "Change Password",
+              backgroundColor: appColors.secondaryColor,
+              icon: Icons.password,
+              onPressed: _changePassword,
+              textColor: appColors.primaryColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class DeleteAccountSettings extends StatefulWidget {
   const DeleteAccountSettings({super.key});
@@ -201,7 +291,8 @@ class DeleteAccountSettings extends StatefulWidget {
   State<DeleteAccountSettings> createState() => _DeleteAccountSettingsState();
 }
 
-class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Verification {
+class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
+    with Verification {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -247,7 +338,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Veri
             buildBullet(S.current.account_delete_bullet2),
             buildBullet(S.current.account_delete_bullet3),
 
-            // Add space below the bullet points            
+            // Add space below the bullet points
             const SizedBox(height: 30),
 
             // Text
@@ -259,7 +350,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Veri
                 color: Colors.red,
                 letterSpacing: 1.7,
               ),
-            ),            
+            ),
 
             // Add space
             const SizedBox(height: 35),
@@ -288,8 +379,10 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Veri
             // Button to delete the account
             ElevatedButton(
               onPressed: () async {
-                Client.instance().commands.deleteAccount(_emailController.text, _passwordController.text);
-                final isSuccessful = await performDeleteAccountVerification(context, _emailController.text);
+                Client.instance().commands.deleteAccount(
+                    _emailController.text, _passwordController.text);
+                final isSuccessful = await performDeleteAccountVerification(
+                    context, _emailController.text);
 
                 if (isSuccessful) {
                   SystemNavigator.pop();
@@ -301,7 +394,8 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Veri
               ),
               child: Text(
                 S.current.account_delete,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -330,7 +424,6 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Veri
         ),
       ],
     );
-
   }
 
   Future createModalBottomSheet() {
@@ -357,7 +450,8 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Veri
             children: [
               Text(
                 S.current.name_enter,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Row(
@@ -391,7 +485,9 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings> with Veri
                   TextButton(
                       onPressed: () {
                         String newDisplayName = displayNameController.text;
-                        Client.instance().commands.changeDisplayName(newDisplayName);
+                        Client.instance()
+                            .commands
+                            .changeDisplayName(newDisplayName);
                         Navigator.of(context).pop();
                       },
                       child: Text(

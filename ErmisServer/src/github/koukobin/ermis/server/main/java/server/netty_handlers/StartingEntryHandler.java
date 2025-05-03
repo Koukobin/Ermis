@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -33,7 +33,7 @@ import io.netty.channel.ChannelHandlerContext;
 public final class StartingEntryHandler extends AbstractChannelClientHandler {
 
 	private static final ByteBuf versionBuffer = Unpooled.unreleasableBuffer(Unpooled.wrappedBuffer(GeneralServerInfo.VERSION.getBytes()));
-	
+
 	public StartingEntryHandler() {
 		super(new ClientInfo());
 	}
