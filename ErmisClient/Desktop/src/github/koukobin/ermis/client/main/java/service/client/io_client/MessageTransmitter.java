@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -30,6 +30,7 @@ import github.koukobin.ermis.client.main.java.service.client.ChatSession;
 import github.koukobin.ermis.common.ClientStatus;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
+import github.koukobin.ermis.common.message_types.FileType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ClientContentType;
 import io.netty.buffer.ByteBuf;
@@ -295,6 +296,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 			payload.writeInt(ClientCommandType.DOWNLOAD_FILE.id);
 			payload.writeInt(chatSessionIndex);
 			payload.writeInt(messageID);
+			payload.writeByte(FileType.FILE.id);
 
 			out.write(payload);
 		}

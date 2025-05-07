@@ -431,12 +431,8 @@ public class MessagingController extends GeneralController {
 	}
 
 	public void succesfullySentMessage(MESSAGE message, MessageDeliveryStatus status) {
-		int messageID = message.getMessageID();
-		message.setMessageID(messageID);
-//		chatSession.getMessages().add(message);
 		Threads.delay(50, () -> {
 			Platform.runLater(() -> {
-				messagingBox.getChildren().remove(messagingBox.getChildren().size() - 1);
 				printToMessageArea(message, message.getChatSessionIndex(), RootReferences.getChatsController().getActiveChatSessionIndex());
 			});
 		});

@@ -27,6 +27,7 @@ import github.koukobin.ermis.client.main.java.info.Icons;
 import github.koukobin.ermis.client.main.java.info.chat_interface.SettingsInfo;
 import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
 import github.koukobin.ermis.client.main.java.service.client.Events.AddProfilePhotoResultEvent;
+import github.koukobin.ermis.client.main.java.service.client.Events.ClientIdEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ReceivedProfilePhotoEvent;
 import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
 import github.koukobin.ermis.client.main.java.service.client.io_client.UserInfoManager;
@@ -122,6 +123,13 @@ public class AccountSettingsController extends GeneralController {
 				}
 
 				MFXDialogsUtil.showSimpleInformationDialog(getStage(), getRoot(), "Failed to add profile photo");
+		});
+		
+		GlobalMessageDispatcher.getDispatcher()
+			.observeMessages()
+			.ofType(ClientIdEvent.class)
+			.subscribe((ClientIdEvent event) -> {
+				clientIDLabel.setText(String.valueOf(Client.getClientID()));
 		});
 
 		clientIDLabel.setText(String.valueOf(Client.getClientID()));
