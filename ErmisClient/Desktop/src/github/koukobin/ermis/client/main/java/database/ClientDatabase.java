@@ -31,6 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import github.koukobin.ermis.client.main.java.database.models.LocalAccountInfo;
+import github.koukobin.ermis.client.main.java.database.models.DatabaseChatMessage;
+import github.koukobin.ermis.client.main.java.database.models.ServerInfo;
 import github.koukobin.ermis.client.main.java.info.GeneralAppInfo;
 import github.koukobin.ermis.common.util.FileUtils;
 
@@ -253,7 +256,7 @@ public final class ClientDatabase {
 			return result;
 		}
 
-		public int addChatMessage(ServerInfo serverInfo, Message message) {
+		public int addChatMessage(ServerInfo serverInfo, DatabaseChatMessage message) {
 			int result = 0;
 			String sql = "INSERT INTO chat_messages (server_url, chat_session_id, message_id, client_id, text, file_name, content_type, ts_entered) "
 					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";

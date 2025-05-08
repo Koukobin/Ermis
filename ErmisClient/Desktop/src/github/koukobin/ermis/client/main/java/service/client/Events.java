@@ -17,8 +17,10 @@ package github.koukobin.ermis.client.main.java.service.client;
 
 import java.util.List;
 
-import github.koukobin.ermis.client.main.java.MESSAGE;
-import github.koukobin.ermis.client.main.java.service.client.ChatSession.Member;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatRequest;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.models.Message;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatSession.Member;
 import github.koukobin.ermis.common.Account;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.UserDeviceInfo;
@@ -36,7 +38,7 @@ public final class Events {
 
 	/** Tagging interface */
 	public interface IMessage {}
-	
+
 	public static class EntryMessage implements IMessage {
         private final ByteBuf buffer;
         public EntryMessage(ByteBuf buffer) { this.buffer = buffer; }
@@ -50,25 +52,25 @@ public final class Events {
     }
 
     public static class MessageReceivedEvent implements IMessage {
-        private final MESSAGE message;
+        private final Message message;
         private final ChatSession chatSession;
-        public MessageReceivedEvent(MESSAGE message, ChatSession chatSession) {
+        public MessageReceivedEvent(Message message, ChatSession chatSession) {
             this.message = message;
             this.chatSession = chatSession;
         }
-        public MESSAGE getMessage() { return message; }
+        public Message getMessage() { return message; }
         public ChatSession getChatSession() { return chatSession; }
     }
 
     public static class MessageDeliveryStatusEvent implements IMessage {
         private final MessageDeliveryStatus deliveryStatus;
-        private final MESSAGE message;
-        public MessageDeliveryStatusEvent(MessageDeliveryStatus deliveryStatus, MESSAGE message) {
+        private final Message message;
+        public MessageDeliveryStatusEvent(MessageDeliveryStatus deliveryStatus, Message message) {
             this.deliveryStatus = deliveryStatus;
             this.message = message;
         }
         public MessageDeliveryStatus getDeliveryStatus() { return deliveryStatus; }
-        public MESSAGE getMessage() { return message; }
+        public Message getMessage() { return message; }
     }
 
     public static class WrittenTextEvent implements IMessage {

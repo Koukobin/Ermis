@@ -22,6 +22,10 @@ import java.util.Map;
 
 import github.koukobin.ermis.client.main.java.service.client.Events.IMessage;
 import github.koukobin.ermis.client.main.java.service.client.Events.ServerMessageInfoEvent;
+import github.koukobin.ermis.client.main.java.service.client.handlers.ClientMessageHandler;
+import github.koukobin.ermis.client.main.java.service.client.handlers.CommandResultHandler;
+import github.koukobin.ermis.client.main.java.service.client.handlers.MessageDeliveryStatusHandler;
+import github.koukobin.ermis.client.main.java.service.client.handlers.MessageHandler;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.rxjava3.core.Observable;
@@ -41,12 +45,8 @@ public final class GlobalMessageDispatcher {
 
 	public final List<MessageListener> listeners = new ArrayList<>();
 
-	private abstract class MessageListener {
-		public abstract void onMessageReceived(ByteBuf message);
-
-		public final void remove() {
-			GlobalMessageDispatcher.this.listeners.remove(this);
-		}
+	private interface MessageListener {
+		void onMessageReceived(ByteBuf message);
 	}
 
 	public void addListener(MessageListener listener) {
@@ -58,7 +58,7 @@ public final class GlobalMessageDispatcher {
 	}
 
 	private Map<ServerMessageType, MessageHandler> handlers = new EnumMap<>(ServerMessageType.class);
-    public final PublishSubject<IMessage> messageSubject = PublishSubject.create();
+	public final PublishSubject<IMessage> messageSubject = PublishSubject.create();
 
 	public GlobalMessageDispatcher() {
 		// Register handlers for different message types

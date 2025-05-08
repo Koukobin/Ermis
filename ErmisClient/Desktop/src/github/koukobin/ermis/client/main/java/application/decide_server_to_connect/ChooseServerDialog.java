@@ -18,7 +18,7 @@ package github.koukobin.ermis.client.main.java.application.decide_server_to_conn
 import java.util.Map;
 
 import github.koukobin.ermis.client.main.java.database.ClientDatabase;
-import github.koukobin.ermis.client.main.java.database.ServerInfo;
+import github.koukobin.ermis.client.main.java.database.models.ServerInfo;
 import github.koukobin.ermis.client.main.java.general_dialogs.MFXDialog;
 import github.koukobin.ermis.client.main.java.info.Icons;
 import github.koukobin.ermis.client.main.java.info.choose_server_dialog.ChooseServerDialogInfo;
@@ -44,12 +44,12 @@ public class ChooseServerDialog extends MFXDialog {
 	private ServerInfo serverInfo;
 
 	private boolean checkServerCertificate = true;
-	
+
 	private boolean isCanceled = true;
-	
+
 	public ChooseServerDialog() {
-		super(null /* No stage */, null /* No rootPane*/);
-		
+		super(null /* No stage */, null /* No rootPane */);
+
 		MFXComboBox<ServerInfo> mfxComboBox = new MFXComboBox<>();
 		mfxComboBox.setFloatMode(FloatMode.ABOVE);
 		mfxComboBox.setPromptText("Server URL");
@@ -57,14 +57,14 @@ public class ChooseServerDialog extends MFXDialog {
 		mfxComboBox.setPrefHeight(50);
 		mfxComboBox.setPrefColumnCount(20);
 		mfxComboBox.getItems().addAll(localDBConnection.getServerInfos());
-		
+
 		{
 			MFXContextMenu contextMenu = mfxComboBox.getMFXContextMenu();
 			MFXContextMenuItem deleteServerURL = new MFXContextMenuItem("Delete");
 			deleteServerURL.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
-					
+
 					ServerInfo serverInfo = mfxComboBox.getSelectedItem();
 
 					if (serverInfo != null) {
@@ -73,20 +73,20 @@ public class ChooseServerDialog extends MFXDialog {
 					}
 				}
 			});
-			
+
 			contextMenu.getItems().add(deleteServerURL);
 		}
-		
+
 		MFXToggleButton toggleCheckServerCertificateButton = new MFXToggleButton("Check server certificate");
 		toggleCheckServerCertificateButton.setSelected(true);
-		
+
 		dialogContent.setContent(mfxComboBox);
 		dialogContent.addActions(
 				Map.entry(new MFXButton("Add"), (MouseEvent e) -> {
-					
+
 					AddServerDialog dialog = new AddServerDialog(this, super.getScene().getRoot(), localDBConnection);
 					dialog.showAndWait();
-					
+
 					if (dialog.isCanceled()) {
 						return;
 					}
@@ -99,33 +99,33 @@ public class ChooseServerDialog extends MFXDialog {
 				}), Map.entry(toggleCheckServerCertificateButton, (MouseEvent e) -> {
 					checkServerCertificate = !checkServerCertificate;
 				}), Map.entry(new MFXButton("Connect"), (MouseEvent e) -> {
-					
+
 					serverInfo = mfxComboBox.getSelectedItem();
-					
+
 					isCanceled = false;
 					super.close();
 				}), Map.entry(new MFXButton("Cancel"), (MouseEvent e) -> {
 					super.close();
 				}));
-		
+
 		super.setWidth(ChooseServerDialogInfo.STAGE_WIDTH);
 		super.setHeight(ChooseServerDialogInfo.STAGE_HEIGHT);
 		super.setScrimPriority(ScrimPriority.WINDOW);
 		dialogContent.setHeaderText("Choose server to connect to");
-		
+
 		ImageView headerIcon = new ImageView(Icons.PRIMARY_APPLICATION_ICON_256);
 		headerIcon.setFitWidth(30);
 		headerIcon.setFitHeight(30);
 		dialogContent.setHeaderIcon(headerIcon);
-		
-        super.getContent().getStylesheets().add(ChooseServerDialogInfo.CHOOSE_SERSVER_DIALOG_CSS);
+
+		super.getContent().getStylesheets().add(ChooseServerDialogInfo.CHOOSE_SERSVER_DIALOG_CSS);
 	}
 
 	@Override
 	public void showAndWait() {
 		super.showAndWait();
 	}
-	
+
 	public boolean isCanceled() {
 		return isCanceled;
 	}
@@ -133,7 +133,7 @@ public class ChooseServerDialog extends MFXDialog {
 	public ServerInfo getResult() {
 		return serverInfo;
 	}
-	
+
 	public boolean shouldCheckServerCertificate() {
 		return checkServerCertificate;
 	}

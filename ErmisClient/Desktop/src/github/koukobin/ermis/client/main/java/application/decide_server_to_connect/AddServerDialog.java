@@ -22,7 +22,7 @@ import java.net.UnknownHostException;
 import java.util.Map;
 
 import github.koukobin.ermis.client.main.java.database.ClientDatabase;
-import github.koukobin.ermis.client.main.java.database.ServerInfo;
+import github.koukobin.ermis.client.main.java.database.models.ServerInfo;
 import github.koukobin.ermis.client.main.java.general_dialogs.MFXActionDialog;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import io.github.palexdev.materialfx.controls.MFXButton;

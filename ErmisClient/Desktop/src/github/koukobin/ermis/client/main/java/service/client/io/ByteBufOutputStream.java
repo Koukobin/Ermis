@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client.io_client;
+package github.koukobin.ermis.client.main.java.service.client.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,7 +26,7 @@ import io.netty.buffer.ByteBuf;
  * @author Ilias Koukovinis
  *
  */
-class ByteBufOutputStream implements AutoCloseable {
+public class ByteBufOutputStream implements AutoCloseable {
 
 	private static final int compressionLevel = 4; // 1 (fastest) to 22 (highest compression)
 

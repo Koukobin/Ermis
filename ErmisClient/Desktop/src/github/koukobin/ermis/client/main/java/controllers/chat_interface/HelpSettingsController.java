@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import github.koukobin.ermis.client.main.java.info.GeneralAppInfo;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
+import github.koukobin.ermis.client.main.java.service.client.Client;
 import github.koukobin.ermis.client.main.java.util.HostServicesUtil;
 import github.koukobin.ermis.client.main.java.util.UITransitions;
 import github.koukobin.ermis.client.main.java.util.UITransitions.Direction.Which;

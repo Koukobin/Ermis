@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client.io_client;
+package github.koukobin.ermis.client.main.java.service.client;
 
 /**
  * @author Ilias Koukovinis

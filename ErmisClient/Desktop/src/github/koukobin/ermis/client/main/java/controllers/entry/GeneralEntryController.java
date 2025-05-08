@@ -16,9 +16,9 @@
 package github.koukobin.ermis.client.main.java.controllers.entry;
 
 import github.koukobin.ermis.client.main.java.database.ClientDatabase;
-import github.koukobin.ermis.client.main.java.database.LocalAccountInfo;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
-import github.koukobin.ermis.client.main.java.service.client.io_client.EntryResult;
+import github.koukobin.ermis.client.main.java.database.models.LocalAccountInfo;
+import github.koukobin.ermis.client.main.java.service.client.Client;
+import github.koukobin.ermis.client.main.java.service.client.models.EntryResult;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.EntryType;

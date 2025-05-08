@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client.io_client;
+package github.koukobin.ermis.client.main.java.service.client;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,14 +42,14 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import github.koukobin.ermis.client.main.java.MESSAGE;
-import github.koukobin.ermis.client.main.java.database.LocalAccountInfo;
-import github.koukobin.ermis.client.main.java.database.ServerInfo;
-import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
-import github.koukobin.ermis.client.main.java.service.client.ChatSession;
+import github.koukobin.ermis.client.main.java.database.models.LocalAccountInfo;
+import github.koukobin.ermis.client.main.java.database.models.ServerInfo;
 import github.koukobin.ermis.client.main.java.service.client.Events.EntryMessage;
-import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
-import github.koukobin.ermis.common.LoadedInMemoryFile;
+import github.koukobin.ermis.client.main.java.service.client.io.ByteBufInputStream;
+import github.koukobin.ermis.client.main.java.service.client.io.ByteBufOutputStream;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatRequest;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.models.EntryResult;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo.CredentialValidation;
@@ -60,7 +60,6 @@ import github.koukobin.ermis.common.entry.Resultable;
 import github.koukobin.ermis.common.entry.LoginInfo.CredentialsExchange;
 import github.koukobin.ermis.common.entry.Verification;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
-import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.results.ResultHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

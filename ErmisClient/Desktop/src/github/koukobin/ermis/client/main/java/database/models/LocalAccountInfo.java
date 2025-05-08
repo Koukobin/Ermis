@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -13,16 +13,34 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client.io_client;
+package github.koukobin.ermis.client.main.java.database.models;
 
-import java.util.Map;
-
-import github.koukobin.ermis.common.entry.AddedInfo;
-import github.koukobin.ermis.common.entry.Resultable;
+import java.time.LocalDateTime;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public record EntryResult<T extends Resultable> (T resultHolder, Map<AddedInfo, String> addedInfo) {
+public class LocalAccountInfo {
+	private String email;
+	private String passwordHash;
+	private LocalDateTime lastUsed;
+
+	public LocalAccountInfo(String email, String passwordHash, LocalDateTime lastUsed) {
+		this.email = email;
+		this.passwordHash = passwordHash;
+		this.lastUsed = lastUsed;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getPasswordHash() {
+		return passwordHash;
+	}
+
+	public LocalDateTime getLastUsed() {
+		return lastUsed;
+	}
 }

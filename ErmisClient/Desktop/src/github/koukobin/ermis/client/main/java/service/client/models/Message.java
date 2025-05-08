@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java;
+package github.koukobin.ermis.client.main.java.service.client.models;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -23,24 +23,31 @@ import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 
 /**
-* @author Ilias Koukovinis
-*
-*/
-public final class MESSAGE {
+ * @author Ilias Koukovinis
+ *
+ */
+public final class Message {
 
-    private String username;
-    private int clientID;
-    private int messageID;
-    private int chatSessionID;
-    private int chatSessionIndex;
-    private byte[] text;
-    private byte[] fileName;
-    private long epochSecond;
-    private ClientContentType contentType;
-    private MessageDeliveryStatus deliveryStatus;
+	private String username;
+	private int clientID;
+	private int messageID;
+	private int chatSessionID;
+	private int chatSessionIndex;
+	private byte[] text;
+	private byte[] fileName;
+	private long epochSecond;
+	private ClientContentType contentType;
+	private MessageDeliveryStatus deliveryStatus;
 
-    public MESSAGE(String username, int clientID, int messageID, int chatSessionID, int chatSessionIndex,
-			byte[] text, byte[] fileName, long epochSecond, ClientContentType contentType,
+    public Message(String username,
+    		int clientID,
+    		int messageID,
+    		int chatSessionID,
+    		int chatSessionIndex,
+			byte[] text,
+			byte[] fileName,
+			long epochSecond,
+			ClientContentType contentType,
 			MessageDeliveryStatus deliveryStatus) {
         this.username = username;
         this.clientID = clientID;
@@ -54,43 +61,43 @@ public final class MESSAGE {
         this.deliveryStatus = deliveryStatus;
     }
 
-    public MESSAGE() {
-        this.username = "";
-        this.clientID = 0;
-        this.messageID = 0;
-        this.chatSessionID = 0;
-        this.chatSessionIndex = 0;
-        this.text = null;
-        this.fileName = null;
-        this.epochSecond = 0;
-        this.contentType = ClientContentType.TEXT; // Assuming a default value
-        this.deliveryStatus = MessageDeliveryStatus.SENDING;
-    }
+	public Message() {
+		this.username = "";
+		this.clientID = 0;
+		this.messageID = 0;
+		this.chatSessionID = 0;
+		this.chatSessionIndex = 0;
+		this.text = null;
+		this.fileName = null;
+		this.epochSecond = 0;
+		this.contentType = ClientContentType.TEXT; // Assuming a default value
+		this.deliveryStatus = MessageDeliveryStatus.SENDING;
+	}
 
-    // Setters
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	// Setters
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-    public void setDeliveryStatus(MessageDeliveryStatus deliveryStatus) {
-        this.deliveryStatus = deliveryStatus;
-    }
+	public void setDeliveryStatus(MessageDeliveryStatus deliveryStatus) {
+		this.deliveryStatus = deliveryStatus;
+	}
 
-    public void setClientID(int clientID) {
-        this.clientID = clientID;
-    }
+	public void setClientID(int clientID) {
+		this.clientID = clientID;
+	}
 
-    public void setMessageID(int messageID) {
-        this.messageID = messageID;
-    }
+	public void setMessageID(int messageID) {
+		this.messageID = messageID;
+	}
 
-    public void setChatSessionID(int chatSessionID) {
-        this.chatSessionID = chatSessionID;
-    }
+	public void setChatSessionID(int chatSessionID) {
+		this.chatSessionID = chatSessionID;
+	}
 
-    public void setChatSessionIndex(int chatSessionIndex) {
-        this.chatSessionIndex = chatSessionIndex;
-    }
+	public void setChatSessionIndex(int chatSessionIndex) {
+		this.chatSessionIndex = chatSessionIndex;
+	}
 
     public void setText(byte[] text) {
         this.text = text;
@@ -139,20 +146,20 @@ public final class MESSAGE {
 
     public long getEpochSecond() {
         return epochSecond;
-    }
+	}
 
-    public ClientContentType getContentType() {
-        return contentType;
-    }
+	public ClientContentType getContentType() {
+		return contentType;
+	}
 
-    public MessageDeliveryStatus getDeliveryStatus() {
-        return deliveryStatus;
-    }
+	public MessageDeliveryStatus getDeliveryStatus() {
+		return deliveryStatus;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(messageID);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(messageID);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -163,12 +170,12 @@ public final class MESSAGE {
 		if (obj == null) {
 			return false;
 		}
-		
-		if (obj.getClass() !=  MESSAGE.class) {
+
+		if (obj.getClass() != Message.class) {
 			return false;
 		}
 
-		MESSAGE other = (MESSAGE) obj;
+		Message other = (Message) obj;
         return chatSessionID == other.chatSessionID &&
                chatSessionIndex == other.chatSessionIndex &&
                clientID == other.clientID &&

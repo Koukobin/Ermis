@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 import github.koukobin.ermis.client.main.java.controllers.chat_interface.dialogs.LogoutDialog;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
+import github.koukobin.ermis.client.main.java.service.client.Client;
 import github.koukobin.ermis.client.main.java.util.dialogs.CustomDialogButtonTypes;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import javafx.application.Platform;

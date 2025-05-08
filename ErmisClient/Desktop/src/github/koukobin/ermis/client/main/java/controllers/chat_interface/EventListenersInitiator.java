@@ -25,11 +25,9 @@ import java.util.List;
 
 import javax.swing.filechooser.FileSystemView;
 
-import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.info.GeneralAppInfo;
-import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
-import github.koukobin.ermis.client.main.java.service.client.ChatSession;
 import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
+import github.koukobin.ermis.client.main.java.service.client.MessageTransmitter;
 import github.koukobin.ermis.client.main.java.service.client.Events.ChatRequestsEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ChatSessionsEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.DonationPageEvent;
@@ -42,7 +40,9 @@ import github.koukobin.ermis.client.main.java.service.client.Events.ReceivedProf
 import github.koukobin.ermis.client.main.java.service.client.Events.ServerMessageInfoEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ServerSourceCodeEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.WrittenTextEvent;
-import github.koukobin.ermis.client.main.java.service.client.io_client.MessageTransmitter;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatRequest;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.models.Message;
 import github.koukobin.ermis.client.main.java.util.HostServicesUtil;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.client.main.java.util.dialogs.MFXDialogsUtil;
@@ -73,7 +73,7 @@ class EventListenersInitiator extends MessageTransmitter {
 		.observeMessages()
 		.ofType(MessageReceivedEvent.class)
 		.subscribe((MessageReceivedEvent event) -> {
-			MESSAGE message = event.getMessage();
+			Message message = event.getMessage();
 			int chatSessionIndex = event.getChatSession().getChatSessionIndex();
 			
 			int activeChatSessionIndex = RootReferences.getChatsController().getActiveChatSessionIndex();
@@ -104,11 +104,11 @@ class EventListenersInitiator extends MessageTransmitter {
 				.subscribe((WrittenTextEvent event) -> {
 					ChatSession chatSession = event.getChatSession();
 					int chatSessionIndex = chatSession.getChatSessionIndex();
-					List<MESSAGE> messages = chatSession.getMessages();
+					List<Message> messages = chatSession.getMessages();
 
 					Platform.runLater(() -> {
 						for (int i = 0; i < messages.size(); i++) {
-							MESSAGE message = messages.get(i);
+							Message message = messages.get(i);
 							
 							RootReferences.getMessagingController().printToMessageArea(
 									message,
@@ -212,10 +212,10 @@ class EventListenersInitiator extends MessageTransmitter {
 			int messageIDOfDeletedMessage = event.getMessageID();
 			Platform.runLater(() -> {
 				
-				List<MESSAGE> messages = chatSession.getMessages();
+				List<Message> messages = chatSession.getMessages();
 				for (int i = 0; i < messages.size(); i++) {
 					
-					MESSAGE message = messages.get(i);
+					Message message = messages.get(i);
 					
 					if (message.getMessageID() == messageIDOfDeletedMessage) {
 						
@@ -226,7 +226,7 @@ class EventListenersInitiator extends MessageTransmitter {
 						
 						if (activeChatSessionIndex == chatSessionIndex) {
 							RootReferences.getMessagingController().clearMessages();
-							RootReferences.getMessagingController().addMessages(messages.toArray(new MESSAGE[0]),
+							RootReferences.getMessagingController().addMessages(messages.toArray(new Message[0]),
 									chatSession.getChatSessionIndex(),
 									RootReferences.getChatsController().getActiveChatSessionIndex());
 						}

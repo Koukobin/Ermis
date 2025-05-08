@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.database;
+package github.koukobin.ermis.client.main.java.database.models;
 
 import java.net.InetAddress;
 import java.net.PortUnreachableException;
@@ -47,7 +47,7 @@ public final class ServerInfo {
 		this.address = InetAddress.getByName(serverURL.getHost());
 		this.lastUsed = Instant.now();
 	}
-	
+
 	public InetAddress getAddress() {
 		return address;
 	}
@@ -61,8 +61,8 @@ public final class ServerInfo {
 	}
 
 	public Instant getLastUsed() {
-        return lastUsed;
-    }
+		return lastUsed;
+	}
 
 	@Override
 	public int hashCode() {

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import github.koukobin.ermis.client.main.java.info.entry.EntryInfo;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
+import github.koukobin.ermis.client.main.java.service.client.Client;
 import github.koukobin.ermis.client.main.java.util.MemoryUtil;
 import github.koukobin.ermis.client.main.java.util.UITransitions;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;

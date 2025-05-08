@@ -40,7 +40,15 @@ public final class UserMessage {
 
 	public UserMessage() {}
 
-	public UserMessage(String username, int clientID, int messageID, int chatSessionID, byte[] text, byte[] fileName, long timeWritten, boolean isRead, ClientContentType contentType) {
+	public UserMessage(String username,
+			int clientID,
+			int messageID,
+			int chatSessionID,
+			byte[] text,
+			byte[] fileName,
+			long timeWritten,
+			boolean isRead,
+			ClientContentType contentType) {
 		this.username = username;
 		this.clientID = clientID;
 		this.messageID = messageID;

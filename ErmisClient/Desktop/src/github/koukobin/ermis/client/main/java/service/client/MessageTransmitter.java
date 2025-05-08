@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client.io_client;
+package github.koukobin.ermis.client.main.java.service.client;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,9 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.io.Files;
 
-import github.koukobin.ermis.client.main.java.MESSAGE;
-import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
-import github.koukobin.ermis.client.main.java.service.client.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.io.ByteBufOutputStream;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatRequest;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.models.Message;
 import github.koukobin.ermis.common.ClientStatus;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
@@ -54,7 +55,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 		this.out = out;
 	}
 
-	public MESSAGE sendMessageToClient(String text, int chatSessionIndex) throws IOException {
+	public Message sendMessageToClient(String text, int chatSessionIndex) throws IOException {
 		byte[] textBytes = text.getBytes();
 
 		ByteBuf payload = Unpooled.buffer();
@@ -74,7 +75,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 				lastPendingMessageID);
 	}
 
-	public MESSAGE sendFile(File file, int chatSessionIndex) throws IOException {
+	public Message sendFile(File file, int chatSessionIndex) throws IOException {
 		byte[] fileNameBytes = file.getName().getBytes();
 		byte[] fileBytes = Files.toByteArray(file);
 
@@ -97,13 +98,13 @@ public abstract class MessageTransmitter implements AutoCloseable {
 				lastPendingMessageID);
 	}
 
-	public MESSAGE createPendingMessage(byte[] text, 
+	public Message createPendingMessage(byte[] text, 
 			byte[] fileName, 
 			ClientContentType contentType, 
 			int chatSessionID,
 			int chatSessionIndex, 
 			int tempMessageID) {
-		final MESSAGE m = new MESSAGE(
+		final Message m = new Message(
 				Client.getDisplayName(),
 				Client.getClientID(),
 				-1,

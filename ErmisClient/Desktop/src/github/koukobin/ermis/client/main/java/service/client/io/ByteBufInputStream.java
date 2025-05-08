@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client.io_client;
+package github.koukobin.ermis.client.main.java.service.client.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ import io.netty.buffer.Unpooled;
  * @author Ilias Koukovinis
  *
  */
-class ByteBufInputStream implements AutoCloseable {
+public class ByteBufInputStream implements AutoCloseable {
 
 	private final InputStream in;
 

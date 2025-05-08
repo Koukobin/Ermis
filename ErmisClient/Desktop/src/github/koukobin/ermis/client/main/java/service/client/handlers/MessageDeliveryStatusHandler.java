@@ -13,10 +13,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client;
+package github.koukobin.ermis.client.main.java.service.client.handlers;
 
-import github.koukobin.ermis.client.main.java.MESSAGE;
-import github.koukobin.ermis.client.main.java.service.client.io_client.UserInfoManager;
+import github.koukobin.ermis.client.main.java.service.client.Events;
+import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
+import github.koukobin.ermis.client.main.java.service.client.UserInfoManager;
+import github.koukobin.ermis.client.main.java.service.client.models.Message;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import io.netty.buffer.ByteBuf;
 
@@ -30,7 +32,7 @@ public class MessageDeliveryStatusHandler implements MessageHandler {
 	public void handleMessage(ByteBuf msg) {
 		MessageDeliveryStatus status = MessageDeliveryStatus.fromId(msg.readInt());
 
-		MESSAGE pendingMessage;
+		Message pendingMessage;
 
 		if (status == MessageDeliveryStatus.LATE_DELIVERED) {
 		    int chatSessionID = msg.readInt();

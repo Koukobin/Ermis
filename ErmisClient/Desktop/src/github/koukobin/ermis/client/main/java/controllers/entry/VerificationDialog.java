@@ -18,7 +18,7 @@ package github.koukobin.ermis.client.main.java.controllers.entry;
 import java.io.IOException;
 import java.util.Optional;
 
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
+import github.koukobin.ermis.client.main.java.service.client.Client;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
 import javafx.beans.value.ChangeListener;

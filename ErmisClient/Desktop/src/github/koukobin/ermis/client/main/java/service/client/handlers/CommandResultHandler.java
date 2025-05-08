@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client;
+package github.koukobin.ermis.client.main.java.service.client.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,10 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import github.koukobin.ermis.client.main.java.MESSAGE;
-import github.koukobin.ermis.client.main.java.service.client.ChatSession.Member;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
-import github.koukobin.ermis.client.main.java.service.client.io_client.UserInfoManager;
+import github.koukobin.ermis.client.main.java.service.client.Client;
+import github.koukobin.ermis.client.main.java.service.client.Events;
+import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
+import github.koukobin.ermis.client.main.java.service.client.UserInfoManager;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatRequest;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.models.Message;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatSession.Member;
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
@@ -214,7 +218,7 @@ public class CommandResultHandler implements MessageHandler {
 			int chatSessionIndex = msg.readInt();
 			chatSession = UserInfoManager.chatSessions.get(chatSessionIndex);
 
-			List<MESSAGE> messages = chatSession.getMessages();
+			List<Message> messages = chatSession.getMessages();
 			while (msg.readableBytes() > 0) {
 				ClientContentType contentType = ClientContentType.fromId(msg.readInt());
 
@@ -253,7 +257,7 @@ public class CommandResultHandler implements MessageHandler {
 				}
 
 				if (contentType != null) {
-					MESSAGE message = new MESSAGE(
+					Message message = new Message(
 							username, 
 							clientID, 
 							messageID, 
@@ -268,7 +272,7 @@ public class CommandResultHandler implements MessageHandler {
 				}
 			}
 			
-			messages.sort(Comparator.comparing(MESSAGE::getMessageID));
+			messages.sort(Comparator.comparing(Message::getMessageID));
 			
 			chatSession.setHaveChatMessagesBeenCached(true);
 			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.WrittenTextEvent(chatSession));

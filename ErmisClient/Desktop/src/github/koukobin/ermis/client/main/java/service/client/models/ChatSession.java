@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client;
+package github.koukobin.ermis.client.main.java.service.client.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-
-import github.koukobin.ermis.client.main.java.MESSAGE;
 
 /**
  * @author Ilias Koukovinis
@@ -37,7 +35,7 @@ public class ChatSession {
 		private byte[] icon;
 
 		public Member() {}
-		
+
 		public Member(String username, int clientID, byte[] icon) {
 			this.username = username;
 			this.clientID = clientID;
@@ -51,11 +49,11 @@ public class ChatSession {
 		public void setClientID(int clientID) {
 			this.clientID = clientID;
 		}
-		
+
 		public void setIcon(byte[] icon) {
 			this.icon = icon.clone();
 		}
-		
+
 		public String getUsername() {
 			return username;
 		}
@@ -63,7 +61,7 @@ public class ChatSession {
 		public int getClientID() {
 			return clientID;
 		}
-		
+
 		public byte[] getIcon() {
 			return icon.clone();
 		}
@@ -75,25 +73,25 @@ public class ChatSession {
 
 		@Override
 		public boolean equals(Object obj) {
-			
+
 			if (this == obj) {
 				return true;
 			}
-			
+
 			if (obj == null) {
 				return false;
 			}
-			
+
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			
+
 			Member other = (Member) obj;
-			return clientID == other.clientID 
+			return clientID == other.clientID
 					&& Arrays.equals(icon, other.icon)
 					&& Objects.equals(username, other.username);
 		}
-		
+
 		@Override
 		public String toString() {
 			return username + "@" + clientID;
@@ -104,7 +102,7 @@ public class ChatSession {
 	private int chatSessionIndex; // Index of chat session that the server uses to access said chat session for the specific user
 
 	private List<Member> members;
-	private List<MESSAGE> messages;
+	private List<Message> messages;
 
 	private boolean haveChatMessagesBeenCached;
 
@@ -115,7 +113,7 @@ public class ChatSession {
 		this.messages = new ArrayList<>();
 	}
 
-	public ChatSession(int chatSessionID, int chatSessionIndex, List<MESSAGE> messages, List<Member> members, boolean haveChatMessagesBeenCached) {
+	public ChatSession(int chatSessionID, int chatSessionIndex, List<Message> messages, List<Member> members, boolean haveChatMessagesBeenCached) {
 		this.chatSessionID = chatSessionID;
 		this.chatSessionIndex = chatSessionIndex;
 		this.members = members;
@@ -127,10 +125,10 @@ public class ChatSession {
 		this.members = members;
 	}
 
-	public void setMessages(List<MESSAGE> messages) {
+	public void setMessages(List<Message> messages) {
 		this.messages = messages;
 	}
-	
+
 	public void setChatSessionIndex(int chatSessionIndex) {
 		this.chatSessionIndex = chatSessionIndex;
 	}
@@ -151,7 +149,7 @@ public class ChatSession {
 		return members;
 	}
 
-	public List<MESSAGE> getMessages() {
+	public List<Message> getMessages() {
 		return messages;
 	}
 

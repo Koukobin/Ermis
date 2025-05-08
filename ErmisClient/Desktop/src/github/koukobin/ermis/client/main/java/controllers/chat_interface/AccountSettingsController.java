@@ -25,12 +25,12 @@ import com.jfoenix.controls.JFXButton;
 
 import github.koukobin.ermis.client.main.java.info.Icons;
 import github.koukobin.ermis.client.main.java.info.chat_interface.SettingsInfo;
+import github.koukobin.ermis.client.main.java.service.client.Client;
 import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
+import github.koukobin.ermis.client.main.java.service.client.UserInfoManager;
 import github.koukobin.ermis.client.main.java.service.client.Events.AddProfilePhotoResultEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ClientIdEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ReceivedProfilePhotoEvent;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
-import github.koukobin.ermis.client.main.java.service.client.io_client.UserInfoManager;
 import github.koukobin.ermis.client.main.java.util.UITransitions;
 import github.koukobin.ermis.client.main.java.util.UITransitions.Direction.Which;
 import github.koukobin.ermis.client.main.java.util.dialogs.MFXDialogsUtil;

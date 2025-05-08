@@ -33,10 +33,10 @@ import java.util.concurrent.CompletableFuture;
 
 import com.jfoenix.controls.JFXButton;
 
-import github.koukobin.ermis.client.main.java.MESSAGE;
 import github.koukobin.ermis.client.main.java.context_menu.MyContextMenuItem;
 import github.koukobin.ermis.client.main.java.info.Icons;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
+import github.koukobin.ermis.client.main.java.service.client.Client;
+import github.koukobin.ermis.client.main.java.service.client.models.Message;
 import github.koukobin.ermis.client.main.java.util.ContextMenusUtil;
 import github.koukobin.ermis.client.main.java.util.NotificationsUtil;
 import github.koukobin.ermis.client.main.java.util.Threads;
@@ -84,7 +84,7 @@ public class MessagingController extends GeneralController {
 	@FXML
 	private TextField inputField;
 
-	private Queue<MESSAGE> pendingMessages = new ArrayDeque<>();
+	private Queue<Message> pendingMessages = new ArrayDeque<>();
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -117,17 +117,17 @@ public class MessagingController extends GeneralController {
 		});
 	}
 
-	public void addMessages(MESSAGE[] messages, int chatSessionIndex, int activeChatSessionIndex) {
+	public void addMessages(Message[] messages, int chatSessionIndex, int activeChatSessionIndex) {
 		for (int i = 0; i < messages.length; i++) {
 			addMessage(messages[i], chatSessionIndex, activeChatSessionIndex);
 		}
 	}
 
-	public void addMessage(MESSAGE message, int chatSessionIndex, int activeChatSessionIndex) {
+	public void addMessage(Message message, int chatSessionIndex, int activeChatSessionIndex) {
 		printToMessageArea(message, chatSessionIndex, activeChatSessionIndex);
 	}
 
-	private HBox createClientMessage(MESSAGE message) {
+	private HBox createClientMessage(Message message) {
 		ClientContentType contentType = message.getContentType();
 
 		Instant instant = Instant.ofEpochSecond(message.getEpochSecond());
@@ -225,7 +225,7 @@ public class MessagingController extends GeneralController {
 		return hbox;
 	}
 
-	private void printDateLabelIfNeeded(MESSAGE msg) {
+	private void printDateLabelIfNeeded(Message msg) {
 		class MessageDateTracker {
 
 			private static String lastMessageDate = null;
@@ -269,7 +269,7 @@ public class MessagingController extends GeneralController {
 		MessageDateTracker.updatelastMessageDate(currentMessageDate);
 	}
 
-	public void printToMessageArea(MESSAGE msg, int chatSessionIndex, int activeChatSessionIndex) {
+	public void printToMessageArea(Message msg, int chatSessionIndex, int activeChatSessionIndex) {
 		if (chatSessionIndex != activeChatSessionIndex) {
 			return;
 		}
@@ -330,7 +330,7 @@ public class MessagingController extends GeneralController {
 		setVvalue(chatBoxScrollpane.getVmax());
 	}
 
-	public void notifyUser(MESSAGE message, int chatSessionIndex, int activeChatSessionIndex) {
+	public void notifyUser(Message message, int chatSessionIndex, int activeChatSessionIndex) {
 		/*
 		 * Skip notification if the user is focused on the app and the message received
 		 * originates from the chat session he is currently active in.*
@@ -430,7 +430,7 @@ public class MessagingController extends GeneralController {
 //				RootReferences.getChatsController().getActiveChatSessionIndex());
 	}
 
-	public void succesfullySentMessage(MESSAGE message, MessageDeliveryStatus status) {
+	public void succesfullySentMessage(Message message, MessageDeliveryStatus status) {
 		Threads.delay(50, () -> {
 			Platform.runLater(() -> {
 				printToMessageArea(message, message.getChatSessionIndex(), RootReferences.getChatsController().getActiveChatSessionIndex());

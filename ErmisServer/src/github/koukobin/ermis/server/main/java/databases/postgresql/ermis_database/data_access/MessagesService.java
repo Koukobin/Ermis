@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules;
+package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
@@ -43,7 +43,6 @@ public interface MessagesService extends BaseComponent, UserProfileModule {
 		int resultUpdate = 0;
 
 		try {
-
 			try (PreparedStatement deleteMessage = getConn()
 					.prepareStatement("DELETE FROM chat_messages WHERE chat_session_id=? AND message_id=?")) {
 
@@ -135,6 +134,12 @@ public interface MessagesService extends BaseComponent, UserProfileModule {
 
 			messages = new UserMessage[rowCount];
 
+			/*
+			 * TODO [2025-05-08]: Retrieving username as well as client id is simply
+			 * unnecessary and will simply degrade performance and increase strain on
+			 * database. Albeit the performance hit is probably negligible, it should still
+			 * be optimized - someday.
+			 */
 			Map<Integer, String> clientIDSToUsernames = new HashMap<>();
 
 			// reverse messages order from newest to oldest to oldest to newest

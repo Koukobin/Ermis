@@ -13,23 +13,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client.io_client;
+package github.koukobin.ermis.client.main.java.service.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import github.koukobin.ermis.client.main.java.MESSAGE;
-import github.koukobin.ermis.client.main.java.service.client.ChatRequest;
-import github.koukobin.ermis.client.main.java.service.client.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatRequest;
+import github.koukobin.ermis.client.main.java.service.client.models.ChatSession;
+import github.koukobin.ermis.client.main.java.service.client.models.Message;
 
 public class UserInfoManager {
 	public static String username;
 	public static int clientID;
 	public static byte[] accountIcon;
 	public static final Map<Integer, ChatSession> chatSessionIDSToChatSessions = new HashMap<>();
-	public static final Map<Integer, MESSAGE> pendingMessagesQueue = new HashMap<>();
+	public static final Map<Integer, Message> pendingMessagesQueue = new HashMap<>();
 	public static List<ChatSession> chatSessions = new ArrayList<>();
 	public static List<ChatRequest> chatRequests = new ArrayList<>();
 

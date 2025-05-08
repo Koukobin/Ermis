@@ -13,15 +13,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.client.main.java.service.client;
-
-import io.netty.buffer.ByteBuf;
+package github.koukobin.ermis.client.main.java.service.client.models;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public interface MessageHandler {
-    void handleMessage(ByteBuf msg);
-}
+public record ChatRequest(int clientID) {
 
+	@Override
+	public String toString() {
+		return String.valueOf("clientID:" + clientID);
+	}
+}

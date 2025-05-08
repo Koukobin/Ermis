@@ -21,8 +21,8 @@ import java.util.EnumMap;
 import java.util.ResourceBundle;
 
 import github.koukobin.ermis.client.main.java.info.entry.EntryInfo;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client;
-import github.koukobin.ermis.client.main.java.service.client.io_client.Client.BackupVerificationEntry;
+import github.koukobin.ermis.client.main.java.service.client.Client;
+import github.koukobin.ermis.client.main.java.service.client.Client.BackupVerificationEntry;
 import github.koukobin.ermis.client.main.java.util.MemoryUtil;
 import github.koukobin.ermis.client.main.java.util.UITransitions;
 import github.koukobin.ermis.client.main.java.util.dialogs.DialogsUtil;
