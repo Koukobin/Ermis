@@ -32,6 +32,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  * @author Ilias Koukovinis
@@ -40,15 +41,17 @@ import javafx.stage.Stage;
 public class MFXDialog extends MFXStageDialog {
 
 	protected static final Font defaultFont = Font.font(14);
-	
+
 	private static final BoxBlur blur = new BoxBlur(3, 3, 3);
-	
+
 	protected final MFXGenericDialog dialogContent;
-	
+
 	public MFXDialog(Stage stage, Parent rootPane) {
-		
 		dialogContent = MFXGenericDialogBuilder.build()
 				.makeScrollable(true)
+				.setOnClose(e -> super.close())
+				.setOnAlwaysOnTop(e -> super.setAlwaysOnTop(!super.isAlwaysOnTop()))
+				.setOnMinimize(e -> super.toBack())
 				.get();
 
 		super.initModality(Modality.APPLICATION_MODAL);
@@ -60,11 +63,10 @@ public class MFXDialog extends MFXStageDialog {
 
 		if (stage != null && rootPane != null) {
 			super.initOwner(stage);
-			super.setOnHidden(e -> rootPane.setEffect(null));
-			super.setOnShown(e -> rootPane.setEffect(blur));
+			super.setOnHidden((WindowEvent e) -> rootPane.setEffect(null));
+			super.setOnShown((WindowEvent e) -> rootPane.setEffect(blur));
 		}
 
-		super.setOnCloseRequest((e) -> this.close());
 		super.setContent(dialogContent);
 		super.getIcons().add(Icons.PRIMARY_APPLICATION_ICON_256);
 	}
@@ -73,23 +75,23 @@ public class MFXDialog extends MFXStageDialog {
 	public final void addActions(Map.Entry<Node, EventHandler<MouseEvent>>... actions) {
 		dialogContent.addActions(actions);
 	}
-	
+
 	public void setHeaderText(String headerText) {
 		dialogContent.setHeaderText(headerText);
 	}
-	
+
 	public void setContent(Node node) {
 		dialogContent.setContent(node);
 	}
-	
+
 	public void setContentText(String text) {
 		dialogContent.setContentText(text);
 	}
-	
+
 	public void setHeaderIcon(Node icon) {
 		dialogContent.setHeaderIcon(icon);
 	}
-	
+
 	public void addStyleClass(String style) {
 		dialogContent.getStyleClass().add(style);
 	}
