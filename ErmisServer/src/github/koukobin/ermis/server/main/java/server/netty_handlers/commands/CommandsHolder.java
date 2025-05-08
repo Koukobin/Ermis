@@ -95,6 +95,7 @@ public class CommandsHolder {
 		// Helper method to load class
 	}
 
+	@SuppressWarnings("unused")
 	private static String findDiscrepancy(List<ClientCommandType> list) {
 		StringJoiner builder = new StringJoiner(", ");
 		for (ClientCommandType type : ClientCommandType.values()) {

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules;
+package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access;
 
 import java.net.InetAddress;
 import java.sql.PreparedStatement;

@@ -32,19 +32,20 @@ import github.koukobin.ermis.common.util.FileUtils;
 import github.koukobin.ermis.server.main.java.configs.ConfigurationsPaths.Database;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.PostgreSQLDatabase;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.AccountRepository;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.AuthService;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.BackupVerificationCodesModule;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.ChangePasswordService;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.ChatRequestsHandlerModule;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.ChatSessionsManagerModule;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.MessagesService;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserCredentialsRepository;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserIpManagerService;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserProfileModule;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ChatSessionIDGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ClientIDGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.MessageIDGenerator;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.AccountRepository;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.AuthService;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.BackupVerificationCodesModule;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.ChatRequestsHandlerModule;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.ChatSessionsManagerModule;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.UserCredentialsRepository;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.UserIpManagerService;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.MessagesService;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.ChangePasswordService;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.modules.UserProfileModule;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.models.DatabaseChatMessage;
 
 /**
  * @author Ilias Koukovinis

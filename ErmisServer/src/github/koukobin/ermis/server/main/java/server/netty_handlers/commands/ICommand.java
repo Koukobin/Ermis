@@ -22,8 +22,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.UserIcon;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserProfileModule;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.models.UserIcon;
 import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
@@ -54,7 +54,7 @@ public interface ICommand {
 		ActiveClients.forActiveAccounts(clientID, action);
 	}
 
-	default void addMemberInfoToPayload(ByteBuf payload, ErmisDatabase.GeneralPurposeDBConnection conn, int clientID) {
+	default void addMemberInfoToPayload(ByteBuf payload, UserProfileModule conn, int clientID) {
 		List<ClientInfo> member = ActiveClients.getClient(clientID);
 
 		long lastUpdatedEpochSecond = conn.getWhenUserLastUpdatedProfile(clientID).orElse(Long.valueOf(-1));
@@ -84,11 +84,11 @@ public interface ICommand {
 	 * 
 	 * @param chatSession
 	 */
-	@Deprecated
 	static void refreshChatSessionStatuses(ChatSession chatSession) {
 		List<ClientInfo> activeMembers = chatSession.getActiveMembers();
 		for (int i = 0; i < activeMembers.size(); i++) {
-			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_STATUSES, activeMembers.get(i),
+			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_STATUSES, 
+					activeMembers.get(i), 
 					Unpooled.EMPTY_BUFFER);
 		}
 	}

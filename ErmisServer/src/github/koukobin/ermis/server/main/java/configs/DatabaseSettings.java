@@ -29,7 +29,7 @@ import com.password4j.HashingFunction;
 import com.password4j.ScryptFunction;
 
 import github.koukobin.ermis.common.util.FileUtils;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.complexity_checker.Requirements;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.complexity_checker.CredentialRequirements;
 
 /**
  * @author Ilias Koukovinis
@@ -102,7 +102,7 @@ public final class DatabaseSettings {
 				}
 			}
 	
-			public static final Requirements REQUIREMENTS = new Requirements();
+			public static final CredentialRequirements REQUIREMENTS = new CredentialRequirements();
 			
 			static {
 				REQUIREMENTS.setMaxLength(Integer.parseInt(CLIENT_USERNAME_PROPERTIES.getProperty("usernameMaxLength")));
@@ -126,7 +126,7 @@ public final class DatabaseSettings {
 			}
 			
 			
-			public static final Requirements REQUIREMENTS = new Requirements();
+			public static final CredentialRequirements REQUIREMENTS = new CredentialRequirements();
 			
 			static {
 				REQUIREMENTS.setMinEntropy(Float.parseFloat(CLIENT_PASSWORD_PROPERTIES.getProperty("minEntropy")));

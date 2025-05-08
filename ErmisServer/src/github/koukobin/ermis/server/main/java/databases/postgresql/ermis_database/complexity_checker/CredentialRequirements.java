@@ -21,15 +21,15 @@ import java.util.Objects;
  * @author Ilias Koukovinis
  * 
  */
-public class Requirements {
+public class CredentialRequirements {
 
 	private float minEntropy;
 	private int maxLength;
 	private String invalidCharacters;
 
-	public Requirements() {}
+	public CredentialRequirements() {}
 
-	public Requirements(float minEntropy, int maxLength, String invalidCharacters) {
+	public CredentialRequirements(float minEntropy, int maxLength, String invalidCharacters) {
 		this.minEntropy = minEntropy;
 		this.maxLength = maxLength;
 		this.invalidCharacters = invalidCharacters;
@@ -73,7 +73,7 @@ public class Requirements {
 			return false;
 		}
 
-		Requirements other = (Requirements) obj;
+		CredentialRequirements other = (CredentialRequirements) obj;
 
 		final double THRESHOLD = .0001;
 		return this.maxLength == other.maxLength

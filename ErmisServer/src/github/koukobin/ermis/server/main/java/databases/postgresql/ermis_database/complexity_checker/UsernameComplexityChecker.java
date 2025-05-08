@@ -17,35 +17,25 @@ package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databa
 
 import java.util.Objects;
 
-import github.koukobin.ermis.common.results.IsUsernameValidResult;
-import github.koukobin.ermis.common.results.ResultHolder;
-
 /**
  * @author Ilias Koukovinis
  *
  */
 public final class UsernameComplexityChecker {
 
-	private Requirements requirements;
-	
+	private CredentialRequirements requirements;
+
 	public UsernameComplexityChecker() {}
 
-	public UsernameComplexityChecker(Requirements requirements) {
+	public UsernameComplexityChecker(CredentialRequirements requirements) {
 		this.requirements = requirements;
 	}
 
-	public void setRequirements(Requirements requirements) {
+	public void setRequirements(CredentialRequirements requirements) {
 		this.requirements = requirements;
 	}
-	
-	@Deprecated
-	public ResultHolder getResultWhenUnsuccesfull() {
-		ResultHolder result = IsUsernameValidResult.REQUIREMENTS_NOT_MET.resultHolder;
-//		result.addTextToResultMessage("Requirements:\n" + requirements.toString());
-		return result;
-	}
 
-	public Requirements getRequirements() {
+	public CredentialRequirements getRequirements() {
 		return requirements;
 	}
 
@@ -60,15 +50,15 @@ public final class UsernameComplexityChecker {
 
 	@Override
 	public boolean equals(Object obj) {
-		
+
 		if (this == obj) {
 			return true;
 		}
-		
+
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}

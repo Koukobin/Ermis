@@ -51,19 +51,19 @@ public final class PasswordComplexityChecker {
 		Configuration configuration = new ConfigurationBuilder()
 				.setDictionaries(dictionaryList)
 				.createConfiguration();
-		
+
 		nbvcxz = new Nbvcxz(configuration);
 	}
 
-	private Requirements requirements;
+	private CredentialRequirements requirements;
 
 	public PasswordComplexityChecker() {}
 
-	public PasswordComplexityChecker(Requirements requirements) {
+	public PasswordComplexityChecker(CredentialRequirements requirements) {
 		this.requirements = requirements;
 	}
 
-	public void setRequirements(Requirements requirements) {
+	public void setRequirements(CredentialRequirements requirements) {
 		this.requirements = requirements;
 	}
 
@@ -71,7 +71,7 @@ public final class PasswordComplexityChecker {
 		return estimate(requirements, password);
 	}
 
-	public static boolean estimate(Requirements requirements, String password) {
+	public static boolean estimate(CredentialRequirements requirements, String password) {
 		// Check if password has exceeded minimum required entropy
 		Result result = nbvcxz.estimate(password);
 

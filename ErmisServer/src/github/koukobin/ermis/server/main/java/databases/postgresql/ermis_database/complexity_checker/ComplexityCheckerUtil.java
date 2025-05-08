@@ -25,7 +25,7 @@ final class ComplexityCheckerUtil {
 
 	private ComplexityCheckerUtil() {}
 	
-	public static boolean estimate(Requirements requirements, String string) {
+	public static boolean estimate(CredentialRequirements requirements, String string) {
 		// Check if username has exceeded minimum required entropy
 		boolean hasStringExceededMaxLength = string.length() > requirements.getMaxLength();
 
