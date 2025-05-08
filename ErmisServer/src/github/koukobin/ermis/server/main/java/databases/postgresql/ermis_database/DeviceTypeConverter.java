@@ -52,12 +52,12 @@ public final class DeviceTypeConverter {
 		databaseIntsToDeviceTypes.put(UNSPECIFIED, DeviceType.UNSPECIFIED);
 	}
 
-	static int getDeviceTypeAsDatabaseInt(DeviceType contentType) {
+	public static int getDeviceTypeAsDatabaseInt(DeviceType contentType) {
 		return deviceTypesToDatabaseInts.get(contentType);
 	}
 	
 
-	static DeviceType getDatabaseIntAsDeviceType(int contentTypeInt) {
+	public static DeviceType getDatabaseIntAsDeviceType(int contentTypeInt) {
 		return databaseIntsToDeviceTypes.get(contentTypeInt);
 	}
 }

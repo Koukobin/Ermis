@@ -28,7 +28,7 @@ import github.koukobin.ermis.common.message_types.ClientContentType;
  * 
  * @author Ilias Koukovinis
  */
-final class ContentTypeConverter {
+public final class ContentTypeConverter {
 
 	private static final int TEXT = 117; // WARNING: DO NOT CHANGE
 	private static final int FILE = 64; // WARNING: DO NOT CHANGE
@@ -52,11 +52,11 @@ final class ContentTypeConverter {
 		databaseIntsToContentTypes.put(VOICE, ClientContentType.VOICE);
 	}
 
-	static int getContentTypeAsDatabaseInt(ClientContentType contentType) {
+	public static int getContentTypeAsDatabaseInt(ClientContentType contentType) {
 		return contentTypesToDatabaseInts.get(contentType);
 	}
 
-	static ClientContentType getDatabaseIntAsContentType(int contentTypeInt) {
+	public static ClientContentType getDatabaseIntAsContentType(int contentTypeInt) {
 		return databaseIntsToContentTypes.get(contentTypeInt);
 	}
 }
