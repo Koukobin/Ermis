@@ -120,10 +120,12 @@ extension MembersExtension on DBConnection {
   }) async {
     final db = await database;
 
-    Size size = ImageUtils.resizeImage(
-      imageBytes: member.icon.profilePhoto,
-      maxWidth: 250,
-      maxHeight: 250,
+    Size size = member.icon.profilePhoto.isEmpty
+        ? const Size(0, 0)
+        : ImageUtils.resizeImage(
+            imageBytes: member.icon.profilePhoto,
+            maxWidth: 250,
+            maxHeight: 250,
     );
 
     Uint8List compressedProfile = await FlutterImageCompress.compressWithList(

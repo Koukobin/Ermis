@@ -18,6 +18,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
+import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.VoiceCallSignallingServer;
@@ -47,6 +48,7 @@ public class StartVoiceCall implements ICommand {
 
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.VOICE_CALLS.id);
+		payload.writeInt(VoiceCallMessageType.INCOMING_VOICE_CALL.id);
 		payload.writeInt(ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 		payload.writeInt(chatSessionID);
 		payload.writeInt(clientInfo.getClientID());

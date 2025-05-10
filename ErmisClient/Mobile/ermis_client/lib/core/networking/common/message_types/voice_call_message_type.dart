@@ -14,13 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 import '../../../exceptions/EnumNotFoundException.dart';
 
 enum VoiceCallMessageType {
-	incomingVoiceCall(0),
-	userJoinedVoiceCall(1);
+  incomingVoiceCall(0),
+  userJoinedVoiceCall(1);
 
   final int id;
   const VoiceCallMessageType(this.id);

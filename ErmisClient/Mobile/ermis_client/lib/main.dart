@@ -27,10 +27,8 @@ import 'package:ermis_client/core/services/database/extensions/chat_messages_ext
 import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_client/core/services/database/models/local_account_info.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
-import 'package:ermis_client/core/services/navigation_service.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
-import 'package:ermis_client/features/voice_call/voice_call.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/splash_screen/splash_screen.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
@@ -98,57 +96,11 @@ void main() async {
     themeData = ThemeMode.light;
   }
 
-
-  // Future<void> startWebRTC() async {
-  //   RTCPeerConnection peerConnection = await createPeerConnection({
-  //     'iceServers': [
-  //       {'urls': 'stun:stun.l.google.com:19302'}
-  //     ]
-  //   });
-
-  //   RTCSessionDescription offer = await peerConnection.createOffer();
-  //   await peerConnection.setLocalDescription(offer);
-
-  //   var response = await http.post(Uri.parse('http://localhost:1984/streams'),
-  //       body: jsonEncode({'sdp': offer.sdp, 'type': offer.type}),
-  //       headers: {'Content-Type': 'application/json'});
-
-  //   var answer = jsonDecode(response.body);
-  //   await peerConnection.setRemoteDescription(
-  //       RTCSessionDescription(answer['sdp'], answer['type']));
-
-  //   peerConnection.onTrack = (event) {
-  //     // Handle incoming video/audio stream
-  //   };
-  // }
-  // startWebRTC();
-
-// var options = JitsiMeetConferenceOptions(
-//       serverURL: "https://192.168.10.103/meet.hermis.org",
-//       room: "jitsiIsAwesomeWithFlutter",
-//       configOverrides: {
-//         "startWithAudioMuted": false,
-//         "startWithVideoMuted": false,
-//         "subject" : "Jitsi with Flutter",
-//       },
-//       featureFlags: {
-//         "unsaferoomwarning.enabled": false
-//       },
-//       userInfo: JitsiMeetUserInfo(
-//           displayName: "Flutter user",
-//           email: "user@example.com"
-//       ),
-//     );
-
-//   JitsiMeet().join(options);
-
-  // MyApp.main();
   runApp(_MyApp(
     lightAppColors: AppConstants.lightAppColors,
     darkAppColors: AppConstants.darkAppColors,
     themeMode: themeData,
   ));
-
 }
 
 void startBackgroundService() {
@@ -244,10 +196,12 @@ void maintainWebSocketConnection(ServiceInstance service) async {
     AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
       Member member = event.member;
 
-      NotificationService.showVoiceCallNotification(
-          icon: member.icon.profilePhoto,
-          callerName: member.username,
-          onAccept: () => VoiceCallThing.startListeningForIncomingCalls(NavigationService.currentContext));
+      // NotificationService.showVoiceCallNotification(
+      //   icon: member.icon.profilePhoto,
+      //   callerName: member.username,
+      //   onAccept: () => VoiceCallThing.startListeningForIncomingCalls(
+      //       NavigationService.currentContext),
+      // );
     });
 
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
@@ -363,10 +317,10 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       showToastDialog(S.current.connection_reset);
     });
 
-    subscribe(
-      AppEventBus.instance.on<VoiceCallIncomingEvent>(),
-      VoiceCallThing.startListeningForIncomingCalls(context),
-    );
+    // subscribe(
+    //   AppEventBus.instance.on<VoiceCallIncomingEvent>(),
+    //   VoiceCallThing.startListeningForIncomingCalls(context),
+    // );
   }
 
   @override

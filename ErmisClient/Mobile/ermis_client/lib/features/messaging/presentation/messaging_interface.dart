@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
@@ -37,6 +38,8 @@ import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:web_socket_channel/io.dart';
 
 import '../../../core/event_bus/app_event_bus.dart';
 import '../../../constants/app_constants.dart';
@@ -327,11 +330,159 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
               children: [
                 IconButton(
                   onPressed: () {
-                    VoiceCallThing.initiateVoiceCall(
-                      context,
-                      chatSessionIndex: _chatSessionIndex,
-                      chatSessionID: _chatSession.chatSessionID,
-                    );
+                    // VoiceCallThing.initiateVoiceCall(
+                    //   context,
+                    //   chatSessionIndex: _chatSessionIndex,
+                    //   chatSessionID: _chatSession.chatSessionID,
+                    // );
+                    Future<void> runSignalingCall() async {
+  final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+  client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+
+  Client.instance().commands.fetchSignallingServerPort();
+  SignallingServerPortEvent e = await AppEventBus.instance.on<SignallingServerPortEvent>().first;
+
+  // Create a WebSocket to your signaling server.
+  final channel = IOWebSocketChannel.connect(
+    Uri.parse('wss://${UserInfoManager.serverInfo.address}:${e.port}/ws'),
+    customClient: client,
+  );
+
+  print("da fuck");
+
+  MediaStream? localStream;
+  RTCPeerConnection? peerConnection;
+
+  // STUN configuration for ICE candidates.
+  final Map<String, dynamic> configuration = {
+    'iceServers': [
+      {'urls': 'stun:stun.l.google.com:19302'}
+    ]
+  };
+
+  // Helper function to send JSON messages over the WebSocket.
+  void sendMessage(Map<String, dynamic> message) {
+    channel.sink.add(jsonEncode(message));
+  }
+
+  // Listen for incoming signaling messages.
+  channel.stream.listen((data) async {
+    print("Received message: $data");
+    final message = jsonDecode(data);
+    switch (message['type']) {
+      case "offer":
+        {
+          // When an offer is received, create a peer connection if one doesn't exist.
+          if (peerConnection == null) {
+            peerConnection = await createPeerConnection(configuration);
+            // If a local stream already exists, add all its tracks to the connection.
+            if (localStream != null) {
+              localStream!.getTracks().forEach((track) {
+                peerConnection!.addTrack(track, localStream!);
+              });
+            }
+            // Listen for ICE candidates and send them.
+            peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+              if (candidate.candidate != null && candidate.candidate!.isNotEmpty) {
+                sendMessage({
+                  'type': 'candidate',
+                  'data': candidate.toMap(),
+                });
+              }
+            };
+            // Handle remote tracks.
+            peerConnection!.onTrack = (RTCTrackEvent event) {
+              if (event.streams.isNotEmpty) {
+                print("Remote stream received: ${event.streams[0].id}");
+              }
+            };
+          }
+          // Set the offer as remote description.
+          RTCSessionDescription remoteOffer = RTCSessionDescription(
+              message['data']['sdp'], message['data']['type']);
+          await peerConnection!.setRemoteDescription(remoteOffer);
+          // Create, set, and send the answer.
+          RTCSessionDescription answer = await peerConnection!.createAnswer();
+          await peerConnection!.setLocalDescription(answer);
+          sendMessage({
+            'type': 'answer',
+            'data': answer.toMap(),
+          });
+          break;
+        }
+      case "answer":
+        {
+          if (peerConnection != null) {
+            RTCSessionDescription remoteAnswer = RTCSessionDescription(
+                message['data']['sdp'], message['data']['type']);
+            await peerConnection!.setRemoteDescription(remoteAnswer);
+          }
+          break;
+        }
+      case "candidate":
+        {
+          if (peerConnection != null) {
+            final candidateMap = message['data'];
+            RTCIceCandidate candidate = RTCIceCandidate(
+              candidateMap['candidate'],
+              candidateMap['sdpMid'],
+              candidateMap['sdpMLineIndex'],
+            );
+            await peerConnection!.addCandidate(candidate);
+          }
+          break;
+        }
+      default:
+        {
+          print("Unknown message type: ${message['type']}");
+        }
+    }
+  });
+
+  // Wait until the WebSocket connection opens.
+  await Future.delayed(const Duration(seconds: 1)); // Give a brief delay to ensure connection is open.
+  print("Signaling WebSocket connected.");
+
+  // Obtain the local media stream (audio and video).
+  localStream = await navigator.mediaDevices.getUserMedia({
+    'video': true,
+    'audio': true,
+  });
+  print("Local media stream obtained: ${localStream.id}");
+
+  // Create a new RTCPeerConnection and add local media tracks.
+  peerConnection = await createPeerConnection(configuration);
+  localStream.getTracks().forEach((track) {
+    peerConnection!.addTrack(track, localStream!);
+  });
+
+  // Listen for ICE candidates and send them.
+  peerConnection?.onIceCandidate = (RTCIceCandidate candidate) {
+    if (candidate.candidate != null && candidate.candidate!.isNotEmpty) {
+      sendMessage({
+        'type': 'candidate',
+        'data': candidate.toMap(),
+      });
+    }
+  };
+
+  // Log remote tracks when received.
+  peerConnection?.onTrack = (RTCTrackEvent event) {
+    if (event.streams.isNotEmpty) {
+      print("Remote stream received: ${event.streams[0].id}");
+    }
+  };
+
+  // Create an offer, set it as local description, and send it.
+  RTCSessionDescription offer = await peerConnection!.createOffer();
+  await peerConnection?.setLocalDescription(offer);
+  sendMessage({
+    'type': 'offer',
+    'data': offer.toMap(),
+  });
+  print("Offer sent: ${offer.sdp}");
+}
+runSignalingCall();
                   },
                   icon: const Icon(Icons.phone_outlined),
                 ),

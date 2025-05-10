@@ -393,8 +393,7 @@ class CommandResultHandler {
         break;
       case ClientCommandResultType.fetchSignallingServerPort:
         int signallingServerPort = msg.readInt32();
-        Uint8List aesKey = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(SignallingServerPortEvent(signallingServerPort, aesKey));
+        _eventBus.fire(SignallingServerPortEvent(signallingServerPort));
         break;
     }
   }

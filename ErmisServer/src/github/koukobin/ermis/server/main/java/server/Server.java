@@ -15,15 +15,10 @@
  */
 package github.koukobin.ermis.server.main.java.server;
 
-import java.io.FileInputStream;
 import java.net.InetSocketAddress;
-import java.security.KeyStore;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManagerFactory;
 
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
@@ -50,16 +45,7 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.ApplicationProtocolConfig;
-import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
-import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
-import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
-import io.netty.handler.ssl.ApplicationProtocolNames;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.ssl.SslProvider;
-import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
@@ -114,10 +100,10 @@ public final class Server {
 		if (Server.isRunning.get()) {
 			throw new IllegalStateException("Server cannot start since the server is already running");
 		}
-		
+
 		try {
 			InetSocketAddress localAddress = new InetSocketAddress(ServerSettings.SERVER_ADDRESS, ServerSettings.SERVER_PORT);
-			
+
 			ServerBootstrap bootstrapTCP = new ServerBootstrap();
 			bootstrapTCP.group(bossGroup, workerGroup)
 				.channel(EpollServerSocketChannel.class)
@@ -143,45 +129,17 @@ public final class Server {
 			LOGGER.info("Server started successfully on port {} and at address {}", serverAddress.getPort(),
 					serverAddress.getHostName());
 			LOGGER.info("Waiting for new connections...");
+			
+//			VoiceCallSignallingServer.start();
+			WebRTCSignallingServer.run();
 		} catch (Exception e) {
 			LOGGER.fatal(Throwables.getStackTraceAsString(e));
 			throw new RuntimeException("Failed to start TCP server", e);
 		}
 
-		VoiceCallSignallingServer.start();
 	}
 
 	private static class ClientConnector extends ChannelInitializer<EpollSocketChannel> {
-
-		private static final SslContext sslContext;
-
-		static {
-			try {
-				char[] certificatePassword = ServerSettings.SSL.CERTIFICATE_PASSWORD.toCharArray();
-
-				KeyStore ks = KeyStore.getInstance(ServerSettings.SSL.CERTIFICATE_TYPE);
-				ks.load(new FileInputStream(ServerSettings.SSL.CERTIFICATE_LOCATION), certificatePassword);
-
-				KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-				kmf.init(ks, certificatePassword);
-
-				TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-				tmf.init(ks);
-
-				sslContext = SslContextBuilder.forServer(kmf)
-						.trustManager(tmf)
-						.protocols(ServerSettings.SSL.getEnabledProtocols())
-						.sslProvider(SslProvider.OPENSSL)
-						.ciphers(Arrays.asList(ServerSettings.SSL.getEnabledCipherSuites()), SupportedCipherSuiteFilter.INSTANCE)
-						.applicationProtocolConfig(
-								new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
-										SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_1_1))
-						.build();
-			} catch (Exception e) {
-				LOGGER.fatal(Throwables.getStackTraceAsString(e));
-				throw new RuntimeException(e);
-			}
-		}
 
 		@Override
 		public void initChannel(EpollSocketChannel ch) {
@@ -189,7 +147,7 @@ public final class Server {
 
 			// If SSL is enabled we add SSL handler first to encrypt and decrypt everything.
 			// P.S I forgot to add the if statement
-			SSLEngine engine = sslContext.newEngine(ch.alloc());
+			SSLEngine engine = SslContextProvider.sslContext.newEngine(ch.alloc());
 			engine.setUseClientMode(false);
 			pipeline.addLast("ssl", new SslHandler(engine));
 

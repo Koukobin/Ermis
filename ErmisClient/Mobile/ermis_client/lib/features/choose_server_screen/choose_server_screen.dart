@@ -224,6 +224,30 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                   ],
                 ),
                 const SizedBox(height: 30),
+
+                // SizedBox(
+                //   width: 100,
+                //   height: 300,
+                //   child: WebViewWidget(
+                //       controller: WebViewController()
+                //         ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                //         ..setNavigationDelegate(
+                //           NavigationDelegate(
+                //             onProgress: (int progress) {
+                //               // Update loading bar.
+                //             },
+                //             onPageStarted: (String url) {},
+                //             onPageFinished: (String url) {},
+                //             onHttpError: (HttpResponseError error) {},
+                //             onWebResourceError: (WebResourceError error) {},
+                //             onNavigationRequest: (NavigationRequest request) {
+                //               return NavigationDecision.navigate;
+                //             },
+                //           ),
+                //         )
+                //         ..loadRequest(Uri.parse('https://192.168.10.103:9999'))),
+                // ),
+
                 // "Connect" Button
                 ElevatedButton(
                   onPressed: _isConnectingToServer ? null : () async {

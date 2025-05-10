@@ -34,7 +34,7 @@ public class FetchSignallingPort implements ICommand {
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 		payload.writeInt(ClientCommandResultType.FETCH_VOICE_CALL_SIGNALLING_SERVER_PORT.id);
-		payload.writeInt(ServerSettings.UDP_PORT);
+		payload.writeInt(ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 
 		channel.writeAndFlush(payload);
 	}

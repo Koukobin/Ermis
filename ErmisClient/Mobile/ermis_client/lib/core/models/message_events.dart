@@ -103,8 +103,7 @@ class ServerSourceCodeEvent {
 
 class SignallingServerPortEvent {
   final int port;
-  final Uint8List aesKey;
-  const SignallingServerPortEvent(this.port, this.aesKey);
+  const SignallingServerPortEvent(this.port);
 }
 
 class ClientIdReceivedEvent {
