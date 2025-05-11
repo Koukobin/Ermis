@@ -20,8 +20,9 @@ import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
+import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.VoiceCallSignallingServer;
+import github.koukobin.ermis.server.main.java.server.WebRTCSignallingServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
 
@@ -34,15 +35,16 @@ public class StartVoiceCall implements ICommand {
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		int chatSessionIndex = args.readInt();
-		int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
-		byte[] aesKey = VoiceCallSignallingServer.createVoiceChat(chatSessionID);
+		ChatSession chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
+		int chatSessionID = chatSession.getChatSessionID();
+
+		WebRTCSignallingServer.addVoiceCall(chatSession);
 
 		{
 			ByteBuf payload = channel.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 			payload.writeInt(ClientCommandResultType.START_VOICE_CALL.id);
 			payload.writeInt(ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
-			payload.writeBytes(aesKey);
 			channel.writeAndFlush(payload);
 		}
 
@@ -52,15 +54,17 @@ public class StartVoiceCall implements ICommand {
 		payload.writeInt(ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 		payload.writeInt(chatSessionID);
 		payload.writeInt(clientInfo.getClientID());
-		payload.writeBytes(aesKey);
 
-		for (ClientInfo activeMember : clientInfo.getChatSessions().get(chatSessionIndex).getActiveMembers()) {
+		for (ClientInfo activeMember : chatSession.getActiveMembers()) {
 			if (activeMember.getClientID() == clientInfo.getClientID()) {
 				continue;
 			}
 
+			payload.retain();
 			activeMember.getChannel().writeAndFlush(payload);
 		}
+
+		payload.release();
 
 		getLogger().debug("Voice chat added");
 	}

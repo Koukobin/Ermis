@@ -33,9 +33,8 @@ public class FetchSignallingPort implements ICommand {
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
-		payload.writeInt(ClientCommandResultType.FETCH_VOICE_CALL_SIGNALLING_SERVER_PORT.id);
+		payload.writeInt(ClientCommandResultType.FETCH_VOICE_CALL_SIGNALLING_SERVER_PORT_AND_INITIATE_CALL.id);
 		payload.writeInt(ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
-
 		channel.writeAndFlush(payload);
 	}
 

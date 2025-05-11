@@ -21,12 +21,21 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.SSLEngine;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.Lists;
 
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import io.netty.bootstrap.ServerBootstrap;
@@ -213,19 +222,37 @@ public class WebRTCSignallingServer {
 		}
 	}
 
-	private static class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
+	public static void addVoiceCall(ChatSession chatSession) {
+		List<Channel> a = Lists.newArrayList();
+		for (ClientInfo member : chatSession.getActiveMembers()) {
+			WebRTCSignallingServer.WebSocketFrameHandler.calls.put(member.getInetAddress(), a);
+		}
+	}
 
-		// A thread-safe channel group to maintain active WebSocket connections.
+	public static class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
+
+		public static final Map<InetAddress, List<Channel>> calls = new ConcurrentHashMap<>();
 		private static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
 		@Override
 		public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+			if (calls.get(getInetAddressOfChannel(ctx.channel())) != null) {
+				calls.get(getInetAddressOfChannel(ctx.channel())).add(ctx.channel());
+			}
 			channels.add(ctx.channel());
 		}
 
 		@Override
 		public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+			calls.remove(getInetAddressOfChannel(ctx.channel()));
+			if (calls.get(getInetAddressOfChannel(ctx.channel())) != null) {
+				calls.get(getInetAddressOfChannel(ctx.channel())).remove(ctx.channel());
+			}
 			channels.remove(ctx.channel());
+		}
+
+		private static InetAddress getInetAddressOfChannel(Channel ch) {
+			return ((InetSocketAddress) ch.remoteAddress()).getAddress();
 		}
 
 		@Override
