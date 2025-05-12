@@ -22,7 +22,7 @@ package github.koukobin.ermis.server.main.java.configs;
 public final class LoggerSettings {
 
 	private LoggerSettings() {}
-	
+
 	public static void initializeConfigurationFile() {
 		System.setProperty("log4j2.configurationFile", ConfigurationsPaths.Logger.LOG4J_SETTINGS);
 	}

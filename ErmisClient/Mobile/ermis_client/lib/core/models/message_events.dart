@@ -144,15 +144,24 @@ class OtherAccountsEvent {
 class VoiceCallIncomingEvent {
   final int chatSessionID;
   final int chatSessionIndex;
-  final Uint8List aesKey;
   final Member member;
   final int signallingPort;
   const VoiceCallIncomingEvent({
     required this.chatSessionID,
     required this.chatSessionIndex,
-    required this.aesKey,
     required this.member,
     required this.signallingPort,
+  });
+}
+
+class VoiceCallAcceptedEvent {
+  final int chatSessionID;
+  final int chatSessionIndex;
+  final Member member;
+  const VoiceCallAcceptedEvent({
+    required this.chatSessionID,
+    required this.chatSessionIndex,
+    required this.member,
   });
 }
 

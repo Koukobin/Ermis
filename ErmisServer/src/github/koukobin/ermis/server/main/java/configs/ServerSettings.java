@@ -34,7 +34,7 @@ import github.koukobin.ermis.common.util.FileUtils;
  *
  */
 public final class ServerSettings {
-	
+
 	private static final Logger logger = LogManager.getLogger("server");
 
 	private static final Properties GENERAL_PROPERTIES;
@@ -47,15 +47,15 @@ public final class ServerSettings {
 			throw new RuntimeException(ioe);
 		}
 	}
-	
+
 	public static final boolean IS_PRODUCTION_READY = Boolean.parseBoolean(GENERAL_PROPERTIES.getProperty("isProductionReady"));
 
 	public static final String SOURCE_CODE_URL = GENERAL_PROPERTIES.getProperty("sourceCodeURL");
-	
+
 	public static final int SERVER_BACKLOG = Integer.parseInt(GENERAL_PROPERTIES.getProperty("backlog"));
 	public static final int SERVER_PORT = Integer.parseInt(GENERAL_PROPERTIES.getProperty("port"));
 	public static final String SERVER_ADDRESS = GENERAL_PROPERTIES.getProperty("address");
-	
+
 	public static final int UDP_PORT = 9090;
 	public static final int VOICE_CALL_SIGNALLING_SERVER_PORT = 9999;
 
@@ -63,18 +63,18 @@ public final class ServerSettings {
 	 * Duration before inactive clients are kicked from the server
 	 */
 	public static final int CONNECT_TIMEOUT_MILLIS = Integer.parseInt(GENERAL_PROPERTIES.getProperty("connectTimeoutMillis"));
-	
+
 	public static final int WORKER_THREADS = Integer.parseInt(GENERAL_PROPERTIES.getProperty("workerThreads"));
-	
+
 	public static final int NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME = 80;
-	
+
 	public static final int MAX_CLIENT_MESSAGE_FILE_BYTES = Integer.parseInt(GENERAL_PROPERTIES.getProperty("maxClientMessageFileBytes"));;
 	public static final int MAX_CLIENT_MESSAGE_TEXT_BYTES = Integer.parseInt(GENERAL_PROPERTIES.getProperty("maxClientMessageTextBytes"));
 
 	private ServerSettings() {}
-	
+
 	public static class SSL {
-		
+
 		private static final Properties SSL_PROPERTIES;
 
 		static {
@@ -85,22 +85,22 @@ public final class ServerSettings {
 				throw new RuntimeException(ioe);
 			}
 		}
-		
+
 		public static final String CERTIFICATE_TYPE = SSL_PROPERTIES.getProperty("key-store-type");
 		public static final String CERTIFICATE_LOCATION = SSL_PROPERTIES.getProperty("key-store");
 		public static final String CERTIFICATE_PASSWORD = new String(
 				SSL_PROPERTIES.getProperty("key-store-password")
 				.getBytes(StandardCharsets.ISO_8859_1 /* use this charset so password can contain latin characters */));
-		
+
 		private static final String[] ENABLED_PROTOCOLS = SSL_PROPERTIES.getProperty("enabled-protocols").replace(" ", "").split(",");
 		private static final String[] ENABLED_CIPHER_SUITES = SSL_PROPERTIES.getProperty("ciphers").replace(" ", "").split(",");
-		
+
 		private SSL() {}
-		
+
 		public static String[] getEnabledProtocols() {
 			return ENABLED_PROTOCOLS.clone();
 		}
-		
+
 		public static String[] getEnabledCipherSuites() {
 			return ENABLED_CIPHER_SUITES.clone();
 		}
@@ -112,15 +112,15 @@ public final class ServerSettings {
 
 		private Donations() {}
 	}
-	
+
 	public static class EmailCreator {
 
 		public static class Verification {
 
 			private Verification() {}
-			
+
 			public interface VerificationEmailTemplate {
-				
+
 				static VerificationEmailTemplate of(String userEmail, String account, String verificationCode) {
 					return new VerificationEmailTemplate() {
 
@@ -178,14 +178,14 @@ public final class ServerSettings {
 						throw new RuntimeException(ioe);
 					}
 				}
-				
+
 				private Login() {}
 
 				public static String createEmail(VerificationEmailTemplate template) {
 					return template.createEmail(VERIFICATION_EMAIL_BODY);
 				}
 			}
-			
+
 			public static class DeleteAccount {
 
 				public static final String VERIFICATION_EMAIL_BODY;
@@ -198,7 +198,7 @@ public final class ServerSettings {
 						throw new RuntimeException(ioe);
 					}
 				}
-				
+
 				private DeleteAccount() {}
 
 				public static String createEmail(VerificationEmailTemplate template) {
@@ -225,7 +225,7 @@ public final class ServerSettings {
 					return template.createEmail(VERIFICATION_EMAIL_BODY);
 				}
 			}
-			
+
 		}
 
 		private EmailCreator() {}

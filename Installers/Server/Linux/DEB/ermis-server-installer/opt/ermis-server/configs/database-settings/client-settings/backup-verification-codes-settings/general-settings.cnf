@@ -2,7 +2,6 @@ amountOfCodes=3
 amountOfCharacters=9
 
 =-=-=-=-=-=-=-=-=-=-=-=Hashing=-=-=-=-=-=-=-=-=-=-=-=-=
-
     hashLength=9
 
     =-=-=-=-=-=-=-=-=-=-=-=availableAlgorithms-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -18,4 +17,3 @@ amountOfCharacters=9
                 with a password limit of 72 bytes
 
     algorithmType=Argon2
-

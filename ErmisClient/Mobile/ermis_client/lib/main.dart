@@ -29,6 +29,8 @@ import 'package:ermis_client/core/services/database/models/local_account_info.da
 import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_client/core/util/transitions_util.dart';
+import 'package:ermis_client/features/voice_call/voice_call_webrtc.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/features/splash_screen/splash_screen.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
@@ -317,10 +319,21 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       showToastDialog(S.current.connection_reset);
     });
 
-    // subscribe(
-    //   AppEventBus.instance.on<VoiceCallIncomingEvent>(),
-    //   VoiceCallThing.startListeningForIncomingCalls(context),
-    // );
+    subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (event) {
+      NotificationService.showVoiceCallNotification(
+          icon: event.member.icon.profilePhoto,
+          callerName: event.member.username,
+          onAccept: () {
+            pushSlideTransition(
+                context,
+                VoiceCallWebrtc(
+                  chatSessionID: event.chatSessionID,
+                  chatSessionIndex: event.chatSessionIndex,
+                  member: event.member,
+                  isInitiator: false,
+                ));
+          });
+    });
   }
 
   @override

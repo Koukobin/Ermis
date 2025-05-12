@@ -37,7 +37,6 @@ class VoiceCallHandler {
         int signallingPort = msg.readInt32();
         int chatSessionID = msg.readInt32();
         int clientID = msg.readInt32();
-        Uint8List aesKey = msg.readBytes(msg.readableBytes);
 
         ChatSession session = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
 
@@ -48,14 +47,11 @@ class VoiceCallHandler {
           }
         }
 
-        if (member == null) throw Exception("What the fuck is this");
-
         _eventBus.fire(VoiceCallIncomingEvent(
+          signallingPort: signallingPort,
           chatSessionID: chatSessionID,
           chatSessionIndex: session.chatSessionIndex,
-          aesKey: aesKey,
-          member: member,
-          signallingPort: signallingPort,
+          member: member ?? session.members[0],
         ));
         break;
       case VoiceCallMessageType.userJoinedVoiceCall:
@@ -78,6 +74,26 @@ class VoiceCallHandler {
         }
 
         break;
+      case VoiceCallMessageType.acceptVoiceCall:
+        int chatSessionID = msg.readInt32();
+        int clientID = msg.readInt32();
+
+        ChatSession session = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
+
+        Member? member;
+        for (var j = 0; j < session.members.length; j++) {
+          if (session.members[j].clientID == clientID) {
+            member = session.members[j];
+          }
+        }
+
+        _eventBus.fire(VoiceCallAcceptedEvent(
+          chatSessionID: chatSessionID,
+          chatSessionIndex: session.chatSessionIndex,
+          member: member ?? session.members[0],
+        ));
+        break;
     }
   }
 }
+

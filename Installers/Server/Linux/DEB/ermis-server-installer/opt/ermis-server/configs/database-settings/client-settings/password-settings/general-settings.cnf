@@ -8,7 +8,6 @@
 =-=-=-=-=-=-=-=-=-=-=-=Hashing=-=-=-=-=-=-=-=-=-=-=-=-=
 
     passwordHashLength=16
-    passwordSaltLength=16
 
     =-=-=-=-=-=-=-=-=-=-=-=availableAlgorithms-=-=-=-=-=-=-=-=-=-=-=-=-=
         Argon2: Resistant to GPU/ASIC attacks, TMTO attacks and side channel attacks but may require a lot of resources.

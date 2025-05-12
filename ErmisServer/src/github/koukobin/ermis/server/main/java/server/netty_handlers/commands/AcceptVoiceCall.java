@@ -16,6 +16,10 @@
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
 import github.koukobin.ermis.common.message_types.ClientCommandType;
+import github.koukobin.ermis.common.message_types.ServerMessageType;
+import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
+import github.koukobin.ermis.server.main.java.configs.ServerSettings;
+import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
@@ -28,6 +32,24 @@ public class AcceptVoiceCall implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
+		int chatSessionIndex = args.readInt();
+		ChatSession chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
+		int chatSessionID = chatSession.getChatSessionID();
+
+		ByteBuf payload = channel.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.VOICE_CALLS.id);
+		payload.writeInt(VoiceCallMessageType.ACCEPT_VOICE_CALL.id);
+		payload.writeInt(chatSessionID);
+		payload.writeInt(clientInfo.getClientID());
+
+		for (ClientInfo activeMember : chatSession.getActiveMembers()) {
+			if (activeMember.getChannel().equals(clientInfo.getChannel())) {
+				continue;
+			}
+
+			payload.retain();
+			activeMember.getChannel().writeAndFlush(payload);
+		}
 	}
 
 	@Override

@@ -39,11 +39,11 @@ public final class EmailerSettings {
 
 	public static final String MAIL_SMTP_HOST = GENERAL_PROPERTIES.getProperty("mailSmtpHost");
 	public static final String MAIL_SMTP_PORT = GENERAL_PROPERTIES.getProperty("mailSmtpPort");
-	
+
 	public static final String EMAIL_USERNAME = GENERAL_PROPERTIES.getProperty("emailUsername");
 	public static final String EMAIL_PASSWORD = new String(
 			GENERAL_PROPERTIES.getProperty("emailPassword")
 			.getBytes(StandardCharsets.ISO_8859_1 /* This charset is used to ensure password can contain latin characters */));
-	
+
 	private EmailerSettings() {}
 }

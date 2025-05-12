@@ -27,10 +27,11 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  */
 public enum VoiceCallMessageType {
 	INCOMING_VOICE_CALL(0),
-	USER_JOINED_VOICE_CALL(1);
+	USER_JOINED_VOICE_CALL(1), 
+	ACCEPT_VOICE_CALL(2);
 
 	private static final HashMap<Integer, VoiceCallMessageType> values;
-	
+
 	static {
 		values = new HashMap<>(
 				Arrays.stream(VoiceCallMessageType.values())
@@ -38,11 +39,11 @@ public enum VoiceCallMessageType {
 				);
 	}
 	
-    public final int id;
+	public final int id;
 
-    VoiceCallMessageType(int id) {
-        this.id = id;
-    }
+	VoiceCallMessageType(int id) {
+		this.id = id;
+	}
 
 	public static VoiceCallMessageType fromId(int id) {
 		return EnumIntConverter.fromId(values, id);

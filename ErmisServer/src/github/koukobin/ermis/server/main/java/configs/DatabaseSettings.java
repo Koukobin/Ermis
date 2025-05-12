@@ -38,9 +38,9 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
 public final class DatabaseSettings {
 
 	private static final Logger logger = LogManager.getLogger("database");
-	
+
 	private static final Properties GENERAL_PROPERTIES;
-	
+
 	static {
 		try {
 			GENERAL_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.Database.GENERAL_SETTINGS_PATH);
@@ -55,19 +55,19 @@ public final class DatabaseSettings {
 	public static final String USER_PASSWORD = new String(
 			GENERAL_PROPERTIES.getProperty("userPassword")
 			.getBytes(StandardCharsets.ISO_8859_1 /* use this charset so password can contain latin characters */));
-	
+
 	public static final String DATABASE_ADDRESS = GENERAL_PROPERTIES.getProperty("databaseAddress");
 	public static final String DATABASE_NAME = GENERAL_PROPERTIES.getProperty("databaseName");
 	public static final int DATABASE_PORT = Integer.parseInt(GENERAL_PROPERTIES.getProperty("databasePort"));
-	
+
 	private DatabaseSettings() {}
-	
+
 	public static class Client {
 
 		private Client() {}
-		
+
 		public static class General {
-			
+
 			private static final Properties CLIENT_GENERAL_PROPERTIES;
 
 			static {
@@ -78,19 +78,19 @@ public final class DatabaseSettings {
 					throw new RuntimeException(ioe);
 				}
 			}
-			
+
 			private General() {}
-		
+
 			public static class SaltForHashing {
-				
+
 				public static final int SALT_LENGTH = Integer.parseInt(CLIENT_GENERAL_PROPERTIES.getProperty("saltLength"));
-				
+
 				private SaltForHashing() {}
 			}
 		}
-		
+
 		public static class Username {
-	
+
 			private static final Properties CLIENT_USERNAME_PROPERTIES;
 
 			static {
@@ -101,9 +101,9 @@ public final class DatabaseSettings {
 					throw new RuntimeException(ioe);
 				}
 			}
-	
+
 			public static final CredentialRequirements REQUIREMENTS = new CredentialRequirements();
-			
+
 			static {
 				REQUIREMENTS.setMaxLength(Integer.parseInt(CLIENT_USERNAME_PROPERTIES.getProperty("usernameMaxLength")));
 				REQUIREMENTS.setInvalidCharacters(CLIENT_USERNAME_PROPERTIES.getProperty("usernameInvalidCharacters"));
@@ -111,11 +111,11 @@ public final class DatabaseSettings {
 
 			private Username() {}
 		}
-	
+
 		public static class Password {
-	
+
 			private static final Properties CLIENT_PASSWORD_PROPERTIES;
-			
+
 			static {
 				try {
 					CLIENT_PASSWORD_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.Client.Password.GENERAL_SETTINGS_PATH);
@@ -124,28 +124,27 @@ public final class DatabaseSettings {
 					throw new RuntimeException(ioe);
 				}
 			}
-			
-			
+
 			public static final CredentialRequirements REQUIREMENTS = new CredentialRequirements();
-			
+
 			static {
 				REQUIREMENTS.setMinEntropy(Float.parseFloat(CLIENT_PASSWORD_PROPERTIES.getProperty("minEntropy")));
 				REQUIREMENTS.setMaxLength(Integer.parseInt(CLIENT_PASSWORD_PROPERTIES.getProperty("passwordMaxLength")));
 				REQUIREMENTS.setInvalidCharacters(CLIENT_PASSWORD_PROPERTIES.getProperty("passwordInvalidCharacters"));
 			}
-			
+
 			private Password() {}
-			
+
 			public static class Hashing {
-			
+
 				public static final int HASH_LENGTH = Integer.parseInt(CLIENT_PASSWORD_PROPERTIES.getProperty("passwordHashLength"));
-				
+
 				public static final HashingFunction HASHING_ALGORITHM = AvailableHashingAlgorithms
 						.valueOf(CLIENT_PASSWORD_PROPERTIES.getProperty("algorithmType").toUpperCase())
 						.hashingAlrgorithm;
-		
+
 				private Hashing() {}
-				
+
 				private enum AvailableHashingAlgorithms {
 					ARGON2(Argon2.HASHING_ALGORITHM), SCRYPT(Scrypt.HASHING_ALGORITHM), BCRYPT(Bcrypt.HASHING_ALGORITHM);
 
@@ -158,7 +157,7 @@ public final class DatabaseSettings {
 					private static class Argon2 {
 
 						private static final Properties ARGON2_PROPERTIES;
-		
+
 						static {
 							try {
 								ARGON2_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.Client.Password.HashingAlgorithms.ARGON2_SETTINGS_PATH);
@@ -167,21 +166,21 @@ public final class DatabaseSettings {
 								throw new RuntimeException(ioe);
 							}
 						}
-		
+
 						public static final int MEMORY = Integer.parseInt(ARGON2_PROPERTIES.getProperty("memory"));
 						public static final int ITERATIONS = Integer.parseInt(ARGON2_PROPERTIES.getProperty("iterations"));
 						public static final int PARALLELISM = Integer.parseInt(ARGON2_PROPERTIES.getProperty("parallelism"));
 						public static final com.password4j.types.Argon2 TYPE = com.password4j.types.Argon2.valueOf(ARGON2_PROPERTIES.getProperty("variation"));
-		
+
 						public static final HashingFunction HASHING_ALGORITHM = Argon2Function.getInstance(MEMORY, ITERATIONS, PARALLELISM, HASH_LENGTH, TYPE);
 
 						private Argon2() {}
 					}
-		
+
 					private static class Scrypt {
-						
+
 						private static final Properties SCRYPT_PROPERTIES;
-		
+
 						static {
 							try {
 								SCRYPT_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.Client.Password.HashingAlgorithms.SCRYPT_SETTINGS_PATH);
@@ -190,7 +189,7 @@ public final class DatabaseSettings {
 								throw new RuntimeException(ioe);
 							}
 						}
-		
+
 						public static final int WORK_FACTOR = Integer.parseInt(SCRYPT_PROPERTIES.getProperty("workFactor"));
 						public static final int RESOURCES = Integer.parseInt(SCRYPT_PROPERTIES.getProperty("resources"));
 						public static final int PARALLELIZATION = Integer.parseInt(SCRYPT_PROPERTIES.getProperty("parallelization"));
@@ -199,11 +198,11 @@ public final class DatabaseSettings {
 
 						private Scrypt() {}
 					}
-		
+
 					private static class Bcrypt {
-		
+
 						private static final Properties BCRYPT_PROPERTIES;
-		
+
 						static {
 							try {
 								BCRYPT_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.Client.Password.HashingAlgorithms.BCRYPT_SETTINGS_PATH);
@@ -212,25 +211,25 @@ public final class DatabaseSettings {
 								throw new RuntimeException(ioe);
 							}
 						}
-		
+
 						public static final com.password4j.types.Bcrypt VERSION = com.password4j.types.Bcrypt.valueOf(BCRYPT_PROPERTIES.getProperty("version"));
 						public static final int COST_FACTOR = Integer.parseInt(BCRYPT_PROPERTIES.getProperty("costFactor"));
-		
+
 						public static final HashingFunction HASHING_ALGORITHM = BcryptFunction.getInstance(VERSION, COST_FACTOR);
 
 						private Bcrypt() {}
 					}
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		public static class BackupVerificationCodes {
-			
+
 			private static final Properties CLIENT_BACKUP_VERIFICATION_CODES_PROPERTIES;
-			
+
 			static {
 				try {
 					CLIENT_BACKUP_VERIFICATION_CODES_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.BackupVerificationCodes.GENERAL_SETTINGS_PATH);
@@ -239,22 +238,22 @@ public final class DatabaseSettings {
 					throw new RuntimeException(ioe);
 				}
 			}
-			
+
 			public static final int AMOUNT_OF_CODES = Integer.parseInt(CLIENT_BACKUP_VERIFICATION_CODES_PROPERTIES.getProperty("amountOfCodes"));
 			public static final int AMOUNT_OF_CHARACTERS = Integer.parseInt(CLIENT_BACKUP_VERIFICATION_CODES_PROPERTIES.getProperty("amountOfCharacters"));
-		
+
 			private BackupVerificationCodes() {}
 
 			public static class Hashing {
-			
+
 				public static final int HASH_LENGTH = Integer.parseInt(CLIENT_BACKUP_VERIFICATION_CODES_PROPERTIES.getProperty("hashLength"));
-				
+
 				public static final HashingFunction HASHING_ALGORITHM = AvailableHashingAlgorithms
 						.valueOf(CLIENT_BACKUP_VERIFICATION_CODES_PROPERTIES.getProperty("algorithmType").toUpperCase())
 						.hashingAlrgorithm;
-		
+
 				private Hashing() {}
-				
+
 				private enum AvailableHashingAlgorithms {
 					ARGON2(Argon2.HASHING_ALGORITHM), SCRYPT(Scrypt.HASHING_ALGORITHM), BCRYPT(Bcrypt.HASHING_ALGORITHM);
 
@@ -265,9 +264,9 @@ public final class DatabaseSettings {
 					}
 
 					private static class Argon2 {
-						
+
 						private static final Properties ARGON2_PROPERTIES;
-		
+
 						static {
 							try {
 								ARGON2_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.BackupVerificationCodes.HashingAlgorithms.ARGON2_SETTINGS_PATH);
@@ -276,21 +275,21 @@ public final class DatabaseSettings {
 								throw new RuntimeException(ioe);
 							}
 						}
-		
+
 						public static final int MEMORY = Integer.parseInt(ARGON2_PROPERTIES.getProperty("memory"));
 						public static final int ITERATIONS = Integer.parseInt(ARGON2_PROPERTIES.getProperty("iterations"));
 						public static final int PARALLELISM = Integer.parseInt(ARGON2_PROPERTIES.getProperty("parallelism"));
 						public static final com.password4j.types.Argon2 TYPE = com.password4j.types.Argon2.valueOf(ARGON2_PROPERTIES.getProperty("variation"));
-		
+
 						public static final HashingFunction HASHING_ALGORITHM = Argon2Function.getInstance(MEMORY, ITERATIONS, PARALLELISM, HASH_LENGTH, TYPE);
 
 						private Argon2() {}
 					}
-		
+
 					private static class Scrypt {
-						
+
 						private static final Properties SCRYPT_PROPERTIES;
-		
+
 						static {
 							try {
 								SCRYPT_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.BackupVerificationCodes.HashingAlgorithms.SCRYPT_SETTINGS_PATH);
@@ -299,20 +298,20 @@ public final class DatabaseSettings {
 								throw new RuntimeException(ioe);
 							}
 						}
-		
+
 						public static final int WORK_FACTOR = Integer.parseInt(SCRYPT_PROPERTIES.getProperty("workFactor"));
 						public static final int RESOURCES = Integer.parseInt(SCRYPT_PROPERTIES.getProperty("resources"));
 						public static final int PARALLELIZATION = Integer.parseInt(SCRYPT_PROPERTIES.getProperty("parallelization"));
-		
+
 						public static final HashingFunction HASHING_ALGORITHM = ScryptFunction.getInstance(WORK_FACTOR,RESOURCES, PARALLELIZATION, HASH_LENGTH);
 
 						private Scrypt() {}
 					}
-		
+
 					private static class Bcrypt {
-		
+
 						private static final Properties BCRYPT_PROPERTIES;
-		
+
 						static {
 							try {
 								BCRYPT_PROPERTIES = FileUtils.readPropertiesFile(ConfigurationsPaths.BackupVerificationCodes.HashingAlgorithms.BCRYPT_SETTINGS_PATH);
@@ -321,27 +320,27 @@ public final class DatabaseSettings {
 								throw new RuntimeException(ioe);
 							}
 						}
-		
+
 						public static final com.password4j.types.Bcrypt VERSION = com.password4j.types.Bcrypt.valueOf(BCRYPT_PROPERTIES.getProperty("version"));
 						public static final int COST_FACTOR = Integer.parseInt(BCRYPT_PROPERTIES.getProperty("costFactor"));
-		
+
 						public static final HashingFunction HASHING_ALGORITHM = BcryptFunction.getInstance(VERSION, COST_FACTOR);
 
 						private Bcrypt() {}
 					}
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	public static class ConnectionPool {
 
 		private static final Properties POOLING_SETTINGS;
-		
+
 		static {
 			try {
 				POOLING_SETTINGS = FileUtils.readPropertiesFile(ConfigurationsPaths.Database.POOLING_SETTINGS_PATH);
@@ -350,17 +349,17 @@ public final class DatabaseSettings {
 				throw new RuntimeException(ioe);
 			}
 		}
-		
+
 		public static class GeneralPurposePool {
-			
+
 			public static final int MIN_IDLE = Integer.parseInt(POOLING_SETTINGS.getProperty("generalPurposePoolMinIdle"));
 			public static final int MAX_POOL_SIZE = Integer.parseInt(POOLING_SETTINGS.getProperty("generalPurposePoolMaxPoolSize"));
-			
+
 			private GeneralPurposePool() {}
 		}
-		
+
 		public static class WriteChatMessagesPool {
-			
+
 			public static final int MIN_IDLE = Integer.parseInt(POOLING_SETTINGS.getProperty("writeChatMessagesPoolMinIdle"));
 			public static final int MAX_POOL_SIZE = Integer.parseInt(POOLING_SETTINGS.getProperty("writeChatMessagesPoolMaxPoolSize"));
 
@@ -369,11 +368,11 @@ public final class DatabaseSettings {
 
 		private ConnectionPool() {}
 	}
-	
+
 	public static class Driver {
 
 		private static final Properties DRIVER_SETTINGS;
-		
+
 		static {
 			try {
 				DRIVER_SETTINGS = FileUtils.readPropertiesFile(ConfigurationsPaths.Database.DRIVER_SETTINGS_PATH);
@@ -384,7 +383,7 @@ public final class DatabaseSettings {
 		}
 
 		private Driver() {}
-		
+
 		public static Properties getDriverProperties() {
 			return (Properties) DRIVER_SETTINGS.clone();
 		}

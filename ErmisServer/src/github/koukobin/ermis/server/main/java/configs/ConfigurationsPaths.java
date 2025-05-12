@@ -30,11 +30,11 @@ import github.koukobin.ermis.server.main.java.util.PropertiesUtil;
  */
 public final class ConfigurationsPaths {
 
-    private static final Properties properties = new Properties();
+	private static final Properties properties = new Properties();
 
     private ConfigurationsPaths() {}
-    
-    static {
+
+	static {
 		try (InputStream input = ConfigurationsPaths.class.getResourceAsStream("/github/koukobin/ermis/server/main/resources/config.properties")) {
 			properties.load(input);
 			PropertiesUtil.resolvePlaceholders(properties);
@@ -85,95 +85,93 @@ public final class ConfigurationsPaths {
 		private Donations() {}
 	}
 
-    public static class Emailer {
-        public static final String EMAILER_SETTINGS_PATH = getProperty("emailer.settings.path");
-        public static final String GENERAL_SETTINGS_PATH = getProperty("emailer.general.settings.path");
+	public static class Emailer {
+		public static final String EMAILER_SETTINGS_PATH = getProperty("emailer.settings.path");
+		public static final String GENERAL_SETTINGS_PATH = getProperty("emailer.general.settings.path");
 
-        private Emailer() {}
-    }
+		private Emailer() {}
+	}
 
-    public static class EmailCreator {
-        public static class Verification {
+	public static class EmailCreator {
+		public static class Verification {
             public static final String LOGIN_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.login.body.path");
             public static final String CREATE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.create_account.body.path");
 			public static final String DELETE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.delete_account.body.path");
 
-            
             private Verification() {}
-        }
+		}
 
         private EmailCreator() {}
-    }
+	}
 
-    public static class UserFilesStorage {
+	public static class UserFilesStorage {
         public static final String ROOT_FOLDER = getProperty("user.files.storage.root.folder");
         public static final String PROFILE_PHOTOS_DIRECTORY = getProperty("user.files.storage.profile.photos.directory");
         public static final String SENT_FILES_DIRECTORY = getProperty("user.files.storage.sent.files.directory");
 
-        static {
-            createDirectory(PROFILE_PHOTOS_DIRECTORY);
-            createDirectory(SENT_FILES_DIRECTORY);
-        }
+		static {
+			createDirectory(PROFILE_PHOTOS_DIRECTORY);
+			createDirectory(SENT_FILES_DIRECTORY);
+		}
 
-        private UserFilesStorage() {}
-    }
+		private UserFilesStorage() {}
+	}
 
 	public static class Database {
 		public static final String DATABASE_SETUP_FILE = "/github/koukobin/ermis/server/main/resources/ermis_database/sql/database_setup.sql";
 		public static final String DATABASE_SETTINGS_PATH = getProperty("database.settings.path");
-        public static final String GENERAL_SETTINGS_PATH = getProperty("database.general.settings.path");
-        public static final String DRIVER_SETTINGS_PATH = getProperty("database.driver.settings.path");
-        public static final String POOLING_SETTINGS_PATH = getProperty("database.pooling.settings.path");
+		public static final String GENERAL_SETTINGS_PATH = getProperty("database.general.settings.path");
+		public static final String DRIVER_SETTINGS_PATH = getProperty("database.driver.settings.path");
+		public static final String POOLING_SETTINGS_PATH = getProperty("database.pooling.settings.path");
 
-        private Database() {}
-    }
-    
-    public static class Client {
-    	public static final String CLIENT_SETTINGS_PATH = getProperty("database.client.settings.path");
-    	public static final String GENERAL_SETTINGS_PATH = getProperty("database.client.general.settings.path");
-    	public static final String USERNAME_SETTINGS_PATH = getProperty("database.client.username.settings.path");
-    	
-    	public static class Password {
-    		public static final String PASSWORD_SETTINGS_PATH = getProperty("database.client.password.settings.path");
-    		public static final String GENERAL_SETTINGS_PATH = getProperty("database.client.password.general.settings.path");
-    		
+		private Database() {}
+	}
+
+	public static class Client {
+		public static final String CLIENT_SETTINGS_PATH = getProperty("database.client.settings.path");
+		public static final String GENERAL_SETTINGS_PATH = getProperty("database.client.general.settings.path");
+		public static final String USERNAME_SETTINGS_PATH = getProperty("database.client.username.settings.path");
+
+		public static class Password {
+			public static final String PASSWORD_SETTINGS_PATH = getProperty("database.client.password.settings.path");
+			public static final String GENERAL_SETTINGS_PATH = getProperty("database.client.password.general.settings.path");
+
     		public static class HashingAlgorithms {
     			public static final String HASHING_ALGORITHMS_SETTINGS_PATH = getProperty("database.client.password.hashing.algorithms.path");
     			public static final String ARGON2_SETTINGS_PATH = getProperty("database.client.password.hashing.argon2.path");
     			public static final String BCRYPT_SETTINGS_PATH = getProperty("database.client.password.hashing.bcrypt.path");
     			public static final String SCRYPT_SETTINGS_PATH = getProperty("database.client.password.hashing.scrypt.path");
-    			
-    			private HashingAlgorithms() {}
-    		}
-    		
-    		private Password() {}
-    	}
-    	
-    	
-    	private Client() {}
-    }
-    
-    public static class BackupVerificationCodes {
+
+				private HashingAlgorithms() {}
+			}
+
+			private Password() {}
+		}
+
+		private Client() {}
+	}
+
+	public static class BackupVerificationCodes {
     	public static final String BACKUP_VERIFICATION_CODES_SETTINGS_PATH = getProperty("database.client.backup.verification.codes.settings.path");
     	public static final String GENERAL_SETTINGS_PATH = getProperty("database.client.backup.verification.codes.general.settings.path");
-    	
-    	public static class HashingAlgorithms {
+
+		public static class HashingAlgorithms {
     		public static final String HASHING_ALGORITHMS_SETTINGS_PATH = getProperty("database.client.backup.verification.codes.hashing.algorithms.path");
     		public static final String ARGON2_SETTINGS_PATH = getProperty("database.client.backup.verification.codes.hashing.argon2.path");
     		public static final String BCRYPT_SETTINGS_PATH = getProperty("database.client.backup.verification.codes.hashing.bcrypt.path");
     		public static final String SCRYPT_SETTINGS_PATH = getProperty("database.client.backup.verification.codes.hashing.scrypt.path");
-    		
+
     		private HashingAlgorithms() {}
-    	}
-    	
+		}
+
     	private BackupVerificationCodes() {}
-    }
+	}
 
-    public static class Logger {
-        public static final String LOGGER_SETTINGS = getProperty("logger.settings");
-        public static final String LOG4J_SETTINGS = getProperty("logger.log4j.settings");
+	public static class Logger {
+		public static final String LOGGER_SETTINGS = getProperty("logger.settings");
+		public static final String LOG4J_SETTINGS = getProperty("logger.log4j.settings");
 
-        private Logger() {}
-    }
+		private Logger() {}
+	}
 
 }
