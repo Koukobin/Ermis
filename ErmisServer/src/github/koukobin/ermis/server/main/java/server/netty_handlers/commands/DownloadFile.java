@@ -56,20 +56,22 @@ public class DownloadFile implements ICommand {
 			case IMAGE -> {
 				payload.writeInt(ClientCommandResultType.DOWNLOAD_IMAGE.id);
 
-				// Include the message ID of the image so the client can add it to the correct message
+				// Include the message ID of the file so the
+				// client can associate it to the correct message
 				payload.writeInt(messageID);
 			}
 			case FILE -> {
 				payload.writeInt(ClientCommandResultType.DOWNLOAD_FILE.id);
-				// Unlike with downloading images, there is no need to specify message id for
-				// file
-				// downloads, since the client will save the file directly to the file system
-				// without needing to associate it to a specific message.
+
+				// Include the message ID of the file so the
+				// client can associate it to the correct message
+				payload.writeInt(messageID);
 			}
 			case VOICE -> {
 				payload.writeInt(ClientCommandResultType.DOWNLOAD_VOICE.id);
 
-				// Include the message ID of the image so the client can add it to the correct message
+				// Include the message ID of the file so the
+				// client can associate it to the correct message
 				payload.writeInt(messageID);
 			}
 			default -> {

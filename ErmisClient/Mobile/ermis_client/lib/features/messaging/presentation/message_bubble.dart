@@ -188,57 +188,90 @@ class MessageBubble extends StatelessWidget {
           maxLines: null,
         );
       case MessageContentType.file:
-        return Row(
-          // Occupy as little space as possible
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: appColors.secondaryColor.withAlpha(100),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Client.instance().commands.downloadFile(
-                                message.messageID, message.chatSessionIndex);
-                          },
-                          child: const Icon(Icons.download),
-                        ),
-                        const SizedBox(width: 5),
-                        Flexible(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                message.fileName,
-                                softWrap: true, // Enable text wrapping
-                                overflow: TextOverflow.clip,
-                                maxLines: null,
-                              ),
-                              Text(S.current.unknown_size),
-                            ],
+        final hasDownloaded = message.fileBytes != null;
+        bool isDownloading = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+          return Row(
+            // Occupy as little space as possible
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: appColors.secondaryColor.withAlpha(100),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              if (!hasDownloaded) {
+                                setState(() {
+                                  isDownloading = true;
+                                });
+                                Client.instance().commands.downloadFile(
+                                      message.messageID,
+                                      message.chatSessionIndex,
+                                    );
+                                return;
+                              }
+
+                              String? filePath = await saveFileToDownloads(message.fileName, message.fileBytes!);
+
+                              if (filePath != null) {
+                                showSnackBarDialog(
+                                  context: context,
+                                  content: S.current.downloaded_file,
+                                );
+                                return;
+                              }
+
+                              showExceptionDialog(
+                                context,
+                                S.current.error_saving_file,
+                              );
+                            },
+                            child: isDownloading
+                                ? Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: const CircularProgressIndicator(),
+                                  )
+                                : const Icon(Icons.download),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 5),
+                          Flexible(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  message.fileName,
+                                  softWrap: true, // Enable text wrapping
+                                  overflow: TextOverflow.clip,
+                                  maxLines: null,
+                                ),
+                                Text(S.current.unknown_size),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Text(
-                    message.fileName,
-                    softWrap: true, // Enable text wrapping
-                    overflow: TextOverflow.clip,
-                    maxLines: null,
-                  ),
-                ],
+                    Text(
+                      message.fileName,
+                      softWrap: true, // Enable text wrapping
+                      overflow: TextOverflow.clip,
+                      maxLines: null,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        );
+            ],
+          );
+        });
       case MessageContentType.image:
         final image = message.fileBytes == null
             ? null

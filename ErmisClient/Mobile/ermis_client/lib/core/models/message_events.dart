@@ -71,7 +71,8 @@ class ServerMessageInfoEvent {
 
 class FileDownloadedEvent {
   final LoadedInMemoryFile file;
-  const FileDownloadedEvent(this.file);
+  final int messageID;
+  const FileDownloadedEvent(this.file, this.messageID);
 }
 
 class ImageDownloadedEvent {

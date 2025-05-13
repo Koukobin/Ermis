@@ -46,13 +46,14 @@ class CommandResultHandler {
   static Future<void> handle(ClientCommandResultType commandResult, ByteBuf msg) async {
     switch (commandResult) {
       case ClientCommandResultType.downloadFile:
+        final messageID = msg.readInt32();
         final fileNameLength = msg.readInt32();
         final fileNameBytes = msg.readBytes(fileNameLength);
         final fileBytes = msg.readBytes(msg.readableBytes);
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
-        _eventBus.fire(FileDownloadedEvent(file));
+        _eventBus.fire(FileDownloadedEvent(file, messageID));
         break;
       case ClientCommandResultType.downloadImage:
         final messageID = msg.readInt32();
