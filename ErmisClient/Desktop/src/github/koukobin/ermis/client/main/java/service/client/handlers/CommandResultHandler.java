@@ -50,6 +50,8 @@ public class CommandResultHandler implements MessageHandler {
 
 		switch (commandResult) {
 		case DOWNLOAD_FILE -> {
+			int messageID = msg.readInt();
+
 			byte[] fileNameBytes = new byte[msg.readInt()];
 			msg.readBytes(fileNameBytes);
 

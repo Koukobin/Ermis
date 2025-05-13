@@ -172,6 +172,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
     });
 
     subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) async {
+      _updateFileMessage(event.file, event.messageID);
+
       LoadedInMemoryFile file = event.file;
       String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
 

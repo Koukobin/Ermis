@@ -3,8 +3,11 @@
     <!-- Adds the Internet permission here -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <!-- Adds the Camera permission here -->
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- Add Vibration permission -->
@@ -12,6 +15,7 @@
 
     <!-- Audio recording -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!-- Notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />

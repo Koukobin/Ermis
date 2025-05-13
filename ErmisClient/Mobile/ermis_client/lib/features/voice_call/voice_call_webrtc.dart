@@ -72,7 +72,7 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
     
     Future(() async {
       final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
-      client.badCertificateCallback =  (X509Certificate cert, String host, int port) => true;
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
       Client.instance().commands.fetchSignallingServerPort();
       SignallingServerPortEvent e = await AppEventBus.instance.on<SignallingServerPortEvent>().first;
@@ -83,10 +83,9 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
         customClient: client,
       );
 
-      listen();
+      await listen();
+      _bruh();
     });
-
-    _bruh();
   }
 
   /// Helper function to send JSON messages over the WebSocket.
@@ -94,7 +93,7 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
     channel!.sink.add(jsonEncode(message));
   }
 
-  void listen() async {
+  Future<void> listen() async {
     // Listen for incoming signaling messages.
     channel!.stream.listen((data) async {
       final message = jsonDecode(data);
@@ -184,6 +183,23 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
       'audio': true,
     });
     print("Local media stream obtained: ${localStream!.id}");
+
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (!mounted) timer.cancel();
+      if (localStream == null) return;
+
+      double totalRMS = 0;
+
+      for (final track in localStream!.getAudioTracks()) {
+        callStatus = CallStatus.active;
+        // ByteBuffer currentFrame = await track.captureFrame();
+        // totalRMS += calculateRMS(currentFrame.asUint8List());
+      }
+
+      setState(() {
+        rms = totalRMS;
+      });
+    });
   }
 
   Future<void> _bruh() async {
@@ -194,6 +210,7 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
 
     Client.instance().commands.startVoiceCall(widget.chatSessionIndex);
 
+    // TODO: SHOULD NOT SUBSCRIBE, AWAIT FOR THE FIRST ONE INSTEAD
     subscribe(AppEventBus.instance.on<VoiceCallAcceptedEvent>(), (event) async {
       peerConnection = await createPeerConnection(configuration);
 
@@ -236,23 +253,6 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
         'data': offer.toMap(),
       });
       print("Offer sent: ${offer.sdp}");
-
-      Timer.periodic(const Duration(seconds: 1), (timer) async {
-        if (!mounted) timer.cancel();
-        if (localStream == null) return;
-
-        double totalRMS = 0;
-
-        for (final track in localStream!.getAudioTracks()) {
-          callStatus = CallStatus.active;
-          // ByteBuffer currentFrame = await track.captureFrame();
-          // totalRMS += calculateRMS(currentFrame.asUint8List());
-        }
-
-        setState(() {
-          rms = totalRMS;
-        });
-      });
     });
   }
 
