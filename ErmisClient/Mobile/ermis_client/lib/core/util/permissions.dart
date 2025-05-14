@@ -20,6 +20,7 @@ import 'dart:async';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'dialogs_utils.dart';
@@ -42,10 +43,17 @@ Future<(bool, List<Permission>?)> checkAndRequestPermissions(List<Permission> pe
 }
 
 Future<bool> checkAndRequestPermission(Permission permission) async {
-  if (await permission.request().isPermanentlyDenied ||
-      await permission.request().isDenied) {
-    return false;
+  try {
+    if (await permission.request().isPermanentlyDenied ||
+        await permission.request().isDenied) {
+      return false;
+    }
+  } on PlatformException {
+    // Evaluate to true by default; this may
+    // occur while in background service
+    return true;
   }
+
   return true;
 }
 

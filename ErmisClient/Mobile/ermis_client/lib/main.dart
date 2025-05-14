@@ -15,6 +15,7 @@
  */
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:ermis_client/core/data_sources/api_client.dart';
@@ -27,6 +28,7 @@ import 'package:ermis_client/core/services/database/extensions/chat_messages_ext
 import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_client/core/services/database/models/local_account_info.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:ermis_client/core/services/navigation_service.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
@@ -190,20 +192,27 @@ void maintainWebSocketConnection(ServiceInstance service) async {
         message: msg,
       );
 
+      // Display notification only if message does not originate from one's self
+      if (msg.clientID == Client.instance().clientID) return;
+
       handleChatMessageNotificationBackground(chatSession, msg, settingsJson, (String text) {
         Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex);
       });
     });
 
     AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
-      Member member = event.member;
-
-      // NotificationService.showVoiceCallNotification(
-      //   icon: member.icon.profilePhoto,
-      //   callerName: member.username,
-      //   onAccept: () => VoiceCallThing.startListeningForIncomingCalls(
-      //       NavigationService.currentContext),
-      // );
+      NotificationService.showVoiceCallNotification(
+          icon: event.member.icon.profilePhoto,
+          callerName: event.member.username,
+          payload: jsonEncode({
+            'chatSessionID': event.chatSessionID,
+            'chatSessionIndex': event.chatSessionIndex,
+            'member': jsonEncode(event.member.toJson()),
+            'isInitiator': false,
+          }),
+          onAccept: () {
+            // Won't get called since app will be brought from background to foreground
+          });
     });
 
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");

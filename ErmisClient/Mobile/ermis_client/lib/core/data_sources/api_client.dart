@@ -32,7 +32,6 @@ import 'package:ermis_client/features/authentication/domain/entities/resultable.
 import 'package:flutter/foundation.dart';
 
 import '../networking/common/results/change_password_result.dart';
-import '../services/database/database_service.dart';
 import '../models/chat_request.dart';
 import '../models/chat_session.dart';
 import '../../features/authentication/domain/entities/added_info.dart';

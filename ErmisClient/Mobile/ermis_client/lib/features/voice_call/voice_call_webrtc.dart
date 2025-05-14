@@ -93,7 +93,7 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
       // Create a WebSocket to your signaling server.
       channel = IOWebSocketChannel.connect(
-        Uri.parse('wss://${UserInfoManager.serverInfo.address.host}:${e.port}/ws'),
+        Uri.parse('wss://${UserInfoManager.serverInfo.address!.host}:${e.port}/ws'),
         customClient: client,
       );
 

@@ -251,6 +251,10 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                 // "Connect" Button
                 ElevatedButton(
                   onPressed: _isConnectingToServer ? null : () async {
+                    // Reset information to ensure nothing leaks from previous sessions
+                    UserInfoManager.resetServerInformation();
+                    UserInfoManager.resetUserInformation();
+                    
                     Uri url = Uri.parse(serverUrl!);
                     setState(() => _isConnectingToServer = true);
 

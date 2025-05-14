@@ -147,6 +147,7 @@ class VoiceCallIncomingEvent {
   final int chatSessionIndex;
   final Member member;
   final int signallingPort;
+
   const VoiceCallIncomingEvent({
     required this.chatSessionID,
     required this.chatSessionIndex,

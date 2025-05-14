@@ -18,13 +18,13 @@ import 'dart:io';
 
 class ServerInfo {
   final Uri _serverUrl;
-  final InternetAddress _address;
-  final int _port;
+  final InternetAddress? _address;
+  final int? _port;
   DateTime lastUsed;
 
   ServerInfo.empty()
       : _serverUrl = Uri(),
-        _address = InternetAddress("localhost"),
+        _address = null,
         _port = -1,
         lastUsed = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -47,8 +47,8 @@ class ServerInfo {
   ServerInfo._(this._serverUrl, this._address, this._port, this.lastUsed);
 
   Uri get serverUrl => _serverUrl;
-  InternetAddress get address => _address;
-  int get port => _port;
+  InternetAddress? get address => _address;
+  int? get port => _port;
 
   Map<String, Object?> toMap() {
     return {

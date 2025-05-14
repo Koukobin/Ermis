@@ -14,12 +14,26 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:convert';
+
 import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_client/core/data_sources/api_client.dart';
+import 'package:ermis_client/core/models/member.dart';
+import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
+import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_client/core/util/permissions.dart';
+import 'package:ermis_client/core/util/transitions_util.dart';
+import 'package:ermis_client/features/voice_call/voice_call_webrtc.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../networking/common/message_types/client_status.dart';
+import '../services/database/database_service.dart';
+import '../services/database/models/local_account_info.dart';
+import '../services/database/models/server_info.dart';
 import '../services/navigation_service.dart';
 import 'dialogs_utils.dart';
 
@@ -42,9 +56,11 @@ enum NotificationAction {
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  static ReplyCallBack? replyCallBack;
-  static VoidCallback? voiceCall;
 
+  static ReplyCallBack? _replyCallBack;
+  static VoidCallback? _voiceCall;
+
+  @pragma('vm:entry-point')
   static Future<void> onDidReceiveNotification(NotificationResponse response) async {
     String? actionId = response.actionId;
     if (actionId == null) {
@@ -54,7 +70,52 @@ class NotificationService {
     NotificationAction na = NotificationAction.fromId(actionId);
     switch (na) {
       case NotificationAction.acceptVoiceCall:
-        voiceCall?.call();
+        if (response.payload == null || response.payload!.trim().isEmpty) {
+          _voiceCall?.call();
+          return;
+        }
+
+        dynamic data = jsonDecode(response.payload!);
+
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          final DBConnection conn = ErmisDB.getConnection();
+          ServerInfo serverInfo = await conn.getServerUrlLastUsed();
+
+          await Client.instance().initialize(
+            serverInfo.serverUrl,
+            ServerCertificateVerification
+                .ignore, // Since user connected once he has no issue connecting again
+          );
+
+          await Client.instance().readServerVersion();
+          Client.instance().startMessageDispatcher();
+
+          LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
+          if (userInfo == null) {
+            return;
+          }
+
+          bool success = await Client.instance().attemptHashedLogin(userInfo);
+
+          if (!success) {
+            return;
+          }
+
+          await Client.instance().fetchUserInformation();
+          Client.instance().commands.setAccountStatus(ClientStatus.offline);
+
+          await Future.delayed(const Duration(seconds: 10)); // Await until first screen builds
+
+          pushSlideTransition(
+            NavigationService.currentContext,
+            VoiceCallWebrtc(
+              chatSessionID: data['chatSessionID'],
+              chatSessionIndex: data['chatSessionIndex'],
+              member: Member.fromJson(jsonDecode(data['member'])),
+              isInitiator: data['isInitiator'],
+            ),
+          );
+        });
         break;
       case NotificationAction.ignoreVoiceCall:
         // Do nothing
@@ -65,7 +126,7 @@ class NotificationService {
           return;
         }
 
-        replyCallBack!(input);
+        _replyCallBack?.call(input);
         break;
       case NotificationAction.markAsRead:
         // To be implemented in the future
@@ -91,6 +152,11 @@ class NotificationService {
       onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
       onDidReceiveNotificationResponse: onDidReceiveNotification,
     );
+
+    NotificationAppLaunchDetails? details = await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+    if (details != null && details.notificationResponse != null) {
+      onDidReceiveNotification(details.notificationResponse!);
+    }
 
     // // Request notification permission for android
     // await flutterLocalNotificationsPlugin
@@ -165,18 +231,19 @@ class NotificationService {
     required Uint8List icon,
     required String callerName,
     required VoidCallback onAccept,
+    String? payload,
   }) async {
     if (!await checkAndRequestPermission(Permission.notification)) {
       showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
       return;
     }
 
-    voiceCall = onAccept;
+    _voiceCall = onAccept;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: AndroidNotificationDetails(
-        'your_channel_id',
-        'your_channel_name', 
-        channelDescription: 'Detailed notification example',
+        'voice_call_channel_id',
+        'Voice Call Notifications', 
+        channelDescription: 'Channel for incoming calls',
         importance: Importance.high,
         priority: Priority.high,
         // largeIcon: ByteArrayAndroidBitmap(icon), For some reason causes notification not to show in release mode
@@ -200,7 +267,7 @@ class NotificationService {
       ),
     );
 
-    return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, '$callerName is calling...', platformChannelSpecifics);
+    return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, '$callerName is calling...', platformChannelSpecifics, payload: payload);
   }
 
 
@@ -218,7 +285,7 @@ class NotificationService {
       return;
     }
 
-    NotificationService.replyCallBack = replyCallBack;
+    _replyCallBack = replyCallBack;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
       'your_channel_id',

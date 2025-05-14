@@ -16,7 +16,11 @@
 
 import 'package:ermis_client/core/models/member_icon.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'member.g.dart';
+
+@JsonSerializable()
 class Member {
   String username;
   int clientID;
@@ -39,6 +43,9 @@ class Member {
         username == other.username &&
         status == other.status;
   }
+
+  factory Member.fromJson(Map<String, dynamic> json) => _$MemberFromJson(json);
+  Map<String, dynamic> toJson() => _$MemberToJson(this);
 
   @override
   String toString() => '$username@$clientID';

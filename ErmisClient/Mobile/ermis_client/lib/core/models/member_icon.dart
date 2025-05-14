@@ -14,11 +14,30 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
+part 'member_icon.g.dart';
+
+class Uint8ListConverter implements JsonConverter<Uint8List, String> {
+  const Uint8ListConverter();
+
+  @override
+  Uint8List fromJson(String json) {
+    return base64Decode(json);
+  }
+
+  @override
+  String toJson(Uint8List object) {
+    return base64Encode(object);
+  }
+}
+
+@JsonSerializable()
 class MemberIcon {
+  @Uint8ListConverter()
   final Uint8List profilePhoto;
   const MemberIcon(this.profilePhoto);
 
@@ -34,4 +53,7 @@ class MemberIcon {
 
     return profilePhoto == other.profilePhoto;
   }
+
+  factory MemberIcon.fromJson(Map<String, dynamic> json) => _$MemberIconFromJson(json);
+  Map<String, dynamic> toJson() => _$MemberIconToJson(this);
 }
