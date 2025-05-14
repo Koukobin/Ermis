@@ -1,3 +1,18 @@
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 import 'dart:async';
 import 'dart:convert';
@@ -6,7 +21,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:web_socket_channel/io.dart';
@@ -48,7 +62,7 @@ class VoiceCallWebrtc extends StatefulWidget {
   State<StatefulWidget> createState() => VoiceCallWebrtcState();
 }
 
-class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscriptionMixin {
+class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   /// STUN configuration for ICE candidates.
   static const Map<String, dynamic> configuration = {
     'iceServers': [
@@ -83,8 +97,8 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
         customClient: client,
       );
 
-      await listen();
-      _bruh();
+      await _startListeningForCalls();
+      _startOrAcceptVoiceCall();
     });
   }
 
@@ -93,7 +107,7 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
     channel!.sink.add(jsonEncode(message));
   }
 
-  Future<void> listen() async {
+  Future<void> _startListeningForCalls() async {
     // Listen for incoming signaling messages.
     channel!.stream.listen((data) async {
       final message = jsonDecode(data);
@@ -202,7 +216,7 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
     });
   }
 
-  Future<void> _bruh() async {
+  Future<void> _startOrAcceptVoiceCall() async {
     if (!widget.isInitiator) {
       Client.instance().commands.acceptVoiceCall(widget.chatSessionIndex);
       return;
@@ -210,50 +224,48 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> with EventBusSubscript
 
     Client.instance().commands.startVoiceCall(widget.chatSessionIndex);
 
-    // TODO: SHOULD NOT SUBSCRIBE, AWAIT FOR THE FIRST ONE INSTEAD
-    subscribe(AppEventBus.instance.on<VoiceCallAcceptedEvent>(), (event) async {
-      peerConnection = await createPeerConnection(configuration);
+    VoiceCallAcceptedEvent event = await AppEventBus.instance.on<VoiceCallAcceptedEvent>().first;
+    peerConnection = await createPeerConnection(configuration);
 
-      // Add local media tracks.
-      localStream!.getTracks().forEach((track) {
-        peerConnection!.addTrack(track, localStream!);
-      });
-
-      // Set up ICE candidates and track handling.
-      peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
-        if (candidate.candidate != null && candidate.candidate!.isNotEmpty) {
-          sendChannelMessage({
-            'type': 'candidate',
-            'data': candidate.toMap(),
-          });
-        }
-      };
-
-      peerConnection!.onTrack = (RTCTrackEvent event) {
-        if (event.streams.isNotEmpty) {
-          print("Remote stream received: ${event.streams[0].id}");
-        }
-      };
-
-      peerConnection!.onRenegotiationNeeded = () async {
-        try {
-          RTCSessionDescription newOffer = await peerConnection!.createOffer();
-          await peerConnection!.setLocalDescription(newOffer);
-          sendChannelMessage({'type': 'offer', 'data': newOffer.toMap()});
-        } catch (err) {
-          print("Renegotiation failed: $err");
-        }
-      };
-
-      // Create the offer and send it over the signaling channel.
-      RTCSessionDescription offer = await peerConnection!.createOffer();
-      await peerConnection!.setLocalDescription(offer);
-      sendChannelMessage({
-        'type': 'offer',
-        'data': offer.toMap(),
-      });
-      print("Offer sent: ${offer.sdp}");
+    // Add local media tracks.
+    localStream!.getTracks().forEach((track) {
+      peerConnection!.addTrack(track, localStream!);
     });
+
+    // Set up ICE candidates and track handling.
+    peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+      if (candidate.candidate != null && candidate.candidate!.isNotEmpty) {
+        sendChannelMessage({
+          'type': 'candidate',
+          'data': candidate.toMap(),
+        });
+      }
+    };
+
+    peerConnection!.onTrack = (RTCTrackEvent event) {
+      if (event.streams.isNotEmpty) {
+        print("Remote stream received: ${event.streams[0].id}");
+      }
+    };
+
+    peerConnection!.onRenegotiationNeeded = () async {
+      try {
+        RTCSessionDescription newOffer = await peerConnection!.createOffer();
+        await peerConnection!.setLocalDescription(newOffer);
+        sendChannelMessage({'type': 'offer', 'data': newOffer.toMap()});
+      } catch (err) {
+        print("Renegotiation failed: $err");
+      }
+    };
+
+    // Create the offer and send it over the signaling channel.
+    RTCSessionDescription offer = await peerConnection!.createOffer();
+    await peerConnection!.setLocalDescription(offer);
+    sendChannelMessage({
+      'type': 'offer',
+      'data': offer.toMap(),
+    });
+    print("Offer sent: ${offer.sdp}");
   }
 
   double calculateRMS(Uint8List audioChunk) {

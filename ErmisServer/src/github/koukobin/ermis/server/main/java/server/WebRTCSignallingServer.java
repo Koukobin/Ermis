@@ -26,15 +26,14 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.SSLEngine;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
@@ -49,8 +48,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -70,7 +67,6 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.CharsetUtil;
-import io.netty.util.concurrent.GlobalEventExecutor;
 
 /**
  * @author Ilias Koukovinis
@@ -80,20 +76,22 @@ public class WebRTCSignallingServer {
 
 	private static final Logger LOGGER;
 
-	private static final ClientConnector connector;
+	private static final ClientInitializer connector;
 
 	static {
 		LOGGER = LogManager.getLogger("server");
-		connector = new ClientConnector();
+		connector = new ClientInitializer();
+	}
+
+	private WebRTCSignallingServer() throws IllegalAccessException {
+		throw new IllegalAccessException("WebRTCSignallingServer cannot be constructed since it is statically initialized!");
 	}
 
 	public static void run() throws InterruptedException {
-		// Configure the server.
 		EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1);
 		EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(1);
 		try {
 			ServerBootstrap b = new ServerBootstrap();
-
 			b.group(bossGroup, workerGroup)
 				.channel(EpollServerSocketChannel.class)
 				.childHandler(connector);
@@ -107,37 +105,35 @@ public class WebRTCSignallingServer {
 		}
 	}
 
-	private static class ClientConnector extends ChannelInitializer<SocketChannel> {
+	private static class ClientInitializer extends ChannelInitializer<SocketChannel> {
 		@Override
 		protected void initChannel(SocketChannel ch) {
 			ChannelPipeline p = ch.pipeline();
 
-			// If SSL is enabled we add SSL handler first to encrypt and decrypt everything.
-			// P.S I forgot to add the if statement
+			// Add SSL handler first to encrypt and decrypt everything
 			SSLEngine engine = SslContextProvider.sslContext.newEngine(ch.alloc());
 			engine.setUseClientMode(false);
 			p.addLast("ssl", new SslHandler(engine));
 
-			// Add HTTP server codec (combination of HttpRequestDecoder and
-			// HttpResponseEncoder).
+			// Add HTTP server codec
 			p.addLast(new HttpServerCodec());
 
 			// Aggregate an HttpMessage and its following HttpContents into a single
-			// FullHttpRequest or FullHttpResponse.
+			// FullHttpRequest or FullHttpResponse
 			p.addLast(new HttpObjectAggregator(65536));
 
 			// Support writing a large data stream asynchronously.
 			p.addLast(new ChunkedWriteHandler());
 
-			// Custom handler: Route requests either to static file serving or to WebSocket.
+			// Route requests either to static file serving or to WebSocket (the former should be removed in the future)
 			p.addLast(new HttpRequestHandler("/ws"));
 
 			// If upgrade is requested to WebSocket at /ws, this handler will take care of
-			// handshake.
+			// handshake
 			p.addLast(new WebSocketServerProtocolHandler("/ws"));
 
-			// WebSocket frame handler that performs the signaling broadcast.
-			p.addLast(new WebSocketFrameHandler());
+			// Handler that performs WebRTC signalling
+			p.addLast(new WebRTCSignallingHandler());
 		}
 	}
 
@@ -162,8 +158,7 @@ public class WebRTCSignallingServer {
 
 				// Assuming index.html is located in the "public" folder in your working
 				// directory.
-				File file = new File(new URI("file:////index.html"));
-				System.out.println("Exists: " + file.exists());
+				File file = new File(new URI("file:///var/ermis-server/www/web_rtc_test.html"));
 				if (!file.exists() || file.isHidden()) {
 					sendError(ctx, HttpResponseStatus.NOT_FOUND);
 					return;
@@ -223,32 +218,34 @@ public class WebRTCSignallingServer {
 	}
 
 	public static void addVoiceCall(ChatSession chatSession) {
-		List<Channel> a = Lists.newArrayList();
+		List<Channel> channelsList = Lists.newArrayList();
 		for (ClientInfo member : chatSession.getActiveMembers()) {
-			WebRTCSignallingServer.WebSocketFrameHandler.calls.put(member.getInetAddress(), a);
+			WebRTCSignallingHandler.calls.put(member.getInetAddress(), channelsList);
+
+			Channel channel = WebRTCSignallingHandler.bro.get(member.getInetAddress());
+
+			channelsList.add(channel);
 		}
 	}
 
-	public static class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
+	private static class WebRTCSignallingHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-		public static final Map<InetAddress, List<Channel>> calls = new ConcurrentHashMap<>();
-		private static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+		private static final Map<InetAddress, Channel> bro = new ConcurrentHashMap<>();
+		private static final Map<InetAddress, List<Channel>> calls = new ConcurrentHashMap<>();
 
 		@Override
 		public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-			if (calls.get(getInetAddressOfChannel(ctx.channel())) != null) {
-				calls.get(getInetAddressOfChannel(ctx.channel())).add(ctx.channel());
-			}
-			channels.add(ctx.channel());
+			bro.put(getInetAddressOfChannel(ctx.channel()), ctx.channel());
 		}
 
 		@Override
 		public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-			calls.remove(getInetAddressOfChannel(ctx.channel()));
 			if (calls.get(getInetAddressOfChannel(ctx.channel())) != null) {
-				calls.get(getInetAddressOfChannel(ctx.channel())).remove(ctx.channel());
+				List<Channel> activeChannels = calls.get(getInetAddressOfChannel(ctx.channel()));
+				activeChannels.remove(ctx.channel());
 			}
-			channels.remove(ctx.channel());
+			calls.remove(getInetAddressOfChannel(ctx.channel()));
+			bro.remove(getInetAddressOfChannel(ctx.channel()), ctx.channel());
 		}
 
 		private static InetAddress getInetAddressOfChannel(Channel ch) {
@@ -257,25 +254,25 @@ public class WebRTCSignallingServer {
 
 		@Override
 		protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
-			// Only handle text frames.
+			// Only handle text frames
 			if (frame instanceof TextWebSocketFrame textwebsocketframe) {
 				String message = textwebsocketframe.text();
-				// Broadcast the message to every channel except the sender.
-				for (Channel ch : channels) {
+				// Broadcast the message to every other channel in call
+				for (Channel ch : calls.get(getInetAddressOfChannel(ctx.channel()))) {
 					if (ch != ctx.channel()) {
 						ch.writeAndFlush(new TextWebSocketFrame(message));
 					}
 				}
 			} else {
-				// Close the connection if a binary or other frame is received.
-				System.err.println("Unsupported frame received: " + frame.getClass().getName());
+				// Close the connection if a binary or other frame is received
+				LOGGER.debug("Unsupported frame received: {}", frame.getClass().getName());
 				ctx.channel().close();
 			}
 		}
 
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-			cause.printStackTrace();
+			LOGGER.debug(Throwables.getStackTraceAsString(cause));
 			ctx.close();
 		}
 	}
