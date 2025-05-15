@@ -29,9 +29,9 @@ import '../../core/data_sources/api_client.dart';
 import '../../core/event_bus/app_event_bus.dart';
 import '../../core/models/message_events.dart';
 import '../../core/networking/user_info_manager.dart';
-import '../../core/util/dialogs_utils.dart';
 import '../../core/util/top_app_bar_utils.dart';
 import '../../core/widgets/profile_photos/user_profile_photo.dart';
+import '../../theme/app_colors.dart';
 
 enum CallStatus {
   connecting('Connecting...'),
@@ -59,10 +59,10 @@ class VoiceCallWebrtc extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => VoiceCallWebrtcState();
+  State<StatefulWidget> createState() => _VoiceCallWebrtcState();
 }
 
-class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
+class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   /// STUN configuration for ICE candidates.
   static const Map<String, dynamic> configuration = {
     'iceServers': [
@@ -74,10 +74,15 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   MediaStream? localStream;
   RTCPeerConnection? peerConnection;
 
+  RTCVideoRenderer? remoteRenderer;
+  RTCVideoRenderer? localRenderer;
+
+  bool isSpeakerPhoneEnabled = false;
   bool isShowingVideo = false;
   bool isMuted = false;
+  bool showEndToEndEncryptedIndicator = false;
 
-  CallStatus callStatus = CallStatus.calling;
+  CallStatus callStatus = CallStatus.connecting;
   double rms = 0.0;
 
   @override
@@ -100,6 +105,23 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       await _startListeningForCalls();
       _startOrAcceptVoiceCall();
     });
+
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
+      // Show end-to-end encrypted indicator for only five seconds,
+      // whereas call status for 10 seconds.
+      if (!showEndToEndEncryptedIndicator) {
+        await Future.delayed(const Duration(seconds: 5));
+      }
+
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      setState(() {
+        showEndToEndEncryptedIndicator = !showEndToEndEncryptedIndicator;
+      });
+    });
   }
 
   /// Helper function to send JSON messages over the WebSocket.
@@ -108,6 +130,9 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   }
 
   Future<void> _startListeningForCalls() async {
+    remoteRenderer = RTCVideoRenderer();
+    await remoteRenderer!.initialize();
+
     // Listen for incoming signaling messages.
     channel!.stream.listen((data) async {
       final message = jsonDecode(data);
@@ -138,6 +163,14 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
               peerConnection!.onTrack = (RTCTrackEvent event) {
                 if (event.streams.isNotEmpty) {
                   print("Remote stream received: ${event.streams[0].id}");
+                }
+                if (event.track.kind == 'video') {
+                  // event.streams might contain the remote stream
+                  if (event.streams.isNotEmpty) {
+                    setState(() {
+                      remoteRenderer!.srcObject = event.streams[0];
+                    });
+                  }
                 }
               };
             }
@@ -193,19 +226,40 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     // Obtain the local media stream (audio and video).
     localStream = await navigator.mediaDevices.getUserMedia({
-      'video': false,
+      'video': true,
       'audio': true,
     });
+
+    localRenderer = RTCVideoRenderer();
+    await localRenderer!.initialize();
+    localRenderer!.srcObject = localStream;
+
+    localStream!.getVideoTracks()[0].enabled = isShowingVideo;
+
     print("Local media stream obtained: ${localStream!.id}");
 
     Timer.periodic(const Duration(seconds: 1), (timer) async {
-      if (!mounted) timer.cancel();
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
       if (localStream == null) return;
+
+      // Ensure local stream audio tracks are up to date
+      localStream!.getAudioTracks().forEach((track) {
+        track.enableSpeakerphone(isSpeakerPhoneEnabled);
+      });
 
       double totalRMS = 0;
 
+      if (localStream!.getAudioTracks().length > 1) {
+        setState(() {
+          callStatus = CallStatus.active;
+        });
+      }
+
       for (final track in localStream!.getAudioTracks()) {
-        callStatus = CallStatus.active;
         // ByteBuffer currentFrame = await track.captureFrame();
         // totalRMS += calculateRMS(currentFrame.asUint8List());
       }
@@ -223,6 +277,10 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     }
 
     Client.instance().commands.startVoiceCall(widget.chatSessionIndex);
+
+    setState(() {
+      callStatus = CallStatus.calling;
+    });
 
     VoiceCallAcceptedEvent event = await AppEventBus.instance.on<VoiceCallAcceptedEvent>().first;
     peerConnection = await createPeerConnection(configuration);
@@ -245,6 +303,14 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     peerConnection!.onTrack = (RTCTrackEvent event) {
       if (event.streams.isNotEmpty) {
         print("Remote stream received: ${event.streams[0].id}");
+      }
+      if (event.track.kind == 'video') {
+        // event.streams might contain the remote stream
+        if (event.streams.isNotEmpty) {
+          setState(() {
+            remoteRenderer!.srcObject = event.streams[0];
+          });
+        }
       }
     };
 
@@ -280,6 +346,57 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     return sqrt(sumOfSquares / audioSamples.length);
   }
 
+  AnimatedSwitcher buildCallStatusAndEndToEndEncryptedIndicator() {
+    return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 600),
+        child: showEndToEndEncryptedIndicator
+            ? const EndToEndEncryptedIndicator(
+                key: ValueKey<bool>(false),
+              )
+            : Text(
+                key: const ValueKey<bool>(true),
+                callStatus.text,
+              ),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final Animation<double> fadeOutAnimation = Tween<double>(
+            begin: 0.0,
+            end: 1.0,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0.0, 0.5, curve: Curves.easeInOut),
+            ),
+          );
+
+          // Slide in animation for the incoming widget
+          final Animation<Offset> slideInAnimation = Tween<Offset>(
+            begin: const Offset(0.0, 1.0), // Start from the bottom
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0.5, 1.0, curve: Curves.easeInOut),
+            ),
+          );
+
+          if (showEndToEndEncryptedIndicator ==
+              (child.key as ValueKey<bool>).value) {
+            return FadeTransition(
+              opacity: fadeOutAnimation,
+              child: child,
+            );
+          }
+          return SlideTransition(
+            position: slideInAnimation,
+            child: FadeTransition(
+              // Apply fade in for smoothness
+              opacity: animation,
+              child: child,
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -289,7 +406,7 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.only(top: 8.0, bottom: 30.0),
+          padding: const EdgeInsets.only(top: 8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -297,69 +414,143 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                 children: [
                   Text(
                     "ChatSession: ${widget.chatSessionID}",
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                   ),
-                  Text(callStatus.text)
+                  buildCallStatusAndEndToEndEncryptedIndicator(),
                 ],
               ),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 100),
-                    child: CircleAvatar(
-                      radius: (100 + rms) >= 200 ? 200 : 100 + rms,
-                      backgroundColor: const Color.fromRGBO(158, 158, 158, 0.4),
-                    ),
-                  ),
-                  UserProfilePhoto(
-                    radius: 100,
-                    profileBytes: widget.member.icon.profilePhoto,
-                  ),
-                ],
+              // Stack(
+              //   alignment: Alignment.center,
+              //   children: [
+              //     AnimatedSize(
+              //       duration: const Duration(milliseconds: 100),
+              //       child: CircleAvatar(
+              //         radius: (100 + rms) >= 200 ? 200 : 100 + rms,
+              //         backgroundColor: const Color.fromRGBO(158, 158, 158, 0.4),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              Expanded(
+                child: Stack(
+                  children: [
+                    remoteRenderer?.srcObject != null && (remoteRenderer?.muted ?? false)
+                        ? Center(
+                            child: Container(
+                              width: 375,
+                              height: 425,
+                              padding: const EdgeInsets.all(8.0),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                                child: RTCVideoView(
+                                  remoteRenderer!,
+                                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                                  mirror: true, // Enable if you are using the front-facing camera.
+                                ),
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: UserProfilePhoto(
+                              radius: 100,
+                              profileBytes: widget.member.icon.profilePhoto,
+                            ),
+                          ),
+                    localRenderer?.srcObject != null && isShowingVideo ? Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        width: 150,
+                        height: 200,
+                        padding: const EdgeInsets.all(8.0),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.all(Radius.circular(12)),
+                          child: RTCVideoView(
+                            localRenderer!,
+                            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                            mirror: true, // Enable if you are using the front-facing camera.
+                          ),
+                        ),
+                      ),
+                    ) : const SizedBox.shrink(),
+                  ],
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      isShowingVideo ? Icons.videocam : Icons.videocam_off,
-                      size: 40,
-                      color: isShowingVideo ? Colors.green : Colors.red,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        showToastDialog("Functionality not supported yet");
-                        isShowingVideo = !isShowingVideo;
-                      });
-                    },
+              Container(
+                height: 120.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20.0),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      isMuted ? Icons.mic_off : Icons.mic,
-                      size: 40,
-                      color: isMuted ? Colors.red : Colors.green,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        isSpeakerPhoneEnabled ? Icons.volume_up : Icons.volume_off,
+                        size: 40,
+                        color: isSpeakerPhoneEnabled ? Colors.green : Colors.red,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isSpeakerPhoneEnabled = !isSpeakerPhoneEnabled;
+                        });
+                
+                        void updateEnabled(MediaStreamTrack track) {
+                          track.enableSpeakerphone(isSpeakerPhoneEnabled);
+                        }
+                
+                        localStream!.getAudioTracks().forEach(updateEnabled);
+                      },
                     ),
-                    onPressed: _toggleMute,
-                  ),
-                  // End call button
-                  GestureDetector(
-                    onTap: _endCall,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(32.0)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Icon(
-                          Icons.call,
-                          size: 25,
-                          color: Colors.white,
+                    IconButton(
+                      icon: Icon(
+                        isShowingVideo ? Icons.videocam : Icons.videocam_off,
+                        size: 40,
+                        color: isShowingVideo ? Colors.green : Colors.red,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isShowingVideo = !isShowingVideo;
+                        });
+                
+                        localStream!.getVideoTracks()[0].enabled = isShowingVideo;
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        isMuted ? Icons.mic_off : Icons.mic,
+                        size: 40,
+                        color: isMuted ? Colors.red : Colors.green,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isMuted = !isMuted;
+                        });
+                
+                        localStream!.getAudioTracks()[0].enabled = !isMuted;
+                      },
+                    ),
+                    // End call button
+                    GestureDetector(
+                      onTap: _endCall,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(32.0)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Icon(
+                            Icons.call,
+                            size: 25,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               )
             ],
           ),
@@ -368,10 +559,10 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     );
   }
 
-  void _toggleMute() {
-    setState(() {
-      isMuted = !isMuted;
-    });
+  @override
+  void dispose() {
+    _endCall();
+    super.dispose();
   }
 
   Future<void> _endCall() async {
@@ -382,10 +573,42 @@ class VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     Navigator.pop(context);
 
     await channel?.innerWebSocket?.close();
+    await localStream?.dispose();
     await peerConnection?.close();
+    await remoteRenderer?.dispose();
+    await localRenderer?.dispose();
 
     channel = null;
     localStream = null;
     peerConnection = null;
+    remoteRenderer = null;
+    localRenderer = null;
+  }
+}
+
+class EndToEndEncryptedIndicator extends StatelessWidget {
+  const EndToEndEncryptedIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.lock,
+          size: 16,
+          color: appColors.primaryColor,
+        ),
+        const SizedBox(width: 4.0),
+        Text(
+          'End-to-end encrypted',
+          style: TextStyle(
+            fontSize: 16.0,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
+    );
   }
 }
