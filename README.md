@@ -18,22 +18,12 @@ Ermis is a suite of applications designed for secure and seamless communication.
 
 My vision while creating Ermis was to develop a server-side application that anyone can deploy with ease and efficiency to ensure it can run on even the oldest hardware. Alongside this, I aimed to build a client-side application - that boasts an intuitive and user-friendly interface - with a solid performance to complement the server. With a primary focus on security, the Ermis platform employs robust encryption methods to ensure the protection of user data and privacy. By prioritizing security measures, I aimed to create a platform where users can communicate freely and openly, knowing their information is safe from prying eyes. The ultimate goal is to create a platform that anyone can host and communicate with.
 
-## Challenges Encountered
-
-I have dedicated an immense amount of my life to building and refining this suite of applications. Finally seeing it emerge is cathartic, to say the least. The journey has been tough; I’ve genuinely lost count of how many times I’ve gone mad at a software bug or error. I have encountered hundreds of issues and problems, and resolving them took more time than I would like to admit.
-
-Since this is my first project of such enormous magnitude, I faced challenges particularly related to maintainability and readability — aspects of code I had not dealt with before. I have lost track of the number of times I had to redo entire sections of the application upon discovering a more efficient approach. For instance, I initially started with a UDP server but realized that for a chatting application, a TCP server was more suitable.
-
-I also began utilizing IO socket channels and much later down the line realized that NIO socket channels are best suited for such servers. Then I attempted to build my own NIO socket channel communication system. Ultimately, however, my endeavors were in vain and after some quick research, I realized there are frameworks specifically dedicated to these kinds of purposes. In the end, for the initial version of Ermis, I settled on Netty, a non-blocking I/O client-server framework.
-
-I encountered similar back-and-forths with the database - alternating between MySQL, PostgreSQL, MariaDB and maybe even considering Cassandra at some point. Ultimately, I settled on PostgreSQL.
-
 ## Features
 
-* **Real-time communication:** Efficiently handle multiple concurrent users.
+- **Real-time communication:** Efficiently handle multiple concurrent users.
 - **Media Sharing**: Easily share images, videos, and documents within your chats.
 - **Secure Connections**: Integrated with end-to-end encryption to ensure privacy and security.
-* **PostgreSQL integration:** Manage user data, messages, and logs in a reliable relational database.
+- **PostgreSQL integration:** Manage user data, messages, and logs in a reliable relational database.
 
 ## Future Enhancements
 
