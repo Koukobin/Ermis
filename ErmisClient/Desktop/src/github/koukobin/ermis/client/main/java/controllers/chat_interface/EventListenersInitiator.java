@@ -27,12 +27,10 @@ import javax.swing.filechooser.FileSystemView;
 
 import github.koukobin.ermis.client.main.java.info.GeneralAppInfo;
 import github.koukobin.ermis.client.main.java.service.client.GlobalMessageDispatcher;
-import github.koukobin.ermis.client.main.java.service.client.MessageTransmitter;
 import github.koukobin.ermis.client.main.java.service.client.Events.ChatRequestsEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.ChatSessionsEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.DonationPageEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.FileDownloadedEvent;
-import github.koukobin.ermis.client.main.java.service.client.Events.ImageDownloadedEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.MessageDeletedEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.MessageDeliveryStatusEvent;
 import github.koukobin.ermis.client.main.java.service.client.Events.MessageReceivedEvent;
@@ -54,20 +52,18 @@ import javafx.stage.Stage;
  * @author Ilias Koukovinis
  *
  */
-class EventListenersInitiator extends MessageTransmitter {
+class EventListenersInitiator {
 
 	private EventListenersInitiator() {}
 
 	static void initiateEventListeners(Stage stage, Pane rootPane) {
 		// Server Message
-		GlobalMessageDispatcher.getDispatcher()
-		.observeMessages()
-		.ofType(ServerMessageInfoEvent.class)
-		.subscribe((ServerMessageInfoEvent event) -> {
-			String msg = event.getMessage();
-			Platform.runLater(() -> DialogsUtil.showInfoDialog(msg));
+		GlobalMessageDispatcher.getDispatcher().observeMessages().ofType(ServerMessageInfoEvent.class)
+			.subscribe((ServerMessageInfoEvent event) -> {
+				String msg = event.getMessage();
+				Platform.runLater(() -> DialogsUtil.showInfoDialog(msg));
 		});
-		
+
 		// Message received
 		GlobalMessageDispatcher.getDispatcher()
 		.observeMessages()
@@ -79,14 +75,14 @@ class EventListenersInitiator extends MessageTransmitter {
 			int activeChatSessionIndex = RootReferences.getChatsController().getActiveChatSessionIndex();
 			
 			RootReferences.getMessagingController().printToMessageArea(
-					message,
-					chatSessionIndex,
-					activeChatSessionIndex);
+				message,
+				chatSessionIndex,
+				activeChatSessionIndex);
 			
 			RootReferences.getMessagingController().notifyUser(
-					message,
-					chatSessionIndex,
-					activeChatSessionIndex);
+				message,
+				chatSessionIndex,
+				activeChatSessionIndex);
 		});
 		
 		// Message successfully sent received
@@ -99,50 +95,50 @@ class EventListenersInitiator extends MessageTransmitter {
 		
 		// WrittenText fetched
 		GlobalMessageDispatcher.getDispatcher()
-				.observeMessages()
-				.ofType(WrittenTextEvent.class)
-				.subscribe((WrittenTextEvent event) -> {
-					ChatSession chatSession = event.getChatSession();
-					int chatSessionIndex = chatSession.getChatSessionIndex();
-					List<Message> messages = chatSession.getMessages();
+			.observeMessages()
+			.ofType(WrittenTextEvent.class)
+			.subscribe((WrittenTextEvent event) -> {
+				ChatSession chatSession = event.getChatSession();
+				int chatSessionIndex = chatSession.getChatSessionIndex();
+				List<Message> messages = chatSession.getMessages();
 
-					Platform.runLater(() -> {
-						for (int i = 0; i < messages.size(); i++) {
-							Message message = messages.get(i);
+				Platform.runLater(() -> {
+				for (int i = 0; i < messages.size(); i++) {
+					Message message = messages.get(i);
 							
-							RootReferences.getMessagingController().printToMessageArea(
-									message,
-									chatSessionIndex,
-									RootReferences.getChatsController().getActiveChatSessionIndex());
-						}
-					});
-				});
+					RootReferences.getMessagingController().printToMessageArea(
+						message,
+						chatSessionIndex,
+						RootReferences.getChatsController().getActiveChatSessionIndex());
+				}
+			});
+		});
 		
 		// File downloaded
 		GlobalMessageDispatcher.getDispatcher()
-				.observeMessages()
-				.ofType(FileDownloadedEvent.class)
-				.subscribe((FileDownloadedEvent event) -> {
-					var file = event.getFile();
+			.observeMessages()
+			.ofType(FileDownloadedEvent.class)
+			.subscribe((FileDownloadedEvent event) -> {
+				var file = event.getFile();
+				try {
+					String dirPathString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath()
+							+ "/Documents/" + GeneralAppInfo.GENERAL_NAME + "Downloads/";
+					Path dirPath = Paths.get(dirPathString);
+
 					try {
-						String dirPathString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath()
-								+ "/Documents/" + GeneralAppInfo.GENERAL_NAME + "Downloads/";
-						Path dirPath = Paths.get(dirPathString);
-						
-						try {
-							Files.createDirectory(dirPath);
-						} catch (FileAlreadyExistsException faee) {
-							// Do nothing
-						}
-						
-						Path filePath = Paths.get(dirPathString + File.separator + file.getFileName());
-						Files.write(filePath, file.getFileBytes());
-						
-						Platform.runLater(() -> MFXDialogsUtil.showSimpleInformationDialog(stage, rootPane, "Succesfully saved file!"));
+						Files.createDirectory(dirPath);
+					} catch (FileAlreadyExistsException faee) {
+						// Do nothing
+					}
+
+					Path filePath = Paths.get(dirPathString + File.separator + file.getFileName());
+					Files.write(filePath, file.getFileBytes());
+
+					Platform.runLater(() -> MFXDialogsUtil.showSimpleInformationDialog(stage, rootPane, "Succesfully saved file!"));
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 					}
-				});
+		});
 		
 		// Donation page url received
 
@@ -183,11 +179,11 @@ class EventListenersInitiator extends MessageTransmitter {
 		.ofType(ChatSessionsEvent.class)
 		.subscribe((ChatSessionsEvent event) -> {
 			List<ChatSession> chatSessions = event.getSessions();
-					Platform.runLater(() -> {
-						RootReferences.getChatsController().clearChatSessions();
-						RootReferences.getChatsController().addChatSessions(chatSessions);
-					});
-				});
+			Platform.runLater(() -> {
+				RootReferences.getChatsController().clearChatSessions();
+				RootReferences.getChatsController().addChatSessions(chatSessions);
+			});
+		});
 	
 		// Chat requests received
 
@@ -200,10 +196,9 @@ class EventListenersInitiator extends MessageTransmitter {
 				RootReferences.getChatRequestsController().clearChatRequests();
 				RootReferences.getChatRequestsController().addChatRequests(chatRequests);
 			});
-				});
-	
-		// Message deleted
+		});
 
+		// Message deleted
 		GlobalMessageDispatcher.getDispatcher()
 		.observeMessages()
 		.ofType(MessageDeletedEvent.class)
@@ -218,7 +213,6 @@ class EventListenersInitiator extends MessageTransmitter {
 					Message message = messages.get(i);
 					
 					if (message.getMessageID() == messageIDOfDeletedMessage) {
-						
 						messages.remove(i);
 						
 						int activeChatSessionIndex = RootReferences.getChatsController().getActiveChatSessionIndex();
@@ -237,17 +231,8 @@ class EventListenersInitiator extends MessageTransmitter {
 				}
 				
 			});
-				});
-	
-		// Image downloaded
-
-		// TODO Auto-generated method stub
-		GlobalMessageDispatcher.getDispatcher()
-		.observeMessages()
-		.ofType(ImageDownloadedEvent.class)
-		.subscribe((ImageDownloadedEvent event) -> {
-			
 		});
+
 	}
 }
 

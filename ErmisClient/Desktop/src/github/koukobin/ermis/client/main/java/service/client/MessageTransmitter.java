@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.io.Files;
 
@@ -49,7 +50,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 	private AtomicBoolean isClientListeningToMessages = new AtomicBoolean(false);
 	private Commands commands = new Commands();
 
-	int lastPendingMessageID = 0;
+	private final AtomicInteger lastPendingMessageID = new AtomicInteger();
 
 	void setByteBufOutputStream(ByteBufOutputStream out) {
 		this.out = out;
@@ -60,7 +61,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 
 		ByteBuf payload = Unpooled.buffer();
 		payload.writeInt(ClientMessageType.CLIENT_CONTENT.id);
-		payload.writeInt(++lastPendingMessageID);
+		payload.writeInt(lastPendingMessageID.incrementAndGet());
 		payload.writeInt(ClientContentType.TEXT.id);
 		payload.writeInt(chatSessionIndex);
 		payload.writeInt(textBytes.length);
@@ -72,7 +73,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 				ClientContentType.TEXT,
 				UserInfoManager.chatSessions.get(chatSessionIndex).getChatSessionID(), 
 				chatSessionIndex,
-				lastPendingMessageID);
+				lastPendingMessageID.get());
 	}
 
 	public Message sendFile(File file, int chatSessionIndex) throws IOException {
@@ -81,7 +82,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 
 		ByteBuf payload = Unpooled.buffer();
 		payload.writeInt(ClientMessageType.CLIENT_CONTENT.id);
-		payload.writeInt(++lastPendingMessageID);
+		payload.writeInt(lastPendingMessageID.incrementAndGet());
 		payload.writeInt(ClientContentType.FILE.id);
 		payload.writeInt(chatSessionIndex);
 		payload.writeInt(fileNameBytes.length);
@@ -95,7 +96,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 				ClientContentType.FILE,
 				UserInfoManager.chatSessions.get(chatSessionIndex).getChatSessionID(), 
 				chatSessionIndex,
-				lastPendingMessageID);
+				lastPendingMessageID.get());
 	}
 
 	public Message createPendingMessage(byte[] text, 

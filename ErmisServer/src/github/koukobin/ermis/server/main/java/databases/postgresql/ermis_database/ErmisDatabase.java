@@ -251,11 +251,11 @@ public final class ErmisDatabase {
 	}
 
 	public static class GeneralPurposeDBConnection extends DBConnection implements AccountRepository,
-			AuthService, 
+			AuthService,
 			BackupVerificationCodesModule,
 			ChangePasswordService,
-			ChatRequestsHandlerModule, 
-			ChatSessionsManagerModule, 
+			ChatRequestsHandlerModule,
+			ChatSessionsManagerModule,
 			MessagesService,
 			UserCredentialsRepository,
 			UserIpManagerService,
