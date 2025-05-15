@@ -45,18 +45,6 @@ Moving forward, I do not have any particular plans regarding Ermis's development
 
 ## Screenshots
 
-### Login Screen (Desktop)
-<img width="1000" alt="Login Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/login-screen.png"/>
-
-### Create Account Screen (Desktop)
-<img width="1000" alt="Create Account screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/create_account-screen.png"/>
-
-### Messaging Interface (Desktop)
-<img width="1000" alt="Messaging Interface" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface.png"/>
-
-### Choose Server Screen (Desktop)
-<img width="1000" alt="Choose Server Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/choose_server-screen.png"/>
-
 <div align="center">
     <h3>Messaging Interface (Mobile)</h3>
     <img width="500" alt="Messaging Interface" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface-mobile.png"/>
@@ -81,6 +69,18 @@ Moving forward, I do not have any particular plans regarding Ermis's development
     <h3>Profile Screen (Mobile)</h3>
     <img width="500" alt="Profile Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/profile-screen-mobile.png"/>
 </div>
+
+### Login Screen (Desktop)
+<img width="1000" alt="Login Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/login-screen.png"/>
+
+### Create Account Screen (Desktop)
+<img width="1000" alt="Create Account screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/create_account-screen.png"/>
+
+### Messaging Interface (Desktop)
+<img width="1000" alt="Messaging Interface" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface.png"/>
+
+### Choose Server Screen (Desktop)
+<img width="1000" alt="Choose Server Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/choose_server-screen.png"/>
 
 ## Wiki/Documentation
 
