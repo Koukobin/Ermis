@@ -21,6 +21,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/member.dart';
+import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:web_socket_channel/io.dart';
@@ -77,6 +78,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   RTCVideoRenderer? remoteRenderer;
   RTCVideoRenderer? localRenderer;
 
+  bool isReceivingVideo = false;
   bool isSpeakerPhoneEnabled = false;
   bool isShowingVideo = false;
   bool isMuted = false;
@@ -135,7 +137,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     // Listen for incoming signaling messages.
     channel!.stream.listen((data) async {
-      final message = jsonDecode(data);
+      final Map<String, dynamic> message = jsonDecode(data);
       print("Received message: $message");
       switch (message['type']) {
         case "offer":
@@ -212,6 +214,23 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
               await peerConnection!.addCandidate(candidate);
             }
             break;
+          }
+        case "enabled_camera":
+          {
+            setState(() {
+              isReceivingVideo = true;
+            });
+          }
+        case "disabled_camera":
+          {
+            setState(() {
+              isReceivingVideo = false;
+            });
+          }
+        case "end_call":
+          {
+            showToastDialog("Call ended");
+            _endCall();
           }
         default:
           {
@@ -434,7 +453,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
               Expanded(
                 child: Stack(
                   children: [
-                    remoteRenderer?.srcObject != null && (remoteRenderer?.muted ?? false)
+                    remoteRenderer?.srcObject != null && isReceivingVideo
                         ? Center(
                             child: Container(
                               width: 375,
@@ -445,7 +464,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                                 child: RTCVideoView(
                                   remoteRenderer!,
                                   objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                                  mirror: true, // Enable if you are using the front-facing camera.
+                                  mirror: true,
                                 ),
                               ),
                             ),
@@ -464,10 +483,22 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                         padding: const EdgeInsets.all(8.0),
                         child: ClipRRect(
                           borderRadius: const BorderRadius.all(Radius.circular(12)),
-                          child: RTCVideoView(
-                            localRenderer!,
-                            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                            mirror: true, // Enable if you are using the front-facing camera.
+                          child: Stack(
+                            children: [
+                              RTCVideoView(
+                                localRenderer!,
+                                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                                mirror: true,
+                              ),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: IconButton.outlined(onPressed: () {
+                              localStream!.getVideoTracks().forEach((track) {
+                              Helper.switchCamera(track);
+                            });
+                                }, icon: Icon(Icons.arrow_drop_down_circle_outlined)),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -514,8 +545,16 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                         setState(() {
                           isShowingVideo = !isShowingVideo;
                         });
-                
-                        localStream!.getVideoTracks()[0].enabled = isShowingVideo;
+
+                        localStream!.getVideoTracks().forEach((track) {
+                          track.enabled = isShowingVideo;
+                        });
+
+                        if (isShowingVideo) {
+                          sendChannelMessage({'type': 'enabled_camera'});
+                        } else {
+                          sendChannelMessage({'type': 'disabled_camera'});
+                        }
                       },
                     ),
                     IconButton(
@@ -528,8 +567,10 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                         setState(() {
                           isMuted = !isMuted;
                         });
-                
-                        localStream!.getAudioTracks()[0].enabled = !isMuted;
+
+                        localStream!.getAudioTracks().forEach((track) {
+                          track.enabled = !isMuted;
+                        });
                       },
                     ),
                     // End call button
@@ -569,6 +610,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     setState(() {
       callStatus = CallStatus.ended;
     });
+    sendChannelMessage({'type': 'end_call'});
 
     Navigator.pop(context);
 
@@ -612,3 +654,85 @@ class EndToEndEncryptedIndicator extends StatelessWidget {
     );
   }
 }
+
+     // peerConnection!.getStats().then((stats) {
+      //   for (final report in stats) {
+      //     if (report.type == 'inbound-rtp' && report.values['kind'] == 'video') {
+      //   final int freezeCount = (report.values['freezeCount'] as int?) ?? 0;
+      //   final double totalFreezesDuration = (report.values['totalFreezesDuration'] as double?) ?? 0.0;
+      //   final int keyFramesDecoded = (report.values['keyFramesDecoded'] as int?) ?? 0;
+      //   final int framesDecoded = (report.values['framesDecoded'] as int?) ?? 0;
+      //   final int framesDropped = (report.values['framesDropped'] as int?) ?? 0;
+      //   final double fps = (report.values['framesPerSecond'] as double?) ?? 0.0;
+      //   final int packetsLost = (report.values['packetsLost'] as int?) ?? 0;
+
+      //   const int freezeThreshold = 2;
+      //   final double keyFrameRatio = framesDecoded > 0 ? keyFramesDecoded / framesDecoded : 0.0;
+      //       if (freezeCount > freezeThreshold && keyFrameRatio < 0.1) {
+      //         setState(() {
+      //           isReceivingVideo = false;
+      //         });
+      //       } else {
+      //         setState(() {
+      //           isReceivingVideo = true;
+      //         });
+      //       }
+      //     }
+      //   }
+      // });
+// bool isImageAllBlack(img.Image image, {int luminanceThreshold = 20}) {
+//   int totalLuminance = 0;
+//   int pixelCount = image.width * image.height;
+
+//   // Loop over all pixels
+//   for (int y = 0; y < image.height; y++) {
+//     for (int x = 0; x < image.width; x++) {
+//       Pixel pixel = image.getPixel(x, y);
+//       num r = pixel.r;
+//       num g = pixel.g;
+//       num b = pixel.b;
+      
+//       // Use a simple average luminance calculation
+//       int pixelLuminance = ((r + g + b) ~/ 3);
+//       totalLuminance += pixelLuminance;
+//     }
+//   }
+
+//   // Compute average brightness for the image
+//   int avgLuminance = totalLuminance ~/ pixelCount;
+
+//   // If the average brightness is below the threshold, we consider the image "black"
+//   return avgLuminance < luminanceThreshold;
+// }
+
+//       Future<List<int>> convertFrameToJpeg(
+//           ByteBuffer buffer, int width, int height) async {
+//         // Create an image from the byte data.
+//   // Adjust the format if your data is not RGBA (could also be BGRA, etc.)
+//   img.Image capturedImage = img.Image.fromBytes(
+//     width: width,
+//     height: height,
+//     bytes: buffer,
+//   );
+
+//   // Encode the image to JPEG
+//   List<int> jpegBytes = img.encodeJpg(capturedImage);
+
+//   return jpegBytes;
+// }
+
+//       var videoTracks = remoteRenderer!.srcObject!.getVideoTracks();
+//       if (videoTracks.isNotEmpty) {
+//         final videoTrack = videoTracks.first;
+//         ByteBuffer buffer = await videoTrack.captureFrame();
+//         print(buffer.asUint8List());
+//         if (isImageAllBlack(img.decodeJpg(Uint8List.fromList(await convertFrameToJpeg(buffer, remoteRenderer!.videoWidth, remoteRenderer!.videoHeight)))!)) {
+//           setState(() {
+//             isReceivingVideo = false;
+//           });
+//         } else {
+//           setState(() {
+//             isReceivingVideo = true;
+//           });
+//         }
+//       }
