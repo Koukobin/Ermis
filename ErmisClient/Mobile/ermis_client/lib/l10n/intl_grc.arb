@@ -266,5 +266,19 @@
   "choose_friends": "Αἱρεῖσθαι φίλους",
 
   "chat_theme": "Τύπος διαλόγου",
-  "settings_saved": "Αἱ διατάξεις σεσῴασται"
+  "settings_saved": "Αἱ διατάξεις σεσῴασται",
+
+  "are_you_sure_you_want_to_switch_to": "Ἆρ' οὖν πέπεισαι βούλεσθαι μεταβῆναι ἐς ${x};",
+  "permission_denied": "Οὐκ ἔξεστι",
+  "reply": "Ἀποκρίνασθαι",
+  "mark_as_read": "Σημαίνειν ἀνεγνωσμένον",
+  "an_error_occured_while_trying_to_change_profile_photo": "Σφάλμα γέγονεν πειρωμένῳ ἀλλάξαι εἰκόνα προσωπογραφίας",
+  "change_password": "Ἀλλάξαι σύνθημα",
+  "call_ended": "Ἡ κλῆσις ἔληξεν",
+  "active": "Ἐνεργός",
+  "Calling": "Καλεῖν",
+  "Connecting": "Συνάπτειν",
+  "ended": "Ἔληξεν",
+  "voice_call": "Τηλέφωνον φωνητικόν",
+  "are_you_sure_you_want_to_switch_to_video_mode": "Ἆρ' οὖν πέπεισαι βούλεσθαι μεταβῆναι ἐς τρόπον εἰκόνων κινήσεων;"
 }

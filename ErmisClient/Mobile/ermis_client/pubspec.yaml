@@ -130,6 +130,8 @@ flutter:
     - assets/primary_application_icon.png
     - assets/LICENCE.txt
     - assets/sounds/ermis_notification.mp3
+    - assets/sounds/outgoing_call_ring_sound_effect.wav
+    - assets/sounds/end_call_sound_effect.wav
     - assets/ermis/ermis_mascot.png
     - assets/ermis/crying-ermis.png
     - assets/background/parthenon.jpg

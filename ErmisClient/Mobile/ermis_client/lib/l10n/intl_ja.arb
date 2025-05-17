@@ -244,5 +244,19 @@
   "unknown_size": "不明なサイズ",
   "sign_out": "サインアウト",
   "no_linked_devices": "リンクされたデバイスはありません",
-  "link_new_device": "新しいデバイスをリンク"
+  "link_new_device": "新しいデバイスをリンク",
+
+  "are_you_sure_you_want_to_switch_to": "${x} に切り替えますか？",
+  "permission_denied": "許可されていません",
+  "reply": "返信",
+  "mark_as_read": "既読にする",
+  "an_error_occured_while_trying_to_change_profile_photo": "プロフィール写真の変更中にエラーが発生しました",
+  "change_password": "パスワードを変更",
+  "call_ended": "通話が終了しました",
+  "active": "アクティブ",
+  "Calling": "通話中",
+  "Connecting": "接続中",
+  "ended": "終了しました",
+  "voice_call": "音声通話",
+  "are_you_sure_you_want_to_switch_to_video_mode": "ビデオモードに切り替えますか？"
 }

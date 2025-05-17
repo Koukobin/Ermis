@@ -97,7 +97,7 @@ class AccountSettings extends StatefulWidget {
                       style: const TextStyle(fontSize: 18)),
                   onTap: () {
                     showConfirmationDialog(context,
-                        "Are you sure you want to switch to ${serverAccount.name()}?",
+                        S.current.are_you_sure_you_want_to_switch_to(serverAccount.name()),
                         () async {
                       ServerInfo serverDetails = UserInfoManager.serverInfo;
                       final DBConnection conn = ErmisDB.getConnection();
@@ -186,7 +186,7 @@ class _AccountSettingsState extends State<AccountSettings>
           children: [
             ListTile(
               leading: const Icon(Icons.password),
-              title: Text("Change password"),
+              title: Text(S.current.change_password),
               onTap: () async {
                 pushSlideTransition(context, const ChangePasswordSettings());
               },
@@ -234,7 +234,7 @@ class _ChangePasswordPageState extends State<ChangePasswordSettings>
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: ErmisAppBar(titleText: "Change Password"),
+      appBar: ErmisAppBar(titleText: S.current.change_password),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 200.0, horizontal: 16.0),
         child: Column(
@@ -271,7 +271,7 @@ class _ChangePasswordPageState extends State<ChangePasswordSettings>
 
             // Button to change password
             buildButton(
-              label: "Change Password",
+              label: S.current.change_password,
               backgroundColor: appColors.secondaryColor,
               icon: Icons.password,
               onPressed: _changePassword,

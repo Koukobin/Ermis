@@ -262,5 +262,19 @@
   "choose_friends": "Amicos elige",
 
   "chat_theme": "Forma colloquii",
-  "settings_saved": "Ordines servati sunt"
+  "settings_saved": "Ordines servati sunt",
+
+  "are_you_sure_you_want_to_switch_to": "Certus esne te ad ${x} transire velle?",
+  "permission_denied": "Facultas negata",
+  "reply": "Responde",
+  "mark_as_read": "Signa ut lectum",
+  "an_error_occured_while_trying_to_change_profile_photo": "Error accidit dum conabar imaginem profilicam mutare",
+  "change_password": "Tesseram mutare",
+  "call_ended": "Colloquium finitum est",
+  "active": "Activum",
+  "Calling": "Vocans",
+  "Connecting": "Coniungens",
+  "ended": "Finitum est",
+  "voice_call": "Colloquium vocale",
+  "are_you_sure_you_want_to_switch_to_video_mode": "Certus esne te ad modum videndi transire velle?"
 }

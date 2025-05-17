@@ -262,5 +262,19 @@
   "choose_friends": "اختر الأصدقاء",
 
   "chat_theme": "سمة الدردشة",
-  "settings_saved": "تم حفظ الإعدادات"
+  "settings_saved": "تم حفظ الإعدادات",
+
+  "are_you_sure_you_want_to_switch_to": "هل أنت متأكد أنك تريد التبديل إلى ${x}؟",
+  "permission_denied": "تم رفض الإذن",
+  "reply": "رد",
+  "mark_as_read": "وضع علامة كمقروءة",
+  "an_error_occured_while_trying_to_change_profile_photo": "حدث خطأ أثناء محاولة تغيير صورة الملف الشخصي",
+  "change_password": "تغيير كلمة المرور",
+  "call_ended": "انتهت المكالمة",
+  "active": "نشط",
+  "Calling": "جاري الاتصال",
+  "Connecting": "جاري الاتصال",
+  "ended": "انتهت",
+  "voice_call": "مكالمة صوتية",
+  "are_you_sure_you_want_to_switch_to_video_mode": "هل أنت متأكد أنك تريد التبديل إلى وضع الفيديو؟"
 }

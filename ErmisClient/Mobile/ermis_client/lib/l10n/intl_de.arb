@@ -262,5 +262,19 @@
   "choose_friends": "Freunde auswählen",
 
   "chat_theme": "Chat-Design",
-  "settings_saved": "Einstellungen gespeichert"
+  "settings_saved": "Einstellungen gespeichert",
+
+  "are_you_sure_you_want_to_switch_to": "Sind Sie sicher, dass Sie zu ${x} wechseln möchten?",
+  "permission_denied": "Zugriff verweigert",
+  "reply": "Antworten",
+  "mark_as_read": "Als gelesen markieren",
+  "an_error_occured_while_trying_to_change_profile_photo": "Ein Fehler ist beim Ändern des Profilfotos aufgetreten",
+  "change_password": "Passwort ändern",
+  "call_ended": "Anruf beendet",
+  "active": "Aktiv",
+  "Calling": "Anrufen",
+  "Connecting": "Verbinden",
+  "ended": "Beendet",
+  "voice_call": "Sprachanruf",
+  "are_you_sure_you_want_to_switch_to_video_mode": "Sind Sie sicher, dass Sie zum Videomodus wechseln möchten?"
 }

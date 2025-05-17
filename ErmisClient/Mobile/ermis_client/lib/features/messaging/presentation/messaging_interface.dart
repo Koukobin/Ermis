@@ -24,7 +24,7 @@ import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/features/voice_call/voice_call_webrtc.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/features/messaging/presentation/input_field.dart';
 import 'package:ermis_client/features/messaging/presentation/message_bubble.dart';

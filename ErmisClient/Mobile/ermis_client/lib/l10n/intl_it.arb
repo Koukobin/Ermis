@@ -251,16 +251,30 @@
   "abstract": "抽象",
   "default_monotone": "デフォルト/モノトーン",
 
-  "connection_refused": "接続が拒否されました！",
-  "connection_reset": "接続がリセットされました！",
-  "could_not_verify_server_certificate": "サーバー証明書を検証できませんでした",
+  "connection_refused": "Connessione rifiutata!",
+  "connection_reset": "Connessione reimpostata!",
+  "could_not_verify_server_certificate": "Impossibile verificare il certificato del server",
 
-  "privacy": "プライバシー",
+  "privacy": "Privacy",
 
-  "new_group": "新しいグループ",
-  "add_user": "ユーザーを追加",
-  "choose_friends": "友達を選択",
+  "new_group": "Nuovo gruppo",
+  "add_user": "Aggiungi utente",
+  "choose_friends": "Scegli amici",
 
-  "chat_theme": "チャットテーマ",
-  "settings_saved": "設定を保存しました"
+  "chat_theme": "Tema chat",
+  "settings_saved": "Impostazioni salvate",
+
+  "are_you_sure_you_want_to_switch_to": "Sei sicuro di voler passare a ${x}?",
+  "permission_denied": "Autorizzazione negata",
+  "reply": "Rispondi",
+  "mark_as_read": "Segna come letto",
+  "an_error_occured_while_trying_to_change_profile_photo": "Si è verificato un errore durante il tentativo di cambiare la foto del profilo",
+  "change_password": "Cambia password",
+  "call_ended": "Chiamata terminata",
+  "active": "Attivo",
+  "Calling": "Chiamata in corso",
+  "Connecting": "Connessione in corso",
+  "ended": "Terminata",
+  "voice_call": "Chiamata vocale",
+  "are_you_sure_you_want_to_switch_to_video_mode": "Sei sicuro di voler passare alla modalità video?"
 }

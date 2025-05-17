@@ -23,7 +23,7 @@ import 'package:ermis_client/core/services/database/extensions/accounts_extensio
 import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_client/core/util/permissions.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/features/voice_call/voice_call_webrtc.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';

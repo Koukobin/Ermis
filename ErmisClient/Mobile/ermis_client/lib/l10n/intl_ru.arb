@@ -262,5 +262,19 @@
   "choose_friends": "Выбрать друзей",
 
   "chat_theme": "Тема чата",
-  "settings_saved": "Настройки сохранены"
+  "settings_saved": "Настройки сохранены",
+
+  "are_you_sure_you_want_to_switch_to": "Вы уверены, что хотите переключиться на ${x}?",
+  "permission_denied": "Доступ запрещен",
+  "reply": "Ответить",
+  "mark_as_read": "Отметить как прочитанное",
+  "an_error_occured_while_trying_to_change_profile_photo": "Произошла ошибка при попытке сменить фото профиля",
+  "change_password": "Изменить пароль",
+  "call_ended": "Звонок завершен",
+  "active": "Активный",
+  "Calling": "Вызов...",
+  "Connecting": "Соединение...",
+  "ended": "Завершен",
+  "voice_call": "Голосовой вызов",
+  "are_you_sure_you_want_to_switch_to_video_mode": "Вы уверены, что хотите переключиться в режим видео?"
 }

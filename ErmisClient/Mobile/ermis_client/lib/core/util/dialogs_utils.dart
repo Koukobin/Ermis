@@ -165,14 +165,14 @@ Future<void> showLogoutConfirmationDialog(BuildContext context, String content, 
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
+              child: Text(S.current.cancel),
             ),
             TextButton(
               onPressed: () {
                 onYes();
                 Navigator.of(context).pop();
               },
-              child: Text('Logout', style: TextStyle(color: Colors.red)),
+              child: Text(S.current.logout_capitalized, style: const TextStyle(color: Colors.red)),
             ),
           ],
         ),

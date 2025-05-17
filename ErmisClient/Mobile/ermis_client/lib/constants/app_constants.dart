@@ -32,6 +32,8 @@ class AppConstants {
   static const String ermisMascotPath = 'assets/ermis/ermis_mascot.png';
   static const String ermisCryingPath = 'assets/ermis/crying-ermis.png';
   static const String ermisNotificationSoundPath = 'assets/sounds/ermis_notification.mp3';
+  static const String outgoingCallSoundPath = 'assets/sounds/outgoing_call_ring_sound_effect.wav';
+  static const String endCallSoundPath = 'assets/sounds/end_call_sound_effect.wav';
   static const String sourceCodeURL = "https://github.com/Koukobin/Ermis";
   static const String licenceURL = "$sourceCodeURL/wiki/License";
   static const String licencePath = "assets/LICENCE.txt";

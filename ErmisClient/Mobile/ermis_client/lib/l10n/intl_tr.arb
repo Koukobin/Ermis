@@ -262,5 +262,19 @@
   "choose_friends": "Arkadaşları Seç",
 
   "chat_theme": "Sohbet Teması",
-  "settings_saved": "Ayarlar Kaydedildi"
+  "settings_saved": "Ayarlar Kaydedildi",
+
+  "are_you_sure_you_want_to_switch_to": "${x}'e geçmek istediğinize emin misiniz?",
+  "permission_denied": "İzin reddedildi",
+  "reply": "Yanıtla",
+  "mark_as_read": "Okundu olarak işaretle",
+  "an_error_occured_while_trying_to_change_profile_photo": "Profil fotoğrafı değiştirilirken bir hata oluştu",
+  "change_password": "Şifreyi değiştir",
+  "call_ended": "Çağrı sonlandırıldı",
+  "active": "Aktif",
+  "Calling": "Aranıyor",
+  "Connecting": "Bağlanıyor",
+  "ended": "Sonlandı",
+  "voice_call": "Sesli arama",
+  "are_you_sure_you_want_to_switch_to_video_mode": "Video moduna geçmek istediğinize emin misiniz?"
 }

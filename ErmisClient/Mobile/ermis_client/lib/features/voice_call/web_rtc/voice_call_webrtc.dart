@@ -22,28 +22,23 @@ import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/call_status.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/end_to_end_encrypted_indicator.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/local_camera_overlay_widget.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:web_socket_channel/io.dart';
 
-import '../../core/data_sources/api_client.dart';
-import '../../core/event_bus/app_event_bus.dart';
-import '../../core/models/message_events.dart';
-import '../../core/networking/user_info_manager.dart';
-import '../../core/util/top_app_bar_utils.dart';
-import '../../core/widgets/profile_photos/user_profile_photo.dart';
-import '../../theme/app_colors.dart';
-
-enum CallStatus {
-  connecting('Connecting...'),
-  calling('Calling...'),
-  active('Active...'),
-  ringing('Ringing...'),
-  ended('Ended');
-
-  final String text;
-  const CallStatus(this.text);
-}
+import '../../../constants/app_constants.dart';
+import '../../../core/data_sources/api_client.dart';
+import '../../../core/event_bus/app_event_bus.dart';
+import '../../../core/models/message_events.dart';
+import '../../../core/networking/user_info_manager.dart';
+import '../../../core/util/top_app_bar_utils.dart';
+import '../../../core/widgets/profile_photos/user_profile_photo.dart';
+import '../../../theme/app_colors.dart';
 
 class VoiceCallWebrtc extends StatefulWidget {
   final int chatSessionID;
@@ -65,9 +60,10 @@ class VoiceCallWebrtc extends StatefulWidget {
 
 class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   /// STUN configuration for ICE candidates.
-  static const Map<String, dynamic> configuration = {
+  static final Map<String, dynamic> configuration = {
     'iceServers': [
-      {'urls': 'stun:stun.l.google.com:19302'}
+      const {'urls': 'stun:stun.l.google.com:19302'},
+      {'urls': 'stun:${UserInfoManager.serverInfo.address!.host}:5439'}
     ]
   };
 
@@ -85,6 +81,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   bool showEndToEndEncryptedIndicator = false;
 
   CallStatus callStatus = CallStatus.connecting;
+  int elapsedSeconds = 0;
   double rms = 0.0;
 
   @override
@@ -166,6 +163,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                 if (event.streams.isNotEmpty) {
                   print("Remote stream received: ${event.streams[0].id}");
                 }
+
                 if (event.track.kind == 'video') {
                   // event.streams might contain the remote stream
                   if (event.streams.isNotEmpty) {
@@ -229,7 +227,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
           }
         case "end_call":
           {
-            showToastDialog("Call ended");
+            showToastDialog(S.current.call_ended);
             _endCall();
           }
         default:
@@ -263,29 +261,24 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         return;
       }
 
-      if (localStream == null) return;
+      if (peerConnection?.getRemoteStreams().isNotEmpty ?? false) {
+        elapsedSeconds++;
+        callStatus = CallStatus.active;
+      }
 
       // Ensure local stream audio tracks are up to date
-      localStream!.getAudioTracks().forEach((track) {
+      localStream?.getAudioTracks().forEach((track) {
         track.enableSpeakerphone(isSpeakerPhoneEnabled);
       });
 
       double totalRMS = 0;
-
-      if (localStream!.getAudioTracks().length > 1) {
-        setState(() {
-          callStatus = CallStatus.active;
-        });
-      }
-
-      for (final track in localStream!.getAudioTracks()) {
+      for (final track in localStream?.getAudioTracks() ?? []) {
         // ByteBuffer currentFrame = await track.captureFrame();
         // totalRMS += calculateRMS(currentFrame.asUint8List());
       }
+      rms = totalRMS;
 
-      setState(() {
-        rms = totalRMS;
-      });
+      setState(() {});
     });
   }
 
@@ -299,6 +292,15 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     setState(() {
       callStatus = CallStatus.calling;
+    });
+
+    Future.doWhile(() async {
+      if (callStatus == CallStatus.calling) {
+        FlutterRingtonePlayer().play(fromAsset: AppConstants.outgoingCallSoundPath);
+        await Future.delayed(const Duration(seconds: 5)); // Wait until player has completed
+      }
+
+      return callStatus == CallStatus.calling;
     });
 
     VoiceCallAcceptedEvent event = await AppEventBus.instance.on<VoiceCallAcceptedEvent>().first;
@@ -374,7 +376,9 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
               )
             : Text(
                 key: const ValueKey<bool>(true),
-                callStatus.text,
+                callStatus == CallStatus.active && elapsedSeconds > 10
+                    ? "${(elapsedSeconds / 60).floor()}:${elapsedSeconds % 60}"
+                    : callStatus.text,
               ),
         transitionBuilder: (Widget child, Animation<double> animation) {
           final Animation<double> fadeOutAnimation = Tween<double>(
@@ -416,11 +420,29 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         });
   }
 
+  void toggleVideoMode() {
+    setState(() {
+      isShowingVideo = !isShowingVideo;
+    });
+
+    localStream!.getVideoTracks().forEach((track) {
+      track.enabled = isShowingVideo;
+    });
+
+    if (isShowingVideo) {
+      sendChannelMessage({'type': 'enabled_camera'});
+    } else {
+      sendChannelMessage({'type': 'disabled_camera'});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
     return Scaffold(
       appBar: ErmisAppBar(
-        title: Text('Voice Call'),
+        title: Text(S.current.voice_call),
         actions: [],
       ),
       body: Center(
@@ -455,9 +477,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                   children: [
                     remoteRenderer?.srcObject != null && isReceivingVideo
                         ? Center(
-                            child: Container(
-                              width: 375,
-                              height: 425,
+                            child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: ClipRRect(
                                 borderRadius: const BorderRadius.all(Radius.circular(12)),
@@ -475,34 +495,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                               profileBytes: widget.member.icon.profilePhoto,
                             ),
                           ),
-                    localRenderer?.srcObject != null && isShowingVideo ? Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        width: 150,
-                        height: 200,
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.all(Radius.circular(12)),
-                          child: Stack(
-                            children: [
-                              RTCVideoView(
-                                localRenderer!,
-                                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                                mirror: true,
-                              ),
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: IconButton.outlined(onPressed: () {
-                              localStream!.getVideoTracks().forEach((track) {
-                              Helper.switchCamera(track);
-                            });
-                                }, icon: Icon(Icons.arrow_drop_down_circle_outlined)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ) : const SizedBox.shrink(),
+                    localRenderer?.srcObject != null && isShowingVideo
+                        ? LocalCameraOverlayWidget(
+                            localRenderer: localRenderer!,
+                            localStream: localStream!,
+                          )
+                        : const SizedBox.shrink(),
                   ],
                 ),
               ),
@@ -517,7 +515,11 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    IconButton(
+                    IconButton.filled(
+                      padding: const EdgeInsets.all(12.0),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
+                      ),
                       icon: Icon(
                         isSpeakerPhoneEnabled ? Icons.volume_up : Icons.volume_off,
                         size: 40,
@@ -535,29 +537,23 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                         localStream!.getAudioTracks().forEach(updateEnabled);
                       },
                     ),
-                    IconButton(
+                    IconButton.filled(
+                      padding: const EdgeInsets.all(12.0),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
+                      ),
                       icon: Icon(
                         isShowingVideo ? Icons.videocam : Icons.videocam_off,
                         size: 40,
                         color: isShowingVideo ? Colors.green : Colors.red,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          isShowingVideo = !isShowingVideo;
-                        });
-
-                        localStream!.getVideoTracks().forEach((track) {
-                          track.enabled = isShowingVideo;
-                        });
-
-                        if (isShowingVideo) {
-                          sendChannelMessage({'type': 'enabled_camera'});
-                        } else {
-                          sendChannelMessage({'type': 'disabled_camera'});
-                        }
-                      },
+                      onPressed: toggleVideoMode,
                     ),
-                    IconButton(
+                    IconButton.filled(
+                      padding: const EdgeInsets.all(12.0),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
+                      ),
                       icon: Icon(
                         isMuted ? Icons.mic_off : Icons.mic,
                         size: 40,
@@ -578,13 +574,14 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                       onTap: _endCall,
                       child: Container(
                         decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(32.0)),
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Icon(
-                            Icons.call,
-                            size: 25,
+                            Icons.call_end,
+                            size: 27,
                             color: Colors.white,
                           ),
                         ),
@@ -607,11 +604,11 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   }
 
   Future<void> _endCall() async {
-    setState(() {
-      callStatus = CallStatus.ended;
-    });
+    setState(() => callStatus = CallStatus.ended);
     sendChannelMessage({'type': 'end_call'});
 
+    FlutterRingtonePlayer().play(fromAsset: AppConstants.endCallSoundPath);
+    
     Navigator.pop(context);
 
     await channel?.innerWebSocket?.close();
@@ -627,112 +624,3 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     localRenderer = null;
   }
 }
-
-class EndToEndEncryptedIndicator extends StatelessWidget {
-  const EndToEndEncryptedIndicator({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.lock,
-          size: 16,
-          color: appColors.primaryColor,
-        ),
-        const SizedBox(width: 4.0),
-        Text(
-          'End-to-end encrypted',
-          style: TextStyle(
-            fontSize: 16.0,
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-     // peerConnection!.getStats().then((stats) {
-      //   for (final report in stats) {
-      //     if (report.type == 'inbound-rtp' && report.values['kind'] == 'video') {
-      //   final int freezeCount = (report.values['freezeCount'] as int?) ?? 0;
-      //   final double totalFreezesDuration = (report.values['totalFreezesDuration'] as double?) ?? 0.0;
-      //   final int keyFramesDecoded = (report.values['keyFramesDecoded'] as int?) ?? 0;
-      //   final int framesDecoded = (report.values['framesDecoded'] as int?) ?? 0;
-      //   final int framesDropped = (report.values['framesDropped'] as int?) ?? 0;
-      //   final double fps = (report.values['framesPerSecond'] as double?) ?? 0.0;
-      //   final int packetsLost = (report.values['packetsLost'] as int?) ?? 0;
-
-      //   const int freezeThreshold = 2;
-      //   final double keyFrameRatio = framesDecoded > 0 ? keyFramesDecoded / framesDecoded : 0.0;
-      //       if (freezeCount > freezeThreshold && keyFrameRatio < 0.1) {
-      //         setState(() {
-      //           isReceivingVideo = false;
-      //         });
-      //       } else {
-      //         setState(() {
-      //           isReceivingVideo = true;
-      //         });
-      //       }
-      //     }
-      //   }
-      // });
-// bool isImageAllBlack(img.Image image, {int luminanceThreshold = 20}) {
-//   int totalLuminance = 0;
-//   int pixelCount = image.width * image.height;
-
-//   // Loop over all pixels
-//   for (int y = 0; y < image.height; y++) {
-//     for (int x = 0; x < image.width; x++) {
-//       Pixel pixel = image.getPixel(x, y);
-//       num r = pixel.r;
-//       num g = pixel.g;
-//       num b = pixel.b;
-      
-//       // Use a simple average luminance calculation
-//       int pixelLuminance = ((r + g + b) ~/ 3);
-//       totalLuminance += pixelLuminance;
-//     }
-//   }
-
-//   // Compute average brightness for the image
-//   int avgLuminance = totalLuminance ~/ pixelCount;
-
-//   // If the average brightness is below the threshold, we consider the image "black"
-//   return avgLuminance < luminanceThreshold;
-// }
-
-//       Future<List<int>> convertFrameToJpeg(
-//           ByteBuffer buffer, int width, int height) async {
-//         // Create an image from the byte data.
-//   // Adjust the format if your data is not RGBA (could also be BGRA, etc.)
-//   img.Image capturedImage = img.Image.fromBytes(
-//     width: width,
-//     height: height,
-//     bytes: buffer,
-//   );
-
-//   // Encode the image to JPEG
-//   List<int> jpegBytes = img.encodeJpg(capturedImage);
-
-//   return jpegBytes;
-// }
-
-//       var videoTracks = remoteRenderer!.srcObject!.getVideoTracks();
-//       if (videoTracks.isNotEmpty) {
-//         final videoTrack = videoTracks.first;
-//         ByteBuffer buffer = await videoTrack.captureFrame();
-//         print(buffer.asUint8List());
-//         if (isImageAllBlack(img.decodeJpg(Uint8List.fromList(await convertFrameToJpeg(buffer, remoteRenderer!.videoWidth, remoteRenderer!.videoHeight)))!)) {
-//           setState(() {
-//             isReceivingVideo = false;
-//           });
-//         } else {
-//           setState(() {
-//             isReceivingVideo = true;
-//           });
-//         }
-//       }

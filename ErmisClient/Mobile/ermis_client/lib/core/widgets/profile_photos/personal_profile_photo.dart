@@ -18,6 +18,7 @@ import 'dart:typed_data';
 
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/widgets/loading_state.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_colors.dart';
@@ -64,7 +65,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
 
       showSnackBarDialog(
           context: context,
-          content: "An error occured while trying to change profile photo");
+          content: S.current.an_error_occured_while_trying_to_change_profile_photo);
     });
 
   }

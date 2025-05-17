@@ -264,5 +264,19 @@
   "choose_friends": "Επιλογή Φίλων",
 
   "chat_theme": "Θέμα Συνομιλίας",
-  "settings_saved": "Οι ρυθμίσεις αποθηκεύτηκαν"
+  "settings_saved": "Οι ρυθμίσεις αποθηκεύτηκαν",
+
+  "are_you_sure_you_want_to_switch_to": "Είστε βέβαιοι ότι θέλετε να αλλάξετε στον ${x};",
+  "permission_denied": "Άρνηση δικαιωμάτων",
+  "reply": "Απάντηση",
+  "mark_as_read": "Διαβάστηκε",
+  "an_error_occured_while_trying_to_change_profile_photo": "Παρουσιάστηκε σφάλμα κατά την προσπάθεια αλλαγής της φωτογραφίας προφίλ",
+  "change_password": "Αλλαγή κωδικού πρόσβασης",
+  "call_ended": "Η κλήση έληξε",
+  "active": "Ενεργό",
+  "Calling": "Κλήση",
+  "Connecting": "Σύνδεση",
+  "ended": "Έληξε",
+  "voice_call": "Φωνητική κλήση",
+  "are_you_sure_you_want_to_switch_to_video_mode": "Είστε βέβαιοι ότι θέλετε να αλλάξετε σε λειτουργία βίντεο;"
 }
