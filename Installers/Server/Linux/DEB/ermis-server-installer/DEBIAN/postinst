@@ -1,5 +1,7 @@
 #!/bin/sh
 
+sudo apt install coturn
+
 echo
 
 echo "\033[1mYou can find thorough instructions on configuring the server in the README FILE at /srv/Ermis-Server/. In addition, you can visit the Ermis Wiki directly here: https://github.com/Koukobin/Ermis/wiki/\033[0m"

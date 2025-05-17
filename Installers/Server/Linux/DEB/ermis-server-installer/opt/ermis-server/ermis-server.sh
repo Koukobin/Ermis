@@ -43,3 +43,4 @@ else
   sudo java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
 fi
 
+sudo turnserver --log-file stdout --tls-listening-port=5439 --listening-port=5440
