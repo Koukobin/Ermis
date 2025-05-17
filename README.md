@@ -46,6 +46,16 @@ Moving forward, I do not have any particular plans regarding Ermis's development
 </div>
 
 <div align="center">
+    <h3>Voice Call Screen (Mobile)</h3>
+    <img width="500" alt="Voice Call Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/voice-call-mobile.png"/>
+</div>
+
+<div align="center">
+    <h3>Video Call Screen (Mobile)</h3>
+    <img width="500" alt="Video Call Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/video-call-mobile.png"/>
+</div>
+
+<div align="center">
     <h3>Chat Requests Screen (Mobile)</h3>
     <img width="500" alt="Chat Requests Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chat-requests-screen-mobile.png"/>
 </div>
