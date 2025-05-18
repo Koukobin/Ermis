@@ -48,97 +48,96 @@ enum NotificationAction {
   final String id;
   const NotificationAction(this.id);
 
-  // This function mimics the fromId functionality and throws an exception when no match is found.
   static NotificationAction fromId(String id) {
     return NotificationAction.values.firstWhere((type) => type.id == id);
+  }
+}
+
+ReplyCallBack? _replyCallBack;
+VoidCallback? _voiceCall;
+
+@pragma('vm:entry-point')
+void onDidReceiveNotification(NotificationResponse response) async {
+  String? actionId = response.actionId;
+  if (actionId == null) {
+    return;
+  }
+
+  NotificationAction na = NotificationAction.fromId(actionId);
+  switch (na) {
+    case NotificationAction.acceptVoiceCall:
+      if (response.payload == null || response.payload!.trim().isEmpty) {
+        _voiceCall?.call();
+        return;
+      }
+
+      dynamic data = jsonDecode(response.payload!);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final DBConnection conn = ErmisDB.getConnection();
+        ServerInfo serverInfo = await conn.getServerUrlLastUsed();
+
+        await Client.instance().initialize(
+          serverInfo.serverUrl,
+          ServerCertificateVerification
+              .ignore, // Since user connected once he has no issue connecting again
+        );
+
+        await Client.instance().readServerVersion();
+        Client.instance().startMessageDispatcher();
+
+        LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
+        if (userInfo == null) {
+          return;
+        }
+
+        bool success = await Client.instance().attemptHashedLogin(userInfo);
+
+        if (!success) {
+          return;
+        }
+
+        await Client.instance().fetchUserInformation();
+        Client.instance().commands.setAccountStatus(ClientStatus.offline);
+
+        await Future.delayed(const Duration(seconds: 10)); // Await until first screen builds
+
+        pushSlideTransition(
+          NavigationService.currentContext,
+          VoiceCallWebrtc(
+            chatSessionID: data['chatSessionID'],
+            chatSessionIndex: data['chatSessionIndex'],
+            member: Member.fromJson(jsonDecode(data['member'])),
+            isInitiator: data['isInitiator'],
+          ),
+        );
+      });
+      break;
+    case NotificationAction.ignoreVoiceCall:
+      // Do nothing
+      break;
+    case NotificationAction.actionReply:
+      String? input = response.input;
+      if (input == null) {
+        return;
+      }
+
+      _replyCallBack?.call(input);
+      break;
+    case NotificationAction.markAsRead:
+      // To be implemented in the future
+      break;
   }
 }
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  static ReplyCallBack? _replyCallBack;
-  static VoidCallback? _voiceCall;
-
-  @pragma('vm:entry-point')
-  static Future<void> onDidReceiveNotification(NotificationResponse response) async {
-    String? actionId = response.actionId;
-    if (actionId == null) {
-      return;
-    }
-
-    NotificationAction na = NotificationAction.fromId(actionId);
-    switch (na) {
-      case NotificationAction.acceptVoiceCall:
-        if (response.payload == null || response.payload!.trim().isEmpty) {
-          _voiceCall?.call();
-          return;
-        }
-
-        dynamic data = jsonDecode(response.payload!);
-
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final DBConnection conn = ErmisDB.getConnection();
-          ServerInfo serverInfo = await conn.getServerUrlLastUsed();
-
-          await Client.instance().initialize(
-            serverInfo.serverUrl,
-            ServerCertificateVerification
-                .ignore, // Since user connected once he has no issue connecting again
-          );
-
-          await Client.instance().readServerVersion();
-          Client.instance().startMessageDispatcher();
-
-          LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
-          if (userInfo == null) {
-            return;
-          }
-
-          bool success = await Client.instance().attemptHashedLogin(userInfo);
-
-          if (!success) {
-            return;
-          }
-
-          await Client.instance().fetchUserInformation();
-          Client.instance().commands.setAccountStatus(ClientStatus.offline);
-
-          await Future.delayed(const Duration(seconds: 10)); // Await until first screen builds
-
-          pushSlideTransition(
-            NavigationService.currentContext,
-            VoiceCallWebrtc(
-              chatSessionID: data['chatSessionID'],
-              chatSessionIndex: data['chatSessionIndex'],
-              member: Member.fromJson(jsonDecode(data['member'])),
-              isInitiator: data['isInitiator'],
-            ),
-          );
-        });
-        break;
-      case NotificationAction.ignoreVoiceCall:
-        // Do nothing
-        break;
-      case NotificationAction.actionReply:
-        String? input = response.input;
-        if (input == null) {
-          return;
-        }
-
-        _replyCallBack?.call(input);
-        break;
-      case NotificationAction.markAsRead:
-        // To be implemented in the future
-        break;
-    }
-  }
-
   // Initialize the notification plugin
   static Future<void> init() async {
     // Defube the Abdroid initialisation settings
     const AndroidInitializationSettings androidInitializationSettings =
-        AndroidInitializationSettings("@mipmap/ic_launcher");
+        AndroidInitializationSettings("notification_icon");
 
     const InitializationSettings initializationSettings =
         InitializationSettings(
@@ -174,8 +173,8 @@ class NotificationService {
     // Define Notification Details
     NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: AndroidNotificationDetails(
-        "channelId",
-        "channelName",
+        "icon_notification_id",
+        "Icon notification",
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
         playSound: false,
@@ -200,7 +199,6 @@ class NotificationService {
   //       largeIcon: FilePathAndroidBitmap(iconPath),
   //     ),
   //   );
-
   //   return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
   // }
 
@@ -213,9 +211,9 @@ class NotificationService {
     // Define Notification Details
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
-      'your_channel_id', // Channel ID
-      'your_channel_name', // Channel Name
-      channelDescription: 'Detailed notification example',
+      'simple_notification_channel_id', // Channel ID
+      'Simple notification', // Channel Name
+      channelDescription: 'Simple notification',
       importance: Importance.high,
       priority: Priority.high,
       playSound: false,
@@ -288,9 +286,9 @@ class NotificationService {
     _replyCallBack = replyCallBack;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
-      'your_channel_id',
-      'your_channel_name',
-      channelDescription: 'Detailed notification example',
+      'instant_notification_id',
+      'Instant Notification',
+      channelDescription: 'Channel for incoming notifications',
       importance: Importance.high,
       priority: Priority.high,
       // largeIcon: ByteArrayAndroidBitmap(icon), For some reason causes notification not to show in release mode
@@ -303,8 +301,7 @@ class NotificationService {
         AndroidNotificationAction(
           NotificationAction.actionReply.id,
           'Reply',
-          showsUserInterface: true,
-          icon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+          icon: DrawableResourceAndroidBitmap('notification_icon'),
           inputs: [
             AndroidNotificationActionInput(
               label: 'Type your reply...',
