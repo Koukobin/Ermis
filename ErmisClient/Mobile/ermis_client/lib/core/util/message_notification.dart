@@ -37,15 +37,17 @@ void handleChatMessageNotificationForeground(ChatSession chatSession, Message ms
     replyCallBack,
     newMessage: S.current.new_message,
     fileReceived: S.current.file_received(msg.fileName),
-    messagBy: S.current.message_by(msg.username),
+    messageBy: S.current.message_by(msg.username),
   );
 }
 
-/// For some reason, you cannot directly use and access [S] within the background service, since it relys 
-/// on flutter_localizations, which in turn, its underlying mechanisms, rely on the Flutter framework's 
-/// initialized state within the main isolate. The [S] class is set up during the initialization of the 
-/// localization delegates within the main isolate's [MaterialApp]. If the main isolate is gone, this 
-/// initialization never happened or is no longer valid. Hence, the following method.
+/// For some reason, you cannot directly use and access [S] within the background
+/// service, since it relies on flutter_localizations, which in turn, its
+/// underlying mechanisms, rely on the Flutter framework's initialized state
+/// within the main isolate. The [S] class is set up during the initialization of
+/// the localization delegates within the main isolate's [MaterialApp]. If the
+/// main isolate is gone, this initialization never happened or is no longer
+/// valid. Hence, the following method.
 void handleChatMessageNotificationBackground(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallBack replyCallBack) {
   handleChatMessageNotification(
     chatSession,
@@ -54,14 +56,14 @@ void handleChatMessageNotificationBackground(ChatSession chatSession, Message ms
     replyCallBack,
     newMessage: "New Message",
     fileReceived: "File Received",
-    messagBy: "Message By",
+    messageBy: "Message By",
   );
 }
 
 void handleChatMessageNotification(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallBack replyCallBack, {
   required String newMessage,
   required String fileReceived,
-  required String messagBy,
+  required String messageBy,
 }) {
   if (settingsJson.vibrationEnabled) {
     Vibration.vibrate();
@@ -102,7 +104,7 @@ void handleChatMessageNotification(ChatSession chatSession, Message msg, Setting
       .profilePhoto;
   NotificationService.showInstantNotification(
     icon: transmitterProfilePhoto,
-    body: messagBy,
+    body: messageBy,
     contentText: body,
     contentTitle: msg.username,
     summaryText: chatSession.toString(),

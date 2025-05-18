@@ -21,6 +21,7 @@ import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/core/widgets/profile_photos/interactive_user_avatar.dart';
@@ -70,9 +71,14 @@ class ChatUserAvatar extends InteractiveUserAvatar {
             IconButton(
                 onPressed: () {
                   popContext();
-                  showSnackBarDialog(
-                      context: context,
-                      content: S.current.functionality_not_implemented);
+                  pushSlideTransition(
+                      context,
+                      VoiceCallWebrtc(
+                        chatSessionID: chatSession.chatSessionID,
+                        chatSessionIndex: chatSession.chatSessionIndex,
+                        member: member,
+                        isInitiator: true,
+                      ));
                 },
                 icon: Icon(
                   Icons.phone_outlined,
@@ -81,9 +87,14 @@ class ChatUserAvatar extends InteractiveUserAvatar {
             IconButton(
                 onPressed: () {
                   popContext();
-                  showSnackBarDialog(
-                      context: context,
-                      content: S.current.functionality_not_implemented);
+                  pushSlideTransition(
+                      context,
+                      VoiceCallWebrtc(
+                        chatSessionID: chatSession.chatSessionID,
+                        chatSessionIndex: chatSession.chatSessionIndex,
+                        member: member,
+                        isInitiator: true,
+                      ));
                 },
                 icon: Icon(
                   Icons.video_call_outlined,
@@ -93,8 +104,9 @@ class ChatUserAvatar extends InteractiveUserAvatar {
                 onPressed: () {
                   popContext();
                   showSnackBarDialog(
-                      context: context,
-                      content: S.current.functionality_not_implemented);
+                    context: context,
+                    content: S.current.functionality_not_implemented,
+                  );
                 },
                 icon: Icon(
                   Icons.info_outline,

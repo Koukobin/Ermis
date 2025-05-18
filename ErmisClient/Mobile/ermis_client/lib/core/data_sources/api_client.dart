@@ -278,6 +278,7 @@ class Entry<T extends CredentialInterface> {
     ByteBuf payload = buffer!;
 
     isVerificationComplete = payload.readBoolean();
+    // ignore: unused_local_variable
     bool isSuccessful = payload.readBoolean();
 
     int id = payload.readInt32();
@@ -328,8 +329,6 @@ class Entry<T extends CredentialInterface> {
   }
 
   Future<void> resendVerificationCodeToEmail() async {
-    bool isAction = true;
-
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
     payload.writeInt32(GeneralEntryAction.action.id);
@@ -384,7 +383,6 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
   }
 
   Future<void> addDeviceInfo(DeviceType deviceType, String osName) async {
-    bool isAction = true;
     int actionId = CreateAccountAction.addDeviceInfo.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
@@ -405,7 +403,6 @@ class LoginEntry extends Entry<LoginCredential> {
   /// Switches between authenticating via password or backup verification code.
   /// This is useful for users who have lost their primary password and need an alternative method.
   void setPasswordType(PasswordType type) {
-    bool isAction = true;
     int actionId = LoginAction.togglePasswordType.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
@@ -418,7 +415,6 @@ class LoginEntry extends Entry<LoginCredential> {
   }
 
   void addDeviceInfo(DeviceType deviceType, String osName) {
-    bool isAction = true;
     int actionId = LoginAction.addDeviceInfo.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();

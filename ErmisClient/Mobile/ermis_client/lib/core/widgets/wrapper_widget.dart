@@ -14,19 +14,16 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// GENERATED CODE - DO NOT MODIFY BY HAND
+import 'package:flutter/widgets.dart';
 
-part of 'member_icon.dart';
+/// This [Widget]'s sole purpose it to wrap another [Widget]
+/// and add a [Key] to it. This class can be useful in cases
+/// when a [Widget] has already been initialized, yet you
+/// somehow want to add a [Key] to it afterwards
+class WrapperWidget extends StatelessWidget {
+  final Widget child;
+  const WrapperWidget({required super.key, required this.child});
 
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
-
-MemberIcon _$MemberIconFromJson(Map<String, dynamic> json) => MemberIcon(
-      const Uint8ListConverter().fromJson(json['profilePhoto'] as String),
-    );
-
-Map<String, dynamic> _$MemberIconToJson(MemberIcon instance) =>
-    <String, dynamic>{
-      'profilePhoto': const Uint8ListConverter().toJson(instance.profilePhoto),
-    };
+  @override
+  Widget build(BuildContext context) => child;
+}

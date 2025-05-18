@@ -14,17 +14,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
 import 'package:ermis_client/core/data/models/network/byte_buf.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/networking/common/message_types/voice_call_message_type.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:flutter/foundation.dart';
 import '../../event_bus/app_event_bus.dart';
 import '../../event_bus/event_bus.dart';
-import '../../models/inet_socket_address.dart';
 
 final EventBus _eventBus = AppEventBus.instance;
 
@@ -53,26 +50,6 @@ class VoiceCallHandler {
           chatSessionIndex: session.chatSessionIndex,
           member: member ?? session.members[0],
         ));
-        break;
-      case VoiceCallMessageType.userJoinedVoiceCall:
-        int clientID = msg.readInt32();
-        int chatSessionID = msg.readInt32();
-        int port = msg.readInt32();
-        Uint8List rawAddress = msg.readRemainingBytes();
-        _eventBus.fire(MemberAddedToVoiceCalll(
-          clientID: clientID,
-          chatSessionID: chatSessionID,
-          socket: JavaInetSocketAddress(InternetAddress.fromRawAddress(rawAddress), port),
-        ));
-
-        if (kDebugMode) {
-          debugPrint("Mother fucking eventbus");
-          debugPrint("Mother fucking eventbus");
-          debugPrint("Mother fucking eventbus");
-          debugPrint("Mother fucking eventbus");
-          debugPrint("Mother fucking eventbus");
-        }
-
         break;
       case VoiceCallMessageType.acceptVoiceCall:
         int chatSessionID = msg.readInt32();

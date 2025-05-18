@@ -25,6 +25,7 @@ import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/call_status.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/end_to_end_encrypted_indicator.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/local_camera_overlay_widget.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/time_elapsed_widget.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -38,6 +39,7 @@ import '../../../core/models/message_events.dart';
 import '../../../core/networking/user_info_manager.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/profile_photos/user_profile_photo.dart';
+import '../../../core/widgets/wrapper_widget.dart';
 import '../../../theme/app_colors.dart';
 
 class VoiceCallWebrtc extends StatefulWidget {
@@ -78,11 +80,14 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   bool isSpeakerPhoneEnabled = false;
   bool isShowingVideo = false;
   bool isMuted = false;
+
   bool showEndToEndEncryptedIndicator = false;
 
   CallStatus callStatus = CallStatus.connecting;
-  int elapsedSeconds = 0;
-  double rms = 0.0;
+  // double rms = 0.0;
+  
+  ValueNotifier<int> elapsedTimeNotifier = ValueNotifier<int>(0);
+  TimeElapsedWidget? elapsedTime;
 
   @override
   void initState() {
@@ -261,9 +266,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         return;
       }
 
-      if (peerConnection?.getRemoteStreams().isNotEmpty ?? false) {
-        elapsedSeconds++;
-        callStatus = CallStatus.active;
+      if ((peerConnection?.getRemoteStreams().isNotEmpty ?? false) &&
+          callStatus != CallStatus.active) {
+        setState(() {
+          callStatus = CallStatus.active;
+          elapsedTime = TimeElapsedWidget(elapsedTime: elapsedTimeNotifier);
+        });
       }
 
       // Ensure local stream audio tracks are up to date
@@ -271,14 +279,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         track.enableSpeakerphone(isSpeakerPhoneEnabled);
       });
 
-      double totalRMS = 0;
-      for (final track in localStream?.getAudioTracks() ?? []) {
+      // double totalRMS = 0;
+      // for (final track in localStream?.getAudioTracks() ?? []) {
         // ByteBuffer currentFrame = await track.captureFrame();
         // totalRMS += calculateRMS(currentFrame.asUint8List());
-      }
-      rms = totalRMS;
-
-      setState(() {});
+      // }
+      // rms = totalRMS;
     });
   }
 
@@ -303,6 +309,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       return callStatus == CallStatus.calling;
     });
 
+    // ignore: unused_local_variable
     VoiceCallAcceptedEvent event = await AppEventBus.instance.on<VoiceCallAcceptedEvent>().first;
     peerConnection = await createPeerConnection(configuration);
 
@@ -374,11 +381,11 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
             ? const EndToEndEncryptedIndicator(
                 key: ValueKey<bool>(false),
               )
-            : Text(
-                key: const ValueKey<bool>(true),
-                callStatus == CallStatus.active && elapsedSeconds > 10
-                    ? "${(elapsedSeconds / 60).floor()}:${elapsedSeconds % 60}"
-                    : callStatus.text,
+            : WrapperWidget(
+                key: ValueKey<bool>(true),
+                child: callStatus == CallStatus.active && elapsedTimeNotifier.value > 10
+                    ? elapsedTime!
+                    : Text(callStatus.text),
               ),
         transitionBuilder: (Widget child, Animation<double> animation) {
           final Animation<double> fadeOutAnimation = Tween<double>(
@@ -484,7 +491,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                                 child: RTCVideoView(
                                   remoteRenderer!,
                                   objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                                  mirror: true,
+                                  mirror: false,
                                 ),
                               ),
                             ),
