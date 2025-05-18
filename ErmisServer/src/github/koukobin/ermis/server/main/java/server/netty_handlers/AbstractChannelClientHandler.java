@@ -16,10 +16,12 @@
 package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -109,6 +111,14 @@ abstract sealed class AbstractChannelClientHandler extends
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		LOGGER.error("Exception caught", cause);
+	}
+
+	/**
+	 * Convience method for calling
+	 * {@link github.koukobin.ermis.server.main.java.server.ActiveClients#forActiveAccounts(int, Consumer)}
+	 */
+	protected void forActiveAccounts(Consumer<ClientInfo> action) {
+		ActiveClients.forActiveAccounts(clientInfo.getClientID(), action);
 	}
 
 	protected static final Logger getLogger() {

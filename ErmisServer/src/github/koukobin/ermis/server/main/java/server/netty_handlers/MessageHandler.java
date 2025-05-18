@@ -244,8 +244,15 @@ final class MessageHandler extends AbstractChannelClientHandler {
 				s.writeInt(MessageDeliveryStatus.DELIVERED.id);
 				s.writeInt(tempMessageID);
 				s.writeInt(messageID);
-				clientInfo.getChannel().writeAndFlush(s);
-				
+
+				List<ClientInfo> activeClients = ActiveClients.getClient(clientInfo.getClientID());
+				for (ClientInfo ci : activeClients) {
+					s.retain();
+					ci.getChannel().writeAndFlush(s.duplicate());
+				}
+
+				s.release();
+
 				try (ErmisDatabase.WriteChatMessagesDBConnection conn = ErmisDatabase.getWriteChatMessagesConnection()) {
 					conn.updateMessageReadStatus(messageID);
 				}
@@ -261,7 +268,14 @@ final class MessageHandler extends AbstractChannelClientHandler {
 			f.writeInt(MessageDeliveryStatus.FAILED.id);
 			f.writeInt(tempMessageID);
 			f.writeInt(messageID);
-			clientInfo.getChannel().writeAndFlush(f);
+
+			List<ClientInfo> activeClients = ActiveClients.getClient(clientInfo.getClientID());
+			for (ClientInfo ci : activeClients) {
+				f.retain();
+				ci.getChannel().writeAndFlush(f.duplicate());
+			}
+
+			f.release();
 
 			getLogger().debug("An error occured while attempting to forward client message by {} to {}",
 					clientInfo.getInetAddress(),
