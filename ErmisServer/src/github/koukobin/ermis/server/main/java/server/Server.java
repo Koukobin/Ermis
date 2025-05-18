@@ -129,8 +129,7 @@ public final class Server {
 			LOGGER.info("Server started successfully on port {} and at address {}", serverAddress.getPort(),
 					serverAddress.getHostName());
 			LOGGER.info("Waiting for new connections...");
-			
-//			VoiceCallSignallingServer.start();
+
 			WebRTCSignallingServer.run();
 		} catch (Exception e) {
 			LOGGER.fatal(Throwables.getStackTraceAsString(e));
