@@ -32,6 +32,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../constants/app_constants.dart';
 import '../../../core/networking/user_info_manager.dart';
 import '../../../core/widgets/custom_textfield.dart';
 import '../../../generated/l10n.dart';
@@ -236,38 +237,54 @@ class _ChangePasswordPageState extends State<ChangePasswordSettings>
     return Scaffold(
       appBar: ErmisAppBar(titleText: S.current.change_password),
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 200.0, horizontal: 16.0),
+        padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // App icon display
+            Image.asset(
+              AppConstants.appIconPath,
+              width: 100,
+              height: 100,
+            ),
+            
             KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
               if (isKeyboardVisible) {
                 return const SizedBox.shrink();
               }
-              return Container(margin: const EdgeInsets.only(top: 30));
+              return Container(margin: const EdgeInsets.only(top: 32));
             }),
 
             // Input field for email address
-            CustomTextField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              hint: S.current.email,
+            Padding(
+              padding: const EdgeInsets.only(top: 48),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomTextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    hint: S.current.email,
+                  ),
+              
+                  // Add space below the email input field
+                  const SizedBox(height: 10),
+              
+                  // Input field for password
+                  CustomTextField(
+                    keyboardType: TextInputType.text,
+                    controller: _passwordController,
+                    hint: S.current.password,
+                    obscureText: true,
+                  ),
+              
+                  // Add space below the password input field
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
-
-            // Add space below the email input field
-            const SizedBox(height: 10),
-
-            // Input field for password
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              controller: _passwordController,
-              hint: S.current.password,
-              obscureText: true,
-            ),
-
-            // Add space below the password input field
-            const SizedBox(height: 20),
 
             // Button to change password
             buildButton(
