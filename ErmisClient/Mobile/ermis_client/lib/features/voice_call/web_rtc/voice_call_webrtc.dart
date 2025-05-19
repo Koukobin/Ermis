@@ -383,7 +383,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
               )
             : WrapperWidget(
                 key: ValueKey<bool>(true),
-                child: callStatus == CallStatus.active && elapsedTimeNotifier.value > 10
+                child: callStatus == CallStatus.active
                     ? elapsedTime!
                     : Text(callStatus.text),
               ),
