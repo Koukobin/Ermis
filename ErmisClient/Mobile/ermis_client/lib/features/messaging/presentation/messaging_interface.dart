@@ -15,12 +15,10 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/services/database/extensions/chat_messages_extension.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
@@ -45,11 +43,9 @@ import '../../../core/networking/user_info_manager.dart';
 import '../../../core/widgets/loading_state.dart';
 import '../../../core/data_sources/api_client.dart';
 import '../../../core/models/chat_session.dart';
-import '../../../core/models/file_heap.dart';
 import '../../../core/models/message.dart';
 import '../../../core/networking/common/message_types/content_type.dart';
 import '../../../core/util/dialogs_utils.dart';
-import '../../../core/util/file_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/scroll/infinite_scroll_list.dart';
 import '../../../core/widgets/profile_photos/user_avatar.dart';
@@ -65,10 +61,16 @@ class MessagingInterface extends StatefulWidget {
   });
 
   @override
-  State<MessagingInterface> createState() => MessagingInterfaceState();
+  State<MessagingInterface> createState() => _MessagingInterfaceState();
 }
 
-class MessagingInterfaceState extends LoadingState<MessagingInterface> with EventBusSubscriptionMixin {
+/// This class tracks whether or not a [MessagingInterface] instance is currently active or not
+class MessageInterfaceTracker {
+  static bool _isScreenInstanceActive = false;
+  static bool get isScreenInstanceActive => _isScreenInstanceActive;
+}
+
+class _MessagingInterfaceState extends LoadingState<MessagingInterface> with EventBusSubscriptionMixin {
 
   late final int _chatSessionIndex;
   late ChatSession _chatSession; // Not final because can be updated by server
@@ -78,11 +80,11 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
 
-  static StreamSubscription<MessageReceivedEvent>? messenger;
-
   @override
   void initState() {
     super.initState();
+
+    MessageInterfaceTracker._isScreenInstanceActive = true;
 
     _chatSessionIndex = widget.chatSessionIndex;
     _chatSession = widget.chatSession;
@@ -127,8 +129,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
   }
 
   void _setupListeners() {
-    messenger?.cancel();
-
     subscribe(AppEventBus.instance.on<ChatSessionsStatusesEvent>(), (event) {
       setState(() {}); // Since chat sessions were updated simply setState
     });
@@ -136,16 +136,10 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
     subscribe(AppEventBus.instance.on<WrittenTextEvent>(), (event) {
       List<Message> messages = event.chatSession.messages;
 
-      _setMessages(messages);
       setState(() {
+        _messages = messages;
         isLoading = false;
       });
-
-      ServerInfo serverInfo = UserInfoManager.serverInfo;
-      ErmisDB.getConnection().insertChatMessages(
-        serverInfo: serverInfo,
-        messages: messages,
-      );
     });
 
     subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) {
@@ -154,12 +148,7 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
 
       Message message = event.message;
 
-      ErmisDB.getConnection().insertChatMessage(
-        serverInfo: UserInfoManager.serverInfo,
-        message: message,
-      );
-
-      if (event.chatSession.chatSessionID != _chatSession.chatSessionID) {
+      if (message.chatSessionID != _chatSession.chatSessionID) {
         SettingsJson settingsJson = SettingsJson();
         settingsJson.loadSettingsJson();
         handleChatMessageNotificationForeground(
@@ -171,27 +160,12 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
       }
     });
 
-    subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) async {
-      _updateFileMessage(event.file, event.messageID);
-
-      LoadedInMemoryFile file = event.file;
-      String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
-
-      if (!mounted) return; // Probably impossible but still check just in case
-      if (filePath != null) {
-        showSnackBarDialog(context: context, content: S.current.downloaded_file);
-        return;
-      }
-
-      showExceptionDialog(context, S.current.error_saving_file);
+    subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) {
+      if (mounted) setState(() {});
     });
 
     subscribe(AppEventBus.instance.on<ImageDownloadedEvent>(), (event) {
-      _updateFileMessage(event.file, event.messageID);
-    });
-
-    subscribe(AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>(), (event) {
-      showToastDialog(S.current.message_deletion_unsuccessful);
+      if (mounted) setState(() {});
     });
 
     subscribe(AppEventBus.instance.on<MessageDeletedEvent>(), (event) {
@@ -203,11 +177,8 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
       }
 
       _messagesBeingEdited.removeWhere((Message message) => message.messageID == messageID);
-      _messages.removeWhere((Message message) => message.messageID == messageID);
 
-      if (mounted) {
-        setState(() {});
-      }
+      if (mounted) setState(() {});
     });
 
     subscribe(AppEventBus.instance.on<MessageDeliveryStatusEvent>(), (event) {
@@ -216,11 +187,6 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
       if (message.chatSessionID == _chatSession.chatSessionID) {
         setState(() {});
       }
-
-      ErmisDB.getConnection().insertChatMessage(
-        serverInfo: UserInfoManager.serverInfo,
-        message: message,
-      );
     });
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
@@ -234,50 +200,13 @@ class MessagingInterfaceState extends LoadingState<MessagingInterface> with Even
 
   @override
   void dispose() {
-    messenger = AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
-      ChatSession chatSession = event.chatSession;
-      Message msg = event.message;
-
-      ErmisDB.getConnection().insertChatMessage(
-        serverInfo: Client.instance().serverInfo!,
-        message: msg,
-      );
-
-      // This instance would occur when the client is connected
-      // on a given ermis server from two distinct devices
-      if (msg.clientID == Client.instance().clientID) {
-        return;
-      }
-
-      SettingsJson settingsJson = SettingsJson();
-      settingsJson.loadSettingsJson();
-      handleChatMessageNotificationForeground(chatSession, msg, settingsJson, _sendTextMessage);
-    });
+    MessageInterfaceTracker._isScreenInstanceActive = false;
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-  }
-
-  void _setMessages(List<Message> messages) {
-    setState(() {
-      _messages = messages;
-    });
-  }
-
-  void _updateFileMessage(LoadedInMemoryFile file, int messageID) {
-    if (!mounted) return;
-    for (final message in _messages) {
-      if (message.messageID == messageID) {
-        setState(() {
-          message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
-          message.fileBytes = file.fileBytes;
-        });
-        break;
-      }
-    }
   }
 
   @override

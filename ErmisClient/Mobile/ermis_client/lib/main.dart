@@ -25,6 +25,7 @@ import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_client/core/services/database/extensions/chat_messages_extension.dart';
 import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_client/core/services/database/models/local_account_info.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
@@ -44,8 +45,12 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 // import 'package:http/http.dart' as http;
 
 import 'core/event_bus/app_event_bus.dart';
+import 'core/models/file_heap.dart';
 import 'core/models/message_events.dart';
+import 'core/networking/user_info_manager.dart';
+import 'core/util/file_utils.dart';
 import 'features/chats/chat_requests_screen.dart';
+import 'features/messaging/presentation/messaging_interface.dart';
 import 'features/settings/options/profile_settings.dart';
 import 'theme/app_theme.dart';
 import 'features/chats/chats_interface.dart';
@@ -159,36 +164,54 @@ void maintainWebSocketConnection(ServiceInstance service) async {
     final DBConnection conn = ErmisDB.getConnection();
     ServerInfo serverInfo = await conn.getServerUrlLastUsed();
 
-    await Client.instance().initialize(
-      serverInfo.serverUrl,
-      ServerCertificateVerification.ignore, // Since user connected once he has no issue connecting again
-    );
+    void initializeClient() async {
+      try {
+        await Client.instance().initialize(
+          serverInfo.serverUrl,
+          ServerCertificateVerification.ignore, // Since user connected once he has no issue connecting again
+        );
 
-    await Client.instance().readServerVersion();
-    Client.instance().startMessageDispatcher();
+        await Client.instance().readServerVersion();
+        Client.instance().startMessageDispatcher();
 
-    LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
-    if (userInfo == null) {
-      return;
+        LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
+        if (userInfo == null) {
+          return;
+        }
+
+        bool success = await Client.instance().attemptHashedLogin(userInfo);
+
+        if (!success) {
+          return;
+        }
+
+        await Client.instance().fetchUserInformation();
+        Client.instance().commands.setAccountStatus(ClientStatus.offline);
+      } catch (e) {
+        // Attempt to reinitialize client in case of failure
+        Future.delayed(const Duration(seconds: 30), initializeClient);
+      }
     }
 
-    bool success = await Client.instance().attemptHashedLogin(userInfo);
+    initializeClient();
 
-    if (!success) {
-      return;
-    }
-
-    await Client.instance().fetchUserInformation();
-    Client.instance().commands.setAccountStatus(ClientStatus.offline);
+    AppEventBus.instance.on<ConnectionResetEvent>().listen((event) {
+      // Attempt to re-establish connection in case of a connection reset
+      Future.delayed(const Duration(seconds: 30), initializeClient);
+    });
 
     AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
       ChatSession chatSession = event.chatSession;
       Message msg = event.message;
 
-      ErmisDB.getConnection().insertChatMessage(
+      DBConnection conn = ErmisDB.getConnection();
+
+      conn.insertChatMessage(
         serverInfo: Client.instance().serverInfo!,
         message: msg,
       );
+
+      conn.insertUnreadMessage(serverInfo, msg.chatSessionID, msg.messageID);
 
       // Display notification only if message does not originate from one's self
       if (msg.clientID == Client.instance().clientID) return;
@@ -324,6 +347,81 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
 
     subscribe(AppEventBus.instance.on<ConnectionResetEvent>(), (event) {
       showToastDialog(S.current.connection_reset);
+    });
+
+    subscribe(AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>(), (event) {
+      showToastDialog(S.current.message_deletion_unsuccessful);
+    });
+
+    subscribe(AppEventBus.instance.on<WrittenTextEvent>(), (event) {
+      List<Message> messages = event.chatSession.messages;
+
+      ServerInfo serverInfo = UserInfoManager.serverInfo;
+      DBConnection conn = ErmisDB.getConnection();
+
+      conn.insertChatMessages(
+        serverInfo: serverInfo,
+        messages: messages,
+      );
+    });
+
+    subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) async{
+      ChatSession chatSession = event.chatSession;
+      Message msg = event.message;
+
+      ServerInfo serverInfo = UserInfoManager.serverInfo;
+      DBConnection conn = ErmisDB.getConnection();
+
+      conn.insertChatMessage(
+        serverInfo: serverInfo,
+        message: msg,
+      );
+      conn.insertUnreadMessage(serverInfo, msg.chatSessionID, msg.messageID);
+
+      if (MessageInterfaceTracker.isScreenInstanceActive) return;
+
+      // This predicament could occur if a client is connected
+      // on a given ermis server from multiple devices with
+      // the same account.
+      if (msg.clientID == Client.instance().clientID) {
+        return;
+      }
+
+      SettingsJson settingsJson = SettingsJson();
+      settingsJson.loadSettingsJson();
+      handleChatMessageNotificationForeground(
+        chatSession,
+        msg,
+        settingsJson,
+        (text) => Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex),
+      );
+    });
+
+    subscribe(AppEventBus.instance.on<MessageDeliveryStatusEvent>(), (event) {
+      Message message = event.message;
+
+      ServerInfo serverInfo = UserInfoManager.serverInfo;
+      DBConnection conn = ErmisDB.getConnection();
+
+      conn.insertChatMessage(
+        serverInfo: serverInfo,
+        message: message,
+      );
+
+      conn.insertUnreadMessage(serverInfo, message.chatSessionID, message.messageID);
+    });
+
+    subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) async {
+      LoadedInMemoryFile file = event.file;
+      String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
+
+      if (!mounted) return; // Probably impossible but still check just in case
+      if (filePath != null) {
+        showSnackBarDialog(context: context, content: S.current.downloaded_file);
+        return;
+      }
+
+      showExceptionDialog(context, S.current.error_saving_file);
     });
 
     subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (event) {

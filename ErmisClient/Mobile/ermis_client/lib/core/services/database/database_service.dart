@@ -183,6 +183,18 @@ class DBConnection {
       );
     ''');
 
+    // 'unread_messages' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS unread_messages (
+        server_url TEXT NOT NULL,
+        chat_session_id INTEGER NOT NULL,
+        message_id INTEGER NOT NULL,
+        PRIMARY KEY (server_url, chat_session_id, message_id),
+        FOREIGN KEY (server_url, chat_session_id, message_id)
+            REFERENCES chat_messages (server_url, chat_session_id, message_id) ON DELETE CASCADE
+      );
+    ''');
+
     return db;
   }
 

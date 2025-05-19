@@ -21,6 +21,9 @@ import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/core/networking/user_info_manager.dart';
+import 'package:ermis_client/core/services/database/database_service.dart';
+import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
@@ -42,27 +45,21 @@ import '../../core/models/chat_session.dart';
 import '../../core/data_sources/api_client.dart';
 import '../../core/util/top_app_bar_utils.dart';
 
-void _pushMessageInterface(BuildContext context, ChatSession chatSession) {
-  pushSlideTransition(
-      context,
-      MessagingInterface(
-        chatSessionIndex: chatSession.chatSessionIndex,
-        chatSession: chatSession,
-      ));
-}
-
 class ChatUserAvatar extends InteractiveUserAvatar {
+  final void Function(BuildContext, ChatSession) pushMessageInterface;
+
   ChatUserAvatar({
     super.key,
     required super.chatSession,
     required super.member,
+    required this.pushMessageInterface,
   }) : super(onAvatarClicked: (BuildContext context, FutureVoidCallback popContext) {
           final appColors = Theme.of(context).extension<AppColors>()!;
           return [
             IconButton(
                 onPressed: () async {
                   await popContext();
-                  _pushMessageInterface(context, chatSession);
+                  pushMessageInterface(context, chatSession);
                 },
                 icon: Icon(
                   Icons.chat_outlined,
@@ -127,6 +124,9 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
   List<ChatSession>? _conversations;
   Set<ChatSession> selectedConversations = {}; // Set instead of list to prevent duplicates
 
+  /// Maps each chat session's ID to its corresponding [List] of unread messages
+  final Map<int /* chat session id */, List<int>? /* unread messages count */> unreadMessageCounts = {};
+
   final TextEditingController _searchController = TextEditingController();
   late FocusNode _focusNode;
 
@@ -155,6 +155,8 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
       task = Task.loading;
     }
 
+    retrieveUnreadMessages();
+
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
       _updateChatSessions(event.sessions);
     });
@@ -172,6 +174,13 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
     });
 
     _focusNode = FocusNode();
+  }
+
+  void retrieveUnreadMessages() async {
+    for (final ChatSession session in _conversations ?? const []) {
+      List<int>? messages = await ErmisDB.getConnection().retrieveUnreadMessages(UserInfoManager.serverInfo, session.chatSessionID);
+      unreadMessageCounts[session.chatSessionID] = messages;
+    }
   }
 
   @override
@@ -454,6 +463,29 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
       endIndex = startingIndex + _searchController.text.length;
     }
 
+    void pushMessageInterface(BuildContext context, ChatSession chatSession) {
+      pushSlideTransition(
+          context,
+          MessagingInterface(
+            chatSessionIndex: chatSession.chatSessionIndex,
+            chatSession: chatSession,
+          ));
+
+      final List<int>? unreadMessages = unreadMessageCounts[chatSession.chatSessionID];
+
+      if (unreadMessages == null) return;
+
+      ErmisDB.getConnection().deleteUnreadMessages(
+        UserInfoManager.serverInfo,
+        chatSession.chatSessionID,
+        unreadMessages,
+      );
+
+      unreadMessageCounts.remove(chatSession.chatSessionID);
+    }
+
+    final int? unreadMessages = unreadMessageCounts[chatSession.chatSessionID]?.length;
+
     final appColors = Theme.of(context).extension<AppColors>()!;
     return ListTile(
       onLongPress: () {
@@ -476,25 +508,43 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
           });
         }
       },
-      onTap: () => _pushMessageInterface(context, chatSession),
-      trailing: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return ScaleTransition(
-            scale: animation,
-            child: child,
-          );
-        },
-        child: selectedConversations.contains(chatSession)
-            ? Icon(
-                Icons.check_circle,
-                color: Colors.green,
-                key: ValueKey('selected_$sessionIndex'), // Unique key for the selected state
-              )
-            : Text(
-                chatSession.lastMessageSentTime,
-                style: const TextStyle(fontSize: 14),
+      onTap: () => pushMessageInterface(context, chatSession),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (unreadMessages != null)
+            CircleAvatar(
+              backgroundColor: Colors.red,
+              radius: 16.0,
+              child: Text(
+                "$unreadMessages",
+                style: TextStyle(
+                  color: appColors.inferiorColor,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+            ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return ScaleTransition(
+                scale: animation,
+                child: child,
+              );
+            },
+            child: selectedConversations.contains(chatSession)
+                ? Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    key: ValueKey('selected_$sessionIndex'), // Unique key for the selected state
+                  )
+                : Text(
+                    chatSession.lastMessageSentTime,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+          ),
+        ],
       ),
       horizontalTitleGap: chatSession.members.length * 3,
       leading: SizedBox(
@@ -505,7 +555,11 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
               Positioned(
                 left: index * 25,
                 top: index * 5.0 * pow(-1, index + 1),
-                child: ChatUserAvatar(member: member, chatSession: chatSession),
+                child: ChatUserAvatar(
+                  member: member,
+                  chatSession: chatSession,
+                  pushMessageInterface: pushMessageInterface,
+                ),
               ),
           ],
         ),

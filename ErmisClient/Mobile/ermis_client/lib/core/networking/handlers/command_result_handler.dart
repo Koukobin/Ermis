@@ -17,7 +17,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/networking/handlers/chat_sessions_service.dart';
+import 'package:ermis_client/core/networking/handlers/intermediary_service.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
@@ -53,6 +53,14 @@ class CommandResultHandler {
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
+        for (final message in UserInfoManager.chatSessionIDSToChatSessions[messageID]!.messages) {
+          if (message.messageID == messageID) {
+              message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
+              message.fileBytes = file.fileBytes;
+            break;
+          }
+        }
+
         _eventBus.fire(FileDownloadedEvent(file, messageID));
         break;
       case ClientCommandResultType.downloadImage:
@@ -63,6 +71,14 @@ class CommandResultHandler {
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
+        for (final message in UserInfoManager.chatSessionIDSToChatSessions[messageID]!.messages) {
+          if (message.messageID == messageID) {
+            message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
+            message.fileBytes = file.fileBytes;
+            break;
+          }
+        }
+
         _eventBus.fire(ImageDownloadedEvent(file, messageID));
         break;
       case ClientCommandResultType.downloadVoice:
@@ -72,6 +88,14 @@ class CommandResultHandler {
         final fileBytes = msg.readBytes(msg.readableBytes);
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
+
+        for (final message in UserInfoManager.chatSessionIDSToChatSessions[messageID]!.messages) {
+          if (message.messageID == messageID) {
+              message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
+            message.fileBytes = file.fileBytes;
+            break;
+          }
+        }
 
         _eventBus.fire(VoiceDownloadedEvent(file, messageID));
         break;
@@ -347,6 +371,9 @@ class CommandResultHandler {
             _eventBus.fire(const MessageDeletionUnsuccessfulEvent());
             continue;
           }
+
+          UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!
+            .messages.removeWhere((Message message) => message.messageID == messageID);
 
           _eventBus.fire(MessageDeletedEvent(UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!, messageID));
         }
