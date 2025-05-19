@@ -24,7 +24,7 @@ import 'package:ermis_client/core/services/database/models/local_user_info.dart'
 import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:flutter/foundation.dart';
 
-import 'handlers/chat_sessions_service.dart';
+import 'handlers/intermediary_service.dart';
 
 class UserInfoManager {
   static String? username;
