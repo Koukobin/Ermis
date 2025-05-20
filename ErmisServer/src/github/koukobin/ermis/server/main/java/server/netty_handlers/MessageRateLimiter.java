@@ -37,7 +37,8 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 
 	private static final Logger LOGGER = LogManager.getLogger("server");
 
-	private static final int MAX_REQUESTS_PER_SECOND = 10;
+	private static final int MAX_REQUESTS_PER_DESIGNATED_TIME = 50;
+	private static final int DESIGNATED_TIME_LIMIT_SECONDS = 5;
 	private static final int BLOCK_DURATION_SECONDS = 10;
 
 	private int requestCount;
@@ -59,15 +60,15 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 		}
 
 		Instant currentTime = Instant.now();
-		
-		// If a second has passed since the last message was sent reset the request count.
-		// Otherwise increment it and check whether or not it has exceeded the limit
-		if (currentTime.getEpochSecond() - lastMessageSent.getEpochSecond() >= 1) {
+
+		// If the designated time has passed since the last message was sent - reset the
+		// request count. Otherwise, increment it and check whether or not it has
+		// exceeded the limit.
+		if (currentTime.getEpochSecond() - lastMessageSent.getEpochSecond() >= DESIGNATED_TIME_LIMIT_SECONDS) {
 			requestCount = 1;
 		} else {
 			requestCount++;
-			if (requestCount > MAX_REQUESTS_PER_SECOND) {
-
+			if (requestCount > MAX_REQUESTS_PER_DESIGNATED_TIME) {
 				isBanned = true;
 
 				// Block incoming messages for a certain time interval
@@ -77,10 +78,9 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 				return;
 			}
 		}
-
 		lastMessageSent = currentTime;
 
-		ctx.fireChannelRead(msg); // Forwards message to next handler in the pipeline
+		ctx.fireChannelRead(msg); // Forward message to next handler in the pipeline
 	}
 
 	@Override
