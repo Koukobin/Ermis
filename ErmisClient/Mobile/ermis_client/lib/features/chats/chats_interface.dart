@@ -149,13 +149,19 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
   void initState() {
     super.initState();
 
-    _conversations = Client.instance().chatSessions;
+    _conversations = UserInfoManager.chatSessions;
     // If conversations is equal to null, set task to loading
     if (_conversations == null) {
       task = Task.loading;
     }
 
-    retrieveUnreadMessages();
+    _stream.listen((x) {
+      retrieveUnreadMessages();
+    });
+
+    for (final ChatSession session in _conversations ?? const []) {
+      Client.instance().commands.fetchWrittenText(session.chatSessionIndex);
+    }
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
       _updateChatSessions(event.sessions);

@@ -26,12 +26,12 @@ class ChatSession {
   List<Member> _members;
   List<int> memberIDs;
   List<Message> _messages;
-  bool _haveChatMessagesBeenCached;
+  bool _hasLatestMessages;
 
   ChatSession(this.chatSessionID, this.chatSessionIndex)
       : _members = [],
         _messages = [],
-        _haveChatMessagesBeenCached = false,
+        _hasLatestMessages = false,
         memberIDs = [];
 
   ChatSession.withDetails(
@@ -39,16 +39,13 @@ class ChatSession {
     this.chatSessionIndex,
     this._messages,
     this._members,
-    this._haveChatMessagesBeenCached,
+    this._hasLatestMessages,
     this.memberIDs,
   );
 
   void setMembers(List<Member> members) => _members = members;
-
   void setMessages(List<Message> messages) => _messages = messages;
-
-  void setHaveChatMessagesBeenCached(bool haveChatMessagesBeenCached) =>
-      _haveChatMessagesBeenCached = haveChatMessagesBeenCached;
+  void setHasLatestMessages(bool hasLatestMessages) => _hasLatestMessages = hasLatestMessages;
 
   List<Member> get members => _members;
   List<Message> get messages => _messages;
@@ -85,7 +82,7 @@ class ChatSession {
     return CustomDateFormatter.formatDate(localTime, "HH:mm");
   }
 
-  bool get areChatMessagesUpToDate => _haveChatMessagesBeenCached;
+  bool get hasLatestMessages => _hasLatestMessages;
 
   @override
   int get hashCode => Object.hash(
@@ -94,7 +91,7 @@ class ChatSession {
         Object.hashAll(_members),
         Object.hashAll(memberIDs),
         Object.hashAll(_messages),
-        _haveChatMessagesBeenCached,
+        _hasLatestMessages,
       );
 
   @override
@@ -104,7 +101,7 @@ class ChatSession {
 
     return chatSessionID == other.chatSessionID &&
         chatSessionIndex == other.chatSessionIndex &&
-        _haveChatMessagesBeenCached == other._haveChatMessagesBeenCached &&
+        _hasLatestMessages == other._hasLatestMessages &&
         _members == other._members &&
         _messages == other._messages;
   }

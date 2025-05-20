@@ -282,11 +282,13 @@ class CommandResultHandler {
         break;
       case ClientCommandResultType.getChatRequests:
         UserInfoManager.chatRequests = [];
+
         int friendRequestsLength = msg.readInt32();
         for (int i = 0; i < friendRequestsLength; i++) {
           int clientID = msg.readInt32();
-          UserInfoManager.chatRequests?.add(ChatRequest(clientID));
+          UserInfoManager.chatRequests!.add(ChatRequest(clientID));
         }
+
         _eventBus.fire(ChatRequestsEvent(UserInfoManager.chatRequests!));
         break;
       case ClientCommandResultType.getOtherAccountsAssociatedWithDevice:
@@ -299,10 +301,11 @@ class CommandResultHandler {
           Uint8List profilePhoto = msg.readBytes(msg.readInt32());
 
           UserInfoManager.otherAccounts!.add(Account(
-              profilePhoto: profilePhoto,
-              displayName: displayName,
-              email: email,
-              clientID: clientID));
+            profilePhoto: profilePhoto,
+            displayName: displayName,
+            email: email,
+            clientID: clientID,
+          ));
         }
 
         _eventBus.fire(OtherAccountsEvent(UserInfoManager.otherAccounts!));
@@ -358,7 +361,7 @@ class CommandResultHandler {
         messagesList.sort((a, b) => a.messageID.compareTo(b.messageID));
 
         chatSession.setMessages(messagesList);
-        chatSession.setHaveChatMessagesBeenCached(true);
+        chatSession.setHasLatestMessages(true);
         _eventBus.fire(WrittenTextEvent(chatSession));
         break;
       case ClientCommandResultType.deleteChatMessage:

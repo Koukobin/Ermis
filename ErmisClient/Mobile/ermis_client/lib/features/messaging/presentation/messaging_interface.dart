@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/services/database/extensions/chat_messages_extension.dart';
+import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
@@ -91,8 +92,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
     Future(() async {
       // Fetch cached messages or load from the server
-      if (!_chatSession.areChatMessagesUpToDate) {
-        List<Message> messages = await _retrieveLocalMessages();
+      if (!_chatSession.hasLatestMessages) {
+        List<Message> messages = await _retrieveFurtherLocalMessages();
         _chatSession.setMessages(messages);
 
         if (messages.isNotEmpty) {
@@ -111,14 +112,16 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
           isLoading = false;
         });
       }
+
       _setupListeners(); // Register message listeners
     });
   }
 
-  Future<List<Message>> _retrieveLocalMessages() async {
+  Future<List<Message>> _retrieveFurtherLocalMessages() async {
     List<Message> messages = await ErmisDB.getConnection().retrieveChatMessages(
-      UserInfoManager.serverInfo,
-      _chatSession.chatSessionID,
+      chatSessionID: _chatSession.chatSessionID,
+      serverInfo: UserInfoManager.serverInfo,
+      offset: _messages.length,
     );
 
     for (final m in messages) {
@@ -148,16 +151,24 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
       Message message = event.message;
 
-      if (message.chatSessionID != _chatSession.chatSessionID) {
-        SettingsJson settingsJson = SettingsJson();
-        settingsJson.loadSettingsJson();
-        handleChatMessageNotificationForeground(
-          event.chatSession,
-          message,
-          settingsJson,
-          _sendTextMessage,
-        );
+      if (message.chatSessionID == _chatSession.chatSessionID) {
+        return;
       }
+
+      ErmisDB.getConnection().insertUnreadMessage(
+        UserInfoManager.serverInfo,
+        message.chatSessionID,
+        message.messageID,
+      );
+
+      SettingsJson settingsJson = SettingsJson();
+      settingsJson.loadSettingsJson();
+      handleChatMessageNotificationForeground(
+        event.chatSession,
+        message,
+        settingsJson,
+        _sendTextMessage,
+      );
     });
 
     subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) {
@@ -370,11 +381,19 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                       appColors: appColors,
                     )));
           },
-          reLoadingTop: () {
+          reLoadingTop: () async {
             // If user reaches top of conversation retrieve more messages
             if (kDebugMode) debugPrint("Fetching written text");
 
-            Client.instance().commands.fetchWrittenText(_chatSessionIndex);
+            List<Message> messages = await _retrieveFurtherLocalMessages();
+            if (messages.isEmpty) {
+              Client.instance().commands.fetchWrittenText(_chatSessionIndex);
+              return;
+            }
+
+            setState(() {
+              _messages.addAll(messages);
+            });
           },
           reLoadingBottom: () {
             // If user scrolls below the bottom of conversation refresh

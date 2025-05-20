@@ -38,7 +38,11 @@ extension ChatMessagesExtension on DBConnection {
     }
   }
 
-  Future<void> insertChatMessage({required ServerInfo serverInfo, required Message message}) async {
+  Future<int> insertChatMessage({
+    required ServerInfo serverInfo,
+    required Message message,
+    ConflictAlgorithm onConflict = ConflictAlgorithm.ignore,
+  }) async {
     final db = await database;
 
     final epochSecond = message.epochSecond;
@@ -64,7 +68,7 @@ extension ChatMessagesExtension on DBConnection {
     }
     tsEntered = DateTime.fromMillisecondsSinceEpoch(epochSecond * 1000).toIso8601String();
 
-    await db.insert(
+    int resultUpdate = await db.insert(
       'chat_messages',
       {
         'server_url': serverInfo.toString(),
@@ -78,8 +82,10 @@ extension ChatMessagesExtension on DBConnection {
         'delivery_status': DeliveryStatusConverter.deliveryStatusToDatabaseInts[message.deliveryStatus],
         'ts_entered': tsEntered,
       },
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: onConflict,
     );
+
+    return resultUpdate;
   }
 
   Future<void> deleteChatMessage(
@@ -96,13 +102,20 @@ extension ChatMessagesExtension on DBConnection {
     );
   }
 
-  Future<List<Message>> retrieveChatMessages(ServerInfo serverInfo, int chatSessionID) async {
+  Future<List<Message>> retrieveChatMessages({
+    required ServerInfo serverInfo,
+    required int chatSessionID,
+    required int? offset,
+  }) async {
     final db = await database;
 
     final List<Map<String, Object?>> messagesMap = await db.query(
       'chat_messages',
       where: 'server_url = ? AND chat_session_id = ?',
       whereArgs: [serverInfo.toString(), chatSessionID],
+      orderBy: "message_id DESC",
+      limit: 100,
+      offset: offset,
     );
 
     List<Message> messages = messagesMap.map((record) {

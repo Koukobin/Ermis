@@ -40,6 +40,7 @@ import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/util/notifications_util.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:sqflite/sql.dart';
 // import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
 // import 'package:flutter_webrtc/flutter_webrtc.dart';
 // import 'package:http/http.dart' as http;
@@ -353,16 +354,33 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       showToastDialog(S.current.message_deletion_unsuccessful);
     });
 
-    subscribe(AppEventBus.instance.on<WrittenTextEvent>(), (event) {
+    subscribe(AppEventBus.instance.on<WrittenTextEvent>(), (event) async {
       List<Message> messages = event.chatSession.messages;
 
       ServerInfo serverInfo = UserInfoManager.serverInfo;
       DBConnection conn = ErmisDB.getConnection();
 
-      conn.insertChatMessages(
-        serverInfo: serverInfo,
-        messages: messages,
-      );
+      for (final Message message in messages) {
+        int resultUpdate = await conn.insertChatMessage(
+          serverInfo: serverInfo,
+          message: message,
+          onConflict: ConflictAlgorithm.ignore,
+        );
+
+        if (resultUpdate > 0 && message.clientID != UserInfoManager.clientID) {
+          conn.insertUnreadMessage(
+            serverInfo,
+            message.chatSessionID,
+            message.messageID,
+          );
+        }
+
+        await conn.insertChatMessage(
+          serverInfo: serverInfo,
+          message: message,
+          onConflict: ConflictAlgorithm.replace,
+        );
+      }
     });
 
     subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) async{
@@ -376,9 +394,6 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
         serverInfo: serverInfo,
         message: msg,
       );
-      conn.insertUnreadMessage(serverInfo, msg.chatSessionID, msg.messageID);
-
-      if (MessageInterfaceTracker.isScreenInstanceActive) return;
 
       // This predicament could occur if a client is connected
       // on a given ermis server from multiple devices with
@@ -386,6 +401,11 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       if (msg.clientID == Client.instance().clientID) {
         return;
       }
+
+      // If instance is active let it handle the message received event
+      if (MessageInterfaceTracker.isScreenInstanceActive) return;
+
+      conn.insertUnreadMessage(serverInfo, msg.chatSessionID, msg.messageID);
 
       SettingsJson settingsJson = SettingsJson();
       settingsJson.loadSettingsJson();
@@ -407,8 +427,6 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
         serverInfo: serverInfo,
         message: message,
       );
-
-      conn.insertUnreadMessage(serverInfo, message.chatSessionID, message.messageID);
     });
 
     subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) async {
