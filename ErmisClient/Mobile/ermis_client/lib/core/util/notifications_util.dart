@@ -255,10 +255,12 @@ class NotificationService {
             NotificationAction.acceptVoiceCall.id,
             'Accept',
             showsUserInterface: true, // Brings UI to the foreground
+            titleColor: AppConstants.darkAppColors.primaryColor,
           ),
           AndroidNotificationAction(
             NotificationAction.ignoreVoiceCall.id,
             'Ignore',
+            titleColor: AppConstants.darkAppColors.primaryColor,
           ),
         ],
         ticker: 'Incoming Voice Call',
@@ -302,6 +304,7 @@ class NotificationService {
           NotificationAction.actionReply.id,
           'Reply',
           icon: DrawableResourceAndroidBitmap('notification_icon'),
+          titleColor: AppConstants.darkAppColors.primaryColor,
           inputs: [
             AndroidNotificationActionInput(
               label: 'Type your reply...',
@@ -311,6 +314,7 @@ class NotificationService {
         AndroidNotificationAction(
           NotificationAction.markAsRead.id,
           'Mark as Read',
+          titleColor: AppConstants.darkAppColors.primaryColor,
         ),
       ],
       styleInformation: BigTextStyleInformation(
