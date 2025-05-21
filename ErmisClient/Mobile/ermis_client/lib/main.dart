@@ -165,7 +165,7 @@ void maintainWebSocketConnection(ServiceInstance service) async {
     final DBConnection conn = ErmisDB.getConnection();
     ServerInfo serverInfo = await conn.getServerUrlLastUsed();
 
-    void initializeClient() async {
+    void setupClient() async {
       try {
         await Client.instance().initialize(
           serverInfo.serverUrl,
@@ -190,15 +190,15 @@ void maintainWebSocketConnection(ServiceInstance service) async {
         Client.instance().commands.setAccountStatus(ClientStatus.offline);
       } catch (e) {
         // Attempt to reinitialize client in case of failure
-        Future.delayed(const Duration(seconds: 30), initializeClient);
+        Future.delayed(const Duration(seconds: 30), setupClient);
       }
     }
 
-    initializeClient();
+    setupClient();
 
     AppEventBus.instance.on<ConnectionResetEvent>().listen((event) {
       // Attempt to re-establish connection in case of a connection reset
-      Future.delayed(const Duration(seconds: 30), initializeClient);
+      Future.delayed(const Duration(seconds: 30), setupClient);
     });
 
     AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
