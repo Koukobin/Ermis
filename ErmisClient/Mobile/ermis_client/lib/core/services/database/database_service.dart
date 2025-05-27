@@ -60,15 +60,16 @@ class DBConnection {
       onDowngrade: (Database db, int oldVersion, int newVersion) async {},
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         if (oldVersion != newVersion) {
-          await db.execute('DROP TABLE server_profiles;');
-          await db.execute('DROP TABLE members;');
-          await db.execute('DROP TABLE chat_session_members;');
-          await db.execute('DROP TABLE chat_sessions;');
-          await db.execute('DROP TABLE chat_messages;');
+          await db.execute('DROP TABLE IF EXISTS server_profiles;');
+          await db.execute('DROP TABLE IF EXISTS members;');
+          await db.execute('DROP TABLE IF EXISTS chat_session_members;');
+          await db.execute('DROP TABLE IF EXISTS chat_sessions;');
+          await db.execute('DROP TABLE IF EXISTS chat_messages;');
         }
       },
       version: 6,
     );
+
     // Create the 'servers' table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS servers (

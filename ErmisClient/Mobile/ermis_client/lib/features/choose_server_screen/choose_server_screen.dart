@@ -65,7 +65,6 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
 
     NewFeaturesPageStatus status = SettingsJson().newFeaturesPageStatus;
     if (status.hasShown && status.version == AppConstants.applicationVersion) {
-
       if (kReleaseMode) return;
 
       // Many prints to ensure message is visible on terminal
@@ -157,6 +156,10 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                             hintText: "example.com",
                           );
 
+                          if (url.isEmpty) {
+                            return;
+                          }
+
                           ServerInfo serverInfo;
 
                           try {
@@ -166,9 +169,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                             return;
                           }
 
-                          setState(() {
-                            cachedServerUrls.add(serverInfo);
-                          });
+                          setState(() => cachedServerUrls.add(serverInfo));
                           ErmisDB.getConnection().insertServerInfo(serverInfo);
 
                           // Feedback
@@ -199,7 +200,8 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                         activeColor: appColors.primaryColor,
                         title: Text(
                           S.current.server_certificate_check,
-                          style: TextStyle(fontSize: 16, color: appColors.primaryColor),
+                          style: TextStyle(
+                              fontSize: 16, color: appColors.primaryColor),
                         ),
                       ),
                     ),
@@ -250,53 +252,56 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
 
                 // "Connect" Button
                 ElevatedButton(
-                  onPressed: _isConnectingToServer ? null : () async {
-                    // Reset information to ensure nothing leaks from previous sessions
-                    UserInfoManager.resetServerInformation();
-                    UserInfoManager.resetUserInformation();
-                    
-                    Uri url = Uri.parse(serverUrl!);
-                    setState(() => _isConnectingToServer = true);
+                  onPressed: _isConnectingToServer
+                      ? null
+                      : () async {
+                          // Reset information to ensure nothing leaks from previous sessions
+                          UserInfoManager.resetServerInformation();
+                          UserInfoManager.resetUserInformation();
 
-                    ServerInfo serverInfo = ServerInfo(url);
+                          Uri url = Uri.parse(serverUrl!);
+                          setState(() => _isConnectingToServer = true);
 
-                    final DBConnection conn = ErmisDB.getConnection();
-                    conn.updateServerUrlLastUsed(serverInfo);
+                          ServerInfo serverInfo = ServerInfo(url);
 
-                    try {
-                      await Client.instance().initialize(
-                        url,
-                        _checkServerCertificate
-                            ? ServerCertificateVerification.verify
-                            : ServerCertificateVerification.ignore,
-                      );
-                    } catch (e) {
-                      UserInfoManager.serverInfo = serverInfo;
-                      await UserInfoManager.fetchProfileInformation();
-                      await UserInfoManager.fetchLocalChatSessions();
-                      
-                      // Navigate to the main interface
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => const MainInterface()),
-                        (route) => false, // Removes all previous routes.
-                      );
+                          final DBConnection conn = ErmisDB.getConnection();
+                          conn.updateServerUrlLastUsed(serverInfo);
 
-                      if (e is SocketException) {
-                        await showToastDialog(S.current.connection_refused);
-                        return;
-                      }
+                          try {
+                            await Client.instance().initialize(
+                              url,
+                              _checkServerCertificate
+                                  ? ServerCertificateVerification.verify
+                                  : ServerCertificateVerification.ignore,
+                            );
+                          } catch (e) {
+                            UserInfoManager.serverInfo = serverInfo;
+                            await UserInfoManager.fetchProfileInformation();
+                            await UserInfoManager.fetchLocalChatSessions();
 
-                      if (e is ServerVerificationFailedException) {
-                        await showToastDialog(S.current.could_not_verify_server_certificate);
-                        return;
-                      }
+                            // Navigate to the main interface
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MainInterface()),
+                              (route) => false, // Removes all previous routes.
+                            );
 
-                      rethrow;
-                    }
+                            if (e is SocketException) {
+                              await showToastDialog(S.current.connection_refused);
+                              return;
+                            }
 
-                    setupClientSession(context);
-                  },
+                            if (e is ServerVerificationFailedException) {
+                              await showToastDialog(S.current.could_not_verify_server_certificate);
+                              return;
+                            }
+
+                            rethrow;
+                          }
+
+                          setupClientSession(context);
+                        },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: appColors.inferiorColor, // Splash color
                     backgroundColor: appColors.secondaryColor,

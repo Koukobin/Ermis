@@ -14,6 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/core/networking/user_info_manager.dart';
+import 'package:ermis_client/core/services/database/database_service.dart';
+import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_client/core/util/top_app_bar_utils.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class StorageAndDataScreen extends StatefulWidget {
@@ -25,54 +30,81 @@ class StorageAndDataScreen extends StatefulWidget {
 
 class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
   bool useLessDataForCalls = false;
+  int utilizedStorageByServerData = 0;
   
+  @override
+  void initState() {
+    super.initState();
+    
+    ErmisDB.getConnection()
+        .getByteSize(UserInfoManager.serverInfo)
+        .then((int totalBytes) {
+      setState(() {
+        utilizedStorageByServerData = totalBytes;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Storage and Data")),
+      appBar: ErmisAppBar(titleText: "Storage and Data"),
       body: ListView(
         children: [
           ListTile(
-            leading: Icon(Icons.storage),
+            leading: const Icon(Icons.storage),
             title: Text("Manage Storage"),
-            subtitle: Text("1.2 GB used"),
+            subtitle: Text("$utilizedStorageByServerData B used"),
             onTap: () {},
           ),
           ListTile(
-            leading: Icon(Icons.network_check),
+            leading: const Icon(Icons.network_check),
             title: Text("Network Usage"),
             subtitle: Text("200 MB sent • 1.5 GB received"),
             onTap: () {},
           ),
-          Divider(),
+          const Divider(),
           Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text("Media Auto-Download", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              "Media Auto-Download",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
           ListTile(
             title: Text("When using mobile data"),
             subtitle: Text("Photos"),
+            enabled: false,
             onTap: () {
               a(title: "When using mobile data", tiles: [
-                RadioListTile(title: Text("balls"),
-                    value: "value", groupValue: "groupValue", onChanged: (e) {})
+                RadioListTile(
+                  title: Text("balls"),
+                  value: "value",
+                  groupValue: "groupValue",
+                  onChanged: (e) {},
+                )
               ]);
             },
           ),
           ListTile(
             title: Text("When connected on Wi-Fi"),
             subtitle: Text("All media"),
+            enabled: false,
             onTap: () {},
           ),
           ListTile(
             title: Text("When roaming"),
             subtitle: Text("No media"),
+            enabled: false,
             onTap: () {},
           ),
-          Divider(),
+          const Divider(),
           Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text("Call Settings", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              "Call Settings",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
           SwitchListTile(
             title: Text("Use less data for calls"),
@@ -96,16 +128,16 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           title: Text(title),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: tiles
+            children: tiles,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false), // Cancel
-              child: const Text("Cancel", style: TextStyle(fontSize: 18)),
+              child: Text(S.current.cancel, style: const TextStyle(fontSize: 18)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true), // Confirm
-              child: const Text("OK", style: TextStyle(fontSize: 18)),
+              child: Text(S.current.ok, style: const TextStyle(fontSize: 18)),
             ),
           ],
         );

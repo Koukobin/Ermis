@@ -423,9 +423,13 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 96.0),
-                                  child: Image.asset(AppConstants.ermisCryingPath),
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 96.0),
+                                    child: Image.asset(
+                                      AppConstants.ermisCryingPath,
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(height: 15),
                                 Container(

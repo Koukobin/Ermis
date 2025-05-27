@@ -34,8 +34,7 @@ class LanguageSettingsPage {
     showCupertinoSheet(
         context: context,
         pageBuilder: (context) {
-          return StatefulBuilder(
-            builder: (BuildContext context, setState) {
+          return StatefulBuilder(builder: (context, StateSetter setState) {
             return Scaffold(
               appBar: AppBar(
                 leading: IconButton(

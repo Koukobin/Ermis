@@ -66,17 +66,19 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
           backgroundColor: Colors.transparent,
           color: appColors.primaryColor,
           child: _chatRequests!.isNotEmpty
-              ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: ListView.separated(
-                    itemCount: _chatRequests!.length,
-                    itemBuilder: (context, index) => buildChatRequestButton(index),
-                    separatorBuilder: (context, index) => Divider(
-                      color: appColors.tertiaryColor.withOpacity(0.0),
-                      thickness: 1,
-                      height: 16,
+              ? Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: ListView.separated(
+                      itemCount: _chatRequests!.length,
+                      itemBuilder: (context, index) => buildChatRequestButton(index),
+                      separatorBuilder: (context, index) => const Divider(
+                        color: Colors.transparent,
+                        thickness: 1,
+                        height: 16,
+                      ),
                     ),
-                  ),
+                ),
               )
               :
               // Wrap in a list view to ensure it is scrollable for refresh indicator

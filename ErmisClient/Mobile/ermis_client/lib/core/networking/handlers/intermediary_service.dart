@@ -34,7 +34,10 @@ class IntermediaryService {
   }) async {
     // A bit lazy, but will suffice for now
     LocalAccountInfo? accountInfo = await _databaseService.getLastUsedAccount(server);
-    LocalUserInfo? userInfo =  await _databaseService.getLocalUserInfo(server, accountInfo!.email);
+    if (accountInfo == null) return [];
+
+    LocalUserInfo? userInfo =  await _databaseService.getLocalUserInfo(server, accountInfo.email);
+
     return await _databaseService.fetchChatSessions(
       server: server,
       clientIDExclude: userInfo?.clientID ?? -1,
@@ -83,7 +86,9 @@ class IntermediaryService {
   }) async {
     // A bit lazy, but will suffice for now
     LocalAccountInfo? accountInfo = await _databaseService.getLastUsedAccount(server);
-    return _databaseService.getLocalUserInfo(server, accountInfo!.email);
+    if (accountInfo == null) return null;
+
+    return _databaseService.getLocalUserInfo(server, accountInfo.email);
   }
 
   Future<void> addLocalUserInfo({
