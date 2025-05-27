@@ -14,7 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/networking/common/message_types/server_info_message.dart';
 import 'package:ermis_client/core/networking/handlers/client_message_handler.dart';
@@ -30,10 +29,11 @@ import 'common/message_types/server_message_type.dart';
 import '../event_bus/event_bus.dart';
 import '../data/models/network/byte_buf.dart';
 
+final EventBus _eventBus = AppEventBus.instance;
+
 class MessageDispatcher {
-  final EventBus _eventBus = AppEventBus.instance;
   final ByteBufInputStream _inputStream;
-  MessageDispatcher({required ByteBufInputStream inputStream}) : _inputStream = inputStream;
+  const MessageDispatcher({required ByteBufInputStream inputStream}) : _inputStream = inputStream;
 
   void debute() {
     _inputStream.listen(

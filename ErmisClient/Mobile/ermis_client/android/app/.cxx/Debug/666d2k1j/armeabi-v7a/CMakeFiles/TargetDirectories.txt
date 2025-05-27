@@ -1,0 +1,2 @@
+/opt/flutter-apps/ermisclient/android/app/.cxx/Debug/666d2k1j/armeabi-v7a/CMakeFiles/edit_cache.dir
+/opt/flutter-apps/ermisclient/android/app/.cxx/Debug/666d2k1j/armeabi-v7a/CMakeFiles/rebuild_cache.dir

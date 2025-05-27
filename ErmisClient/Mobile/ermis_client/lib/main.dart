@@ -41,9 +41,6 @@ import 'package:ermis_client/core/util/notifications_util.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:sqflite/sql.dart';
-// import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
-// import 'package:flutter_webrtc/flutter_webrtc.dart';
-// import 'package:http/http.dart' as http;
 
 import 'core/event_bus/app_event_bus.dart';
 import 'core/models/file_heap.dart';
@@ -341,6 +338,12 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedPageIndex);
+
+    subscribe(AppEventBus.instance.on<Object>(), (event) {
+      final jsonStr = jsonEncode(event);
+      // ignore: unused_local_variable
+      final bytes = utf8.encode(jsonStr);
+    });
 
     subscribe(AppEventBus.instance.on<ServerMessageInfoEvent>(), (event) {
       showToastDialog(event.message);

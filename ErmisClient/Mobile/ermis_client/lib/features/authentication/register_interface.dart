@@ -144,7 +144,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                       CustomTextField(
                         maxLength: _passwordRequirements.maxLength,
                         illegalCharacters: _passwordRequirements.invalidCharacters,
-                        keyboardType: TextInputType.twitter,
+                        keyboardType: TextInputType.visiblePassword,
                         controller: _passwordController,
                         hint: S.current.password,
                         obscureText: true,

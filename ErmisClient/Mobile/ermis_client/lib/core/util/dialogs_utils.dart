@@ -33,7 +33,8 @@ Future<void> showToastDialog(String msg) async {
 /// This method must be used for dialogs that utilize the Hero animation to work correctly.
 /// It ensures the dialog is displayed using a transparent `PageRouteBuilder`,
 /// allowing Hero animations to function properly.
-Future<T?> showHeroDialog<T extends Object?>(BuildContext context, {required RoutePageBuilder pageBuilder}) async {
+Future<T?> showHeroDialog<T extends Object?>(BuildContext context,
+    {required RoutePageBuilder pageBuilder}) async {
   return await Navigator.of(context).push(PageRouteBuilder(
     opaque: false,
     barrierDismissible: false,
@@ -50,7 +51,8 @@ class WhatsAppPopupDialog extends StatefulWidget {
   State<WhatsAppPopupDialog> createState() => _WhatsAppPopupDialogState();
 }
 
-class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog> with SingleTickerProviderStateMixin {
+class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
 
@@ -106,7 +108,8 @@ Future<void> showWhatsAppDialog(
           ));
 }
 
-Future<void> showPermissionDeniedDialog(BuildContext context, Permission permission) async {
+Future<void> showPermissionDeniedDialog(
+    BuildContext context, Permission permission) async {
   await showWhatsAppDialog(
     context,
     buttons: [
@@ -126,7 +129,8 @@ Future<void> showPermissionDeniedDialog(BuildContext context, Permission permiss
   );
 }
 
-Future<void> showConfirmationDialog(BuildContext context, String content, GestureTapCallback runOnConfirmation) async {
+Future<void> showConfirmationDialog(BuildContext context, String content,
+    GestureTapCallback runOnConfirmation) async {
   final bool? shouldExit = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
@@ -154,7 +158,8 @@ Future<void> showConfirmationDialog(BuildContext context, String content, Gestur
   }
 }
 
-Future<void> showLogoutConfirmationDialog(BuildContext context, String content, VoidCallback onYes) async {
+Future<void> showLogoutConfirmationDialog(
+    BuildContext context, String content, VoidCallback onYes) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -172,7 +177,8 @@ Future<void> showLogoutConfirmationDialog(BuildContext context, String content, 
                 onYes();
                 Navigator.of(context).pop();
               },
-              child: Text(S.current.logout_capitalized, style: const TextStyle(color: Colors.red)),
+              child: Text(S.current.logout_capitalized,
+                  style: const TextStyle(color: Colors.red)),
             ),
           ],
         ),
@@ -189,7 +195,8 @@ Future<void> showExceptionDialog(BuildContext context, String exception) async {
   );
 }
 
-Future<T> showLoadingDialog<T>(BuildContext context, Future<T> executeWhileLoading) async {
+Future<T> showLoadingDialog<T>(
+    BuildContext context, Future<T> executeWhileLoading) async {
   showDialog(
     context: context,
     barrierDismissible: false, // Prevent dismissal by tapping outside
@@ -247,9 +254,7 @@ Future<void> showSimpleAlertDialog({
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(
                 foregroundColor: appColors.primaryColor,
               ),
@@ -340,7 +345,8 @@ class InputDialog extends StatefulWidget {
   State<InputDialog> createState() => _InputDialogState();
 }
 
-class _InputDialogState extends State<InputDialog> with TickerProviderStateMixin {
+class _InputDialogState extends State<InputDialog>
+    with TickerProviderStateMixin {
   late AnimationController focusedBorderAnimationController;
   late Animation<double> focusedBorderAnimation;
   late AnimationController unfocusedBorderAnimationController;
@@ -357,8 +363,9 @@ class _InputDialogState extends State<InputDialog> with TickerProviderStateMixin
 
     focusedBorderAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-          parent: focusedBorderAnimationController,
-          curve: Curves.easeOutCubic),
+        parent: focusedBorderAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
     );
 
     unfocusedBorderAnimationController = AnimationController(
@@ -368,8 +375,9 @@ class _InputDialogState extends State<InputDialog> with TickerProviderStateMixin
 
     unfocusedBorderanimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-          parent: unfocusedBorderAnimationController,
-          curve: Curves.easeOutCubic),
+        parent: unfocusedBorderAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
     );
 
     Future.delayed(
@@ -379,11 +387,13 @@ class _InputDialogState extends State<InputDialog> with TickerProviderStateMixin
     focusNode = FocusNode()
       ..addListener(() {
         if (focusedBorderAnimationController.isCompleted) {
-          focusedBorderAnimationController.reverse().whenComplete(
-              unfocusedBorderAnimationController.forward);
+          focusedBorderAnimationController
+              .reverse()
+              .whenComplete(unfocusedBorderAnimationController.forward);
         } else if (unfocusedBorderAnimationController.isCompleted) {
-          unfocusedBorderAnimationController.reverse().whenComplete(
-              focusedBorderAnimationController.forward);
+          unfocusedBorderAnimationController
+              .reverse()
+              .whenComplete(focusedBorderAnimationController.forward);
         }
       });
   }
@@ -439,8 +449,8 @@ class _InputDialogState extends State<InputDialog> with TickerProviderStateMixin
               builder: (context, child) {
                 return CustomPaint(
                   size: Size(MediaQuery.of(context).size.width, 2),
-                  painter:
-                      UnderlinePainter(focusedBorderAnimation, appColors.primaryColor),
+                  painter: UnderlinePainter(
+                      focusedBorderAnimation, appColors.primaryColor),
                 );
               },
             ),

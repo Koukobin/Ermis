@@ -14,9 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-/// This File contains all the callbacks to call in certain responses of the server -
-/// e.g receiving the username.
+/// This file contains all the callbacks to call in certain responses of the server -
+/// e.g. receiving the username.
 library;
 
 import 'dart:typed_data';

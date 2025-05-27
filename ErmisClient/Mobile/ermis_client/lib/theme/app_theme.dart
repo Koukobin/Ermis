@@ -101,7 +101,7 @@ class AppThemeState extends State<AppTheme> {
           borderSide: BorderSide(color: Colors.green),
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: widget.darkAppColors.tertiaryColor.withOpacity(1.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
@@ -217,7 +217,7 @@ class AppThemeState extends State<AppTheme> {
           borderSide: BorderSide(color: Colors.green),
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: widget.lightAppColors.tertiaryColor.withOpacity(1.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),

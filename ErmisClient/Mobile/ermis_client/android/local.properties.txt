@@ -1,0 +1,4 @@
+sdk.dir=/home/ilias/Android/Sdk
+flutter.sdk=/opt/flutter
+flutter.buildMode=debug
+flutter.versionName=1.0.0

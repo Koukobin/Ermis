@@ -14,13 +14,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
 import 'package:sqflite/sqflite.dart';
 
 extension ServersExtension on DBConnection {
-    Future<void> updateServerUrlLastUsed(ServerInfo serverInfo) async {
+  Future<void> updateServerUrlLastUsed(ServerInfo serverInfo) async {
     final db = await database;
 
     await db.update(
@@ -49,11 +48,8 @@ extension ServersExtension on DBConnection {
   Future<void> removeServerInfo(ServerInfo info) async {
     final db = await database;
 
-    await db.delete(
-      'servers',
-      where: 'server_url = ?',
-      whereArgs: [info.serverUrl.toString()]
-    );
+    await db.delete('servers',
+        where: 'server_url = ?', whereArgs: [info.serverUrl.toString()]);
   }
 
   Future<ServerInfo> getServerUrlLastUsed() async {
@@ -85,4 +81,29 @@ extension ServersExtension on DBConnection {
 
     return servers;
   }
+
+  /// Retrieves a rough approximation of storage utilized by
+  /// data stored locally associated with the given server
+  Future<int> getByteSize(ServerInfo info) async {
+    final db = await database;
+
+    // Approximation
+    final int serverDataBytes = Sqflite.firstIntValue(
+      await db.rawQuery('SELECT SUM(length(server_url) + length(last_used)) FROM servers'),
+    ) ?? 0;
+
+    // Approximation
+    final int memberDataBytes = Sqflite.firstIntValue(
+      await db.rawQuery('SELECT SUM(length(profile_photo) + length(display_name) + length(client_id) + length(last_updated_at)) FROM members;'),
+    ) ?? 0;
+
+    // Approximation
+    final int chatMessagesBytes = Sqflite.firstIntValue(
+      await db.rawQuery('SELECT SUM(length(text) + length(file_name) + length(content_type) + length(message_id) + length(delivery_status) + length(ts_entered)) FROM chat_messages;'),
+    ) ?? 0;
+
+    // Rough estimate
+    return serverDataBytes + memberDataBytes + chatMessagesBytes;
+  }
+
 }

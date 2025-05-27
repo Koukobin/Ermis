@@ -44,6 +44,7 @@ for file in "${DOC_FILES[@]}"; do
 done
 
 # Create DEB package
-sudo dpkg-deb --build ermis-server-installer || { echo "Failed to build DEB package"; exit 1; }
+chmod 755 ermis-server-installer/DEBIAN/ && chmod 644 ermis-server-installer/DEBIAN/* # Ensure correct permissions
+sudo dpkg-deb --build ermis-server-installer || { echo "Failed to build DEB package"; exit 0; }
 
 echo "DEB package succesfully created!"

@@ -26,7 +26,7 @@ enum AuthenticationStage {
   const AuthenticationStage(this.id);
 
   static final Map<int, AuthenticationStage> _valuesById = {
-    for (var stage in AuthenticationStage.values) stage.id: stage,
+    for (final stage in AuthenticationStage.values) stage.id: stage,
   };
 
   static AuthenticationStage? fromId(int id) => _valuesById[id];
@@ -47,7 +47,7 @@ enum CreateAccountAction {
   const CreateAccountAction(this.id);
 
   static final Map<int, CreateAccountAction> _valuesById = {
-    for (var action in CreateAccountAction.values) action.id: action,
+    for (final action in CreateAccountAction.values) action.id: action,
   };
 
   static CreateAccountAction? fromId(int id) => _valuesById[id];
@@ -63,7 +63,7 @@ enum CreateAccountCredential implements CredentialInterface {
   const CreateAccountCredential(this.id);
 
   static final Map<int, CreateAccountCredential> _valuesById = {
-    for (var credential in CreateAccountCredential.values) credential.id: credential,
+    for (final credential in CreateAccountCredential.values) credential.id: credential,
   };
 
   static CreateAccountCredential? fromId(int id) => _valuesById[id];
@@ -96,7 +96,7 @@ enum CredentialValidationResult implements Resultable {
   };
 
   static final Map<int, CredentialValidationResult> _valuesById = {
-    for (var result in CredentialValidationResult.values) result.id: result,
+    for (final result in CredentialValidationResult.values) result.id: result,
   };
 
   static CredentialValidationResult? fromId(int id) => _valuesById[id];

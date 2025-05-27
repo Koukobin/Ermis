@@ -226,12 +226,12 @@ class Entry<T extends CredentialInterface> {
 
     int id = buffer!.readInt32();
     return entryType == EntryType.createAccount
-            ? CredentialValidationResult.fromId(id)!
-            : LoginCredentialResult.fromId(id)!;
+        ? CredentialValidationResult.fromId(id)!
+        : LoginCredentialResult.fromId(id)!;
   }
 
-  Future<void> sendCredentials(Map<T, String> credentials) async {
-    for (final MapEntry<T,String> credential in credentials.entries) {
+  void sendCredentials(Map<T, String> credentials) {
+    for (final MapEntry<T, String> credential in credentials.entries) {
       int credentialInt = credential.key.id;
       String credentialValue = credential.value;
 
@@ -260,7 +260,7 @@ class Entry<T extends CredentialInterface> {
       ..writeInt32(entryType.id));
   }
 
-  Future<void> sendVerificationCode(int verificationCode) async {
+  void sendVerificationCode(int verificationCode) {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
     payload.writeInt32(verificationCode);
@@ -328,7 +328,7 @@ class Entry<T extends CredentialInterface> {
     return result;
   }
 
-  Future<void> resendVerificationCodeToEmail() async {
+  void resendVerificationCodeToEmail() {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);
     payload.writeInt32(GeneralEntryAction.action.id);
@@ -382,7 +382,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
     }
   }
 
-  Future<void> addDeviceInfo(DeviceType deviceType, String osName) async {
+  void addDeviceInfo(DeviceType deviceType, String osName) {
     int actionId = CreateAccountAction.addDeviceInfo.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
