@@ -43,6 +43,14 @@ extension ServersExtension on DBConnection {
       info.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    await db.insert(
+      "servers_network_usage",
+      {
+        "server_url": info.toString(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
   }
 
   Future<void> removeServerInfo(ServerInfo info) async {
@@ -106,4 +114,57 @@ extension ServersExtension on DBConnection {
     return serverDataBytes + memberDataBytes + chatMessagesBytes;
   }
 
+  Future<void> insertDataBytesReceived(ServerInfo info, int bytesSize) async {
+    final db = await database;
+
+    await db.insert(
+      "servers_network_usage",
+      {
+        "server_url": info.toString(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+
+    await db.rawUpdate("""UPDATE servers_network_usage
+        SET total_bytes_received = total_bytes_received + $bytesSize
+        WHERE server_url = "$info";""",
+    );
+  }
+
+  Future<void> insertDataBytesSent(ServerInfo info, int bytesSize) async {
+    final db = await database;
+
+    await db.insert(
+      "servers_network_usage",
+      {
+        "server_url": info.toString(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+
+    await db.rawUpdate("""UPDATE servers_network_usage
+        SET total_bytes_sent = total_bytes_sent + $bytesSize
+        WHERE server_url = "$info";""",
+    );
+  }
+
+  Future<int> getDataBytesReceived(ServerInfo info) async {
+    final db = await database;
+
+    int s = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT total_bytes_received FROM servers_network_usage WHERE server_url = "$info";'),
+        ) ?? 0;
+
+    return s;
+  }
+
+  Future<int> getDataBytesSent(ServerInfo info) async {
+    final db = await database;
+
+    int s = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT total_bytes_sent FROM servers_network_usage WHERE server_url = "$info";'),
+        ) ?? 0;
+
+    return s;
+  }
 }

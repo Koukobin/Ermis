@@ -339,10 +339,11 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
     super.initState();
     _pageController = PageController(initialPage: _selectedPageIndex);
 
-    subscribe(AppEventBus.instance.on<Object>(), (event) {
-      final jsonStr = jsonEncode(event);
-      // ignore: unused_local_variable
-      final bytes = utf8.encode(jsonStr);
+    subscribe(AppEventBus.instance.on<DataReceivedEvent>(), (event) {
+      ErmisDB.getConnection().insertDataBytesReceived(
+        UserInfoManager.serverInfo,
+        event.dataSizeBytes,
+      );
     });
 
     subscribe(AppEventBus.instance.on<ServerMessageInfoEvent>(), (event) {

@@ -114,6 +114,10 @@ class SettingsJson {
     _settingsJson["newFeaturesPageStatus"] = jsonEncode(page.toJson());
   }
 
+  void setUseLessDataForCallsEnabled(bool enabled) {
+    _settingsJson["useLessDataForCallsEnabled"] = enabled;
+  }
+
   bool get useSystemDefaultTheme => _settingsJson["useSystemDefaultTheme"];
   bool get isDarkModeEnabled => _settingsJson["darkMode"];
   ChatBackDrop get chatsBackDrop => ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
@@ -150,6 +154,8 @@ class SettingsJson {
 
   bool get isJsonLoaded => _isJsonLoaded;
   bool get isJsonNotLoaded => !_isJsonLoaded;
+
+  bool get useLessDataForCallsEnabled => _settingsJson["useLessDataForCallsEnabled"] ?? false;
 
   Future<void> saveSettingsJson() async {
     final path = await _getJsonSettingsFilePath();

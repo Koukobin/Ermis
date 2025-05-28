@@ -23,6 +23,8 @@ import 'package:ermis_client/core/networking/common/message_types/message_delive
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_client/core/services/database/database_service.dart';
+import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_client/core/services/database/models/local_user_info.dart';
 import 'package:flutter/foundation.dart';
 
@@ -38,8 +40,23 @@ import '../models/chat_session.dart';
 import '../models/message.dart';
 import '../data/models/network/output_stream.dart';
 
+class Writer {
+  final ByteBufOutputStream out;
+
+  const Writer(this.out);
+
+  void write(ByteBuf msg) {
+    ErmisDB.getConnection().insertDataBytesSent(
+      UserInfoManager.serverInfo,
+      msg.capacity,
+    );
+
+    out.write(msg);
+  }
+}
+
 class MessageTransmitter {
-  late final ByteBufOutputStream _outputStream;
+  late final Writer _writer;
 
   late final Commands _commands;
   final EventBus eventBus = AppEventBus.instance;
@@ -47,8 +64,8 @@ class MessageTransmitter {
   MessageTransmitter();
 
   void setByteBufOutputStream(ByteBufOutputStream outputStream) {
-    _outputStream = outputStream;
-    _commands = Commands(_outputStream);
+    _writer = Writer(outputStream);
+    _commands = Commands(_writer);
   }
 
   Message sendMessageToClient(String text, int chatSessionIndex) {
@@ -62,7 +79,7 @@ class MessageTransmitter {
     payload.writeInt32(textBytes.length);
     payload.writeBytes(textBytes);
 
-    _outputStream.write(payload);
+    _writer.write(payload);
 
     return createPendingMessage(
       text: Uint8List.fromList(utf8.encode(text)),
@@ -88,7 +105,7 @@ class MessageTransmitter {
     payload.writeBytes(fileNameBytes);
     payload.writeBytes(fileContentBytes);
 
-    _outputStream.write(payload);
+    _writer.write(payload);
 
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
@@ -114,7 +131,7 @@ class MessageTransmitter {
     payload.writeBytes(fileNameBytes);
     payload.writeBytes(fileContentBytes);
 
-    _outputStream.write(payload);
+    _writer.write(payload);
 
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
@@ -140,7 +157,7 @@ class MessageTransmitter {
     payload.writeBytes(fileNameBytes);
     payload.writeBytes(bytes);
 
-    _outputStream.write(payload);
+    _writer.write(payload);
 
     return createPendingMessage(
       fileName: Uint8List.fromList(utf8.encode(fileName)),
@@ -215,7 +232,7 @@ class MessageTransmitter {
 }
 
 class Commands {
-  final ByteBufOutputStream out;
+  final Writer out;
 
   const Commands(this.out);
 

@@ -18,6 +18,7 @@ import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/core/util/top_app_bar_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
+import '../../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../../generated/l10n.dart';
 import '../../../core/services/settings_json.dart';
 
@@ -56,7 +57,8 @@ class _NotificationSettingsState extends State<NotificationSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ErmisAppBar(titleText: S.current.notification_settings),
-      body: ListView(
+      body: ScrollViewFixer.createScrollViewWithAppBarSafety(
+          scrollView: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           // Enable/Disable Notifications
@@ -122,7 +124,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
             },
           ),
         ],
-      ),
+      )),
     );
   }
 

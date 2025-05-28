@@ -90,6 +90,16 @@ class DBConnection {
       );
     ''');
 
+    // Create the 'servers_network_usage' table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS servers_network_usage (
+        server_url TEXT NOT NULL,
+        total_bytes_sent INTEGER NOT NULL DEFAULT 0,
+        total_bytes_received INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (server_url)
+      );
+    ''');
+
     // Create 'server_accounts' table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS server_accounts_key_pairs (

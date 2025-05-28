@@ -17,9 +17,12 @@
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:ermis_client/core/util/top_app_bar_utils.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
+
+import '../../../core/widgets/scroll/custom_scroll_view.dart';
 
 class StorageAndDataScreen extends StatefulWidget {
   const StorageAndDataScreen({super.key});
@@ -32,6 +35,9 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
   bool useLessDataForCalls = false;
   int utilizedStorageByServerData = 0;
   
+  int dataSent = 0;
+  int dataReceived = 0;
+
   @override
   void initState() {
     super.initState();
@@ -43,13 +49,39 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
         utilizedStorageByServerData = totalBytes;
       });
     });
+
+    ErmisDB.getConnection()
+        .getDataBytesSent(UserInfoManager.serverInfo)
+        .then((int totalBytes) {
+      setState(() {
+        dataSent = totalBytes;
+      });
+    });
+
+    ErmisDB.getConnection()
+        .getDataBytesReceived(UserInfoManager.serverInfo)
+        .then((int totalBytes) {
+      setState(() {
+        dataReceived = totalBytes;
+      });
+    });
+
+    Future(() async {
+      SettingsJson settingsJson = SettingsJson();
+      await settingsJson.loadSettingsJson();
+
+      setState(() {
+        useLessDataForCalls = settingsJson.useLessDataForCallsEnabled;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ErmisAppBar(titleText: "Storage and Data"),
-      body: ListView(
+      body: ScrollViewFixer.createScrollViewWithAppBarSafety(
+          scrollView: ListView(
         children: [
           ListTile(
             leading: const Icon(Icons.storage),
@@ -60,7 +92,7 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           ListTile(
             leading: const Icon(Icons.network_check),
             title: Text("Network Usage"),
-            subtitle: Text("200 MB sent • 1.5 GB received"),
+            subtitle: Text("$dataSent B sent • $dataReceived B received"),
             onTap: () {},
           ),
           const Divider(),
@@ -113,10 +145,13 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
               setState(() {
                 useLessDataForCalls = value;
               });
+
+              SettingsJson().setUseLessDataForCallsEnabled(useLessDataForCalls);
+              SettingsJson().saveSettingsJson();
             },
           ),
         ],
-      ),
+      )),
     );
   }
 

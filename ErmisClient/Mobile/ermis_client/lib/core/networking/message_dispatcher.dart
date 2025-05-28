@@ -55,6 +55,8 @@ class MessageDispatcher {
   }
 
   void _dispatch(ByteBuf data) {
+    _eventBus.fire(DataReceivedEvent(data.capacity));
+
     try {
       ServerMessageType msgType = ServerMessageType.fromId(data.readInt32());
       switch (msgType) {

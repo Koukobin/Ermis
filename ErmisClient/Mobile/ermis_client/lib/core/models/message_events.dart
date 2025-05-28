@@ -33,6 +33,9 @@ import 'account.dart';
 import 'chat_session.dart';
 import 'file_heap.dart';
 
+/// Tagging interface for all message events
+// interface class MessageEvent {const MessageEvent();}
+
 class EntryMessage {
   final ByteBuf buffer;
   const EntryMessage(this.buffer);
@@ -210,4 +213,9 @@ class UserDevicesEvent {
 
 class ConnectionResetEvent {
   const ConnectionResetEvent();
+}
+
+class DataReceivedEvent {
+  final int dataSizeBytes;
+  const DataReceivedEvent(this.dataSizeBytes);
 }
