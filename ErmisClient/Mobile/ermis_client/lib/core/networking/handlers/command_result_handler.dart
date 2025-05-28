@@ -46,6 +46,7 @@ class CommandResultHandler {
   static Future<void> handle(ClientCommandResultType commandResult, ByteBuf msg) async {
     switch (commandResult) {
       case ClientCommandResultType.downloadFile:
+        final chatSessionID = msg.readInt32();
         final messageID = msg.readInt32();
         final fileNameLength = msg.readInt32();
         final fileNameBytes = msg.readBytes(fileNameLength);
@@ -53,7 +54,7 @@ class CommandResultHandler {
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
-        for (final message in UserInfoManager.chatSessionIDSToChatSessions[messageID]!.messages) {
+        for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
               message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
               message.fileBytes = file.fileBytes;
@@ -64,6 +65,7 @@ class CommandResultHandler {
         _eventBus.fire(FileDownloadedEvent(file, messageID));
         break;
       case ClientCommandResultType.downloadImage:
+        final chatSessionID = msg.readInt32();
         final messageID = msg.readInt32();
         final fileNameLength = msg.readInt32();
         final fileNameBytes = msg.readBytes(fileNameLength);
@@ -71,7 +73,7 @@ class CommandResultHandler {
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
-        for (final message in UserInfoManager.chatSessionIDSToChatSessions[messageID]!.messages) {
+        for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
             message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
             message.fileBytes = file.fileBytes;
@@ -83,13 +85,14 @@ class CommandResultHandler {
         break;
       case ClientCommandResultType.downloadVoice:
         final messageID = msg.readInt32();
+        final chatSessionID = msg.readInt32();
         final fileNameLength = msg.readInt32();
         final fileNameBytes = msg.readBytes(fileNameLength);
         final fileBytes = msg.readBytes(msg.readableBytes);
 
         final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
 
-        for (final message in UserInfoManager.chatSessionIDSToChatSessions[messageID]!.messages) {
+        for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
               message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
             message.fileBytes = file.fileBytes;

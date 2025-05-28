@@ -50,6 +50,7 @@ public class CommandResultHandler implements MessageHandler {
 
 		switch (commandResult) {
 		case DOWNLOAD_FILE -> {
+			int chatSessionID = msg.readInt();
 			int messageID = msg.readInt();
 
 			byte[] fileNameBytes = new byte[msg.readInt()];
@@ -61,6 +62,7 @@ public class CommandResultHandler implements MessageHandler {
 			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.FileDownloadedEvent(new LoadedInMemoryFile(new String(fileNameBytes), fileBytes)));
 		}
 		case DOWNLOAD_IMAGE -> {
+			int chatSessionID = msg.readInt();
 			int messageID = msg.readInt();
 			int fileNameLength = msg.readInt();
 
@@ -73,6 +75,7 @@ public class CommandResultHandler implements MessageHandler {
 			GlobalMessageDispatcher.getDispatcher().messageSubject.onNext(new Events.ImageDownloadedEvent(new LoadedInMemoryFile(new String(fileNameBytes), fileBytes), messageID));
 		}
 		case DOWNLOAD_VOICE -> {
+			int chatSessionID = msg.readInt();
 			int messageID = msg.readInt();
 
 			byte[] fileNameBytes = new byte[msg.readInt()];

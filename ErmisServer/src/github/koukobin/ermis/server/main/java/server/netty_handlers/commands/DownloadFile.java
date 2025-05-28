@@ -40,10 +40,11 @@ public class DownloadFile implements ICommand {
 		int messageID = args.readInt();
 		FileType fileType = FileType.fromId(args.readByte());
 
+		int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+
 		Optional<LoadedInMemoryFile> optionalFile;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			optionalFile = conn.getFile(messageID,
-					clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID());
+			optionalFile = conn.getFile(messageID, chatSessionID);
 		}
 
 		optionalFile.ifPresentOrElse((LoadedInMemoryFile file) -> {
@@ -86,6 +87,7 @@ public class DownloadFile implements ICommand {
 				getLogger().fatal(log, fileType);
 			}
 			}
+			payload.writeInt(chatSessionID);
 			payload.writeInt(fileNameBytes.length);
 			payload.writeBytes(fileNameBytes);
 			payload.writeBytes(fileBytes);
