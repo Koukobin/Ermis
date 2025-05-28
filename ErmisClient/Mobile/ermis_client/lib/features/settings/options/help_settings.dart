@@ -29,6 +29,7 @@ import '../../../core/models/message_events.dart';
 import '../../../constants/app_constants.dart';
 import '../../../core/util/file_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
+import '../../../core/widgets/scroll/custom_scroll_view.dart';
 
 class HelpSettings extends StatefulWidget {
 
@@ -63,7 +64,8 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
       appBar: ErmisAppBar(titleText: S.current.help_settings),
       body: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: ListView(
+          child: ScrollViewFixer.createScrollViewWithAppBarSafety(
+              scrollView: ListView(
             children: [
               // Section 1: Source Code
               Padding(
@@ -117,7 +119,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
                 },
               ),
 
-              Divider(thickness: 2),
+              const Divider(thickness: 2),
 
               // Section 3: Other
               Padding(
@@ -141,7 +143,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
                 },
               ),
             ],
-          )),
+          ))),
     );
   }
 }

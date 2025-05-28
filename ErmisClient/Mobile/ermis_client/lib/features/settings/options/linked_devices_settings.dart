@@ -28,6 +28,7 @@ import 'package:flutter/services.dart';
 import '../../../core/data_sources/api_client.dart';
 import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
+import '../../../core/widgets/scroll/custom_scroll_view.dart';
 
 class LinkedDevicesScreen extends StatefulWidget {
   const LinkedDevicesScreen({super.key});
@@ -117,7 +118,8 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       appBar: ErmisAppBar(titleText: S.current.linked_devices),
-      body: Column(
+      body: ScrollViewFixer.createScrollViewWithAppBarSafety(
+          scrollView: Column(
         children: [
           Flexible(
             child: devices!.isNotEmpty ? ListView.builder(
@@ -223,7 +225,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
             },
           )
         ],
-      ),
+      )),
     );
   }
   
