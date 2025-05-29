@@ -61,16 +61,12 @@ public class FetchWrittenText implements ICommand {
 			int messageID = message.getMessageID();
 			byte[] messageBytes = message.getText();
 			byte[] fileNameBytes = message.getFileName();
-			byte[] usernameBytes = message.getUsername().getBytes();
 			long timeWritten = message.getTimeWritten();
 			ClientContentType contentType = message.getContentType();
 
-			payload.writeInt((contentType.id));
+			payload.writeInt(contentType.id);
 			payload.writeInt(senderClientID);
 			payload.writeInt(messageID);
-
-			payload.writeInt(usernameBytes.length);
-			payload.writeBytes(usernameBytes);
 
 			payload.writeLong(timeWritten);
 			if (senderClientID == clientInfo.getClientID()) {

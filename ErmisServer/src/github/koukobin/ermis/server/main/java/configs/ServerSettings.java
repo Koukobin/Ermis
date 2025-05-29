@@ -66,7 +66,7 @@ public final class ServerSettings {
 
 	public static final int WORKER_THREADS = Integer.parseInt(GENERAL_PROPERTIES.getProperty("workerThreads"));
 
-	public static final int NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME = 80;
+	public static final int NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME = 30;
 
 	public static final int MAX_CLIENT_MESSAGE_FILE_BYTES = Integer.parseInt(GENERAL_PROPERTIES.getProperty("maxClientMessageFileBytes"));;
 	public static final int MAX_CLIENT_MESSAGE_TEXT_BYTES = Integer.parseInt(GENERAL_PROPERTIES.getProperty("maxClientMessageTextBytes"));

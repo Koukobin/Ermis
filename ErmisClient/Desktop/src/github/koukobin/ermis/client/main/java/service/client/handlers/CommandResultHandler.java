@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import github.koukobin.ermis.client.main.java.service.client.Client;
@@ -227,16 +228,10 @@ public class CommandResultHandler implements MessageHandler {
 			while (msg.readableBytes() > 0) {
 				ClientContentType contentType = ClientContentType.fromId(msg.readInt());
 
-				int clientID = msg.readInt();
+				int senderClientID = msg.readInt();
 				int messageID = msg.readInt();
 
 				String username;
-				{
-					byte[] usernameBytes = new byte[msg.readInt()];
-					msg.readBytes(usernameBytes);
-
-					username = new String(usernameBytes);
-				}
 
 				byte[] messageBytes = null;
 				byte[] fileNameBytes = null;
@@ -244,10 +239,15 @@ public class CommandResultHandler implements MessageHandler {
 				long epochSecond = msg.readLong();
 
 				boolean isRead;
-				if (clientID == Client.getClientID()) {
+				if (senderClientID == Client.getClientID()) {
 					isRead = msg.readBoolean();
+					username = Client.getDisplayName();
 				} else {
 					isRead = true;
+					username = chatSession.getMembers().stream()
+							.filter((Member member) -> member.getClientID() == senderClientID).findFirst()
+							.orElseThrow(() -> new NoSuchElementException("Could not find username of member"))
+							.getUsername();
 				}
 
 				switch (contentType) {
@@ -264,7 +264,7 @@ public class CommandResultHandler implements MessageHandler {
 				if (contentType != null) {
 					Message message = new Message(
 							username, 
-							clientID, 
+							senderClientID, 
 							messageID, 
 							chatSession.getChatSessionID(),
 							chatSessionIndex,

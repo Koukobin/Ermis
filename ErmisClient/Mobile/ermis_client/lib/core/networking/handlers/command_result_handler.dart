@@ -56,7 +56,7 @@ class CommandResultHandler {
 
         for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
-              message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
+              message.setFileName(utf8.encode(file.fileName));
               message.fileBytes = file.fileBytes;
             break;
           }
@@ -75,7 +75,7 @@ class CommandResultHandler {
 
         for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
-            message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
+            message.setFileName(utf8.encode(file.fileName));
             message.fileBytes = file.fileBytes;
             break;
           }
@@ -94,7 +94,7 @@ class CommandResultHandler {
 
         for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
-              message.setFileName(Uint8List.fromList(utf8.encode(file.fileName)));
+            message.setFileName(utf8.encode(file.fileName));
             message.fileBytes = file.fileBytes;
             break;
           }
@@ -177,7 +177,7 @@ class CommandResultHandler {
 
         _eventBus.fire(ChatSessionsIndicesReceivedEvent(UserInfoManager.chatSessions!));
 
-        Client.instance().commands.fetchChatSessions(); // Proceed to fetching chat sessions
+        Client.instance().commands?.fetchChatSessions(); // Proceed to fetching chat sessions
         break;
       case ClientCommandResultType.getChatSessions:
         Map<int /* client id */, Member> cache = {};
@@ -264,7 +264,7 @@ class CommandResultHandler {
 
         _eventBus.fire(ChatSessionsEvent(UserInfoManager.chatSessions!));
 
-        Client.instance().commands.fetchChatSessionsStatuses(); // Proceed to fetching statuses
+        Client.instance().commands?.fetchChatSessionsStatuses(); // Proceed to fetching statuses
         break;
       case ClientCommandResultType.getChatSessionStatuses:
         while (msg.readableBytes > 0) {
@@ -322,16 +322,23 @@ class CommandResultHandler {
           MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
           int senderClientID = msg.readInt32();
           int messageID = msg.readInt32();
-          String username = utf8.decode(msg.readBytes(msg.readInt32()));
+          
+          String username;
 
           Uint8List? messageBytes;
           Uint8List? fileNameBytes;
+          
           int epochSecond = msg.readInt64();
+
           bool isRead;
           if (senderClientID == UserInfoManager.clientID) {
             isRead = msg.readBoolean();
+            username = UserInfoManager.username!;
           } else {
             isRead = true;
+            username = chatSession.members
+                .firstWhere((member) => member.clientID == senderClientID)
+                .username;
           }
 
           switch (contentType) {
