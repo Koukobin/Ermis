@@ -160,7 +160,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
                 ElevatedButton(
                   onPressed: () => Client.instance()
                       .commands
-                      .acceptChatRequest(_chatRequests![index].clientID),
+                      ?.acceptChatRequest(_chatRequests![index].clientID),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.greenAccent,
                     shape: RoundedRectangleBorder(
@@ -173,7 +173,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
                 OutlinedButton(
                   onPressed: () => Client.instance()
                       .commands
-                      .declineChatRequest(_chatRequests![index].clientID),
+                      ?.declineChatRequest(_chatRequests![index].clientID),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
                     side: const BorderSide(color: Colors.redAccent),
@@ -192,7 +192,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
   }
 
   Future<void> _refreshContent() async {
-    Client.instance().commands.fetchChatRequests();
+    Client.instance().commands?.fetchChatRequests();
     setState(() {
       isLoading = true;
     });

@@ -224,7 +224,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                     onTap: () async {
                       Navigator.pop(context);
                       attachSingleFile(context, (String fileName, Uint8List fileBytes) {
-                        Client.instance().commands.setAccountIcon(fileBytes);
+                        Client.instance().commands?.setAccountIcon(fileBytes);
                       });
                     },
                   ),
@@ -244,7 +244,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                       }
 
                       Uint8List fileBytes = await file.readAsBytes();
-                      Client.instance().commands.setAccountIcon(fileBytes);
+                      Client.instance().commands?.setAccountIcon(fileBytes);
                     },
                   ),
                 ],
@@ -348,7 +348,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                         String newDisplayName = displayNameController.text;
                         Client.instance()
                             .commands
-                            .changeDisplayName(newDisplayName);
+                            ?.changeDisplayName(newDisplayName);
                         Navigator.of(context).pop();
                       },
                       child: Text(

@@ -14,7 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 import '../../../exceptions/EnumNotFoundException.dart';
 import 'command_level.dart';
 

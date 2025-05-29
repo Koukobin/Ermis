@@ -104,8 +104,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
         }
 
         // Ensure messages are up to date
-        Client.instance().commands.refetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
-        Client.instance().commands.refetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
+        Client.instance().commands?.refetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
+        Client.instance().commands?.refetchWrittenText(_chatSessionIndex); // BOTH ARE IMPORTANT
       } else {
         setState(() {
           _messages = _chatSession.messages;
@@ -309,7 +309,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
                         if (members.isEmpty) return;
                         List<int> memberIds = members.map((member) => member.clientID).toList();
-                        Client.instance().commands.addUsersInChatSession(_chatSession.chatSessionIndex, memberIds);
+                        Client.instance().commands?.addUsersInChatSession(_chatSession.chatSessionIndex, memberIds);
                       },
                       padding: const EdgeInsets.symmetric(horizontal: 25),
                       child: Text(S.current.add_user),
@@ -387,7 +387,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
             List<Message> messages = await _retrieveFurtherLocalMessages();
             if (messages.isEmpty) {
-              Client.instance().commands.fetchWrittenText(_chatSessionIndex);
+              Client.instance().commands?.fetchWrittenText(_chatSessionIndex);
               return;
             }
 
@@ -399,7 +399,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
             // If user scrolls below the bottom of conversation refresh
             if (kDebugMode) debugPrint("Refetching written text");
 
-            Client.instance().commands.refetchWrittenText(_chatSessionIndex);
+            Client.instance().commands?.refetchWrittenText(_chatSessionIndex);
           },
         )),
       ),
@@ -465,7 +465,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      Client.instance().commands.deleteMessages(_chatSessionIndex, messageIDs);
+                      Client.instance().commands?.deleteMessages(_chatSessionIndex, messageIDs);
                       showSnackBarDialog(context: context, content: S.current.attempting_delete_message);
                     },
                     child: Text(S.current.delete),

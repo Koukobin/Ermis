@@ -86,7 +86,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
                 title:
                     Text(S.current.server_source_code, style: const TextStyle(fontSize: 16)),
                 onTap: () {
-                  Client.instance().commands.requestServerSourceCodeHTMLPage();
+                  Client.instance().commands?.requestServerSourceCodeHTMLPage();
                 },
               ),
 
@@ -104,7 +104,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
                 title:
                     Text(S.current.donate_to_hoster, style: TextStyle(fontSize: 16)),
                 onTap: () {
-                  Client.instance().commands.requestDonationHTMLPage();
+                  Client.instance().commands?.requestDonationHTMLPage();
                 },
               ),
               ListTile(

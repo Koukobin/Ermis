@@ -14,8 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 import 'dart:async';
 
 import 'package:device_info_plus/device_info_plus.dart';

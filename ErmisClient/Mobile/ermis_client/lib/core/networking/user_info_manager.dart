@@ -44,6 +44,11 @@ class UserInfoManager {
   static late ServerInfo serverInfo;
 
   static Uint8List? _pendingAccountIcon;
+
+  /// This field distinguishes whether or not client
+  /// is actually connected to the server or is offline
+  // static late bool isConnectionActive;
+
   static set pendingAccountIcon(Uint8List pendingAccountIcon) => _pendingAccountIcon = pendingAccountIcon;
   static void commitPendingProfilePhoto(int lastUpdatedEpochSecond) {
     UserInfoManager.profilePhoto = UserInfoManager._pendingAccountIcon;

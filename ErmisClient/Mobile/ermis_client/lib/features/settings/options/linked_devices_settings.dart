@@ -44,7 +44,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
   void initState() {
     super.initState();
 
-    devices ?? Client.instance().commands.fetchDevices();
+    devices ?? Client.instance().commands?.fetchDevices();
     isLoading = devices == null;
 
     subscribe(AppEventBus.instance.on<UserDevicesEvent>(), (event) {
@@ -149,7 +149,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                                 () {
                               Client.instance()
                                   .commands
-                                  .logoutOtherDevice(device.ipAddress);
+                                  ?.logoutOtherDevice(device.ipAddress);
                             });
                           }
                         },
@@ -172,7 +172,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                             () {
                           Client.instance()
                               .commands
-                              .logoutOtherDevice(device.ipAddress);
+                              ?.logoutOtherDevice(device.ipAddress);
                         });
                       },
                     ),
@@ -219,7 +219,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
             onTap: () {
               showLogoutConfirmationDialog(context, S.current.are_you_sure_you_want_to_logout_from_all_devices,
                   () {
-                Client.instance().commands.logoutAllDevices();
+                Client.instance().commands?.logoutAllDevices();
                 SystemNavigator.pop();
               });
             },

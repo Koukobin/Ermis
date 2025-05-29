@@ -184,7 +184,7 @@ void maintainWebSocketConnection(ServiceInstance service) async {
         }
 
         await Client.instance().fetchUserInformation();
-        Client.instance().commands.setAccountStatus(ClientStatus.offline);
+        Client.instance().commands?.setAccountStatus(ClientStatus.offline);
       } catch (e) {
         // Attempt to reinitialize client in case of failure
         Future.delayed(const Duration(seconds: 30), setupClient);

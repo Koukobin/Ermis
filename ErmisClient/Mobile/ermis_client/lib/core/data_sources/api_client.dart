@@ -68,7 +68,7 @@ class Client {
 
   bool _isLoggedIn = false;
 
-  late MessageTransmitter _messageTransmitter;
+  MessageTransmitter? _messageTransmitter;
   bool _isMessageDispatcherRunning = false;
 
   Client._();
@@ -97,7 +97,7 @@ class Client {
       _outputStream = ByteBufOutputStream(socket: _sslSocket!);
 
       _messageTransmitter = MessageTransmitter();
-      _messageTransmitter.setByteBufOutputStream(_outputStream!);
+      _messageTransmitter!.setByteBufOutputStream(_outputStream!);
     } on HandshakeException {
       if (scv == ServerCertificateVerification.verify) {
         throw const ServerVerificationFailedException();
@@ -133,19 +133,19 @@ class Client {
   }
 
   Message sendMessageToClient(String text, int chatSessionIndex) {
-    return _messageTransmitter.sendMessageToClient(text, chatSessionIndex);
+    return _messageTransmitter!.sendMessageToClient(text, chatSessionIndex);
   }
 
   Message sendImageToClient(String fileName, Uint8List fileBytes, int chatSessionIndex) {
-    return _messageTransmitter.sendImageToClient(fileName, fileBytes, chatSessionIndex);
+    return _messageTransmitter!.sendImageToClient(fileName, fileBytes, chatSessionIndex);
   }
 
   Message sendFileToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
-    return _messageTransmitter.sendFileToClient(fileName, fileContentBytes, chatSessionIndex);
+    return _messageTransmitter!.sendFileToClient(fileName, fileContentBytes, chatSessionIndex);
   }
 
   Message sendVoiceMessageToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
-    return _messageTransmitter.sendVoiceToClient(fileName, fileContentBytes, chatSessionIndex);
+    return _messageTransmitter!.sendVoiceToClient(fileName, fileContentBytes, chatSessionIndex);
   }
 
   Entry createNewVerificationEntry() {
@@ -170,7 +170,7 @@ class Client {
           "User can't start writing to the server if they aren't logged in");
     }
 
-    await _messageTransmitter.fetchUserInformation();
+    await _messageTransmitter?.fetchUserInformation();
   }
 
   void startMessageDispatcher() {
@@ -191,7 +191,7 @@ class Client {
     UserInfoManager.resetServerInformation();
   }
 
-  Commands get commands => _messageTransmitter.commands;
+  Commands? get commands => _messageTransmitter?.commands;
   int get clientID => UserInfoManager.clientID;
   String? get displayName => UserInfoManager.username;
   Uint8List? get profilePhoto => UserInfoManager.profilePhoto;

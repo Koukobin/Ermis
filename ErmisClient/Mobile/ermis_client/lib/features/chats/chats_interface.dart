@@ -160,7 +160,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
     });
 
     for (final ChatSession session in _conversations ?? const []) {
-      Client.instance().commands.fetchWrittenText(session.chatSessionIndex);
+      Client.instance().commands?.fetchWrittenText(session.chatSessionIndex);
     }
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
@@ -242,7 +242,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
 
                     if (members.isEmpty) return;
                     List<int> memberIds = members.map((member) => member.clientID).toList();
-                    Client.instance().commands.createGroup(memberIds);
+                    Client.instance().commands?.createGroup(memberIds);
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
                   child: Text(
@@ -366,7 +366,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                               for (ChatSession cs in selectedConversations) {
                                 Client.instance()
                                     .commands
-                                    .deleteChatSession(cs.chatSessionIndex);
+                                    ?.deleteChatSession(cs.chatSessionIndex);
                               }
                             }, // Confirm
                             child: Text(S.current.delete_chat),
@@ -614,7 +614,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
   }
 
   Future<void> _refreshContent() async {
-    Client.instance().commands.fetchChatSessions();
+    Client.instance().commands?.fetchChatSessions();
     setState(() {
       task = Task.loading;
     });
@@ -669,7 +669,7 @@ class SendChatRequestButton extends StatefulWidget {
     }
 
     final int clientID = int.parse(input);
-    Client.instance().commands.sendChatRequest(clientID);
+    Client.instance().commands?.sendChatRequest(clientID);
   }
 }
 

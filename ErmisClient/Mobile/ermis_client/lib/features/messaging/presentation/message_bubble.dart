@@ -213,7 +213,7 @@ class MessageBubble extends StatelessWidget {
                                 setState(() {
                                   isDownloading = true;
                                 });
-                                Client.instance().commands.downloadFile(
+                                Client.instance().commands?.downloadFile(
                                       message.messageID,
                                       message.chatSessionIndex,
                                     );
@@ -290,7 +290,7 @@ class MessageBubble extends StatelessWidget {
                 });
                 Client.instance()
                     .commands
-                    .downloadImage(message.messageID, message.chatSessionIndex);
+                    ?.downloadImage(message.messageID, message.chatSessionIndex);
               }
             },
             child: Container(
@@ -554,7 +554,7 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
               onPressed: () {
                 if (_message.fileBytes == null) {
                   // Audio will be played automatically once voice message is received
-                  Client.instance().commands.downloadSound(
+                  Client.instance().commands?.downloadSound(
                         _message.messageID,
                         _message.chatSessionIndex,
                       );

@@ -98,7 +98,7 @@ void onDidReceiveNotification(NotificationResponse response) async {
         }
 
         await Client.instance().fetchUserInformation();
-        Client.instance().commands.setAccountStatus(ClientStatus.offline);
+        Client.instance().commands?.setAccountStatus(ClientStatus.offline);
 
         await Future.delayed(const Duration(seconds: 10)); // Await until first screen builds
 

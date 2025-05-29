@@ -59,7 +59,7 @@ class AccountSettings extends StatefulWidget {
   static Future<void> showOtherAccounts(BuildContext context) async {
     // Fetch other accounts before displaying sheet
     if (_accounts == null) {
-      Client.instance().commands.fetchOtherAccountsAssociatedWithDevice();
+      Client.instance().commands?.fetchOtherAccountsAssociatedWithDevice();
       await AppEventBus.instance.on<OtherAccountsEvent>().first;
     }
 
@@ -126,7 +126,7 @@ class AccountSettings extends StatefulWidget {
                         lastUsed: DateTime.now(),
                       );
 
-                      Client.instance().commands.switchAccount();
+                      Client.instance().commands?.switchAccount();
                       setupClientSession(context,
                           accountInfo: matchingAccount,
                           keepPreviousRoutes: true);
@@ -145,7 +145,7 @@ class AccountSettings extends StatefulWidget {
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        Client.instance().commands.addNewAccount();
+                        Client.instance().commands?.addNewAccount();
                         pushSlideTransition(
                             context, const CreateAccountInterface());
                       },
@@ -227,7 +227,7 @@ class _ChangePasswordPageState extends State<ChangePasswordSettings>
   final _passwordController = TextEditingController();
 
   Future<void> _changePassword() async {
-    Client.instance().commands.changePassword(_emailController.text, _passwordController.text);
+    Client.instance().commands?.changePassword(_emailController.text, _passwordController.text);
     await performChangePasswordVerification(context, _emailController.text);
   }
 
@@ -396,7 +396,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
             // Button to delete the account
             ElevatedButton(
               onPressed: () async {
-                Client.instance().commands.deleteAccount(
+                Client.instance().commands?.deleteAccount(
                     _emailController.text, _passwordController.text);
                 final isSuccessful = await performDeleteAccountVerification(
                     context, _emailController.text);
@@ -504,7 +504,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
                         String newDisplayName = displayNameController.text;
                         Client.instance()
                             .commands
-                            .changeDisplayName(newDisplayName);
+                            ?.changeDisplayName(newDisplayName);
                         Navigator.of(context).pop();
                       },
                       child: Text(

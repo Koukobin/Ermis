@@ -216,6 +216,7 @@ class MessageTransmitter {
             profilePhoto == null ||
             chatRequests == null ||
             chatSessions == null ||
+            chatSessions!.any((session) => session.chatSessionIndex == -1) ||
             UserInfoManager.accountStatus == null);
       });
     });
@@ -631,4 +632,5 @@ class Commands {
     payload.writeInt32(chatSessionIndex);
     out.write(payload);
   }
+
 }
