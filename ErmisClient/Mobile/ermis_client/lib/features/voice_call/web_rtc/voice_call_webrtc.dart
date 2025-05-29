@@ -22,6 +22,7 @@ import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/animating_circle_denoting_sound.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/call_status.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/end_to_end_encrypted_indicator.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/local_camera_overlay_widget.dart';
@@ -97,7 +98,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
-      Client.instance().commands.fetchSignallingServerPort();
+      Client.instance().commands?.fetchSignallingServerPort();
       SignallingServerPortEvent e = await AppEventBus.instance.on<SignallingServerPortEvent>().first;
 
       // Create a WebSocket to your signaling server.
@@ -290,11 +291,11 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
   Future<void> _startOrAcceptVoiceCall() async {
     if (!widget.isInitiator) {
-      Client.instance().commands.acceptVoiceCall(widget.chatSessionIndex);
+      Client.instance().commands?.acceptVoiceCall(widget.chatSessionIndex);
       return;
     }
 
-    Client.instance().commands.startVoiceCall(widget.chatSessionIndex);
+    Client.instance().commands?.startVoiceCall(widget.chatSessionIndex);
 
     setState(() {
       callStatus = CallStatus.calling;
@@ -467,41 +468,33 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                   buildCallStatusAndEndToEndEncryptedIndicator(),
                 ],
               ),
-              // Stack(
-              //   alignment: Alignment.center,
-              //   children: [
-              //     AnimatedSize(
-              //       duration: const Duration(milliseconds: 100),
-              //       child: CircleAvatar(
-              //         radius: (100 + rms) >= 200 ? 200 : 100 + rms,
-              //         backgroundColor: const Color.fromRGBO(158, 158, 158, 0.4),
-              //       ),
-              //     ),
-              //   ],
-              // ),
               Expanded(
                 child: Stack(
                   children: [
-                    remoteRenderer?.srcObject != null && isReceivingVideo
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.all(Radius.circular(12)),
-                                child: RTCVideoView(
-                                  remoteRenderer!,
-                                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                                  mirror: false,
-                                ),
-                              ),
-                            ),
-                          )
-                        : Center(
-                            child: UserProfilePhoto(
-                              radius: 100,
-                              profileBytes: widget.member.icon.profilePhoto,
+                    if (remoteRenderer?.srcObject != null && isReceivingVideo)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.all(Radius.circular(12)),
+                            child: RTCVideoView(
+                              remoteRenderer!,
+                              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                              mirror: false,
                             ),
                           ),
+                        ),
+                      )
+                    else ...[
+                      if (callStatus == CallStatus.active)
+                        const Center(child: AnimatingCircleDenotingSound()),
+                      Center(
+                        child: UserProfilePhoto(
+                          radius: 100,
+                          profileBytes: widget.member.icon.profilePhoto,
+                        ),
+                      ),
+                    ],
                     localRenderer?.srcObject != null && isShowingVideo
                         ? LocalCameraOverlayWidget(
                             localRenderer: localRenderer!,
