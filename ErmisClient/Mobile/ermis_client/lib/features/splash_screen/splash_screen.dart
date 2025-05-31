@@ -16,6 +16,7 @@
 
 import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -27,19 +28,26 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  SplashScreenState createState() => SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    fetch();
+    _fetchServerUrls();
   }
 
-  void fetch() async {
-    // Fetch server URLs asynchronously
-    Set<ServerInfo> cachedServerUrls = (await ErmisDB.getConnection().getServerUrls()).toSet();
+  /// Fetch server URLs asynchronously
+  void _fetchServerUrls() async {
+    Set<ServerInfo> cachedServerUrls;
+    try {
+      cachedServerUrls = (await ErmisDB.getConnection().getServerUrls()).toSet();
+    } catch (e) {
+      showToastDialog(e.toString());
+      return;
+    }
+
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
@@ -84,5 +92,4 @@ class SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-  
 }
