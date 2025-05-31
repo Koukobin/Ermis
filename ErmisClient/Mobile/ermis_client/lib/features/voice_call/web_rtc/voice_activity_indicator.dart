@@ -16,14 +16,14 @@
 
 import 'package:flutter/material.dart';
 
-class AnimatingCircleDenotingSound extends StatefulWidget {
-  const AnimatingCircleDenotingSound({super.key});
+class IndicatorDenotingVoiceActivity extends StatefulWidget {
+  const IndicatorDenotingVoiceActivity({super.key});
 
   @override
-  State<AnimatingCircleDenotingSound> createState() => _AnimatingCircleDenotingSoundState();
+  State<IndicatorDenotingVoiceActivity> createState() => _IndicatorDenotingVoiceActivityState();
 }
 
-class _AnimatingCircleDenotingSoundState extends State<AnimatingCircleDenotingSound> with SingleTickerProviderStateMixin {
+class _IndicatorDenotingVoiceActivityState extends State<IndicatorDenotingVoiceActivity> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
