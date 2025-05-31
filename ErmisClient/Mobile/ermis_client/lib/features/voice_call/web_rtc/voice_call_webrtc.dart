@@ -22,8 +22,9 @@ import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/features/voice_call/web_rtc/animating_circle_denoting_sound.dart';
-import 'package:ermis_client/features/voice_call/web_rtc/call_status.dart';
+import 'package:ermis_client/core/util/transitions_util.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/voice_activity_indicator.dart';
+import 'package:ermis_client/features/voice_call/web_rtc/call_status_enum.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/end_to_end_encrypted_indicator.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/local_camera_overlay_widget.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/time_elapsed_widget.dart';
@@ -58,7 +59,7 @@ class VoiceCallWebrtc extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _VoiceCallWebrtcState();
+  State<VoiceCallWebrtc> createState() => _VoiceCallWebrtcState();
 }
 
 class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
@@ -70,45 +71,85 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     ]
   };
 
-  IOWebSocketChannel? channel;
-  MediaStream? localStream;
-  RTCPeerConnection? peerConnection;
+  static IOWebSocketChannel? channel;
+  static MediaStream? localStream;
+  static RTCPeerConnection? peerConnection;
 
-  RTCVideoRenderer? remoteRenderer;
-  RTCVideoRenderer? localRenderer;
+  static RTCVideoRenderer? remoteRenderer;
+  static RTCVideoRenderer? localRenderer;
 
-  bool isReceivingVideo = false;
-  bool isSpeakerPhoneEnabled = false;
-  bool isShowingVideo = false;
-  bool isMuted = false;
+  static bool isReceivingVideo = false;
+  static bool isSpeakerPhoneEnabled = false;
+  static bool isShowingVideo = false;
+  static bool isMuted = false;
 
-  bool showEndToEndEncryptedIndicator = false;
+  static bool showEndToEndEncryptedIndicator = false;
 
-  CallStatus callStatus = CallStatus.connecting;
+  static CallStatus callStatus = CallStatus.connecting;
   // double rms = 0.0;
   
-  ValueNotifier<int> elapsedTimeNotifier = ValueNotifier<int>(0);
-  TimeElapsedWidget? elapsedTime;
+  static ValueNotifier<int> elapsedTimeNotifier = ValueNotifier<int>(0);
+  static TimeElapsedWidget? elapsedTime;
+
+  static OverlayEntry? returnToCallOverlayEntry;
+
+  Future<void> _resetCallData() async {
+    await channel?.innerWebSocket?.close();
+    await localStream?.dispose();
+    await peerConnection?.close();
+    await remoteRenderer?.dispose();
+    await localRenderer?.dispose();
+
+    channel = null;
+    localStream = null;
+    peerConnection = null;
+    remoteRenderer = null;
+    localRenderer = null;
+
+    isReceivingVideo = false;
+    isSpeakerPhoneEnabled = false;
+    isShowingVideo = false;
+    isMuted = false;
+    showEndToEndEncryptedIndicator = false;
+
+    callStatus = CallStatus.connecting;
+
+    elapsedTimeNotifier = ValueNotifier<int>(0);
+    elapsedTime = null;
+  }
 
   @override
   void initState() {
     super.initState();
-    
-    Future(() async {
-      final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
-      Client.instance().commands?.fetchSignallingServerPort();
-      SignallingServerPortEvent e = await AppEventBus.instance.on<SignallingServerPortEvent>().first;
+    returnToCallOverlayEntry?.remove();
+    returnToCallOverlayEntry = null;
 
-      // Create a WebSocket to your signaling server.
-      channel = IOWebSocketChannel.connect(
-        Uri.parse('wss://${UserInfoManager.serverInfo.address!.host}:${e.port}/ws'),
-        customClient: client,
-      );
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
 
-      await _startListeningForCalls();
-      _startOrAcceptVoiceCall();
+      if ((peerConnection?.getRemoteStreams().isNotEmpty ?? false) &&
+          callStatus != CallStatus.active) {
+        setState(() {
+          callStatus = CallStatus.active;
+          elapsedTime = TimeElapsedWidget(elapsedTime: elapsedTimeNotifier);
+        });
+      }
+
+      // Ensure local stream audio tracks are up to date
+      localStream?.getAudioTracks().forEach((track) {
+        track.enableSpeakerphone(isSpeakerPhoneEnabled);
+      });
+
+      // double totalRMS = 0;
+      // for (final track in localStream?.getAudioTracks() ?? []) {
+        // ByteBuffer currentFrame = await track.captureFrame();
+        // totalRMS += calculateRMS(currentFrame.asUint8List());
+      // }
+      // rms = totalRMS;
     });
 
     Timer.periodic(const Duration(seconds: 5), (timer) async {
@@ -126,6 +167,25 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       setState(() {
         showEndToEndEncryptedIndicator = !showEndToEndEncryptedIndicator;
       });
+    });
+
+    if (callStatus != CallStatus.connecting) return;
+
+    Future(() async {
+      final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+
+      Client.instance().commands?.fetchSignallingServerPort();
+      SignallingServerPortEvent e = await AppEventBus.instance.on<SignallingServerPortEvent>().first;
+
+      // Create a WebSocket to your signaling server.
+      channel = IOWebSocketChannel.connect(
+        Uri.parse('wss://${UserInfoManager.serverInfo.address!.host}:${e.port}/ws'),
+        customClient: client,
+      );
+
+      await _startListeningForCalls();
+      _startOrAcceptVoiceCall();
     });
   }
 
@@ -260,33 +320,6 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     localStream!.getVideoTracks()[0].enabled = isShowingVideo;
 
     print("Local media stream obtained: ${localStream!.id}");
-
-    Timer.periodic(const Duration(seconds: 1), (timer) async {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
-      if ((peerConnection?.getRemoteStreams().isNotEmpty ?? false) &&
-          callStatus != CallStatus.active) {
-        setState(() {
-          callStatus = CallStatus.active;
-          elapsedTime = TimeElapsedWidget(elapsedTime: elapsedTimeNotifier);
-        });
-      }
-
-      // Ensure local stream audio tracks are up to date
-      localStream?.getAudioTracks().forEach((track) {
-        track.enableSpeakerphone(isSpeakerPhoneEnabled);
-      });
-
-      // double totalRMS = 0;
-      // for (final track in localStream?.getAudioTracks() ?? []) {
-        // ByteBuffer currentFrame = await track.captureFrame();
-        // totalRMS += calculateRMS(currentFrame.asUint8List());
-      // }
-      // rms = totalRMS;
-    });
   }
 
   Future<void> _startOrAcceptVoiceCall() async {
@@ -444,163 +477,247 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void _createReturnToCallOverlay() {
+    double top = Random().nextDouble() * 600;
+    double left = Random().nextDouble() * 200;
+
+    final double maxWidth = 450;
+    final double maxHeight = 600;
+
+    final double minWidth = 150;
+    final double minHeight = 200;
+
+    double width = minWidth;
+    double height = minHeight;
+
     final appColors = Theme.of(context).extension<AppColors>()!;
+    returnToCallOverlayEntry = OverlayEntry(
+      builder: (context) => AnimatedPositioned(
+        duration: const Duration(milliseconds: 200),
+        curve: [
+          Curves.fastOutSlowIn,
+          Curves.decelerate,
+          Curves.easeInOut,
+        ][Random().nextInt(3)],
+        top: top,
+        left: left,
+        width: width,
+        height: height,
+        child: GestureDetector(
+          onScaleUpdate: (ScaleUpdateDetails details) {
+            top += details.focalPointDelta.dy;
+            left += details.focalPointDelta.dx;
 
-    return Scaffold(
-      appBar: ErmisAppBar(
-        title: Text(S.current.voice_call),
-        actions: [],
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  Text(
-                    "ChatSession: ${widget.chatSessionID}",
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                  buildCallStatusAndEndToEndEncryptedIndicator(),
-                ],
-              ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    if (remoteRenderer?.srcObject != null && isReceivingVideo)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.all(Radius.circular(12)),
-                            child: RTCVideoView(
-                              remoteRenderer!,
-                              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                              mirror: false,
-                            ),
-                          ),
-                        ),
-                      )
-                    else ...[
-                      if (callStatus == CallStatus.active)
-                        const Center(child: AnimatingCircleDenotingSound()),
-                      Center(
-                        child: UserProfilePhoto(
-                          radius: 100,
-                          profileBytes: widget.member.icon.profilePhoto,
-                        ),
-                      ),
-                    ],
-                    localRenderer?.srcObject != null && isShowingVideo
-                        ? LocalCameraOverlayWidget(
-                            localRenderer: localRenderer!,
-                            localStream: localStream!,
-                          )
-                        : const SizedBox.shrink(),
-                  ],
-                ),
-              ),
-              Container(
-                height: 120.0,
-                decoration: BoxDecoration(
-                  color: Colors.grey[900],
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20.0),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton.filled(
-                      padding: const EdgeInsets.all(12.0),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
-                      ),
-                      icon: Icon(
-                        isSpeakerPhoneEnabled ? Icons.volume_up : Icons.volume_off,
-                        size: 40,
-                        color: isSpeakerPhoneEnabled ? Colors.green : Colors.red,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          isSpeakerPhoneEnabled = !isSpeakerPhoneEnabled;
-                        });
-                
-                        void updateEnabled(MediaStreamTrack track) {
-                          track.enableSpeakerphone(isSpeakerPhoneEnabled);
-                        }
-                
-                        localStream!.getAudioTracks().forEach(updateEnabled);
-                      },
-                    ),
-                    IconButton.filled(
-                      padding: const EdgeInsets.all(12.0),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
-                      ),
-                      icon: Icon(
-                        isShowingVideo ? Icons.videocam : Icons.videocam_off,
-                        size: 40,
-                        color: isShowingVideo ? Colors.green : Colors.red,
-                      ),
-                      onPressed: toggleVideoMode,
-                    ),
-                    IconButton.filled(
-                      padding: const EdgeInsets.all(12.0),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
-                      ),
-                      icon: Icon(
-                        isMuted ? Icons.mic_off : Icons.mic,
-                        size: 40,
-                        color: isMuted ? Colors.red : Colors.green,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          isMuted = !isMuted;
-                        });
+            width *= details.horizontalScale;
+            height *= details.verticalScale;
 
-                        localStream!.getAudioTracks().forEach((track) {
-                          track.enabled = !isMuted;
-                        });
-                      },
-                    ),
-                    // End call button
-                    GestureDetector(
-                      onTap: _endCall,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(32.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Icon(
-                            Icons.call_end,
-                            size: 27,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+            width = width.clamp(minWidth, maxWidth);
+            height = height.clamp(minHeight, maxHeight);
+
+            returnToCallOverlayEntry?.markNeedsBuild();
+          },
+          onDoubleTap: () {
+            top = 0;
+            left = 0;
+
+            final double screenWidth = MediaQuery.of(context).size.width;
+            final double screenHeight = MediaQuery.of(context).size.height;
+
+            width = screenWidth;
+            height = screenHeight;
+
+            returnToCallOverlayEntry?.markNeedsBuild();
+
+            Future.delayed(const Duration(milliseconds: 180), () {
+              navigateWithFade(context, widget);
+              returnToCallOverlayEntry!.remove();
+              returnToCallOverlayEntry = null;
+            });
+          },
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            child: Container(
+              padding: const EdgeInsets.all(8.0),
+              color: appColors.quaternaryColor,
+              child: _buildPeerViewPort(),
+            ),
           ),
         ),
       ),
     );
+
+    // Add overlay to global context
+    Overlay.of(context).insert(returnToCallOverlayEntry!);
+  }
+
+  Widget _buildPeerViewPort() {
+    return Stack(
+      children: [
+        if (remoteRenderer?.srcObject != null && isReceivingVideo)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                child: RTCVideoView(
+                  remoteRenderer!,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  mirror: false,
+                ),
+              ),
+            ),
+          )
+        else ...[
+          if (callStatus == CallStatus.active)
+            const Center(child: IndicatorDenotingVoiceActivity()),
+          Center(
+            child: UserProfilePhoto(
+              radius: 100,
+              profileBytes: widget.member.icon.profilePhoto,
+            ),
+          ),
+        ],
+        localRenderer?.srcObject != null && isShowingVideo
+            ? LocalCameraOverlayWidget(
+                localRenderer: localRenderer!,
+                localStream: localStream!,
+              )
+            : const SizedBox.shrink(),
+      ],
+    );
   }
 
   @override
-  void dispose() {
-    _endCall();
-    super.dispose();
+  Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          _createReturnToCallOverlay();
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        appBar: ErmisAppBar(
+          title: Text(S.current.voice_call),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Call information
+                Column(
+                  children: [
+                    Text(
+                      "ChatSession: ${widget.chatSessionID}",
+                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                    ),
+                    buildCallStatusAndEndToEndEncryptedIndicator(),
+                  ],
+                ),
+
+                // Peer viewport
+                Expanded(
+                  child: _buildPeerViewPort(),
+                ),
+
+                // Bottom screen actions
+                Container(
+                  height: 120.0,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900],
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20.0),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton.filled(
+                        padding: const EdgeInsets.all(12.0),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
+                        ),
+                        icon: Icon(
+                          isSpeakerPhoneEnabled ? Icons.volume_up : Icons.volume_off,
+                          size: 40,
+                          color: isSpeakerPhoneEnabled ? Colors.green : Colors.red,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isSpeakerPhoneEnabled = !isSpeakerPhoneEnabled;
+                          });
+    
+                          void updateEnabled(MediaStreamTrack track) {
+                            track.enableSpeakerphone(isSpeakerPhoneEnabled);
+                          }
+    
+                          localStream!.getAudioTracks().forEach(updateEnabled);
+                        },
+                      ),
+                      IconButton.filled(
+                        padding: const EdgeInsets.all(12.0),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
+                        ),
+                        icon: Icon(
+                          isShowingVideo ? Icons.videocam : Icons.videocam_off,
+                          size: 40,
+                          color: isShowingVideo ? Colors.green : Colors.red,
+                        ),
+                        onPressed: toggleVideoMode,
+                      ),
+                      IconButton.filled(
+                        padding: const EdgeInsets.all(12.0),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
+                        ),
+                        icon: Icon(
+                          isMuted ? Icons.mic_off : Icons.mic,
+                          size: 40,
+                          color: isMuted ? Colors.red : Colors.green,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isMuted = !isMuted;
+                          });
+    
+                          localStream!.getAudioTracks().forEach((track) {
+                            track.enabled = !isMuted;
+                          });
+                        },
+                      ),
+                      // End call button
+                      GestureDetector(
+                        onTap: _endCall,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(32.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Icon(
+                              Icons.call_end,
+                              size: 27,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _endCall() async {
@@ -611,16 +728,6 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     
     Navigator.pop(context);
 
-    await channel?.innerWebSocket?.close();
-    await localStream?.dispose();
-    await peerConnection?.close();
-    await remoteRenderer?.dispose();
-    await localRenderer?.dispose();
-
-    channel = null;
-    localStream = null;
-    peerConnection = null;
-    remoteRenderer = null;
-    localRenderer = null;
+    await _resetCallData();
   }
 }

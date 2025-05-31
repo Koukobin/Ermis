@@ -64,48 +64,43 @@ class _LocalCameraOverlayWidgetState extends State<LocalCameraOverlayWidget> {
       builder: (context) => Positioned(
         top: _top,
         left: _left,
-        child: InteractiveViewer(
-          boundaryMargin: const EdgeInsets.all(20.0),
-          minScale: 0.5,
-          maxScale: 4.0,
-          child: GestureDetector(
-            onPanUpdate: (details) {
-              _left += details.delta.dx;
-              _top += details.delta.dy;
-              _overlayEntry?.markNeedsBuild();
-            },
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                width: width,
-                height: height,
-                padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  child: Stack(
-                    children: [
-                      RTCVideoView(
-                        widget.localRenderer,
-                        objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                        mirror: true,
-                      ),
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: IconButton.filled(
-                          onPressed: () {
-                            widget.localStream.getVideoTracks().forEach((track) {
-                              Helper.switchCamera(track);
-                            });
-                          },
-                          icon: const Icon(Icons.switch_camera_outlined),
-                          color: appColors.secondaryColor,
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all<Color>(appColors.primaryColor),
-                          ),
+        child: GestureDetector(
+          onPanUpdate: (details) {
+            _left += details.delta.dx;
+            _top += details.delta.dy;
+            _overlayEntry?.markNeedsBuild();
+          },
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              width: width,
+              height: height,
+              padding: const EdgeInsets.all(8.0),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                child: Stack(
+                  children: [
+                    RTCVideoView(
+                      widget.localRenderer,
+                      objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                      mirror: true,
+                    ),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton.filled(
+                        onPressed: () {
+                          widget.localStream.getVideoTracks().forEach((track) {
+                            Helper.switchCamera(track);
+                          });
+                        },
+                        icon: const Icon(Icons.switch_camera_outlined),
+                        color: appColors.secondaryColor,
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(appColors.primaryColor),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

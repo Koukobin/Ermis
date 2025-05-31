@@ -23,7 +23,7 @@ class UserProfilePhoto extends StatefulWidget {
   final double? radius;
   final Uint8List profileBytes;
 
-  const UserProfilePhoto({this.radius, required this.profileBytes, super.key});
+  const UserProfilePhoto({super.key, this.radius, required this.profileBytes});
 
   @override
   State<UserProfilePhoto> createState() => UserProfilePhotoState();
@@ -55,11 +55,10 @@ class UserProfilePhotoState extends State<UserProfilePhoto> {
             ? Icon(
                 Icons.person_rounded,
                 color: Colors.grey,
-                size: widget.radius == null ? 40 : widget.radius! * 2,
+                size: widget.radius == null ? 40 : widget.radius! * 1.3,
               )
             : null,
       ),
     );
   }
-
 }

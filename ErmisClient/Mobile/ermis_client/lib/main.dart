@@ -64,7 +64,7 @@ void main() async {
   // Ensure that Flutter bindings are initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isAndroid | Platform.isIOS) {
+  if (Platform.isAndroid || Platform.isIOS) {
     FlutterBackgroundService().configure(
       androidConfiguration: AndroidConfiguration(
         onStart: onAndroidBackground,
