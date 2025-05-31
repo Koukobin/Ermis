@@ -76,6 +76,19 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
     });
   }
 
+  String formatBytes(int bytes) {
+    double kilobytes = bytes / 1024;
+    if (kilobytes < 1) return "$bytes B";
+
+    double megabytes = kilobytes / 1024;
+    if (megabytes < 1) return "$kilobytes KB";
+
+    double gigabytes = megabytes / 1024;
+    if (gigabytes < 1) return "$megabytes MB";
+
+    return "$gigabytes GB";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,13 +99,13 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           ListTile(
             leading: const Icon(Icons.storage),
             title: Text("Manage Storage"),
-            subtitle: Text("$utilizedStorageByServerData B used"),
+            subtitle: Text("${formatBytes(utilizedStorageByServerData)} used"),
             onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.network_check),
             title: Text("Network Usage"),
-            subtitle: Text("$dataSent B sent • $dataReceived B received"),
+            subtitle: Text("${formatBytes(dataSent)} sent • ${formatBytes(dataReceived)} received"),
             onTap: () {},
           ),
           const Divider(),
@@ -108,7 +121,7 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
             subtitle: Text("Photos"),
             enabled: false,
             onTap: () {
-              a(title: "When using mobile data", tiles: [
+              _showRadioListTileDialog(title: "When using mobile data", tiles: [
                 RadioListTile(
                   title: Text("balls"),
                   value: "value",
@@ -155,7 +168,10 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
     );
   }
 
-  void a({required String title, required List<RadioListTile> tiles}) {
+  void _showRadioListTileDialog({
+    required String title,
+    required List<RadioListTile> tiles,
+  }) {
     showDialog(
       context: context,
       builder: (context) {
