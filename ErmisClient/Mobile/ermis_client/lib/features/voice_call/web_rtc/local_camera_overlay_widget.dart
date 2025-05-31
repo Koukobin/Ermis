@@ -47,7 +47,7 @@ class _LocalCameraOverlayWidgetState extends State<LocalCameraOverlayWidget> {
   void initState() {
     super.initState();
 
-    // You generally can't modify the widget tree (like inserting an overlay entry) 
+    // You generally can't modify the widget tree (like inserting an overlay entry)
     // during the build process of another widget in Flutter. Hence, to fix this,
     // we insert the overlay only after the widget tree has been built using the
     // SchedulerBinding.instance.addPostFrameCallback. This callback is executed once
@@ -70,11 +70,9 @@ class _LocalCameraOverlayWidgetState extends State<LocalCameraOverlayWidget> {
           maxScale: 4.0,
           child: GestureDetector(
             onPanUpdate: (details) {
-              setState(() {
-                _left += details.delta.dx;
-                _top += details.delta.dy;
-                _overlayEntry?.markNeedsBuild();
-              });
+              _left += details.delta.dx;
+              _top += details.delta.dy;
+              _overlayEntry?.markNeedsBuild();
             },
             child: Align(
               alignment: Alignment.bottomRight,
@@ -131,24 +129,25 @@ class _LocalCameraOverlayWidgetState extends State<LocalCameraOverlayWidget> {
     return const SizedBox.shrink(); // Dummy object associated with widget
   }
 }
-/* 
 
-            // Normalize x and y to 0-1 range based on screen size
-            double normalizedX = details.localPosition.dx / screenSize.width;
-            double normalizedY = details.localPosition.dy / screenSize.height;
+/*
+  // Normalize x and y to 0-1 range based on screen size
+  double normalizedX = details.localPosition.dx / screenSize.width;
+  double normalizedY = details.localPosition.dy / screenSize.height;
 
-            setState(() {
-              // Convert normalized values into RGB color
-              switchCameraButtonBackgroundColor = Color.fromARGB(
-                255,
-                (normalizedX * 255).toInt(),
-                (normalizedY * 255).toInt(),
-                150,
-              );
-              switchCameraButtonForegroundColor = Color.fromARGB(
-                255,
-                (switchCameraButtonBackgroundColor.red.toInt() - 255).abs(),
-                (switchCameraButtonBackgroundColor.green.toInt() - 255).abs(),
-                (switchCameraButtonBackgroundColor.blue.toInt() - 255).abs(),
-              );
-            });*/
+  setState(() {
+    // Convert normalized values into RGB color
+    switchCameraButtonBackgroundColor = Color.fromARGB(
+      255,
+      (normalizedX * 255).toInt(),
+      (normalizedY * 255).toInt(),
+      150,
+    );
+    switchCameraButtonForegroundColor = Color.fromARGB(
+      255,
+      (switchCameraButtonBackgroundColor.red.toInt() - 255).abs(),
+      (switchCameraButtonBackgroundColor.green.toInt() - 255).abs(),
+      (switchCameraButtonBackgroundColor.blue.toInt() - 255).abs(),
+    );
+  });
+*/

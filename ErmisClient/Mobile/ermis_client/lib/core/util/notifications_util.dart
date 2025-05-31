@@ -24,6 +24,7 @@ import 'package:ermis_client/core/services/database/extensions/servers_extension
 import 'package:ermis_client/core/util/permissions.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -73,14 +74,14 @@ void onDidReceiveNotification(NotificationResponse response) async {
 
       dynamic data = jsonDecode(response.payload!);
 
+      // Connect to call once flutter has initialized
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final DBConnection conn = ErmisDB.getConnection();
         ServerInfo serverInfo = await conn.getServerUrlLastUsed();
 
         await Client.instance().initialize(
           serverInfo.serverUrl,
-          ServerCertificateVerification
-              .ignore, // Since user connected once he has no issue connecting again
+          ServerCertificateVerification.ignore, // Since user connected once he has no issue connecting again
         );
 
         await Client.instance().readServerVersion();
@@ -100,7 +101,13 @@ void onDidReceiveNotification(NotificationResponse response) async {
         await Client.instance().fetchUserInformation();
         Client.instance().commands?.setAccountStatus(ClientStatus.offline);
 
-        await Future.delayed(const Duration(seconds: 10)); // Await until first screen builds
+        showToastDialog(S.current.Connecting);
+        showSnackBarDialog(
+          context: NavigationService.currentContext,
+          content: S.current.Connecting,
+        );
+
+        await Future.delayed(const Duration(seconds: 5)); // Await until first screen builds
 
         pushSlideTransition(
           NavigationService.currentContext,

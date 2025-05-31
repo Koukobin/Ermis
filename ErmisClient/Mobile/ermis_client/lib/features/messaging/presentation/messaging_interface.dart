@@ -275,7 +275,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                     //   chatSessionIndex: _chatSessionIndex,
                     //   chatSessionID: _chatSession.chatSessionID,
                     // );
-                    pushSlideTransition(
+                    navigateWithFade(
                         context,
                         VoiceCallWebrtc(
                           chatSessionIndex: _chatSessionIndex,

@@ -180,7 +180,7 @@ class Client {
     _isMessageDispatcherRunning = true;
   }
 
-  void disconnect() async {
+  Future<void> disconnect() async {
     await _sslSocket?.close();
     _sslSocket = null;
     _outputStream = null;
