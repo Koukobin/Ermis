@@ -19,30 +19,22 @@ import 'dart:io';
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/models/app_state/new_features_page_status.dart';
+import 'package:ermis_client/core/services/notification_sound_enum.dart';
 import 'package:ermis_client/features/settings/options/theme_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../exceptions/EnumNotFoundException.dart';
-
-enum NotificationSound {
-  osDefault(cleanName: "OS default", id: 1), ermis(cleanName: "Ermis", id: 2);
-
-  final String cleanName;
-
-  /// This is used to identify each chat backdrop by its id
-  final int id;
-
-  const NotificationSound({required this.cleanName, required this.id});
-
-  static NotificationSound fromId(int id) {
-    try {
-      return NotificationSound.values.firstWhere((type) => type.id == id);
-    } catch (e) {
-      throw EnumNotFoundException('No $NotificationSound found for id $id');
-    }
-  }
-}
+final _defaultJsonSettings = {
+  "useSystemDefaultTheme": true,
+  "darkMode": false,
+  "chatsBackDrop": ChatBackDrop.monotone.id,
+  "gradientColors": [Colors.blue.value, Colors.green.value],
+  "notificationsEnabled": true,
+  "showMessagePreview": true,
+  "notificationsSound": NotificationSound.ermis.id,
+  "vibrationEnabled": true,
+  "useLessDataForCallsEnabled": false,
+};
 
 class SettingsJson {
   static SettingsJson? _instance;
@@ -60,16 +52,24 @@ class SettingsJson {
   /// Loads Json Settings if not already loaded
   Future<void> loadSettingsJson() async {
     if (_isJsonLoaded) return;
-    
+
     final path = await _getJsonSettingsFilePath();
     final file = File(path);
     if (!await file.exists()) {
       await file.create();
-      _initializeDefaultSettings(file);
     }
 
     final content = await file.readAsString();
-    _settingsJson = jsonDecode(content);
+
+    try {
+      _settingsJson = jsonDecode(content);
+    } on FormatException {
+      // If content invalid JSON, reset settings
+      _settingsJson = {};
+    }
+
+    _initializeUnspecifiedSettingsToDefault(file);
+
     _isJsonLoaded = true;
   }
 
@@ -124,11 +124,11 @@ class SettingsJson {
   List<Color> get gradientColors => (_settingsJson['gradientColors'] as List)
       .map((colorInt) => Color(colorInt))
       .toList();
-  bool get notificationsEnabled => _settingsJson["notificationsEnabled"] ?? true;
-  NotificationSound get notificationSound => NotificationSound.fromId(_settingsJson["notificationsSound"] ?? NotificationSound.ermis);
+  bool get notificationsEnabled => _settingsJson["notificationsEnabled"];
+  NotificationSound get notificationSound => NotificationSound.fromId(_settingsJson["notificationsSound"]);
 
-  bool get showMessagePreview => _settingsJson["showMessagePreview"] ?? false;
-  bool get vibrationEnabled => _settingsJson["vibrationEnabled"] ?? false;
+  bool get showMessagePreview => _settingsJson["showMessagePreview"];
+  bool get vibrationEnabled => _settingsJson["vibrationEnabled"];
 
   Locale? get getLocale {
     String? languageCode = _settingsJson['languageCode'];
@@ -155,7 +155,7 @@ class SettingsJson {
   bool get isJsonLoaded => _isJsonLoaded;
   bool get isJsonNotLoaded => !_isJsonLoaded;
 
-  bool get useLessDataForCallsEnabled => _settingsJson["useLessDataForCallsEnabled"] ?? false;
+  bool get useLessDataForCallsEnabled => _settingsJson["useLessDataForCallsEnabled"];
 
   Future<void> saveSettingsJson() async {
     final path = await _getJsonSettingsFilePath();
@@ -169,20 +169,17 @@ class SettingsJson {
     return settingsPath;
   }
 
-  Future<void> _initializeDefaultSettings(File file) async {
-    _settingsJson = {
-      "useSystemDefaultTheme": true,
-      "darkMode": false,
-      "chatsBackDrop": 0,
-      "gradientColors": [Colors.blue.value, Colors.green.value],
-      "notificationsEnabled": true,
-      "showMessagePreview": true,
-      "notificationsSound": NotificationSound.ermis,
-      "vibrationEnabled": false,
-    };
+  Future<void> _initializeUnspecifiedSettingsToDefault(File file) async {
+    for (final entry in _defaultJsonSettings.entries) {
+      if (_settingsJson.containsKey(entry.key)) {
+        continue;
+      }
+
+      _settingsJson[entry.key] = entry.value;
+    }
+
     await file.writeAsString(jsonEncode(_settingsJson));
   }
-
 }
 
 // Similar to the code above, but instead of manually storing the json 

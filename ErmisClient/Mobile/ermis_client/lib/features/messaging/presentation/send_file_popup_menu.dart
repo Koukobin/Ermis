@@ -36,7 +36,7 @@ class SendFilePopupMenu extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => SendFilePopupMenuState();
+  State<SendFilePopupMenu> createState() => SendFilePopupMenuState();
 }
 
 class SendFilePopupMenuState extends State<SendFilePopupMenu> {

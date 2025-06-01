@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
@@ -34,8 +35,9 @@ class ThemeSettingsPage extends StatefulWidget {
 enum ChatBackDrop {
   monotone(id: 0),
   abstract(id: 1),
-  gradient(id: 2),
-  custom(id: 3);
+  ermis(id: 2),
+  gradient(id: 3),
+  custom(id: 4);
 
   /// This is used to identify each chat backdrop by its id
   final int id;
@@ -53,6 +55,7 @@ enum ChatBackDrop {
   String get name => switch (this) {
         monotone => S.current.default_monotone,
         abstract => S.current.abstract,
+        ermis => AppConstants.applicationTitle,
         gradient => S.current.gradient,
         custom => S.current.custom,
       };
