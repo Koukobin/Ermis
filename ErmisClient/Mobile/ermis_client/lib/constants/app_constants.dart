@@ -28,22 +28,29 @@ class AppConstants {
 
   static const String applicationTitle = "Ermis";
   static const String appIconPath = 'assets/primary_application_icon.png';
+
   static const String parthenonasPath = 'assets/background/parthenon.jpg';
+  static const String ermisBackgroundPath = 'assets/background/ermis.png';
+
   static const String ermisMascotPath = 'assets/ermis/ermis_mascot.png';
   static const String ermisCryingPath = 'assets/ermis/crying-ermis.png';
+
   static const String ermisNotificationSoundPath = 'assets/sounds/ermis_notification.mp3';
+
   static const String outgoingCallSoundPath = 'assets/sounds/outgoing_call_ring_sound_effect.wav';
   static const String endCallSoundPath = 'assets/sounds/end_call_sound_effect.wav';
+
   static const String sourceCodeURL = "https://github.com/Koukobin/Ermis";
   static const String licenceURL = "$sourceCodeURL/wiki/License";
   static const String licencePath = "assets/LICENCE.txt";
 
   static const AppColors lightAppColors = AppColors(
-      primaryColor: Colors.green,
-      secondaryColor: Colors.white,
-      tertiaryColor: Color.fromARGB(255, 233, 233, 233),
-      quaternaryColor: Color.fromARGB(255, 150, 150, 150),
-      inferiorColor: Colors.black);
+    primaryColor: Colors.green,
+    secondaryColor: Colors.white,
+    tertiaryColor: Color.fromARGB(255, 233, 233, 233),
+    quaternaryColor: Color.fromARGB(255, 150, 150, 150),
+    inferiorColor: Colors.black,
+  );
 
   static const AppColors darkAppColors = AppColors(
     primaryColor: Colors.green,

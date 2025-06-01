@@ -536,7 +536,18 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
             fit: BoxFit.cover,
           ),
         );
-      default:
+      case ChatBackDrop.ermis:
+        return BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(AppConstants.ermisBackgroundPath),
+            fit: BoxFit.cover,
+          ),
+        );
+      case ChatBackDrop.monotone:
+        return BoxDecoration(
+          color: appColors.secondaryColor,
+        );
+      case ChatBackDrop.custom:
         return BoxDecoration(
           color: appColors.secondaryColor,
         );
