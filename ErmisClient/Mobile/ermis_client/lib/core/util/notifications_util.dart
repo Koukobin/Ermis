@@ -15,6 +15,7 @@
  */
 
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
@@ -190,7 +191,8 @@ class NotificationService {
       ),
     );
 
-    return flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
+    int notificationID = Random().nextInt(10000);
+    return flutterLocalNotificationsPlugin.show(notificationID, title, body, platformChannelSpecifics);
   }
 
   // static Future<void> showIconNotification1(String iconPath, String title, String body) async {
@@ -229,10 +231,11 @@ class NotificationService {
       ticker: 'ticker',
     ));
 
-    return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, body, platformChannelSpecifics);
+    int notificationID = Random().nextInt(10000);
+    return flutterLocalNotificationsPlugin.show(notificationID, AppConstants.applicationTitle, body, platformChannelSpecifics);
   }
 
-  static Future<void> showVoiceCallNotification({
+  static Future<int> showVoiceCallNotification({
     required Uint8List icon,
     required String callerName,
     required VoidCallback onAccept,
@@ -240,7 +243,7 @@ class NotificationService {
   }) async {
     if (!await checkAndRequestPermission(Permission.notification)) {
       showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
-      return;
+      return -1;
     }
 
     _voiceCall = onAccept;
@@ -274,7 +277,10 @@ class NotificationService {
       ),
     );
 
-    return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, '$callerName is calling...', platformChannelSpecifics, payload: payload);
+    int notificationID = Random().nextInt(10000);
+    await flutterLocalNotificationsPlugin.show(notificationID, AppConstants.applicationTitle, '$callerName is calling...', platformChannelSpecifics, payload: payload);
+
+    return notificationID;
   }
 
 
@@ -332,7 +338,11 @@ class NotificationService {
       ticker: 'ticker',
     ));
 
-    return flutterLocalNotificationsPlugin.show(0, AppConstants.applicationTitle, body, platformChannelSpecifics);
+    int notificationID = Random().nextInt(10000);
+    return flutterLocalNotificationsPlugin.show(notificationID, AppConstants.applicationTitle, body, platformChannelSpecifics);
   }
 
+  static Future<void> cancelNotification(int notificationID) {
+    return flutterLocalNotificationsPlugin.cancel(notificationID);
+  }
 }

@@ -31,8 +31,9 @@ class _DotsLoadingScreenState extends State<DotsLoadingScreen> with SingleTicker
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
 
     _dotAnimations = List.generate(3, (index) {
       return Tween<double>(begin: 0.25, end: 1.0).animate(

@@ -50,6 +50,7 @@ import 'core/util/file_utils.dart';
 import 'features/chats/chat_requests_screen.dart';
 import 'features/messaging/presentation/messaging_interface.dart';
 import 'features/settings/options/profile_settings.dart';
+import 'features/voice_call/web_rtc/incoming_voice_call_screen.dart';
 import 'theme/app_theme.dart';
 import 'features/chats/chats_interface.dart';
 import 'features/settings/primary_settings_interface.dart';
@@ -446,20 +447,36 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       showExceptionDialog(context, S.current.error_saving_file);
     });
 
-    subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (event) {
-      NotificationService.showVoiceCallNotification(
-          icon: event.member.icon.profilePhoto,
-          callerName: event.member.username,
-          onAccept: () {
-            pushSlideTransition(
-                context,
-                VoiceCallWebrtc(
-                  chatSessionID: event.chatSessionID,
-                  chatSessionIndex: event.chatSessionIndex,
-                  member: event.member,
-                  isInitiator: false,
-                ));
-          });
+    subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (event) async {
+      void pushVoiceCall() {
+        pushSlideTransition(
+            context,
+            VoiceCallWebrtc(
+              chatSessionID: event.chatSessionID,
+              chatSessionIndex: event.chatSessionIndex,
+              member: event.member,
+              isInitiator: false,
+            ));
+      }
+
+      int notificationID = await NotificationService.showVoiceCallNotification(
+        icon: event.member.icon.profilePhoto,
+        callerName: event.member.username,
+        onAccept: pushVoiceCall,
+      );
+
+      bool? didAccept = await navigateWithFade(context, IncomingCallScreen(member: event.member));
+      print(didAccept);
+      print(didAccept);
+      print(didAccept);
+      print(didAccept);
+      print(didAccept);
+      print(didAccept);
+
+      if (didAccept == true) {
+        pushVoiceCall();
+        NotificationService.cancelNotification(notificationID);
+      }
     });
   }
 
