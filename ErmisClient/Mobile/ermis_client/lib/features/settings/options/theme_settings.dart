@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_client/enums/chat_back_drop_enum.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
@@ -22,7 +22,6 @@ import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-import '../../../core/exceptions/EnumNotFoundException.dart';
 import '../../../theme/app_theme.dart';
 
 class ThemeSettingsPage extends StatefulWidget {
@@ -30,35 +29,6 @@ class ThemeSettingsPage extends StatefulWidget {
 
   @override
   State<ThemeSettingsPage> createState() => _ThemeSettingsPageState();
-}
-
-enum ChatBackDrop {
-  monotone(id: 0),
-  abstract(id: 1),
-  ermis(id: 2),
-  gradient(id: 3),
-  custom(id: 4);
-
-  /// This is used to identify each chat backdrop by its id
-  final int id;
-
-  const ChatBackDrop({required this.id});
-
-  static ChatBackDrop fromId(int id) {
-    try {
-      return ChatBackDrop.values.firstWhere((type) => type.id == id);
-    } catch (e) {
-      throw EnumNotFoundException('No $ChatBackDrop found for id $id');
-    }
-  }
-
-  String get name => switch (this) {
-        monotone => S.current.default_monotone,
-        abstract => S.current.abstract,
-        ermis => AppConstants.applicationTitle,
-        gradient => S.current.gradient,
-        custom => S.current.custom,
-      };
 }
 
 class _ThemeSettingsPageState extends State<ThemeSettingsPage> {

@@ -23,13 +23,13 @@ import 'package:ermis_client/core/services/database/extensions/unread_messages_e
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
+import 'package:ermis_client/enums/chat_back_drop_enum.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/features/messaging/presentation/input_field.dart';
 import 'package:ermis_client/features/messaging/presentation/message_bubble.dart';
 import 'package:ermis_client/features/messaging/presentation/choose_friends_screen.dart';
 import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/features/settings/options/theme_settings.dart';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/widgets/scroll/custom_scroll_view.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';

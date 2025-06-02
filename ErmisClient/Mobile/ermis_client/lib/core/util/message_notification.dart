@@ -18,7 +18,7 @@ import 'dart:typed_data';
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/services/notification_sound_enum.dart';
+import 'package:ermis_client/enums/notification_sound_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:vibration/vibration.dart';
