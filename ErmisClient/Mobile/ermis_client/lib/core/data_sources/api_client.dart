@@ -186,6 +186,7 @@ class Client {
     _outputStream = null;
     _inputStream = null;
     broadcastStream = null;
+    _messageTransmitter = null;
     _isMessageDispatcherRunning = false;
     UserInfoManager.resetUserInformation();
     UserInfoManager.resetServerInformation();
