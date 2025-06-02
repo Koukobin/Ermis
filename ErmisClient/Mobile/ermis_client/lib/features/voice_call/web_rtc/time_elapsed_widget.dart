@@ -15,10 +15,39 @@
  */
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+class TimeElapsedValueNotifier extends ValueNotifier<int> {
+  Timer? _timer;
+
+  TimeElapsedValueNotifier() : super(0);
+
+  void debuteTimer() {
+    // If a timer is already running, do nothing
+    if (_timer != null) return;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      value++;
+
+      if (kDebugMode) {
+        debugPrint("Elapsed time of voice/video call: $value!");
+      }
+    });
+  }
+
+  void release() {
+    _timer?.cancel();
+    _timer = null;
+
+    if (kDebugMode) {
+      debugPrint("Time elapsed timer closed!");
+    }
+  }
+}
+
 class TimeElapsedWidget extends StatefulWidget {
-  final ValueNotifier<int> elapsedTime;
+  final TimeElapsedValueNotifier elapsedTime;
   const TimeElapsedWidget({super.key, required this.elapsedTime});
 
   @override
@@ -26,18 +55,10 @@ class TimeElapsedWidget extends StatefulWidget {
 }
 
 class _TimeElapsedWidgetState extends State<TimeElapsedWidget> {
-
   @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
-      widget.elapsedTime.value++;
-    });
+    widget.elapsedTime.debuteTimer();
   }
 
   @override

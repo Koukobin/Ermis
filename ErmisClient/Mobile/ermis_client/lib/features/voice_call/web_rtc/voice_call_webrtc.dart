@@ -88,7 +88,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   static CallStatus callStatus = CallStatus.connecting;
   // double rms = 0.0;
   
-  static ValueNotifier<int> elapsedTimeNotifier = ValueNotifier<int>(0);
+  static TimeElapsedValueNotifier elapsedTimeNotifier = TimeElapsedValueNotifier();
   static TimeElapsedWidget? elapsedTime;
 
   static OverlayEntry? returnToCallOverlayEntry;
@@ -114,7 +114,8 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     callStatus = CallStatus.connecting;
 
-    elapsedTimeNotifier = ValueNotifier<int>(0);
+    elapsedTimeNotifier.release();
+    elapsedTimeNotifier = TimeElapsedValueNotifier();
     elapsedTime = null;
   }
 
