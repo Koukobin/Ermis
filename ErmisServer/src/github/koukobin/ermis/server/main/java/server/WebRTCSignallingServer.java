@@ -218,36 +218,63 @@ public class WebRTCSignallingServer {
 	}
 
 	public static void addVoiceCall(ChatSession chatSession) {
+		int chatSessionID = chatSession.getChatSessionID();
+
 		List<Channel> channelsList = Lists.newArrayList();
 		for (ClientInfo member : chatSession.getActiveMembers()) {
-			WebRTCSignallingHandler.calls.put(member.getInetAddress(), channelsList);
+			WebRTCSignallingHandler.chatSessionIDToParticipants.put(chatSessionID, channelsList);
 
-			Channel channel = WebRTCSignallingHandler.bro.get(member.getInetAddress());
+			User user = WebRTCSignallingHandler.addressToUsers.get(member.getInetAddress());
+			user.chatSessionID = chatSessionID;
 
-			channelsList.add(channel);
+			channelsList.add(user.channel);
+		}
+	}
+
+	private static class User {
+		public int chatSessionID;
+		public Channel channel;
+
+		public User(int clientID, Channel channel) {
+			this.chatSessionID = clientID;
+			this.channel = channel;
 		}
 	}
 
 	private static class WebRTCSignallingHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-		private static final Map<InetAddress, Channel> bro = new ConcurrentHashMap<>();
-		private static final Map<InetAddress, List<Channel>> calls = new ConcurrentHashMap<>();
+		private static final Map<InetAddress, User> addressToUsers = new ConcurrentHashMap<>();
+		private static final Map<Integer, List<Channel>> chatSessionIDToParticipants = new ConcurrentHashMap<>();
+
+		private User user;
 
 		@Override
 		public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-			bro.put(getInetAddressOfChannel(ctx.channel()), ctx.channel());
+			user = new User(-1, ctx.channel());
+			addressToUsers.put(getCurrentInetAddressOfChannel(), user);
 		}
 
 		@Override
 		public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-			if (calls.get(getInetAddressOfChannel(ctx.channel())) != null) {
-				List<Channel> activeChannels = calls.get(getInetAddressOfChannel(ctx.channel()));
-				activeChannels.remove(ctx.channel());
+			addressToUsers.remove(getCurrentInetAddressOfChannel());
+
+			int chatSessionID = user.chatSessionID;
+
+			List<Channel> activeChannels = chatSessionIDToParticipants.get(chatSessionID);
+			if (activeChannels == null) {
+				return;
 			}
-			calls.remove(getInetAddressOfChannel(ctx.channel()));
-			bro.remove(getInetAddressOfChannel(ctx.channel()), ctx.channel());
+
+			activeChannels.remove(ctx.channel());
+			if (activeChannels.isEmpty()) {
+				chatSessionIDToParticipants.remove(chatSessionID);
+			}
 		}
 
+		private InetAddress getCurrentInetAddressOfChannel() {
+			return getInetAddressOfChannel(user.channel);
+		}
+		
 		private static InetAddress getInetAddressOfChannel(Channel ch) {
 			return ((InetSocketAddress) ch.remoteAddress()).getAddress();
 		}
@@ -258,7 +285,7 @@ public class WebRTCSignallingServer {
 			if (frame instanceof TextWebSocketFrame textwebsocketframe) {
 				String message = textwebsocketframe.text();
 				// Broadcast the message to every other channel in call
-				for (Channel ch : calls.get(getInetAddressOfChannel(ctx.channel()))) {
+				for (Channel ch : chatSessionIDToParticipants.get(user.chatSessionID)) {
 					if (ch != ctx.channel()) {
 						ch.writeAndFlush(new TextWebSocketFrame(message));
 					}
