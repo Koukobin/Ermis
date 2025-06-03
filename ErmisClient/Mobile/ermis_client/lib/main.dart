@@ -39,6 +39,7 @@ import 'package:ermis_client/theme/app_colors.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/util/notifications_util.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:sqflite/sql.dart';
 
@@ -462,16 +463,24 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       int notificationID = await NotificationService.showVoiceCallNotification(
         icon: event.member.icon.profilePhoto,
         callerName: event.member.username,
-        onAccept: pushVoiceCall,
+        onAccept: () {
+          // Pop incoming call screen which is pushed below
+          Navigator.pop(context);
+
+          // Actually push call
+          pushVoiceCall();
+        },
       );
 
       bool? didAccept = await navigateWithFade(context, IncomingCallScreen(member: event.member));
-      print(didAccept);
-      print(didAccept);
-      print(didAccept);
-      print(didAccept);
-      print(didAccept);
-      print(didAccept);
+      if (kDebugMode) {
+        debugPrint(didAccept.toString());
+        debugPrint(didAccept.toString());
+        debugPrint(didAccept.toString());
+        debugPrint(didAccept.toString());
+        debugPrint(didAccept.toString());
+        debugPrint(didAccept.toString());
+      }
 
       if (didAccept == true) {
         pushVoiceCall();
