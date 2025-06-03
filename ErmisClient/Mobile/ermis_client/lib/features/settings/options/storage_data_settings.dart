@@ -77,14 +77,16 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
   }
 
   String formatBytes(int bytes) {
+    String roundNum(num n) => n.toStringAsFixed(3);
+
     double kilobytes = bytes / 1024;
     if (kilobytes < 1) return "$bytes B";
 
     double megabytes = kilobytes / 1024;
-    if (megabytes < 1) return "$kilobytes KB";
+    if (megabytes < 1) return "${roundNum(kilobytes)} KB";
 
     double gigabytes = megabytes / 1024;
-    if (gigabytes < 1) return "$megabytes MB";
+    if (gigabytes < 1) return "${roundNum(megabytes)} MB";
 
     return "$gigabytes GB";
   }
