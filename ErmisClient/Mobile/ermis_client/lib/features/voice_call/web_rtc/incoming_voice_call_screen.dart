@@ -76,26 +76,31 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // In a call screen, a black background is typical for contrast.
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.grey, // Grey because why not
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background image: you might use the caller's avatar or a custom background.
-          Image.memory(
-            widget.member.icon.profilePhoto,
-            fit: BoxFit.cover,
-          ),
-          // A semi-transparent overlay improves text readability.
+          // Background image: self-explanatory
+          if (widget.member.icon.profilePhoto.isNotEmpty)
+            Image.memory(
+              widget.member.icon.profilePhoto,
+              fit: BoxFit.cover,
+            )
+          else
+            FittedBox(
+              fit: BoxFit.contain,
+              child: Text(widget.member.username[0].toUpperCase()),
+            ),
+          // A semi-transparent overlay to darken background
           Container(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
           ),
-          // Caller info positioned in the center.
+          // Caller info positioned in the center
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Display a larger version of the caller's avatar.
+                // Caller Avatar
                 UserProfilePhoto(
                   radius: 60,
                   profileBytes: widget.member.icon.profilePhoto,
@@ -111,9 +116,8 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
                   ),
                 ),
                 const SizedBox(height: 8),
-                // Call status message
                 const Text(
-                  "Incoming Voice Call",
+                  "Incoming Voice Call", // TODO: ADD MULTIPLE LANGUAGES
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 18,
@@ -285,19 +289,19 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
 }
 
 class DraggableYAxis extends StatefulWidget {
-  /// The widget that will be made draggable.
+  /// The widget that will be made draggable
   final Widget child;
 
   /// The initial vertical offset (in pixels).
   final double initialYOffset;
 
-  /// The minimum allowed y-offset.
+  /// The minimum allowed y-offset
   final double minY;
 
-  /// The maximum allowed y-offset.
+  /// The maximum allowed y-offset
   final double maxY;
 
-  /// The left position (in pixels) in the parent [Stack].
+  /// The left position (in pixels) in the parent [Stack]
   final double left;
 
   final VoidCallback? onDragEndOnMinY;
@@ -343,17 +347,16 @@ class _DraggableYAxisState extends State<DraggableYAxis> {
         key: _dragKey,
         onVerticalDragUpdate: (details) {
           setState(() {
-            // Update and clamp the yOffset so that the widget remains within bounds.
+            // Update and clamp the yOffset so that the widget remains within bounds
             yOffset = (yOffset + details.delta.dy).clamp(widget.minY, widget.maxY);
           });
         },
         onVerticalDragEnd: (details) {
-          // Get the final global position of the widget using the GlobalKey.
+          // Get the final global position of the widget using the GlobalKey
           final RenderBox box = _dragKey.currentContext?.findRenderObject() as RenderBox;
           final Offset globalOffset = box.localToGlobal(Offset.zero);
           debugPrint("Final global position: $globalOffset");
 
-          // Invoke the callback if provided.
           if (yOffset == widget.minY) {
             widget.onDragEndOnMinY?.call();
           }

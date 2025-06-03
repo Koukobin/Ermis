@@ -52,6 +52,14 @@ class TimeElapsedWidget extends StatefulWidget {
 
   @override
   State<TimeElapsedWidget> createState() => _TimeElapsedWidgetState();
+
+  String getTimeElapsedAsString() {
+    return _formatTime(elapsedTime.value);
+  }
+
+  static String _formatTime(int value) {
+    return "${(value / 60).floor()}:${(value % 60).toString().padLeft(2, '0')}";
+  }
 }
 
 class _TimeElapsedWidgetState extends State<TimeElapsedWidget> {
@@ -66,9 +74,7 @@ class _TimeElapsedWidgetState extends State<TimeElapsedWidget> {
     return ValueListenableBuilder<int>(
         valueListenable: widget.elapsedTime,
         builder: (context, int value, Widget? child) {
-          return Text(
-            "${(value / 60).floor()}:${(value % 60).toString().padLeft(2, '0')}",
-          );
+          return Text(TimeElapsedWidget._formatTime(value));
         });
   }
 }

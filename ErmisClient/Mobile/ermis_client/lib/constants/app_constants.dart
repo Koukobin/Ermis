@@ -32,6 +32,8 @@ class AppConstants {
   static const String parthenonasPath = 'assets/background/parthenon.jpg';
   static const String ermisBackgroundPath = 'assets/background/ermis.png';
 
+  static const String emptyUserProfileIconPath = 'assets/empty_user_profile_icon/empty_user_icon_profile.png';
+
   static const String ermisMascotPath = 'assets/ermis/ermis_mascot.png';
   static const String ermisCryingPath = 'assets/ermis/crying-ermis.png';
 

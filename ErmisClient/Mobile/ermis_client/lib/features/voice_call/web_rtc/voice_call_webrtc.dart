@@ -43,6 +43,7 @@ import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/profile_photos/user_profile_photo.dart';
 import '../../../core/widgets/wrapper_widget.dart';
 import '../../../theme/app_colors.dart';
+import 'end_voice_call_screen.dart';
 
 class VoiceCallWebrtc extends StatefulWidget {
   final int chatSessionID;
@@ -726,8 +727,15 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     sendChannelMessage({'type': 'end_call'});
 
     FlutterRingtonePlayer().play(fromAsset: AppConstants.endCallSoundPath);
-    
+
     Navigator.pop(context);
+    navigateWithFade(
+      context,
+      EndVoiceCallScreen(
+        member: widget.member,
+        callDuration: elapsedTime?.getTimeElapsedAsString() ?? "???",
+      ),
+    );
 
     await _resetCallData();
   }
