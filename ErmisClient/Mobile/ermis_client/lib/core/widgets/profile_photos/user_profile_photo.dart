@@ -19,6 +19,8 @@ import 'dart:typed_data';
 import 'package:ermis_client/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
+import '../../../constants/app_constants.dart';
+
 class UserProfilePhoto extends StatefulWidget {
   final double? radius;
   final Uint8List profileBytes;
@@ -52,11 +54,13 @@ class UserProfilePhotoState extends State<UserProfilePhoto> {
         backgroundColor: Colors.grey[200],
         backgroundImage: widget.profileBytes.isNotEmpty ? MemoryImage(widget.profileBytes) : null,
         child: widget.profileBytes.isEmpty
-            ? Icon(
-                Icons.person_rounded,
-                color: Colors.grey,
-                size: widget.radius == null ? 40 : widget.radius! * 1.3,
-              )
+            ?
+            // Icon(
+            //     Icons.person_rounded,
+            //     color: Colors.grey,
+            //     size: widget.radius == null ? 40 : widget.radius! * 1.3,
+            //   )
+            Image.asset(AppConstants.emptyUserProfileIconPath)
             : null,
       ),
     );

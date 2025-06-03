@@ -16,6 +16,7 @@
 
 import 'dart:typed_data';
 
+import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/widgets/loading_state.dart';
 import 'package:ermis_client/generated/l10n.dart';
@@ -88,11 +89,13 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
           backgroundColor: Colors.grey[200],
           backgroundImage: _profileBytes?.isEmpty ?? true ? null : MemoryImage(_profileBytes!),
           child: _profileBytes?.isEmpty ?? true
-              ? Icon(
-                  Icons.person_rounded,
-                  color: Colors.grey,
-                  size:  widget.radius == null ? 40 : widget.radius! * 2,
-                )
+              ? 
+              // Icon(
+              //     Icons.person_rounded,
+              //     color: Colors.grey,
+              //     size:  widget.radius == null ? 40 : widget.radius! * 2,
+              //   )
+              Image.asset(AppConstants.emptyUserProfileIconPath)
               : null,
         ),
       ),

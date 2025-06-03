@@ -136,6 +136,7 @@ flutter:
     - assets/ermis/crying-ermis.png
     - assets/background/parthenon.jpg
     - assets/background/ermis.png
+    - assets/empty_user_profile_icon/empty_user_icon_profile.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
