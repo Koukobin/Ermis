@@ -19,10 +19,13 @@ import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:ermis_client/core/util/top_app_bar_utils.dart';
+import 'package:ermis_client/core/util/transitions_util.dart';
+import 'package:ermis_client/features/settings/options/storage_and_data_settings/network_usage_settings.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/widgets/scroll/custom_scroll_view.dart';
+import '../../../../core/widgets/scroll/custom_scroll_view.dart';
+import 'byte_formatter.dart';
 
 class StorageAndDataScreen extends StatefulWidget {
   const StorageAndDataScreen({super.key});
@@ -76,21 +79,6 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
     });
   }
 
-  String formatBytes(int bytes) {
-    String roundNum(num n) => n.toStringAsFixed(3);
-
-    double kilobytes = bytes / 1024;
-    if (kilobytes < 1) return "$bytes B";
-
-    double megabytes = kilobytes / 1024;
-    if (megabytes < 1) return "${roundNum(kilobytes)} KB";
-
-    double gigabytes = megabytes / 1024;
-    if (gigabytes < 1) return "${roundNum(megabytes)} MB";
-
-    return "$gigabytes GB";
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,8 +95,17 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           ListTile(
             leading: const Icon(Icons.network_check),
             title: Text("Network Usage"),
-            subtitle: Text("${formatBytes(dataSent)} sent • ${formatBytes(dataReceived)} received"),
-            onTap: () {},
+            subtitle: Text(
+                "${formatBytes(dataSent)} sent • ${formatBytes(dataReceived)} received"),
+            onTap: () {
+              pushSlideTransition(
+                context,
+                NetworkUsageScreen(
+                  sentDataBytes: dataSent,
+                  dataReceivedBytes: dataReceived,
+                ),
+              );
+            },
           ),
           const Divider(),
           Padding(

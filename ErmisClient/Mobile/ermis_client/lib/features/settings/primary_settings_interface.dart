@@ -35,7 +35,7 @@ import 'options/help_settings.dart';
 import 'options/language_settings.dart';
 import 'options/linked_devices_settings.dart';
 import 'options/profile_settings.dart';
-import 'options/storage_data_settings.dart';
+import 'options/storage_and_data_settings/storage_data_settings.dart';
 import 'options/theme_settings.dart';
 
 class SettingsScreen extends StatefulWidget {

@@ -129,14 +129,18 @@ Future<void> showPermissionDeniedDialog(
   );
 }
 
-Future<void> showConfirmationDialog(BuildContext context, String content,
-    GestureTapCallback runOnConfirmation) async {
+Future<void> showConfirmationDialog(
+  BuildContext context,
+  String content,
+  GestureTapCallback runOnConfirmation, {
+  bool includeTitle = false,
+}) async {
   final bool? shouldExit = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
       return WhatsAppPopupDialog(
         child: AlertDialog(
-          title: const Text("Are you sure?"),
+          title: includeTitle ? const Text("Are you sure?") : null,
           content: Text(content),
           actions: [
             TextButton(

@@ -167,4 +167,12 @@ extension ServersExtension on DBConnection {
 
     return s;
   }
+
+  Future<void> resetNetworkUsage(ServerInfo info) async {
+    final db = await database;
+
+    await db.rawUpdate(
+        'UPDATE servers_network_usage SET total_bytes_sent = ?, total_bytes_received = ? WHERE server_url = ?',
+        [0, 0, info.toString()]);
+  }
 }

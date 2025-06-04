@@ -173,7 +173,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.numbers_outlined),
+                leading: const Icon(Icons.badge_outlined),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
