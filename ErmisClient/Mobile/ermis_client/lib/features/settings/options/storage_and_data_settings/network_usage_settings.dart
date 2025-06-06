@@ -23,6 +23,7 @@ import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/features/settings/options/storage_and_data_settings/byte_formatter.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/util/top_app_bar_utils.dart';
 import '../../../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../../../theme/app_colors.dart';
 
@@ -54,9 +55,11 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Network Usage"),
+      appBar: ErmisAppBar(
+        titleText: "Network Usage",
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,9 +78,23 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      formatBytes(
-                          widget.sentDataBytes + widget.dataReceivedBytes),
-                      style: const TextStyle(fontSize: 30),
+                      formatBytes(widget.sentDataBytes + widget.dataReceivedBytes),
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: appColors.inferiorColor,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.green,
+                            offset: Offset(0, 0), // No offset for a central glow
+                          ),
+                          Shadow(
+                            blurRadius: 20.0,
+                            color: Colors.greenAccent,
+                            offset: Offset(0, 0),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 30),
                     Row(

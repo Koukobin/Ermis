@@ -551,24 +551,25 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
         // Row expands and covers max space as dictated by box constraints
         children: [
           IconButton(
-              onPressed: () {
-                if (_message.fileBytes == null) {
-                  // Audio will be played automatically once voice message is received
-                  Client.instance().commands?.downloadSound(
-                        _message.messageID,
-                        _message.chatSessionIndex,
-                      );
+            onPressed: () {
+              if (_message.fileBytes == null) {
+                // Audio will be played automatically once voice message is received
+                Client.instance().commands?.downloadSound(
+                      _message.messageID,
+                      _message.chatSessionIndex,
+                    );
 
-                  setState(() {
-                    state = VoiceMessageState.downloading;
-                  });
+                setState(() {
+                  state = VoiceMessageState.downloading;
+                });
 
-                  return;
-                }
+                return;
+              }
 
-                playAudio();
-              },
-              icon: widgetAction)
+              playAudio();
+            },
+            icon: widgetAction,
+          )
         ],
       ),
     );
