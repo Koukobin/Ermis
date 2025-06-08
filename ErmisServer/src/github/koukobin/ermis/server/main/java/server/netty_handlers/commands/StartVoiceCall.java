@@ -44,7 +44,7 @@ public class StartVoiceCall implements ICommand {
 		payload.writeInt(initiatorClientID);
 
 		for (ClientInfo activeMember : chatSession.getActiveMembers()) {
-			if (activeMember.getChannel().equals(clientInfo.getChannel())) {
+			if (activeMember.getClientID() == clientInfo.getClientID()) {
 				continue;
 			}
 
