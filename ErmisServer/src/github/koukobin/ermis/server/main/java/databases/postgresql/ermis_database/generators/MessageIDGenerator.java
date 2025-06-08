@@ -55,21 +55,21 @@ public final class MessageIDGenerator {
 			}
 		});
 	}
-	
-    /**
-     * Increment and retrieve the next message ID for the specified chat session.
-     */
-    public static int incrementAndGetMessageID(int chatSessionID, Connection conn) {
-        AtomicInteger messageID = getMessageIDAtomic(chatSessionID, conn);
-        return messageID.incrementAndGet();
-    }
 
-    /**
-     * Retrieve the current message ID count for the specified chat session.
-     */
-    public static int getMessageIDCount(int chatSessionID, Connection conn) {
-        AtomicInteger messageID = getMessageIDAtomic(chatSessionID, conn);
-        return messageID.get();
-    }
-	
+	/**
+	 * Increment and retrieve the next message ID for the specified chat session.
+	 */
+	public static int incrementAndGetMessageID(int chatSessionID, Connection conn) {
+		AtomicInteger messageID = getMessageIDAtomic(chatSessionID, conn);
+		return messageID.incrementAndGet();
+	}
+
+	/**
+	 * Retrieve the current message ID count for the specified chat session.
+	 */
+	public static int getMessageIDCount(int chatSessionID, Connection conn) {
+		AtomicInteger messageID = getMessageIDAtomic(chatSessionID, conn);
+		return messageID.get();
+	}
+
 }

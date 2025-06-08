@@ -26,21 +26,20 @@ public enum DeviceType {
 	MOBILE(0), TABLET(1), DESKTOP(2), UNSPECIFIED(3);
 
 	private static final HashMap<Integer, DeviceType> valuesByCode = new HashMap<>();
-	
-    static {
-        for (DeviceType deviceType : DeviceType.values()) {
-            valuesByCode.put(deviceType.id, deviceType);
-        }
-    }
-	
+
+	static {
+		for (DeviceType deviceType : DeviceType.values()) {
+			valuesByCode.put(deviceType.id, deviceType);
+		}
+	}
+
 	public final int id;
-	
+
 	DeviceType(int id) {
 		this.id = id;
 	}
-	
-    public static DeviceType fromId(int id) {
-        return EnumIntConverter.fromId(valuesByCode, id);
-    }
-}
 
+	public static DeviceType fromId(int id) {
+		return EnumIntConverter.fromId(valuesByCode, id);
+	}
+}
