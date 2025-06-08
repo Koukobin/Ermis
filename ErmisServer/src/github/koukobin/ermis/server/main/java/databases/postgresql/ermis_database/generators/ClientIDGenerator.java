@@ -32,21 +32,51 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Throwables;
 
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.VoiceCallHistoryManagerService;
+
 /**
  * @author Ilias Koukovinis
  *
  */
 public final class ClientIDGenerator {
-	
+
 	private static final Logger logger = LogManager.getLogger("database");
 
 	private static final Object lockObjectForGeneratingOrRetrievingClientIDS = new Object();
-	
+
 	private static final int IDS_PER_GENERATION = 5_000;
+
+	/**
+	 * It is quintessential for client ids to start <strong>after</strong> 0. This
+	 * is because when accessing the database, in some instances (at the time of
+	 * writing this the only such instance is:
+	 * {@link VoiceCallHistoryManagerService#getVoiceCall(int, int)}), in order to
+	 * retrieve client ids from a table rs.getInt() is used; the problem with this
+	 * method is that <strong>if</strong> the database integer <strong>field is
+	 * nullable - .getInt() returns 0.</strong> Consequently, <strong>there is a
+	 * very slight chance that a user has a client id of 0 and rs.getInt() returns 0
+	 * because the field is null</strong>, ultimately resulting in confusion.
+	 * 
+	 * <dl>
+	 * </dl>
+	 * 
+	 * By ensuring that the lowest client id generetable is 1, this issue is
+	 * eliminated.
+	 * 
+	 * <dl>
+	 * </dl>
+	 * 
+	 * @Note This issue is relevant only because client id is nullable in a database
+	 *       table - hence the reason this does not apply to chat session id
+	 *       generation as well.
+	 * 
+	 */
+	private static final int LOWEST_CLIENT_ID = 1;
+
 	private static final Deque<Integer> clientIDS = new ConcurrentLinkedDeque<>();
 
 	private ClientIDGenerator() {}
-	
+
 	/**
 	 * 
 	 * @param conn Connection to ermis database
@@ -55,9 +85,9 @@ public final class ClientIDGenerator {
 		synchronized (lockObjectForGeneratingOrRetrievingClientIDS) {
 			try (PreparedStatement pstmt = connToDatabase.prepareStatement(
 					"SELECT client_id FROM users;",
-					ResultSet.TYPE_SCROLL_SENSITIVE, 
+					ResultSet.TYPE_SCROLL_SENSITIVE,
 					ResultSet.CONCUR_UPDATABLE)) {
-				
+
 				ResultSet rs = pstmt.executeQuery();
 
 				Set<Integer> usedIDs = new HashSet<>();
@@ -66,7 +96,7 @@ public final class ClientIDGenerator {
 				}
 
 				List<Integer> availableIDs = new ArrayList<>(IDS_PER_GENERATION);
-				for (int id = 0; availableIDs.size() < IDS_PER_GENERATION; id++) {
+				for (int id = LOWEST_CLIENT_ID; availableIDs.size() <= IDS_PER_GENERATION; id++) {
 					if (!usedIDs.contains(id)) {
 						availableIDs.add(id);
 					}
@@ -80,37 +110,37 @@ public final class ClientIDGenerator {
 			}
 		}
 	}
-	
+
 	public static int retrieveAndDelete(Connection conn) {
 		int id = retrieve(conn);
-	    if (id != -1) {
-	        delete(id);
-	    }
-	    return id;
+		if (id != -1) {
+			delete(id);
+		}
+		return id;
 	}
-	
+
 	public static void undo(int chatSessionID) {
 		clientIDS.add(chatSessionID);
 	}
-	
+
 	private static int retrieve(Connection conn) {
-	    if (clientIDS.isEmpty()) {
-	        generateAvailableClientIDS(conn);
+		if (clientIDS.isEmpty()) {
+			generateAvailableClientIDS(conn);
 
-	        if (clientIDS.isEmpty()) {
-	            logger.warn("Failed to retrieve a client ID; no IDs available.");
-	            return -1;
-	        }
-	    }
+			if (clientIDS.isEmpty()) {
+				logger.warn("Failed to retrieve a client ID; no IDs available.");
+				return -1;
+			}
+		}
 
-	    return clientIDS.peekLast();
+		return clientIDS.peekLast();
 	}
-	
+
 	private static void delete(Integer chatSessionID) {
 		boolean removed = clientIDS.remove(chatSessionID);
 		if (!removed) {
 			logger.warn("Attempted to delete a non-existent client ID: {}", chatSessionID);
 		}
 	}
-	
+
 }
