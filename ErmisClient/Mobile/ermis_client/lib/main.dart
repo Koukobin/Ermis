@@ -186,7 +186,7 @@ void maintainWebSocketConnection(ServiceInstance service) async {
         }
 
         await Client.instance().fetchUserInformation();
-        Client.instance().commands?.setAccountStatus(ClientStatus.offline);
+        Client.instance().commands!.setAccountStatus(ClientStatus.offline);
       } catch (e) {
         // Attempt to reinitialize client in case of failure
         Future.delayed(const Duration(seconds: 30), setupClient);
@@ -448,31 +448,50 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       showExceptionDialog(context, S.current.error_saving_file);
     });
 
-    subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (event) async {
+    subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (incomingEvent) async {
       void pushVoiceCall() {
         pushSlideTransition(
             context,
             VoiceCallWebrtc(
-              chatSessionID: event.chatSessionID,
-              chatSessionIndex: event.chatSessionIndex,
-              member: event.member,
+              chatSessionID: incomingEvent.chatSessionID,
+              chatSessionIndex: incomingEvent.chatSessionIndex,
+              member: incomingEvent.member,
               isInitiator: false,
             ));
       }
 
+      StreamSubscription<CancelVoiceCallIncomingEvent>? subscription;
+
       int notificationID = await NotificationService.showVoiceCallNotification(
-        icon: event.member.icon.profilePhoto,
-        callerName: event.member.username,
+        icon: incomingEvent.member.icon.profilePhoto,
+        callerName: incomingEvent.member.username,
         onAccept: () {
           // Pop incoming call screen which is pushed below
           Navigator.pop(context);
 
           // Actually push call
           pushVoiceCall();
+
+          subscription!.cancel();
         },
       );
 
-      bool? didAccept = await navigateWithFade(context, IncomingCallScreen(member: event.member));
+      subscription = AppEventBus.instance
+          .on<CancelVoiceCallIncomingEvent>()
+          .listen((cancelEvent) {
+        if (cancelEvent.chatSessionID == incomingEvent.chatSessionID) {
+          // Pop incoming call screen which is pushed below
+          Navigator.pop(context);
+
+          // Cancel notification
+          NotificationService.cancelNotification(notificationID);
+
+          subscription!.cancel();
+        }
+      });
+
+      bool? didAccept = await navigateWithFade(context, IncomingCallScreen(member: incomingEvent.member));
+
       if (kDebugMode) {
         debugPrint(didAccept.toString());
         debugPrint(didAccept.toString());
@@ -485,6 +504,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       if (didAccept == true) {
         pushVoiceCall();
         NotificationService.cancelNotification(notificationID);
+        subscription.cancel();
       }
     });
   }
@@ -495,40 +515,49 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
     super.dispose();
   }
 
-  NavigationDestination _buildNavItem(
-    IconData activeIcon,
-    IconData inactiveIcon,
-    String label,
-  ) {
-    return NavigationDestination(
-      icon: Icon(inactiveIcon),
-      selectedIcon: Icon(activeIcon),
-      label: label,
-    );
-  }
-
-  void _onItemTapped(int newPageIndex) {
-    setState(() {
-      _selectedPageIndex = newPageIndex;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
+    NavigationDestination buildNavItem(
+      IconData activeIcon,
+      IconData inactiveIcon,
+      String label,
+    ) {
+      return NavigationDestination(
+        icon: Icon(inactiveIcon),
+        selectedIcon: Icon(activeIcon),
+        label: label,
+      );
+    }
+
     _barItems = <NavigationDestination>[
-      _buildNavItem(Icons.chat, Icons.chat_outlined, S.current.chats),
-      _buildNavItem(Icons.person_add_alt_1, Icons.person_add_alt_1_outlined, S.current.requests),
-      _buildNavItem(Icons.settings, Icons.settings_outlined, S.current.settings),
-      _buildNavItem(Icons.account_circle, Icons.account_circle_outlined, S.current.account),
+      buildNavItem(Icons.chat, Icons.chat_outlined, S.current.chats),
+      buildNavItem(
+        Icons.person_add_alt_1,
+        Icons.person_add_alt_1_outlined,
+        S.current.requests,
+      ),
+      buildNavItem(Icons.settings, Icons.settings_outlined, S.current.settings),
+      buildNavItem(
+        Icons.account_circle,
+        Icons.account_circle_outlined,
+        S.current.account,
+      ),
     ];
+
+    void onItemTapped(int newPageIndex) {
+      setState(() {
+        _selectedPageIndex = newPageIndex;
+      });
+    }
 
     return Scaffold(
       body: PageView(
-          controller: _pageController,
-          onPageChanged: _onItemTapped,
-          children: _widgetOptions),
+        controller: _pageController,
+        onPageChanged: onItemTapped,
+        children: _widgetOptions,
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
@@ -539,19 +568,21 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
           ),
         ),
         child: NavigationBar(
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            indicatorColor: appColors.primaryColor.withValues(alpha: 0.6),
-            backgroundColor: appColors.secondaryColor,
-            selectedIndex: _selectedPageIndex,
-            onDestinationSelected: (int newPageIndex) {
-              // Have to manually animate to next page
-              _pageController.animateToPage(
-                newPageIndex,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.fastEaseInToSlowEaseOut,
-              );
-            },
-            destinations: _barItems),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          indicatorColor: appColors.primaryColor.withValues(alpha: 0.6),
+          backgroundColor: appColors.secondaryColor,
+          selectedIndex: _selectedPageIndex,
+          onDestinationSelected: (int newPageIndex) {
+            // Have to manually animate to next page
+            _pageController.animateToPage(
+              newPageIndex,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.fastEaseInToSlowEaseOut,
+            );
+
+          },
+          destinations: _barItems,
+        ),
       ),
     );
   }

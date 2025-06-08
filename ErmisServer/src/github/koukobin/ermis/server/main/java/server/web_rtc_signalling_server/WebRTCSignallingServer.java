@@ -37,12 +37,15 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
+import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
+import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.SslContextProvider;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -285,6 +288,16 @@ public class WebRTCSignallingServer {
 			activeChannels.remove(user.channel);
 			if (activeChannels.isEmpty()) {
 				chatSessionIDToParticipants.remove(chatSessionID);
+
+				// Broadcast incoming voice call cancellation to ensure that
+				// any notification or screen associated with call is eliminated
+				{
+					ByteBuf payload = ctx.alloc().ioBuffer();
+					payload.writeInt(VoiceCallMessageType.CANCEL_INCOMING_VOICE_CALL.id);
+					payload.writeInt(chatSessionID);
+
+					ActiveChatSessions.broadcastToChatSession(payload, chatSessionID);
+				}
 
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 					conn.setEndedVoiceCall(Instant.now().getEpochSecond(), call.voiceCallID());

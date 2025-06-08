@@ -1,8 +1,25 @@
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import 'package:ermis_client/core/models/voice_call_history.dart';
 import 'package:ermis_client/core/networking/common/message_types/voice_call_history_status.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
+import 'package:ermis_client/core/util/custom_date_formatter.dart';
+import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/util/datetime_utils.dart';
 import '../../core/widgets/scroll/custom_scroll_view.dart';
@@ -31,7 +48,7 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
   }
 
   String formatDateTime(String pattern, DateTime dateTime) {
-    return DateFormat(pattern).format(dateTime);
+    return CustomDateFormatter.formatDate(dateTime, pattern);
   }
   
   String formatDuration(Duration duration) {
@@ -53,7 +70,7 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Call History'),
+        title: Text(S().call_history_app_title),
       ),
       body: _callHistory.isEmpty
           ? const Center(

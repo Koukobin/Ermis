@@ -65,7 +65,7 @@ public class ActiveChatSessions {
 	public static void removeMember(int chatSessionID, ClientInfo member) {
 		chatSessionIDSToActiveChatSessions.get(chatSessionID).getActiveMembers().remove(member);
 	}
-	
+
 	public static boolean areMembersFriendOfUser(@Nonnull ClientInfo clientInfo, @Nonnull int... memberIds) {
 		List<ClientInfo> friends = clientInfo.getChatSessions()
 				.parallelStream()
@@ -86,6 +86,11 @@ public class ActiveChatSessions {
 		}
 
 		return isMemberIDFriendOrJustRandomIndividual;
+	}
+
+	public static void broadcastToChatSession(ByteBuf payload, int chatSessionID) {
+		ChatSession chatSession = chatSessionIDSToActiveChatSessions.get(chatSessionID);
+		broadcastToChatSession(payload, chatSession);
 	}
 
 	public static void broadcastToChatSession(ByteBuf payload, ChatSession chatSession) {

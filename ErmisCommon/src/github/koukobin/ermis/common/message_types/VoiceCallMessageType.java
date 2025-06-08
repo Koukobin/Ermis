@@ -27,6 +27,7 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  */
 public enum VoiceCallMessageType {
 	INCOMING_VOICE_CALL(0),
+	CANCEL_INCOMING_VOICE_CALL(1),
 	ACCEPT_VOICE_CALL(2);
 
 	private static final HashMap<Integer, VoiceCallMessageType> values;

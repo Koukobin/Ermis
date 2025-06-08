@@ -49,6 +49,13 @@ class VoiceCallHandler {
           member: member ?? session.members[0],
         ));
         break;
+      case VoiceCallMessageType.cancelIncomingVoiceCall:
+        int chatSessionID = msg.readInt32();
+
+        _eventBus.fire(CancelVoiceCallIncomingEvent(
+          chatSessionID: chatSessionID,
+        ));
+        break;
       case VoiceCallMessageType.acceptVoiceCall:
         int chatSessionID = msg.readInt32();
         int clientID = msg.readInt32();

@@ -18,6 +18,7 @@ import '../../../exceptions/EnumNotFoundException.dart';
 
 enum VoiceCallMessageType {
   incomingVoiceCall(0),
+  cancelIncomingVoiceCall(1),
   acceptVoiceCall(2);
 
   final int id;
