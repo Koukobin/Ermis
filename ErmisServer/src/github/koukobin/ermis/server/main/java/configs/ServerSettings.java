@@ -225,6 +225,26 @@ public final class ServerSettings {
 					return template.createEmail(VERIFICATION_EMAIL_BODY);
 				}
 			}
+			
+			public static class ChangePassword {
+
+				public static final String VERIFICATION_EMAIL_BODY;
+
+				static {
+					try {
+						VERIFICATION_EMAIL_BODY = FileUtils.readFile(ConfigurationsPaths.EmailCreator.Verification.CHANGE_PASSWORD_VERIFICATION_EMAIL_BODY_FILE_PATH);
+					} catch (IOException ioe) {
+						logger.fatal(Throwables.getStackTraceAsString(ioe));
+						throw new RuntimeException(ioe);
+					}
+				}
+
+				private ChangePassword() {}
+
+				public static String createEmail(VerificationEmailTemplate template) {
+					return template.createEmail(VERIFICATION_EMAIL_BODY);
+				}
+			}
 
 		}
 
