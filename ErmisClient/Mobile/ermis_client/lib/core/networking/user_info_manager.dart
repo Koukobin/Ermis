@@ -19,6 +19,7 @@ import 'package:ermis_client/core/models/chat_request.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/core/models/user_device.dart';
+import 'package:ermis_client/core/models/voice_call_history.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/core/services/database/models/local_user_info.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
@@ -32,11 +33,12 @@ class UserInfoManager {
   static ClientStatus? accountStatus;
   static Uint8List? profilePhoto;
   static List<UserDeviceInfo>? userDevices;
+  static List<Account>? otherAccounts;
 
   static final Map<int, ChatSession> chatSessionIDSToChatSessions = {};
   static List<ChatSession>? chatSessions;
   static List<ChatRequest>? chatRequests;
-  static List<Account>? otherAccounts;
+  static final Map<int, List<VoiceCallHistory>> chatSessionIDSToVoiceCallHistory = {};
   
   static final Map<int /* temporary message id */, Message> pendingMessagesQueue = {};
   static int lastPendingMessageID = 0;
@@ -99,6 +101,7 @@ class UserInfoManager {
     chatSessionIDSToChatSessions.clear();
     chatSessions = null;
     chatRequests = null;
+    chatSessionIDSToVoiceCallHistory.clear();
 
     otherAccounts = null;
     pendingMessagesQueue.clear();

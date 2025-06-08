@@ -20,7 +20,6 @@ import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.WebRTCSignallingServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
 
@@ -35,8 +34,6 @@ public class AcceptVoiceCall implements ICommand {
 		int chatSessionIndex = args.readInt();
 		ChatSession chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
 		int chatSessionID = chatSession.getChatSessionID();
-
-		WebRTCSignallingServer.addVoiceCall(chatSession);
 
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.VOICE_CALLS.id);

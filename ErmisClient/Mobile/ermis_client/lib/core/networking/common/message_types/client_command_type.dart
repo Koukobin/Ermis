@@ -59,8 +59,11 @@ enum ClientCommandType {
   requestDonationPage(CommandLevel.light, 400),
   requestSourceCodePage(CommandLevel.light, 401),
 
+  	// Voice call history
+	fetchVoiceCallHistory(CommandLevel.heavy, 500),
+
   // Other
-	fetchSignallingServerPort(CommandLevel.light, 500);
+	fetchSignallingServerPort(CommandLevel.light, 600);
 
   final CommandLevel commandLevel;
   final int id;

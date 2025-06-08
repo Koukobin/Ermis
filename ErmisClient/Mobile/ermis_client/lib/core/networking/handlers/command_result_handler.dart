@@ -17,6 +17,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:ermis_client/core/models/member.dart';
+import 'package:ermis_client/core/models/voice_call_history.dart';
 import 'package:ermis_client/core/networking/handlers/intermediary_service.dart';
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
@@ -37,6 +38,7 @@ import 'package:ermis_client/core/services/database/models/local_user_info.dart'
 import '../../event_bus/app_event_bus.dart';
 import '../../event_bus/event_bus.dart';
 import '../../models/member_icon.dart';
+import '../common/message_types/voice_call_history_status.dart';
 
 final EventBus _eventBus = AppEventBus.instance;
 
@@ -391,9 +393,49 @@ class CommandResultHandler {
           _eventBus.fire(MessageDeletedEvent(UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!, messageID));
         }
         break;
+      case ClientCommandResultType.fetchVoiceCallHistory:
+        int chatSessionID = msg.readInt32();
+
+        List<VoiceCallHistory>? voiceCallsHistory = UserInfoManager.chatSessionIDSToVoiceCallHistory[chatSessionID];
+        voiceCallsHistory ??= [];
+        voiceCallsHistory.clear();
+
+        ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
+        while (msg.readableBytes > 0) {
+          int initiatorClientID = msg.readInt32();
+          int tsDebuted = msg.readInt64();
+          int tsEnded = msg.readInt64();
+          VoiceCallHistoryStatus status = VoiceCallHistoryStatus.fromId(msg.readInt32());
+
+          String callerUsername;
+          if (initiatorClientID == UserInfoManager.clientID) {
+            callerUsername = UserInfoManager.username!;
+          } else {
+            callerUsername = chatSession.members
+              .firstWhere((member) => member.clientID == initiatorClientID)
+              .username;
+          }
+
+          VoiceCallHistory callHistory = VoiceCallHistory(
+            chatSessionID: chatSessionID,
+            initiatorClientID: initiatorClientID,
+            callerUsername: callerUsername,
+            tsDebuted: tsDebuted,
+            tsEnded: tsEnded,
+            status: status,
+          );
+
+          voiceCallsHistory.add(callHistory);
+        }
+
+        voiceCallsHistory.sort((a, b) => a.tsDebuted.compareTo(b.tsDebuted));
+
+        UserInfoManager.chatSessionIDSToVoiceCallHistory[chatSessionID] = voiceCallsHistory;
+        break;
       case ClientCommandResultType.fetchAccountIcon:
         UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(ProfilePhotoReceivedEvent(UserInfoManager.profilePhoto!));
+        _eventBus
+            .fire(ProfilePhotoReceivedEvent(UserInfoManager.profilePhoto!));
         break;
       case ClientCommandResultType.fetchUserDevices:
         UserInfoManager.userDevices = [];
@@ -417,12 +459,6 @@ class CommandResultHandler {
         UserInfoManager.commitPendingProfilePhoto(lastUpdatedEpochSecond);
 
         _eventBus.fire(AddProfilePhotoResultEvent(isSuccessful));
-        break;
-      case ClientCommandResultType.startVoiceCall:
-        int udpServerPort = msg.readInt32();
-        Uint8List aesKey = msg.readBytes(msg.readableBytes);
-
-        _eventBus.fire(StartVoiceCallResultEvent(aesKey, udpServerPort));
         break;
       case ClientCommandResultType.getDonationPageURL:
         Uint8List donationPageURL = msg.readBytes(msg.readableBytes);

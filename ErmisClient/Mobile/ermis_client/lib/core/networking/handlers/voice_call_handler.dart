@@ -31,7 +31,6 @@ class VoiceCallHandler {
 
     switch (voiceCallMessageType) {
       case VoiceCallMessageType.incomingVoiceCall:
-        int signallingPort = msg.readInt32();
         int chatSessionID = msg.readInt32();
         int clientID = msg.readInt32();
 
@@ -45,7 +44,6 @@ class VoiceCallHandler {
         }
 
         _eventBus.fire(VoiceCallIncomingEvent(
-          signallingPort: signallingPort,
           chatSessionID: chatSessionID,
           chatSessionIndex: session.chatSessionIndex,
           member: member ?? session.members[0],

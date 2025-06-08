@@ -148,13 +148,11 @@ class VoiceCallIncomingEvent {
   final int chatSessionID;
   final int chatSessionIndex;
   final Member member;
-  final int signallingPort;
 
   const VoiceCallIncomingEvent({
     required this.chatSessionID,
     required this.chatSessionIndex,
     required this.member,
-    required this.signallingPort,
   });
 }
 
@@ -178,12 +176,6 @@ class MemberAddedToVoiceCalll {
     required this.clientID,
     required this.socket,
   });
-}
-
-class StartVoiceCallResultEvent {
-  final Uint8List aesKey;
-  final int udpServerPort;
-  const StartVoiceCallResultEvent(this.aesKey, this.udpServerPort);
 }
 
 class MessageDeletionUnsuccessfulEvent {

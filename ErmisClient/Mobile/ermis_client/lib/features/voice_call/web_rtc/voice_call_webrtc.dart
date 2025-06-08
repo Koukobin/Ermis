@@ -171,23 +171,38 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       });
     });
 
+    // Check call status and only proceed if is connecting;
+    // check is necessary because user can exit screen by pressing
+    // the ⬅ button on the top left and return by double tapping 
+    // the overlay, resulting in this method re-executing.
+    // Kinda shitty, but a compromise needed.
     if (callStatus != CallStatus.connecting) return;
 
     Future(() async {
-      final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      if (widget.isInitiator) {
+        Client.instance().commands?.startVoiceCall(widget.chatSessionIndex);
+      }
 
       Client.instance().commands?.fetchSignallingServerPort();
       SignallingServerPortEvent e = await AppEventBus.instance.on<SignallingServerPortEvent>().first;
 
-      // Create a WebSocket to your signaling server.
+      // Create WebSocket to signalling server
+      final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+
       channel = IOWebSocketChannel.connect(
         Uri.parse('wss://${UserInfoManager.serverInfo.address!.host}:${e.port}/ws'),
         customClient: client,
       );
 
-      await _startListeningForCalls();
-      _startOrAcceptVoiceCall();
+      await _startListeningForMessagesFromCounterpart();
+
+      if (widget.isInitiator) {
+        _awaitVoiceCallAcceptResponse();
+        return;
+      }
+
+      Client.instance().commands?.acceptVoiceCall(widget.chatSessionIndex);
     });
   }
 
@@ -196,7 +211,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     channel!.sink.add(jsonEncode(message));
   }
 
-  Future<void> _startListeningForCalls() async {
+  Future<void> _startListeningForMessagesFromCounterpart() async {
     remoteRenderer = RTCVideoRenderer();
     await remoteRenderer!.initialize();
 
@@ -305,7 +320,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       }
     });
 
-    // Wait until the WebSocket connection opens.
+    // Wait until the WebSocket connection opens
     await Future.delayed(const Duration(seconds: 1)); // Give a brief delay to ensure connection is open.
     print("Signaling WebSocket connected.");
 
@@ -324,14 +339,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     print("Local media stream obtained: ${localStream!.id}");
   }
 
-  Future<void> _startOrAcceptVoiceCall() async {
-    if (!widget.isInitiator) {
-      Client.instance().commands?.acceptVoiceCall(widget.chatSessionIndex);
-      return;
-    }
-
-    Client.instance().commands?.startVoiceCall(widget.chatSessionIndex);
-
+  Future<void> _awaitVoiceCallAcceptResponse() async {
     setState(() {
       callStatus = CallStatus.calling;
     });
@@ -349,12 +357,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     VoiceCallAcceptedEvent event = await AppEventBus.instance.on<VoiceCallAcceptedEvent>().first;
     peerConnection = await createPeerConnection(configuration);
 
-    // Add local media tracks.
+    // Add local media tracks
     localStream!.getTracks().forEach((track) {
       peerConnection!.addTrack(track, localStream!);
     });
 
-    // Set up ICE candidates and track handling.
+    // Set up ICE candidates and track handling
     peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
       if (candidate.candidate != null && candidate.candidate!.isNotEmpty) {
         sendChannelMessage({
@@ -388,7 +396,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       }
     };
 
-    // Create the offer and send it over the signaling channel.
+    // Create the offer and send it over the signaling channel
     RTCSessionDescription offer = await peerConnection!.createOffer();
     await peerConnection!.setLocalDescription(offer);
     sendChannelMessage({
@@ -400,7 +408,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
   double calculateRMS(Uint8List audioChunk) {
     if (audioChunk.isEmpty) {
-      return 0.0; // Return 0 for empty audio samples.
+      return 0.0; // Return 0 for empty audio samples
     }
 
     Int16List audioSamples = audioChunk.buffer.asInt16List();
@@ -733,10 +741,18 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       context,
       EndVoiceCallScreen(
         member: widget.member,
-        callDuration: elapsedTime?.getTimeElapsedAsString() ?? "???",
+        callDuration: elapsedTime?.getTimeElapsedAsString() ?? "",
       ),
     );
 
     await _resetCallData();
+
+    // Update obsolete voice call history (Slight delay to ensure server had
+    // a sufficient amount of time to handle voice call history in database).
+    Future.delayed(const Duration(seconds: 3), () {
+      Client.instance()
+          .commands
+          ?.fetchVoiceCallHistory(widget.chatSessionIndex);
+    });
   }
 }

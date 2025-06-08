@@ -1,4 +1,4 @@
-/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,12 +15,12 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
+import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
-import github.koukobin.ermis.server.main.java.server.ChatSession;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.models.PersonalizedVoiceCallHistory;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.web_rtc_signalling_server.WebRTCSignallingServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
 
@@ -28,40 +28,34 @@ import io.netty.channel.epoll.EpollSocketChannel;
  * @author Ilias Koukovinis
  *
  */
-public class StartVoiceCall implements ICommand {
+public class FetchVoiceCallHistory implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		int chatSessionIndex = args.readInt();
-		ChatSession chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
-		int chatSessionID = chatSession.getChatSessionID();
-		int initiatorClientID = clientInfo.getClientID();
+		int chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
 
-		ByteBuf payload = channel.alloc().ioBuffer();
-		payload.writeInt(ServerMessageType.VOICE_CALLS.id);
-		payload.writeInt(VoiceCallMessageType.INCOMING_VOICE_CALL.id);
-		payload.writeInt(chatSessionID);
-		payload.writeInt(initiatorClientID);
-
-		for (ClientInfo activeMember : chatSession.getActiveMembers()) {
-			if (activeMember.getChannel().equals(clientInfo.getChannel())) {
-				continue;
-			}
-
-			payload.retain();
-			activeMember.getChannel().writeAndFlush(payload);
+		PersonalizedVoiceCallHistory[] history;
+		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+			history = conn.getVoiceCall(chatSessionID, clientInfo.getClientID());
 		}
 
-		payload.release();
+		ByteBuf payload = channel.alloc().ioBuffer();
+		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
+		payload.writeInt(ClientCommandResultType.FETCH_VOICE_CALL_HISTORY.id);
+		payload.writeInt(chatSessionID);
+		for (var call : history) {
+			payload.writeInt(call.history().initiatorClientID());
+			payload.writeLong(call.history().tsDebuted());
+			payload.writeLong(call.history().tsEnded());
+			payload.writeInt(call.status().id);
+		}
 
-		WebRTCSignallingServer.addVoiceCall(chatSession, initiatorClientID);
-
-		getLogger().debug("Voice chat added");
+		channel.writeAndFlush(payload);
 	}
 
 	@Override
 	public ClientCommandType getCommand() {
-		return ClientCommandType.START_VOICE_CALL;
+		return ClientCommandType.FETCH_VOICE_CALL_HISTORY;
 	}
-
 }

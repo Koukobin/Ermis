@@ -66,9 +66,12 @@ public enum ClientCommandType {
 	// External Pages
 	REQUEST_DONATION_PAGE_URL(CommandLevel.LIGHT, 400),
 	REQUEST_SOURCE_CODE_PAGE_URL(CommandLevel.LIGHT, 401),
+	
+	// Voice call history
+	FETCH_VOICE_CALL_HISTORY(CommandLevel.HEAVY, 500),
 
 	// Other
-	FETCH_SIGNALLING_SERVER_PORT(CommandLevel.LIGHT, 500);
+	FETCH_SIGNALLING_SERVER_PORT(CommandLevel.LIGHT, 600);
 
 	/*
 	 * This enum determines whether the command requested by the client is "Heavy" or "Light."

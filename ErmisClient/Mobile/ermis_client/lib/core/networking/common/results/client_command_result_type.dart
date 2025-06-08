@@ -42,9 +42,9 @@ enum ClientCommandResultType {
   downloadImage(401),
   downloadVoice(402),
 
-  // Start voice call
-  startVoiceCall(500),
+  // Voice calls
   fetchSignallingServerPort(501),
+  fetchVoiceCallHistory(502),
 
   // External Pages
   getDonationPageURL(600),

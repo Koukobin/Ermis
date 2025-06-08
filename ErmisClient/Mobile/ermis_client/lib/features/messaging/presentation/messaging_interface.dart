@@ -18,12 +18,14 @@ import 'dart:async';
 
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_client/core/models/voice_call_history.dart';
 import 'package:ermis_client/core/services/database/extensions/chat_messages_extension.dart';
 import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
 import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:ermis_client/enums/chat_back_drop_enum.dart';
+import 'package:ermis_client/features/messaging/presentation/voice_call_bubble.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/features/messaging/presentation/input_field.dart';
@@ -77,6 +79,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
   late ChatSession _chatSession; // Not final because can be updated by server
 
   List<Message> _messages = []; // Not final because can be updated by server
+  List<VoiceCallHistory>? _voiceCallsHistory = []; // Not final because can be updated by server
 
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
@@ -115,6 +118,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
       _setupListeners(); // Register message listeners
     });
+
+    _voiceCallsHistory = UserInfoManager.chatSessionIDSToVoiceCallHistory[_chatSession.chatSessionID];
   }
 
   Future<List<Message>> _retrieveFurtherLocalMessages() async {
@@ -220,6 +225,22 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     super.didChangeDependencies();
   }
 
+  void pushVoiceCall() {
+    // VoiceCallThing.initiateVoiceCall(
+    //   context,
+    //   chatSessionIndex: _chatSessionIndex,
+    //   chatSessionID: _chatSession.chatSessionID,
+    // );
+    pushSlideTransition(
+        context,
+        VoiceCallWebrtc(
+          chatSessionIndex: _chatSessionIndex,
+          chatSessionID: _chatSession.chatSessionID,
+          member: _chatSession.members[0],
+          isInitiator: true,
+        ));
+  }
+
   @override
   Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
@@ -269,21 +290,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
             Row(
               children: [
                 IconButton(
-                  onPressed: () {
-                    // VoiceCallThing.initiateVoiceCall(
-                    //   context,
-                    //   chatSessionIndex: _chatSessionIndex,
-                    //   chatSessionID: _chatSession.chatSessionID,
-                    // );
-                    pushSlideTransition(
-                        context,
-                        VoiceCallWebrtc(
-                          chatSessionIndex: _chatSessionIndex,
-                          chatSessionID: _chatSession.chatSessionID,
-                          member: _chatSession.members[0],
-                          isInitiator: true,
-                        ));
-                  },
+                  onPressed: pushVoiceCall,
                   icon: const Icon(Icons.phone_outlined),
                 ),
                 PopupMenuButton<VoidCallback>(
@@ -341,21 +348,62 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
   }
 
   Widget _buildMessageList(AppColors appColors) {
+    List<Object> combined = [
+      ..._messages,
+      ..._voiceCallsHistory ?? [],
+    ];
+    combined.sort((a, b) {
+      int getTimestamp(Object item) {
+        if (item is Message) {
+          return item.epochSecond;
+        }
+
+        if (item is VoiceCallHistory) {
+          return item.tsEnded;
+        }
+
+        throw Exception("What the fuck is going on");
+      }
+
+      return getTimestamp(a).compareTo(getTimestamp(b));
+    });
+
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: ScrollViewFixer.createScrollViewWithAppBarSafety(scrollView: InfiniteScrollList(
           reverse: true,
-          itemCount: _messages.length,
+          itemCount: combined.length,
           isLoaded: true,
           itemBuilder: (context, index) {
-            final Message message = _messages[_messages.length - index - 1];
-            final Message? previousMessage;
+            final message = combined[combined.length - index - 1];
 
-            if (index != _messages.length - 1) {
-              previousMessage = _messages[_messages.length - index - 2];
-            } else {
-              previousMessage = null;
+            if (message is VoiceCallHistory) {
+              return VoiceCallBubble(
+                entry: message,
+                pushVoiceCall: pushVoiceCall,
+              );
+            }
+
+            if (message is! Message) {
+              return Text("Unrecognized message: $message");
+            }
+
+            Message? previousMessage;
+
+            if (index != combined.length - 1) {
+              int num = 2;
+              try {
+                while (previousMessage == null) {
+                  final obj = combined[combined.length - index - num];
+                  if (obj is Message) {
+                    previousMessage = obj;
+                  }
+                  num++;
+                }
+              } on RangeError {
+                // In case of an error continue
+              }
             }
 
             return GestureDetector(
@@ -368,7 +416,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                   });
                 },
                 child: Container(
-                    decoration: _isEditingMessage && _messagesBeingEdited.contains(message)
+                    decoration: _isEditingMessage &&
+                            _messagesBeingEdited.contains(message)
                         ? BoxDecoration(
                             color: appColors.secondaryColor.withAlpha(100),
                             borderRadius: BorderRadius.circular(10),

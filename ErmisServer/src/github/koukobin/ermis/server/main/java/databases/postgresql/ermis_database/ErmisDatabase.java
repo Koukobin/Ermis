@@ -42,6 +42,7 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserCredentialsRepository;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserIpManagerService;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserProfileModule;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.VoiceCallHistoryManagerService;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ChatSessionIDGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ClientIDGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.MessageIDGenerator;
@@ -259,7 +260,8 @@ public final class ErmisDatabase {
 			MessagesService,
 			UserCredentialsRepository,
 			UserIpManagerService,
-			UserProfileModule {
+			UserProfileModule,
+			VoiceCallHistoryManagerService {
 
 		private GeneralPurposeDBConnection() {
 			super(generalPurposeDataSource);

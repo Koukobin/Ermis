@@ -52,9 +52,9 @@ public enum ClientCommandResultType {
 	DOWNLOAD_IMAGE(401),
 	DOWNLOAD_VOICE(402),
 
-	// Start voice call,
-	START_VOICE_CALL(500),
+	// Voice calls
 	FETCH_VOICE_CALL_SIGNALLING_SERVER_PORT_AND_INITIATE_CALL(501),
+	FETCH_VOICE_CALL_HISTORY(502),
 
 	// External Pages
 	GET_DONATION_PAGE_URL(600),

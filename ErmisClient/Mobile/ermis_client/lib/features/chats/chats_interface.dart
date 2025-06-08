@@ -24,6 +24,7 @@ import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
+import 'package:ermis_client/features/call_history_screen/call_history_screen.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
@@ -161,6 +162,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
 
     for (final ChatSession session in _conversations ?? const []) {
       Client.instance().commands?.fetchWrittenText(session.chatSessionIndex);
+      Client.instance().commands?.fetchVoiceCallHistory(session.chatSessionIndex);
     }
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
@@ -273,6 +275,17 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
                   child: Text(S.current.linked_devices,
+                      style: const TextStyle(
+                          color: Colors.green,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 15)),
+                ),
+                PopupMenuItem(
+                  value: () {
+                    pushSlideTransition(context, const CallHistoryPage());
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  child: Text("Voice Calls History",
                       style: const TextStyle(
                           color: Colors.green,
                           fontStyle: FontStyle.italic,

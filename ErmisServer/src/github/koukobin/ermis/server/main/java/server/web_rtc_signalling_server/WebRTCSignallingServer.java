@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.server.main.java.server;
+package github.koukobin.ermis.server.main.java.server.web_rtc_signalling_server;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -24,6 +24,7 @@ import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +38,10 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
+import github.koukobin.ermis.server.main.java.server.ChatSession;
+import github.koukobin.ermis.server.main.java.server.ClientInfo;
+import github.koukobin.ermis.server.main.java.server.SslContextProvider;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -217,84 +222,95 @@ public class WebRTCSignallingServer {
 		}
 	}
 
-	public static void addVoiceCall(ChatSession chatSession) {
+	public static void addVoiceCall(ChatSession chatSession, int initiatorClientID) {
 		int chatSessionID = chatSession.getChatSessionID();
 
 		List<Channel> channelsList = Lists.newArrayList();
 		for (ClientInfo member : chatSession.getActiveMembers()) {
-			WebRTCSignallingHandler.chatSessionIDToParticipants.put(chatSessionID, channelsList);
+			VoiceChatUser user = WebRTCSignallingHandler.addressToUsers.get(member.getInetAddress());
 
-			User user = WebRTCSignallingHandler.addressToUsers.get(member.getInetAddress());
-			user.chatSessionID = chatSessionID;
-
-			channelsList.add(user.channel);
+			if (user == null) {
+				user = new VoiceChatUser(chatSessionID, member.getClientID(), null);
+				WebRTCSignallingHandler.addressToUsers.put(member.getInetAddress(), user);
+			}
 		}
-	}
 
-	private static class User {
-		public int chatSessionID;
-		public Channel channel;
-
-		public User(int clientID, Channel channel) {
-			this.chatSessionID = clientID;
-			this.channel = channel;
+		long tsDebuted = Instant.now().getEpochSecond();
+		int voiceCallHistoryID;
+		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+			voiceCallHistoryID = conn.addActiveVoiceCall(tsDebuted, chatSessionID, initiatorClientID);
 		}
+
+		ActiveVoiceChat call = new ActiveVoiceChat(tsDebuted, voiceCallHistoryID, initiatorClientID, channelsList);
+		WebRTCSignallingHandler.chatSessionIDToParticipants.put(chatSessionID, call);
 	}
 
 	private static class WebRTCSignallingHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-		private static final Map<InetAddress, User> addressToUsers = new ConcurrentHashMap<>();
-		private static final Map<Integer, List<Channel>> chatSessionIDToParticipants = new ConcurrentHashMap<>();
+		private static final Map<InetAddress, VoiceChatUser> addressToUsers = new ConcurrentHashMap<>();
+		private static final Map<Integer, ActiveVoiceChat> chatSessionIDToParticipants = new ConcurrentHashMap<>();
 
-		private User user;
+		private VoiceChatUser user;
 
 		@Override
 		public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-			user = new User(-1, ctx.channel());
-			addressToUsers.put(getCurrentInetAddressOfChannel(), user);
+			user = addressToUsers.get(getInetAddressOfChannel(ctx));
+			user.channel = ctx.channel();
+
+			ActiveVoiceChat call = chatSessionIDToParticipants.get(user.chatSessionID);
+			call.activeChannels().add(user.channel);
+
+			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+				conn.addVoiceCallParticipant(call.voiceCallID(), user.clientID);
+			}
 		}
 
 		@Override
 		public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-			addressToUsers.remove(getCurrentInetAddressOfChannel());
+			addressToUsers.remove(getInetAddressOfChannel(ctx));
 
 			int chatSessionID = user.chatSessionID;
 
-			List<Channel> activeChannels = chatSessionIDToParticipants.get(chatSessionID);
+			ActiveVoiceChat call = chatSessionIDToParticipants.get(chatSessionID);
+			if (call == null) {
+				return;
+			}
+
+			List<Channel> activeChannels = call.activeChannels();
+
 			if (activeChannels == null) {
 				return;
 			}
 
-			activeChannels.remove(ctx.channel());
+			activeChannels.remove(user.channel);
 			if (activeChannels.isEmpty()) {
 				chatSessionIDToParticipants.remove(chatSessionID);
+
+				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+					conn.setEndedVoiceCall(Instant.now().getEpochSecond(), call.voiceCallID());
+				}
 			}
 		}
 
-		private InetAddress getCurrentInetAddressOfChannel() {
-			return getInetAddressOfChannel(user.channel);
-		}
-		
-		private static InetAddress getInetAddressOfChannel(Channel ch) {
-			return ((InetSocketAddress) ch.remoteAddress()).getAddress();
+		private static InetAddress getInetAddressOfChannel(ChannelHandlerContext ctx) {
+			return ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress();
 		}
 
 		@Override
 		protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
 			// Only handle text frames
-			if (frame instanceof TextWebSocketFrame textwebsocketframe) {
-				String message = textwebsocketframe.text();
+			if (frame instanceof TextWebSocketFrame textWebSocketFrame) {
+				String message = textWebSocketFrame.text();
 				// Broadcast the message to every other channel in call
-				for (Channel ch : chatSessionIDToParticipants.get(user.chatSessionID)) {
+				for (Channel ch : chatSessionIDToParticipants.get(user.chatSessionID).activeChannels()) {
 					if (ch != ctx.channel()) {
 						ch.writeAndFlush(new TextWebSocketFrame(message));
 					}
 				}
-			} else {
-				// Close the connection if a binary or other frame is received
-				LOGGER.debug("Unsupported frame received: {}", frame.getClass().getName());
-				ctx.channel().close();
+				return;
 			}
+
+			LOGGER.debug("Unsupported frame received: {}", frame.getClass().getName());
 		}
 
 		@Override
