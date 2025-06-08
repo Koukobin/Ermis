@@ -285,7 +285,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                     pushSlideTransition(context, const CallHistoryPage());
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: Text("Voice Calls History",
+                  child: Text(S().voice_calls_history,
                       style: const TextStyle(
                           color: Colors.green,
                           fontStyle: FontStyle.italic,

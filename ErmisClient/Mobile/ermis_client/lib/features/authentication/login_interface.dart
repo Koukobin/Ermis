@@ -242,14 +242,14 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                           child: _useBackupverificationCode
                               ? Text(
                                   key: const ValueKey("switch-to-password"),
-                                  "Use Password",
+                                  S.current.use_password,
                                   style: TextStyle(
                                       fontSize: 18,
                                       color: appColors.inferiorColor),
                                 )
                               : Text(
                                   key: const ValueKey("switch-to-backup-verification-code"),
-                                  "Use Backup-Verification Code",
+                                  S.current.use_backup_verification_code,
                                   style: TextStyle(
                                       fontSize: 18,
                                       color: appColors.inferiorColor),

@@ -158,7 +158,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 showLogoutConfirmationDialog(
                     context,
-                    S.current.linked_devices_logout_confirm,
+                    S.current.are_you_sure_you_want_to_logout_from_this_device,
                     () => Client.instance().commands?.logoutThisDevice());
               },
             )

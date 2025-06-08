@@ -118,14 +118,14 @@ Future<void> showPermissionDeniedDialog(
           Navigator.of(context).pop();
           openAppSettings();
         },
-        child: const Text("Open Settings"),
+        child: Text(S().open_settings),
       ),
       TextButton(
         onPressed: Navigator.of(context).pop,
         child: const Text("Ok"),
       ),
     ],
-    content: "$permission is denied",
+    content: S().specific_permission_denied(permission.toString()),
   );
 }
 
@@ -169,7 +169,7 @@ Future<void> showLogoutConfirmationDialog(
     builder: (BuildContext context) {
       return WhatsAppPopupDialog(
         child: AlertDialog(
-          title: Text('Logout?'),
+          title: Text(S().logout_capitalized_question_mark),
           content: Text(content),
           actions: [
             TextButton(

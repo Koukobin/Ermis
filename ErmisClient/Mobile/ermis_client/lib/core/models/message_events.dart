@@ -156,6 +156,14 @@ class VoiceCallIncomingEvent {
   });
 }
 
+class CancelVoiceCallIncomingEvent {
+  final int chatSessionID;
+
+  const CancelVoiceCallIncomingEvent({
+    required this.chatSessionID,
+  });
+}
+
 class VoiceCallAcceptedEvent {
   final int chatSessionID;
   final int chatSessionIndex;

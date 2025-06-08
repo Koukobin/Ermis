@@ -84,6 +84,7 @@
   "linked_devices_logout_confirm": "Are you sure you want to logout from ",
   "logout": "logout",
   "logout_capitalized": "Logout",
+  "logout_capitalized_question_mark": "Logout?",
   "linked_devices_logout_all": "Logout From All Devices",
   "linked_devices_logout_all_confirm": "Are you sure you would like to logout from all devices?",
 
@@ -155,7 +156,8 @@
 
   "logout_from_this_device": "Logout from this device",
   "logout_from_all_devices": "Logout From All Devices",
-  "are_you_sure_you_want_to_logout_from_all_devices": "Are you sure you would like to logout from all devices?",
+  "are_you_sure_you_want_to_logout_from_all_devices": "Are you sure you want to logout from all devices?",
+  "are_you_sure_you_want_to_logout_from_this_device": "Are you sure you want to logout from this device?",
 
   "chat_request_accept_error": "Something went wrong while trying accept chat request!",
   "chat_request_decline_error": "Something went wrong while trying to decline chat request!",
@@ -276,6 +278,7 @@
 
   "are_you_sure_you_want_to_switch_to": "Are you sure you want to switch to ${x}?",
   "permission_denied": "Permission denied",
+  "specific_permission_denied": "{permission} is denied",
   "reply": "Reply",
   "mark_as_read": "Mark read",
   "an_error_occured_while_trying_to_change_profile_photo": "An error occured while trying to change profile photo",
@@ -286,5 +289,50 @@
   "Connecting": "Connecting...",
   "ended": "Ended",
   "voice_call": "Voice Call",
-  "are_you_sure_you_want_to_switch_to_video_mode": "Are you sure you want to switch to video mode?"
+  "are_you_sure_you_want_to_switch_to_video_mode": "Are you sure you want to switch to video mode?",
+
+  "call_history_app_title": "Call History",
+  "duration_capitalized": "Duration",
+  "seconds": "seconds",
+  "minutes": "minutes",
+  "hours": "hours",
+
+  "session_capitalized": "Session",
+  "caller_capitalized": "Caller",
+
+  "started_at_time": "Started at: {time}",
+
+  "storage_and_data_title": "Storage and Data",
+  "network_usage": "Network Usage",
+
+  "sent": "sent",
+  "received": "received",
+  "used": "used",
+
+  "sent_capitalized": "Sent",
+  "received_capitalized": "Received",
+
+  "media_auto_download": "Media Auto-Download",
+
+  "call_settings": "Call Settings",
+
+  "use_less_data_for_calls": "Use less data for calls",
+
+  "usage_capitalized": "Usage",
+
+  "calls_usage_not_available": "Calls Usage Not Available",
+  "media_usage_not_available": "Media Usage Not Available",
+  "messages_usage_not_available": "Messages Usage Not Available",
+  "roaming_usage_not_available": "Roaming Usage Not Available",
+  
+  "reset_statistics": "Reset Statistics",
+  "reset_network_usage_statistics": "Reset network usage statistics?",
+
+  "voice_calls_history": "Voice Calls History",
+
+  "open_settings": "Open Settings",
+
+  "are_you_sure": "Are you sure?",
+
+  "incoming_voice_call": "Incoming Voice Call"
 }

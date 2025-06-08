@@ -82,21 +82,21 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ErmisAppBar(titleText: "Storage and Data"),
+      appBar: ErmisAppBar(titleText: S().storage_and_data_title),
       body: ScrollViewFixer.createScrollViewWithAppBarSafety(
           scrollView: ListView(
         children: [
           ListTile(
             leading: const Icon(Icons.storage),
-            title: Text("Manage Storage"),
-            subtitle: Text("${formatBytes(utilizedStorageByServerData)} used"),
+            title: Text(S().manage_storage),
+            subtitle: Text("${formatBytes(utilizedStorageByServerData)} ${S().used}"),
             onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.network_check),
-            title: Text("Network Usage"),
+            title: Text(S().network_usage),
             subtitle: Text(
-                "${formatBytes(dataSent)} sent • ${formatBytes(dataReceived)} received"),
+                "${formatBytes(dataSent)} ${S().sent} • ${formatBytes(dataReceived)} ${S().received}"),
             onTap: () {
               pushSlideTransition(
                 context,
@@ -111,7 +111,7 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "Media Auto-Download",
+              S().media_auto_download,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
@@ -146,12 +146,12 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "Call Settings",
+              S().call_settings,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           SwitchListTile(
-            title: Text("Use less data for calls"),
+            title: Text(S().use_less_data_for_calls),
             value: useLessDataForCalls,
             onChanged: (bool value) {
               setState(() {
