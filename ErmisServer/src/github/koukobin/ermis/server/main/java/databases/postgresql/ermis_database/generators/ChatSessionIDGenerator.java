@@ -39,12 +39,12 @@ public final class ChatSessionIDGenerator {
 	private static final Logger logger = LogManager.getLogger("database");
 
 	private static final Object lockObject = new Object();
-	
+
 	private static final int IDS_PER_GENERATION = 5_000;
 	private static final Deque<Integer> chatSessionIDS = new ConcurrentLinkedDeque<>();
-	
+
 	private ChatSessionIDGenerator() {}
-	
+
 	/**
 	 * 
 	 * @param conn Connection to ermis database
@@ -54,9 +54,9 @@ public final class ChatSessionIDGenerator {
 			if (!chatSessionIDS.isEmpty()) {
 				return;
 			}
-			
+
 			logger.debug("Generating new batch of chat session IDs...");
-			
+
 			try (PreparedStatement pstmt = conn.prepareStatement(
 					"SELECT chat_session_id FROM chat_sessions;",
 					ResultSet.TYPE_SCROLL_SENSITIVE, 
@@ -86,34 +86,34 @@ public final class ChatSessionIDGenerator {
 
 	public static int retrieveAndDelete(Connection conn) {
 		int id = retrieve(conn);
-	    if (id != -1) {
-	        delete(id);
-	    }
-	    return id;
+		if (id != -1) {
+			delete(id);
+		}
+		return id;
 	}
 
 	public static void undo(int chatSessionID) {
 		chatSessionIDS.add(chatSessionID);
 	}
-	
+
 	private static int retrieve(Connection conn) {
-	    if (chatSessionIDS.isEmpty()) {
-	        generateAvailableChatSessionIDS(conn);
+		if (chatSessionIDS.isEmpty()) {
+			generateAvailableChatSessionIDS(conn);
 
-	        if (chatSessionIDS.isEmpty()) {
-	            logger.warn("Failed to retrieve a chat session ID; no IDs available.");
-	            return -1;
-	        }
-	    }
+			if (chatSessionIDS.isEmpty()) {
+				logger.warn("Failed to retrieve a chat session ID; no IDs available.");
+				return -1;
+			}
+		}
 
-	    return chatSessionIDS.peekLast();
+		return chatSessionIDS.peekLast();
 	}
-	
+
 	private static void delete(Integer chatSessionID) {
 		boolean removed = chatSessionIDS.remove(chatSessionID);
 		if (!removed) {
 			logger.warn("Attempted to delete a non-existent chat session ID: {}", chatSessionID);
 		}
 	}
-	
+
 }
