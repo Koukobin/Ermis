@@ -25,6 +25,7 @@ import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_client/features/call_history_screen/call_history_screen.dart';
+import 'package:ermis_client/features/chats/congrats_screen.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
@@ -151,7 +152,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
     super.initState();
 
     _conversations = UserInfoManager.chatSessions;
-    // If conversations is equal to null, set task to loading
+    // If conversations is null, set task to loading
     if (_conversations == null) {
       task = Task.loading;
     }
@@ -166,7 +167,15 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
     }
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
-      _updateChatSessions(event.sessions);
+      if (_conversations != null) {
+        if (_conversations!.length != event.sessions.length) {
+          showCongratulationsForNewFriendScreen(context);
+        }
+      }
+
+      _conversations = [...event.sessions];
+      task = Task.normal;
+      setState(() {});
     });
 
     subscribe(AppEventBus.instance.on<ChatSessionsStatusesEvent>(), (event) {
@@ -418,6 +427,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
               scrollView: RefreshIndicator(
                 // if user scrolls downwards refresh chat requests
                 onRefresh: _refreshContent,
+                color: appColors.primaryColor,
                 child: _conversations!.isNotEmpty
                     ? ListView.separated(
                         itemCount: _conversations!.length,
@@ -427,7 +437,8 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                           height: 10,
                         ),
                       )
-                    : // Wrap in a list view to ensure it is scrollable for refresh indicator
+                    :
+                    // Wrap in a list view to ensure it is scrollable for refresh indicator
                     ListView(
                         children: [
                           SizedBox(
@@ -630,14 +641,6 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
     Client.instance().commands?.fetchChatSessions();
     setState(() {
       task = Task.loading;
-    });
-  }
-
-  void _updateChatSessions(List<ChatSession> chatSessions) {
-    if (!mounted) return;
-    setState(() {
-      _conversations = chatSessions;
-      task = Task.normal;
     });
   }
 

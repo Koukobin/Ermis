@@ -21,6 +21,6 @@ class ChatRequest {
 
   @override
   String toString() {
-    return 'client id: $clientID';
+    return 'Client id: $clientID';
   }
 }

@@ -14,6 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
@@ -151,16 +153,18 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
             const SizedBox(height: 5),
             Text(
               _chatRequests![index].toString(),
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () => Client.instance()
-                      .commands
-                      ?.acceptChatRequest(_chatRequests![index].clientID),
+                  onPressed: () {
+                    Client.instance()
+                        .commands
+                        ?.acceptChatRequest(_chatRequests![index].clientID);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.greenAccent,
                     shape: RoundedRectangleBorder(
@@ -171,9 +175,11 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
                 ),
                 const SizedBox(width: 10), // Add space between buttons
                 OutlinedButton(
-                  onPressed: () => Client.instance()
-                      .commands
-                      ?.declineChatRequest(_chatRequests![index].clientID),
+                  onPressed: () {
+                    Client.instance()
+                        .commands
+                        ?.declineChatRequest(_chatRequests![index].clientID);
+                  },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
                     side: const BorderSide(color: Colors.redAccent),
