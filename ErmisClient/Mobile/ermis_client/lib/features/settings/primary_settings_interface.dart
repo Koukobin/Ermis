@@ -167,7 +167,6 @@ class SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
 }
 
 class DisplayName extends StatefulWidget {

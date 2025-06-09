@@ -29,8 +29,8 @@ import '../../../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../../../theme/app_colors.dart';
 
 class NetworkUsageScreen extends StatefulWidget {
-  final int sentDataBytes;
-  final int dataReceivedBytes;
+  final ValueNotifier<int> sentDataBytes;
+  final ValueNotifier<int> dataReceivedBytes;
 
   const NetworkUsageScreen({
     super.key,
@@ -42,17 +42,13 @@ class NetworkUsageScreen extends StatefulWidget {
   State<NetworkUsageScreen> createState() => _NetworkUsageScreenState();
 }
 
+extension on ValueNotifier<int> {
+  int operator +(ValueNotifier<int> other) {
+    return value + other.value;
+  }
+}
+
 class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,10 +105,14 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            Text(
-                              formatBytes(widget.sentDataBytes),
-                              style: const TextStyle(fontSize: 16),
-                            ),
+                            ValueListenableBuilder(
+                                valueListenable: widget.sentDataBytes,
+                                builder: (context, value, child) {
+                                  return Text(
+                                    formatBytes(value),
+                                    style: const TextStyle(fontSize: 16),
+                                  );
+                                }),
                           ],
                         ),
                         Column(
@@ -123,9 +123,14 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            Text(
-                              formatBytes(widget.dataReceivedBytes),
-                              style: const TextStyle(fontSize: 16),
+                            ValueListenableBuilder(
+                              valueListenable: widget.dataReceivedBytes,
+                              builder: (context, value, child) {
+                                return Text(
+                                  formatBytes(value),
+                                  style: const TextStyle(fontSize: 16),
+                                );
+                              }
                             ),
                           ],
                         ),
@@ -160,6 +165,10 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
                     S().reset_network_usage_statistics,
                     () {
                       ErmisDB.getConnection().resetNetworkUsage(UserInfoManager.serverInfo);
+                      setState(() {
+                        widget.sentDataBytes.value = 0;
+                        widget.dataReceivedBytes.value = 0;
+                      });
                     },
                     includeTitle: false,
                   );

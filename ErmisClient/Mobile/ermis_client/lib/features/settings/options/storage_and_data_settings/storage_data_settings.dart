@@ -37,14 +37,14 @@ class StorageAndDataScreen extends StatefulWidget {
 class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
   bool useLessDataForCalls = false;
   int utilizedStorageByServerData = 0;
-  
-  int dataSent = 0;
-  int dataReceived = 0;
+
+  final ValueNotifier<int> dataSent = ValueNotifier<int>(0);
+  final ValueNotifier<int> dataReceived = ValueNotifier<int>(0);
 
   @override
   void initState() {
     super.initState();
-    
+
     ErmisDB.getConnection()
         .getByteSize(UserInfoManager.serverInfo)
         .then((int totalBytes) {
@@ -56,17 +56,13 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
     ErmisDB.getConnection()
         .getDataBytesSent(UserInfoManager.serverInfo)
         .then((int totalBytes) {
-      setState(() {
-        dataSent = totalBytes;
-      });
+      dataSent.value = totalBytes;
     });
 
     ErmisDB.getConnection()
         .getDataBytesReceived(UserInfoManager.serverInfo)
         .then((int totalBytes) {
-      setState(() {
-        dataReceived = totalBytes;
-      });
+      dataReceived.value = totalBytes;
     });
 
     Future(() async {
@@ -95,8 +91,20 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           ListTile(
             leading: const Icon(Icons.network_check),
             title: Text(S().network_usage),
-            subtitle: Text(
-                "${formatBytes(dataSent)} ${S().sent} • ${formatBytes(dataReceived)} ${S().received}"),
+            subtitle: Row(
+              children: [
+                ValueListenableBuilder<int>(
+                    valueListenable: dataSent,
+                    builder: (context, value, child) {
+                      return Text("${formatBytes(value)} ${S().sent} • ");
+                    }),
+                ValueListenableBuilder(
+                    valueListenable: dataReceived,
+                    builder: (context, value, child) {
+                      return Text('${formatBytes(value)} ${S().received}');
+                    }),
+              ],
+            ),
             onTap: () {
               pushSlideTransition(
                 context,
