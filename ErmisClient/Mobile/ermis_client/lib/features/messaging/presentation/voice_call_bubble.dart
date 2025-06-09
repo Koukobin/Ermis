@@ -50,7 +50,7 @@ class VoiceCallBubble extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 225, maxHeight: 300),
         decoration: BoxDecoration(
           gradient: isMessageOwner
-              ? LinearGradient(
+              ? const LinearGradient(
                   colors: [
                     Color.fromARGB(255, 0, 70, 0),
                     Color.fromARGB(255, 0, 255, 0)
@@ -58,7 +58,14 @@ class VoiceCallBubble extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.topRight,
                 )
-              : null,
+              : const LinearGradient(
+                  colors: [
+                    Color.fromARGB(255, 70, 70, 70),
+                    Color.fromARGB(255, 40, 40, 40)
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.topRight,
+                ),
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(isMessageOwner ? 10 : 2),
               topRight: Radius.circular(isMessageOwner ? 2 : 10),
