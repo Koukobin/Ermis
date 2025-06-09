@@ -14,7 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_client/core/services/locale_provider.dart';
 import 'package:flutter/rendering.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 /// You may inquire why this class with this singular method is even necessary.
@@ -34,7 +36,18 @@ final class CustomDateFormatter {
     } catch (e) {
       debugPrint('Error formatting date: $e');
       try {
-        final formatter = DateFormat(newPattern, 'en_US'); // In case of failure, fallback to English (US)
+        String locale;
+
+        // In case of failure, fallback to Greek if Ancient
+        // Greek language is selected; other to English (US)
+        if (LocaleProvider().locale.languageCode == 'grc') {
+          locale = 'el_GR';
+          initializeDateFormatting(); // Vital for ancient greek formatting to work
+        } else {
+          locale = 'en_US';
+        }
+
+        final formatter = DateFormat(newPattern, locale);
         return formatter.format(date);
       } catch (e2) {
         debugPrint('Error formatting date in fallback: $e2');
