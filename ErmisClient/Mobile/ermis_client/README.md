@@ -31,7 +31,7 @@ For contribution guidelines, please refer to the main Ermis README file.
 
 ## Authors
 
-* Ilias Koukovinis (2023) [ilias.koukovinis@gmail.com]
+* Ilias Koukovinis (2024) [ilias.koukovinis@gmail.com]
 
 ## License
 

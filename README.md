@@ -128,7 +128,7 @@ When reporting an issue, please include:
 
 ## Authors
 
-* Ilias Koukovinis (2023) [ilias.koukovinis@gmail.com]
+* Ilias Koukovinis (2021) [ilias.koukovinis@gmail.com]
 
 ## License
 
