@@ -134,6 +134,7 @@ flutter:
     - assets/sounds/end_call_sound_effect.wav
     - assets/ermis/ermis_mascot.png
     - assets/ermis/crying-ermis.png
+    - assets/ermis/calling-ermis.png
     - assets/background/parthenon.jpg
     - assets/background/ermis.png
     - assets/empty_user_profile_icon/empty_user_icon_profile.png

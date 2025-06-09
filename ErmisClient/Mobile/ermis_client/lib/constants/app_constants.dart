@@ -36,6 +36,7 @@ class AppConstants {
 
   static const String ermisMascotPath = 'assets/ermis/ermis_mascot.png';
   static const String ermisCryingPath = 'assets/ermis/crying-ermis.png';
+  static const String ermisCallingPath = 'assets/ermis/calling-ermis.png';
 
   static const String ermisNotificationSoundPath = 'assets/sounds/ermis_notification.mp3';
 

@@ -21,8 +21,10 @@ import 'package:ermis_client/core/util/custom_date_formatter.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
+import '../../constants/app_constants.dart';
 import '../../core/util/datetime_utils.dart';
 import '../../core/widgets/scroll/custom_scroll_view.dart';
+import '../../theme/app_colors.dart';
 
 class CallHistoryPage extends StatefulWidget {
   final VoiceCallHistory? historyToHighlight;
@@ -50,31 +52,74 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
   String formatDateTime(String pattern, DateTime dateTime) {
     return CustomDateFormatter.formatDate(dateTime, pattern);
   }
-  
+
   String formatDuration(Duration duration) {
     String minutes = (duration.inMinutes % 60).toString();
     String seconds = (duration.inSeconds % 60).toString();
 
     if (duration.inHours > 0) {
-      return '${duration.inHours} hours $minutes minutes $seconds seconds';
+      return '${duration.inHours} ${S().hours} $minutes ${S().minutes} $seconds ${S().seconds}';
     }
 
     if (duration.inMinutes > 0) {
-      return '$minutes minutes $seconds seconds';
+      return '$minutes ${S().minutes} $seconds ${S().seconds}';
     }
 
-    return '$seconds seconds';
+    return '$seconds ${S().seconds}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(S().call_history_app_title),
       ),
       body: _callHistory.isEmpty
-          ? const Center(
-              child: Text('No call history available'),
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Image.asset(
+                    AppConstants.ermisCallingPath,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: appColors.primaryColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(24)),
+                    border: Border.all(color: appColors.secondaryColor),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 5,
+                    children: [
+                      Text(
+                        S().voice_calls_history,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: appColors.secondaryColor,
+                          fontSize: 16,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(1),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: appColors.secondaryColor),
+                        ),
+                        child: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             )
           : ScrollViewFixer.createScrollViewWithAppBarSafety(scrollView: ListView.separated(
               itemCount: _callHistory.length,
@@ -107,17 +152,17 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
                       VoiceCallHistoryStatus.ignored => Colors.red,
                     },
                   ),
-                  title: Text('Session (ID: ${entry.chatSessionID}): ${UserInfoManager.chatSessionIDSToChatSessions[entry.chatSessionID]!.toString()}'),
+                  title: Text('${S().session_capitalized} (ID: ${entry.chatSessionID}): ${UserInfoManager.chatSessionIDSToChatSessions[entry.chatSessionID]!.toString()}'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Caller: ${entry.callerUsername}'),
+                      Text('${S().caller_capitalized}: ${entry.callerUsername}'),
                       Text(
-                        '${formatDateTime('MMM d, yyyy', startDate)} at ${formatDateTime('HH:mm', endDate)}',
+                        '${formatDateTime('MMM d, yyyy', startDate)}, ${formatDateTime('HH:mm', endDate)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       Text(
-                        'Duration: ${formatDuration(endDate.difference(startDate))}',
+                        '${S().duration_capitalized}: ${formatDuration(endDate.difference(startDate))}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
