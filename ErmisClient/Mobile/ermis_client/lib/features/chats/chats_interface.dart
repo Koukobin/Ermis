@@ -19,101 +19,29 @@ import 'dart:math';
 
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/event_bus/app_event_bus.dart';
-import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
-import 'package:ermis_client/features/call_history_screen/call_history_screen.dart';
+import 'package:ermis_client/features/chats/chat_popup_menu_button.dart';
+import 'package:ermis_client/features/chats/chat_user_avatar.dart';
 import 'package:ermis_client/features/chats/congrats_screen.dart';
-import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
+import 'package:ermis_client/features/chats/chat_search_field.dart';
+import 'package:ermis_client/features/chats/send_chat_request_button.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/core/widgets/profile_photos/interactive_user_avatar.dart';
-import 'package:ermis_client/features/chats/temp.dart';
-import 'package:ermis_client/features/settings/options/linked_devices_settings.dart';
-import 'package:ermis_client/features/settings/primary_settings_interface.dart';
+import 'package:ermis_client/core/widgets/convulted_state.dart';
 import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../core/models/message.dart';
+import '../../core/networking/common/message_types/content_type.dart';
 import '../../core/util/transitions_util.dart';
 import '../../core/widgets/scroll/custom_scroll_view.dart';
-import '../messaging/presentation/choose_friends_screen.dart';
-import '../splash_screen/splash_screen.dart';
 import '../messaging/presentation/messaging_interface.dart';
 import '../../core/models/chat_session.dart';
 import '../../core/data_sources/api_client.dart';
 import '../../core/util/top_app_bar_utils.dart';
-
-class ChatUserAvatar extends InteractiveUserAvatar {
-  final void Function(BuildContext, ChatSession) pushMessageInterface;
-
-  ChatUserAvatar({
-    super.key,
-    required super.chatSession,
-    required super.member,
-    required this.pushMessageInterface,
-  }) : super(onAvatarClicked: (BuildContext context, FutureVoidCallback popContext) {
-          final appColors = Theme.of(context).extension<AppColors>()!;
-          return [
-            IconButton(
-                onPressed: () async {
-                  await popContext();
-                  pushMessageInterface(context, chatSession);
-                },
-                icon: Icon(
-                  Icons.chat_outlined,
-                  color: appColors.primaryColor,
-                )),
-            IconButton(
-                onPressed: () {
-                  popContext();
-                  pushSlideTransition(
-                      context,
-                      VoiceCallWebrtc(
-                        chatSessionID: chatSession.chatSessionID,
-                        chatSessionIndex: chatSession.chatSessionIndex,
-                        member: member,
-                        isInitiator: true,
-                      ));
-                },
-                icon: Icon(
-                  Icons.phone_outlined,
-                  color: appColors.primaryColor,
-                )),
-            IconButton(
-                onPressed: () {
-                  popContext();
-                  pushSlideTransition(
-                      context,
-                      VoiceCallWebrtc(
-                        chatSessionID: chatSession.chatSessionID,
-                        chatSessionIndex: chatSession.chatSessionIndex,
-                        member: member,
-                        isInitiator: true,
-                      ));
-                },
-                icon: Icon(
-                  Icons.video_call_outlined,
-                  color: appColors.primaryColor,
-                )),
-            IconButton(
-                onPressed: () {
-                  popContext();
-                  showSnackBarDialog(
-                    context: context,
-                    content: S.current.functionality_not_implemented,
-                  );
-                },
-                icon: Icon(
-                  Icons.info_outline,
-                  color: appColors.primaryColor,
-                )),
-          ];
-        });
-}
 
 class Chats extends StatefulWidget {
   const Chats({super.key});
@@ -122,12 +50,14 @@ class Chats extends StatefulWidget {
   State<Chats> createState() => ChatsState();
 }
 
-class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
+class ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
   List<ChatSession>? _conversations;
-  Set<ChatSession> selectedConversations = {}; // Set instead of list to prevent duplicates
+  Set<ChatSession> selectedConversations =
+      {}; // Set instead of list to prevent duplicates
 
   /// Maps each chat session's ID to its corresponding [List] of unread messages
-  final Map<int /* chat session id */, List<int>? /* unread messages count */> unreadMessageCounts = {};
+  final Map<int /* chat session id */, List<int>? /* unread messages count */ >
+      unreadMessageCounts = {};
 
   final TextEditingController _searchController = TextEditingController();
   late FocusNode _focusNode;
@@ -141,9 +71,10 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
   /// Even though it's only referenced once in the code, using the refresh indicator
   /// to refresh the chat session will trigger the stream again. If you wish to see
   /// this for yourself, try the code without the broadcast stream.
-  late final Stream<int> _stream = Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
+  late final Stream<int> _stream =
+      Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
 
-  ChatsState() : super(Task.normal);
+  ChatsState() : super(ConvultedTask.normal);
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -154,7 +85,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
     _conversations = UserInfoManager.chatSessions;
     // If conversations is null, set task to loading
     if (_conversations == null) {
-      task = Task.loading;
+      task = ConvultedTask.loading;
     }
 
     _stream.listen((x) {
@@ -163,7 +94,9 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
 
     for (final ChatSession session in _conversations ?? const []) {
       Client.instance().commands?.fetchWrittenText(session.chatSessionIndex);
-      Client.instance().commands?.fetchVoiceCallHistory(session.chatSessionIndex);
+      Client.instance()
+          .commands
+          ?.fetchVoiceCallHistory(session.chatSessionIndex);
     }
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
@@ -174,7 +107,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
       }
 
       _conversations = [...event.sessions];
-      task = Task.normal;
+      task = ConvultedTask.normal;
       setState(() {});
     });
 
@@ -195,14 +128,11 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
 
   void retrieveUnreadMessages() async {
     for (final ChatSession session in _conversations ?? const []) {
-      List<int>? messages = await ErmisDB.getConnection().retrieveUnreadMessages(UserInfoManager.serverInfo, session.chatSessionID);
+      List<int>? messages = await ErmisDB.getConnection()
+          .retrieveUnreadMessages(
+              UserInfoManager.serverInfo, session.chatSessionID);
       unreadMessageCounts[session.chatSessionID] = messages;
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
@@ -222,7 +152,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
               icon: const Icon(Icons.search),
               onPressed: () {
                 setState(() {
-                  task = Task.searching;
+                  task = ConvultedTask.searching;
                 });
                 // Variable to skip first call of focusNode which will be by textfield
                 bool hasSkippedInitialFocus = false;
@@ -232,7 +162,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                     return;
                   }
                   setState(() {
-                    task = Task.normal;
+                    task = ConvultedTask.normal;
                   });
                   _focusNode.removeListener(listener);
                 }
@@ -240,101 +170,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                 _focusNode.addListener(listener);
               },
             ),
-            PopupMenuButton<VoidCallback>(
-              position: PopupMenuPosition.under,
-              menuPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-              onSelected: (VoidCallback callback) {
-                callback();
-              },
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem(
-                  value: () async {
-                    List<Member> members = await showChooseFriendsScreen(context);
-
-                    if (members.isEmpty) return;
-                    List<int> memberIds = members.map((member) => member.clientID).toList();
-                    Client.instance().commands?.createGroup(memberIds);
-                  },
-                  padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: Text(
-                    S.current.new_group,
-                    style: const TextStyle(
-                        color: Colors.green,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 15),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: () {
-                    // FUCK
-                    SendChatRequestButton.showAddChatRequestDialog(context);
-                  },
-                  padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: Text(
-                    S.current.new_chat,
-                    style: const TextStyle(
-                        color: Colors.green,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 15),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: () {
-                    pushSlideTransition(context, const LinkedDevicesScreen());
-                  },
-                  padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: Text(S.current.linked_devices,
-                      style: const TextStyle(
-                          color: Colors.green,
-                          fontStyle: FontStyle.italic,
-                          fontSize: 15)),
-                ),
-                PopupMenuItem(
-                  value: () {
-                    pushSlideTransition(context, const CallHistoryPage());
-                  },
-                  padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: Text(S().voice_calls_history,
-                      style: const TextStyle(
-                          color: Colors.green,
-                          fontStyle: FontStyle.italic,
-                          fontSize: 15)),
-                ),
-                PopupMenuItem(
-                  value: () {
-                    pushSlideTransition(context, const SettingsScreen());
-                  },
-                  padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: Text(
-                    S.current.settings,
-                    style: const TextStyle(
-                        color: Colors.green,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 15),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: () {
-                    Client.instance().disconnect();
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SplashScreen(),
-                      ),
-                      (route) => false, // Removes all previous routes
-                    );
-                  },
-                  padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: Text(
-                    S.current.sign_out,
-                    style: const TextStyle(
-                        color: Colors.green,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
+            const ChatPopupMenuButton(),
             const SizedBox(width: 15),
           ],
         ));
@@ -345,7 +181,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
     return _buildMainScaffold(
         context,
         ErmisAppBar(
-          title: SearchField(
+          title: ChatSearchField(
             searchController: _searchController,
             focusNode: _focusNode,
           ),
@@ -362,7 +198,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
             icon: Icon(Icons.arrow_back, color: appColors.inferiorColor),
             onPressed: () {
               setState(() {
-                task = Task.normal;
+                task = ConvultedTask.normal;
                 selectedConversations.clear();
               });
             },
@@ -376,7 +212,8 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: Text(S.current.delete_this_chat_question),
-                        content: Text(S.current.deleting_this_chat_will_permanently_delete_all_prior_messages),
+                        content: Text(S.current
+                            .deleting_this_chat_will_permanently_delete_all_prior_messages),
                         actions: [
                           TextButton(
                             onPressed: Navigator.of(context).pop, // Cancel
@@ -421,12 +258,13 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
           return Scaffold(
             appBar: appBar,
             backgroundColor: appColors.secondaryColor,
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Position at the bottom right
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.endFloat, // Position bottom right
             floatingActionButton: const SendChatRequestButton(),
             body: ScrollViewFixer.createScrollViewWithAppBarSafety(
               scrollView: RefreshIndicator(
                 // if user scrolls downwards refresh chat requests
-                onRefresh: _refreshContent,
+                onRefresh: () async => _refreshContent,
                 color: appColors.primaryColor,
                 child: _conversations!.isNotEmpty
                     ? ListView.separated(
@@ -449,7 +287,8 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                               children: [
                                 Flexible(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 96.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 96.0),
                                     child: Image.asset(
                                       AppConstants.ermisCryingPath,
                                     ),
@@ -457,12 +296,15 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                                 ),
                                 const SizedBox(height: 15),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 16),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.rectangle,
                                     color: appColors.primaryColor,
-                                    borderRadius: const BorderRadius.all(Radius.circular(24)),
-                                    border: Border.all(color: appColors.secondaryColor),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(24)),
+                                    border: Border.all(
+                                        color: appColors.secondaryColor),
                                   ),
                                   child: Text(
                                     S.current.no_conversations_available,
@@ -505,7 +347,8 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
             chatSession: chatSession,
           ));
 
-      final List<int>? unreadMessages = unreadMessageCounts[chatSession.chatSessionID];
+      final List<int>? unreadMessages =
+          unreadMessageCounts[chatSession.chatSessionID];
 
       if (unreadMessages == null) return;
 
@@ -518,14 +361,15 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
       unreadMessageCounts.remove(chatSession.chatSessionID);
     }
 
-    final int? unreadMessages = unreadMessageCounts[chatSession.chatSessionID]?.length;
+    final int? unreadMessages =
+        unreadMessageCounts[chatSession.chatSessionID]?.length;
 
     final appColors = Theme.of(context).extension<AppColors>()!;
     return ListTile(
       onLongPress: () {
-        if (task == Task.normal) {
+        if (task == ConvultedTask.normal) {
           setState(() {
-            task = Task.editing;
+            task = ConvultedTask.editing;
           });
         }
 
@@ -538,7 +382,7 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
 
         if (selectedConversations.isEmpty) {
           setState(() {
-            task = Task.normal;
+            task = ConvultedTask.normal;
           });
         }
       },
@@ -571,7 +415,8 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                 ? Icon(
                     Icons.check_circle,
                     color: Colors.green,
-                    key: ValueKey('selected_$sessionIndex'), // Unique key for the selected state
+                    key: ValueKey(
+                        'selected_$sessionIndex'), // Unique key for the selected state
                   )
                 : Text(
                     chatSession.lastMessageSentTime,
@@ -619,8 +464,9 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
                 ),
                 children: [
                   TextSpan(
-                    text:
-                        chatSession.toString().substring(startingIndex, endIndex),
+                    text: chatSession
+                        .toString()
+                        .substring(startingIndex, endIndex),
                     style: TextStyle(
                         color: appColors.inferiorColor,
                         fontWeight: FontWeight.bold),
@@ -637,17 +483,33 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
     );
   }
 
-  Future<void> _refreshContent() async {
+  void _refreshContent() {
     Client.instance().commands?.fetchChatSessions();
     setState(() {
-      task = Task.loading;
+      task = ConvultedTask.loading;
     });
   }
 
   void performSearch() {
-    for (var i = 0; i < _conversations!.length; i++) {
-      for (var j = 0; j < _conversations!.length; j++) {
-        if (_conversations![j].toString().contains(_searchController.text)) {
+    for (int i = 0; i < _conversations!.length; i++) {
+      for (int j = 0; j < _conversations!.length; j++) {
+        bool conversationMessagesContainsText() {
+          List<Message> messages = [..._conversations![j].messages];
+          messages.sort((a, b) => b.epochSecond.compareTo(a.epochSecond));
+          messages = messages.getRange(0, 100).toList();
+
+          for (final message in messages) {
+            bool contains = message.contentType == MessageContentType.text
+                ? message.text.contains(_searchController.text)
+                : message.fileName.contains(_searchController.text);
+            if (contains) return true;
+          }
+
+          return false;
+        }
+
+        if (_conversations![j].toString().contains(_searchController.text) ||
+            conversationMessagesContainsText()) {
           setState(() {
             ChatSession temp = _conversations![j];
             if (j > 0) {
@@ -658,159 +520,6 @@ class ChatsState extends TempState<Chats> with EventBusSubscriptionMixin {
         }
       }
     }
-  }
-}
-
-class SendChatRequestButton extends StatefulWidget {
-  const SendChatRequestButton({super.key});
-
-  @override
-  State<SendChatRequestButton> createState() => _SendChatRequestButtonState();
-
-  static void showAddChatRequestDialog(BuildContext context) async {
-    final String input = await showInputDialog(
-      context: context,
-      keyboardType: TextInputType.number,
-      title: S.current.send_chat_request,
-      hintText: S.current.client_id_must_be_a_number,
-    );
-
-    if (input.trim().isEmpty) return;
-    if (int.tryParse(input) == null) {
-      showSnackBarDialog(
-        context: context,
-        content: S.current.client_id_must_be_a_number,
-      );
-      return;
-    }
-
-    final int clientID = int.parse(input);
-    Client.instance().commands?.sendChatRequest(clientID);
-  }
-}
-
-class _SendChatRequestButtonState extends State<SendChatRequestButton> {
-  // NOTE: changing opacity to 0.0 will result in button
-  // not displaying if Chats page is refreshed
-  double _widgetOpacity = 1.0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('send-chat-request-button'),
-      onVisibilityChanged: (VisibilityInfo info) {
-        if (!mounted) return;
-        if (info.visibleFraction > 0) {
-          setState(() {
-            _widgetOpacity = 1.0;
-          });
-          return;
-        }
-
-        setState(() {
-          _widgetOpacity = 0.0;
-        });
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: _widgetOpacity,
-          child: FloatingActionButton(
-            onPressed: () => SendChatRequestButton.showAddChatRequestDialog(context),
-            child: const Icon(Icons.add),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class SearchField extends StatefulWidget {
-  final TextEditingController searchController;
-  final FocusNode focusNode;
-  const SearchField({
-    super.key,
-    required this.searchController,
-    required this.focusNode,
-  });
-
-  @override
-  State<SearchField> createState() => _SearchFieldState();
-}
-
-class _SearchFieldState extends State<SearchField> {
-  double _opacity = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration(milliseconds: 15), () {
-      if (mounted) {
-        setState(() => _opacity = 1.0);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
-    widget.focusNode.requestFocus();
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 200),
-      opacity: _opacity, // Fully visible when searching
-      child: Container(
-        height: 45,
-        decoration: BoxDecoration(
-          color: appColors.secondaryColor.withOpacity(0.4),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: appColors.secondaryColor, width: 1.5),
-        ),
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme: InputDecorationTheme(
-              hintStyle: const TextStyle(color: Colors.grey),
-              labelStyle: const TextStyle(color: Colors.white),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.white.withOpacity(0.2),
-              contentPadding: const EdgeInsets.symmetric(vertical: 5),
-            ),
-          ),
-          child: TextField(
-              focusNode: widget.focusNode,
-              controller: widget.searchController,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: GestureDetector(
-                    onTap: () {
-                      setState(() => _opacity = 0.0);
-                      Future.delayed(Duration(milliseconds: 175), () {
-                        widget.focusNode.unfocus();
-                        widget.searchController.clear();
-                      });
-                    },
-                    child: const Icon(Icons.clear)),
-                hintText: S.current.search,
-                fillColor: appColors.tertiaryColor,
-                filled: true,
-              )),
-        ),
-      ),
-    );
   }
 }
 

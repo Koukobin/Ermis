@@ -48,7 +48,7 @@ import 'core/models/file_heap.dart';
 import 'core/models/message_events.dart';
 import 'core/networking/user_info_manager.dart';
 import 'core/util/file_utils.dart';
-import 'features/chats/chat_requests_screen.dart';
+import 'features/chat_requests_screen/chat_requests_screen.dart';
 import 'features/messaging/presentation/messaging_interface.dart';
 import 'features/settings/options/profile_settings.dart';
 import 'features/voice_call/web_rtc/incoming_voice_call_screen.dart';

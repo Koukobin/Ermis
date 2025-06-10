@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2024 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -16,24 +16,24 @@
 
 import 'package:flutter/material.dart';
 
-enum Task { normal, loading, editing, searching }
+enum ConvultedTask { normal, loading, editing, searching }
 
-abstract class TempState<T extends StatefulWidget> extends State<T> with AutomaticKeepAliveClientMixin<T> {
-  Task task;
+abstract class ConvultedState<T extends StatefulWidget> extends State<T> with AutomaticKeepAliveClientMixin<T> {
+  ConvultedTask task;
 
-  TempState(this.task);
+  ConvultedState(this.task);
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Caches the state!
+    super.build(context); // Cache state
     switch (task) {
-      case Task.normal:
+      case ConvultedTask.normal:
         return normalBuild(context);
-      case Task.loading:
+      case ConvultedTask.loading:
         return loadingBuild(context);
-      case Task.editing:
+      case ConvultedTask.editing:
         return editingBuild(context);
-      case Task.searching:
+      case ConvultedTask.searching:
         return searchingBuild(context);
     }
   }
