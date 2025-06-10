@@ -22,5 +22,4 @@ import github.koukobin.ermis.common.VoiceCallHistoryStatus;
  *
  */
 public record PersonalizedVoiceCallHistory(VoiceCallHistory history, VoiceCallHistoryStatus status) {
-
 }

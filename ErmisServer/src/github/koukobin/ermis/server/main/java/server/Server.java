@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2021-2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -29,6 +29,7 @@ import github.koukobin.ermis.server.main.java.server.netty_handlers.MessageRateL
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.commands.CommandsHolder;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
+import github.koukobin.ermis.server.main.java.server.web_rtc_signalling_server.WebRTCSignallingServer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2022-2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -160,8 +160,12 @@ CREATE TABLE IF NOT EXISTS voice_call_history (
 	PRIMARY KEY (voice_call_history_id)
 );
 
+CREATE INDEX IF NOT EXISTS voice_call_history_voice_call_history_id_index ON voice_call_history (voice_call_history_id);
+
 CREATE TABLE IF NOT EXISTS voice_call_history_participants (
 	voice_call_history_id INTEGER NOT NULL REFERENCES voice_call_history (voice_call_history_id) ON DELETE CASCADE,
 	client_id INTEGER NOT NULL REFERENCES users (client_id) ON DELETE CASCADE,
 	PRIMARY KEY (voice_call_history_id, client_id)
 );
+
+CREATE INDEX IF NOT EXISTS voice_call_history_participants_voice_call_history_id_client_id_index ON voice_call_history_participants (voice_call_history_id, client_id);
