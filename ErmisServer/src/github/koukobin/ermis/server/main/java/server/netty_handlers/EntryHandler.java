@@ -29,14 +29,21 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Ilias Koukovinis
  *
  */
-public abstract sealed class EntryHandler extends AbstractChannelClientHandler permits LoginHandler, CreateAccountHandler, VerificationHandler, DeleteAccountVerificationHandler {
+public abstract sealed class EntryHandler
+	extends AbstractChannelClientHandler 
+	permits
+	    LoginHandler,
+	    CreateAccountHandler, 
+	    VerificationHandler,
+	    DeleteAccountVerificationHandler {
 
 	protected EntryHandler(ClientInfo clientInfo) {
 		super(clientInfo);
 	}
 
 	/**
-	 * Executes non-related actions to the actual registration, which can be, for instance, adding device info
+	 * Executes non-related actions to the actual registration, which can be, for
+	 * instance, adding device info
 	 * 
 	 */
 	public abstract void executeEntryAction(ChannelHandlerContext ctx, ByteBuf msg) throws IOException;
@@ -46,7 +53,7 @@ public abstract sealed class EntryHandler extends AbstractChannelClientHandler p
 	public final void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 		msg.markReaderIndex();
 		int isAction = msg.readInt();
-		
+
 		if (isAction == GeneralEntryAction.action.id) {
 			executeEntryAction(ctx, msg);
 			return;
