@@ -30,13 +30,13 @@ public class ServerLauncher {
 	static {
 		LoggerSettings.initializeConfigurationFile();
 	}
-	
+
 	public static void main(String[] args) {
 		try (InputStream is = ServerLauncher.class.getResourceAsStream("/github/koukobin/ermis/server/main/resources/banner.txt")) {
-            if (is != null) {
-            	System.out.println(new String(is.readAllBytes())); // Print Ermis-Server banner
-            } else {
-            	System.out.println("Could not load Ermis-Server Banner!");
+			if (is != null) {
+				System.out.println(new String(is.readAllBytes())); // Print Ermis-Server banner
+			} else {
+				System.out.println("Could not load Ermis-Server Banner!");
 				System.out.println();
 			}
 
