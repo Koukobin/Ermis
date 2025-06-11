@@ -111,9 +111,15 @@ class ByteBuf {
     writeBytes(bytebuf.buffer);
   }
 
-  /// Writes a 8-bit integer in big-endian order.
+  /// Writes an 8-bit integer.
   void writeInt8(int value) {
     ByteData byteData = ByteData(1)..setInt8(0, value);
+    writeBytes(byteData.buffer.asUint8List());
+  }
+
+  /// Writes a 16-bit integer in big-endian order.
+  void writeInt16(int value) {
+    ByteData byteData = ByteData(2)..setInt16(0, value, Endian.big);
     writeBytes(byteData.buffer.asUint8List());
   }
 
@@ -129,9 +135,35 @@ class ByteBuf {
     writeBytes(byteData.buffer.asUint8List());
   }
 
+  /// Writes a 32-bit float in big-endian order.
+  void writeFloat32(double float) {
+    ByteData byteData = ByteData(4)..setFloat32(0, float, Endian.big);
+    writeBytes(byteData.buffer.asUint8List());
+  }
+
+  /// Writes a 64-bit float in big-endian order.
+  void writeFloat64(double float) {
+    ByteData byteData = ByteData(8)..setFloat64(0, float, Endian.big);
+    writeBytes(byteData.buffer.asUint8List());
+  }
+
   /// Writes a boolean value (1 byte: 1 for `true`, 0 for `false`).
   void writeBoolean(bool boolean) {
     writeBytes(Uint8List.fromList([boolean ? 1 : 0]));
+  }
+
+  /// Reads an 8-bit integer.
+  int readInt8() {
+    ByteData byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 1);
+    _readerIndex += 1;
+    return byteData.getInt8(0);
+  }
+
+  /// Reads a 16-bit integer in big-endian order.
+  int readInt16() {
+    ByteData byteData = ByteData.sublistView(_buffer, _readerIndex, _readerIndex + 2);
+    _readerIndex += 2;
+    return byteData.getInt16(0, Endian.big);
   }
 
   /// Reads a 32-bit integer in big-endian order.

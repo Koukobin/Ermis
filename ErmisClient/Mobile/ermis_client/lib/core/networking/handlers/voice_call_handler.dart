@@ -27,7 +27,7 @@ final EventBus _eventBus = AppEventBus.instance;
 
 class VoiceCallHandler {
   static void handle(ByteBuf msg) {
-    VoiceCallMessageType voiceCallMessageType = VoiceCallMessageType.fromId(msg.readInt32());
+    VoiceCallMessageType voiceCallMessageType = VoiceCallMessageType.fromId(msg.readInt8());
 
     switch (voiceCallMessageType) {
       case VoiceCallMessageType.incomingVoiceCall:

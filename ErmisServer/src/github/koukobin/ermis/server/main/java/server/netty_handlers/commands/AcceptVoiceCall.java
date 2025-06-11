@@ -37,7 +37,7 @@ public class AcceptVoiceCall implements ICommand {
 
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.VOICE_CALLS.id);
-		payload.writeInt(VoiceCallMessageType.ACCEPT_VOICE_CALL.id);
+		payload.writeByte(VoiceCallMessageType.ACCEPT_VOICE_CALL.id);
 		payload.writeInt(chatSessionID);
 		payload.writeInt(clientInfo.getClientID());
 

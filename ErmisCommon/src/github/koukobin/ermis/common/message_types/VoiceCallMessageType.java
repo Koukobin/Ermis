@@ -30,7 +30,7 @@ public enum VoiceCallMessageType {
 	CANCEL_INCOMING_VOICE_CALL(1),
 	ACCEPT_VOICE_CALL(2);
 
-	private static final HashMap<Integer, VoiceCallMessageType> values;
+	private static final HashMap<Byte, VoiceCallMessageType> values;
 
 	static {
 		values = new HashMap<>(
@@ -38,14 +38,14 @@ public enum VoiceCallMessageType {
 				.collect(Collectors.toUnmodifiableMap(type -> type.id, type -> type))
 				);
 	}
-	
-	public final int id;
+
+	public final byte id;
 
 	VoiceCallMessageType(int id) {
-		this.id = id;
+		this.id = (byte) id;
 	}
 
-	public static VoiceCallMessageType fromId(int id) {
+	public static VoiceCallMessageType fromId(byte id) {
 		return EnumIntConverter.fromId(values, id);
 	}
 }

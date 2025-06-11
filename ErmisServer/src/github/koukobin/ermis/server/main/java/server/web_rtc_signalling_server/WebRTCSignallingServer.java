@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
+import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
@@ -293,7 +294,8 @@ public class WebRTCSignallingServer {
 				// any notification or screen associated with call is eliminated
 				{
 					ByteBuf payload = ctx.alloc().ioBuffer();
-					payload.writeInt(VoiceCallMessageType.CANCEL_INCOMING_VOICE_CALL.id);
+					payload.writeInt(ServerMessageType.VOICE_CALLS.id);
+					payload.writeByte(VoiceCallMessageType.CANCEL_INCOMING_VOICE_CALL.id);
 					payload.writeInt(chatSessionID);
 
 					ActiveChatSessions.broadcastToChatSession(payload, chatSessionID);

@@ -389,7 +389,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       }
     });
 
-    subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) async{
+    subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) async {
       ChatSession chatSession = event.chatSession;
       Message msg = event.message;
 

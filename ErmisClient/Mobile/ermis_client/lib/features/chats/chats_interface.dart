@@ -128,9 +128,10 @@ class ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
 
   void retrieveUnreadMessages() async {
     for (final ChatSession session in _conversations ?? const []) {
-      List<int>? messages = await ErmisDB.getConnection()
-          .retrieveUnreadMessages(
-              UserInfoManager.serverInfo, session.chatSessionID);
+      List<int>? messages = await ErmisDB.getConnection().retrieveUnreadMessages(
+        UserInfoManager.serverInfo,
+        session.chatSessionID,
+      );
       unreadMessageCounts[session.chatSessionID] = messages;
     }
   }
@@ -494,9 +495,10 @@ class ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
     for (int i = 0; i < _conversations!.length; i++) {
       for (int j = 0; j < _conversations!.length; j++) {
         bool conversationMessagesContainsText() {
+          // Duplicate to prevent any sort of data manipulation
           List<Message> messages = [..._conversations![j].messages];
           messages.sort((a, b) => b.epochSecond.compareTo(a.epochSecond));
-          messages = messages.getRange(0, 100).toList();
+          messages = messages.getRange(0, 50.clamp(0, messages.length)).toList();
 
           for (final message in messages) {
             bool contains = message.contentType == MessageContentType.text
