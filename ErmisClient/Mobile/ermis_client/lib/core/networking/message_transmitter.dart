@@ -48,7 +48,7 @@ class Writer {
   void write(ByteBuf msg) {
     ErmisDB.getConnection().insertDataBytesSent(
       UserInfoManager.serverInfo,
-      msg.capacity,
+      msg.readableBytes,
     );
 
     out.write(msg);
