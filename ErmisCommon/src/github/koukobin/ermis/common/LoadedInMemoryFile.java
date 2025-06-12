@@ -26,7 +26,7 @@ public class LoadedInMemoryFile {
 
 	private String fileName;
 	private byte[] fileBytes;
-	
+
 	public LoadedInMemoryFile() {}
 
 	public LoadedInMemoryFile(String fileName, byte[] fileBytes) {
@@ -41,7 +41,7 @@ public class LoadedInMemoryFile {
 	public void setFileBytes(byte[] fileBytes) {
 		this.fileBytes = fileBytes;
 	}
-	
+
 	public String getFileName() {
 		return fileName;
 	}
@@ -61,7 +61,7 @@ public class LoadedInMemoryFile {
 
 	@Override
 	public boolean equals(Object obj) {
-		
+
 		if (this == obj) {
 			return true;
 		}

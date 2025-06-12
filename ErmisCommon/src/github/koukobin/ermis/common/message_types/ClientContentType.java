@@ -27,24 +27,23 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  */
 public enum ClientContentType {
 	TEXT(0), FILE(1), IMAGE(2), VOICE(3);
-	
+
 	private static final HashMap<Integer, ClientContentType> values;
-	
+
 	static {
 		values = new HashMap<>(
 				Arrays.stream(ClientContentType.values())
 				.collect(Collectors.toMap(type -> type.id, type -> type))
 				);
 	}
-	
-    public final int id;
 
-    ClientContentType(int id) {
-        this.id = id;
-    }
+	public final int id;
+
+	ClientContentType(int id) {
+		this.id = id;
+	}
 
 	public static ClientContentType fromId(int id) {
 		return EnumIntConverter.fromId(values, id);
 	}
 }
-

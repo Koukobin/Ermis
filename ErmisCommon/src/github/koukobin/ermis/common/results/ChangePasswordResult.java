@@ -32,12 +32,12 @@ public enum ChangePasswordResult implements IDable {
 
 	private static final HashMap<Integer, ChangePasswordResult> values;
 
-    static {
+	static {
 		values = new HashMap<>(
 				Arrays.stream(ChangePasswordResult.values())
 				.collect(Collectors.toMap(type -> type.id, type -> type))
 				);
-    }
+	}
 
 	public final ResultHolder resultHolder;
 	public final int id;
@@ -51,8 +51,13 @@ public enum ChangePasswordResult implements IDable {
 	public int getID() {
 		return id;
 	}
+	
+	@Override
+	public boolean isSuccessful() {
+		return resultHolder.isSuccessful();
+	}
 
-    public static ChangePasswordResult fromId(int id) {
-        return EnumIntConverter.fromId(values, id);
-    }
+	public static ChangePasswordResult fromId(int id) {
+		return EnumIntConverter.fromId(values, id);
+	}
 }

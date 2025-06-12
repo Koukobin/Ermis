@@ -28,61 +28,65 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public final class Verification {
-    
-    private Verification() {}
 
-    public enum Action {
-        RESEND_CODE(1);
+	private Verification() {}
 
-        private static final Map<Integer, Action> valuesById = new HashMap<>();
-        
-        static {
-            for (Action action : Action.values()) {
-                valuesById.put(action.id, action);
-            }
-        }
+	public enum Action {
+		RESEND_CODE(1);
 
-        public final int id;
+		private static final Map<Integer, Action> valuesById = new HashMap<>();
 
-        Action(int id) {
-            this.id = id;
-        }
+		static {
+			for (Action action : Action.values()) {
+				valuesById.put(action.id, action);
+			}
+		}
 
-        public static Action fromId(int id) {
-            return EnumIntConverter.fromId(valuesById, id);
-        }
-    }
+		public final int id;
 
-    public enum Result implements IDable {
+		Action(int id) {
+			this.id = id;
+		}
+
+		public static Action fromId(int id) {
+			return EnumIntConverter.fromId(valuesById, id);
+		}
+	}
+
+	public enum Result implements IDable {
         SUCCESFULLY_VERIFIED(1, true, "Succesfully verified!"),
         WRONG_CODE(2, false, "Incorrect code!"),
         RUN_OUT_OF_ATTEMPTS(3, false, "Run out of attempts!"),
         INVALID_EMAIL_ADDRESS(4, false, "Invalid email address");
 
-        private static final Map<Integer, Result> valuesById = new HashMap<>();
-        static {
-            for (Result result : Result.values()) {
-                valuesById.put(result.id, result);
-            }
-        }
+		private static final Map<Integer, Result> valuesById = new HashMap<>();
 
-        public final int id;
-        public final ResultHolder resultHolder;
+		static {
+			for (Result result : Result.values()) {
+				valuesById.put(result.id, result);
+			}
+		}
 
-        Result(int id, boolean isSuccessful, String message) {
-            this.id = id;
-            this.resultHolder = new ResultHolder(isSuccessful, message);
-        }
+		public final int id;
+		public final ResultHolder resultHolder;
 
-        public static Result fromId(int id) {
-            return EnumIntConverter.fromId(valuesById, id);
-        }
+		Result(int id, boolean isSuccessful, String message) {
+			this.id = id;
+			this.resultHolder = new ResultHolder(isSuccessful, message);
+		}
+
+		public static Result fromId(int id) {
+			return EnumIntConverter.fromId(valuesById, id);
+		}
 
 		@Override
 		public int getID() {
 			return id;
 		}
-    }
+		
+		@Override
+		public boolean isSuccessful() {
+			return resultHolder.isSuccessful();
+		}
+	}
 }
-
-

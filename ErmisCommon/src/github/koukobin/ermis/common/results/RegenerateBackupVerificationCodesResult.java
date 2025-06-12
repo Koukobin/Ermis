@@ -26,25 +26,25 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public enum RegenerateBackupVerificationCodesResult {
-    SUCCESFULLY_REGENERATED_BACKUP_VERIFICATION_CODES(1, true, "Successfully regenerated backup verification codes!"),
-    ERROR_WHILE_CHANGING_USERNAME(2, false, "There was an error while trying to change username!");
+	SUCCESFULLY_REGENERATED_BACKUP_VERIFICATION_CODES(1, true, "Successfully regenerated backup verification codes!"),
+	ERROR_WHILE_CHANGING_USERNAME(2, false, "There was an error while trying to change username!");
 
-    private static final HashMap<Integer, RegenerateBackupVerificationCodesResult> values;
+	private static final HashMap<Integer, RegenerateBackupVerificationCodesResult> values;
 
-    static {
+	static {
 		values = new HashMap<>(
 				Arrays.stream(RegenerateBackupVerificationCodesResult.values())
 				.collect(Collectors.toMap(type -> type.id, type -> type))
 				);
     }
 
-    public final ResultHolder resultHolder;
-    public final int id;
+	public final ResultHolder resultHolder;
+	public final int id;
 
-    RegenerateBackupVerificationCodesResult(int id, boolean isSuccessful, String message) {
-        resultHolder = new ResultHolder(isSuccessful, message);
-        this.id = id;
-    }
+	RegenerateBackupVerificationCodesResult(int id, boolean isSuccessful, String message) {
+		resultHolder = new ResultHolder(isSuccessful, message);
+		this.id = id;
+	}
 
 	public static RegenerateBackupVerificationCodesResult fromId(int id) {
 		return EnumIntConverter.fromId(values, id);

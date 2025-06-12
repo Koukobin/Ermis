@@ -31,7 +31,7 @@ public enum ServerMessageType {
     VOICE_CALLS(2),
 	SERVER_INFO(3),
     ENTRY(4),
-    COMMAND_RESULT(5);
+	COMMAND_RESULT(5);
 
 	private static final HashMap<Integer, ServerMessageType> values;
 
@@ -41,12 +41,12 @@ public enum ServerMessageType {
 				.collect(Collectors.toMap(type -> type.id, type -> type))
 				);
 	}
-	
-    public final int id;
 
-    ServerMessageType(int id) {
-        this.id = id;
-    }
+	public final int id;
+
+	ServerMessageType(int id) {
+		this.id = id;
+	}
 
 	public static ServerMessageType fromId(int id) {
 		return EnumIntConverter.fromId(values, id);

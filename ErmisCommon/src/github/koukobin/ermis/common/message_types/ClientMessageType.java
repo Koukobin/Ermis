@@ -31,19 +31,19 @@ public enum ClientMessageType {
 	USER_COMMAND(2);
 
 	private static final HashMap<Integer, ClientMessageType> values;
-	
+
 	static {
 		values = new HashMap<>(
 				Arrays.stream(ClientMessageType.values())
 				.collect(Collectors.toUnmodifiableMap(type -> type.id, type -> type))
 				);
 	}
-	
-    public final int id;
 
-    ClientMessageType(int id) {
-        this.id = id;
-    }
+	public final int id;
+
+	ClientMessageType(int id) {
+		this.id = id;
+	}
 
 	public static ClientMessageType fromId(int id) {
 		return EnumIntConverter.fromId(values, id);

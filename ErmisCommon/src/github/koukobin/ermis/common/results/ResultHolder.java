@@ -34,11 +34,11 @@ public class ResultHolder {
 	public void setIsSuccesfull(boolean isSuccesfull) {
 		this.isSuccessful = isSuccesfull;
 	}
-	
+
 	public void setResultMessage(String resultMessage) {
 		this.resultMessage = resultMessage;
 	}
-	
+
 	public boolean isSuccessful() {
 		return isSuccessful;
 	}

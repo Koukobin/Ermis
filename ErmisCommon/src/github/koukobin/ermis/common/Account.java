@@ -38,15 +38,15 @@ public record Account(byte[] profilePhoto, String email, String displayName, int
 		if (this == obj) {
 			return true;
 		}
-		
+
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		
+
 		Account other = (Account) obj;
 		return clientID == other.clientID 
 				&& Arrays.equals(profilePhoto, other.profilePhoto)
@@ -56,7 +56,8 @@ public record Account(byte[] profilePhoto, String email, String displayName, int
 
 	@Override
 	public String toString() {
-		return "Account [icon=" + Arrays.toString(profilePhoto) + ", username=" + displayName + ", email=" + email + ", clientID=" + clientID + "]";
+		return "Account [icon=" + Arrays.toString(profilePhoto) + ", username=" + displayName + ", email=" + email
+				+ ", clientID=" + clientID + "]";
 	}
 
 }

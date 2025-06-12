@@ -26,10 +26,10 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public enum IsUsernameValidResult {
-    SUCCESFULLY_VALIDATED_USERNAME(1, true, "Successfully validated username!"),
-    REQUIREMENTS_NOT_MET(2, false, "Username requirements not met!");
+	SUCCESFULLY_VALIDATED_USERNAME(1, true, "Successfully validated username!"),
+	REQUIREMENTS_NOT_MET(2, false, "Username requirements not met!");
 
-    private static final HashMap<Integer, IsUsernameValidResult> values;
+	private static final HashMap<Integer, IsUsernameValidResult> values;
 
     static {
 		values = new HashMap<>(
@@ -37,14 +37,14 @@ public enum IsUsernameValidResult {
 				.collect(Collectors.toMap(type -> type.id, type -> type))
 				);
     }
-    
-    public final ResultHolder resultHolder;
-    public final int id;
 
-    IsUsernameValidResult(int id, boolean isSuccesfull, String message) {
-        resultHolder = new ResultHolder(isSuccesfull, message);
-        this.id = id;
-    }
+	public final ResultHolder resultHolder;
+	public final int id;
+
+	IsUsernameValidResult(int id, boolean isSuccesfull, String message) {
+		resultHolder = new ResultHolder(isSuccesfull, message);
+		this.id = id;
+	}
 
 	public static IsUsernameValidResult fromId(int id) {
 		return EnumIntConverter.fromId(values, id);

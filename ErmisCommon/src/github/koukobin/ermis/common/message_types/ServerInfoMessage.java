@@ -52,15 +52,14 @@ public enum ServerInfoMessage {
 				.collect(Collectors.toMap(type -> type.id, type -> type))
 				);
 	}
-	
-    public final int id;
 
-    ServerInfoMessage(int id) {
-        this.id = id;
-    }
+	public final int id;
+
+	ServerInfoMessage(int id) {
+		this.id = id;
+	}
 
 	public static ServerMessageType fromId(int id) {
 		return EnumIntConverter.fromId(values, id);
 	}
 }
-

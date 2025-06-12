@@ -53,12 +53,12 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 		attemptsRemaining = ATTEMPTS;
 		generatedVerificationCode = InsecureRandomNumberGenerator.generateRandomNumber(GENERATED_VERIFICATION_CODE_LENGTH);
 	}
-	
+
 	protected VerificationHandler(ClientInfo clientInfo, String email) {
 		super(clientInfo);
 		this.emailAddress = email;
 	}
-	
+
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) {
 		sendVerificationCode();
@@ -75,7 +75,7 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 			}
 		});
 	}
-	
+
 	@Override
 	public void executeEntryAction(ChannelHandlerContext ctx, ByteBuf msg) {
 		Action action = Action.fromId(msg.readInt());
@@ -87,7 +87,6 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 
 	@Override
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		GeneralResult entryResult = new GeneralResult(Result.WRONG_CODE, Result.WRONG_CODE.resultHolder.isSuccessful());
 		attemptsRemaining--;
 
 		boolean isVerificationComplete = false;
@@ -95,16 +94,15 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 		int clientGuessForVerificationCode = msg.readInt();
 		getLogger().debug("Client guessed: {}", clientGuessForVerificationCode);
 
+		GeneralResult entryResult;
 		if (generatedVerificationCode == clientGuessForVerificationCode) {
 			entryResult = executeWhenVerificationSuccessful();
 			isVerificationComplete = true;
 		} else if (attemptsRemaining == 0) {
-			entryResult = new GeneralResult(Result.RUN_OUT_OF_ATTEMPTS, Result.RUN_OUT_OF_ATTEMPTS.resultHolder.isSuccessful());
+			entryResult = new GeneralResult(Result.RUN_OUT_OF_ATTEMPTS);
 			isVerificationComplete = true;
-		}
-
-		if (entryResult == null) {
-			return;
+		} else {
+			entryResult = new GeneralResult(Result.WRONG_CODE);
 		}
 
 		ByteBuf payload = ctx.alloc().ioBuffer();
@@ -121,19 +119,22 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 
 		ctx.channel().writeAndFlush(payload);
 
-		if (isVerificationComplete) {
-			if (entryResult.isSuccessful()) {
-				registrationSuccessful(ctx);
-				ctx.pipeline().remove(ctx.handler());
-				return;
-			}
-			registrationFailed(ctx);
+		if (!isVerificationComplete) {
+			return;
 		}
+
+		if (!entryResult.isSuccessful()) {
+			registrationFailed(ctx);
+			return;
+		}
+
+		registrationSuccessful(ctx);
+		ctx.pipeline().remove(ctx.handler());
 	}
 
 	public abstract String createEmailMessage(String account, String generatedVerificationCode);
 	public abstract GeneralResult executeWhenVerificationSuccessful() throws IOException;
-	
+
 	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
 		login(ctx, clientInfo);
 	}

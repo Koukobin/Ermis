@@ -28,8 +28,8 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public final class LoginInfo {
-    
-    private LoginInfo() {}
+
+	private LoginInfo() {}
 
 	public enum Credential implements EntryType.CredentialInterface {
 		EMAIL(1), PASSWORD(2);
@@ -193,6 +193,10 @@ public final class LoginInfo {
 				return id;
 			}
 
+			@Override
+			public boolean isSuccessful() {
+				return resultHolder.isSuccessful();
+			}
 		}
 	}
 }

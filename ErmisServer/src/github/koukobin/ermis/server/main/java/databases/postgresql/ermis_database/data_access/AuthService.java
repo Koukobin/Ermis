@@ -41,7 +41,8 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
  * @author Ilias Koukovinis
  *
  */
-public interface AuthService extends BaseComponent, UserIpManagerService, BackupVerificationCodesModule, AccountRepository {
+public interface AuthService
+		extends BaseComponent, UserIpManagerService, BackupVerificationCodesModule, AccountRepository {
 
 	default CreateAccountInfo.CredentialValidation.Result checkIfUserMeetsRequirementsToCreateAccount(
 			String username, 
@@ -86,12 +87,12 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 			UserDeviceInfo deviceInfo, 
 			String emailAddress) {
 
-		// Retrieve and delete a unique client ID. If account creation fails, 
+		// Retrieve and delete a unique client ID. If account creation fails,
 		// the deleted client ID will be regenerated during the next generation.
 		int clientID = ClientIDGenerator.retrieveAndDelete(getConn());
 
 		if (clientID == -1) {
-			return new GeneralResult(CreateAccountInfo.CreateAccount.Result.DATABASE_MAX_SIZE_REACHED, CreateAccountInfo.CreateAccount.Result.DATABASE_MAX_SIZE_REACHED.resultHolder.isSuccessful());
+			return new GeneralResult(CreateAccountInfo.CreateAccount.Result.DATABASE_MAX_SIZE_REACHED);
 		}
 
 		String salt;
@@ -105,14 +106,16 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 
 			passwordHashResult = passwordHash.getHashString();
 			salt = passwordHash.getSalt();
-			
+
 			hashedBackupVerificationCodes = BackupVerificationCodesGenerator.generateHashedBackupVerificationCodes(salt);
 		}
 
-		try (PreparedStatement createUser = getConn().prepareStatement("INSERT INTO users ("
-				+ "email, password_hash, client_id, backup_verification_codes, salt) "
-				+ "VALUES(?, ?, ?, ?, ?);")) {
-
+		String createUserQuery = """
+				INSERT INTO users
+				(email, password_hash, client_id, backup_verification_codes, salt)
+				VALUES(?, ?, ?, ?, ?);
+				""";
+		try (PreparedStatement createUser = getConn().prepareStatement(createUserQuery)) {
 			createUser.setString(1, emailAddress);
 			createUser.setString(2, passwordHashResult);
 			createUser.setInt(3, clientID);
@@ -124,18 +127,18 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 			createUser.setString(5, salt);
 
 			int resultUpdate = createUser.executeUpdate();
-			
+
 			if (resultUpdate == 0) {
-				return new GeneralResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT, CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT.resultHolder.isSuccessful());
+				return new GeneralResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT);
 			}
 		} catch (SQLException sqle) {
 			logger.trace(Throwables.getStackTraceAsString(sqle));
 		}
-		
-		try (PreparedStatement createProfile = getConn().prepareStatement("INSERT INTO user_profiles ("
-				+ "display_name, client_id, about) "
-				+ "VALUES(?, ?, ?);")) {
 
+		String createProfileQuery = """
+				INSERT INTO user_profiles (display_name, client_id, about) VALUES(?, ?, ?);
+				""";
+		try (PreparedStatement createProfile = getConn().prepareStatement(createProfileQuery)) {
 			createProfile.setString(1, username);
 			createProfile.setInt(2, clientID);
 			createProfile.setString(3, "");
@@ -145,18 +148,18 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 			if (resultUpdate == 1) {
 
 				insertUserIp(clientID, deviceInfo);
-				
+
 				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
 				addedInfo.put(AddedInfo.PASSWORD_HASH, passwordHashResult);
 				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, String.join("\n", hashedBackupVerificationCodes));
-				
-				return new GeneralResult(CreateAccountInfo.CreateAccount.Result.SUCCESFULLY_CREATED_ACCOUNT, CreateAccountInfo.CreateAccount.Result.SUCCESFULLY_CREATED_ACCOUNT.resultHolder.isSuccessful(), addedInfo);
+
+				return new GeneralResult(CreateAccountInfo.CreateAccount.Result.SUCCESFULLY_CREATED_ACCOUNT, addedInfo);
 			}
 		} catch (SQLException sqle) {
 			logger.trace(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return new GeneralResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT, CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT.resultHolder.isSuccessful());
+		return new GeneralResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT);
 	}
 
 	/**
@@ -166,14 +169,14 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 		// Verify that the entered email is associated with the provided client ID
 		Optional<Integer> associatedClientID = getClientID(enteredEmail);
 		if (associatedClientID.isEmpty() || associatedClientID.get() != clientID) {
-			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
+			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
 		}
 
 		// Perform authentication to ensure email and password match
 		Optional<String> passwordHash = checkAuthentication(enteredEmail, enteredPassword);
 
 		if (passwordHash.isEmpty()) {
-			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_PASSWORD, false);
+			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_PASSWORD);
 		}
 
 		try (PreparedStatement pstmt = getConn().prepareStatement("DELETE FROM users WHERE client_id=?;")) {
@@ -182,13 +185,13 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 			int resultUpdate = pstmt.executeUpdate();
 
 			if (resultUpdate == 1 /* SUCCESS */) {
-				return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, false);
+				return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
 			}
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
+		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
 	}
 
 	default boolean checkAuthenticationViaHash(String email, String enteredPasswordpasswordHash) {
@@ -204,7 +207,7 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 	default Optional<String> checkAuthentication(String email, String enteredPassword) {
 		String passwordHash = getPasswordHash(email);
 		SimpleHash enteredPasswordHash = HashUtil.createHash(enteredPassword, getSalt(email), DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
-		return passwordHash.equals(enteredPasswordHash.getHashString()) 
+		return passwordHash.equals(enteredPasswordHash.getHashString())
 				? Optional.of(passwordHash)
 				: Optional.ofNullable(null);
 	}
@@ -231,7 +234,12 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 		boolean isBackupVerificationCodeCorrect = false;
 
 		int backupVerificationCodesAmount = 0;
-		String query = "SELECT array_length(backup_verification_codes::TEXT[], 1) FROM users WHERE ? = ANY(backup_verification_codes) AND email=?;";
+		String query = """
+				SELECT array_length(backup_verification_codes::TEXT[], 1)
+				FROM users
+				WHERE ? = ANY(backup_verification_codes)
+				AND email=?;
+				""";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
 			pstmt.setString(1, backupVerificationCode);
 			pstmt.setString(2, email);
@@ -247,8 +255,7 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 		}
 
 		if (!isBackupVerificationCodeCorrect) {
-			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE,
-					LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE.resultHolder.isSuccessful());
+			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE);
 		}
 
 		// Add address to user logged in ip addresses
@@ -274,24 +281,21 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
 				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, backupVerificationCode);
 
-				result = new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN,
-						LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder.isSuccessful(), addedInfo);
+				result = new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
 			} else {
-				result = new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN,
-						LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder.isSuccessful());
+				result = new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
 			}
 
 			return result;
 		}
 
-		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN,
-				LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN.resultHolder.isSuccessful());
+		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
 	}
 
 	default GeneralResult loginUsingPassword(String email, String password, UserDeviceInfo deviceInfo) {
 		Optional<String> passwordHashOptional = checkAuthentication(email, password);
 		if (passwordHashOptional.isEmpty()) {
-			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_PASSWORD, LoginInfo.Login.Result.INCORRECT_PASSWORD.resultHolder.isSuccessful());
+			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_PASSWORD);
 		}
 		String passwordHash = passwordHashOptional.get();
 
@@ -301,9 +305,9 @@ public interface AuthService extends BaseComponent, UserIpManagerService, Backup
 		if (result != Insert.NOTHING_CHANGED) {
 			Map<AddedInfo, String> info = new EnumMap<>(AddedInfo.class);
 			info.put(AddedInfo.PASSWORD_HASH, passwordHash);
-			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN.resultHolder.isSuccessful(), info);
+			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, info);
 		}
 
-		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN.resultHolder.isSuccessful());
+		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
 	}
 }

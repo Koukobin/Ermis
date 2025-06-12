@@ -87,7 +87,6 @@ public abstract non-sealed class DeleteAccountVerificationHandler extends EntryH
 
 	@Override
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
-		GeneralResult entryResult = new GeneralResult(Result.WRONG_CODE, Result.WRONG_CODE.resultHolder.isSuccessful());
 		attemptsRemaining--;
 
 		boolean isVerificationComplete = false;
@@ -95,16 +94,15 @@ public abstract non-sealed class DeleteAccountVerificationHandler extends EntryH
 		int clientGuessForVerificationCode = msg.readInt();
 		getLogger().debug("Client guessed: {}", clientGuessForVerificationCode);
 
+		GeneralResult entryResult;
 		if (generatedVerificationCode == clientGuessForVerificationCode) {
 			entryResult = executeWhenVerificationSuccessful();
 			isVerificationComplete = true;
 		} else if (attemptsRemaining == 0) {
-			entryResult = new GeneralResult(Result.RUN_OUT_OF_ATTEMPTS, Result.RUN_OUT_OF_ATTEMPTS.resultHolder.isSuccessful());
+			entryResult = new GeneralResult(Result.RUN_OUT_OF_ATTEMPTS);
 			isVerificationComplete = true;
-		}
-
-		if (entryResult == null) {
-			return;
+		} else {
+			entryResult = new GeneralResult(Result.WRONG_CODE);
 		}
 
 		ByteBuf payload = ctx.alloc().ioBuffer();
@@ -121,14 +119,17 @@ public abstract non-sealed class DeleteAccountVerificationHandler extends EntryH
 
 		ctx.channel().writeAndFlush(payload);
 
-		if (isVerificationComplete) {
-			if (entryResult.isSuccessful()) {
-				registrationSuccessful(ctx);
-				ctx.pipeline().remove(ctx.handler());
-				return;
-			}
-			registrationFailed(ctx);
+		if (!isVerificationComplete) {
+			return;
 		}
+
+		if (!entryResult.isSuccessful()) {
+			registrationFailed(ctx);
+			return;
+		}
+
+		registrationSuccessful(ctx);
+		ctx.pipeline().remove(ctx.handler());
 	}
 
 	public abstract String createEmailMessage(String account, String generatedVerificationCode);

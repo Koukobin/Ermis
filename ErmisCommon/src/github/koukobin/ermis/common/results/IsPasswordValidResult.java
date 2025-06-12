@@ -26,10 +26,10 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public enum IsPasswordValidResult {
-    SUCCESFULLY_VALIDATED_PASSWORD(1, true, "Successfully validated password!"),
-    REQUIREMENTS_NOT_MET(2, false, "Password requirements not met!");
+	SUCCESFULLY_VALIDATED_PASSWORD(1, true, "Successfully validated password!"),
+	REQUIREMENTS_NOT_MET(2, false, "Password requirements not met!");
 
-    private static final HashMap<Integer, IsPasswordValidResult> values;
+	private static final HashMap<Integer, IsPasswordValidResult> values;
 
     static {
 		values = new HashMap<>(
@@ -38,13 +38,13 @@ public enum IsPasswordValidResult {
 				);
     }
 
-    public final ResultHolder resultHolder;
-    public final int id;
+	public final ResultHolder resultHolder;
+	public final int id;
 
-    IsPasswordValidResult(int id, boolean isSuccesfull, String message) {
-        resultHolder = new ResultHolder(isSuccesfull, message);
-        this.id = id;
-    }
+	IsPasswordValidResult(int id, boolean isSuccesfull, String message) {
+		resultHolder = new ResultHolder(isSuccesfull, message);
+		this.id = id;
+	}
 
 	public static IsPasswordValidResult fromId(int id) {
 		return EnumIntConverter.fromId(values, id);

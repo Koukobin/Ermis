@@ -27,22 +27,22 @@ import github.koukobin.ermis.common.entry.AddedInfo;
  *
  */
 public final class GeneralResult {
-	
+
 	private static final Map<AddedInfo, String> emptyAddedInfo = new EnumMap<>(AddedInfo.class);
-	
+
 	private final IDable enumIndicatingResult;
 	private final boolean isSuccessful;
 	private final Map<AddedInfo, String> addedInfo;
 
-	public GeneralResult(IDable enumIndicatingResult, boolean isSuccessful) {
+	public GeneralResult(IDable enumIndicatingResult) {
 		this.enumIndicatingResult = enumIndicatingResult;
-		this.isSuccessful = isSuccessful;
+		this.isSuccessful = enumIndicatingResult.isSuccessful();
 		this.addedInfo = emptyAddedInfo;
 	}
-	
-	public GeneralResult(IDable enumIndicatingResult, boolean isSuccessful, Map<AddedInfo, String> addedInfo) {
+
+	public GeneralResult(IDable enumIndicatingResult, Map<AddedInfo, String> addedInfo) {
 		this.enumIndicatingResult = enumIndicatingResult;
-		this.isSuccessful = isSuccessful;
+		this.isSuccessful = enumIndicatingResult.isSuccessful();
 		this.addedInfo = addedInfo;
 	}
 

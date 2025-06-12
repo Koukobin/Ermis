@@ -38,11 +38,11 @@ public interface ChangePasswordService extends BaseComponent, UserProfileModule,
 		// Verify that the entered email is associated with the provided client ID
 		Optional<Integer> associatedClientID = getClientID(enteredEmail);
 		if (associatedClientID.isEmpty() || associatedClientID.get() != clientID) {
-			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
+			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
 		}
 
 		if (!passwordComplexityChecker.estimate(newPassword)) {
-			return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD, false);
+			return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD);
 		}
 
 		String salt = getSalt(enteredEmail);
@@ -56,13 +56,13 @@ public interface ChangePasswordService extends BaseComponent, UserProfileModule,
 
 			int resultUpdate = changePassword.executeUpdate();
 			if (resultUpdate == 1) {
-				return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD, true);
+				return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD);
 			}
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return new GeneralResult(ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD, false);
+		return new GeneralResult(ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD);
 	}
 
 }

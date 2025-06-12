@@ -27,9 +27,9 @@ import github.koukobin.ermis.common.entry.LoginInfo;
  *
  */
 public class LoginResult {
-	
+
 	private static final Map<AddedInfo, String> emptyAddedInfo = new EnumMap<>(AddedInfo.class);
-	
+
 	private final LoginInfo.Login.Result enumIndicatingResult;
 	private final Map<AddedInfo, String> addedInfo;
 
@@ -37,7 +37,7 @@ public class LoginResult {
 		this.enumIndicatingResult = enumIndicatingResult;
 		this.addedInfo = emptyAddedInfo;
 	}
-	
+
 	public LoginResult(LoginInfo.Login.Result enumIndicatingResult, Map<AddedInfo, String> addedInfo) {
 		this.enumIndicatingResult = enumIndicatingResult;
 		this.addedInfo = addedInfo;

@@ -31,7 +31,7 @@ public enum MessageDeliveryStatus {
     SERVER_RECEIVED(2),
     FAILED(3),
     REJECTED(4),
-    SENDING(5);
+	SENDING(5);
 
 	private static final HashMap<Integer, MessageDeliveryStatus> values;
 

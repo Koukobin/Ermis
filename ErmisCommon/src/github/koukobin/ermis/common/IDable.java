@@ -21,4 +21,6 @@ package github.koukobin.ermis.common;
  */
 public interface IDable {
 	int getID();
+
+	boolean isSuccessful();
 }

@@ -47,4 +47,3 @@ public enum ClientStatus {
 		return EnumIntConverter.fromId(values, id);
 	}
 }
-

@@ -35,7 +35,7 @@ public final class UserMessage {
 
 	private long timeWritten;
 	private boolean isRead;
-	
+
 	private ClientContentType contentType;
 
 	public UserMessage() {}
@@ -119,7 +119,7 @@ public final class UserMessage {
 	public long getTimeWritten() {
 		return timeWritten;
 	}
-	
+
 	public boolean isRead() {
 		return isRead;
 	}
@@ -147,7 +147,7 @@ public final class UserMessage {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		
+
 		UserMessage other = (UserMessage) obj;
 		return chatSessionID == other.chatSessionID 
 				&& clientID == other.clientID 

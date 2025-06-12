@@ -60,7 +60,7 @@ public class DeleteAccount implements ICommand {
 						String enteredEmail = new String(emailAddress);
 
 						if (!clientInfo.getEmail().equals(enteredEmail)) {
-							return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN, false);
+							return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
 						}
 
 						String password = new String(passwordBytes);
