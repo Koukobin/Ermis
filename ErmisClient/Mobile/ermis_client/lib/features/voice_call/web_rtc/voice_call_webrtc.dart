@@ -173,7 +173,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     // Check call status and only proceed if is connecting;
     // check is necessary because user can exit screen by pressing
-    // the ⬅ button on the top left and return by double tapping 
+    // the ⬅ button on the top left and return by double tapping
     // the overlay, resulting in this method re-executing.
     // Kinda shitty, but a compromise needed.
     if (callStatus != CallStatus.connecting) return;
@@ -549,7 +549,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
             child: Container(
               padding: const EdgeInsets.all(8.0),
               color: appColors.quaternaryColor,
-              child: _buildPeerViewPort(),
+              child: _buildPeerViewport(),
             ),
           ),
         ),
@@ -560,7 +560,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     Overlay.of(context).insert(returnToCallOverlayEntry!);
   }
 
-  Widget _buildPeerViewPort() {
+  Widget _buildPeerViewport() {
     return Stack(
       children: [
         if (remoteRenderer?.srcObject != null && isReceivingVideo)
@@ -632,7 +632,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
                 // Peer viewport
                 Expanded(
-                  child: _buildPeerViewPort(),
+                  child: _buildPeerViewport(),
                 ),
 
                 // Bottom screen actions

@@ -189,6 +189,7 @@ public class WebRTCSignallingServer {
 				ctx.write(response);
 
 				// Use ChunkedFile instead of DefaultFileRegion
+				@SuppressWarnings("unused")
 				ChannelFuture sendFileFuture = ctx.write(new ChunkedFile(raf), ctx.newProgressivePromise());
 				ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
 
@@ -234,12 +235,13 @@ public class WebRTCSignallingServer {
 			VoiceChatUser user = WebRTCSignallingHandler.addressToUsers.get(member.getInetAddress());
 
 			if (user == null) {
-				user = new VoiceChatUser(chatSessionID, member.getClientID(), null);
+				user = new VoiceChatUser(chatSessionID, member.getClientID());
 				WebRTCSignallingHandler.addressToUsers.put(member.getInetAddress(), user);
 			}
 		}
 
 		long tsDebuted = Instant.now().getEpochSecond();
+
 		int voiceCallHistoryID;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 			voiceCallHistoryID = conn.addActiveVoiceCall(tsDebuted, chatSessionID, initiatorClientID);
@@ -274,23 +276,15 @@ public class WebRTCSignallingServer {
 			addressToUsers.remove(getInetAddressOfChannel(ctx));
 
 			int chatSessionID = user.chatSessionID;
-
 			ActiveVoiceChat call = chatSessionIDToParticipants.get(chatSessionID);
-			if (call == null) {
-				return;
-			}
 
 			List<Channel> activeChannels = call.activeChannels();
-
-			if (activeChannels == null) {
-				return;
-			}
-
 			activeChannels.remove(user.channel);
+
 			if (activeChannels.isEmpty()) {
 				chatSessionIDToParticipants.remove(chatSessionID);
 
-				// Broadcast incoming voice call cancellation to ensure that
+				// Broadcast voice call cancellation to ensure that
 				// any notification or screen associated with call is eliminated
 				{
 					ByteBuf payload = ctx.alloc().ioBuffer();
@@ -301,8 +295,9 @@ public class WebRTCSignallingServer {
 					ActiveChatSessions.broadcastToChatSession(payload, chatSessionID);
 				}
 
+				long tsEnded = Instant.now().getEpochSecond();
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-					conn.setEndedVoiceCall(Instant.now().getEpochSecond(), call.voiceCallID());
+					conn.setEndedVoiceCall(tsEnded, call.voiceCallID());
 				}
 			}
 		}

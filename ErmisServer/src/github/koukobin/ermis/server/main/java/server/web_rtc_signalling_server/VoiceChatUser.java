@@ -26,7 +26,11 @@ class VoiceChatUser {
 	public VoiceChatUser(int chatSessionID, int clientID, Channel channel) {
 		this.chatSessionID = chatSessionID;
 		this.clientID = clientID;
-		this.channel = channel;
 	}
 
+	public VoiceChatUser(int chatSessionID, int clientID) {
+		this.chatSessionID = chatSessionID;
+		this.clientID = clientID;
+		this.channel = null;
+	}
 }
