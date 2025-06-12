@@ -20,6 +20,7 @@ import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/data_sources/api_client.dart';
+import '../../../core/networking/common/message_types/voice_call_history_status.dart';
 import '../../../core/util/custom_date_formatter.dart';
 import '../../../core/util/datetime_utils.dart';
 import '../../../core/util/transitions_util.dart';
@@ -90,10 +91,20 @@ class VoiceCallBubble extends StatelessWidget {
                 IconButton.filled(
                   style: IconButton.styleFrom(
                     backgroundColor: appColors.tertiaryColor.withAlpha(100),
-                    foregroundColor: Colors.white,
+                    foregroundColor: switch(entry.status) {
+                      VoiceCallHistoryStatus.created => Colors.white,
+                      VoiceCallHistoryStatus.accepted => Colors.green,
+                      VoiceCallHistoryStatus.ignored => Colors.red,
+                    },
                   ),
                   onPressed: pushVoiceCall,
-                  icon: const Icon(Icons.phone),
+                  icon: Icon(
+                    switch (entry.status) {
+                      VoiceCallHistoryStatus.created => Icons.phone_in_talk,
+                      VoiceCallHistoryStatus.accepted => Icons.call,
+                      VoiceCallHistoryStatus.ignored => Icons.phone_missed,
+                    },
+                  ),
                 ),
                 const SizedBox(width: 12.0),
                 Expanded(
@@ -108,7 +119,10 @@ class VoiceCallBubble extends StatelessWidget {
                         softWrap: true,
                       ),
                       Text(
-                        S().started_at_time(CustomDateFormatter.formatDate(EpochDateTime.fromSecondsSinceEpoch(entry.tsDebuted), 'HH:mm')),
+                        S().started_at_time(CustomDateFormatter.formatDate(
+                          EpochDateTime.fromSecondsSinceEpoch(entry.tsDebuted),
+                          'HH:mm',
+                        )),
                         softWrap: true,
                       ),
                     ],
