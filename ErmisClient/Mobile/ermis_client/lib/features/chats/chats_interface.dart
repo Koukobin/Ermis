@@ -47,17 +47,26 @@ class Chats extends StatefulWidget {
   const Chats({super.key});
 
   @override
-  State<Chats> createState() => ChatsState();
+  State<Chats> createState() => _ChatsState();
+
+  int getTotalUnreadMessagesCount() {
+    Iterable<List<int>> iter = _ChatsState.unreadMessageCounts.values.whereType<List<int>>();
+
+    int totalCount = 0;
+    for (final unreadMessages in iter) {
+      totalCount += unreadMessages.length;
+    }
+
+    return totalCount;
+  }
 }
 
-class ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
+class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
   List<ChatSession>? _conversations;
-  Set<ChatSession> selectedConversations =
-      {}; // Set instead of list to prevent duplicates
+  Set<ChatSession> selectedConversations = {}; // Set instead of list to prevent duplicates
 
   /// Maps each chat session's ID to its corresponding [List] of unread messages
-  final Map<int /* chat session id */, List<int>? /* unread messages count */ >
-      unreadMessageCounts = {};
+  static final Map<int /* chat session id */, List<int /* message id */ >? /* unread messages count */ > unreadMessageCounts = {};
 
   final TextEditingController _searchController = TextEditingController();
   late FocusNode _focusNode;
@@ -71,10 +80,9 @@ class ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
   /// Even though it's only referenced once in the code, using the refresh indicator
   /// to refresh the chat session will trigger the stream again. If you wish to see
   /// this for yourself, try the code without the broadcast stream.
-  late final Stream<int> _stream =
-      Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
+  final Stream<int> _stream = Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
 
-  ChatsState() : super(ConvultedTask.normal);
+  _ChatsState() : super(ConvultedTask.normal);
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -259,13 +267,12 @@ class ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
           return Scaffold(
             appBar: appBar,
             backgroundColor: appColors.secondaryColor,
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.endFloat, // Position bottom right
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Position bottom right
             floatingActionButton: const SendChatRequestButton(),
             body: ScrollViewFixer.createScrollViewWithAppBarSafety(
               scrollView: RefreshIndicator(
                 // if user scrolls downwards refresh chat requests
-                onRefresh: () async => _refreshContent,
+                onRefresh: () async => _refreshContent(),
                 color: appColors.primaryColor,
                 child: _conversations!.isNotEmpty
                     ? ListView.separated(
@@ -288,8 +295,7 @@ class ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
                               children: [
                                 Flexible(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 96.0),
+                                    padding: const EdgeInsets.symmetric(horizontal: 96.0),
                                     child: Image.asset(
                                       AppConstants.ermisCryingPath,
                                     ),
@@ -297,15 +303,14 @@ class ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
                                 ),
                                 const SizedBox(height: 15),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.rectangle,
                                     color: appColors.primaryColor,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(24)),
+                                    borderRadius: const BorderRadius.all(Radius.circular(24)),
                                     border: Border.all(
-                                        color: appColors.secondaryColor),
+                                      color: appColors.secondaryColor,
+                                    ),
                                   ),
                                   child: Text(
                                     S.current.no_conversations_available,

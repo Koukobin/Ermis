@@ -35,14 +35,14 @@ class ChatRequests extends StatefulWidget {
   const ChatRequests({super.key});
 
   @override
-  State<ChatRequests> createState() => ChatRequestsState();
+  State<ChatRequests> createState() => _ChatRequestsState();
 }
 
-class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscriptionMixin {
-  List<ChatRequest>? _chatRequests = Client.instance().chatRequests;
+class _ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscriptionMixin {
+  List<ChatRequest>? chatRequests = Client.instance().chatRequests;
 
-  ChatRequestsState() {
-    if (_chatRequests != null) {
+  _ChatRequestsState() {
+    if (chatRequests != null) {
       super.isLoading = false;
     }
   }
@@ -52,6 +52,21 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
     super.initState();
     subscribe(AppEventBus.instance.on<ChatRequestsEvent>(), (event) {
       _updateChatRequests(event.requests);
+    });
+  }
+
+  Future<void> _refreshContent() async {
+    Client.instance().commands?.fetchChatRequests();
+    setState(() {
+      isLoading = true;
+    });
+  }
+
+  void _updateChatRequests(List<ChatRequest> chatRequests) {
+    if (!mounted) return;
+    setState(() {
+      this.chatRequests = chatRequests;
+      isLoading = false;
     });
   }
 
@@ -67,11 +82,11 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
           onRefresh: _refreshContent,
           backgroundColor: Colors.transparent,
           color: appColors.primaryColor,
-          child: _chatRequests!.isNotEmpty
+          child: chatRequests!.isNotEmpty
               ? Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: ListView.separated(
-                    itemCount: _chatRequests!.length,
+                    itemCount: chatRequests!.length,
                     itemBuilder: (context, index) => buildChatRequestButton(index),
                     separatorBuilder: (context, index) => const Divider(
                       color: Colors.transparent,
@@ -152,7 +167,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
             UserAvatar.empty(),
             const SizedBox(height: 5),
             Text(
-              _chatRequests![index].toString(),
+              chatRequests![index].toString(),
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 5),
@@ -163,7 +178,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
                   onPressed: () {
                     Client.instance()
                         .commands
-                        ?.acceptChatRequest(_chatRequests![index].clientID);
+                        ?.acceptChatRequest(chatRequests![index].clientID);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.greenAccent,
@@ -178,7 +193,7 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
                   onPressed: () {
                     Client.instance()
                         .commands
-                        ?.declineChatRequest(_chatRequests![index].clientID);
+                        ?.declineChatRequest(chatRequests![index].clientID);
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
@@ -197,18 +212,4 @@ class ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscrip
     );
   }
 
-  Future<void> _refreshContent() async {
-    Client.instance().commands?.fetchChatRequests();
-    setState(() {
-      isLoading = true;
-    });
-  }
-
-  void _updateChatRequests(List<ChatRequest> chatRequests) {
-    if (!mounted) return;
-    setState(() {
-      _chatRequests = chatRequests;
-      isLoading = false;
-    });
-  }
 }

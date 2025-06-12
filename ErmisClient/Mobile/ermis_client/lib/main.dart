@@ -324,11 +324,16 @@ class MainInterface extends StatefulWidget {
 class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionMixin {
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
+  static const Chats _chatsWidget = Chats();
+  static const ChatRequests _chatRequestsWidget = ChatRequests();
+  static const SettingsScreen _settingsScreenWidget = SettingsScreen();
+  static const ProfileSettings _profileSettingsWidget = ProfileSettings();
+
   static const List<Widget> _widgetOptions = <Widget>[
-    Chats(),
-    ChatRequests(),
-    SettingsScreen(),
-    ProfileSettings()
+    _chatsWidget,
+    _chatRequestsWidget,
+    _settingsScreenWidget,
+    _profileSettingsWidget,
   ];
 
   late List<NavigationDestination> _barItems;
@@ -519,31 +524,39 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    NavigationDestination buildNavItem(
-      IconData activeIcon,
-      IconData inactiveIcon,
-      String label,
-    ) {
-      return NavigationDestination(
-        icon: Icon(inactiveIcon),
-        selectedIcon: Icon(activeIcon),
-        label: label,
-      );
-    }
-
     _barItems = <NavigationDestination>[
-      buildNavItem(Icons.chat, Icons.chat_outlined, S.current.chats),
-      buildNavItem(
-        Icons.person_add_alt_1,
-        Icons.person_add_alt_1_outlined,
-        S.current.requests,
+      NavigationDestination(
+        icon: Badge.count(
+          count: _chatsWidget.getTotalUnreadMessagesCount(),
+          child: const Icon(Icons.chat_outlined),
+        ),
+        selectedIcon: Badge.count(
+          count: _chatsWidget.getTotalUnreadMessagesCount(),
+          child: const Icon(Icons.chat),
+        ),
+        label: S.current.chats,
       ),
-      buildNavItem(Icons.settings, Icons.settings_outlined, S.current.settings),
-      buildNavItem(
-        Icons.account_circle,
-        Icons.account_circle_outlined,
-        S.current.account,
+      NavigationDestination(
+        icon: Badge.count(
+          count: UserInfoManager.chatRequests?.length ?? 0,
+          child: const Icon(Icons.person_add_alt_1_outlined),
+        ),
+        selectedIcon: Badge.count(
+          count: UserInfoManager.chatRequests?.length ?? 0,
+          child: const Icon(Icons.person_add_alt_1),
+        ),
+        label: S.current.requests,
       ),
+      NavigationDestination(
+        icon: const Icon(Icons.settings_outlined),
+        selectedIcon: const Icon(Icons.settings),
+        label: S.current.settings,
+      ),
+      NavigationDestination(
+        icon: const Icon(Icons.account_circle_outlined),
+        selectedIcon: const Icon(Icons.account_circle),
+        label: S.current.account,
+      )
     ];
 
     void onItemTapped(int newPageIndex) {
