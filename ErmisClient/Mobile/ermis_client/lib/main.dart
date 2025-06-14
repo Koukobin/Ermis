@@ -527,10 +527,12 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
     _barItems = <NavigationDestination>[
       NavigationDestination(
         icon: Badge.count(
+          isLabelVisible: _chatsWidget.getTotalUnreadMessagesCount() > 0,
           count: _chatsWidget.getTotalUnreadMessagesCount(),
           child: const Icon(Icons.chat_outlined),
         ),
         selectedIcon: Badge.count(
+          isLabelVisible: _chatsWidget.getTotalUnreadMessagesCount() > 0,
           count: _chatsWidget.getTotalUnreadMessagesCount(),
           child: const Icon(Icons.chat),
         ),
@@ -538,10 +540,12 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       ),
       NavigationDestination(
         icon: Badge.count(
+          isLabelVisible: UserInfoManager.chatRequests?.isNotEmpty ?? false,
           count: UserInfoManager.chatRequests?.length ?? 0,
           child: const Icon(Icons.person_add_alt_1_outlined),
         ),
         selectedIcon: Badge.count(
+          isLabelVisible: UserInfoManager.chatRequests?.isNotEmpty ?? false,
           count: UserInfoManager.chatRequests?.length ?? 0,
           child: const Icon(Icons.person_add_alt_1),
         ),
