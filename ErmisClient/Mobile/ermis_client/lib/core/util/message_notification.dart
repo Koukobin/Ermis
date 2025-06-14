@@ -30,7 +30,7 @@ import '../models/message.dart';
 import '../services/settings_json.dart';
 import 'notifications_util.dart';
 
-void handleChatMessageNotificationForeground(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallBack replyCallBack) {
+void handleChatMessageNotificationForeground(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallback replyCallBack) {
   handleChatMessageNotification(
     chatSession,
     msg,
@@ -49,7 +49,7 @@ void handleChatMessageNotificationForeground(ChatSession chatSession, Message ms
 /// the localization delegates within the main isolate's [MaterialApp]. If the
 /// main isolate is gone, this initialization never happened or is no longer
 /// valid. Hence, the following method.
-void handleChatMessageNotificationBackground(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallBack replyCallBack) {
+void handleChatMessageNotificationBackground(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallback replyCallBack) {
   handleChatMessageNotification(
     chatSession,
     msg,
@@ -61,7 +61,7 @@ void handleChatMessageNotificationBackground(ChatSession chatSession, Message ms
   );
 }
 
-void handleChatMessageNotification(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallBack replyCallBack, {
+void handleChatMessageNotification(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallback replyCallBack, {
   required String newMessage,
   required String fileReceived,
   required String messageBy,

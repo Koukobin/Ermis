@@ -61,7 +61,7 @@ class EndVoiceCallScreen extends StatelessWidget {
               // Call ended text
               Text(
                 S.current.call_ended,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
@@ -69,10 +69,8 @@ class EndVoiceCallScreen extends StatelessWidget {
               const SizedBox(height: 10),
               // Call duration
               Text(
-                '$callDuration',
-                style: TextStyle(
-                  fontSize: 18,
-                ),
+                callDuration,
+                style: const TextStyle(fontSize: 18),
               ),
             ],
           ),

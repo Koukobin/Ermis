@@ -39,12 +39,13 @@ import '../services/database/models/server_info.dart';
 import '../services/navigation_service.dart';
 import 'dialogs_utils.dart';
 
-typedef ReplyCallBack = void Function(String message);
+typedef ReplyCallback = void Function(String message);
 
 enum NotificationAction {
   actionReply("action_reply"),
   acceptVoiceCall("accept_voice_call"),
   ignoreVoiceCall("ignore_voice_call"),
+  endVoiceCall("end_voice_call"),
   markAsRead("mark_as_read");
 
   final String id;
@@ -55,8 +56,9 @@ enum NotificationAction {
   }
 }
 
-ReplyCallBack? _replyCallBack;
-VoidCallback? _voiceCall;
+ReplyCallback? _replyCallback;
+VoidCallback? _voiceCallEndCallback;
+VoidCallback? _voiceCallAcceptCallback;
 
 @pragma('vm:entry-point')
 void onDidReceiveNotification(NotificationResponse response) async {
@@ -69,7 +71,7 @@ void onDidReceiveNotification(NotificationResponse response) async {
   switch (na) {
     case NotificationAction.acceptVoiceCall:
       if (response.payload == null || response.payload!.trim().isEmpty) {
-        _voiceCall?.call();
+        _voiceCallAcceptCallback?.call();
         return;
       }
 
@@ -124,13 +126,16 @@ void onDidReceiveNotification(NotificationResponse response) async {
     case NotificationAction.ignoreVoiceCall:
       // Do nothing
       break;
+    case NotificationAction.endVoiceCall:
+      _voiceCallEndCallback?.call();
+      break;
     case NotificationAction.actionReply:
       String? input = response.input;
       if (input == null) {
         return;
       }
 
-      _replyCallBack?.call(input);
+      _replyCallback?.call(input);
       break;
     case NotificationAction.markAsRead:
       // To be implemented in the future
@@ -232,7 +237,13 @@ class NotificationService {
     ));
 
     int notificationID = Random().nextInt(10000);
-    return flutterLocalNotificationsPlugin.show(notificationID, AppConstants.applicationTitle, body, platformChannelSpecifics);
+
+    return flutterLocalNotificationsPlugin.show(
+      notificationID,
+      AppConstants.applicationTitle,
+      body,
+      platformChannelSpecifics,
+    );
   }
 
   static Future<int> showVoiceCallNotification({
@@ -246,7 +257,7 @@ class NotificationService {
       return -1;
     }
 
-    _voiceCall = onAccept;
+    _voiceCallAcceptCallback = onAccept;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: AndroidNotificationDetails(
         'voice_call_channel_id',
@@ -278,7 +289,14 @@ class NotificationService {
     );
 
     int notificationID = Random().nextInt(10000);
-    await flutterLocalNotificationsPlugin.show(notificationID, AppConstants.applicationTitle, '$callerName is calling...', platformChannelSpecifics, payload: payload);
+
+    await flutterLocalNotificationsPlugin.show(
+      notificationID,
+      AppConstants.applicationTitle,
+      '$callerName is calling...',
+      platformChannelSpecifics,
+      payload: payload,
+    );
 
     return notificationID;
   }
@@ -291,14 +309,14 @@ class NotificationService {
     required String summaryText,
     required String contentTitle,
     required String contentText,
-    required ReplyCallBack replyCallBack,
+    required ReplyCallback replyCallBack,
   }) async {
     if (!await checkAndRequestPermission(Permission.notification)) {
       showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
       return;
     }
 
-    _replyCallBack = replyCallBack;
+    _replyCallback = replyCallBack;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
       'instant_notification_id',
@@ -339,10 +357,60 @@ class NotificationService {
     ));
 
     int notificationID = Random().nextInt(10000);
-    return flutterLocalNotificationsPlugin.show(notificationID, AppConstants.applicationTitle, body, platformChannelSpecifics);
+
+    return flutterLocalNotificationsPlugin.show(
+      notificationID,
+      AppConstants.applicationTitle,
+      body,
+      platformChannelSpecifics,
+    );
+  }
+
+  static Future<int> showPersistentEndVoiceCallNotification({
+    required String callerName,
+    required VoidCallback voiceCallEndCallback,
+  }) async {
+    if (!await checkAndRequestPermission(Permission.notification)) {
+      showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
+      return -1;
+    }
+
+    _voiceCallEndCallback = voiceCallEndCallback;
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: AndroidNotificationDetails(
+      'persistent_end_voice_call_notification_id',
+      'End Voice Call Notification',
+      importance: Importance.high,
+      priority: Priority.high,
+      ongoing: true, // Keeps the notification persistent
+      autoCancel: false, // Prevents swiping it away
+      // largeIcon: ByteArrayAndroidBitmap(icon), For some reason causes notification not to show in release mode
+      playSound: false,
+      visibility: NotificationVisibility.secret,
+      actions: [
+        AndroidNotificationAction(
+          NotificationAction.endVoiceCall.id,
+          'End Call',
+          titleColor: AppConstants.darkAppColors.primaryColor,
+        ),
+      ],
+      ticker: 'ticker',
+    ));
+
+    int notificationID = Random().nextInt(10000);
+
+    flutterLocalNotificationsPlugin.show(
+      notificationID,
+      AppConstants.applicationTitle,
+      "In voice call with $callerName...",
+      platformChannelSpecifics,
+    );
+
+    return notificationID;
   }
 
   static Future<void> cancelNotification(int notificationID) {
     return flutterLocalNotificationsPlugin.cancel(notificationID);
   }
+
 }

@@ -22,6 +22,7 @@ import 'dart:typed_data';
 
 import 'package:ermis_client/core/models/member.dart';
 import 'package:ermis_client/core/util/dialogs_utils.dart';
+import 'package:ermis_client/core/util/notifications_util.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/voice_activity_indicator.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/call_status_enum.dart';
@@ -94,6 +95,8 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
   static OverlayEntry? returnToCallOverlayEntry;
 
+  static int endVoiceCallNotificationID = -1;
+
   Future<void> _resetCallData() async {
     await channel?.innerWebSocket?.close();
     await localStream?.dispose();
@@ -118,6 +121,8 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     elapsedTimeNotifier.release();
     elapsedTimeNotifier = TimeElapsedValueNotifier();
     elapsedTime = null;
+
+    endVoiceCallNotificationID = -1;
   }
 
   @override
@@ -139,6 +144,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
           callStatus = CallStatus.active;
           elapsedTime = TimeElapsedWidget(elapsedTime: elapsedTimeNotifier);
         });
+
+        endVoiceCallNotificationID =
+            await NotificationService.showPersistentEndVoiceCallNotification(
+          callerName: widget.member.username,
+          voiceCallEndCallback: _endCall,
+        );
       }
 
       // Ensure local stream audio tracks are up to date
@@ -744,6 +755,8 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         callDuration: elapsedTime?.getTimeElapsedAsString() ?? "",
       ),
     );
+
+    NotificationService.cancelNotification(endVoiceCallNotificationID);
 
     await _resetCallData();
 

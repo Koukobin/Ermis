@@ -46,7 +46,8 @@ class AppTheme extends StatefulWidget {
   static AppThemeState of(BuildContext context) {
     final state = context.findAncestorStateOfType<AppThemeState>();
     if (state == null) {
-      throw FlutterError("$AppTheme.of() called with a context that does not contain an $AppTheme.");
+      throw FlutterError(
+          "$AppTheme.of() called with a context that does not contain an $AppTheme.");
     }
     return state;
   }
