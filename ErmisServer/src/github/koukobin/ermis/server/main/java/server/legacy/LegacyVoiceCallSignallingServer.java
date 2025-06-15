@@ -13,13 +13,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package github.koukobin.ermis.server.main.java.server;
+package github.koukobin.ermis.server.main.java.server.legacy;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public final class LegacyVoiceCallSignallingServer {
+class LegacyVoiceCallSignallingServer {
 //
 //	private static final Logger LOGGER;
 //	

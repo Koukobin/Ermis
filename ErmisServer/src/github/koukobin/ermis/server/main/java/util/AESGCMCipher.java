@@ -38,14 +38,6 @@ public final class AESGCMCipher {
 		return encryptionCipher.doFinal(message);
 	}
 
-//	public byte[] decrypt(String encryptedMessage) throws IllegalBlockSizeException, BadPaddingException {
-//        return encrypt(encryptedMessage.getBytes());
-//	}
-//	
-//	public byte[] decrypt(byte[] encryptedMessage) throws IllegalBlockSizeException, BadPaddingException {
-//        return decryptionCipher.doFinal(encryptedMessage);
-//	}
-
 	public byte[] getSecretKeyEncoded() {
 		return secretKey.getEncoded();
 	}
