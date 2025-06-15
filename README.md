@@ -90,9 +90,10 @@ You can find thorough documentation and a more in-depth analysis of Ermis here: 
 
 To set up the project locally, follow the instructions for each component:
 
-1. [Ermis-Client](./ermis-client/README.md)
-2. [Ermis-Server](./ermis-server/README.md)
-3. [Ermis-Common](./ermis-common/README.md)
+1. [Ermis-Client (Dekstop)](./ErmisClient/Desktop/README.md)
+2. [Ermis-Client (Mobile)](./ErmisClient/Mobile/ermis_client/README.md)
+3. [Ermis-Server](./ErmisServer/README.md)
+4. [Ermis-Common](./ErmisCommon/README.md)
 
 ## Potential Questions
 
