@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>ErmisClient.jar</jar>
+  <jar>ermis-client.jar</jar>
   <outfile>Ermis-Client\ErmisClient.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -13,13 +13,13 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>application-icon.ico.ico</icon>
+  <icon>application-icon.ico</icon>
   <jre>
-    <path>jre\zulu17.40.19-ca-jre17.0.6-win_x64\zulu17.40.19-ca-jre17.0.6-win_x64</path>
+    <path>jre\zulu21.42.19-ca-jre21.0.7-win_x64</path>
     <requiresJdk>false</requiresJdk>
     <requires64Bit>false</requires64Bit>
     <minVersion>17</minVersion>
     <maxVersion></maxVersion>
-    <opt>--add-opens java.base/java.lang=ALL-UNNAMED -client -XX:+UseZGC -XX:+ShrinkHeapInSteps -XX:MinHeapFreeRatio=2 -XX:MaxHeapFreeRatio=5 -Dfile.encoding=UTF-8</opt>
+    <opt>--add-opens java.base/java.lang=ALL-UNNAMED -client -XX:+UseZGC -XX:+ShrinkHeapInSteps -XX:MinHeapFreeRatio=2 -XX:MaxHeapFreeRatio=5 -Dfile.encoding=UTF-8 --module-path "javafx-sdk-17.0.15/lib" --add-modules javafx.controls,javafx.fxml</opt>
   </jre>
 </launch4jConfig>

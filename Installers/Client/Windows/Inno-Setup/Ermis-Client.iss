@@ -22,7 +22,7 @@ DisableProgramGroupPage=yes
 LicenseFile={#MyAppLicence}
 ; Comment the following line to run in administrative install mode (install for all users.)
 ;PrivilegesRequired=lowest
-OutputBaseFilename=Ermis-Client_x64
+OutputBaseFilename=Ermis-Client_Windows_x64
 SetupIconFile={#MyAppIcon}
 Compression=lzma
 SolidCompression=yes

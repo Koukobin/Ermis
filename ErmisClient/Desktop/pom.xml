@@ -75,7 +75,7 @@
 			<groupId>io.github.palexdev</groupId>
 			<artifactId>materialfx</artifactId>
 			<version>11.13.5</version>
-		</dependency>
+</dependency>
 
 		<dependency>
 			<groupId>org.controlsfx</groupId>

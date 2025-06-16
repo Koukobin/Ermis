@@ -1,6 +1,6 @@
 Generation of Ermis-Client installer:
 
-    Replace ErmisClient.jar with the new jar
+    Replace ermis-client.jar with the new jar
     Replace Ermis-Client/lib/ with the new lib file
 
     Use launch4j.xml with launch4j to generate exe file
