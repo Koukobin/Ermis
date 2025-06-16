@@ -8,8 +8,8 @@
 	<version>1.0-rc</version>
 
 	<name>ermis-client</name>
-    <url>https://github.com/Koukobin/Ermis</url>
-    <inceptionYear>2021</inceptionYear>
+	<url>https://github.com/Koukobin/Ermis</url>
+	<inceptionYear>2021</inceptionYear>
 
 	<licenses>
 		<license>
@@ -18,18 +18,18 @@
 		</license>
 	</licenses>
 
-    <developers>
-        <developer>
-            <name>Ilias Koukovinis</name>
-            <email>ilias.koukovinis@gmail.com</email>
-        </developer>
-    </developers>
+	<developers>
+		<developer>
+			<name>Ilias Koukovinis</name>
+			<email>ilias.koukovinis@gmail.com</email>
+		</developer>
+	</developers>
 
-    <scm>
-        <connection>scm:git:git://github.com/Koukobin/Ermis.git</connection>
-        <developerConnection>scm:git:ssh://github.com/Koukobin/Ermis.git</developerConnection>
-        <url>https://github.com/Koukobin/Ermis.git</url>
-    </scm>
+	<scm>
+		<connection>scm:git:git://github.com/Koukobin/Ermis.git</connection>
+		<developerConnection>scm:git:ssh://github.com/Koukobin/Ermis.git</developerConnection>
+		<url>https://github.com/Koukobin/Ermis.git</url>
+	</scm>
 
 	<parent>
 		<groupId>github.ermis</groupId>
@@ -58,7 +58,7 @@
 			<artifactId>sqlite-jdbc</artifactId>
 			<version>3.41.2.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
 			<artifactId>rxjava</artifactId>
@@ -75,7 +75,7 @@
 			<groupId>io.github.palexdev</groupId>
 			<artifactId>materialfx</artifactId>
 			<version>11.13.5</version>
-</dependency>
+		</dependency>
 
 		<dependency>
 			<groupId>org.controlsfx</groupId>
@@ -128,7 +128,7 @@
 			<resource>
 				<directory>${src.resources}</directory>
 				<targetPath>${target.resources}</targetPath>
-	            <filtering>true</filtering>
+				<filtering>true</filtering>
 			</resource>
 		</resources>
 

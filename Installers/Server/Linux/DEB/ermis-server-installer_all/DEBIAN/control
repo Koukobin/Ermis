@@ -1,8 +1,9 @@
 Package: ermis-server
 Version: 1.0-rc
-Architecture: all
-Essential: no
-Depends: nginx-full
 Priority: optional
+Essential: no
+Architecture: all
+Depends: nginx-full
 Maintainer: Ilias Koukovinis
+Homepage: https://github.com/Koukobin/Ermis
 Description: SERVER FOR CHAT

@@ -10,7 +10,7 @@ TARGET_JAR="$SOURCE_FOLDER/target/ermis-client.jar"
 LIB_FOLDER="$SOURCE_FOLDER/target/lib"
 DOC_FILES=("README.md" "LICENSE" "NOTICE")
 
-INSTALL_FOLDER="ermis-client_amd64/opt/Ermis-Client"
+INSTALL_FOLDER="ermis-client-installer_amd64/opt/Ermis-Client"
 BIN="$INSTALL_FOLDER/bin"
 
 # Create necessary directories
@@ -26,6 +26,6 @@ for file in "${DOC_FILES[@]}"; do
 done
 
 # Create DEB package
-sudo dpkg-deb --build ermis-client_amd64 || { echo "Failed to build DEB package"; exit 1; }
+sudo dpkg-deb --build ermis-client-installer_amd64 || { echo "Failed to build DEB package"; exit 1; }
 
 echo "DEB package succesfully created!"

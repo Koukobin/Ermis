@@ -21,7 +21,7 @@ JAR_FILE=$(find "$TARGET_FOLDER/target" -maxdepth 1 -name "*.jar") # Search for 
 LIB_FOLDER="$TARGET_FOLDER/target/lib"
 DOC_FILES=("README.md" "LICENSE" "NOTICE")
 
-INSTALL_FOLDER="ermis-server-installer/srv/ermis-server"
+INSTALL_FOLDER="ermis-server-installer_all/srv/ermis-server"
 
 SOURCE_FOLDER="$(git rev-parse --show-toplevel)/ErmisServer"
 TARGET_JAR="$SOURCE_FOLDER/target/ErmisServer.jar"
@@ -45,6 +45,6 @@ done
 
 # Create DEB package
 chmod 755 ermis-server-installer/DEBIAN/ && chmod 755 ermis-server-installer/DEBIAN/* # Ensure correct permissions
-sudo dpkg-deb --build ermis-server-installer || { echo "Failed to build DEB package"; exit 0; }
+sudo dpkg-deb --build ermis-server-installer_all || { echo "Failed to build DEB package"; exit 0; }
 
 echo "DEB package succesfully created!"
