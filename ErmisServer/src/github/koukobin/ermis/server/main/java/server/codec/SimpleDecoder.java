@@ -34,14 +34,15 @@ public final class SimpleDecoder extends Decoder {
      */
 	public static final int MAX_LENGTH = 500; 
 
-    /**
-     * Validates and processes incoming messages.
-     * 
-     * @param ctx the channel handler context
-     * @param length the length of the incoming message
-     * @param in the message data buffer
-     * @return {@code true} if the message is valid and within length limits; {@code false} otherwise
-     */
+	/**
+	 * Validates and processes incoming messages.
+	 * 
+	 * @param ctx    the channel handler context
+	 * @param length the length of the incoming message
+	 * @param in     the message data buffer
+	 * @return {@code true} if the message is valid and within length limits;
+	 *         {@code false} otherwise
+	 */
 	@Override
 	public boolean decodeMessage(ChannelHandlerContext ctx, ByteBuf in) {
 		// Validate message length

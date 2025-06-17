@@ -95,7 +95,7 @@ public class DeleteAccount implements ICommand {
 	 * This exact code also exists in {@link AddOrSwitchToNewAccount}; perhaps this
 	 * should be refactored to utilize reflection in order to fetch all subclasses
 	 * of {@link EntryHandler} and {@link StartingEntryHandler} and subsequently
-	 * remove them (This could easily be done via the Reflections API
+	 * remove them (This could easily be achieved via the Reflections API
 	 * {@link Reflections}).
 	 */
 	private static void removeAuthenticationHandlers(EpollSocketChannel channel) {

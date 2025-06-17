@@ -33,13 +33,13 @@ import io.netty.handler.codec.ReplayingDecoder;
 public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 
 	private static final Logger LOGGER = LogManager.getLogger("server");
-	
+
 	private boolean isDecodingSuccessful;
 	private boolean hasReadLength = false;
 	private int length;
-	
+
 	protected Decoder() {}
-	
+
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		ByteBuf payload = null;
@@ -75,7 +75,7 @@ public abstract class Decoder extends ReplayingDecoder<ByteBuf> {
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		LOGGER.debug("An error occured during decoding: ", cause);
 	}
-	
+
 	/**
 	 * 
 	 * @param ctx

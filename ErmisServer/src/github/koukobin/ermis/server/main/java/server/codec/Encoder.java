@@ -30,10 +30,10 @@ import io.netty.handler.codec.MessageToByteEncoder;
  *
  */
 public final class Encoder extends MessageToByteEncoder<ByteBuf> {
-	
+
 	private static final Logger LOGGER = LogManager.getLogger("server");
-	
-    private static final int COMPRESSION_LEVEL = 4; // 1 (fastest) to 22 (highest compression)
+
+	private static final int COMPRESSION_LEVEL = 4; // 1 (fastest) to 22 (highest compression)
 
 	@Override
 	protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
@@ -46,25 +46,25 @@ public final class Encoder extends MessageToByteEncoder<ByteBuf> {
 		}
 
 		byte[] inputData = new byte[readableBytes];
-        msg.readBytes(inputData);
+		msg.readBytes(inputData);
 
-        byte[] compressedData = compress(inputData);
+		byte[] compressedData = compress(inputData);
 
-        out.writeInt(compressedData.length);
-        out.writeBytes(compressedData);
+		out.writeInt(compressedData.length);
+		out.writeBytes(compressedData);
 	}
-	
+
 	private static byte[] compress(byte[] data) {
-	    try {
-	        return Zstd.compress(data, COMPRESSION_LEVEL);
-	    } catch (Exception e) {
-	    	LOGGER.debug(Throwables.getStackTraceAsString(e));
-	    }
+		try {
+			return Zstd.compress(data, COMPRESSION_LEVEL);
+		} catch (Exception e) {
+			LOGGER.debug(Throwables.getStackTraceAsString(e));
+		}
 		return data;
 	}
-	
-    @Override
-    public boolean acceptOutboundMessage(Object msg) throws Exception {
-        return msg instanceof ByteBuf;
-    }
+
+	@Override
+	public boolean acceptOutboundMessage(Object msg) throws Exception {
+		return msg instanceof ByteBuf;
+	}
 }
