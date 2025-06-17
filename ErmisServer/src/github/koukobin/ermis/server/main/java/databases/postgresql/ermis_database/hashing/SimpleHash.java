@@ -27,13 +27,13 @@ import com.password4j.HashingFunction;
 public class SimpleHash {
 
 	private static final Base64.Encoder encoder = Base64.getEncoder().withoutPadding();
-	
+
 	private Hash hash;
-	
+
 	public SimpleHash(Hash hash) {
 		this.hash = hash;
 	}
-	
+
 	public SimpleHash(HashingFunction hashFunction, String result, byte[] hashBytes, String salt) {
 		hash = new Hash(hashFunction, result, hashBytes, salt);
 	}
@@ -41,7 +41,7 @@ public class SimpleHash {
 	public String getResult() {
 		return hash.getResult();
 	}
-	
+
 	public String getSalt() {
 		return hash.getSalt();
 	}
@@ -49,11 +49,11 @@ public class SimpleHash {
 	public CharSequence getPepper() {
 		return hash.getPepper();
 	}
-	
+
 	public String getHashString() {
 		return encoder.encodeToString(hash.getBytes());
 	}
-	
+
 	public byte[] getHashBytes() {
 		return encoder.encode(hash.getBytes());
 	}

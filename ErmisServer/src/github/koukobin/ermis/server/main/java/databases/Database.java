@@ -32,12 +32,12 @@ public interface Database {
 
 	abstract class HikariDataSourceBuilder<E extends DataSource, T extends HikariDataSourceBuilder<E,T>> {
 
-        private T thisObj;
-		
-        /**
+		private T thisObj;
+
+		/**
 		 * Will be used to get the JDBC url
 		 */
-        protected E dataSource;
+		protected E dataSource;
 		private HikariConfig config;
 
 		{
@@ -57,7 +57,7 @@ public interface Database {
 			config.setPassword(userPassword);
 			return thisObj;
 		}
-		
+
 		public T addDriverProperties(Properties driverProperties) {
 			for (Entry<Object, Object> entry : driverProperties.entrySet()) {
 				addDataSourceProperty(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
@@ -140,7 +140,7 @@ public interface Database {
 			config.setLeakDetectionThreshold(leakDetectionThreshold);
 			return thisObj;
 		}
-		
+
 		public HikariDataSource build() {
 			config.setJdbcUrl(getJdbcUrl());
 			return new HikariDataSource(config);

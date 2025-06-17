@@ -45,12 +45,12 @@ public interface PostgreSQLDatabase {
 			dataSource.setPortNumbers(port);
 			return this;
 		}
-		
+
 		public HikariDataSourceBuilder setTrustCertificateKeyStoreUrl(String certificateUrl) {
 			dataSource.setSslCert(certificateUrl);
 			return this;
 		}
-		
+
 		public HikariDataSourceBuilder setTrustCertificateKeyStorePassword(String password) {
 			dataSource.setSslPassword(password);
 			return this;
@@ -65,6 +65,6 @@ public interface PostgreSQLDatabase {
 		protected String getJdbcUrl() {
 			return dataSource.getUrl();
 		}
-		
+
 	}
 }

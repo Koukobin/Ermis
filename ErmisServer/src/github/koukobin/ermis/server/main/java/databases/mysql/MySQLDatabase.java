@@ -34,7 +34,7 @@ public interface MySQLDatabase {
 		public HikariDataSourceBuilder() {
 			dataSource = new MysqlDataSource();
 		}
-		
+
 		public HikariDataSourceBuilder setServerName(String serverName) {
 			dataSource.setServerName(serverName);
 			return this;
@@ -49,17 +49,17 @@ public interface MySQLDatabase {
 			dataSource.setPortNumber(port);
 			return this;
 		}
-		
+
 		public HikariDataSourceBuilder setTrustCertificateKeyStoreUrl(String certificateUrl) throws SQLException {
 			dataSource.setTrustCertificateKeyStoreUrl(certificateUrl);
 			return this;
 		}
-		
+
 		public HikariDataSourceBuilder setTrustCertificateKeyStorePassword(String password) throws SQLException {
 			dataSource.setTrustCertificateKeyStorePassword(password);
 			return this;
 		}
-		
+
 		@Override
 		protected HikariDataSourceBuilder getThis() {
 			return this;
