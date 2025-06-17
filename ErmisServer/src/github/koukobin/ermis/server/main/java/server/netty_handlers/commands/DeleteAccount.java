@@ -77,11 +77,15 @@ public class DeleteAccount implements ICommand {
 						return result;
 					}
 
-			@Override
-			public String createEmailMessage(String account, String generatedVerificationCode) {
-				return ServerSettings.EmailCreator.Verification.DeleteAccount.createEmail(VerificationEmailTemplate.of(clientInfo.getEmail(), account, generatedVerificationCode));
-			}
-		});
+					@Override
+					public String createEmailMessage(String account, String generatedVerificationCode) {
+						return ServerSettings.EmailCreator.Verification.DeleteAccount
+								.createEmail(VerificationEmailTemplate.of(
+										clientInfo.getEmail(), 
+										account,
+										generatedVerificationCode));
+					}
+				});
 	}
 
 	/**

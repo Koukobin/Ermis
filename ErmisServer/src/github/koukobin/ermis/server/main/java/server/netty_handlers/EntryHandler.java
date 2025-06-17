@@ -32,10 +32,9 @@ import io.netty.channel.ChannelHandlerContext;
 public abstract sealed class EntryHandler
 	extends AbstractChannelClientHandler 
 	permits
-	    LoginHandler,
+	    LoginHandler, 
 	    CreateAccountHandler, 
-	    VerificationHandler,
-	    DeleteAccountVerificationHandler {
+	    VerificationHandler {
 
 	protected EntryHandler(ClientInfo clientInfo) {
 		super(clientInfo);
