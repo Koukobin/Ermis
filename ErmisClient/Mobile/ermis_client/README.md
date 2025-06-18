@@ -25,7 +25,7 @@
 2. Follow the on-screen instructions during the setup process.
 3. Finally, launch the application.
 
-## Setup Project Locally For Development
+## Set up Project Locally For Development
 
 For a rigorous and extensive step-by-step process for setting up the Flutter client codebase locally refer to the [wiki](https://github.com/Koukobin/Ermis/wiki/MobileClientSetupGuide)
 

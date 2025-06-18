@@ -16,7 +16,7 @@
 
 For a detailed step-by-step process for the installation of the server check the [wiki](https://github.com/Koukobin/Ermis/wiki/Ermis%E2%80%90Server-Installation)
 
-## Setup Project Locally For Development
+## Set up Project Locally For Development
 
 For a comprehensive step-by-step process for configuring the server codebase locally refer to the [wiki](https://github.com/Koukobin/Ermis/wiki/Ermis%E2%80%90Server-Home#setup-project-locally)
 
