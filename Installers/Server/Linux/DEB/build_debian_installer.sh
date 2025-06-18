@@ -28,7 +28,7 @@ TARGET_JAR="$SOURCE_FOLDER/target/ErmisServer.jar"
 LIB_FOLDER="$SOURCE_FOLDER/target/lib"
 DOC_FILES=("README.md" "LICENSE" "NOTICE")
 
-INSTALL_FOLDER="ermis-server-installer/opt/ermis-server"
+INSTALL_FOLDER="ermis-server-installer_all/opt/ermis-server"
 BIN="$INSTALL_FOLDER/bin"
 
 # Create necessary directories
@@ -44,7 +44,7 @@ for file in "${DOC_FILES[@]}"; do
 done
 
 # Create DEB package
-chmod 755 ermis-server-installer/DEBIAN/ && chmod 755 ermis-server-installer/DEBIAN/* # Ensure correct permissions
+chmod 755 ermis-server-installer_all/DEBIAN/ && chmod 755 ermis-server-installer_all/DEBIAN/* # Ensure correct permissions
 sudo dpkg-deb --build ermis-server-installer_all || { echo "Failed to build DEB package"; exit 0; }
 
 echo "DEB package succesfully created!"
