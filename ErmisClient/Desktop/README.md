@@ -18,9 +18,13 @@
 
 ## Installation
 
-1. Download the appropriate installer for your platform.  
-2. Follow the on-screen instructions during the setup process.  
+1. Download the appropriate installer for your platform.
+2. Follow the on-screen instructions during the setup process.
 3. Finally, launch the application.
+
+## Setup Project Locally For Development
+
+For a thorough step-by-step guide for setting up the dekstop client codebase locally consult the [wiki](https://github.com/Koukobin/Ermis/wiki/Ermis%E2%80%90Client-Home-(Desktop)#setup-project-locally)
 
 ## Contributing
 

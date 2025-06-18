@@ -21,7 +21,7 @@ My vision while creating Ermis was to develop a server-side application that any
 ## Features
 
 - **Real-time communication:** Efficiently handle multiple concurrent users.
-- **Media Sharing**: Easily share images, videos, and documents within your chats.
+- **Media Sharing**: Easily share media within your chats.
 - **Secure Connections**: Integrated with TLS encryption to ensure privacy and security.
 - **PostgreSQL integration:** Manage user data, messages, and logs in a reliable relational database.
 
