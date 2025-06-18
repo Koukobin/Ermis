@@ -15,21 +15,17 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ui';
 
 import 'package:ermis_client/core/data_sources/api_client.dart';
 import 'package:ermis_client/core/models/chat_session.dart';
 import 'package:ermis_client/core/models/message.dart';
 import 'package:ermis_client/constants/app_constants.dart';
-import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_client/core/services/database/extensions/chat_messages_extension.dart';
 import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
-import 'package:ermis_client/core/services/database/models/local_account_info.dart';
 import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:ermis_client/core/services/ermis_backgroud_service.dart';
 import 'package:ermis_client/core/util/message_notification.dart';
-import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_client/core/util/transitions_util.dart';
 import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_client/generated/l10n.dart';
@@ -40,7 +36,6 @@ import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/util/notifications_util.dart';
 import 'package:ermis_client/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:sqflite/sql.dart';
 
 import 'core/event_bus/app_event_bus.dart';
@@ -56,7 +51,7 @@ import 'theme/app_theme.dart';
 import 'features/chats/chats_interface.dart';
 import 'features/settings/primary_settings_interface.dart';
 import 'package:flutter/material.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest.dart' as timezones;
 
 import 'core/util/dialogs_utils.dart';
 
@@ -67,29 +62,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isAndroid || Platform.isIOS) {
-    FlutterBackgroundService().configure(
-      androidConfiguration: AndroidConfiguration(
-        onStart: onAndroidBackground,
-        autoStartOnBoot: false,
-        autoStart: false, // Automatically start the service when the app is launched
-        isForegroundMode: true, // Keep the service running in the background
-      ),
-      iosConfiguration: IosConfiguration(
-        autoStart: false,
-        onBackground: onIosBackground,
-      ),
-    );
-
-    if (await FlutterBackgroundService().isRunning()) {
-      stopBackgroundService();
+    // If background service is running - stop and reinitialize to avoid potential issues
+    if (await ErmisBackgroudService.isRunning()) {
+      ErmisBackgroudService.stopBackgroundService();
     }
 
-    startBackgroundService();
+    ErmisBackgroudService.startBackgroundService();
   }
 
   await AppConstants.initialize();
   await NotificationService.init();
-  tz.initializeTimeZones();
+  timezones.initializeTimeZones();
 
   final jsonSettings = SettingsJson();
   await jsonSettings.loadSettingsJson();
@@ -108,146 +91,6 @@ void main() async {
     darkAppColors: AppConstants.darkAppColors,
     themeMode: themeData,
   ));
-}
-
-void startBackgroundService() {
-  final service = FlutterBackgroundService();
-  service.startService();
-}
-
-void stopBackgroundService() {
-  final service = FlutterBackgroundService();
-  service.invoke("stop");
-}
-
-@pragma("vm:entry-point")
-void onAndroidBackground(ServiceInstance service) {
-  maintainWebSocketConnection(service);
-}
-
-@pragma("vm:entry-point")
-Future<bool> onIosBackground(ServiceInstance service) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized();
-
-  maintainWebSocketConnection(service);
-
-  return true;
-}
-
-void maintainWebSocketConnection(ServiceInstance service) async {
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-  debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
-
-  WidgetsFlutterBinding.ensureInitialized();
-
-  service.on("stop").listen((event) {
-    service.stopSelf();
-    debugPrint("background process is now stopped");
-  });
-
-  service.on("start_listening_for_messages").listen((event) async {
-    await AppConstants.initialize();
-    await NotificationService.init();
-
-    final settingsJson = SettingsJson();
-    await settingsJson.loadSettingsJson();
-
-    final DBConnection conn = ErmisDB.getConnection();
-    ServerInfo serverInfo = await conn.getServerUrlLastUsed();
-
-    void setupClient() async {
-      try {
-        await Client.instance().initialize(
-          serverInfo.serverUrl,
-          ServerCertificateVerification.ignore, // Since user connected once he has no issue connecting again
-        );
-
-        await Client.instance().readServerVersion();
-        Client.instance().startMessageDispatcher();
-
-        LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
-        if (userInfo == null) {
-          return;
-        }
-
-        bool success = await Client.instance().attemptHashedLogin(userInfo);
-
-        if (!success) {
-          return;
-        }
-
-        await Client.instance().fetchUserInformation();
-        Client.instance().commands!.setAccountStatus(ClientStatus.offline);
-      } catch (e) {
-        // Attempt to reinitialize client in case of failure
-        Future.delayed(const Duration(seconds: 30), setupClient);
-      }
-    }
-
-    setupClient();
-
-    AppEventBus.instance.on<ConnectionResetEvent>().listen((event) {
-      // Attempt to re-establish connection in case of a connection reset
-      Future.delayed(const Duration(seconds: 30), setupClient);
-    });
-
-    AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {
-      ChatSession chatSession = event.chatSession;
-      Message msg = event.message;
-
-      DBConnection conn = ErmisDB.getConnection();
-
-      conn.insertChatMessage(
-        serverInfo: Client.instance().serverInfo!,
-        message: msg,
-      );
-
-      conn.insertUnreadMessage(serverInfo, msg.chatSessionID, msg.messageID);
-
-      // Display notification only if message does not originate from one's self
-      if (msg.clientID == Client.instance().clientID) return;
-
-      handleChatMessageNotificationBackground(chatSession, msg, settingsJson, (String text) {
-        Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex);
-      });
-    });
-
-    AppEventBus.instance.on<VoiceCallIncomingEvent>().listen((event) {
-      NotificationService.showVoiceCallNotification(
-          icon: event.member.icon.profilePhoto,
-          callerName: event.member.username,
-          payload: jsonEncode({
-            'chatSessionID': event.chatSessionID,
-            'chatSessionIndex': event.chatSessionIndex,
-            'member': jsonEncode(event.member.toJson()),
-            'isInitiator': false,
-          }),
-          onAccept: () {
-            // Won't get called since app will be brought from background to foreground
-          });
-    });
-
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-    debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
-  });
-
 }
 
 class _MyApp extends StatefulWidget {
@@ -285,7 +128,7 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.detached:
         // App is being terminated
-        FlutterBackgroundService().invoke("start_listening_for_messages");
+        ErmisBackgroudService.startListeningToMessagesAndIncomingCalls();
         break;
       case AppLifecycleState.inactive:
         // App is temporarily inactive
