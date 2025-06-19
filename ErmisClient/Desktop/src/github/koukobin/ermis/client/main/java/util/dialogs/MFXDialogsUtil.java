@@ -32,14 +32,14 @@ import javafx.stage.Stage;
 public final class MFXDialogsUtil {
 
 	private MFXDialogsUtil() {}
-	
+
 	public static MFXGenericDialog createMFXGenericDialog(String contentText) {
 		return MFXGenericDialogBuilder.build()
 				.setContentText(contentText)
 				.makeScrollable(true)
 				.get();
 	}
-	
+
 	public static void showSimpleInformationDialog(Stage stage, Pane ownerNode, String contentText) {
 		MFXDialog dialog = new MFXDialog(stage, ownerNode);
 		dialog.setContentText(contentText);

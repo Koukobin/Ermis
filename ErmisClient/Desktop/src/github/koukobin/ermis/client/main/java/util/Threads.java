@@ -25,7 +25,7 @@ import javafx.concurrent.Task;
 public final class Threads {
 
 	private Threads() {}
-	
+
 	/**
 	 * Delays for a certain amount of time and afterwards executes runnables. All of
 	 * this takes place in a unique thread

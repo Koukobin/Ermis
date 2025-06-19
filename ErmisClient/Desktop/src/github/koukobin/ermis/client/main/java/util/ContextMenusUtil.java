@@ -34,39 +34,39 @@ import javafx.util.Duration;
 public final class ContextMenusUtil {
 
 	private ContextMenusUtil() {}
-	
+
 	public static void installContextMenu(Node owner, Duration du, MyContextMenuItem... items) {
-		
+
 		final MFXContextMenu contextMenu = new MFXContextMenu(owner);
 		contextMenu.addItems(items);
 
 		MFXTooltip tooltip = setupTooltip(owner, du);
-		
+
 		EventHandler<? super MouseEvent> previousMouseEventHandler = owner.getOnMouseClicked();
 		owner.setOnMouseClicked((MouseEvent e) -> {
 			if (previousMouseEventHandler != null) {
 				previousMouseEventHandler.handle(e);
 			}
-            if (e.getButton() == MouseButton.SECONDARY) {
-                contextMenu.show((Node) e.getSource(), e.getScreenX(), e.getScreenY());
-                tooltip.uninstall();
-                
-                contextMenu.setOnHidden((e2) -> tooltip.install());
-            }
+			if (e.getButton() == MouseButton.SECONDARY) {
+				contextMenu.show((Node) e.getSource(), e.getScreenX(), e.getScreenY());
+				tooltip.uninstall();
+
+				contextMenu.setOnHidden((e2) -> tooltip.install());
+			}
 		});
 	}
-	
-    /**
-     * Sets up a tooltip to guide users on using the context menu.
-     *
-     * @param owner the Node for which the tooltip is created
-     * @return the configured MFXTooltip
-     */
-    private static MFXTooltip setupTooltip(Node owner, Duration du) {
-        MFXTooltip tooltip = new MFXTooltip(owner);
-        tooltip.setText("Right-click for more actions!");
-        tooltip.setShowDelay(du);
-        tooltip.install();
-        return tooltip;
-    }
+
+	/**
+	 * Sets up a tooltip to guide users on using the context menu.
+	 *
+	 * @param owner the Node for which the tooltip is created
+	 * @return the configured MFXTooltip
+	 */
+	private static MFXTooltip setupTooltip(Node owner, Duration du) {
+		MFXTooltip tooltip = new MFXTooltip(owner);
+		tooltip.setText("Right-click for more actions!");
+		tooltip.setShowDelay(du);
+		tooltip.install();
+		return tooltip;
+	}
 }

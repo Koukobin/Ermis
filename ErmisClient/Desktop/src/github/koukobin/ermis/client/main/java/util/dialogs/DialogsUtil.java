@@ -42,19 +42,19 @@ import javafx.stage.Stage;
 public class DialogsUtil {
 
 	private DialogsUtil() {}
-	
+
 	public static Alert createConfirmationDialog() {
 		return createConfirmationDialog("Confirmation!", "Are you sure you want to move foward with this action");
 	}
-	
+
 	public static Alert createConfirmationDialog(String headerText, String contentText) {
 		return createConfirmationDialog(headerText, contentText, new ButtonType[0]);
 	}
-	
+
 	public static Alert createConfirmationDialog(String headerText, String contentText, ButtonType... buttons) {
 		return createConfirmationDialog(headerText, contentText, AlertType.CONFIRMATION, buttons);
 	}
-	
+
 	public static Alert createConfirmationDialog(String headerText, String contentText, AlertType alertType, ButtonType... buttons) {
 
 		Alert alert = new Alert(alertType);
@@ -79,7 +79,7 @@ public class DialogsUtil {
 
 		return alert;
 	}
-	
+
 	public static void showInfoDialog(String contentText) {
 
 		Alert alert = new Alert(AlertType.INFORMATION);
@@ -91,7 +91,7 @@ public class DialogsUtil {
 
 		alert.showAndWait();
 	}
-	
+
 	public static void showSuccessDialog(String contentText) {
 
 		TextArea textArea = new TextArea(contentText);
@@ -100,7 +100,7 @@ public class DialogsUtil {
 		GridPane gridPane = new GridPane();
 		gridPane.setMaxWidth(Double.MAX_VALUE);
 		gridPane.add(textArea, 0, 0);
-		
+
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle(GeneralAppInfo.TITLE);
 		alert.setHeaderText("Success!");
@@ -108,10 +108,10 @@ public class DialogsUtil {
 		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 		alert.getDialogPane().setContent(gridPane);
 		addPrimaryApplicationIon(alert);
-		
+
 		alert.showAndWait();
 	}
-	
+
 	public static void showErrorDialog(String contentText) {
 
 		Alert alert = new Alert(AlertType.ERROR);
@@ -120,7 +120,7 @@ public class DialogsUtil {
 		alert.setContentText(contentText);
 		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 		addPrimaryApplicationIon(alert);
-		
+
 		alert.showAndWait();
 	}
 	
@@ -142,9 +142,9 @@ public class DialogsUtil {
 
 		return alert;
 	}
-	
+
 	public static TextInputDialog createTextInputDialog(String headerText, String contentText, String defaultValue, ButtonType... buttons) {
-		
+
 		TextInputDialog serverToConnectToTD = new TextInputDialog(defaultValue);
 		serverToConnectToTD.setHeaderText(headerText);
 		serverToConnectToTD.setContentText(contentText);
@@ -152,12 +152,12 @@ public class DialogsUtil {
 		serverToConnectToTD.getDialogPane().getScene().getWindow().sizeToScene();
 		addButtons(serverToConnectToTD, buttons);
 		addPrimaryApplicationIon(serverToConnectToTD);
-		
+
 		return serverToConnectToTD;
 	}
 	
 	public static <T> ChoiceDialog<T> createChoiceDialog(String headerText, String contentText, T defaultChoice, T[] choices, ButtonType... buttons){
-		
+
 		ChoiceDialog<T> choiceDialog = new ChoiceDialog<>(defaultChoice, choices);
 		choiceDialog.setHeaderText(headerText);
 		choiceDialog.setContentText(contentText);
@@ -165,25 +165,25 @@ public class DialogsUtil {
 		choiceDialog.getDialogPane().getScene().getWindow().sizeToScene();
 		addButtons(choiceDialog, buttons);
 		addPrimaryApplicationIon(choiceDialog);
-		
+
 		return choiceDialog;
 	}
-	
+
 	private static void addButtons(Dialog<?> dialog, ButtonType[] buttons) {
-		
+
 		if (buttons.length == 0) {
 			return;
 		}
-		
+
 		DialogPane dialogPane = dialog.getDialogPane();
 		dialogPane.getButtonTypes().clear();
 		dialogPane.getButtonTypes().addAll(buttons);
 	}
-	
+
 	private static void addPrimaryApplicationIon(Dialog<?> dialog) {
 		addIcon(dialog, Icons.PRIMARY_APPLICATION_ICON_256);
 	}
-	
+
 	private static void addIcon(Dialog<?> dialog, Image image) {
 		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
 		stage.getIcons().add(image);

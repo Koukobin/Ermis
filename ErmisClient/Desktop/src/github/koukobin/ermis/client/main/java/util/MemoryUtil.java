@@ -25,13 +25,14 @@ import java.lang.reflect.InaccessibleObjectException;
 public final class MemoryUtil {
 
 	private MemoryUtil() {}
-	
+
 	public static void freeStringFromMemory(String stringToFree) {
 		try {
 			Field field = String.class.getDeclaredField("value");
 			field.setAccessible(true);
 			field.set(stringToFree, new byte[] {});
-		} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException | InaccessibleObjectException e) {
+		} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException
+				| InaccessibleObjectException e) {
 			e.printStackTrace();
 		}
 	}

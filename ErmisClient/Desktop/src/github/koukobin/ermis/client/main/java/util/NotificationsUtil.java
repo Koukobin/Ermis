@@ -45,19 +45,19 @@ public final class NotificationsUtil {
 			// once media is over stop the player so it does not continue to repeat
 			notificationPlayer.stop();
 		});
-		
+
 		if (SystemUtils.IS_OS_LINUX) {
 			popupNotificationer = (String message) -> {
 				ProcessBuilder processBuilder = new ProcessBuilder("notify-send", GeneralAppInfo.TITLE, message);
 				try {
-				    processBuilder.start();
-				}  catch (IOException ioe) {
+					processBuilder.start();
+				} catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
 			};
 		} else {
 			popupNotificationer = (String message) -> {
-			
+
 				Notifications.create()
 				.title(GeneralAppInfo.TITLE)
 				.text(message)
@@ -65,7 +65,7 @@ public final class NotificationsUtil {
 				.position(Pos.TOP_RIGHT)
 				.darkStyle()
 				.showInformation();
-				
+
 				Platform.runLater(notificationPlayer::play);
 			};
 		}
@@ -76,7 +76,7 @@ public final class NotificationsUtil {
 	public static void createNotification(String text) {
 		popupNotificationer.accept(text);
 	}
-	
+
 	public static void createMessageNotification(String displayName, String message) {
 		createNotification(displayName + " says \"" + message + "\"");
 	}

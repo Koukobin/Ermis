@@ -18,21 +18,25 @@ package github.koukobin.ermis.client.main.java.util.dialogs;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ButtonBar.ButtonData;
 
+/**
+ * @author Ilias Koukovinis
+ * 
+ */
 public final class CustomDialogButtonTypes {
-	
+
 	public static final ButtonType RETRY_BUTTON = new ButtonType("Retry", ButtonData.NEXT_FORWARD);
 	public static final ButtonType EXIT_BUTTON = new ButtonType("Exit", ButtonData.CANCEL_CLOSE);
-	
+
 	public static final ButtonType OK_BUTTON = ButtonType.OK;
 	public static final ButtonType CANCEL_BUTTON = ButtonType.CANCEL;
 	public static final ButtonType CLOSE_BUTTON = ButtonType.CLOSE;
 
 	public static final ButtonType APPLY_BUTTON = ButtonType.APPLY;
 	public static final ButtonType FINISH_BUTTON = ButtonType.FINISH;
-	
+
 	public static final ButtonType NEXT_BUTTON = ButtonType.NEXT;
 	public static final ButtonType PREVIOUS_BUTTON = ButtonType.PREVIOUS;
-	
+
 	public static final ButtonType NO_BUTTON = ButtonType.NO;
 	public static final ButtonType YES_BUTTON = ButtonType.YES;
 

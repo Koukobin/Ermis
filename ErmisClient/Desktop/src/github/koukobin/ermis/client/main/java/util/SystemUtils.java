@@ -41,36 +41,36 @@ public class SystemUtils {
 
 	private SystemUtils() {}
 
-    private static boolean matchesName(String os) {
-        return getProperty("os.name").toLowerCase().startsWith(os.toLowerCase());
-    }
-    
-    public static boolean isWindows() {
-        return IS_OS_WINDOWS;
-    }
+	private static boolean matchesName(String os) {
+		return getProperty("os.name").toLowerCase().startsWith(os.toLowerCase());
+	}
 
-    public static boolean isLinux() {
-        return IS_OS_LINUX;
-    }
+	public static boolean isWindows() {
+		return IS_OS_WINDOWS;
+	}
 
-    public static boolean isMac() {
-        return IS_OS_MAC;
-    }
+	public static boolean isLinux() {
+		return IS_OS_LINUX;
+	}
 
-    public static boolean isUnix() {
-        return IS_OS_UNIX;
-    }
+	public static boolean isMac() {
+		return IS_OS_MAC;
+	}
 
-    public static boolean isSolaris() {
-        return IS_OS_SOLARIS;
-    }
+	public static boolean isUnix() {
+		return IS_OS_UNIX;
+	}
 
-    public static boolean isAndroid() {
-        return IS_OS_ANDROID;
-    }
+	public static boolean isSolaris() {
+		return IS_OS_SOLARIS;
+	}
 
-    public static boolean isIOS() {
-        return IS_OS_IOS;
-    }
+	public static boolean isAndroid() {
+		return IS_OS_ANDROID;
+	}
+
+	public static boolean isIOS() {
+		return IS_OS_IOS;
+	}
 
 }

@@ -27,8 +27,9 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 /**
- * This class facilitates smooth transitions between various components in the user interface,
- * providing a customizable and reusable way to manage animations and directional transitions.
+ * This class facilitates smooth transitions between various components in the
+ * user interface, providing a customizable and reusable way to manage
+ * animations and directional transitions.
  * 
  * @author Ilias Koukovinis
  *
@@ -36,16 +37,16 @@ import javafx.util.Duration;
 public final class UITransitions {
 
 	private UITransitions() {}
-	
+
 	public static class Direction {
-		
+
 		private interface Axis {}
-		
+
 		public enum XAxis implements Axis {
 			LEFT_TO_RIGHT,
 			RIGHT_TO_LEFT;
 		}
-		
+
 		public enum YAxis implements Axis {
 			TOP_TO_BOTTOM,
 			BOTTOM_TO_TOP;
@@ -55,21 +56,21 @@ public final class UITransitions {
 			OLD, NEW;
 		}
 	}
-	
+
 	public static UITransitionBuilder newBuilder() {
 		return new UITransitionBuilder();
 	}
-	
+
 	public static final class UITransitionBuilder {
-		
+
 		private StackPane parentContainer;
 		private Node newComponent;
 		private Node oldComponent;
-		
+
 		private Interpolator interpolator;
 		private Duration duration;
 		private Direction.Axis direction;
-		
+
 		private Direction.Which which = Direction.Which.NEW;
 
 		private UITransitionBuilder() {}
@@ -107,22 +108,22 @@ public final class UITransitions {
 			this.direction = direction;
 			return this;
 		}
-		
+
 		public UITransitionBuilder setWhich(Direction.Which which) {
 			this.which = which;
 			return this;
 		}
 
 		public Runnable build() {
-			
+
 			Preconditions.checkNotNull(newComponent, "newComponent cannot be null");
 			Preconditions.checkNotNull(oldComponent, "oldComponent cannot be null");
 			Preconditions.checkNotNull(interpolator, "interpolator cannot be null");
 			Preconditions.checkNotNull(duration, "duration cannot be null");
 			Preconditions.checkNotNull(direction, "direction cannot be null");
-			
+
 			return () -> {
-				
+
 				DoubleProperty property;
 
 				switch (which) {
@@ -151,7 +152,7 @@ public final class UITransitions {
 //					
 //					KeyValue kv3 = new KeyValue(oldComponent.opacityProperty(), 0, interpolator);
 //					KeyFrame kf3 = new KeyFrame(duration, kv3);
-					
+
 					timeline.getKeyFrames().add(kf);
 //					timeline.getKeyFrames().add(kf2);
 //					timeline.getKeyFrames().add(kf3);
@@ -161,7 +162,7 @@ public final class UITransitions {
 					timeline.play();
 				}
 				case OLD -> {
-				
+
 					if (direction instanceof Direction.XAxis) {
 						property = oldComponent.translateXProperty();
 					} else {

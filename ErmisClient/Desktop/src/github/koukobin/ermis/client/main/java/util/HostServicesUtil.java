@@ -32,20 +32,20 @@ public final class HostServicesUtil {
 	private static HostServices hostServices;
 
 	private HostServicesUtil() {}
-	
+
 	public static void inititalize(HostServices services) {
-        if (hostServices == null) {
-            hostServices = services;
-        } else {
-            throw new IllegalStateException("HostServices has already been initialized");
-        }
+		if (hostServices == null) {
+			hostServices = services;
+		} else {
+			throw new IllegalStateException("HostServices has already been initialized");
+		}
 	}
 
 	public static HostServices getHostServices() {
 		if (hostServices == null) {
 			throw new IllegalStateException("HostServices not initialized");
 		}
-		
+
 		return hostServices;
 	}
 }
