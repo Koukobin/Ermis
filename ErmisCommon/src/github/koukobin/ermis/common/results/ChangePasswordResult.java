@@ -51,7 +51,7 @@ public enum ChangePasswordResult implements IDable {
 	public int getID() {
 		return id;
 	}
-	
+
 	@Override
 	public boolean isSuccessful() {
 		return resultHolder.isSuccessful();

@@ -31,52 +31,52 @@ public final class FileUtils2 {
 
     private FileUtils2() {}
 
-    public static String readFile(String filePath) throws IOException {
-        return readFile(new File(filePath));
-    }
+	public static String readFile(String filePath) throws IOException {
+		return readFile(new File(filePath));
+	}
 
-    public static String readFile(File file) throws IOException {
-        return Files.readString(file.toPath());
-    }
+	public static String readFile(File file) throws IOException {
+		return Files.readString(file.toPath());
+	}
 
-    public static Properties readPropertiesFile(File configFile) throws IOException {
-        return readPropertiesFile(configFile.getAbsolutePath());
-    }
+	public static Properties readPropertiesFile(File configFile) throws IOException {
+		return readPropertiesFile(configFile.getAbsolutePath());
+	}
 
-    public static Properties readPropertiesFile(String configFilePath) throws IOException {
-        Properties props = new Properties();
-        try (InputStream is = Files.newInputStream(Path.of(configFilePath))) {
-            props.load(is);
-        }
-        return props;
-    }
+	public static Properties readPropertiesFile(String configFilePath) throws IOException {
+		Properties props = new Properties();
+		try (InputStream is = Files.newInputStream(Path.of(configFilePath))) {
+			props.load(is);
+		}
+		return props;
+	}
 
-    /**
-     * Replaces a property value in a properties file.
-     *
-     * @param key        the property key to update
-     * @param value      the new value for the property
-     * @param configFile the file to update
-     * @throws IOException if an I/O error occurs
-     */
-    public static void replaceValueInPropertiesFile(String key, String value, File configFile) throws IOException {
-        replaceValueInPropertiesFile(key, value, configFile.getAbsolutePath());
-    }
+	/**
+	 * Replaces a property value in a properties file.
+	 *
+	 * @param key        the property key to update
+	 * @param value      the new value for the property
+	 * @param configFile the file to update
+	 * @throws IOException if an I/O error occurs
+	 */
+	public static void replaceValueInPropertiesFile(String key, String value, File configFile) throws IOException {
+		replaceValueInPropertiesFile(key, value, configFile.getAbsolutePath());
+	}
 
-    /**
-     * Replaces a property value in a properties file located at the given file
-     * path.
-     *
-     * @param key            the property key to update
-     * @param value          the new value for the property
-     * @param configFilePath the path to the properties file
-     * @throws IOException if an I/O error occurs
-     */
-    public static void replaceValueInPropertiesFile(String key, String value, String configFilePath) throws IOException {
-        Properties props = readPropertiesFile(configFilePath);
-        props.setProperty(key, value);
-        try (Writer writer = Files.newBufferedWriter(Path.of(configFilePath))) {
-            props.store(writer, null);
-        }
-    }
+	/**
+	 * Replaces a property value in a properties file located at the given file
+	 * path.
+	 *
+	 * @param key            the property key to update
+	 * @param value          the new value for the property
+	 * @param configFilePath the path to the properties file
+	 * @throws IOException if an I/O error occurs
+	 */
+	public static void replaceValueInPropertiesFile(String key, String value, String configFilePath) throws IOException {
+		Properties props = readPropertiesFile(configFilePath);
+		props.setProperty(key, value);
+		try (Writer writer = Files.newBufferedWriter(Path.of(configFilePath))) {
+			props.store(writer, null);
+		}
+	}
 }

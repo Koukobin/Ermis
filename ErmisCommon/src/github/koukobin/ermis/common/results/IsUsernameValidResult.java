@@ -31,7 +31,7 @@ public enum IsUsernameValidResult {
 
 	private static final HashMap<Integer, IsUsernameValidResult> values;
 
-    static {
+	static {
 		values = new HashMap<>(
 				Arrays.stream(IsUsernameValidResult.values())
 				.collect(Collectors.toMap(type -> type.id, type -> type))

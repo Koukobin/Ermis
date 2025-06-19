@@ -40,7 +40,7 @@ public final class FileUtils {
 	public static String readFile(String filePath) throws FileNotFoundException {
 		return readFile(new FileInputStream(filePath));
 	}
-	
+
 	public static String readFile(File file) throws FileNotFoundException {
 		return readFile(new FileInputStream(file));
 	}
@@ -59,7 +59,7 @@ public final class FileUtils {
 	public static Properties readPropertiesFile(File configFile) throws IOException {
 		return readPropertiesFile(configFile.getAbsolutePath());
 	}
-	
+
 	public static Properties readPropertiesFile(String configFilePath) throws IOException {
 		Properties props = new Properties();
 		try (FileInputStream fis = new FileInputStream(configFilePath)) {
@@ -96,5 +96,5 @@ public final class FileUtils {
 			props.store(writer, null);
 		}
 	}
-	
+
 }

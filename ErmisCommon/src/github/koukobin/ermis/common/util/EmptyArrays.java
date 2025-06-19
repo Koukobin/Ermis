@@ -29,39 +29,39 @@ import github.koukobin.ermis.common.message_types.UserMessage;
  */
 public final class EmptyArrays {
 
-    // Immutable empty arrays for primitive types
-    public static final boolean[] EMPTY_BOOLEAN_ARRAY = {};
-    public static final byte[] EMPTY_BYTE_ARRAY = {};
-    public static final char[] EMPTY_CHAR_ARRAY = {};
-    public static final double[] EMPTY_DOUBLE_ARRAY = {};
-    public static final float[] EMPTY_FLOAT_ARRAY = {};
-    public static final int[] EMPTY_INT_ARRAY = {};
-    public static final long[] EMPTY_LONG_ARRAY = {};
-    public static final short[] EMPTY_SHORT_ARRAY = {};
+	// Immutable empty arrays for primitive types
+	public static final boolean[] EMPTY_BOOLEAN_ARRAY = {};
+	public static final byte[] EMPTY_BYTE_ARRAY = {};
+	public static final char[] EMPTY_CHAR_ARRAY = {};
+	public static final double[] EMPTY_DOUBLE_ARRAY = {};
+	public static final float[] EMPTY_FLOAT_ARRAY = {};
+	public static final int[] EMPTY_INT_ARRAY = {};
+	public static final long[] EMPTY_LONG_ARRAY = {};
+	public static final short[] EMPTY_SHORT_ARRAY = {};
 
-    // Immutable empty arrays for wrapper classes
-    public static final Boolean[] EMPTY_BOOLEAN_OBJECT_ARRAY = {};
-    public static final Byte[] EMPTY_BYTE_OBJECT_ARRAY = {};
-    public static final Character[] EMPTY_CHARACTER_OBJECT_ARRAY = {};
-    public static final Double[] EMPTY_DOUBLE_OBJECT_ARRAY = {};
-    public static final Float[] EMPTY_FLOAT_OBJECT_ARRAY = {};
-    public static final Integer[] EMPTY_INTEGER_OBJECT_ARRAY = {};
-    public static final Long[] EMPTY_LONG_OBJECT_ARRAY = {};
-    public static final Short[] EMPTY_SHORT_OBJECT_ARRAY = {};
+	// Immutable empty arrays for wrapper classes
+	public static final Boolean[] EMPTY_BOOLEAN_OBJECT_ARRAY = {};
+	public static final Byte[] EMPTY_BYTE_OBJECT_ARRAY = {};
+	public static final Character[] EMPTY_CHARACTER_OBJECT_ARRAY = {};
+	public static final Double[] EMPTY_DOUBLE_OBJECT_ARRAY = {};
+	public static final Float[] EMPTY_FLOAT_OBJECT_ARRAY = {};
+	public static final Integer[] EMPTY_INTEGER_OBJECT_ARRAY = {};
+	public static final Long[] EMPTY_LONG_OBJECT_ARRAY = {};
+	public static final Short[] EMPTY_SHORT_OBJECT_ARRAY = {};
 
-    // Immutable empty arrays for commonly used object types
-    public static final Class<?>[] EMPTY_CLASS_ARRAY = {};
-    public static final Field[] EMPTY_FIELD_ARRAY = {};
-    public static final Object[] EMPTY_OBJECT_ARRAY = {};
-    public static final String[] EMPTY_STRING_ARRAY = {};
-    public static final UserDeviceInfo[] EMPTY_DEVICE_INFO_ARRAY = {};
-    public static final Account[] EMPTY_ACCOUNT_ARRAY = {};
-    public static final UserMessage[] EMPTY_USER_MESSAGES_ARRAY = {};
+	// Immutable empty arrays for commonly used object types
+	public static final Class<?>[] EMPTY_CLASS_ARRAY = {};
+	public static final Field[] EMPTY_FIELD_ARRAY = {};
+	public static final Object[] EMPTY_OBJECT_ARRAY = {};
+	public static final String[] EMPTY_STRING_ARRAY = {};
+	public static final UserDeviceInfo[] EMPTY_DEVICE_INFO_ARRAY = {};
+	public static final Account[] EMPTY_ACCOUNT_ARRAY = {};
+	public static final UserMessage[] EMPTY_USER_MESSAGES_ARRAY = {};
 
 	/**
 	 * Index value representing "not found" in a list or array.
 	 */
-    public static final int NOT_FOUND = -1;
+	public static final int NOT_FOUND = -1;
 
     private EmptyArrays() {}
 }
