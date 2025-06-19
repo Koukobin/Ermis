@@ -31,12 +31,12 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
  */
 public class ChatSessionTest {
 
-    private static ErmisDatabase.GeneralPurposeDBConnection conn;
+	private static ErmisDatabase.GeneralPurposeDBConnection conn;
 
-    @BeforeAll
-    static void setupDatabase() {
-    	conn = ErmisDatabase.getGeneralPurposeConnection();
-    }
+	@BeforeAll
+	static void setupDatabase() {
+		conn = ErmisDatabase.getGeneralPurposeConnection();
+	}
 
 	@BeforeEach
 	void populateTestData() throws Exception {
@@ -49,29 +49,25 @@ public class ChatSessionTest {
 	@Test
 	void testCreateChatSessionSuccess() throws Exception {
 		boolean result = conn.sendChatRequest(1, 2);
-		
 		assert result;
-		
+
 		result = conn.sendChatRequest(1, 2);
-		
 		assert !result;
-    }
+	}
 
-    @Test
-    void testCreateChatSessionFailure() throws Exception {
-    	conn.sendChatRequest(1, 2);
+	@Test
+	void testCreateChatSessionFailure() throws Exception {
+		conn.sendChatRequest(1, 2);
 
-    	Optional<Integer> chatSessionID = conn.acceptChatRequest(1, 2);
-    	
-    	assert chatSessionID.isPresent();
-    	
-    	chatSessionID = conn.acceptChatRequest(1, 2);
-    	
-    	assert chatSessionID.isPresent();
-    }
+		Optional<Integer> chatSessionID = conn.acceptChatRequest(1, 2);
+		assert chatSessionID.isPresent();
 
-    @AfterAll
-    static void cleanupDatabase() {
-        conn.close();
-    }
+		chatSessionID = conn.acceptChatRequest(1, 2);
+		assert chatSessionID.isPresent();
+	}
+
+	@AfterAll
+	static void cleanupDatabase() {
+		conn.close();
+	}
 }
