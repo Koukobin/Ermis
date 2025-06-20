@@ -16,7 +16,7 @@ Ermis is a suite of applications designed for secure and seamless communication.
 
 ## Vision
 
-My vision while creating Ermis was to develop a server-side application that anyone can deploy with ease and efficiency to ensure it can run on even the oldest hardware. Alongside this, I aimed to build a client-side application - that boasts an intuitive and user-friendly interface - with a solid performance to complement the server. With a primary focus on security, the Ermis platform employs robust encryption methods to ensure the protection of user data and privacy. By prioritizing security measures, I aimed to create a platform where users can communicate freely and openly, knowing their information is safe from prying eyes. The ultimate goal is to create a platform that anyone can host and communicate with.
+My vision while creating Ermis was to develop a server-side application that anyone can deploy with ease and efficiency to ensure it can run on even the oldest hardware. Alongside this, I aimed to build a client-side application - that boasts an intuitive and user-friendly interface - with a solid performance to complement the server. With a primary focus on security, the Ermis platform employs robust encryption methods to ensure the protection of user data and privacy. Ultimately, I aimed to create a platform where users can communicate freely and openly, knowing their information is safe from prying eyes. My ultimate aim is to create a platform that anyone can host with ease and communicate with.
 
 ## Features
 
