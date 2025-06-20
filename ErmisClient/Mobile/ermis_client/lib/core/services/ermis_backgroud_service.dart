@@ -15,8 +15,10 @@
  */
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ermis_client/constants/app_constants.dart';
 import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_client/core/services/database/extensions/chat_messages_extension.dart';
@@ -169,8 +171,20 @@ void maintainWebSocketConnection(ServiceInstance service) {
 
 /// Dedicated service which runs on background - i.e when app is closed -
 /// and listens for messages and incoming voice calls.
+///
+/// TODO: Refactor this service to `flutter_foreground_task` instead of `flutter_background_service`.
+///
+/// This is attributed to the fact that `flutter_background_service` does not specify a foreground 
+/// service type, leading to runtime crashes on SDK 34+.
+///
+/// Stack trace:
+/// ```
+///   Unable to create service id.flutter.flutter_background_service.BackgroundService:
+///    android.app.MissingForegroundServiceTypeException: Starting FGS without a type
+///    callerApp=ProcessRecord{eb4ca71 10076:com.example.ermisclient/u0a373} targetSDK=35
+/// ```
 class ErmisBackgroudService {
-  static void startBackgroundService() {
+  static void startBackgroundService() async {
     FlutterBackgroundService().configure(
       androidConfiguration: AndroidConfiguration(
         onStart: onAndroidBackground,
@@ -183,6 +197,28 @@ class ErmisBackgroudService {
         onBackground: onIosBackground,
       ),
     );
+
+    if (Platform.isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+
+      if (androidInfo.version.sdkInt >= 34) {
+        // Don't proceed because on SDK 34+, many issues arise due to foreground service type
+        // not specified by `flutter_background_service`.
+        //
+        // This causes a runtime crash:
+        //
+        //   "Unable to create service id.flutter.flutter_background_service.BackgroundService:
+        //    android.app.MissingForegroundServiceTypeException: Starting FGS without a type
+        //    callerApp=ProcessRecord{eb4ca71 10076:com.example.ermisclient/u0a373} targetSDK=35"
+        //
+        // Hence the reason this background service should be refactored to use
+        // `flutter_foreground_task` instead - because it resolves this issue and
+        // properly supports foreground service types required on Android 14+ (SDK 34+)
+        // and beyond.
+        return;
+      }
+    }
 
     final service = FlutterBackgroundService();
     service.startService();
@@ -199,3 +235,82 @@ class ErmisBackgroudService {
 
   static Future<bool> isRunning() => FlutterBackgroundService().isRunning();
 }
+
+// void initForegroundTask() {
+// FlutterForegroundTask.init(
+//     androidNotificationOptions: AndroidNotificationOptions(
+//       channelId: 'foreground_service',
+//       channelName: 'Foreground Service Notification',
+//       channelDescription:
+//           'This notification appears when the foreground service is running.',
+//       onlyAlertOnce: true,
+//     ),
+//     iosNotificationOptions: const IOSNotificationOptions(
+//       showNotification: false,
+//       playSound: false,
+//     ),
+//     foregroundTaskOptions: ForegroundTaskOptions(
+//       eventAction: ForegroundTaskEventAction.repeat(5000),
+//       autoRunOnBoot: true,
+//       autoRunOnMyPackageReplaced: true,
+//       allowWakeLock: true,
+//       allowWifiLock: true,
+//     ),
+//   );
+// }
+
+// Future<void> startForegroundTask() async {
+//   FlutterForegroundTask.initCommunicationPort();
+//   await FlutterForegroundTask.startService(
+//     notificationTitle: 'My App',
+//     notificationText: 'Running background task...',
+//     callback: startCallback,
+//   );
+// }
+
+// @pragma('vm:entry-point')
+// void startCallback() {
+//   FlutterForegroundTask.setTaskHandler(MyTaskHandler());
+// }
+
+// class MyTaskHandler extends TaskHandler {
+//   @override
+//   Future<void> onStart(DateTime timestamp, TaskStarter sendPort) async {
+//     // Do any setup work here
+//   }
+
+//   @override
+//   Future<void> onRepeatEvent(DateTime timestamp) async {
+//     // This runs every `interval` milliseconds
+//     print('Background task running...');
+//   }
+
+//   // Called when data is sent using `FlutterForegroundTask.sendDataToTask`.
+//   @override
+//   void onReceiveData(Object data) {
+//     print('onReceiveData: $data');
+//   }
+
+//   // Called when the notification button is pressed.
+//   @override
+//   void onNotificationButtonPressed(String id) {
+//     print('onNotificationButtonPressed: $id');
+//   }
+
+//   @override
+//   void onNotificationPressed() {
+//     FlutterForegroundTask.launchApp();
+//   }
+
+//   // Called when the notification itself is dismissed.
+//   @override
+//   void onNotificationDismissed() {
+//     print('onNotificationDismissed');
+//   }
+  
+//   @override
+//   Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
+//     print('onDestroy(isTimeout: $isTimeout)');
+//   }
+
+// }
