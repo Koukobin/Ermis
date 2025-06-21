@@ -18,7 +18,7 @@
 use strict;
 use File::Find;
 
-# Extract the address from the config file
+# Extract address and port
 my $address;
 my $port;
 open my $fh, '<', '/opt/ermis-server/configs/server-settings/general-settings.cnf' or die "Cannot open config file: $!\n";
@@ -35,26 +35,27 @@ close $fh;
 # Ensure address is not empty
 die "Error: Could not extract address from config file!\n" unless $address;
 
-# Ensure address is invalid
+# Ensure address is valid
 if ($address eq " ------") {
     die "Error: Address is invalid!\n";
 }
 
-# Ensure address is not empty
+# Ensure port is not empty
 die "Error: Could not extract port from config file!\n" unless $port;
 
-# Ensure address is invalid
+# Ensure port is valid
 if ($port eq " ------") {
     die "Error: Port is invalid!\n";
 }
 
+# Extract donation data
 my $paypal_client_id;
 my $bitcoin_address;
 my $monero_address;
 open $fh, '<', '/opt/ermis-server/configs/donation-settings/general-settings.cnf' or die "Cannot open config file: $!\n";
 while (my $line = <$fh>) {
     if ($line =~ /^paypal-client-id=(.*)$/) {
- 	$paypal_client_id= $1;
+ 	    $paypal_client_id= $1;
     }
     if ($line =~ /^bitcoin-address=(.*)$/) {
         $bitcoin_address = $1;
@@ -65,15 +66,19 @@ while (my $line = <$fh>) {
 }
 close $fh;
 
+# Unlike a priori - do not perform checks to validate 
+# donation data integrity since it isn't sine qua non.
+
+
 # Find all files in the target directories
-my @dirs = ('/opt/ermis-server/configs/', '/var/ermis-server/www', '/etc/nginx/');
+my @dirs = ('/var/ermis-server/www', '/etc/nginx/');
 find(sub {
     return unless -f $_;  # Only process files
-    # Replace SERVER_ADDRESS and SERVER_PORT with the extracted address
+    # Replace placeholders with the extracted values
     open my $in, '<', $_ or die "Cannot open file $_: $!\n";
     my @lines = <$in>;
     close $in;
-
+    
     open my $out, '>', $_ or die "Cannot write to file $_: $!\n";
     foreach my $line (@lines) {
         $line =~ s/SERVER_ADDRESS/$address/g;
@@ -85,6 +90,7 @@ find(sub {
         $line =~ s/XMR_ADDRESS/$monero_address/g;
         print $out $line;
     }
+
     close $out;
 }, @dirs);
 
