@@ -128,14 +128,10 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 			return;
 		}
 
-		registrationSuccessful(ctx);
+		login(ctx, clientInfo);
 		ctx.pipeline().remove(ctx.handler());
 	}
 
 	public abstract String createEmailMessage(String account, String generatedVerificationCode);
 	public abstract GeneralResult executeWhenVerificationSuccessful() throws IOException;
-
-	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
-		login(ctx, clientInfo);
-	}
 }

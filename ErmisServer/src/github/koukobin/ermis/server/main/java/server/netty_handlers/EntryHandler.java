@@ -63,16 +63,6 @@ public abstract sealed class EntryHandler
 	}
 
 	/**
-	 * Self-evident
-	 *
-	 */
-	protected abstract void onSuccessfulRegistration(ChannelHandlerContext ctx);
-
-	protected void registrationSuccessful(ChannelHandlerContext ctx) {
-		onSuccessfulRegistration(ctx);
-	}
-
-	/**
 	 * Transitions the pipeline to the message handler.
 	 *
 	 */

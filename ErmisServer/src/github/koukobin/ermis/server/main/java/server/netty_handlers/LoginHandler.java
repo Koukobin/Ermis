@@ -49,7 +49,7 @@ public final class LoginHandler extends EntryHandler {
 	private DeviceType deviceType = DeviceType.UNSPECIFIED;
 	private String osName = "Unknown";
 
-	private Map<Credential, String> credentials = new EnumMap<>(Credential.class);
+	private final Map<Credential, String> credentials = new EnumMap<>(Credential.class);
 
 	LoginHandler(ClientInfo clientInfo) {
 		super(clientInfo);
@@ -102,16 +102,16 @@ public final class LoginHandler extends EntryHandler {
 			ctx.channel().writeAndFlush(payload);
 
 			if (result.resultHolder.isSuccessful()) {
-				super.registrationSuccessful(ctx);
+				onUserMeetsRequirements(ctx);
 			} else {
 //				EntryHandler.registrationFailed(ctx);
+				credentials.clear();
 			}
 
 		}
 	}
 
-	@Override
-	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
+	private void onUserMeetsRequirements(ChannelHandlerContext ctx) {
 		String email = credentials.get(Credential.EMAIL);
 		String password = credentials.get(Credential.PASSWORD);
 

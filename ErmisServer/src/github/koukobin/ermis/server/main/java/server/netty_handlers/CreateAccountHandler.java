@@ -48,7 +48,7 @@ public final class CreateAccountHandler extends EntryHandler {
 	private DeviceType deviceType = DeviceType.UNSPECIFIED;
 	private String osName = "Unknown";
 
-	private Map<Credential, String> credentials = new EnumMap<>(Credential.class);
+	private final Map<Credential, String> credentials = new EnumMap<>(Credential.class);
 
 	CreateAccountHandler(ClientInfo clientInfo) {
 		super(clientInfo);
@@ -126,16 +126,16 @@ public final class CreateAccountHandler extends EntryHandler {
 			ctx.channel().writeAndFlush(payload);
 
 			if (result.resultHolder.isSuccessful()) {
-				super.registrationSuccessful(ctx);
+				onUserMeetsRequirements(ctx);
 			} else {
 //				EntryHandler.registrationFailed(ctx);
+				credentials.clear();
 			}
 
 		}
 	}
 
-	@Override
-	protected void onSuccessfulRegistration(ChannelHandlerContext ctx) {
+	private void onUserMeetsRequirements(ChannelHandlerContext ctx) {
 		String email = credentials.get(Credential.EMAIL);
 
 		VerificationHandler verificationHandler = new VerificationHandler(clientInfo, email) {
@@ -165,7 +165,7 @@ public final class CreateAccountHandler extends EntryHandler {
 				} catch (MessagingException me) {
 					getLogger().error("An error occured while trying to send email", me);
 				}
-				
+
 				return result;
 			}
 
