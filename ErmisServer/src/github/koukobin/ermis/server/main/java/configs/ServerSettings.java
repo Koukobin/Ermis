@@ -18,9 +18,7 @@ package github.koukobin.ermis.server.main.java.configs;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -128,13 +126,9 @@ public final class ServerSettings {
 								"USER_EMAIL", userEmail,
 								"USER_ACCOUNT", account,
 								"VERIFICATION_CODE", verificationCode,
-								"SERVER_ADDRESS", SERVER_ADDRESS
+								"SERVER_ADDRESS", SERVER_ADDRESS,
+								"SERVER_PORT", Integer.toString(SERVER_PORT)
 								);
-
-						@Override
-						public Set<Entry<String, String>> entrySet() {
-							return replacements.entrySet();
-						}
 
 						public String createEmail(String verificationEmailBody) {
 							StringBuilder sb = new StringBuilder(verificationEmailBody);
@@ -162,7 +156,6 @@ public final class ServerSettings {
 					};
 				}
 
-				Set<Entry<String, String>> entrySet();
 				String createEmail(String verificationEmailBody);
 			}
 
