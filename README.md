@@ -20,10 +20,10 @@ My vision while creating Ermis was to develop a server-side application that any
 
 ## Features
 
-- **Real-time communication:** Efficiently handle multiple concurrent users.
+- **Real-time Communication**: Communicate seamlessly with others in real-time.
 - **Media Sharing**: Easily share media within your chats.
 - **Secure Connections**: Integrated with TLS encryption to ensure privacy and security.
-- **PostgreSQL integration:** Manage user data, messages, and logs in a reliable relational database.
+- **PostgreSQL Integration**: Manage user data, messages, and logs in a reliable relational database geared towards data integrity.
 
 ## Future Enhancements
 
@@ -112,10 +112,35 @@ To set up the project locally, follow the instructions for each component:
 
 Contributions are welcome! To contribute:
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Ensure your code adheres to the project's style and conventions.
-4. Submit a pull request with a detailed description of your changes.
+1. **Fork the repository.**
+2. **Open a new issue** — if you are intending to fix a bug or feature — describing it thoroughly.
+3. **Create a new branch** for your feature or bug fix.
+4. **Ensure your code is clean and readable** — at least to some extent.  
+   It doesn't have to be perfect, but aim for clarity, and avoid ambiguity and complexity as much as possible.  
+   
+   Remember:
+   >  _"An idiot admires complexity, while a genius appreciates simplicity"_  
+   >  — **Terry A. Davis**  
+   > 
+   > _"Truth is ever to be found in simplicity, and not in the multiplicity and confusion of things"_  
+   > — **Sir Isaac Newton**  
+   
+   Lastly, try adhering to the most rudimental and basic [programming principles].
+
+> **Note:** if you are wondering what this project's style guide is — it doesn't have one. Nevertheless, if you are looking for a reference of how files should be formatted:
+> 
+> - For code formatting, I have found that [Google's Style guide] is thorough, comprehensive — and broadly applicable.
+> - In terms of documentation, I would suggest [Microsoft's Writing Style Guide].
+> 
+> That said, don't sweat too much about following these strictly — I myself probably don't conform to most of their conventions.
+
+5. **Submit a pull request** with a detailed description of your changes — and I may review it eventually.
+
+For further details, see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+[Microsoft's Writing Style Guide]: https://learn.microsoft.com/en-us/style-guide/welcome
+[Google's Style guide]: https://google.github.io/styleguide
+[programming principles]: https://github.com/webpro/programming-principles
 
 ## Report an issue
 
@@ -124,8 +149,8 @@ To report bugs, security vulnerabilities, or any other issues for that matter, p
 When reporting an issue, please include:
 - A clear and descriptive title.
 - Steps to reproduce the issue.
-- Logs or error messages if available.
-- Your environment details (OS, version, etc.).
+- Helpful log or error messages if available.
+- Your environment details (OS, app version, etc.).
 
 ## Authors
 
@@ -133,6 +158,8 @@ When reporting an issue, please include:
 
 ## License
 
-Ermis is distributed under the GNU Affero General Public License Version 3.0 which can be found in the `LICENSE` file.
+Ermis is distributed under the _**GNU Affero General Public License Version 3.0**_ which can be found in the `LICENSE` file.  
+For a brief synopsis of the license refer to [Wiki](https://github.com/Koukobin/Ermis/wiki/License).
 
 By using this software, you agree to the terms outlined in the license agreement.
+
