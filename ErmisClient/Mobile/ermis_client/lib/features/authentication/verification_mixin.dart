@@ -25,7 +25,7 @@ import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
-Future<void> _showVerificationDialog({
+Future<void> showVerificationDialog({
   required BuildContext context,
   required String title,
   required String promptMessage,
@@ -62,11 +62,16 @@ Future<void> _showVerificationDialog({
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextButton(
-                        onPressed: isSubmitting
-                            ? null
-                            : () {
-                                onResendCode();
-                              },
+                        onPressed: isSubmitting ? null : onResendCode,
+                        style: ElevatedButton.styleFrom(
+                          maximumSize: Size(
+                            // Constraint maximum width so widget cannot go out of bounds;
+                            // this is not a problem in English, in other languages however,
+                            // with longer text strings - this could potentially pose an issue
+                            MediaQuery.of(context).size.width * 0.4,
+                            MediaQuery.of(context).size.height,
+                          ),
+                        ),
                         child: Text(S.current.resend_code),
                       ),
                       ElevatedButton(
@@ -94,7 +99,7 @@ Future<void> _showVerificationDialog({
             
                                 // Set a delay to close dialog
                                 Future.delayed(const Duration(seconds: 1), () {
-                                  Navigator.of(context).pop();
+                                  Navigator.pop(context);
                                   onSumbittedCode(codeInt);
                                 }).whenComplete(() {
                                   setState(() {
@@ -102,11 +107,20 @@ Future<void> _showVerificationDialog({
                                   });
                                 });
                               },
+                        style: ElevatedButton.styleFrom(
+                          maximumSize: Size(
+                            // Constraint maximum width so widget cannot go out of bounds;
+                            // this is not a problem in English, in other languages however,
+                            // with longer text strings - this could potentially pose an issue
+                            MediaQuery.of(context).size.width * 0.4,
+                            MediaQuery.of(context).size.height,
+                          ),
+                        ),
                         child: isSubmitting
                             ? const SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: const CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Text(S.current.submit),
                       ),
@@ -131,7 +145,7 @@ mixin Verification {
     bool isSuccessful = false;
 
     while (!verificationEntry.isVerificationComplete) {
-      await _showVerificationDialog(
+      await showVerificationDialog(
           context: context,
           title: S.current.verification,
           promptMessage: S.current.enter_verification_code_sent_to_your_email,
@@ -165,7 +179,7 @@ mixin Verification {
     bool isSuccessful = false;
 
     while (!verificationEntry.isVerificationComplete) {
-      await _showVerificationDialog(
+      await showVerificationDialog(
           context: context,
           title: S.current.verification,
           promptMessage: S.current.enter_verification_code_sent_to_your_email,
@@ -194,7 +208,7 @@ mixin Verification {
     bool isSuccessful = false;
 
     while (!verificationEntry.isVerificationComplete) {
-      await _showVerificationDialog(
+      await showVerificationDialog(
           context: context,
           title: S.current.verification,
           promptMessage: S.current.enter_verification_code_sent_to_your_email,
