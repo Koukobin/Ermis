@@ -44,8 +44,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -117,8 +115,7 @@ public final class Server {
 
 			// If server isn't production ready we add a logging handler for more detailed logging
 			if (!ServerSettings.IS_PRODUCTION_READY) {
-				bootstrapTCP.handler(new LoggingHandler(LogLevel.INFO));
-				ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
+				ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
 			}
 
 			serverSocketChannel = (EpollServerSocketChannel) bootstrapTCP.bind().sync().channel();
