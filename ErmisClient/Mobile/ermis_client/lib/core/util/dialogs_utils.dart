@@ -71,7 +71,7 @@ class _WhatsAppPopupDialogState extends State<WhatsAppPopupDialog>
     );
 
     // Launch animation
-    Future.delayed(Duration(milliseconds: 150), _controller.forward);
+    Future.delayed(const Duration(milliseconds: 150), _controller.forward);
   }
 
   @override
