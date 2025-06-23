@@ -1,6 +1,15 @@
 # How to contribute
 
-Thank you so much for wanting to contribute to Ermis! To contribute:
+[ilias.koukovinis@gmail.com]: https://mail.google.com/mail/u/0/?tab=rm&ogbl#search/ilias.koukovinis%40gmail.com
+
+Thank you so much for wanting to contribute to Ermis! Your help is essential for keeping it great! 
+
+Please note that this project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md).  
+By participating, you are expected to uphold this code. Please report unacceptable behavior to [ilias.koukovinis@gmail.com].
+
+[code-of-conduct]: CODE_OF_CONDUCT.md
+
+In order to contribute:
 
 1. **Fork the repository.**
 2. **Open a new issue** — if you are intending to fix a bug or feature — describing it thoroughly.
@@ -51,3 +60,9 @@ Guidelines for any code contributions:
      Do your best to have a [well-formed commit message] for the change.
 
 [well-formed commit message]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+
+## Resources
+
+- [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
+- [Using Pull Requests](https://help.github.com/articles/about-pull-requests/)
+- [GitHub Help](https://help.github.com)

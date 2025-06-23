@@ -6,6 +6,7 @@
 [![GitHub Forks](https://img.shields.io/github/forks/Koukobin/Chatapp?style=social)](https://github.com/Koukobin/Ermis/network/members)
 [![GitHub Issues](https://img.shields.io/github/issues/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/pulls)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-0baaaa.svg)](code_of_conduct.md)
 [![License](https://img.shields.io/github/license/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/blob/master/LICENSE)
 
 Ermis is a suite of applications designed for secure and seamless communication. The project consists of the following components:
@@ -141,6 +142,12 @@ For further details, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 [Microsoft's Writing Style Guide]: https://learn.microsoft.com/en-us/style-guide/welcome
 [Google's Style guide]: https://google.github.io/styleguide
 [programming principles]: https://github.com/webpro/programming-principles
+
+## Code of Conduct
+
+Please note that this project is released with a [Contributor Code of Conduct][code-of-conduct]. By participating in this project you agree to abide by its terms.
+
+[code-of-conduct]: CODE_OF_CONDUCT.md
 
 ## Report an issue
 
