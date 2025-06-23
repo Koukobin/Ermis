@@ -16,6 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 debute_server () {
+    chmod +x apply_server_settings.pl
     sudo ./apply_server_settings.pl
 
     # Attempt to find server JAR file

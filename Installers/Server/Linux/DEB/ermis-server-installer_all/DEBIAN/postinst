@@ -4,7 +4,7 @@ sudo apt install coturn
 
 echo
 
-echo "\033[1mYou can find thorough instructions on configuring the server in the README FILE at /srv/Ermis-Server/. In addition, you can visit the Ermis Wiki directly here: https://github.com/Koukobin/Ermis/wiki/\033[0m"
-echo "\033[1;31;4mKeep in mind that ermis-server by itself doesn't prevent DDoS attacks; I recommended to use something like IPTables to configure the IP packet filter rules of the Linux kernel firewall.\033[0m"
+echo "\033[1mYou can find thorough instructions on configuring the server in the README FILE at /opt/ermis-server/. In addition, you can visit the Ermis Wiki directly here: https://github.com/Koukobin/Ermis/wiki/\033[0m"
+echo "\033[1;31;4mKeep in mind that ermis-server by itself doesn't prevent DDoS attacks; I recommend using something like IPTables to configure the IP packet filter rules of the Linux kernel firewall.\033[0m"
 echo "\033[1mFor better monitoring and performance tracking, consider integrating a monitoring toolkit - like Prometheus (not the one from Greek mythology) - to gather metrics from the server, such as resource usage, latency, and response times.\033[0m"
 
