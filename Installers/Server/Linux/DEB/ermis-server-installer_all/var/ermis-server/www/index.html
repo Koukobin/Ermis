@@ -1,310 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Welcome to Ermis-server</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        /* Global Styles */
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #121212;
-            color: #f1f1f1;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        h1, h2, h3 {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-        }
-
-        a {
-            color: #4caf50;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        a:hover {
-            color: #76ff03;
-        }
-
-        /* Dark Mode */
-        body.dark-mode {
-            background-color: #1e1e1e;
-            color: #e0e0e0;
-        }
-
-        /* Container */
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 50px;
-            text-align: center;
-        }
-
-        .logo img {
-            height: 50px;
-        }
-
-        /* Main Section */
-        .main-section {
-            margin-top: 120px;
-            margin-bottom: 40px;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        .main-section h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #4caf50;
-        }
-
-        .main-section p {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            color: #b0bec5;
-        }
-
-        /* Card for Links */
-        .card {
-            background: #2e2e2e;
-            padding: 20px;
-            margin: 20px auto;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 8px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-        }
-
-        .card h3 {
-            font-size: 1.8rem;
-            color: #ffffff;
-            margin-bottom: 10px;
-        }
-
-        .card p {
-            font-size: 1rem;
-            color: #b0bec5;
-            margin-bottom: 15px;
-        }
-
-        .card a {
-            font-weight: 600;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 50px;
-            font-size: 0.9rem;
-            color: #b0bec5;
-        }
-
-        .footer a {
-            color: green;
-        }
-
-        /* Animation */
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-
-        /* Mobile Styles */
-        @media (max-width: 768px) {
-            .container {
-                padding: 30px;
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Welcome to Ermis-server</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+        <style>
+            /* Global Styles */
+            body {
+                font-family: "Roboto", sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #121212;
+                color: #f1f1f1;
+                transition: background-color 0.3s ease, color 0.3s ease;
             }
 
-            .header h1 {
-                font-size: 2.5rem;
+            h1,
+            h2,
+            h3 {
+                font-family: "Poppins", sans-serif;
+                font-weight: 600;
+            }
+
+            a {
+                color: #4caf50;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+            a:hover {
+                color: #76ff03;
+            }
+
+            /* Dark Mode */
+            body.dark-mode {
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+            }
+
+            /* Container */
+            .container {
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 50px;
+                text-align: center;
+            }
+
+            .logo img {
+                height: 50px;
+            }
+
+            /* Main Section */
+            .main-section {
+                margin-top: 120px;
+                margin-bottom: 40px;
+                animation: fadeIn 1s ease-in-out;
             }
 
             .main-section h2 {
-                font-size: 2rem;
-            }
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        .sticky-header {
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 5px 5px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            transition: transform 0.3s ease-in-out;
-            background: #0F0F0E;
-            color: white;
-        }
-
-        .sticky-header h1 {
-            font-size: 2.5rem;
-            color: green;
-            margin: 0;
-        }
-
-        .sticky-header nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        .sticky-header nav ul li {
-            margin-right: 20px;
-        }
-
-        .sticky-header nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        /* Hide header by moving it up */
-        .hide-header {
-            transform: translateY(-100%);
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .nav-left {
-            flex: 1;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo {
-            width: 40px; /* Adjust size as needed */
-            height: auto;
-        }
-
-        .nav-title {
-            flex: 2;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .nav-right {
-            flex: 1;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .nav-right ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        .nav-right ul li {
-            margin-left: 20px;
-        }
-
-        .nav-right ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        main {
-            padding-top: 60px;
-        }
-
-        /* Extra content for scrolling */
-        .spacer {
-            height: 200vh;
-            background: linear-gradient(to bottom, #f0f0f0, #ddd);
-        }
-    </style>
-</head>
-
-<body>
-    <div class="sticky-header">
-        <div class="nav-left">
-            <img src="https://SERVER_ADDRESS/server_logo.png" alt="Ermis Logo" class="logo"> <!-- Your icon -->
-        </div>
-        <h1 class="nav-title">Ermis</h1>
-    </div>
-
-    <div class="container">
-        <div class="main-section">
-            <h2>Welcome To Ermis Server SERVER_ADDRESS!</h2>
-            <p>This Ermis server instance provides a reliable and secure messaging platform - ensured by its cutting-edge encryption and cybersecurity - in conjuction with the Ermis-Client applications. Below, you'll find useful resources related to this server.</p>
-        </div>
-
-        <div class="card">
-            <h3>How to Connect</h3>
-            <p>Learn how to connect to this server from the Ermis app.</p>
-            <a href="/docs/connect">View Connection Guide</a>
-        </div>
-
-        <div class="card">
-            <h3>Server Rules & Policies</h3>
-            <p>Read the guidelines for using this server responsibly.</p>
-            <a href="/docs/rules.html">View Rules</a>
-        </div>
-
-        <div class="card">
-            <h3>Troubleshooting</h3>
-            <p>Having issues? Check out solutions to common problems.</p>
-            <a href="https://github.com/Koukobin/Ermis/issues">Get Help</a>
-        </div>
-
-        <div class="card">
-            <h3>Support</h3>
-            <p>The server is kept running through donations. Every ounce of contribution is greatly appreciated.</p>
-            <a href="/donation.html">Donate</a>
-        </div>
-
-        <div class="footer">
-            <p>&copy; 2021-2025 Ermis-Server • All Rights Reserved.</p>
-            <p>Need help? Visit the <a href="https://github.com/Koukobin/Ermis/issues">Support Page</a>.</p>
-        </div>
-    </div>
-
-    <script>
-        let lastScrollTop = 0;
-        const header = document.querySelector('.sticky-header');
-
-        window.addEventListener('scroll', () => {
-            let currentScroll = window.scrollY;
-
-            if (currentScroll > lastScrollTop) {
-                // Scrolling down
-                header.classList.add('hide-header');
-            } else {
-                // Scrolling up
-                header.classList.remove('hide-header');
+                font-size: 2.5rem;
+                margin-bottom: 20px;
+                color: #4caf50;
             }
 
-            lastScrollTop = currentScroll;
-        });
-    </script>
-</body>
+            .main-section p {
+                font-size: 1.2rem;
+                line-height: 1.6;
+                color: #b0bec5;
+            }
+
+            /* Card for Links */
+            .card {
+                background: #2e2e2e;
+                padding: 20px;
+                margin: 20px auto;
+                width: 80%;
+                max-width: 400px;
+                border-radius: 8px;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            }
+
+            .card h3 {
+                font-size: 1.8rem;
+                color: #ffffff;
+                margin-bottom: 10px;
+            }
+
+            .card p {
+                font-size: 1rem;
+                color: #b0bec5;
+                margin-bottom: 15px;
+            }
+
+            .card a {
+                font-weight: 600;
+            }
+
+            /* Footer */
+            .footer {
+                margin-top: 50px;
+                font-size: 0.9rem;
+                color: #b0bec5;
+            }
+
+            .footer a {
+                color: green;
+            }
+
+            /* Animation */
+            @keyframes fadeIn {
+                0% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+
+            /* Mobile Styles */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 30px;
+                }
+
+                .header h1 {
+                    font-size: 2.5rem;
+                }
+
+                .main-section h2 {
+                    font-size: 2rem;
+                }
+            }
+
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+            }
+
+            .sticky-header {
+                justify-content: center;
+                align-items: center;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                padding: 5px 5px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                transition: transform 0.3s ease-in-out;
+                background: #0f0f0e;
+                color: white;
+            }
+
+            .sticky-header h1 {
+                font-size: 2.5rem;
+                color: green;
+                margin: 0;
+            }
+
+            .sticky-header nav ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+            }
+
+            .sticky-header nav ul li {
+                margin-right: 20px;
+            }
+
+            .sticky-header nav ul li a {
+                color: white;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            /* Hide header by moving it up */
+            .hide-header {
+                transform: translateY(-100%);
+            }
+
+            nav {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .nav-left {
+                flex: 1;
+                display: flex;
+                align-items: center;
+            }
+
+            .logo {
+                width: 40px; /* Adjust size as needed */
+                height: auto;
+            }
+
+            .nav-title {
+                flex: 2;
+                text-align: center;
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin: 0;
+            }
+
+            .nav-right {
+                flex: 1;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .nav-right ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+            }
+
+            .nav-right ul li {
+                margin-left: 20px;
+            }
+
+            .nav-right ul li a {
+                color: white;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            main {
+                padding-top: 60px;
+            }
+
+            /* Extra content for scrolling */
+            .spacer {
+                height: 200vh;
+                background: linear-gradient(to bottom, #f0f0f0, #ddd);
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="sticky-header">
+            <div class="nav-left">
+                <img src="https://SERVER_ADDRESS/server_logo.png" alt="Ermis Logo" class="logo" />
+                <!-- Your icon -->
+            </div>
+            <h1 class="nav-title">Ermis</h1>
+        </div>
+
+        <div class="container">
+            <div class="main-section">
+                <h2>Welcome To Ermis Server SERVER_ADDRESS!</h2>
+                <p>
+                    This Ermis server instance provides a reliable and secure messaging platform - ensured by its cutting-edge encryption and cybersecurity - in conjuction with the Ermis-Client applications. Below, you'll find useful
+                    resources related to this server.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>How to Connect</h3>
+                <p>Learn how to connect to this server from the Ermis app.</p>
+                <a href="/docs/connect">View Connection Guide</a>
+            </div>
+
+            <div class="card">
+                <h3>Server Rules & Policies</h3>
+                <p>Read the guidelines for using this server responsibly.</p>
+                <a href="/docs/rules.html">View Rules</a>
+            </div>
+
+            <div class="card">
+                <h3>Wiki</h3>
+                <p>Check the Wiki to gain more insight into how the server functions.</p>
+                <a href="https://github.com/Koukobin/Ermis/Wiki">Check Wiki</a>
+            </div>
+
+            <div class="card">
+                <h3>Support</h3>
+                <p>The server is kept running through donations. Every ounce of contribution is greatly appreciated.</p>
+                <a href="/donation.html">Donate</a>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2021-2025 Ermis-Server • All Rights Reserved.</p>
+                <p>Need help? Visit the <a href="https://github.com/Koukobin/Ermis/issues">Support Page</a>.</p>
+            </div>
+        </div>
+
+        <script>
+            let lastScrollTop = 0;
+            const header = document.querySelector(".sticky-header");
+
+            window.addEventListener("scroll", () => {
+                let currentScroll = window.scrollY;
+
+                if (currentScroll > lastScrollTop) {
+                    // Scrolling down
+                    header.classList.add("hide-header");
+                } else {
+                    // Scrolling up
+                    header.classList.remove("hide-header");
+                }
+
+                lastScrollTop = currentScroll;
+            });
+        </script>
+    </body>
 </html>
 
