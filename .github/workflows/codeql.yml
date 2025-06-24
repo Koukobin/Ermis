@@ -1,0 +1,51 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '0 0 * * 0' # Configure analyzer to run weekly with cron job
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java', 'kotlin', 'c' 'cpp', 'swift' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      # Language-specific build logic
+      - name: Build project
+        run: |
+            if [[ "${{ matrix.language }}" == "cpp" ]]; then
+                echo "Manual build for C++"
+                mkdir build
+                cd build
+                cmake ..
+                make -j$(nproc)
+
+            elif [[ "${{ matrix.language }}" == "swift" ]]; then
+                echo "Manual build for Swift; I don't actually know how to build Swift..."
+                echo "Skip build completely"
+            else
+                echo "Letting CodeQL autobuild ${{ matrix.language }}" 
+            fi
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
