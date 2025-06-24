@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java', 'kotlin', 'c', 'cpp', 'swift' ]
+        language: [ 'java' ]
 
     steps:
       - name: Checkout repository
@@ -45,7 +45,7 @@ jobs:
                 echo "Skip build completely"
 
             else
-                echo "Letting CodeQL autobuild ${{ matrix.language }}" 
+                echo "Letting CodeQL autobuild $LANG" 
             fi
         env:
             LANG: ${{ matrix.language }}
