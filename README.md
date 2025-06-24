@@ -133,7 +133,14 @@ Contributions are welcome! To contribute:
 > - For code formatting, I have found that [Google's Style guide] is thorough, comprehensive — and broadly applicable.
 > - In terms of documentation, I would suggest [Microsoft's Writing Style Guide].
 > 
-> That said, don't sweat too much about following these strictly — I myself probably don't conform to most of their conventions.
+> That said, don't sweat too much about following these strictly, adhere to _your_ own style — I myself probably don't conform to most of
+> their conventions.
+> 
+> I think **Linus Torvalds** put it best:
+> 
+> *"Coding style is very personal, and I won’t force my views on anybody,  
+> but this is what goes for anything that I have to be able to maintain, and  
+> I’d prefer it for most other things too"*
 
 5. **Submit a pull request** with a detailed description of your changes — and I may review it eventually.
 
@@ -159,8 +166,7 @@ When reporting an issue, please include:
 - Helpful log or error messages if available.
 - Your environment details (OS, app version, etc.).
 
-Regarding **security vulnerabilities**, I pledge you **not** to use Github Issues or a pull  
-request to address them. Instead, email my directly at [ilias.koukovinis@gmail.com].  
+Regarding **security vulnerabilities**, I pledge you **not** to use Github Issues or a pull request to address them. Instead, email my directly at [ilias.koukovinis@gmail.com].  
 For more information, see [SECURITY.md](./SECURITY.md).
 
 ## Authors
