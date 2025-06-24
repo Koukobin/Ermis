@@ -1,3 +1,5 @@
+# For some reason this does not work; and I can't figure out why.
+
 name: CodeQL
 
 on:
@@ -18,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java', 'kotlin' ]
+        language: [ 'java', 'kotlin', 'c', 'cpp', 'swift']
 
     steps:
       - name: Checkout repository
@@ -28,6 +30,27 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+
+      # Language-specific build logic
+      - name: Build project
+        run: |
+            echo "Language is: $LANG"
+            if [[ "$LANG" == "cpp" ]]; then
+                echo "Manual build for C++"
+                mkdir build
+                cd build
+                cmake ..
+                make -j$(nproc)
+
+            elif [[ "$LANG" == "swift" ]]; then
+                echo "Manual build for Swift; I don't actually know how to build Swift..."
+                echo "Skip build completely"
+
+            else
+                echo "Letting CodeQL autobuild $LANG" 
+            fi
+        env:
+            LANG: ${{ matrix.language }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
