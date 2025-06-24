@@ -151,13 +151,17 @@ Please note that this project is released with a [Contributor Code of Conduct][c
 
 ## Report an issue
 
-To report bugs, security vulnerabilities, or any other issues for that matter, please use the GitHub Issues tab to report them. Alternatively, you can contact me directly via email here: [ilias.koukovinis@gmail.com]
+To report bugs, or any other issues for that matter, please use the GitHub Issues tab to report them. Alternatively, you can contact me directly via email here: [ilias.koukovinis@gmail.com]
 
 When reporting an issue, please include:
 - A clear and descriptive title.
 - Steps to reproduce the issue.
 - Helpful log or error messages if available.
 - Your environment details (OS, app version, etc.).
+
+Regarding **security vulnerabilities**, I pledge you **not** to use Github Issues or a pull  
+request to address them. Instead, email my directly at [ilias.koukovinis@gmail.com].  
+For more information, see [SECURITY.md](./SECURITY.md).
 
 ## Authors
 
