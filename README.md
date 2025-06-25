@@ -1,4 +1,4 @@
-# Ermis
+# Ermis <img width="100" src="https://github.com/Koukobin/Ermis/blob/master/Images/primary-application-icon.svg" alt="Application Icon"/>
 
 [ilias.koukovinis@gmail.com]: https://mail.google.com/mail/u/0/?tab=rm&ogbl#search/ilias.koukovinis%40gmail.com
 
@@ -8,6 +8,23 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/pulls)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-0baaaa.svg)](code_of_conduct.md)
 [![License](https://img.shields.io/github/license/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/blob/master/LICENSE)
+
+<table align="center">
+    <tr>
+        <td align="center">
+            <img width="300" src="https://github.com/Koukobin/Ermis/blob/master/Images/messaging-interface-mobile.png" alt="Messaging Interface" />
+        </td>
+        <td align="center">
+            <img width="300" alt="Chat Requests Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/chat-requests-screen-mobile.png" />
+        </td>
+        <td align="center">
+            <img width="300" alt="Settings Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/settings-screen-mobile.png" />
+        </td>
+        <td align="center">
+            <img width="300" alt="Voice Call Screen" src="https://github.com/Koukobin/Ermis/blob/master/Images/voice-call-mobile.png" />
+        </td>
+    </tr>
+</table>
 
 Ermis is a suite of applications designed for secure and seamless communication. The project consists of the following components:
 
@@ -179,4 +196,5 @@ Ermis is distributed under the _**GNU Affero General Public License Version 3.0*
 For a brief synopsis of the license refer to [Wiki](https://github.com/Koukobin/Ermis/wiki/License).
 
 By using this software, you agree to the terms outlined in the license agreement.
+
 
