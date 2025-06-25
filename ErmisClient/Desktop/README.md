@@ -28,7 +28,7 @@ For a thorough step-by-step guide for setting up the dekstop client codebase loc
 
 ## Contributing
 
-For contribution guidelines, please refer to the main Ermis README file.
+For contribution guidelines, please refer to the main Ermis `README` file.
 
 ## Authors
 
