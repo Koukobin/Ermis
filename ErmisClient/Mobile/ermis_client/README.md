@@ -8,26 +8,31 @@
 
 ## Key Features
 
-- **Real-time Messaging**: Chat with friends, family, or colleagues instantly.
+- **Real-time Messaging**: Chat with friends and family instantly.
 - **Media Sharing**: Easily share images, videos, and documents within your chats.
+- **Video/Voice Calls**: Communicate with friends and family in real-time as if you are in person.
 - **Secure Connections**: Integrated with TLS in order to ensure privacy and security.
 
 ## Requirements
 
 - **Supported Platforms**:
-    - **Android**: Tested on API level 33  
-    - **iOS**: Not tested yet  
-
+    - **Android**: Tested on API level 33
+    - **iOS**: Not tested yet due to Apple's protectionist and closed-platform policies
 # Building
 
-Before building installer for a specific platform such as.
-    * ```flutter build apk --release```
-    * ```flutter build ios --release```
-First execute ```./build.sh``` to ensure built is updated correctly
+Before building an installer for a specific platform such as:
+   * ```flutter build apk --release```
+   * ```flutter build ios --release```
+
+First, execute ```./build.sh``` to ensure built is updated correctly.
+
+## Set up Project Locally For Development
+
+For a meticulous step-by-step guide for setting up the mobile client codebase locally, refer to the [wiki](https://github.com/Koukobin/Ermis/wiki/MobileClientSetupGuide)
 
 ## Contributing
 
-For contribution guidelines, please refer to the main Ermis README file.
+For contribution guidelines, please refer to the main Ermis `README` file.
 
 ## Authors
 
