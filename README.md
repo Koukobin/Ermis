@@ -26,6 +26,14 @@
     </tr>
 </table>
 
+<table align="center">
+    <tr>
+        <td align="center">
+            <img width="1000" src="https://github.com/Koukobin/Ermis/blob/master/Images/ermis-server.png" alt="Ermis-Server" />
+        </td>
+    </tr>
+</table>
+
 Ermis is a suite of applications designed for secure and seamless communication. The project consists of the following components:
 
 - **Ermis-Client**: The user-facing client application for communication.
@@ -196,5 +204,6 @@ Ermis is distributed under the _**GNU Affero General Public License Version 3.0*
 For a brief synopsis of the license refer to [Wiki](https://github.com/Koukobin/Ermis/wiki/License).
 
 By using this software, you agree to the terms outlined in the license agreement.
+
 
 
