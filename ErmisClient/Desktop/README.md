@@ -8,8 +8,9 @@
 
 ## Key Features
 
-- **Real-time Messaging**: Chat with friends, family, or colleagues instantly.
+- **Real-time Messaging**: Chat with friends and family instantly.
 - **Media Sharing**: Easily share images, videos, and documents within your chats.
+- **Video/Voice Calls**: Communicate with friends and family in real-time as if you are in person.
 - **Secure Connections**: Integrated with TLS in order to ensure privacy and security.
 
 ## Requirements
