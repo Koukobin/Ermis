@@ -8,7 +8,7 @@ LIB_FOLDER="$TARGET_FOLDER/target/lib"
 SOURCE_FOLDER="$(git rev-parse --show-toplevel)/ErmisClient/Desktop"
 TARGET_JAR="$SOURCE_FOLDER/target/ermis-client.jar"
 LIB_FOLDER="$SOURCE_FOLDER/target/lib"
-DOC_FILES=("README.md" "LICENSE" "NOTICE")
+DOC_FILES=("README.md" "LICENSE.txt" "NOTICE.txt")
 
 INSTALL_FOLDER="ermis-client-installer_amd64/opt/Ermis-Client"
 BIN="$INSTALL_FOLDER/bin"
