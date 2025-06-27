@@ -1,8 +1,7 @@
 Generation of Ermis-Client installer:
 
-    Replace ermis-client.jar with the new jar
-    Replace Ermis-Client/lib/ with the new lib file
+    - Execute `./update_files.sh` to update ermis-client files (e.g Jars, README etc.)
 
-    Use launch4j.xml with launch4j to generate exe file
+    - Use launch4j.xml with launch4j to generate exe file
 
-    Compile Ermis-Client.iss with Inno Setup
+    - Compile Ermis-Client.iss with Inno Setup
