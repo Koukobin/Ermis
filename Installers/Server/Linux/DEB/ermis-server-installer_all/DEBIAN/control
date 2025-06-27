@@ -3,7 +3,6 @@ Version: 1.0-rc
 Priority: optional
 Essential: no
 Architecture: all
-Depends: nginx-full
 Maintainer: Ilias Koukovinis
 Homepage: https://github.com/Koukobin/Ermis
 Description: SERVER FOR CHAT

@@ -1,5 +1,10 @@
 #!/bin/sh
 
+sudo apt update
+sudo apt-get upgrade
+
+sudo apt install nginx-full
+
 sudo apt install coturn
 
 echo
