@@ -1,4 +1,12 @@
-# Ermis <img width="100" src="https://github.com/Koukobin/Ermis/blob/master/Images/primary-application-icon.svg" alt="Application Icon"/>
+<div align="center">
+	<img 
+		width="250" 
+		src="https://github.com/Koukobin/Ermis/blob/master/Images/application-icon-circle.png"
+		alt="Ermis" 
+	/>
+</div>
+
+#
 
 [ilias.koukovinis@gmail.com]: https://mail.google.com/mail/u/0/?tab=rm&ogbl#search/ilias.koukovinis%40gmail.com
 
@@ -204,6 +212,7 @@ Ermis is distributed under the _**GNU Affero General Public License Version 3.0*
 For a brief synopsis of the license refer to [Wiki](https://github.com/Koukobin/Ermis/wiki/License).
 
 By using this software, you agree to the terms outlined in the license agreement.
+
 
 
 
