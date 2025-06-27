@@ -6,7 +6,7 @@ I pride Ermis in its security. For Ermis, security isn't just a feature — it's
 
 In a world where our privacy is perpetually undermined, and our personal data has become the currency of the tech world, — from tech giants exploiting our data for targeted advertisment, to utilizing it to train their LLMs —, people deserve something in which they can bestow their trust. A communication platform that is not plagued by constant advertising and without any privacy concerns.
 
-Hence security: as one of Ermi's primary selling points, I am determined to ensuring that it stays up-to-date with the latest best practices and recommendations in the field of cybersecurity.
+Hence **_Ermis_**: a secure and open-source messaging platform for real-time communication — and since security is one of its primary selling points, I am determined to ensure that it stays up-to-date with the latest best practices and recommendations in the field of cybersecurity.
 
 In essence, this document briefly outlines how to report vulnerabilities responsibly.
 
