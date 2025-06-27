@@ -84,7 +84,6 @@ import io.netty.util.CharsetUtil;
 public class WebRTCSignallingServer {
 
 	private static final Logger LOGGER;
-
 	private static final ClientInitializer connector;
 
 	static {
@@ -106,7 +105,7 @@ public class WebRTCSignallingServer {
 				.childHandler(connector);
 
 			Channel ch = b.bind(ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT).sync().channel();
-			LOGGER.info("Secure Server running on https://{}:{}", ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
+			LOGGER.info("WebRTC Signalling Server successfully debuted on https://{}:{}", ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 			ch.closeFuture().sync();
 		} finally {
 			bossGroup.shutdownGracefully();
@@ -146,6 +145,11 @@ public class WebRTCSignallingServer {
 		}
 	}
 
+    /**
+    *
+    * Used solely for testing purposes on browser    
+    *        
+    */
 	private static class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 		private final String wsUri;

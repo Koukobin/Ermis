@@ -124,14 +124,14 @@ public final class Server {
 
 			InetSocketAddress serverAddress = serverSocketChannel.localAddress();
 
-			LOGGER.info("Server started successfully on port {} and at address {}", serverAddress.getPort(),
+			LOGGER.info("Messaging Server started successfully on port {} and at address {}", serverAddress.getPort(),
 					serverAddress.getHostName());
 			LOGGER.info("Waiting for new connections...");
 
 			WebRTCSignallingServer.run();
 		} catch (Exception e) {
 			LOGGER.fatal(Throwables.getStackTraceAsString(e));
-			throw new RuntimeException("Failed to start TCP server", e);
+			throw new RuntimeException("Failed to start Messaging Server", e);
 		}
 
 	}
