@@ -29,11 +29,10 @@ import github.koukobin.ermis.client.main.java.util.SystemUtils;
  */
 public final class GeneralAppInfo {
 
-	
 	public static final String GENERAL_NAME = "Ermis";
 	public static final String TITLE = GENERAL_NAME + "-Client";
 
-	public static final String VERSION = "1.0-rc";
+	public static final String VERSION = getAppVersion();
 
 	public static final String CLIENT_DATABASE_PATH;
 	public static final String SOURCE_CODE_HTML_PAGE_URL = "https://github.com/Koukobin/Ermis";
@@ -67,5 +66,28 @@ public final class GeneralAppInfo {
 	}
 
 	private GeneralAppInfo() {}
+
+	/**
+	 * Retrieves app version from Maven metadata
+	 * (META-INF/maven/${groupId}/${artifactId}/pom.properties).
+	 * 
+	 * <STRONG>NOTE</STRONG>: This only works when the application is built and
+	 * packaged as a JAR with Maven.
+	 * 
+	 * Since the aforementioned file is generated during the package phase and will
+	 * thus not be present during tests; <STRONG>returns "unknown" as fallback</STRONG>
+	 * in that case.
+	 */
+	private static String getAppVersion() {
+		Package pkg = GeneralAppInfo.class.getPackage();
+		if (pkg == null)
+			return "unknown";
+
+		String version = pkg.getImplementationVersion();
+		if (version == null)
+			return "unknown";
+
+		return version;
+	}
 }
 
