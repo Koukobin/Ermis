@@ -1,0 +1,8 @@
+Package: ermis-client
+Version: 1.0-rc
+Priority: extra
+Essential: no
+Architecture: arm64
+Maintainer: Ilias Koukovinis
+Homepage: https://github.com/Koukobin/Ermis
+Description: CHAT
