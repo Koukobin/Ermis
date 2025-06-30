@@ -1,7 +1,7 @@
 <div align="center">
 	<img 
-		width="250" 
-		src="https://github.com/Koukobin/Ermis/blob/master/Images/application-icon-circle.png"
+		width="550" 
+		src="https://github.com/Koukobin/Ermis/blob/master/Images/ermis-retro-futuristic.png"
 		alt="Ermis" 
 	/>
 </div>
@@ -212,6 +212,7 @@ Ermis is distributed under the _**GNU Affero General Public License Version 3.0*
 For a brief synopsis of the license refer to [Wiki](https://github.com/Koukobin/Ermis/wiki/License).
 
 By using this software, you agree to the terms outlined in the license agreement.
+
 
 
 
