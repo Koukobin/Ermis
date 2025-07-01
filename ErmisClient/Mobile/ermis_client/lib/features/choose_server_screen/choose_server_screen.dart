@@ -156,14 +156,15 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                             hintText: "example.com",
                           );
 
-                          if (url.isEmpty) {
-                            return;
-                          }
+                          if (url.isEmpty) return;
 
                           ServerInfo serverInfo;
-
                           try {
-                            serverInfo = ServerInfo(Uri.https(url));
+                            Uri buildUri(String url) => url.startsWith('http')
+                                ? Uri.parse(url)
+                                : Uri.https(url);
+
+                            serverInfo = ServerInfo(buildUri(url));
                           } on InvalidServerUrlException catch (e) {
                             showExceptionDialog(context, e.message);
                             return;
@@ -338,6 +339,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final borderRadius = BorderRadius.circular(8.0);
+
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
