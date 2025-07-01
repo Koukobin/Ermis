@@ -37,6 +37,7 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   visibility_detector: ^0.3.3
   flutter_keyboard_visibility: ^6.0.0
+  shimmer: ^3.0.0
 
   # Storage & Database
   sqflite: ^2.4.1
@@ -138,6 +139,9 @@ flutter:
     - assets/background/parthenon.jpg
     - assets/background/ermis.png
     - assets/empty_user_profile_icon/empty_user_icon_profile.png
+    - assets/achievement_images/first_message_sent_achievement.png
+    - assets/achievement_images/first_friend_made_achievement.png
+    - assets/sounds/first_message_sent_achievement_sound_effect.flac
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

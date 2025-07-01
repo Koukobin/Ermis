@@ -166,8 +166,7 @@ class Client {
 
   Future<void> fetchUserInformation() async {
     if (!isLoggedIn()) {
-      throw StateError(
-          "User can't start writing to the server if they aren't logged in");
+      throw StateError("User can't start writing to the server if they aren't logged in");
     }
 
     await _messageTransmitter?.fetchUserInformation();

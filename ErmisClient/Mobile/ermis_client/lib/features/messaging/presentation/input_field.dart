@@ -14,14 +14,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:ermis_client/core/services/settings_json.dart';
+import 'package:ermis_client/features/messaging/presentation/first_message_sent_achievement_popup.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/data_sources/api_client.dart';
@@ -41,7 +41,6 @@ class InputField extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _InputFieldState();
-  
 }
 
 class _InputFieldState extends State<InputField> {
@@ -67,19 +66,53 @@ class _InputFieldState extends State<InputField> {
   }
 
   void _sendTextMessage(String text) {
-    Message pendingMessage = Client.instance().sendMessageToClient(text, widget.chatSessionIndex);
+    Message pendingMessage =
+        Client.instance().sendMessageToClient(text, widget.chatSessionIndex);
     _addMessage(pendingMessage);
+  }
+
+  Future<void> _sendVoiceCallMessage() async {
+    setState(() {
+      _isMakingVoiceMessage = false;
+    });
+
+    if (recorderController.isRecording) {
+      String? recordedFilePath = await recorderController.stop();
+      if (recordedFilePath == null) return;
+
+      Uint8List fileBytes = await File(recordedFilePath).readAsBytes();
+
+      String generateRandomString(int len) {
+        final r = Random();
+        const chars =
+            'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+        return List.generate(len, (index) => chars[r.nextInt(chars.length)])
+            .join();
+      }
+
+      String fileName = generateRandomString(6);
+
+      Message pendingMessage = Client.instance().sendVoiceMessageToClient(
+        fileName,
+        fileBytes,
+        widget.chatSessionIndex,
+      );
+      _addMessage(pendingMessage);
+    }
   }
 
   void _addMessage(Message msg) {
     if (mounted) {
-      setState(() {
-        widget.messages.add(msg);
-      });
+      setState(() => widget.messages.add(msg));
       return;
     }
 
     widget.messages.add(msg);
+
+    if (!SettingsJson().hasUserSentFirstMessage) {
+      FirstMessageSentAchievementPopup.show(context);
+      SettingsJson().sethasUserSentFirstMessage(true);
+    }
   }
 
   @override
@@ -109,18 +142,19 @@ class _InputFieldState extends State<InputField> {
                   CircleAvatar(
                     backgroundColor: appColors.inferiorColor,
                     child: IconButton(
-                      onPressed: () async {
+                      onPressed: () async /* async is necessary (idk why) */ {
                         setState(() {
                           _isMakingVoiceMessage = false;
                         });
                         recorderController.stop(true);
                       },
-                      icon: Icon(Icons.delete_outline, color: appColors.primaryColor),
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: appColors.primaryColor,
+                      ),
                     ),
                   ),
-                  
                   const SizedBox(width: 5),
-              
                   Expanded(
                     child: AudioWaveforms(
                       size: const Size(
@@ -135,100 +169,84 @@ class _InputFieldState extends State<InputField> {
                       recorderController: recorderController,
                     ),
                   ),
-
                   RecordingTimer(controller: recorderController),
-                            
                   IconButton(
-                    onPressed: () async {
-                      setState(() {
-                        _isMakingVoiceMessage = false;
-                      });
-                      if (recorderController.isRecording) {
-                        String? recordedFilePath = await recorderController.stop();
-              
-                        if (recordedFilePath == null) return;
-
-                        Uint8List fileBytes = await File(recordedFilePath).readAsBytes();
-
-                        String generateRandomString(int len) {
-  var r = Random();
-  const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  return List.generate(len, (index) => _chars[r.nextInt(_chars.length)]).join();
-}
-                        String fileName = generateRandomString(6);                        
-
-                        Message pendingMessage = Client.instance().sendVoiceMessageToClient(
-                          fileName,
-                          fileBytes,
-                          widget.chatSessionIndex,
-                        );
-                        _addMessage(pendingMessage);
-                      }
-                    },
-                    icon: Icon(Icons.arrow_forward_ios_outlined, color: appColors.inferiorColor),
+                    onPressed: _sendVoiceCallMessage,
+                    icon: Icon(
+                      Icons.arrow_forward_ios_outlined,
+                      color: appColors.inferiorColor,
+                    ),
                   ),
                 ],
               ),
             )
           : Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Row(
-          children: [
-            const SizedBox(width: 5),
-            SendFilePopupMenu(
-              chatSessionIndex: widget.chatSessionIndex,
-              fileCallBack: (String fileName, Uint8List fileContent) {
-                Message pendingMessage = Client.instance().sendFileToClient(fileName, fileContent, widget.chatSessionIndex);
-                _addMessage(pendingMessage);
-              },
-              imageCallBack: (String fileName, Uint8List fileContent) {
-                Message pendingMessage = Client.instance().sendImageToClient(fileName, fileContent, widget.chatSessionIndex);
-                _addMessage(pendingMessage);
-              },
-            ),
-            const SizedBox(width: 15),
-            Expanded(
-              child: TextField(
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-                controller: _inputController,
-                decoration: InputDecoration(
-                  hintText: S.current.type_message,
-                  filled: true,
-                  fillColor: appColors.secondaryColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Row(
+                children: [
+                  const SizedBox(width: 5),
+                  SendFilePopupMenu(
+                    chatSessionIndex: widget.chatSessionIndex,
+                    fileCallBack: (String fileName, Uint8List fileContent) {
+                      Message pendingMessage =
+                          Client.instance().sendFileToClient(
+                        fileName,
+                        fileContent,
+                        widget.chatSessionIndex,
+                      );
+                      _addMessage(pendingMessage);
+                    },
+                    imageCallBack: (String fileName, Uint8List fileContent) {
+                      Message pendingMessage =
+                          Client.instance().sendImageToClient(
+                        fileName,
+                        fileContent,
+                        widget.chatSessionIndex,
+                      );
+                      _addMessage(pendingMessage);
+                    },
                   ),
-                ),
-              ),
-            ),
-            ValueListenableBuilder<TextEditingValue>(
-                valueListenable: _inputController,
-                builder: (context, value, child) {
-                  final isEmpty = value.text.trim().isEmpty;
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: TextField(
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      controller: _inputController,
+                      decoration: InputDecoration(
+                        hintText: S.current.type_message,
+                        filled: true,
+                        fillColor: appColors.secondaryColor,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: _inputController,
+                      builder: (context, value, child) {
+                        final isEmpty = value.text.trim().isEmpty;
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: CircleAvatar(
-                              backgroundColor: isEmpty
-                                  ? appColors.primaryColor
-                                  : Colors.transparent,
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 150),
-                                transitionBuilder:
-                                    (Widget child, Animation<double> animation) {
-                                  return ScaleTransition(
-                                    scale: animation,
-                                    child: child,
-                                  );
-                                },
-                                child: isEmpty
-                                    ? IconButton(
-                                        key: ValueKey(
-                                            'selected_send_voice_button${widget.chatSessionIndex}'), // Unique key for the selected state)
-                                        onPressed: () async {
-                                          setState(() {
-                                            _isMakingVoiceMessage = true;
+                            backgroundColor: isEmpty
+                                ? appColors.primaryColor
+                                : Colors.transparent,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 150),
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return ScaleTransition(
+                                  scale: animation,
+                                  child: child,
+                                );
+                              },
+                              child: isEmpty
+                                  ? IconButton(
+                                      key: ValueKey('selected_send_voice_button${widget.chatSessionIndex}'), // Unique key for the selected state)
+                                      onPressed: () async {
+                                        setState(() {
+                                          _isMakingVoiceMessage = true;
                                         });
                                         if (recorderController.hasPermission) {
                                           recorderController.record(
@@ -237,24 +255,23 @@ class _InputFieldState extends State<InputField> {
                                           );
                                         }
                                       },
-                                        icon: Icon(
-                                          Icons.mic,
-                                          color: appColors.secondaryColor,
-                                        ),
-                                      )
-                                    : IconButton(
-                                        key: ValueKey(
-                                            'selected_send_text_button_${widget.chatSessionIndex}'),
-                                        onPressed: () async {
-                                          _sendTextMessage(_inputController.text);
-                                          _inputController.clear();
-                                        },
-                                        icon: Icon(
-                                          Icons.send,
-                                          color: appColors.inferiorColor,
-                                        ),
+                                      icon: Icon(
+                                        Icons.mic,
+                                        color: appColors.secondaryColor,
                                       ),
-                              ),
+                                    )
+                                  : IconButton(
+                                      key: ValueKey('selected_send_text_button_${widget.chatSessionIndex}'),
+                                      onPressed: () async /* async is necessary (idk why) */ {
+                                        _sendTextMessage(_inputController.text);
+                                        _inputController.clear();
+                                      },
+                                      icon: Icon(
+                                        Icons.send,
+                                        color: appColors.inferiorColor,
+                                      ),
+                                    ),
+                            ),
                           ),
                         );
                       }),
@@ -263,7 +280,6 @@ class _InputFieldState extends State<InputField> {
             ),
     );
   }
-
 }
 
 class RecordingTimer extends StatefulWidget {
@@ -283,7 +299,8 @@ class _RecordingTimerState extends State<RecordingTimer> {
   void initState() {
     super.initState();
 
-    _subscription = widget.controller.onCurrentDuration.listen((Duration duration) {
+    _subscription =
+        widget.controller.onCurrentDuration.listen((Duration duration) {
       setState(() {
         _elapsedSeconds = widget.controller.elapsedDuration.inSeconds;
       });
@@ -304,3 +321,5 @@ class _RecordingTimerState extends State<RecordingTimer> {
     );
   }
 }
+
+

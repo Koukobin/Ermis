@@ -17,6 +17,7 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 
 class ImageUtils {
@@ -169,5 +170,37 @@ class ImageUtils {
 
     if (image == null) return Size(0, 0);
     return Size(image.width.toDouble(), image.height.toDouble());
+  }
+
+  static Future<double> resolveImageDimensions(Image image, {double? desiredHeight, double? desiredWidth}) async {
+    assert (desiredHeight != null || desiredWidth != null); // Ensure at least one is mentioned
+    assert (desiredHeight == null || desiredWidth == null); // Ensure at least one is not mentioned
+
+    ImageStream imageStream = image.image.resolve(const ImageConfiguration());
+
+    ImageStreamListener? listener;
+
+    double? imageWidth;
+    double? imageHeight;
+
+    listener = ImageStreamListener((ImageInfo info, bool _) {
+      double aspectRatio = info.image.height / info.image.width;
+
+      imageWidth = image.height! / aspectRatio;
+      imageHeight = image.height!;
+
+      imageStream.removeListener(listener!);
+    });
+
+    imageStream.addListener(listener);
+
+    // Block until data available
+    await Future.doWhile(() async {
+      return await Future.delayed(const Duration(milliseconds: 10), () {
+        return (imageWidth == null && imageHeight == null);
+      });
+    });
+
+    return desiredHeight == null ? imageWidth! : imageHeight!;
   }
 }

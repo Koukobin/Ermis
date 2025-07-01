@@ -15,45 +15,18 @@
  */
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../constants/app_constants.dart';
-import '../../../core/util/achievement_toast.dart';
-import '../../../core/util/dialogs_utils.dart';
-
-class FirstMessageSentAchievementPopup {
-  static void show(BuildContext context) async {
-    FlutterRingtonePlayer().play(fromAsset: AppConstants.firstMessageSentAchievementSoundEffect);
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    AchievementToast.show(context, "First Message Sent");
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      pageBuilder: (context, animation, secondaryAnimation) {
-        Timer(const Duration(seconds: 3), Navigator.of(context).pop);
-
-        return const WhatsAppPopupDialog(child: _FirstMessageSentAchievementWidget());
-      },
-    );
-  }
-}
-
-class _FirstMessageSentAchievementWidget extends StatefulWidget {
-  const _FirstMessageSentAchievementWidget();
+class AchievementWidget extends StatefulWidget {
+  final String achievementImage;
+  const AchievementWidget({super.key, required this.achievementImage});
 
   @override
-  State<_FirstMessageSentAchievementWidget> createState() => _FirstMessageSentAchievementWidgetState();
+  State<AchievementWidget> createState() => AchievementWidgetState();
 }
 
-class _FirstMessageSentAchievementWidgetState
-    extends State<_FirstMessageSentAchievementWidget>
-    with SingleTickerProviderStateMixin {
+class AchievementWidgetState<T extends AchievementWidget> extends State<T> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -64,7 +37,7 @@ class _FirstMessageSentAchievementWidgetState
     super.initState();
 
     achievementImage = Image.asset(
-      AppConstants.firstMessageSentAchievement,
+      widget.achievementImage,
       height: 400,
       fit: BoxFit.contain,
     );
@@ -116,4 +89,3 @@ class _FirstMessageSentAchievementWidgetState
     );
   }
 }
-

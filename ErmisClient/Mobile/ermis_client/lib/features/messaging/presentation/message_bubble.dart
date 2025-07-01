@@ -310,8 +310,7 @@ class MessageBubble extends StatelessWidget {
         });
       case MessageContentType.voice:
         return VoiceMessage(
-          key: Key(
-              "${message.messageID}") /* CRITICAL FOR SOME REASON DO NOT REMOVE */,
+          key: Key("${message.messageID}") /* CRITICAL FOR SOME REASON DO NOT REMOVE */,
           message: message,
         );
     }

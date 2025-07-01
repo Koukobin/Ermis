@@ -34,6 +34,7 @@ final _defaultJsonSettings = {
   "notificationsSound": NotificationSound.ermis.id,
   "vibrationEnabled": true,
   "useLessDataForCallsEnabled": false,
+  "hasUserSentFirstMessage": false, // Used for achievement unlocked popup
 };
 
 class SettingsJson {
@@ -118,6 +119,10 @@ class SettingsJson {
     _settingsJson["useLessDataForCallsEnabled"] = enabled;
   }
 
+  void sethasUserSentFirstMessage(bool hasUserSentFirstMessage) {
+    _settingsJson["hasUserSentFirstMessage"] = hasUserSentFirstMessage;
+  }
+
   bool get useSystemDefaultTheme => _settingsJson["useSystemDefaultTheme"];
   bool get isDarkModeEnabled => _settingsJson["darkMode"];
   ChatBackDrop get chatsBackDrop => ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
@@ -156,6 +161,8 @@ class SettingsJson {
   bool get isJsonNotLoaded => !_isJsonLoaded;
 
   bool get useLessDataForCallsEnabled => _settingsJson["useLessDataForCallsEnabled"];
+
+  bool get hasUserSentFirstMessage => _settingsJson["hasUserSentFirstMessage"];
 
   Future<void> saveSettingsJson() async {
     final path = await _getJsonSettingsFilePath();

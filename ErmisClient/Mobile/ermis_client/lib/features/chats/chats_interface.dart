@@ -23,9 +23,10 @@ import 'package:ermis_client/core/models/message_events.dart';
 import 'package:ermis_client/core/networking/user_info_manager.dart';
 import 'package:ermis_client/core/services/database/database_service.dart';
 import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
+import 'package:ermis_client/core/util/dialogs_utils.dart';
 import 'package:ermis_client/features/chats/chat_popup_menu_button.dart';
 import 'package:ermis_client/features/chats/chat_user_avatar.dart';
-import 'package:ermis_client/features/chats/congrats_screen.dart';
+import 'package:ermis_client/features/chats/first_friend_made_achievement_popup.dart';
 import 'package:ermis_client/features/chats/chat_search_field.dart';
 import 'package:ermis_client/features/chats/send_chat_request_button.dart';
 import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
@@ -50,7 +51,8 @@ class Chats extends StatefulWidget {
   State<Chats> createState() => _ChatsState();
 
   int getTotalUnreadMessagesCount() {
-    Iterable<List<int>> iter = _ChatsState.unreadMessageCounts.values.whereType<List<int>>();
+    Iterable<List<int>> iter =
+        _ChatsState.unreadMessageCounts.values.whereType<List<int>>();
 
     int totalCount = 0;
     for (final unreadMessages in iter) {
@@ -63,10 +65,13 @@ class Chats extends StatefulWidget {
 
 class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
   List<ChatSession>? _conversations;
-  Set<ChatSession> selectedConversations = {}; // Set instead of list to prevent duplicates
+  Set<ChatSession> selectedConversations =
+      {}; // Set instead of list to prevent duplicates
 
   /// Maps each chat session's ID to its corresponding [List] of unread messages
-  static final Map<int /* chat session id */, List<int /* message id */ >? /* unread messages count */ > unreadMessageCounts = {};
+  static final Map<int /* chat session id */,
+          List<int /* message id */ >? /* unread messages count */ >
+      unreadMessageCounts = {};
 
   final TextEditingController _searchController = TextEditingController();
   late FocusNode _focusNode;
@@ -80,7 +85,8 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
   /// Even though it's only referenced once in the code, using the refresh indicator
   /// to refresh the chat session will trigger the stream again. If you wish to see
   /// this for yourself, try the code without the broadcast stream.
-  final Stream<int> _stream = Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
+  final Stream<int> _stream =
+      Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
 
   _ChatsState() : super(ConvultedTask.normal);
 
@@ -108,11 +114,23 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
     }
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
-      if (_conversations != null) {
-        if (_conversations!.length != event.sessions.length) {
-          showCongratulationsForNewFriendScreen(context);
+      void notifyUserOfNewPotentialChat() {
+        if (_conversations == null) {
+          return;
         }
+
+        if (_conversations!.length == event.sessions.length) {
+          return;
+        }
+
+        if (_conversations!.length != 1) {
+          showToastDialog(S().new_chat);
+        }
+
+        FirstFriendMadeAchievementPopup.show(context);
       }
+
+      notifyUserOfNewPotentialChat();
 
       _conversations = [...event.sessions];
       task = ConvultedTask.normal;
@@ -136,7 +154,8 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
 
   void retrieveUnreadMessages() async {
     for (final ChatSession session in _conversations ?? const []) {
-      List<int>? messages = await ErmisDB.getConnection().retrieveUnreadMessages(
+      List<int>? messages =
+          await ErmisDB.getConnection().retrieveUnreadMessages(
         UserInfoManager.serverInfo,
         session.chatSessionID,
       );
@@ -267,7 +286,8 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
           return Scaffold(
             appBar: appBar,
             backgroundColor: appColors.secondaryColor,
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Position bottom right
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.endFloat, // Position bottom right
             floatingActionButton: const SendChatRequestButton(),
             body: ScrollViewFixer.createScrollViewWithAppBarSafety(
               scrollView: RefreshIndicator(
@@ -295,7 +315,8 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
                               children: [
                                 Flexible(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 96.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 96.0),
                                     child: Image.asset(
                                       AppConstants.ermisCryingPath,
                                     ),
@@ -303,11 +324,13 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
                                 ),
                                 const SizedBox(height: 15),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 16),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.rectangle,
                                     color: appColors.primaryColor,
-                                    borderRadius: const BorderRadius.all(Radius.circular(24)),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(24)),
                                     border: Border.all(
                                       color: appColors.secondaryColor,
                                     ),
@@ -503,7 +526,8 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
           // Duplicate to prevent any sort of data manipulation
           List<Message> messages = [..._conversations![j].messages];
           messages.sort((a, b) => b.epochSecond.compareTo(a.epochSecond));
-          messages = messages.getRange(0, 50.clamp(0, messages.length)).toList();
+          messages =
+              messages.getRange(0, 50.clamp(0, messages.length)).toList();
 
           for (final message in messages) {
             bool contains = message.contentType == MessageContentType.text
@@ -529,4 +553,3 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
     }
   }
 }
-
