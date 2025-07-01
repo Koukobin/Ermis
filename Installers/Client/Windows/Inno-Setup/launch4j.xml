@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
   <jar>ermis-client.jar</jar>
-  <outfile>Ermis-Client\ErmisClient.exe</outfile>
+  <outfile>Ermis-Client_x64\ErmisClient.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>

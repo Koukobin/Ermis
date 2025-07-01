@@ -10,7 +10,7 @@ TARGET_JAR="$SOURCE_FOLDER/target/ermis-client.jar"
 LIB_FOLDER="$SOURCE_FOLDER/target/lib"
 DOC_FILES=("README.md" "LICENSE.txt" "NOTICE.txt")
 
-INSTALL_FOLDER="Ermis-Client"
+INSTALL_FOLDER="Ermis-Client_x64"
 BIN="$INSTALL_FOLDER"
 
 # Create necessary directories

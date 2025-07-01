@@ -5,7 +5,7 @@
 #define MyAppVersion "1.0-rc"
 #define MyAppExeName "ErmisClient.exe"
 #define MyAppIcon "application-icon.ico"
-#define MyAppLicence "Ermis-Client\LICENSE.txt"
+#define MyAppLicence "Ermis-Client_x64\LICENSE.txt"
 #define MyAppFolder "Ermis-Client"
                                              
 [Setup]
