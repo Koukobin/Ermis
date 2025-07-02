@@ -1,7 +1,7 @@
 <div align="center">
 	<img 
 		width="250" 
-		src="https://github.com/Koukobin/Ermis/blob/master/Images/application-icon-circle.png"
+		src="https://github.com/Koukobin/Ermis/blob/master/Images/ermis-retro-futuristic.png"
 		alt="Ermis" 
 	/>
 </div>
