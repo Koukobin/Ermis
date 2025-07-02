@@ -20,14 +20,19 @@ In order to contribute:
    It doesn't have to be perfect, but aim for clarity, and avoid ambiguity and complexity as much as possible.  
 
    Remember:
-   >  _"An idiot admires complexity, while a genius appreciates simplicity"_  
-   >  — **Terry A. Davis**  
-   > 
-   > _"Truth is ever to be found in simplicity, and not in the multiplicity and confusion of things"_  
-   > — **Sir Isaac Newton**  
+> [!IMPORTANT]
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _"An idiot admires complexity, while a genius appreciates simplicity"_  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — **Terry A. Davis**  
+> 
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _"Truth is ever to be found in simplicity, and not in the multiplicity and confusion of things"_  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — **Sir Isaac Newton**  
+>
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_"Simplicity is prerequisite for reliability"_  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — **Dr. Edsger Dijkstra**
 
    Lastly, try adhering to the most rudimental and basic [programming principles].
 
+> [!NOTE]
 > **Note:** if you are wondering what this project's style guide is — it doesn't have one. Nevertheless, if you are looking for a reference
 > of how files should be formatted:
 > 
@@ -90,6 +95,7 @@ Thus, a foundational pillar when contributing to Ermis is:
   Example 2 : `assert(user != nullptr);` instead of `/* presume user is not null here */`.
 * At declaration level, the documentation should explain how to use a function, variable or API; when its applicable; why it's needed; and scenarios where it can be useful.
 * At implementation level, comments should offer a high-level overview of the logic and explain why a certain approach was chosen, if it's not immediately self-evident.
+
 
 ## Resources
 
