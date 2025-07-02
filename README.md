@@ -1,8 +1,8 @@
 <div align="center">
 	<img 
-		width="250" 
+		width="550" 
 		src="https://github.com/Koukobin/Ermis/blob/master/Images/ermis-retro-futuristic.png"
-		alt="Ermis" 
+		alt="Ermis"
 	/>
 </div>
 
