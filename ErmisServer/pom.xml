@@ -178,8 +178,8 @@
 				<version>3.8.1</version>
 				<configuration>
 					<release>17</release>
-                    <source>17</source>
-                    <target>17</target>
+					<source>17</source>
+					<target>17</target>
 				</configuration>
 			</plugin>
 
@@ -187,8 +187,16 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<executable>java</executable>
+					<mainClass>${mainClass}</mainClass>
 					<arguments>
 						<argument>-Djava.security.egd=file:/dev/./urandom</argument>
 						<argument>-server</argument>
@@ -202,8 +210,6 @@
 						<argument>java.base/java.nio=ALL-UNNAMED</argument>
 						<argument>-Dio.netty.tryReflectionSetAccessible=true</argument>
 						<argument>-Dfile.encoding=UTF-8</argument>
-						<classpath />
-						<argument>${mainClass}</argument>
 					</arguments>
 				</configuration>
 			</plugin>

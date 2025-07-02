@@ -181,8 +181,16 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<executable>java</executable>
+					<mainClass>${mainClass}</mainClass>
 					<arguments>
 						<argument>--add-opens</argument>
 						<argument>java.base/java.lang=ALL-UNNAMED</argument>
@@ -192,9 +200,6 @@
 						<argument>-XX:MinHeapFreeRatio=2</argument>
 						<argument>-XX:MaxHeapFreeRatio=5</argument>
 						<argument>-Dfile.encoding=UTF-8</argument>
-						<argument>-classpath</argument>
-						<classpath />
-						<argument>${mainClass}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
