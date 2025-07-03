@@ -32,7 +32,7 @@
 	</scm>
 
 	<parent>
-		<groupId>github.ermis</groupId>
+		<groupId>io.github.koukobin.ermis</groupId>
 		<artifactId>ermis-parent</artifactId>
 		<version>1.0-rc</version>
 		<relativePath>../../pom.xml</relativePath>
