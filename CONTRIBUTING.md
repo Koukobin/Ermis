@@ -85,7 +85,9 @@ Dependencies in our projects have hidden costs when added. Dependency management
 Bottom line is: dependencies add hidden costs. Whilst during initial implementation dependencies can enchance productivity and speed up the development process — their costs eventually manifest and can cause catastrophic problems (tech debt, dependency hell, bugs etc.), significantly impacting long-term maintainability, security, and overall project wellbeing. Any dependency should be considered “bad” by default, and only tolerated because it provides a service in a better way than can be achieved locally. In addition to that, ensure added dependencies are actively maintained and also originate from a trusted dev team.
 
 Thus, a foundational pillar when contributing to Ermis is:  
-**_<center>Reduce dependencies to the minimum possible level</center>_**
+<p align="center">
+   <b><i>Reduce dependencies to the minimum possible level</i></b>
+</p>
 
 ## Code documentation
 
@@ -102,3 +104,4 @@ Thus, a foundational pillar when contributing to Ermis is:
 - [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
 - [Using Pull Requests](https://help.github.com/articles/about-pull-requests/)
 - [GitHub Help](https://help.github.com)
+
