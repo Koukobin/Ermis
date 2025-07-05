@@ -42,7 +42,7 @@
     </tr>
 </table>
 
-Ermis is a suite of applications designed for secure and seamless communication. The project consists of the following components:
+Ermis is an open-source project and suite of applications designed for secure and seamless communication. The project consists of the following components:
 
 - **Ermis-Client**: The user-facing client application for communication.
 - **Ermis-Server**: The backend server that handles everything related to server-side.
@@ -153,27 +153,35 @@ Contributions are welcome! To contribute:
    It doesn't have to be perfect, but aim for clarity, and avoid ambiguity and complexity as much as possible.  
    
    Remember:
-   >  _"An idiot admires complexity, while a genius appreciates simplicity"_  
-   >  — **Terry A. Davis**  
-   > 
-   > _"Truth is ever to be found in simplicity, and not in the multiplicity and confusion of things"_  
-   > — **Sir Isaac Newton**  
-   
+> [!IMPORTANT]
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _"An idiot admires complexity, while a genius appreciates simplicity"_  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — **Terry A. Davis**  
+> 
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _"Truth is ever to be found in simplicity, and not in the multiplicity and confusion of things"_  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — **Sir Isaac Newton**  
+>
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_"Simplicity is prerequisite for reliability"_  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — **Dr. Edsger Dijkstra**
+
    Lastly, try adhering to the most rudimental and basic [programming principles].
 
-> **Note:** if you are wondering what this project's style guide is — it doesn't have one. Nevertheless, if you are looking for a reference of how files should be formatted:
+> [!NOTE]
+> **Note:** if you are wondering what this project's style guide is — it doesn't have one. Nevertheless, if you are looking for a reference
+> of how files should be formatted:
 > 
 > - For code formatting, I have found that [Google's Style guide] is thorough, comprehensive — and broadly applicable.
 > - In terms of documentation, I would suggest [Microsoft's Writing Style Guide].
 > 
-> That said, don't sweat too much about following these strictly, adhere to _your_ own style — I myself probably don't conform to most of
-> their conventions.
+> That said, don't sweat too much about following these strictly, adhere to _your_ own style — I myself probably don't conform to most of their conventions.
+>  
+> As a rule of thumbs, though, try to imitate the coding style of similar lines of codes around your contribution. Consistency is essential in ensuring that the codebase is easy to navigate.
 > 
 > I think **Linus Torvalds** put it best:
 > 
 > *"Coding style is very personal, and I won’t force my views on anybody,  
 > but this is what goes for anything that I have to be able to maintain, and  
 > I’d prefer it for most other things too"*
+> 
 
 5. **Submit a pull request** with a detailed description of your changes — and I may review it eventually.
 
