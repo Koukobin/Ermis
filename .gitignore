@@ -1,3 +1,11 @@
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Eclipse specific
 /.metadata/
 /.sonarlint/
+
 /go/
