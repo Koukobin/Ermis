@@ -3,8 +3,11 @@
 sudo apt update
 sudo apt-get upgrade
 
+# Install Nginx, debut and configure to automatically initialize on system startup
 sudo apt install nginx-full
+sudo systemctl enable --now nginx
 
+# Install Coturn (TURN/STUN server for WebRTC)
 sudo apt install coturn
 
 echo
