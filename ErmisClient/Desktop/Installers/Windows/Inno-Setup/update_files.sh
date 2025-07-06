@@ -27,7 +27,7 @@ done
 
 echo "Files successfully updated!"
 
-cd "Ermis-Client/jre"
+cd "$INSTALL_FOLDER/jre"
 if [[ -d "zulu21.42.19-ca-jre21.0.7-win_x64" ]]; then
     echo "zulu21.42.19-ca-jre21.0.7-win_x64 is already installed"
 else
