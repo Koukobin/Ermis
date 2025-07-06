@@ -3,6 +3,12 @@
 .project
 .settings/
 
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
 # Build results
 bin/
 target/
