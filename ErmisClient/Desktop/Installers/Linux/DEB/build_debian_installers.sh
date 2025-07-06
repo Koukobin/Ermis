@@ -27,18 +27,42 @@ update_files () {
     done
 }
 
+install_individual_jre() {
+    cd $1
+    if [[ -d $2 ]]; then
+        echo "$3 is already installed"
+    else
+        wget "https://cdn.azul.com/zulu/bin/$2.tar.gz"
+        tar -xzf "$2.tar.gz"
+        rm "$2.tar.gz"
+    fi
+    cd -
+}
+
 create_deb_package() {
     sudo dpkg-deb --build $1 || { echo "Failed to build DEB package: $1"; exit 1; }
     echo "DEB package - $1 - succesfully created!"
 }
 
-update_files "ermis-client-installer_amd64/opt/Ermis-Client"
-update_files "ermis-client-installer_arm64/opt/Ermis-Client"
-update_files "ermis-client-installer_all/opt/Ermis-Client"
+AMD64_INSTALLER_PATH="ermis-client-installer_amd64"
+ARM64_INSTALLER_PATH="ermis-client-installer_arm64"
+ALL_INSTALLER_PATH="ermis-client-installer_all"
+
+AMD64_OPT_PATH="$AMD64_INSTALLER_PATH/opt/Ermis-Client"
+ARM64_OPT_PATH="$ARM64_INSTALLER_PATH/opt/Ermis-Client"
+ALL_OPT_PATH="$ALL_INSTALLER_PATH/opt/Ermis-Client"
+
+update_files $AMD64_OPT_PATH
+update_files $ARM64_OPT_PATH
+update_files $ALL_OPT_PATH
 
 # Create DEB packages
-create_deb_package "ermis-client-installer_amd64"
-create_deb_package "ermis-client-installer_arm64"
-create_deb_package "ermis-client-installer_all"
+install_individual_jre "$AMD64_OPT_PATH/jre"  "zulu17.40.19-ca-jre17.0.6-linux_x64" "x86-64 Zulu Java 17"
+create_deb_package $AMD64_INSTALLER_PATH
+
+install_individual_jre "$ARM64_OPT_PATH/jre"  "zulu21.42.19-ca-jre21.0.7-linux_aarch64" "AArch64 Zulu Java 21"
+create_deb_package $ARM64_INSTALLER_PATH
+
+create_deb_package $ALL_INSTALLER_PATH
 
 echo "Succesfully created all DEB packages!"

@@ -26,3 +26,13 @@ for file in "${DOC_FILES[@]}"; do
 done
 
 echo "Files successfully updated!"
+
+cd "Ermis-Client/jre"
+if [[ -d "zulu21.42.19-ca-jre21.0.7-win_x64" ]]; then
+    echo "zulu21.42.19-ca-jre21.0.7-win_x64 is already installed"
+else
+    wget https://cdn.azul.com/zulu/bin/zulu21.42.19-ca-jre21.0.7-win_x64.zip
+    unzip zulu21.42.19-ca-jre21.0.7-win_x64.zip -d zulu21.42.19-ca-jre21.0.7-win_x64 && rm zulu21.42.19-ca-jre21.0.7-win_x64.zip
+fi
+cd -
+
