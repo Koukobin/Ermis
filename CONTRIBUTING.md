@@ -96,8 +96,7 @@ Thus, a foundational pillar when contributing to Ermis is:
   Example 1 : `int temperatureCelsius = 35;` instead of `int temperature = 35; // In Celsius`.  
   Example 2 : `assert(user != nullptr);` instead of `/* presume user is not null here */`.
 * At declaration level, the documentation should explain how to use a function, variable or API; when its applicable; why it's needed; and scenarios where it can be useful.
-* At implementation level, comments should offer a high-level overview of the logic and explain why a certain approach was chosen, if it's not immediately self-evident.
-
+* At implementation level, comments should offer a high-level overview of the logic and explain why a certain approach was chosen — if it's not immediately self-evident.
 
 ## Resources
 
