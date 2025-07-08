@@ -1,5 +1,5 @@
 Package: ermis-server
-Version: 1.0-rc
+Version: 1.0.4-rc
 Priority: optional
 Essential: no
 Architecture: all
