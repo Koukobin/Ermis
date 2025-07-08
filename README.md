@@ -16,6 +16,8 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/pulls)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-0baaaa.svg)](code_of_conduct.md)
 [![License](https://img.shields.io/github/license/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/blob/master/LICENSE)
+[![Wiki](https://img.shields.io/badge/wiki-available-brightgreen?logo=wikipedia&logoColor=white)](https://github.com/Koukobin/Ermis/wiki)
+<img src="https://visitor-badge.laobi.icu/badge?page_id=Koukobin.Ermis&title=views">
 
 <table align="center">
     <tr>
