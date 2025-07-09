@@ -1,10 +1,10 @@
-# Ermis-Client (Mobile)
+# Ermis M (Mobile)
 
 [ilias.koukovinis@gmail.com]: https://mail.google.com/mail/u/0/?tab=rm&ogbl#search/ilias.koukovinis%40gmail.com
 
 ## Overview
 
-**Ermis-Client** is an open-source, Flutter client application designed for secure and seamless communication with the Ermis server. Ermis-Client offers a fast and secure platform for connecting with others. Since the dedicated app is built with Flutter, it runs seamlessly on both Android and iOS, while maintaining an almost identical experience across all devices.
+**Ermis M** is an open-source, Flutter client application designed for secure and seamless communication with the Ermis server. Ermis M offers a fast and secure platform for connecting with others. Since the dedicated app is built with Flutter, it runs seamlessly on both Android and iOS, while maintaining an almost identical experience across all devices.
 
 ## Key Features
 
