@@ -14,11 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/models/voice_call_history.dart';
-import 'package:ermis_client/core/networking/common/message_types/voice_call_history_status.dart';
-import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:ermis_client/core/util/custom_date_formatter.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/core/models/voice_call_history.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/voice_call_history_status.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/util/custom_date_formatter.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_constants.dart';

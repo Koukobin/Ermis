@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/theme/app_colors.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class EndToEndEncryptedIndicator extends StatelessWidget {

@@ -16,7 +16,7 @@
 
 // import 'dart:typed_data';
 
-// import 'package:ermis_client/core/util/dialogs_utils.dart';
+// import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 // import 'package:flutter_sound/flutter_sound.dart';
 
 // Future<void> inferAndPlayFile(Uint8List buffer) async {

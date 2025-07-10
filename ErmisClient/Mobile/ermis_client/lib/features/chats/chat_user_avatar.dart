@@ -14,13 +14,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/models/chat_session.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/core/widgets/profile_photos/interactive_user_avatar.dart';
-import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
-import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/theme/app_colors.dart';
+import 'package:ermis_mobile/core/models/chat_session.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/core/util/transitions_util.dart';
+import 'package:ermis_mobile/core/widgets/profile_photos/interactive_user_avatar.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class ChatUserAvatar extends InteractiveUserAvatar {

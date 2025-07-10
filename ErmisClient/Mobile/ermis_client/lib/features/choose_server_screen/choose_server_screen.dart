@@ -17,15 +17,15 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
-import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/core/models/app_state/new_features_page_status.dart';
-import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/core/services/settings_json.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/core/models/app_state/new_features_page_status.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

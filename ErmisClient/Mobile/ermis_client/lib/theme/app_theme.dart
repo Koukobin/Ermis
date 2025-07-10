@@ -14,9 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/constants/app_constants.dart';
-import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/theme/app_colors.dart';
+import 'package:ermis_mobile/constants/app_constants.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

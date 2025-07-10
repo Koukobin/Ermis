@@ -14,15 +14,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/models/chat_session.dart';
-import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
-import 'package:ermis_client/core/services/database/extensions/chat_sessions_extension.dart';
-import 'package:ermis_client/core/services/database/extensions/members_extension.dart';
-import 'package:ermis_client/core/services/database/models/local_account_info.dart';
-import 'package:ermis_client/core/services/database/models/local_user_info.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/core/models/chat_session.dart';
+import 'package:ermis_mobile/core/models/member.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
+import 'package:ermis_mobile/core/services/database/extensions/chat_sessions_extension.dart';
+import 'package:ermis_mobile/core/services/database/extensions/members_extension.dart';
+import 'package:ermis_mobile/core/services/database/models/local_account_info.dart';
+import 'package:ermis_mobile/core/services/database/models/local_user_info.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 
 class IntermediaryService {
   final DBConnection _databaseService = ErmisDB.getConnection();

@@ -17,10 +17,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:ermis_client/constants/app_constants.dart';
-import 'package:ermis_client/core/models/app_state/new_features_page_status.dart';
-import 'package:ermis_client/enums/notification_sound_enum.dart';
-import 'package:ermis_client/enums/chat_back_drop_enum.dart';
+import 'package:ermis_mobile/constants/app_constants.dart';
+import 'package:ermis_mobile/core/models/app_state/new_features_page_status.dart';
+import 'package:ermis_mobile/enums/notification_sound_enum.dart';
+import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -195,7 +195,7 @@ class SettingsJson {
 
 // import 'dart:convert';
 
-// import 'package:ermis_client/main_ui/settings/theme_settings.dart';
+// import 'package:ermis_mobile/main_ui/settings/theme_settings.dart';
 // import 'package:flutter/material.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 

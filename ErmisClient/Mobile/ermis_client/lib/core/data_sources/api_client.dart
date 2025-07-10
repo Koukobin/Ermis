@@ -19,16 +19,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
-import 'package:ermis_client/core/event_bus/app_event_bus.dart';
-import 'package:ermis_client/core/models/account.dart';
-import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:ermis_client/core/services/database/models/local_account_info.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
-import 'package:ermis_client/features/authentication/domain/entities/requirements.dart';
-import 'package:ermis_client/core/data/models/network/byte_buf.dart';
-import 'package:ermis_client/core/networking/message_dispatcher.dart';
-import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
+import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
+import 'package:ermis_mobile/core/models/account.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/services/database/models/local_account_info.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/requirements.dart';
+import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
+import 'package:ermis_mobile/core/networking/message_dispatcher.dart';
+import 'package:ermis_mobile/core/models/message_events.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/resultable.dart';
 import 'package:flutter/foundation.dart';
 
 import '../networking/common/results/change_password_result.dart';

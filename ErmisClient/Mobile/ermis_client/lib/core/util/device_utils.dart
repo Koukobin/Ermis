@@ -16,7 +16,7 @@
 
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:ermis_client/core/models/user_device.dart';
+import 'package:ermis_mobile/core/models/user_device.dart';
 
 Future<String> getDeviceDetails() async {
   final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();

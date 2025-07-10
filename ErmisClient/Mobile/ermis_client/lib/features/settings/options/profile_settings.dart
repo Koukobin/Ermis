@@ -15,12 +15,12 @@
  */
 
 import 'package:camera/camera.dart';
-import 'package:ermis_client/core/event_bus/app_event_bus.dart';
-import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/widgets/profile_photos/personal_profile_photo.dart';
-import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
-import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/theme/app_colors.dart';
+import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
+import 'package:ermis_mobile/core/models/message_events.dart';
+import 'package:ermis_mobile/core/widgets/profile_photos/personal_profile_photo.dart';
+import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

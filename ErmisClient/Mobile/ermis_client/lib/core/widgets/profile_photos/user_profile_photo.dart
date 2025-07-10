@@ -16,7 +16,7 @@
 
 import 'dart:typed_data';
 
-import 'package:ermis_client/theme/app_colors.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants/app_constants.dart';

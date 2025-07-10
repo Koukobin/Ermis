@@ -16,12 +16,12 @@
 
 import 'dart:math';
 
-import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/features/settings/options/storage_and_data_settings/byte_formatter.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/features/settings/options/storage_and_data_settings/byte_formatter.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/util/top_app_bar_utils.dart';

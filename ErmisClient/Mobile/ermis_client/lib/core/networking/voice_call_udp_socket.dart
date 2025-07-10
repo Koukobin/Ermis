@@ -19,8 +19,8 @@
 // import 'dart:math';
 // import 'dart:typed_data';
 // import 'package:encrypt/encrypt.dart';
-// import 'package:ermis_client/core/data/models/network/byte_buf.dart';
-// import 'package:ermis_client/core/models/inet_socket_address.dart';
+// import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
+// import 'package:ermis_mobile/core/models/inet_socket_address.dart';
 
 // enum VoiceCallServerMessage {
 //   voice(4),

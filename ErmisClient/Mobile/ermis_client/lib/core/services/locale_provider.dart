@@ -16,7 +16,7 @@
 
 import 'dart:ui';
 
-import 'package:ermis_client/constants/app_constants.dart';
+import 'package:ermis_mobile/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 
 import 'settings_json.dart';

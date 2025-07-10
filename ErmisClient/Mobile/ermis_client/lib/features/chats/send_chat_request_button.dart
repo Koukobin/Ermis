@@ -14,9 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/data_sources/api_client.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/core/data_sources/api_client.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 

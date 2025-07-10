@@ -17,8 +17,8 @@
 
 import 'dart:collection';
 
-import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
-import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/content_type.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
 
 class ContentTypeConverter {
   static const int text = 117; // WARNING: DO NOT CHANGE TO ENSURE COMPATIBILITY WITH LOCAL SQLITE DATABASE

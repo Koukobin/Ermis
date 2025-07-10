@@ -14,15 +14,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/event_bus/app_event_bus.dart';
-import 'package:ermis_client/core/networking/common/message_types/server_info_message.dart';
-import 'package:ermis_client/core/networking/handlers/client_message_handler.dart';
-import 'package:ermis_client/core/networking/handlers/command_result_handler.dart';
-import 'package:ermis_client/core/networking/common/results/client_command_result_type.dart';
-import 'package:ermis_client/core/networking/handlers/message_delivery_status_handler.dart';
-import 'package:ermis_client/core/networking/handlers/voice_call_handler.dart';
-import 'package:ermis_client/core/data/models/network/input_stream.dart';
-import 'package:ermis_client/core/models/message_events.dart';
+import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/server_info_message.dart';
+import 'package:ermis_mobile/core/networking/handlers/client_message_handler.dart';
+import 'package:ermis_mobile/core/networking/handlers/command_result_handler.dart';
+import 'package:ermis_mobile/core/networking/common/results/client_command_result_type.dart';
+import 'package:ermis_mobile/core/networking/handlers/message_delivery_status_handler.dart';
+import 'package:ermis_mobile/core/networking/handlers/voice_call_handler.dart';
+import 'package:ermis_mobile/core/data/models/network/input_stream.dart';
+import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:flutter/foundation.dart';
 
 import 'common/message_types/server_message_type.dart';

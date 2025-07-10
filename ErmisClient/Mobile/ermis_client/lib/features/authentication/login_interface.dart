@@ -14,9 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
-import 'package:ermis_client/features/authentication/register_interface.dart';
-import 'package:ermis_client/features/authentication/verification_mixin.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/resultable.dart';
+import 'package:ermis_mobile/features/authentication/register_interface.dart';
+import 'package:ermis_mobile/features/authentication/verification_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 

@@ -14,9 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/enums/notification_sound_enum.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/core/util/top_app_bar_utils.dart';
+import 'package:ermis_mobile/enums/notification_sound_enum.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/core/util/top_app_bar_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import '../../../core/widgets/scroll/custom_scroll_view.dart';

@@ -14,9 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/constants/app_constants.dart';
-import 'package:ermis_client/core/exceptions/EnumNotFoundException.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/constants/app_constants.dart';
+import 'package:ermis_mobile/core/exceptions/EnumNotFoundException.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 
 enum ChatBackDrop {
   monotone(id: 0),

@@ -16,17 +16,17 @@
 
 import 'dart:async';
 
-import 'package:ermis_client/core/event_bus/app_event_bus.dart';
-import 'package:ermis_client/core/models/account.dart';
-import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
-import 'package:ermis_client/core/services/database/models/local_account_info.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
-import 'package:ermis_client/core/widgets/profile_photos/personal_profile_photo.dart';
-import 'package:ermis_client/core/widgets/profile_photos/user_profile_photo.dart';
-import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
-import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/util/transitions_util.dart';
+import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
+import 'package:ermis_mobile/core/models/account.dart';
+import 'package:ermis_mobile/core/models/message_events.dart';
+import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
+import 'package:ermis_mobile/core/services/database/models/local_account_info.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/core/widgets/profile_photos/personal_profile_photo.dart';
+import 'package:ermis_mobile/core/widgets/profile_photos/user_profile_photo.dart';
+import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
+import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -42,7 +42,7 @@ import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../authentication/register_interface.dart';
 import '../../authentication/domain/entities/client_session_setup.dart';
-import 'package:ermis_client/features/authentication/verification_mixin.dart';
+import 'package:ermis_mobile/features/authentication/verification_mixin.dart';
 
 import '../../authentication/utils/entry_buttons.dart';
 

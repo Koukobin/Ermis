@@ -14,14 +14,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
-import 'package:ermis_client/core/services/settings_json.dart';
-import 'package:ermis_client/core/util/top_app_bar_utils.dart';
-import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/features/settings/options/storage_and_data_settings/network_usage_settings.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_mobile/core/services/settings_json.dart';
+import 'package:ermis_mobile/core/util/top_app_bar_utils.dart';
+import 'package:ermis_mobile/core/util/transitions_util.dart';
+import 'package:ermis_mobile/features/settings/options/storage_and_data_settings/network_usage_settings.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/scroll/custom_scroll_view.dart';

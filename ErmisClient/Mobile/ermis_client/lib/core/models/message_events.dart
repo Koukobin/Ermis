@@ -20,14 +20,14 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:ermis_client/core/models/chat_request.dart';
-import 'package:ermis_client/core/models/inet_socket_address.dart';
-import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/models/message.dart';
-import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
-import 'package:ermis_client/core/models/user_device.dart';
-import 'package:ermis_client/core/data/models/network/byte_buf.dart';
-import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_mobile/core/models/chat_request.dart';
+import 'package:ermis_mobile/core/models/inet_socket_address.dart';
+import 'package:ermis_mobile/core/models/member.dart';
+import 'package:ermis_mobile/core/models/message.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
+import 'package:ermis_mobile/core/models/user_device.dart';
+import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 
 import 'account.dart';
 import 'chat_session.dart';

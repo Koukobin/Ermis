@@ -15,8 +15,8 @@
  */
 
 
-import 'package:ermis_client/core/models/voice_call_history.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/core/models/voice_call_history.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/data_sources/api_client.dart';

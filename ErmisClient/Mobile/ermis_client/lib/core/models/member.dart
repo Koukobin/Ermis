@@ -14,8 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/models/member_icon.dart';
-import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_mobile/core/models/member_icon.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'member.g.dart';

@@ -14,10 +14,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/theme/app_colors.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../choose_server_screen/choose_server_screen.dart';

@@ -14,17 +14,17 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/features/authentication/domain/entities/requirements.dart';
-import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
-import 'package:ermis_client/features/authentication/utils/entry_buttons.dart';
-import 'package:ermis_client/features/authentication/login_interface.dart';
-import 'package:ermis_client/features/authentication/verification_mixin.dart';
-import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/core/widgets/custom_textfield.dart';
-import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/util/device_utils.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/core/util/entropy_calculator.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/requirements.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/resultable.dart';
+import 'package:ermis_mobile/features/authentication/utils/entry_buttons.dart';
+import 'package:ermis_mobile/features/authentication/login_interface.dart';
+import 'package:ermis_mobile/features/authentication/verification_mixin.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/core/widgets/custom_textfield.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
+import 'package:ermis_mobile/core/util/device_utils.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/core/util/entropy_calculator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 

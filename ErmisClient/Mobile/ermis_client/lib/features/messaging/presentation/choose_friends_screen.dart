@@ -14,12 +14,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/data_sources/api_client.dart';
-import 'package:ermis_client/core/extensions/iterable_extensions.dart';
-import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/core/widgets/profile_photos/user_avatar.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/core/data_sources/api_client.dart';
+import 'package:ermis_mobile/core/extensions/iterable_extensions.dart';
+import 'package:ermis_mobile/core/models/member.dart';
+import 'package:ermis_mobile/core/util/transitions_util.dart';
+import 'package:ermis_mobile/core/widgets/profile_photos/user_avatar.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/models/chat_session.dart';

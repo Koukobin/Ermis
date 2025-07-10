@@ -14,12 +14,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/data/models/network/byte_buf.dart';
-import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/models/chat_session.dart';
-import 'package:ermis_client/core/networking/common/message_types/voice_call_message_type.dart';
-import 'package:ermis_client/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
+import 'package:ermis_mobile/core/models/member.dart';
+import 'package:ermis_mobile/core/models/message_events.dart';
+import 'package:ermis_mobile/core/models/chat_session.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/voice_call_message_type.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import '../../event_bus/app_event_bus.dart';
 import '../../event_bus/event_bus.dart';
 

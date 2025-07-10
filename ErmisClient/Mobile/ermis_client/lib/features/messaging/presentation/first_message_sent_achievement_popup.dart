@@ -16,7 +16,7 @@
 
 import 'dart:async';
 
-import 'package:ermis_client/core/widgets/achievement_widget.dart';
+import 'package:ermis_mobile/core/widgets/achievement_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 

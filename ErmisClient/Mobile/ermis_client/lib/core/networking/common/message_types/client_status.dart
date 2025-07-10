@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/exceptions/EnumNotFoundException.dart';
+import 'package:ermis_mobile/core/exceptions/EnumNotFoundException.dart';
 
 enum ClientStatus {
   online(0),

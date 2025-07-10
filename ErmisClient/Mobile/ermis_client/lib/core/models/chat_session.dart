@@ -14,10 +14,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
-import 'package:ermis_client/core/util/datetime_utils.dart';
-import 'package:ermis_client/core/util/custom_date_formatter.dart';
+import 'package:ermis_mobile/core/models/member.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/content_type.dart';
+import 'package:ermis_mobile/core/util/datetime_utils.dart';
+import 'package:ermis_mobile/core/util/custom_date_formatter.dart';
 import 'message.dart';
 
 class ChatSession {

@@ -17,8 +17,8 @@
 
 import 'dart:convert';
 
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 

@@ -18,16 +18,16 @@
 // import 'dart:math';
 // import 'dart:typed_data';
 
-// import 'package:ermis_client/core/extensions/iterable_extensions.dart';
-// import 'package:ermis_client/core/models/inet_socket_address.dart';
-// import 'package:ermis_client/core/models/member.dart';
-// import 'package:ermis_client/core/models/message_events.dart';
-// import 'package:ermis_client/core/networking/user_info_manager.dart';
-// import 'package:ermis_client/core/networking/voice_call_udp_socket.dart';
-// import 'package:ermis_client/core/widgets/profile_photos/user_profile_photo.dart';
-// import 'package:ermis_client/core/util/dialogs_utils.dart';
-// import 'package:ermis_client/core/util/top_app_bar_utils.dart';
-// import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
+// import 'package:ermis_mobile/core/extensions/iterable_extensions.dart';
+// import 'package:ermis_mobile/core/models/inet_socket_address.dart';
+// import 'package:ermis_mobile/core/models/member.dart';
+// import 'package:ermis_mobile/core/models/message_events.dart';
+// import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+// import 'package:ermis_mobile/core/networking/voice_call_udp_socket.dart';
+// import 'package:ermis_mobile/core/widgets/profile_photos/user_profile_photo.dart';
+// import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+// import 'package:ermis_mobile/core/util/top_app_bar_utils.dart';
+// import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
 // import 'package:flutter/foundation.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_sound/flutter_sound.dart';

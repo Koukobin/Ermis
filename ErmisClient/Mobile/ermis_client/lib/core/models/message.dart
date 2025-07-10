@@ -17,7 +17,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
 
 import '../networking/common/message_types/content_type.dart';
 

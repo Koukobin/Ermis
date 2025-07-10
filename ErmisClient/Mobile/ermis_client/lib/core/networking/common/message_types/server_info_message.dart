@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 
 enum ServerInfoMessage {
   tooManyRequestsMade(0),

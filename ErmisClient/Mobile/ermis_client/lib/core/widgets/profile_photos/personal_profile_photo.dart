@@ -16,10 +16,10 @@
 
 import 'dart:typed_data';
 
-import 'package:ermis_client/constants/app_constants.dart';
-import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:ermis_client/core/widgets/loading_state.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/constants/app_constants.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/widgets/loading_state.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_colors.dart';

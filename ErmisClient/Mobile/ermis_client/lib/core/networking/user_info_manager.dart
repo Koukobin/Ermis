@@ -14,15 +14,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/models/account.dart';
-import 'package:ermis_client/core/models/chat_request.dart';
-import 'package:ermis_client/core/models/chat_session.dart';
-import 'package:ermis_client/core/models/message.dart';
-import 'package:ermis_client/core/models/user_device.dart';
-import 'package:ermis_client/core/models/voice_call_history.dart';
-import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
-import 'package:ermis_client/core/services/database/models/local_user_info.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/core/models/account.dart';
+import 'package:ermis_mobile/core/models/chat_request.dart';
+import 'package:ermis_mobile/core/models/chat_session.dart';
+import 'package:ermis_mobile/core/models/message.dart';
+import 'package:ermis_mobile/core/models/user_device.dart';
+import 'package:ermis_mobile/core/models/voice_call_history.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_mobile/core/services/database/models/local_user_info.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:flutter/foundation.dart';
 
 import 'handlers/intermediary_service.dart';

@@ -16,13 +16,13 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:ermis_client/core/networking/common/message_types/content_type.dart';
-import 'package:ermis_client/core/networking/common/message_types/message_delivery_status.dart';
-import 'package:ermis_client/core/data/models/network/byte_buf.dart';
-import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/models/chat_session.dart';
-import 'package:ermis_client/core/models/message.dart';
-import 'package:ermis_client/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/content_type.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
+import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
+import 'package:ermis_mobile/core/models/message_events.dart';
+import 'package:ermis_mobile/core/models/chat_session.dart';
+import 'package:ermis_mobile/core/models/message.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import '../../event_bus/app_event_bus.dart';
 import '../../event_bus/event_bus.dart';
 

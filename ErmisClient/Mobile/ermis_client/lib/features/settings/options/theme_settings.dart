@@ -14,11 +14,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/enums/chat_back_drop_enum.dart';
-import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/core/services/settings_json.dart';
+import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 

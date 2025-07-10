@@ -14,15 +14,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/event_bus/app_event_bus.dart';
-import 'package:ermis_client/core/models/message_events.dart';
-import 'package:ermis_client/core/widgets/profile_photos/personal_profile_photo.dart';
-import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
-import 'package:ermis_client/features/settings/options/account_settings.dart';
-import 'package:ermis_client/features/settings/options/notification_settings.dart';
-import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/services/locale_provider.dart';
-import 'package:ermis_client/core/util/transitions_util.dart';
+import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
+import 'package:ermis_mobile/core/models/message_events.dart';
+import 'package:ermis_mobile/core/widgets/profile_photos/personal_profile_photo.dart';
+import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
+import 'package:ermis_mobile/features/settings/options/account_settings.dart';
+import 'package:ermis_mobile/features/settings/options/notification_settings.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
+import 'package:ermis_mobile/core/services/locale_provider.dart';
+import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

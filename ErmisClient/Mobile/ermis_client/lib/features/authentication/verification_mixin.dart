@@ -14,15 +14,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/data_sources/api_client.dart';
-import 'package:ermis_client/core/networking/user_info_manager.dart';
-import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
-import 'package:ermis_client/core/services/database/models/local_account_info.dart';
-import 'package:ermis_client/features/authentication/domain/entities/added_info.dart';
-import 'package:ermis_client/core/networking/common/results/entry_result.dart';
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/util/dialogs_utils.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/core/data_sources/api_client.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
+import 'package:ermis_mobile/core/services/database/models/local_account_info.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/added_info.dart';
+import 'package:ermis_mobile/core/networking/common/results/entry_result.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showVerificationDialog({

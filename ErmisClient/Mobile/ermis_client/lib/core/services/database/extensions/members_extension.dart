@@ -18,10 +18,10 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
-import 'package:ermis_client/core/services/database/models/local_user_info.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
+import 'package:ermis_mobile/core/services/database/models/local_user_info.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:zstandard/zstandard.dart';

@@ -17,15 +17,15 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:ermis_client/constants/app_constants.dart';
-import 'package:ermis_client/core/data_sources/api_client.dart';
-import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/services/database/extensions/accounts_extension.dart';
-import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
-import 'package:ermis_client/core/util/permissions.dart';
-import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/constants/app_constants.dart';
+import 'package:ermis_mobile/core/data_sources/api_client.dart';
+import 'package:ermis_mobile/core/models/member.dart';
+import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_mobile/core/util/permissions.dart';
+import 'package:ermis_mobile/core/util/transitions_util.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';

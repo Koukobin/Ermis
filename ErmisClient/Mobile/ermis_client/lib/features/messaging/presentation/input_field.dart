@@ -20,8 +20,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:ermis_client/core/services/settings_json.dart';
-import 'package:ermis_client/features/messaging/presentation/first_message_sent_achievement_popup.dart';
+import 'package:ermis_mobile/core/services/settings_json.dart';
+import 'package:ermis_mobile/features/messaging/presentation/first_message_sent_achievement_popup.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/data_sources/api_client.dart';

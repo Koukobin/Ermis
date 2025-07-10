@@ -16,8 +16,8 @@
 
 import 'dart:typed_data';
 
-import 'package:ermis_client/core/networking/common/message_types/client_status.dart';
-import 'package:ermis_client/theme/app_colors.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class UserAvatar extends StatelessWidget {

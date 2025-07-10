@@ -14,9 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/core/models/member.dart';
-import 'package:ermis_client/core/widgets/profile_photos/user_profile_photo.dart';
-import 'package:ermis_client/generated/l10n.dart';
+import 'package:ermis_mobile/core/models/member.dart';
+import 'package:ermis_mobile/core/widgets/profile_photos/user_profile_photo.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class IncomingCallScreen extends StatefulWidget {

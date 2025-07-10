@@ -17,8 +17,8 @@
 
 import 'dart:typed_data';
 
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:zstandard/zstandard.dart';
 

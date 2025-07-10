@@ -16,25 +16,25 @@
 
 import 'dart:async';
 
-import 'package:ermis_client/core/data_sources/api_client.dart';
-import 'package:ermis_client/core/models/chat_session.dart';
-import 'package:ermis_client/core/models/message.dart';
-import 'package:ermis_client/constants/app_constants.dart';
-import 'package:ermis_client/core/services/database/extensions/chat_messages_extension.dart';
-import 'package:ermis_client/core/services/database/extensions/servers_extension.dart';
-import 'package:ermis_client/core/services/database/extensions/unread_messages_extension.dart';
-import 'package:ermis_client/core/services/database/models/server_info.dart';
-import 'package:ermis_client/core/services/ermis_backgroud_service.dart';
-import 'package:ermis_client/core/util/message_notification.dart';
-import 'package:ermis_client/core/util/transitions_util.dart';
-import 'package:ermis_client/features/voice_call/web_rtc/voice_call_webrtc.dart';
-import 'package:ermis_client/generated/l10n.dart';
-import 'package:ermis_client/features/splash_screen/splash_screen.dart';
-import 'package:ermis_client/mixins/event_bus_subscription_mixin.dart';
-import 'package:ermis_client/theme/app_colors.dart';
-import 'package:ermis_client/core/services/database/database_service.dart';
-import 'package:ermis_client/core/util/notifications_util.dart';
-import 'package:ermis_client/core/services/settings_json.dart';
+import 'package:ermis_mobile/core/data_sources/api_client.dart';
+import 'package:ermis_mobile/core/models/chat_session.dart';
+import 'package:ermis_mobile/core/models/message.dart';
+import 'package:ermis_mobile/constants/app_constants.dart';
+import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
+import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
+import 'package:ermis_mobile/core/services/ermis_backgroud_service.dart';
+import 'package:ermis_mobile/core/util/message_notification.dart';
+import 'package:ermis_mobile/core/util/transitions_util.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/features/splash_screen/splash_screen.dart';
+import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/util/notifications_util.dart';
+import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sql.dart';
 

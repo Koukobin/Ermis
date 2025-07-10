@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:ermis_client/features/authentication/domain/entities/resultable.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/resultable.dart';
 
 import '../../../../features/authentication/domain/entities/added_info.dart';
 

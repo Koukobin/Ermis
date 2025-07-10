@@ -17,7 +17,7 @@
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
-import 'package:ermis_client/core/util/file_utils.dart';
+import 'package:ermis_mobile/core/util/file_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../../../generated/l10n.dart';
@@ -79,7 +79,7 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(label, style: TextStyle(fontSize: 14)),
+          Text(label, style: const TextStyle(fontSize: 14)),
         ],
       ),
     );
