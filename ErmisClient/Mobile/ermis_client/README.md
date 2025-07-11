@@ -63,7 +63,6 @@ These variables will be automatically referenced by `android/app/build.gradle`.
 
 Denique, you can execute `flutter build apk --release` or `flutter build aab --release` and successfully build your signed package/bundle.
 
-
 ## Contributing
 
 For contribution guidelines, please refer to the main Ermis `README` file.
