@@ -3,13 +3,20 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.github.koukobin.ermis</groupId>
-	<artifactId>ermis.client</artifactId>
+	<artifactId>ermis.desktop.client</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0-rc</version>
 
-	<name>ermis-client</name>
+	<name>desktop-client</name>
 	<url>https://github.com/Koukobin/Ermis</url>
 	<inceptionYear>2021</inceptionYear>
+
+	<parent>
+		<groupId>io.github.koukobin.ermis</groupId>
+		<artifactId>ermis-parent</artifactId>
+		<version>1.0-rc</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
 
 	<licenses>
 		<license>
@@ -31,18 +38,11 @@
 		<url>https://github.com/Koukobin/Ermis.git</url>
 	</scm>
 
-	<parent>
-		<groupId>io.github.koukobin.ermis</groupId>
-		<artifactId>ermis-parent</artifactId>
-		<version>1.0-rc</version>
-		<relativePath>../../pom.xml</relativePath>
-	</parent>
-
 	<properties>
 		<mainClass>github.koukobin.ermis.client.main.java.application.ClientLauncher</mainClass>
-		<src.resources>src/github/koukobin/ermis/client/main/resources</src.resources>
+		<src.resources>src/github/koukobin/ermis/desktop_client/main/resources</src.resources>
 		<target>${project.build.directory}</target>
-		<target.resources>${target}/classes/github/koukobin/ermis/client/main/resources/</target.resources>
+		<target.resources>${target}/classes/github/koukobin/ermis/desktop_client/main/resources/</target.resources>
 	</properties>
 
 	<dependencies>

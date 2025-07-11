@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+
+	 This program is free software: you can redistribute it and/or modify
+	 it under the terms of the GNU Affero General Public License as
+	 published by the Free Software Foundation, either version 3 of the
+	 License, or (at your option) any later version.
+	 
+	 This program is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 GNU Affero General Public License for more details.
+	 
+	 You should have received a copy of the GNU Affero General Public License
+	 along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane fx:id="root" stylesheets="@../../css/entry/login-scene.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="github.koukobin.ermis.desktop_client.main.java.controllers.entry.LoginSceneController">												
+   <children>
+      <AnchorPane fx:id="loginAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="266.0" prefWidth="450.0">
+         <children>
+            <Label fx:id="loginLabel" alignment="CENTER" layoutX="202.0" layoutY="40.0" prefHeight="24.0" prefWidth="51.0" text="Login" />
+            <JFXButton fx:id="loginButton" layoutX="88.0" layoutY="209.0" onAction="#register" prefHeight="41.0" prefWidth="127.0" text="Login" />
+            <TextField fx:id="emailTextField" layoutX="97.0" layoutY="96.0" prefHeight="24.0" prefWidth="260.0" promptText="Email" />
+            <PasswordField fx:id="passwordFieldTextHidden" layoutX="97.0" layoutY="139.0" prefHeight="24.0" prefWidth="260.0" promptText="Password" />
+            <JFXButton fx:id="togglePasswordTypeButton" layoutX="225.0" layoutY="175.0" onAction="#flipPasswordType" prefHeight="24.0" prefWidth="207.0" text="Use backup verification code" textAlignment="CENTER" wrapText="true" />
+            <JFXCheckBox fx:id="changePasswordVisibilityCheckBox" layoutX="77.0" layoutY="178.0" onAction="#changePasswordVisibility" text="Show Password" />
+            <JFXButton fx:id="switchToCreateAccountSceneButton" layoutX="227.0" layoutY="209.0" onAction="#switchScene" prefHeight="41.0" prefWidth="127.0" text="Create Account" />
+            <TextField fx:id="passwordFieldTextVisible" layoutX="97.0" layoutY="139.0" prefHeight="24.0" prefWidth="260.0" promptText="Password" visible="false" />
+         </children>
+      </AnchorPane>
+   </children>
+</StackPane>

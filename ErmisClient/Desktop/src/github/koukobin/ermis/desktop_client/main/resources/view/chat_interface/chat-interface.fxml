@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+
+	 This program is free software: you can redistribute it and/or modify
+	 it under the terms of the GNU Affero General Public License as
+	 published by the Free Software Foundation, either version 3 of the
+	 License, or (at your option) any later version.
+	 
+	 This program is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 GNU Affero General Public License for more details.
+	 
+	 You should have received a copy of the GNU Affero General Public License
+	 along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="rootBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" stylesheets="@../../css/chat_interface/chat-interface.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="github.koukobin.ermis.desktop_client.main.java.controllers.chat_interface.ChatInterfaceController">
+   <left>
+      <HBox fx:id="leftPane" prefWidth="415.0" BorderPane.alignment="CENTER">
+         <children>
+            <BorderPane fx:id="optionsBar" prefWidth="80.0" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <top>
+                  <VBox alignment="TOP_CENTER" BorderPane.alignment="CENTER">
+                     <children>
+                        <ImageView fitHeight="50.0" fitWidth="66.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../icons/primary-application-icon-92.png" />
+                           </image>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </ImageView>
+                     </children>
+                     <BorderPane.margin>
+                        <Insets />
+                     </BorderPane.margin>
+                  </VBox>
+               </top>
+               <bottom>
+                  <VBox alignment="BOTTOM_CENTER" prefHeight="140.0" spacing="10.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <JFXButton onAction="#transitionToSettings" prefWidth="60.0" text="">
+                           <graphic>
+                              <ImageView fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../icons/material_design_icons/settings.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </JFXButton>
+                        <JFXButton fx:id="logout" layoutX="20.0" layoutY="10.0" onAction="#logout" prefWidth="60.0" text="">
+                           <graphic>
+                              <ImageView fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../icons/material_design_icons/logout.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </JFXButton>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" />
+                     </padding>
+                  </VBox>
+               </bottom>
+               <center>
+                  <VBox alignment="TOP_CENTER" spacing="20.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <JFXButton onAction="#transitionToChats" prefWidth="60.0" text="">
+                           <graphic>
+                              <ImageView fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../icons/material_design_icons/chats.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </JFXButton>
+                        <JFXButton layoutX="20.0" layoutY="80.0" onAction="#transitionToChatRequests" prefWidth="60.0" text="">
+                           <graphic>
+                              <ImageView fitHeight="31.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../icons/material_design_icons/chat-requests.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </JFXButton>
+                     </children>
+                     <BorderPane.margin>
+                        <Insets />
+                     </BorderPane.margin>
+                     <padding>
+                        <Insets top="70.0" />
+                     </padding>
+                  </VBox>
+               </center>
+            </BorderPane>
+            <StackPane fx:id="stackPane" />
+         </children>
+      </HBox>
+   </left>
+</BorderPane>
