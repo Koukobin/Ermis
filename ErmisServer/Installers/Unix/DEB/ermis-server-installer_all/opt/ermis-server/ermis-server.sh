@@ -29,23 +29,25 @@ debute_server () {
     fi
 
     VM_ARGUMENTS="
-    -Djava.security.egd=file:/dev/./urandom 
-    -server 
-    -XX:+UseZGC 
-    --add-opens java.base/java.lang=ALL-UNNAMED 
-    --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
-    --add-opens java.base/java.nio=ALL-UNNAMED
-    -Dio.netty.tryReflectionSetAccessible=true
-    -Dfile.encoding=UTF-8"
+        -Djava.security.egd=file:/dev/./urandom 
+        -server 
+        -XX:+UseZGC 
+        --add-opens java.base/java.lang=ALL-UNNAMED 
+        --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+        --add-opens java.base/java.nio=ALL-UNNAMED
+        -Dio.netty.tryReflectionSetAccessible=true
+        -Dfile.encoding=UTF-8"
     PROGRAM_ARGUMENTS=""
+
+    (
+        sudo turnserver --log-file stdout --tls-listening-port=5439 --listening-port=5440
+    ) &
 
     if [ -n "$JAVA_HOME" ]; then
       sudo $JAVA_HOME/bin/java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
     else
       sudo java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
     fi
-
-    sudo turnserver --log-file stdout --tls-listening-port=5439 --listening-port=5440
 }
 
 create_folder_backup_and_restore_once_process_dies () {
