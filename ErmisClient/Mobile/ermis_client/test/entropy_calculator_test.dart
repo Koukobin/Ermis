@@ -15,7 +15,7 @@
  */
 
 
-import 'package:ermis_client/core/util/entropy_calculator.dart';
+import 'package:ermis_mobile/core/util/entropy_calculator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

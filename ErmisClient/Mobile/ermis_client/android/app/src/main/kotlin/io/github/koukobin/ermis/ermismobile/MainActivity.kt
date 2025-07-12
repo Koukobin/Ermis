@@ -1,4 +1,4 @@
-package com.example.ermisclient
+package io.github.koukobin.ermis.ermismobile
 
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback

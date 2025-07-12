@@ -17,7 +17,7 @@
 
 import 'dart:typed_data';
 
-import 'package:ermis_client/core/data/models/network/byte_buf.dart';
+import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
