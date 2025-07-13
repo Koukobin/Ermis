@@ -271,7 +271,7 @@ class AppThemeState extends State<AppTheme> {
         ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color(0xFF333333),
+        backgroundColor: const Color.fromARGB(255, 172, 172, 172),
         contentTextStyle: const TextStyle(
           color: Colors.black,
           fontSize: 16,
