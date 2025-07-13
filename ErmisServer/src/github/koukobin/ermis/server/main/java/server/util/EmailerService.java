@@ -73,6 +73,13 @@ public final class EmailerService {
 			}
 		});
 		session.setDebug(ServerSettings.IS_PRODUCTION_READY);
+
+		// Send test email to self to ensure emailer works correctly
+		try {
+			sendEmail("Test", "Test", EmailerSettings.EMAIL_USERNAME);
+		} catch (MessagingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static void initialize() {
