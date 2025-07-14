@@ -182,7 +182,7 @@ class InteractiveUserAvatar extends StatelessWidget {
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.easeIn,
                       child: AnimatedSlide(
-                        offset: isVisible ? Offset.zero : Offset(0, 1),
+                        offset: isVisible ? Offset.zero : const Offset(0, 1),
                         duration: const Duration(milliseconds: 350),
                         curve: Curves.easeIn,
                         child: Container(
