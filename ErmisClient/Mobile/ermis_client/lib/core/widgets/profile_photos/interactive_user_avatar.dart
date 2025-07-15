@@ -146,55 +146,57 @@ class InteractiveUserAvatar extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 48.0),
               child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
+                child: IntrinsicWidth(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                        ),
+                        child: InteractiveViewer(
+                          boundaryMargin: const EdgeInsets.all(20),
+                          minScale: 1.0,
+                          maxScale: 8.0,
+                          child: Hero(
+                            tag: avatarID,
+                            child: Container(
+                              color: appColors.tertiaryColor,
+                              child: imageBytes.isEmpty
+                                  ? CircleAvatar(
+                                      radius: 180,
+                                      backgroundColor: Colors.grey[200],
+                                      backgroundImage: null,
+                                      child: const Icon(
+                                        Icons.person,
+                                        size: 180,
+                                        color: Colors.grey,
+                                      ))
+                                  : image,
+                            ),
+                          ),
+                        ),
                       ),
-                      child: InteractiveViewer(
-                        boundaryMargin: const EdgeInsets.all(20),
-                        minScale: 1.0,
-                        maxScale: 8.0,
-                        child: Hero(
-                          tag: avatarID,
+                      AnimatedOpacity(
+                        opacity: isVisible ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeIn,
+                        child: AnimatedSlide(
+                          offset: isVisible ? Offset.zero : const Offset(0, 1),
+                          duration: const Duration(milliseconds: 350),
+                          curve: Curves.easeIn,
                           child: Container(
                             color: appColors.tertiaryColor,
-                            child: imageBytes.isEmpty
-                                ? CircleAvatar(
-                                    radius: 180,
-                                    backgroundColor: Colors.grey[200],
-                                    backgroundImage: null,
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 180,
-                                      color: Colors.grey,
-                                    ))
-                                : image,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: onAvatarClicked(context, popContext),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    AnimatedOpacity(
-                      opacity: isVisible ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeIn,
-                      child: AnimatedSlide(
-                        offset: isVisible ? Offset.zero : const Offset(0, 1),
-                        duration: const Duration(milliseconds: 350),
-                        curve: Curves.easeIn,
-                        child: Container(
-                          color: appColors.tertiaryColor,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: onAvatarClicked(context, popContext),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

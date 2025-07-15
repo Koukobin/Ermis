@@ -418,53 +418,58 @@ class _InputDialogState extends State<InputDialog>
     return WhatsAppPopupDialog(
       child: AlertDialog(
         backgroundColor: appColors.tertiaryColor.withOpacity(0.95),
-        title: Text(
-          widget.title,
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: widget.controller,
-              keyboardType: widget.keyboardType,
-              focusNode: focusNode,
-              cursorColor: appColors.primaryColor,
-              style: TextStyle(color: appColors.inferiorColor),
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                hintStyle: TextStyle(color: appColors.inferiorColor),
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
+        title: Text(widget.title),
+        content: ConstrainedBox(
+          // Not ideal, but this was only way I found to constrain width on tablets
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: widget.controller,
+                keyboardType: widget.keyboardType,
+                focusNode: focusNode,
+                cursorColor: appColors.primaryColor,
+                style: TextStyle(color: appColors.inferiorColor),
+                decoration: InputDecoration(
+                  hintText: widget.hintText,
+                  hintStyle: TextStyle(color: appColors.inferiorColor),
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            AnimatedBuilder(
-              animation: unfocusedBorderanimation,
-              builder: (context, child) {
-                return CustomPaint(
-                  size: Size(MediaQuery.of(context).size.width, 2),
-                  painter: UnderlinePainter(
-                      unfocusedBorderanimation, appColors.inferiorColor),
-                );
-              },
-            ),
-            AnimatedBuilder(
-              animation: focusedBorderAnimation,
-              builder: (context, child) {
-                return CustomPaint(
-                  size: Size(MediaQuery.of(context).size.width, 2),
-                  painter: UnderlinePainter(
-                      focusedBorderAnimation, appColors.primaryColor),
-                );
-              },
-            ),
-          ],
+              const SizedBox(height: 5),
+              // ΕΔΩ ΕΓΚΕΙΤΑΙ ΤΟ ΠΡΟΒΛΗΜΑ
+              AnimatedBuilder(
+                animation: unfocusedBorderanimation,
+                builder: (context, child) {
+                    return CustomPaint(
+                      size: Size(MediaQuery.of(context).size.width, 2),
+                      painter: UnderlinePainter(
+                        unfocusedBorderanimation,
+                        appColors.inferiorColor,
+                      ),
+                    );
+                },
+              ),
+              AnimatedBuilder(
+                animation: focusedBorderAnimation,
+                builder: (context, child) {
+                  return CustomPaint(
+                    size: Size(MediaQuery.of(context).size.width, 2),
+                    painter: UnderlinePainter(
+                      focusedBorderAnimation,
+                      appColors.primaryColor,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
         actions: <Widget>[
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: Navigator.of(context).pop,
             style: TextButton.styleFrom(
               foregroundColor: appColors.secondaryColor,
             ),
@@ -474,9 +479,7 @@ class _InputDialogState extends State<InputDialog>
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: Navigator.of(context).pop,
             style: ElevatedButton.styleFrom(
               backgroundColor: appColors.primaryColor,
             ),
