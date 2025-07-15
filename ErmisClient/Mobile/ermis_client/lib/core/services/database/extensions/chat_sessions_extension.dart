@@ -86,7 +86,7 @@ extension ChatSessionsExtension on DBConnection {
       final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
             
       final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
-      final Uint8List decompressedProfile = (await compressedProfilePhoto.decompress())!;
+      final Uint8List decompressedProfile = (await compressedProfilePhoto.decompress()) ?? Uint8List(0);
 
       Member member = Member(
         displayName,

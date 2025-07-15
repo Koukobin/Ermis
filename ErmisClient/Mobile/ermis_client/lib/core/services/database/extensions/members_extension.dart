@@ -128,12 +128,14 @@ extension MembersExtension on DBConnection {
             maxHeight: 250,
     );
 
-    Uint8List compressedProfile = await FlutterImageCompress.compressWithList(
-      member.icon.profilePhoto,
-      quality: 80,
-      minHeight: size.height.toInt(),
-      minWidth: size.width.toInt(),
-    );
+    Uint8List compressedProfile = member.icon.profilePhoto.isEmpty
+        ? member.icon.profilePhoto
+        : await FlutterImageCompress.compressWithList(
+            member.icon.profilePhoto,
+            quality: 80,
+            minHeight: size.height.toInt(),
+            minWidth: size.width.toInt(),
+          );
 
     await db.insert(
       'members',
