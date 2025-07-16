@@ -6,6 +6,8 @@
 
 **Ermis M** is an open-source, Flutter client application designed for secure and seamless communication with the Ermis server. Ermis M offers a fast and secure platform for connecting with others. Since the dedicated app is built with Flutter, it runs seamlessly on both Android and iOS, while maintaining an almost identical experience across all devices.
 
+You can install the app on the Play Store here: [Ermis M]()https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile). 
+
 ## Key Features
 
 - **Real-time Messaging**: Chat with friends and family instantly.
