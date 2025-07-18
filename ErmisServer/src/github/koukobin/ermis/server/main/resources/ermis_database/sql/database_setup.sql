@@ -110,24 +110,27 @@ CREATE INDEX IF NOT EXISTS chat_session_members_chat_session_id_member_id_index 
 -- Create trigger for "users" to ensure that chat sessions
 -- associated with a user account are automatically deleted 
 -- when aforementioned user account is deleted
+
+-- Function to delete private chat sessions when a user is deleted
 CREATE OR REPLACE FUNCTION delete_private_chats_on_user_delete()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Delete chat sessions where the deleted user was a member
-    -- and the session has only one member remaining.
+    -- Delete chat sessions where the deleted user used to be a member
+    -- and the session has consequently only one member remaining.
     DELETE FROM chat_sessions
     WHERE chat_session_id IN (
-        SELECT chat_session_id
-        FROM chat_session_members
-        WHERE member_id = OLD.client_id
-    )
-    AND (SELECT COUNT(*)
-         FROM chat_session_members
-         WHERE chat_session_id = chat_sessions.chat_session_id) = 1;
-     RETURN NEW;
+        SELECT csm.chat_session_id
+        FROM chat_session_members csm
+        WHERE csm.member_id = OLD.client_id
+        GROUP BY csm.chat_session_id
+        HAVING COUNT(*) = 1
+    );
+
+    RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
+-- Trigger to invoke the function after a user is deleted
 CREATE OR REPLACE TRIGGER trg_delete_private_chats_on_user_delete
 AFTER DELETE ON users
 FOR EACH ROW
