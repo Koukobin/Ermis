@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Name=Mercury
+Comment=Chating application
+GenericName=Internet Messenger
+Terminal=false
+Exec=/opt/Mercury-Client/mercury-client.sh
+Icon=/opt/Mercury-Client/icons/mercury-client.png
+Type=Application
+Categories=Network;InstantMessaging;

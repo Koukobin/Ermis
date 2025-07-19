@@ -1,10 +1,10 @@
-# Ermis-Client (Desktop)
+# Mercury-Client (Desktop)
 
 [ilias.koukovinis@gmail.com]: https://mail.google.com/mail/u/0/?tab=rm&ogbl#search/ilias.koukovinis%40gmail.com
 
 ## Overview
 
-**Ermis-Client** is an open-source, Java-based client-side application designed for secure and seamless communication with the Ermis server. Ermis-Client offers a fast and secure platform for connecting with others.
+**Mercury-Client** is an open-source, Java-based client-side application designed for secure and seamless communication with the Ermis server. Ermis-Client offers a fast and secure platform for connecting with others.
 
 ## Key Features
 

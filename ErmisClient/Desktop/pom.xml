@@ -122,7 +122,7 @@
 	<build>
 
 		<sourceDirectory>src</sourceDirectory>
-		<finalName>ermis-client</finalName>
+		<finalName>mercury-client</finalName>
 
 		<resources>
 			<resource>

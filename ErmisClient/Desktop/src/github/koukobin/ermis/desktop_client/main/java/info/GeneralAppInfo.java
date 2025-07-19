@@ -29,7 +29,7 @@ import github.koukobin.ermis.desktop_client.main.java.util.SystemUtils;
  */
 public final class GeneralAppInfo {
 
-	public static final String GENERAL_NAME = "Ermis";
+	public static final String GENERAL_NAME = "Mercury";
 	public static final String TITLE = GENERAL_NAME + "-Client";
 
 	public static final String VERSION = getAppVersion();

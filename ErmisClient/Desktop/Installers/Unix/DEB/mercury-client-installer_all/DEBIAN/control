@@ -1,0 +1,9 @@
+Package: mercury-client
+Version: 1.1-rc
+Priority: extra
+Essential: no
+Architecture: all
+Depends: java-runtime (>= 17)
+Maintainer: Ilias Koukovinis
+Homepage: https://github.com/Koukobin/Ermis
+Description: CHAT

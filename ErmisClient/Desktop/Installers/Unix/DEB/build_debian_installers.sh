@@ -2,11 +2,11 @@
 
 # Define variables for folder and file paths
 TARGET_FOLDER="$(git rev-parse --show-toplevel)/ErmisClient/Desktop"
-JAR_FILE="$TARGET_FOLDER/target/ermis-client.jar"
+JAR_FILE="$TARGET_FOLDER/target/mercury-client.jar"
 LIB_FOLDER="$TARGET_FOLDER/target/lib"
 
 SOURCE_FOLDER="$(git rev-parse --show-toplevel)/ErmisClient/Desktop"
-TARGET_JAR="$SOURCE_FOLDER/target/ermis-client.jar"
+TARGET_JAR="$SOURCE_FOLDER/target/mercury-client.jar"
 LIB_FOLDER="$SOURCE_FOLDER/target/lib"
 DOC_FILES=("README.md" "LICENSE.txt" "NOTICE.txt")
 
@@ -18,7 +18,7 @@ update_files () {
     mkdir -p "$BIN/lib"
 
     # Copy the main JAR file and libraries
-    cp "$JAR_FILE" "$BIN" || { echo "Failed to copy ermis-client.jar ($JAR_FILE)"; exit 1; }
+    cp "$JAR_FILE" "$BIN" || { echo "Failed to copy mercury-client.jar ($JAR_FILE)"; exit 1; }
     cp "$LIB_FOLDER"/* "$BIN/lib" || { echo "Failed to copy library files ($LIB_FOLDER)"; exit 1; }
 
     # Copy documentation files
@@ -44,13 +44,13 @@ create_deb_package() {
     echo "DEB package - $1 - succesfully created!"
 }
 
-AMD64_INSTALLER_PATH="ermis-client-installer_amd64"
-ARM64_INSTALLER_PATH="ermis-client-installer_arm64"
-ALL_INSTALLER_PATH="ermis-client-installer_all"
+AMD64_INSTALLER_PATH="mercury-client-installer_amd64"
+ARM64_INSTALLER_PATH="mercury-client-installer_arm64"
+ALL_INSTALLER_PATH="mercury-client-installer_all"
 
-AMD64_OPT_PATH="$AMD64_INSTALLER_PATH/opt/Ermis-Client"
-ARM64_OPT_PATH="$ARM64_INSTALLER_PATH/opt/Ermis-Client"
-ALL_OPT_PATH="$ALL_INSTALLER_PATH/opt/Ermis-Client"
+AMD64_OPT_PATH="$AMD64_INSTALLER_PATH/opt/Mercury-Client"
+ARM64_OPT_PATH="$ARM64_INSTALLER_PATH/opt/Mercury-Client"
+ALL_OPT_PATH="$ALL_INSTALLER_PATH/opt/Mercury-Client"
 
 update_files $AMD64_OPT_PATH
 update_files $ARM64_OPT_PATH

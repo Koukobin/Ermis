@@ -24,7 +24,7 @@ import javafx.scene.image.Image;
 public final class Icons {
 
 	public static final String ICONS_PATH = GeneralAppInfo.MAIN_PROJECT_PATH + "resources/icons/";
-	
+
 	public static final Image PRIMARY_APPLICATION_ICON_92 = new Image(Icons.class.getResource(ICONS_PATH + "primary-application-icon-92.png").toExternalForm());
 	public static final Image PRIMARY_APPLICATION_ICON_256 = new Image(Icons.class.getResource(ICONS_PATH + "primary-application-icon-256.png").toExternalForm());
 	public static final Image PRIMARY_APPLICATION_ICON_512 = new Image(Icons.class.getResource(ICONS_PATH + "primary-application-icon-512.png").toExternalForm());
@@ -56,6 +56,6 @@ public final class Icons {
 
 	public static final Image SEND = new Image(Icons.class.getResource(MATERIAL_DESIGN_ICONS_PATH + "send.png").toExternalForm());
 	public static final Image SETTINGS = new Image(Icons.class.getResource(MATERIAL_DESIGN_ICONS_PATH + "settings.png").toExternalForm());
-	
+
 	private Icons() {}
 }

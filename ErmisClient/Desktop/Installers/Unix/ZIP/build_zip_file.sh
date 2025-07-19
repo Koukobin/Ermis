@@ -2,11 +2,11 @@
 
 # Define variables for folder and file paths
 TARGET_FOLDER="$(git rev-parse --show-toplevel)/ErmisClient/Desktop"
-JAR_FILE="$TARGET_FOLDER/target/ermis-client.jar"
+JAR_FILE="$TARGET_FOLDER/target/mercury-client.jar"
 LIB_FOLDER="$TARGET_FOLDER/target/lib"
 
 SOURCE_FOLDER="$(git rev-parse --show-toplevel)/ErmisClient/Desktop"
-TARGET_JAR="$SOURCE_FOLDER/target/ermis-client.jar"
+TARGET_JAR="$SOURCE_FOLDER/target/mercury-client.jar"
 LIB_FOLDER="$SOURCE_FOLDER/target/lib"
 DOC_FILES=("README.md" "LICENSE.txt" "NOTICE.txt")
 
@@ -18,7 +18,7 @@ update_files () {
     mkdir -p "$BIN/lib"
 
     # Copy the main JAR file and libraries
-    cp "$JAR_FILE" "$BIN" || { echo "Failed to copy ermis-client.jar ($JAR_FILE)"; exit 1; }
+    cp "$JAR_FILE" "$BIN" || { echo "Failed to copy mercury-client.jar ($JAR_FILE)"; exit 1; }
     cp "$LIB_FOLDER"/* "$BIN/lib" || { echo "Failed to copy library files ($LIB_FOLDER)"; exit 1; }
 
     # Copy documentation files
@@ -32,7 +32,7 @@ create_deb_package() {
     echo "DEB package - $1 - succesfully created!"
 }
 
-update_files "ermis-client"
+update_files "mercury-client"
 
 # Create ZIP
-zip -r ermis-desktop-client.zip ermis-client/
+zip -r mercury-desktop-client.zip mercury-client/

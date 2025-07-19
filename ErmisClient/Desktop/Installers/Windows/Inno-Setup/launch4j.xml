@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>ermis-client.jar</jar>
-  <outfile>Ermis-Client_x64\ErmisClient.exe</outfile>
+  <jar>mercury-client.jar</jar>
+  <outfile>Mercury-Client_x64\MercuryClient.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
