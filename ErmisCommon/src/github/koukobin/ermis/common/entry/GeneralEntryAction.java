@@ -16,11 +16,15 @@
 package github.koukobin.ermis.common.entry;
 
 /**
+ * 
+ * This enum indicates/signifies to the server that the message is an action and
+ * not a credential
+ * 
  * @author Ilias Koukovinis
  *
  */
 public enum GeneralEntryAction {
-	action(117 /* Number chosen arbitrarily... */);
+	ACTION(117 /* Number chosen arbitrarily... */);
 
 	public final int id;
 
