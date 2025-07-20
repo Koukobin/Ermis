@@ -23,7 +23,7 @@
 	spacing="1.0"
 	stylesheets="@../../../css/chat_interface/settings/help-settings.css"
 	xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="github.koukobin.ermis.client.main.java.controllers.chat_interface.HelpSettingsController">
+	fx:controller="github.koukobin.ermis.desktop_client.main.java.controllers.chat_interface.HelpSettingsController">
 	<children>
 		<Pane fx:id="chatsTopPane" maxWidth="1.7976931348623157E308"
 			prefWidth="310.0">

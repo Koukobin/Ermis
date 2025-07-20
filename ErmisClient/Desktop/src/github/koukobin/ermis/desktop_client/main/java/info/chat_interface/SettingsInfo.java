@@ -19,7 +19,6 @@ import java.net.URL;
 
 import github.koukobin.ermis.desktop_client.main.java.info.GeneralAppInfo;
 
-
 /**
  * @author Ilias Koukovinis
  *
@@ -32,13 +31,13 @@ public final class SettingsInfo {
 	public static class AccountSettings {
 
 		public static final URL ACCOUNT_SETTINGS_LOCATION = ChatInterfaceInfo.class.getResource(GeneralAppInfo.MAIN_PROJECT_PATH + "resources/view/chat_interface/settings/account-settings.fxml");
-		
+
 		public static final String ACCOUNT_SETTINGS_FOCUSED_CSS_LOCATION = ChatInterfaceInfo.class
 				.getResource(GeneralAppInfo.MAIN_PROJECT_PATH + "resources/css/chat_interface/settings/account-settings-focused.css")
 				.toExternalForm();
-		
+
 		private AccountSettings() {}
 	}
-	
+
 	private SettingsInfo() {}
 }

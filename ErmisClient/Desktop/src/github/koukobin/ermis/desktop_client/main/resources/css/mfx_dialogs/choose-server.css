@@ -79,7 +79,7 @@
 .mfx-combo-box .combo-popup .virtual-flow .mfx-combo-box-cell,
 .mfx-combo-box .combo-popup .virtual-flow .data-label {
     -fx-background-color: rgb(15, 15, 15); /* Color for selected item */
-    -fx-text-fill: rgb(0, 227, 38); /* Text color for selected item */
+    -fx-text-fill: rgb(7, 50, 242); /* Text color for selected item */
 }
 
 .mfx-combo-box .combo-popup .virtual-flow .mfx-combo-box-cell {

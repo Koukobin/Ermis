@@ -17,7 +17,7 @@
 @import url("../disable-javafx-borders.css");
 
 * {
-    -mfx-main: green;
+    -mfx-main: blue;
     -mfx-secondary: grey;
     -fx-text-fill: white;
     -fx-default-background-color: rgb(23, 23, 23);

@@ -30,7 +30,7 @@
 .mfx-progress-bar .bar1,
 .mfx-progress-bar:indeterminate .bar1,
 .mfx-progress-bar:indeterminate .bar2 {
-	-fx-fill: rgb(15, 157, 88);
+	-fx-fill: rgb(15, 55, 157);
 }
 
 .jfx-check-box {
@@ -43,7 +43,7 @@
 }
 
 #createAccountButton {
-	-fx-background-color: rgb(15, 157, 88);
+	-fx-background-color: rgb(15, 55, 157);
 	-fx-text-fill: white;
 	-fx-background-radius: 3;
 }

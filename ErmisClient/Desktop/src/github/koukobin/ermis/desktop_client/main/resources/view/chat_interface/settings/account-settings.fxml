@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
-<VBox fx:id="root" alignment="TOP_CENTER" minWidth="335.0" prefHeight="800.0" stylesheets="@../../../css/chat_interface/settings/account-settings.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="github.koukobin.ermis.client.main.java.controllers.chat_interface.AccountSettingsController">
+<VBox fx:id="root" alignment="TOP_CENTER" minWidth="335.0" prefHeight="800.0" stylesheets="@../../../css/chat_interface/settings/account-settings.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="github.koukobin.ermis.desktop_client.main.java.controllers.chat_interface.AccountSettingsController">
 	<children>
 		<Pane fx:id="chatsTopPane" maxWidth="1.7976931348623157E308" prefWidth="310.0">
 			<children>
