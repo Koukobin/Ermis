@@ -25,7 +25,7 @@
 
 ## Set up Project Locally For Development
 
-For a thorough step-by-step guide for setting up the dekstop client codebase locally consult the [wiki](https://github.com/Koukobin/Ermis/wiki/Ermis%E2%80%90Client-Home-(Desktop)#setup-project-locally)
+For a thorough step-by-step guide for setting up the dekstop client codebase locally consult the [wiki](https://github.com/Koukobin/Ermis/wiki/Mercury%E2%80%90Client-Home-(Desktop)#set-up-project-locally)
 
 ## Contributing
 
