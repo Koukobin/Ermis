@@ -50,6 +50,7 @@ import github.koukobin.ermis.common.entry.GeneralEntryAction;
 import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.entry.Resultable;
 import github.koukobin.ermis.common.entry.LoginInfo.CredentialsExchange;
+import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
 import github.koukobin.ermis.common.entry.Verification;
 import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.results.ResultHolder;
@@ -298,7 +299,7 @@ public class Client {
 		public void resendVerificationCode() throws IOException {
 			ByteBuf payload = Unpooled.buffer(3 * Integer.BYTES);
 			payload.writeInt(ClientMessageType.USER_ENTRY.id);
-			payload.writeInt(GeneralEntryAction.action.id);
+			payload.writeInt(GeneralEntryAction.ACTION.id);
 			payload.writeInt(Verification.Action.RESEND_CODE.id);
 
 			out.write(payload);
@@ -322,13 +323,14 @@ public class Client {
 			super(EntryType.LOGIN);
 		}
 
-		public void togglePasswordType() throws IOException {
+		public void setPasswordType(PasswordType type) throws IOException {
 			int actionId = LoginInfo.Action.TOGGLE_PASSWORD_TYPE.id;
 
 			ByteBuf payload = Unpooled.buffer();
-		    payload.writeInt(ClientMessageType.USER_ENTRY.id);
-		    payload.writeInt(GeneralEntryAction.action.id);
+			payload.writeInt(ClientMessageType.USER_ENTRY.id);
+			payload.writeInt(GeneralEntryAction.ACTION.id);
 			payload.writeInt(actionId);
+			payload.writeInt(type.id);
 
 			out.write(payload);
 		}
@@ -336,7 +338,6 @@ public class Client {
 
 	public static class BackupVerificationEntry {
 
-		@Deprecated
 		public ResultHolder getResult() {
 			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
 					.observeMessages()
@@ -346,13 +347,9 @@ public class Client {
 			ByteBuf payload = msg.getBuffer();
 
 			isLoggedIn.set(payload.readBoolean());
+			int id = payload.readInt();
 
-			byte[] resultMessageBytes = new byte[payload.readableBytes()];
-			payload.readBytes(resultMessageBytes);
-
-			String resultMessage = new String(resultMessageBytes);
-
-			return new ResultHolder(isLoggedIn(), resultMessage);
+			return LoginInfo.Login.Result.fromId(id).resultHolder;
 		}
 	}
 

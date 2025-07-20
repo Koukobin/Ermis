@@ -19,6 +19,7 @@ import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import com.google.common.base.Throwables;
 
@@ -30,9 +31,11 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
  */
 public interface BackupVerificationCodesModule extends BaseComponent, UserCredentialsRepository {
 
-	default int regenerateBackupVerificationCodes(String email) {
-		int resultUpdate = 0;
-
+	/**
+	 * @param email
+	 * @return newly generated backup verification codes
+	 */
+	default Optional<String[]> regenerateBackupVerificationCodes(String email) {
 		String salt = getSalt(email);
 
 		String[] hashedBackupVerificationCodes = BackupVerificationCodesGenerator.generateHashedBackupVerificationCodes(salt);
@@ -41,17 +44,21 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 				.prepareStatement("UPDATE users SET backup_verification_codes=? WHERE email=?;")) {
 
 			Array backupVerificationCodesArray = getConn().createArrayOf("TEXT", hashedBackupVerificationCodes);
+
 			replaceBackupVerificationCodes.setArray(1, backupVerificationCodesArray);
+			replaceBackupVerificationCodes.setString(2, email);
+			int resultUpdate = replaceBackupVerificationCodes.executeUpdate();
+
 			backupVerificationCodesArray.free();
 
-			replaceBackupVerificationCodes.setString(2, email);
-
-			resultUpdate = replaceBackupVerificationCodes.executeUpdate();
+			if (resultUpdate == 1) {
+				return Optional.of(hashedBackupVerificationCodes);
+			}
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate;
+		return Optional.empty();
 	}
 
 	default int removeBackupVerificationCode(String backupVerificationCode, String email) {
@@ -71,7 +78,6 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 	}
 
 	default String[] getBackupVerificationCodesAsStringArray(String email) {
-
 		String[] backupVerificationCodes = null;
 
 		String query = "SELECT backup_verification_codes FROM users WHERE email=?";
@@ -91,7 +97,6 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 	}
 
 	default byte[][] getBackupVerificationCodesAsByteArray(String email) {
-
 		String[] backupVerificationCodesString = getBackupVerificationCodesAsStringArray(email);
 
 		byte[][] backupVerificationCodes = new byte[backupVerificationCodesString.length][];

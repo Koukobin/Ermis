@@ -96,9 +96,7 @@ public final class LoginSceneController extends GeneralEntryController {
         loginCredentials.put(LoginInfo.Credential.EMAIL, getEmail());
         loginCredentials.put(LoginInfo.Credential.PASSWORD, getPassword());
 
-		if (getPasswordType() != PasswordType.PASSWORD) {
-			loginEntry.togglePasswordType();
-		}
+		loginEntry.setPasswordType(getPasswordType());
 		
 		boolean isSuccessful = sendAndValidateCredentials(loginEntry, loginCredentials);
 		

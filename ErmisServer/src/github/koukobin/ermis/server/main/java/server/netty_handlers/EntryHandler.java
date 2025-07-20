@@ -53,7 +53,7 @@ public abstract sealed class EntryHandler
 		msg.markReaderIndex();
 		int isAction = msg.readInt();
 
-		if (isAction == GeneralEntryAction.action.id) {
+		if (isAction == GeneralEntryAction.ACTION.id) {
 			executeEntryAction(ctx, msg);
 			return;
 		}

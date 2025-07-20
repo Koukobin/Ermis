@@ -114,7 +114,7 @@ public final class LoginHandler extends EntryHandler {
 	private void onUserMeetsRequirements(ChannelHandlerContext ctx) {
 		String email = credentials.get(Credential.EMAIL);
 		String password = credentials.get(Credential.PASSWORD);
-
+		
 		switch (passwordType) {
 		case BACKUP_VERIFICATION_CODE -> {
 			GeneralResult entryResult;
@@ -128,6 +128,7 @@ public final class LoginHandler extends EntryHandler {
 			if (entryResult.isSuccessful()) {
 				clientInfo.setEmail(email);
 				login(ctx, clientInfo);
+				ctx.pipeline().remove(ctx.handler());
 
 				@Nullable String newlyGeneratedBackupVerificationCodes = entryResult.getAddedInfo().get(AddedInfo.BACKUP_VERIFICATION_CODES);
 

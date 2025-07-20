@@ -30,6 +30,7 @@ import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.results.GeneralResult;
+import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase.Insert;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.BackupVerificationCodesGenerator;
@@ -261,32 +262,23 @@ public interface AuthService
 		// Add address to user logged in ip addresses
 		Insert resultC = insertUserIp(email, deviceInfo);
 
-		if (resultC == Insert.SUCCESSFUL_INSERT) {
+		if (resultC == Insert.SUCCESSFUL_INSERT || resultC == Insert.DUPLICATE_ENTRY) {
 			// Remove backup verification code from user; a backup verification
-			// code can only be used once
+			// code can only be used once.
 			removeBackupVerificationCode(backupVerificationCode, email);
 
 			// Regenerate backup verification codes if they have become 0
-			boolean hasRegeneratedBackupVerificationCodes = false;
 			if (backupVerificationCodesAmount - 1 == 0) {
-				regenerateBackupVerificationCodes(email);
-				hasRegeneratedBackupVerificationCodes = true;
-			}
+				String[] codesArray = regenerateBackupVerificationCodes(email).orElse(EmptyArrays.EMPTY_STRING_ARRAY);
+				String codesString = String.join(",", codesArray);
 
-			GeneralResult result;
-
-			// If has regenerated backup verification codes then add the to the
-			// result message
-			if (hasRegeneratedBackupVerificationCodes) {
+				// Add regenerated backup verification codes to result
 				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
-				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, backupVerificationCode);
-
-				result = new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
-			} else {
-				result = new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
+				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, codesString);
+				return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
 			}
 
-			return result;
+			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
 		}
 
 		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
