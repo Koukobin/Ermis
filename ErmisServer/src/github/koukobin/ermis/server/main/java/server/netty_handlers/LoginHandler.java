@@ -128,7 +128,6 @@ public final class LoginHandler extends EntryHandler {
 			if (entryResult.isSuccessful()) {
 				clientInfo.setEmail(email);
 				login(ctx, clientInfo);
-				ctx.pipeline().remove(ctx.handler());
 
 				@Nullable String newlyGeneratedBackupVerificationCodes = entryResult.getAddedInfo().get(AddedInfo.BACKUP_VERIFICATION_CODES);
 

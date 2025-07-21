@@ -17,11 +17,9 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.netty_handlers.CreateAccountHandler;
-import github.koukobin.ermis.server.main.java.server.netty_handlers.LoginHandler;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.EntryHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
@@ -32,40 +30,8 @@ public class AddOrSwitchToNewAccount implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
-		removeAuthenticationHandlers(channel);
+		EntryHandler.cleanupEntryHandlerPipeline(channel);
 		channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
-	}
-
-	/**
-	 * Check if authentication handlers are already present in the pipeline - in
-	 * which case remove them and readd them.
-	 * 
-	 * This exact code also exists in {@link DeleteAccount}; perhaps this should be
-	 * refactored to utilize reflection in order to fetch all subclasses of
-	 * {@link EntryHandler} and {@link StartingEntryHandler} and subsequently remove
-	 * them (This could easily be done via the Reflections API {@link Reflections}).
-	 */
-	private static void removeAuthenticationHandlers(EpollSocketChannel channel) {
-		{
-			ChannelHandler handler = channel.pipeline().get(StartingEntryHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
-
-		{
-			ChannelHandler handler = channel.pipeline().get(CreateAccountHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
-
-		{
-			ChannelHandler handler = channel.pipeline().get(LoginHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
 	}
 
 	@Override

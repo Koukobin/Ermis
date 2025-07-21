@@ -129,7 +129,6 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 		}
 
 		login(ctx, clientInfo);
-		ctx.pipeline().remove(ctx.handler());
 	}
 
 	public abstract String createEmailMessage(String account, String generatedVerificationCode);

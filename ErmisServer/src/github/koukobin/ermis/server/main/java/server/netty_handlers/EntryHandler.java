@@ -16,10 +16,12 @@
 package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
+import java.util.List;
 
 import github.koukobin.ermis.common.entry.GeneralEntryAction;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -75,14 +77,41 @@ public abstract sealed class EntryHandler
 			ctx.pipeline().remove(CommandHandler.class);
 		}
 
-		if (ctx.pipeline().get(StartingEntryHandler.class) != null) {
-			ctx.pipeline().remove(StartingEntryHandler.class);
-		}
+		cleanupEntryHandlerPipeline(ctx.channel());
 
 		MessageHandler messageHandler = new MessageHandler(clientInfo);
 		ctx.pipeline().addLast(MessageHandler.class.getName(), messageHandler);
 		messageHandler.awaitInitialization();
 		ctx.pipeline().addLast(CommandHandler.class.getName(), new CommandHandler(clientInfo));
+	}
+
+	/**
+	 * Removes all entry related handlers from the pipeline; useful for ending and
+	 * initiating authentication process while ensuring no leftover handler remains.
+	 */
+	public static void cleanupEntryHandlerPipeline(Channel channel) {
+		class HandlersToBePurged {
+			// List instead of array used because compiler throws Cannot create a generic
+			// array of Class<? extends EntryHandler>
+			private static final List<Class<? extends AbstractChannelClientHandler>> list = List.of(
+				    LoginHandler.class,
+				    CreateAccountHandler.class,
+				    StartingEntryHandler.class,
+				    VerificationHandler.class
+			);
+
+			// Add private constructor to eliminate annoying sonarlint warning
+			private HandlersToBePurged() {}
+		}
+
+		for (var handler : HandlersToBePurged.list) {
+			if (channel.pipeline().get(handler) != null) {
+				channel.pipeline().remove(handler);
+				continue;
+			}
+
+			getLogger().debug("Handler {} not found in pipeline", handler.getSimpleName());
+		}
 	}
 
 	/**

@@ -24,12 +24,10 @@ import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.netty_handlers.CreateAccountHandler;
-import github.koukobin.ermis.server.main.java.server.netty_handlers.LoginHandler;
+import github.koukobin.ermis.server.main.java.server.netty_handlers.EntryHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.VerificationHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
@@ -46,7 +44,7 @@ public class DeleteAccount implements ICommand {
 		byte[] passwordBytes = new byte[args.readInt()];
 		args.readBytes(passwordBytes);
 
-		removeAuthenticationHandlers(channel);
+		EntryHandler.cleanupEntryHandlerPipeline(channel);
 
 		channel.pipeline().addLast(StartingEntryHandler.class.getName(), new StartingEntryHandler());
 		channel.pipeline().addLast(VerificationHandler.class.getName(),
@@ -86,39 +84,6 @@ public class DeleteAccount implements ICommand {
 										generatedVerificationCode));
 					}
 				});
-	}
-
-	/**
-	 * Check if authentication handlers are already present in the pipeline - in
-	 * which case remove them and readd them.
-	 * 
-	 * This exact code also exists in {@link AddOrSwitchToNewAccount}; perhaps this
-	 * should be refactored to utilize reflection in order to fetch all subclasses
-	 * of {@link EntryHandler} and {@link StartingEntryHandler} and subsequently
-	 * remove them (This could easily be achieved via the Reflections API
-	 * {@link Reflections}).
-	 */
-	private static void removeAuthenticationHandlers(EpollSocketChannel channel) {
-		{
-			ChannelHandler handler = channel.pipeline().get(StartingEntryHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
-
-		{
-			ChannelHandler handler = channel.pipeline().get(CreateAccountHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
-
-		{
-			ChannelHandler handler = channel.pipeline().get(LoginHandler.class);
-			if (handler != null) {
-				channel.pipeline().remove(handler);
-			}
-		}
 	}
 
 	@Override
