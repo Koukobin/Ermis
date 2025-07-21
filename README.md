@@ -137,12 +137,12 @@ To set up the project locally, follow the instructions for each component:
 
 * Q: Is there a mobile version of Ermis?
 	- A: Yes! The Ermis Client is designed not only for desktop platforms (Linux, Windows) but also for mobile devices running Android.
-* Q: Is there a IOS version of Ermis?
+* Q: Is there an IOS version of Ermis?
     - A: Although the mobile client is developed using Flutter - a cross-platform UI framework -, Apple's stringent/rigorous requirements make building an iOS version (IPA) a pain in the ass. Requiring Apple hardware, compiling in Xcode and I don't even know what else. One thing is for certain - I am not spending money tantamount to buying a car to solely build an iOS version. Consequently, the release of an iOS version is *non potest fieri*.
-* Q: Is there a macOS version of Ermis-Client?
-	- A: At the moment, Ermis-Client is designed for Windows and Linux - even though it is programmed in Java. Due to Apple's protectionist and closed-platform policies, a dedicated macOS version is not available at this time, but future updates may include support for the macOS platform as well. **With that being said though**, because **MacOS is a Unix-based system**, the **.zip package of the app very likely works**.
-* Q: Are installers for Ermis-Client available for all Linux distributions?
-	- A: Unfortunately, at the present moment, Ermis-Client is available exclusively for Debian-based distributions (such as Ubuntu, Linux Mint, Kali Linux). In the future, I hope to include support for Red Hat-based distributions (like Fedora and CentOS) and other distros, such as Arch Linux. **Having said that though**, the **.zip package of the app very likely works for all Unix-based distributions** universally.
+* Q: Is there a macOS version of Mercury-Client?
+	- A: At the moment, Mercury-Client is designed for Windows and Linux - even though it is programmed in Java. Due to Apple's protectionist and closed-platform policies, a dedicated macOS version is not available at this time, but future updates may include support for the macOS platform as well. **With that being said though**, because **MacOS is a Unix-based system**, the **.zip package of the app very likely works**.
+* Q: Are installers for Mercury-Client available for all Linux distributions?
+	- A: Unfortunately, at the present moment, Mercury-Client is available exclusively for Debian-based distributions (such as Ubuntu, Linux Mint, Kali Linux). In the future, I hope to include support for Red Hat-based distributions (like Fedora and CentOS) and other distros, such as Arch Linux. **Having said that though**, the **.zip package of the app very likely works for all Unix-based distributions** universally.
 * Q: Is my data secure while using Ermis?
     - A: Yes, Ermis employs robust encryption methods to ensure the protection of user data and privacy.
     
