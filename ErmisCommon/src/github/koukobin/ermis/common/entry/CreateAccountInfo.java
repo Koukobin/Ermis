@@ -141,7 +141,7 @@ public final class CreateAccountInfo {
 	}
 
 	public static class CreateAccount {
-		public enum Result implements IDable {
+		public enum Result implements IDable, Resultable {
 			SUCCESFULLY_CREATED_ACCOUNT(1, true, "Account successfully created!"),
 			ERROR_WHILE_CREATING_ACCOUNT(2, false, "An error occurred while creating your account!"),
 			DATABASE_MAX_SIZE_REACHED(3, false, "Database maximum capacity reached! Unfortunately, your request could not be processed."),
@@ -174,6 +174,11 @@ public final class CreateAccountInfo {
 			@Override
 			public boolean isSuccessful() {
 				return resultHolder.isSuccessful();
+			}
+
+			@Override
+			public String message() {
+				return resultHolder.getResultMessage();
 			}
 
 		}

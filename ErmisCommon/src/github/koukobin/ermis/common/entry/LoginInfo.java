@@ -162,7 +162,7 @@ public final class LoginInfo {
 	}
 
 	public static class Login {
-		public enum Result implements IDable {
+		public enum Result implements IDable, Resultable {
             SUCCESFULLY_LOGGED_IN(1, true, "Succesfully logged into your account!"),
             ERROR_WHILE_LOGGING_IN(2, false, "An error occurred while logging into your account! Please contact the server administrator and let them know that their server is broken."),
             INCORRECT_PASSWORD(3, false, "Incorrect password."),
@@ -196,6 +196,11 @@ public final class LoginInfo {
 			@Override
 			public boolean isSuccessful() {
 				return resultHolder.isSuccessful();
+			}
+
+			@Override
+			public String message() {
+				return resultHolder.getResultMessage();
 			}
 		}
 	}
