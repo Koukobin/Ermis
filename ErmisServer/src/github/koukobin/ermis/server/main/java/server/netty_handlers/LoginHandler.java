@@ -114,7 +114,7 @@ public final class LoginHandler extends EntryHandler {
 	private void onUserMeetsRequirements(ChannelHandlerContext ctx) {
 		String email = credentials.get(Credential.EMAIL);
 		String password = credentials.get(Credential.PASSWORD);
-		
+
 		switch (passwordType) {
 		case BACKUP_VERIFICATION_CODE -> {
 			GeneralResult entryResult;
@@ -140,6 +140,7 @@ public final class LoginHandler extends EntryHandler {
 				}
 			} else {
 //				EntryHandler.registrationFailed(ctx);
+				credentials.clear();
 			}
 
 			ByteBuf payload = ctx.alloc().ioBuffer();
