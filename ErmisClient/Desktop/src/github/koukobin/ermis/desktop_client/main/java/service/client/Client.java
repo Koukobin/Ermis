@@ -255,10 +255,10 @@ public class Client {
 			out.write(Unpooled.copyInt(ClientMessageType.USER_ENTRY.id, entryType.id));
 		}
 
-		public void sendVerificationCode(String verificationCode) throws IOException {
+		public void sendVerificationCode(int verificationCode) throws IOException {
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_ENTRY.id);
-			payload.writeInt(Integer.valueOf(verificationCode));
+			payload.writeInt(verificationCode);
 
 			out.write(payload);
 		}
@@ -272,27 +272,27 @@ public class Client {
 			ByteBuf payload = msg.getBuffer();
 
 			isVerificationComplete = payload.readBoolean();
-            isLoggedIn.set(payload.readBoolean());
+			isLoggedIn.set(payload.readBoolean());
 
-            int id = payload.readInt();
+			int id = payload.readInt();
 
 			Map<AddedInfo, String> map = new EnumMap<>(AddedInfo.class);
 
-            // Reading additional information from the ByteBuf
-            while (payload.readableBytes() > 0) {
-                AddedInfo addedInfo = AddedInfo.fromId(payload.readInt());
-                int messageLength = payload.readInt();
-                byte[] messageBytes = new byte[messageLength];
-                payload.readBytes(messageBytes);
+			// Reading additional information from the ByteBuf
+			while (payload.readableBytes() > 0) {
+				AddedInfo addedInfo = AddedInfo.fromId(payload.readInt());
+				int messageLength = payload.readInt();
+				byte[] messageBytes = new byte[messageLength];
+				payload.readBytes(messageBytes);
 
-                // Adding the added info to the map with the UTF-8 decoded message
-                map.put(addedInfo, new String(messageBytes));
-            }
+				// Adding the added info to the map with the UTF-8 decoded message
+				map.put(addedInfo, new String(messageBytes));
+			}
 
             return new EntryResult<>(
                     entryType == EntryType.CREATE_ACCOUNT
-                    ? CredentialValidation.Result.fromId(id)
-                    : CredentialsExchange.Result.fromId(id),
+                    ? CreateAccountInfo.CreateAccount.Result.fromId(id)
+                    : LoginInfo.Login.Result.fromId(id),
                 map);
 		}
 

@@ -34,7 +34,7 @@ import javafx.scene.control.TextInputDialog;
 public class VerificationDialog {
 
 	private TextInputDialog verificationCodeDialog;
-	private String verificationCode;
+	private int verificationCode;
 	
 	private Client.Entry<? extends CredentialInterface> verificationEntry;
 	
@@ -64,17 +64,21 @@ public class VerificationDialog {
 	}
 
 	public void showAndWait() {
-
 		Optional<String> result = verificationCodeDialog.showAndWait();
 
 		if (!result.isPresent()) {
 			return;
 		}
 
-		verificationCode = result.get();
+		try {
+			verificationCode = Integer.parseInt(result.get());
+		} catch (NumberFormatException nfe) {
+			DialogsUtil.showErrorDialog("Verification code must be a number!");
+			verificationCodeDialog.showAndWait();
+		}
 	}
 
-	public String getVerificationCode() {
+	public int getVerificationCode() {
 		return verificationCode;
 	}
 }

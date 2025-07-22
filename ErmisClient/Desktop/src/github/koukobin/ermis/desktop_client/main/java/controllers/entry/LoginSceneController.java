@@ -50,7 +50,7 @@ import javafx.util.Duration;
 public final class LoginSceneController extends GeneralEntryController {
 
 	private PasswordType passwordType;
-	
+
 	@FXML
 	private StackPane parentContainer;
 	@FXML
@@ -59,20 +59,20 @@ public final class LoginSceneController extends GeneralEntryController {
 	private JFXButton switchToCreateAccountSceneButton;
 	@FXML
 	private JFXButton togglePasswordTypeButton;
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		registrationType = EntryType.LOGIN;
 		passwordType = PasswordType.PASSWORD;
 	}
-	
+
 	@FXML
 	public void flipPasswordType(ActionEvent event) {
 		passwordType = switch (passwordType) {
 		case PASSWORD -> PasswordType.BACKUP_VERIFICATION_CODE;
 		case BACKUP_VERIFICATION_CODE -> PasswordType.PASSWORD;
 		};
-		
+
 		switch (passwordType) {
 		case PASSWORD -> {
 			passwordFieldTextHidden.setPromptText("password");
@@ -86,27 +86,27 @@ public final class LoginSceneController extends GeneralEntryController {
 		}
 		}
 	}
-	
+
 	@Override
 	public void register(ActionEvent event) throws IOException {
 		Client.LoginEntry loginEntry = Client.createNewLoginEntry();
 		loginEntry.sendEntryType();
 
-        EnumMap<LoginInfo.Credential, String> loginCredentials = new EnumMap<>(LoginInfo.Credential.class);
-        loginCredentials.put(LoginInfo.Credential.EMAIL, getEmail());
-        loginCredentials.put(LoginInfo.Credential.PASSWORD, getPassword());
+		EnumMap<LoginInfo.Credential, String> loginCredentials = new EnumMap<>(LoginInfo.Credential.class);
+		loginCredentials.put(LoginInfo.Credential.EMAIL, getEmail());
+		loginCredentials.put(LoginInfo.Credential.PASSWORD, getPassword());
 
 		loginEntry.setPasswordType(getPasswordType());
-		
+
 		boolean isSuccessful = sendAndValidateCredentials(loginEntry, loginCredentials);
-		
+
 		// Clear sensitive data from memory
 		MemoryUtil.freeStringFromMemory(loginCredentials.get(LoginInfo.Credential.PASSWORD));
-		
+
 		if (!isSuccessful) {
 			return;
 		}
-		
+
 		if (getPasswordType() == PasswordType.PASSWORD) {
 			isSuccessful = performVerification(loginCredentials.get(LoginInfo.Credential.EMAIL), loginEntry);
 		} else {
@@ -126,22 +126,22 @@ public final class LoginSceneController extends GeneralEntryController {
 		if (!isSuccessful) {
 			return;
 		}
-		
+
 		closeEntry(event);
 	}
-	
+
 	@Override
 	public void switchScene(ActionEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(EntryInfo.CreateAccount.FXML_LOCATION);
 		final Parent root = loader.load();
-		
+
 		CreateAccountSceneController createAccountController = loader.getController();
 		createAccountController.setFXMLLoader(this.originalFXMLLoader);
 		this.originalFXMLLoader.setController(createAccountController);
-		
+
 		Scene scene = switchToCreateAccountSceneButton.getScene();
 		switchToCreateAccountSceneButton.setDisable(true);
-		
+
 		scene.getStylesheets().add(EntryInfo.CreateAccount.CSS_LOCATION);
 
 		Runnable transition = UITransitions.newBuilder()
@@ -155,7 +155,7 @@ public final class LoginSceneController extends GeneralEntryController {
 
 		transition.run();
 	}
-	
+
 	public PasswordType getPasswordType() {
 		return passwordType;
 	}
