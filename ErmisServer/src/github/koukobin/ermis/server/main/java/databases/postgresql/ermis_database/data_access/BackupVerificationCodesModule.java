@@ -38,22 +38,25 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 	default Optional<String[]> regenerateBackupVerificationCodes(String email) {
 		String salt = getSalt(email);
 
-		String[] hashedBackupVerificationCodes = BackupVerificationCodesGenerator.generateHashedBackupVerificationCodes(salt);
+		String[] rawBackupVerificationCodes;
+		String[] hashedBackupVerificationCodes;
 
-		try (PreparedStatement replaceBackupVerificationCodes = getConn()
-				.prepareStatement("UPDATE users SET backup_verification_codes=? WHERE email=?;")) {
+		rawBackupVerificationCodes = BackupVerificationCodesGenerator.generateRawBackupVerificationCodes();
+		hashedBackupVerificationCodes = BackupVerificationCodesGenerator.hashBackupCodes(rawBackupVerificationCodes, salt);
+
+		String query = "UPDATE users SET backup_verification_codes=? WHERE email=?;";
+		try (PreparedStatement replaceBackupVerificationCodes = getConn().prepareStatement(query)) {
 
 			Array backupVerificationCodesArray = getConn().createArrayOf("TEXT", hashedBackupVerificationCodes);
-
 			replaceBackupVerificationCodes.setArray(1, backupVerificationCodesArray);
-			replaceBackupVerificationCodes.setString(2, email);
-			int resultUpdate = replaceBackupVerificationCodes.executeUpdate();
-
 			backupVerificationCodesArray.free();
 
-			if (resultUpdate == 1) {
-				return Optional.of(hashedBackupVerificationCodes);
-			}
+			replaceBackupVerificationCodes.setString(2, email);
+
+			int resultUpdate = replaceBackupVerificationCodes.executeUpdate();
+
+			if (resultUpdate == 1)
+				return Optional.of(rawBackupVerificationCodes);
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}

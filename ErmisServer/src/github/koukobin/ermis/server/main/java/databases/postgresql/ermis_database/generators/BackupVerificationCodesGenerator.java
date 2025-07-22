@@ -29,18 +29,29 @@ public final class BackupVerificationCodesGenerator {
 
 	private static final SecureRandom secureRandom = new SecureRandom();
 
-	private BackupVerificationCodesGenerator() {
-	}
-	
-	public static String[] generateHashedBackupVerificationCodes(String salt) {
-		String[] hashedBackupVerificationCodes = new String[BackupVerificationCodes.AMOUNT_OF_CODES];
+	private BackupVerificationCodesGenerator() {}
 
-		for (int i = 0; i < hashedBackupVerificationCodes.length; i++) {
-			byte[] backupVerificationCodesByte = new byte[BackupVerificationCodes.AMOUNT_OF_CHARACTERS];
-			secureRandom.nextBytes(backupVerificationCodesByte);
+	public static String[] generateRawBackupVerificationCodes() {
+		String[] backupVerificationCodes = new String[BackupVerificationCodes.AMOUNT_OF_CODES];
+
+		for (int i = 0; i < backupVerificationCodes.length; i++) {
+			byte[] codesBytes = new byte[BackupVerificationCodes.AMOUNT_OF_CHARACTERS];
+			secureRandom.nextBytes(codesBytes);
+
+			backupVerificationCodes[i] = new String(codesBytes);
+		}
+
+		return backupVerificationCodes;
+	}
+
+	public static String[] hashBackupCodes(String[] backupCodes, String salt) {
+		String[] hashedBackupVerificationCodes = new String[backupCodes.length];
+
+		for (int i = 0; i < backupCodes.length; i++) {
+			String code = backupCodes[i];
 
 			SimpleHash hash = HashUtil.createHash(
-					new String(backupVerificationCodesByte),
+					new String(code),
 					salt,
 					BackupVerificationCodes.Hashing.HASHING_ALGORITHM);
 

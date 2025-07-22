@@ -97,18 +97,20 @@ public interface AuthService
 		}
 
 		String salt;
-		String passwordHashResult;
+		String passwordHash;
+		String[] rawBackupVerificationCodes;
 		String[] hashedBackupVerificationCodes;
 
 		{
-			SimpleHash passwordHash = HashUtil.createHash(password,
+			SimpleHash passwordSimpleHash = HashUtil.createHash(password,
 					DatabaseSettings.Client.General.SaltForHashing.SALT_LENGTH,
 					DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
 
-			passwordHashResult = passwordHash.getHashString();
-			salt = passwordHash.getSalt();
+			passwordHash = passwordSimpleHash.getHashString();
+			salt = passwordSimpleHash.getSalt();
 
-			hashedBackupVerificationCodes = BackupVerificationCodesGenerator.generateHashedBackupVerificationCodes(salt);
+			rawBackupVerificationCodes = BackupVerificationCodesGenerator.generateRawBackupVerificationCodes();
+			hashedBackupVerificationCodes = BackupVerificationCodesGenerator.hashBackupCodes(rawBackupVerificationCodes, salt);
 		}
 
 		String createUserQuery = """
@@ -118,7 +120,7 @@ public interface AuthService
 				""";
 		try (PreparedStatement createUser = getConn().prepareStatement(createUserQuery)) {
 			createUser.setString(1, emailAddress);
-			createUser.setString(2, passwordHashResult);
+			createUser.setString(2, passwordHash);
 			createUser.setInt(3, clientID);
 
 			Array backupVerificationCodesArray = getConn().createArrayOf("TEXT", hashedBackupVerificationCodes);
@@ -151,8 +153,8 @@ public interface AuthService
 				insertUserIp(clientID, deviceInfo);
 
 				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
-				addedInfo.put(AddedInfo.PASSWORD_HASH, passwordHashResult);
-				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, String.join("\n", hashedBackupVerificationCodes));
+				addedInfo.put(AddedInfo.PASSWORD_HASH, passwordHash);
+				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, String.join("\n", rawBackupVerificationCodes));
 
 				return new GeneralResult(CreateAccountInfo.CreateAccount.Result.SUCCESFULLY_CREATED_ACCOUNT, addedInfo);
 			}
@@ -233,8 +235,8 @@ public interface AuthService
 
 	default GeneralResult loginUsingBackupVerificationCode(String email, String backupVerificationCode, UserDeviceInfo deviceInfo) {
 		boolean isBackupVerificationCodeCorrect = false;
-
 		int backupVerificationCodesAmount = 0;
+
 		String query = """
 				SELECT array_length(backup_verification_codes::TEXT[], 1)
 				FROM users
@@ -242,7 +244,13 @@ public interface AuthService
 				AND email=?;
 				""";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
-			pstmt.setString(1, backupVerificationCode);
+			String enteredHashedCode = HashUtil.createHash(
+					backupVerificationCode, 
+					getSalt(email),
+					DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM)
+					.getHashString();
+
+			pstmt.setString(1, enteredHashedCode);
 			pstmt.setString(2, email);
 
 			ResultSet rs = pstmt.executeQuery();
