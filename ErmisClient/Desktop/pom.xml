@@ -5,7 +5,7 @@
 	<groupId>io.github.koukobin.ermis</groupId>
 	<artifactId>ermis.desktop.client</artifactId>
 	<packaging>jar</packaging>
-	<version>1.1-rc</version>
+	<version>0.99.0</version>
 
 	<name>desktop-client</name>
 	<url>https://github.com/Koukobin/Ermis</url>
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>io.github.koukobin.ermis</groupId>
 		<artifactId>ermis-parent</artifactId>
-		<version>1.0-rc</version>
+		<version>0.99.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 

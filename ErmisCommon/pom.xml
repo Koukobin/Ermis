@@ -4,7 +4,7 @@
     <groupId>io.github.koukobin.ermis</groupId>
 	<artifactId>ermis.common</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-rc</version>
+	<version>0.99.0</version>
 
 	<name>ermis-common</name>
     <url>https://github.com/Koukobin/Ermis</url>
@@ -33,7 +33,7 @@
 	<parent>
 		<groupId>io.github.koukobin.ermis</groupId>
 		<artifactId>ermis-parent</artifactId>
-		<version>1.0-rc</version>
+		<version>0.99.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
