@@ -1,5 +1,5 @@
 Package: mercury-client
-Version: 0.99.0
+Version: 1.0.0-rc2
 Priority: extra
 Essential: no
 Architecture: all
