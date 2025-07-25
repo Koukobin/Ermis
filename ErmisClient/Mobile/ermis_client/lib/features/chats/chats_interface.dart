@@ -65,8 +65,7 @@ class Chats extends StatefulWidget {
 
 class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
   List<ChatSession>? _conversations;
-  Set<ChatSession> selectedConversations =
-      {}; // Set instead of list to prevent duplicates
+  Set<ChatSession> selectedConversations = {}; // Set instead of list to prevent duplicates
 
   /// Maps each chat session's ID to its corresponding [List] of unread messages
   static final Map<int /* chat session id */,
@@ -125,6 +124,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
 
         if (_conversations!.length != 1) {
           showToastDialog(S().new_chat);
+          return;
         }
 
         FirstFriendMadeAchievementPopup.show(context);
@@ -154,8 +154,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
 
   void retrieveUnreadMessages() async {
     for (final ChatSession session in _conversations ?? const []) {
-      List<int>? messages =
-          await ErmisDB.getConnection().retrieveUnreadMessages(
+      List<int>? messages = await ErmisDB.getConnection().retrieveUnreadMessages(
         UserInfoManager.serverInfo,
         session.chatSessionID,
       );
