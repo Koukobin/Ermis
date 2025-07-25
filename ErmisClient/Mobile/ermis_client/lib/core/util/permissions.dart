@@ -69,7 +69,7 @@ Future<bool> requestAllPermissions() async {
   if (androidInfo.version.sdkInt <= 29) {
     success = await checkAndRequestPermission(Permission.storage);
   } else if (androidInfo.version.sdkInt < 33) {
-    success = await checkAndRequestPermission(Permission.manageExternalStorage);
+    success = await checkAndRequestPermission(Permission.storage);
   } else if (androidInfo.version.sdkInt >= 33) {
     const permissions = [
       Permission.photos,
