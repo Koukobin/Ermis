@@ -119,7 +119,7 @@ class SettingsJson {
     _settingsJson["useLessDataForCallsEnabled"] = enabled;
   }
 
-  void sethasUserSentFirstMessage(bool hasUserSentFirstMessage) {
+  void setHasUserSentFirstMessage(bool hasUserSentFirstMessage) {
     _settingsJson["hasUserSentFirstMessage"] = hasUserSentFirstMessage;
   }
 
