@@ -55,16 +55,6 @@ class _InputFieldState extends State<InputField> {
     recorderController.checkPermission();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   void _sendTextMessage(String text) {
     Message pendingMessage =
         Client.instance().sendMessageToClient(text, widget.chatSessionIndex);
@@ -84,10 +74,8 @@ class _InputFieldState extends State<InputField> {
 
       String generateRandomString(int len) {
         final r = Random();
-        const chars =
-            'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-        return List.generate(len, (index) => chars[r.nextInt(chars.length)])
-            .join();
+        const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+        return List.generate(len, (index) => chars[r.nextInt(chars.length)]).join();
       }
 
       String fileName = generateRandomString(6);
@@ -102,17 +90,12 @@ class _InputFieldState extends State<InputField> {
   }
 
   void _addMessage(Message msg) {
-    if (mounted) {
-      setState(() => widget.messages.add(msg));
-      return;
+    if (!SettingsJson().hasUserSentFirstMessage) {
+      FirstMessageSentAchievementPopup.show(context);
+      SettingsJson().setHasUserSentFirstMessage(true);
     }
 
     widget.messages.add(msg);
-
-    if (!SettingsJson().hasUserSentFirstMessage) {
-      FirstMessageSentAchievementPopup.show(context);
-      SettingsJson().sethasUserSentFirstMessage(true);
-    }
   }
 
   @override
