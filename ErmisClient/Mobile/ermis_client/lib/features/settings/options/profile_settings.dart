@@ -146,9 +146,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                     Text(_displayName),
                   ],
                 ),
-                onTap: () {
-                  showChangeDisplayNameModalBottomSheet();
-                },
+                onTap: showChangeDisplayNameModalBottomSheet,
               ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
