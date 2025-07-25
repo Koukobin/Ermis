@@ -39,7 +39,7 @@ import javafx.util.Duration;
  *
  */
 public class ChatInterface {
-	
+
 	private Stage stage;
 
 	private FXMLLoader loaderFXML;

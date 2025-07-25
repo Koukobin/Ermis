@@ -146,7 +146,7 @@ public class ChatsController extends GeneralController {
 				Circle circle = new Circle();
 				circle.setRadius(25);
 				circle.setFill(new ImagePattern(profilePhoto));
-				circle.setStroke(Color.SEAGREEN);
+				circle.setStroke(Color.ROYALBLUE);
 
 				Label label = new Label(members.get(i).toString());
 				label.setPadding(new Insets(5));

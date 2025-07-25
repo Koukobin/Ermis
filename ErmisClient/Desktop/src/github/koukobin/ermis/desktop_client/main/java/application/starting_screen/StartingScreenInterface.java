@@ -41,13 +41,12 @@ import javafx.util.Duration;
  */
 public class StartingScreenInterface {
 
-	private static final int FADE_DURATION_MS = 550;
-	private static final int DELAY_BEFORE_CLOSE_MS = 3000;
-	
+	private static final int FADE_DURATION_MILLISECONDS = 550;
+	private static final int DELAY_BEFORE_CLOSE_MILLISECONDS = 3000;
+
 	private Stage stage;
 
 	public StartingScreenInterface() {
-
 		ImageView icon = new ImageView(Icons.PRIMARY_APPLICATION_ICON_512);
 		icon.setFitWidth(StartingScreenInfo.ICON_WITDH);
 		icon.setFitHeight(StartingScreenInfo.ICON_HEIGHT);
@@ -55,7 +54,7 @@ public class StartingScreenInterface {
 
 		Label label = new Label(GeneralAppInfo.GENERAL_NAME);
 		label.setGraphic(icon);
-		label.setContentDisplay(ContentDisplay.CENTER);
+		label.setContentDisplay(ContentDisplay.TOP);
 
 		MFXProgressBar spinner = new MFXProgressBar();
 		BorderPane root = new BorderPane();
@@ -83,25 +82,24 @@ public class StartingScreenInterface {
 	public void close() {
 		stage.close();
 	}
-	
+
 	public void showAndWait() {
-			
 		// Set initial opacity to 0 for fade-in effect
 		stage.getScene().getRoot().setOpacity(0.0);
 
 		// Timeline for opacity transition
 		Timeline timeline = new Timeline();
-		KeyFrame fadeInKeyFrame = new KeyFrame(Duration.millis(FADE_DURATION_MS),
+		KeyFrame fadeInKeyFrame = new KeyFrame(Duration.millis(FADE_DURATION_MILLISECONDS),
 				new KeyValue(stage.getScene().getRoot().opacityProperty(), 1));
 		timeline.getKeyFrames().add(fadeInKeyFrame);
-		
+
 		// Delay before closing the stage
-		timeline.setOnFinished(e -> Threads.delay(DELAY_BEFORE_CLOSE_MS, stage::close));
+		timeline.setOnFinished(e -> Threads.delay(DELAY_BEFORE_CLOSE_MILLISECONDS, stage::close));
 		timeline.play();
 
 		stage.showAndWait();
 	}
-	
+
 	public void showAndWait1() {
 		stage.showAndWait();
 	}

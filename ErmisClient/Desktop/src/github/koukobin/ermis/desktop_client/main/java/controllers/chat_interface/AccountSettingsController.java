@@ -65,10 +65,10 @@ public class AccountSettingsController extends GeneralController {
 
 	@FXML
 	private Circle addProfilePhotoIcon;
-	
+
 	@FXML
 	private Label clientIDLabel;
-	
+
 	@FXML private TextField changeDisplayNameTextField;
 	@FXML private JFXButton changeDisplayNameButton;
 	@FXML private ImageView displayNameButtonImageView;
@@ -86,29 +86,22 @@ public class AccountSettingsController extends GeneralController {
 			addProfilePhotoIcon.setOnMouseEntered(event -> addProfilePhotoIcon.setCursor(Cursor.HAND));
 			addProfilePhotoIcon.setOnMouseExited(event -> addProfilePhotoIcon.setCursor(Cursor.DEFAULT));
 
-			boolean isProfileEmpty = UserInfoManager.accountIcon == null;
-			
-			if (isProfileEmpty) {
-				addProfilePhotoIcon.setFill(new ImagePattern(Icons.ACCOUNT_HIGH_RES));
-				addProfilePhotoIcon.setEffect(new DropShadow(+10d, 0d, +2d, Color.DARKSEAGREEN));
-			} else {
-				addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(UserInfoManager.accountIcon))));
-			}
+			setProfileIcon(UserInfoManager.accountIcon);
 
-			addProfilePhotoIcon.setStroke(Color.SEAGREEN);
+			addProfilePhotoIcon.setStrokeWidth(1.5);
+			addProfilePhotoIcon.setStroke(Color.ROYALBLUE);
 		}
-		
+
 		GlobalMessageDispatcher.getDispatcher()
 			.observeMessages()
 			.ofType(ReceivedProfilePhotoEvent.class)
 			.subscribe((ReceivedProfilePhotoEvent event) -> {
 				Platform.runLater(() -> {
 					addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(event.getPhotoBytes()))));
-					addProfilePhotoIcon.setStroke(Color.SEAGREEN);
 					addProfilePhotoIcon.setEffect(null);
 				});
 		});
-		
+
 		GlobalMessageDispatcher.getDispatcher()
 			.observeMessages()
 			.ofType(AddProfilePhotoResultEvent.class)
@@ -116,7 +109,6 @@ public class AccountSettingsController extends GeneralController {
 				if (event.isSuccess()) {
 					Platform.runLater(() -> {
 						addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(UserInfoManager.accountIcon))));
-						addProfilePhotoIcon.setStroke(Color.SEAGREEN);
 						addProfilePhotoIcon.setEffect(null);
 					});
 					return;
@@ -124,7 +116,7 @@ public class AccountSettingsController extends GeneralController {
 
 				MFXDialogsUtil.showSimpleInformationDialog(getStage(), getRoot(), "Failed to add profile photo");
 		});
-		
+
 		GlobalMessageDispatcher.getDispatcher()
 			.observeMessages()
 			.ofType(ClientIdEvent.class)
@@ -342,8 +334,15 @@ public class AccountSettingsController extends GeneralController {
 		textFieldButtonImageView.setImage(Icons.EDIT);
 	}
 
-	public void setIcon(byte[] iconBytes) {
-		addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(iconBytes))));
+	public void setProfileIcon(byte[] iconBytes) {
+		boolean isProfileEmpty = iconBytes == null || iconBytes.length == 0;
+
+		if (isProfileEmpty) {
+			addProfilePhotoIcon.setFill(new ImagePattern(Icons.ACCOUNT_HIGH_RES));
+			addProfilePhotoIcon.setEffect(new DropShadow(+10d, 0d, +6d, Color.ROYALBLUE));
+		} else {
+			addProfilePhotoIcon.setFill(new ImagePattern(new Image(new ByteArrayInputStream(UserInfoManager.accountIcon))));
+		}
 	}
 
 	@FXML
@@ -370,7 +369,7 @@ public class AccountSettingsController extends GeneralController {
 				.setParentContainer((StackPane) getRoot().getParent())
 				.setWhich(Which.OLD)
 				.build();
-		
+
 		transition.run();
 	}
 }

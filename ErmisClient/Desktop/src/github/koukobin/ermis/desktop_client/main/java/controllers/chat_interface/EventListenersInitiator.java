@@ -71,20 +71,22 @@ class EventListenersInitiator {
 		.subscribe((MessageReceivedEvent event) -> {
 			Message message = event.getMessage();
 			int chatSessionIndex = event.getChatSession().getChatSessionIndex();
-			
+
 			int activeChatSessionIndex = RootReferences.getChatsController().getActiveChatSessionIndex();
-			
-			RootReferences.getMessagingController().printToMessageArea(
-				message,
-				chatSessionIndex,
-				activeChatSessionIndex);
-			
-			RootReferences.getMessagingController().notifyUser(
-				message,
-				chatSessionIndex,
-				activeChatSessionIndex);
+
+			Platform.runLater(() -> {
+				RootReferences.getMessagingController().printToMessageArea(
+						message,
+						chatSessionIndex,
+						activeChatSessionIndex);
+
+				RootReferences.getMessagingController().notifyUser(
+						message,
+						chatSessionIndex,
+						activeChatSessionIndex);
+			});
 		});
-		
+
 		// Message successfully sent received
 		GlobalMessageDispatcher.getDispatcher()
 		.observeMessages()
@@ -92,7 +94,7 @@ class EventListenersInitiator {
 		.subscribe((MessageDeliveryStatusEvent event) -> {
 			RootReferences.getMessagingController().succesfullySentMessage(event.getMessage(), event.getDeliveryStatus());
 		});
-		
+
 		// WrittenText fetched
 		GlobalMessageDispatcher.getDispatcher()
 			.observeMessages()
@@ -113,7 +115,7 @@ class EventListenersInitiator {
 				}
 			});
 		});
-		
+
 		// File downloaded
 		GlobalMessageDispatcher.getDispatcher()
 			.observeMessages()
@@ -139,7 +141,7 @@ class EventListenersInitiator {
 						ioe.printStackTrace();
 					}
 		});
-		
+
 		// Donation page url received
 
 		GlobalMessageDispatcher.getDispatcher()
@@ -154,7 +156,7 @@ class EventListenersInitiator {
 				HostServicesUtil.getHostServices().showDocument(event.getDonationPageURL());
 			});
 		});
-	
+
 		// Server source code url received
 		GlobalMessageDispatcher.getDispatcher()
 		.observeMessages()
@@ -162,14 +164,14 @@ class EventListenersInitiator {
 		.subscribe((ServerSourceCodeEvent event) -> {
 			Platform.runLater(() -> HostServicesUtil.getHostServices().showDocument(event.getSourceCodeUrl()));
 		});
-	
+
 		// Icon received
 
 		GlobalMessageDispatcher.getDispatcher()
 		.observeMessages()
 		.ofType(ReceivedProfilePhotoEvent.class)
 		.subscribe((ReceivedProfilePhotoEvent event) -> {
-			Platform.runLater(() -> RootReferences.getAccountSettingsController().setIcon(event.getPhotoBytes()));
+			Platform.runLater(() -> RootReferences.getAccountSettingsController().setProfileIcon(event.getPhotoBytes()));
 		});
 	
 		// Chat sessions received
@@ -184,7 +186,7 @@ class EventListenersInitiator {
 				RootReferences.getChatsController().addChatSessions(chatSessions);
 			});
 		});
-	
+
 		// Chat requests received
 
 		GlobalMessageDispatcher.getDispatcher()
@@ -206,30 +208,30 @@ class EventListenersInitiator {
 			ChatSession chatSession = event.getChatSession();
 			int messageIDOfDeletedMessage = event.getMessageID();
 			Platform.runLater(() -> {
-				
+
 				List<Message> messages = chatSession.getMessages();
 				for (int i = 0; i < messages.size(); i++) {
-					
+
 					Message message = messages.get(i);
-					
+
 					if (message.getMessageID() == messageIDOfDeletedMessage) {
 						messages.remove(i);
-						
+
 						int activeChatSessionIndex = RootReferences.getChatsController().getActiveChatSessionIndex();
 						int chatSessionIndex = chatSession.getChatSessionIndex();
-						
+
 						if (activeChatSessionIndex == chatSessionIndex) {
 							RootReferences.getMessagingController().clearMessages();
 							RootReferences.getMessagingController().addMessages(messages.toArray(new Message[0]),
 									chatSession.getChatSessionIndex(),
 									RootReferences.getChatsController().getActiveChatSessionIndex());
 						}
-						
+
 						break;
 					}
 					
 				}
-				
+
 			});
 		});
 

@@ -42,6 +42,7 @@ import github.koukobin.ermis.desktop_client.main.java.service.client.models.Mess
 import github.koukobin.ermis.desktop_client.main.java.util.ContextMenusUtil;
 import github.koukobin.ermis.desktop_client.main.java.util.NotificationsUtil;
 import github.koukobin.ermis.desktop_client.main.java.util.Threads;
+import github.koukobin.ermis.desktop_client.main.java.util.dialogs.DialogsUtil;
 import github.koukobin.ermis.desktop_client.main.java.util.dialogs.MFXDialogsUtil;
 import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
@@ -215,7 +216,7 @@ public class MessagingController extends GeneralController {
 			downloadImage.setFitWidth(31);
 			downloadImage.setFitHeight(31);
 			downloadButton.setGraphic(downloadImage);
-	        
+
 			messageLabel.setGraphic(downloadButton);
 			messageLabel.setContentDisplay(ContentDisplay.RIGHT);
 
@@ -275,49 +276,49 @@ public class MessagingController extends GeneralController {
 		}
 		
 		boolean isUserReadingThroughOldMessages = !chatBoxScrollpane.vvalueProperty().isEqualTo(chatBoxScrollpane.vmaxProperty()).get();
-		
+
 		printDateLabelIfNeeded(msg);
 		if (msg.getMessageID() == -1 /* Message is pending */) {
 
-	        MFXProgressSpinner spinner = new MFXProgressSpinner();
-	        spinner.setMinHeight(31);
-	        spinner.setMinWidth(31);
-	        spinner.setProgress(0.0);
+			MFXProgressSpinner spinner = new MFXProgressSpinner();
+			spinner.setMinHeight(31);
+			spinner.setMinWidth(31);
+			spinner.setProgress(0.0);
 
-	        // HBox setup
-	        HBox hbox = new HBox();
-	        hbox.setPadding(new Insets(5));
-	        hbox.setAlignment(Pos.BOTTOM_CENTER);
-	        hbox.getChildren().add(spinner);
+			// HBox setup
+			HBox hbox = new HBox();
+			hbox.setPadding(new Insets(5));
+			hbox.setAlignment(Pos.BOTTOM_CENTER);
+			hbox.getChildren().add(spinner);
 
-	        // Overlay setup
-	        Rectangle overlay = new Rectangle();
-	        overlay.setFill(Color.BLACK);
-	        overlay.setOpacity(0.3); // Semi-transparent overlay
-	        overlay.widthProperty().bind(hbox.widthProperty());
-	        overlay.heightProperty().bind(hbox.heightProperty());
+			// Overlay setup
+			Rectangle overlay = new Rectangle();
+			overlay.setFill(Color.BLACK);
+			overlay.setOpacity(0.3); // Semi-transparent overlay
+			overlay.widthProperty().bind(hbox.widthProperty());
+			overlay.heightProperty().bind(hbox.heightProperty());
 
-	        HBox messageLabel = createClientMessage(msg);
-	        
-	        // StackPane to combine overlay and spinner
-	        StackPane stackPane = new StackPane();
-	        stackPane.getChildren().addAll(overlay, hbox, messageLabel);
-	        StackPane.setAlignment(hbox, Pos.CENTER);
-	        StackPane.setAlignment(messageLabel, Pos.CENTER_RIGHT);
+			HBox messageLabel = createClientMessage(msg);
 
-	        // Update spinner progress
-	        CompletableFuture.runAsync(() -> {
-	            while (spinner.getProgress() < 0.99) {
-	                try {
-	                    Thread.sleep(25);
-	                } catch (InterruptedException e) {
-	                    e.printStackTrace();
-	                }
-	                final double progress = spinner.getProgress() + 0.01;
-	                spinner.setProgress(progress);
-	            }
-	        });
-	        messagingBox.getChildren().add(stackPane);
+			// StackPane to combine overlay and spinner
+			StackPane stackPane = new StackPane();
+			stackPane.getChildren().addAll(overlay, hbox, messageLabel);
+			StackPane.setAlignment(hbox, Pos.CENTER);
+			StackPane.setAlignment(messageLabel, Pos.CENTER_RIGHT);
+
+			// Update spinner progress
+			CompletableFuture.runAsync(() -> {
+				while (spinner.getProgress() < 0.99) {
+					try {
+						Thread.sleep(25);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					final double progress = spinner.getProgress() + 0.01;
+					spinner.setProgress(progress);
+				}
+			});
+			messagingBox.getChildren().add(stackPane);
 		} else {
 			messagingBox.getChildren().add(createClientMessage(msg));
 		}
@@ -432,9 +433,25 @@ public class MessagingController extends GeneralController {
 
 	public void succesfullySentMessage(Message message, MessageDeliveryStatus status) {
 		Threads.delay(50, () -> {
-			Platform.runLater(() -> {
-				printToMessageArea(message, message.getChatSessionIndex(), RootReferences.getChatsController().getActiveChatSessionIndex());
-			});
+			switch (status) {
+			case DELIVERED -> {
+				// Do nothing
+			}
+			case FAILED, REJECTED -> {
+				DialogsUtil.showErrorDialog(String.format("Message delivery status: %s", status.name()));
+			}
+			case LATE_DELIVERED -> {
+				// Do nothing
+			}
+			case SENDING -> {
+				// Do nothing
+			}
+			case SERVER_RECEIVED -> {
+				Platform.runLater(() -> {
+					printToMessageArea(message, message.getChatSessionIndex(), RootReferences.getChatsController().getActiveChatSessionIndex());
+				});
+			}
+			}
 		});
 		pendingMessages.poll();
 	}

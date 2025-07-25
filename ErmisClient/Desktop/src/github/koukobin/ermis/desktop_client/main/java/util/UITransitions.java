@@ -51,7 +51,7 @@ public final class UITransitions {
 			TOP_TO_BOTTOM,
 			BOTTOM_TO_TOP;
 		}
-		
+
 		public enum Which {
 			OLD, NEW;
 		}

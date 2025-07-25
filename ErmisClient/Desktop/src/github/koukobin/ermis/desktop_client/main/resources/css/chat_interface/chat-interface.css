@@ -157,7 +157,7 @@
 }
 
 #userMessageLabel {
-    -fx-background-color: linear-gradient(to top, rgb(2, 201, 61), rgb(67, 255, 54));
+    -fx-background-color: linear-gradient(to top, rgb(2, 62, 201), rgb(54, 128, 255));
 }
 
 #otherMessageLabel {
