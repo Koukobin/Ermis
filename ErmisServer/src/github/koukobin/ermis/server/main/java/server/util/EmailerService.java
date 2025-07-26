@@ -52,9 +52,9 @@ public final class EmailerService {
 
 	private static final Logger LOGGER = LogManager.getLogger("server");
 	private static final Session session;
-	
+
 	private EmailerService() {}
-	
+
 	static {
 		Properties properties = System.getProperties();
 		properties.put("mail.smtp.host", EmailerSettings.MAIL_SMTP_HOST);
@@ -72,7 +72,7 @@ public final class EmailerService {
 				return new PasswordAuthentication(EmailerSettings.EMAIL_USERNAME, EmailerSettings.EMAIL_PASSWORD);
 			}
 		});
-		session.setDebug(ServerSettings.IS_PRODUCTION_READY);
+		session.setDebug(!ServerSettings.IS_PRODUCTION_READY);
 
 		// Send test email to self to ensure emailer works correctly
 		try {
@@ -85,9 +85,8 @@ public final class EmailerService {
 	public static void initialize() {
 		// Helper method to initialize class
 	}
-	
-	public static void sendEmail(String subject, String body, String... to) throws MessagingException {
 
+	public static void sendEmail(String subject, String body, String... to) throws MessagingException {
 		InternetAddress[] toAddress = new InternetAddress[to.length];
 		for (int i = 0; i < toAddress.length; i++) {
 			toAddress[i] = new InternetAddress(to[i]);
@@ -102,7 +101,6 @@ public final class EmailerService {
 	}
 
 	public static void sendEmailWithHTML(String subject, String text, String... to) throws MessagingException {
-
 		InternetAddress[] toAddress = new InternetAddress[to.length];
 		for (int i = 0; i < toAddress.length; i++) {
 			toAddress[i] = new InternetAddress(to[i]);
@@ -117,7 +115,6 @@ public final class EmailerService {
 	}
 
 	public static void sendEmailWithAttachments(String subject, String text, String[] attachmentsFilePath, String... to) throws MessagingException {
-
 		InternetAddress[] toAddress = new InternetAddress[to.length];
 		for (int i = 0; i < toAddress.length; i++) {
 			toAddress[i] = new InternetAddress(to[i]);
@@ -132,7 +129,6 @@ public final class EmailerService {
 
 		Multipart multipart = new MimeMultipart();
 		for (int i = 0; i < attachmentsFilePath.length; i++) {
-
 			MimeBodyPart attachment = new MimeBodyPart();
 			DataSource source = new FileDataSource(attachmentsFilePath[i]);
 			attachment.setDataHandler(new DataHandler(source));
