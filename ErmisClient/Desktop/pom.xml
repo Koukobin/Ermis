@@ -39,7 +39,7 @@
 	</scm>
 
 	<properties>
-		<mainClass>github.koukobin.ermis.client.main.java.application.ClientLauncher</mainClass>
+		<mainClass>github.koukobin.ermis.desktop_client.main.java.application.ClientLauncher</mainClass>
 		<src.resources>src/github/koukobin/ermis/desktop_client/main/resources</src.resources>
 		<target>${project.build.directory}</target>
 		<target.resources>${target}/classes/github/koukobin/ermis/desktop_client/main/resources/</target.resources>
