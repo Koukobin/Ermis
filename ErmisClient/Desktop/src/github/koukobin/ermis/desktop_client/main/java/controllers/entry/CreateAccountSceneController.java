@@ -61,7 +61,7 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 
 	@FXML
 	private TextField usernameTextField;
-	
+
 	@FXML
 	private AnchorPane root;
 	@FXML
@@ -73,15 +73,15 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 	private Label passwordQualityLabel;
 	@FXML
 	private Label entropyLabel;
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		registrationType = EntryType.CREATE_ACCOUNT;
-		
+
 		ChangeListener<String> listenerToCalculatePasswordStrength = new ChangeListener<String>() {
 
 			private static final Nbvcxz nbvcxz;
-			
+
 			static {
 				// Create a map of excluded words on a per-user basis using a hypothetical "User" object that contains this info
 				List<Dictionary> dictionaryList = ConfigurationBuilder.getDefaultDictionaries();
@@ -94,59 +94,70 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 				Configuration configuration = new ConfigurationBuilder()
 				        .setDictionaries(dictionaryList)
 				        .createConfiguration();
-				        
+
 				// Create our Nbvcxz object with the configuration we built
 				nbvcxz = new Nbvcxz(configuration);
 			}
-			
+
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				
 				Result result = nbvcxz.estimate(newValue);
 				double entropy = result.getEntropy();
-				
+
+				// Round entropy before displaying
+				{
+					DecimalFormat df = new DecimalFormat("#.##");
+					df.setRoundingMode(RoundingMode.HALF_EVEN);
+					String entropyRounded = df.format(entropy + 1e-6);
+					entropyLabel.setText(entropyRounded + " bit(s)");
+				}
+
+				// Determine password quality
+				{
+					if (entropy < 40.0) {
+						passwordQualityLabel.setText("Poor");
+					} else if (entropy < 65) {
+						passwordQualityLabel.setText("Weak");
+					} else if (entropy < 100) {
+						passwordQualityLabel.setText("Good");
+					} else {
+						passwordQualityLabel.setText("Excellent");
+					}
+				}
+
 				double progress;
-				
 				if (entropy < 100) {
 					progress = entropy / 100;
 				} else {
 					progress = 1.0;
 				}
 
-				passwordQualityBar.setProgress(progress);
-				
-				// Round entropy before displaying
-				DecimalFormat df = new DecimalFormat("#.##");
-				df.setRoundingMode(RoundingMode.HALF_EVEN);
-				String entropyRounded = df.format(entropy + 1e-6);
-				entropyLabel.setText(entropyRounded + " bit");
-				
-				if (entropy < 40.0) {
-					passwordQualityLabel.setText("Poor");
-				} else if (entropy < 65) {
-					passwordQualityLabel.setText("Weak");
-				} else if (entropy < 100) {
-					passwordQualityLabel.setText("Good");
-				} else {
-					passwordQualityLabel.setText("Excellent");
+				// Interpolate color: red to green
+				{
+					int red = (int) (255 * (1 - progress)); // Red is inversely proportional to progress; hence 1 - p
+					int green = (int) (255 * progress); // Green is directly proportional to progress
+
+					String color = String.format("rgb(%d, %d, 0)", red, green);
+					passwordQualityBar.lookupAll(".bar1").forEach(bar -> bar.setStyle("-fx-fill:" + color + ";"));
 				}
+
+				passwordQualityBar.setProgress(progress);
 			}
 		};
-		
+
 		passwordFieldTextHidden.textProperty().addListener(listenerToCalculatePasswordStrength);
 		passwordFieldTextVisible.textProperty().addListener(listenerToCalculatePasswordStrength);
 	}
 
 	@Override
 	public void switchScene(ActionEvent event) throws IOException {
-
 		FXMLLoader loader = new FXMLLoader(EntryInfo.Login.FXML_LOCATION);
 		final Parent loginRoot = loader.load();
 
 		LoginSceneController loginSceneController = loader.getController();
 		loginSceneController.setFXMLLoader(this.originalFXMLLoader);
 		this.originalFXMLLoader.setController(loginSceneController);
-		
+
 		Scene scene = switchToLoginSceneButton.getScene();
 		switchToLoginSceneButton.setDisable(true);
 
@@ -197,5 +208,4 @@ public final class CreateAccountSceneController extends GeneralEntryController {
 	}
 
 }
-
 
