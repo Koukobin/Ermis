@@ -14,42 +14,21 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-* {
-   -fx-default-background-color: rgb(255, 255, 255);
-}
-
-#root {
-	-fx-background-color: -fx-default-background-color;
-}
+@import url("entry-theme.css");
 
 /* Style the background track of the progress bar */
 .mfx-progress-bar .track {
-	-fx-fill: rgb(10,10,10);
-}
-
-.mfx-progress-bar .bar1,
-.mfx-progress-bar:indeterminate .bar1,
-.mfx-progress-bar:indeterminate .bar2 {
-	-fx-fill: rgb(15, 55, 157);
-}
-
-.jfx-check-box {
-	-fx-cursor: HAND;
-}
-
-.jfx-button {
-	-fx-background-radius: 3;
-	-fx-cursor: HAND;
+	-fx-fill: -primary-color;
 }
 
 #createAccountButton {
-	-fx-background-color: rgb(15, 55, 157);
+	-fx-background-color: -accent-color;
 	-fx-text-fill: white;
 	-fx-background-radius: 3;
 }
 
 #switchToLoginSceneButton {
-	-fx-background-color: rgb(10,10,10);
+	-fx-background-color: -primary-color;
 	-fx-border-color: white;
 }
 

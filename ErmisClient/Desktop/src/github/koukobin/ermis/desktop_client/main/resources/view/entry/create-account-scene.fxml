@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="266.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="github.koukobin.ermis.desktop_client.main.java.controllers.entry.CreateAccountSceneController">
+<AnchorPane fx:id="root" stylesheets="@../../css/entry/create-account-scene.css" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="266.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="github.koukobin.ermis.desktop_client.main.java.controllers.entry.CreateAccountSceneController">
    <children>
       <Label fx:id="createAccountLabel" alignment="CENTER" layoutX="164.0" layoutY="13.0" prefHeight="24.0" prefWidth="127.0" text="Create Account" />
       <JFXButton fx:id="createAccountButton" layoutX="88.0" layoutY="209.0" onAction="#register" prefHeight="41.0" prefWidth="127.0" text="Create Account" />

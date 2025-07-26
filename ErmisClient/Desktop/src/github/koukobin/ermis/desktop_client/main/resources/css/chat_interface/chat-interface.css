@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import url("dark-theme.css");
+@import url("../dark-theme.css");
 
 .root {
 	-fx-background-color: -fx-default-background-color;
@@ -172,6 +172,15 @@
 	-fx-padding: 5 50 5 50;	
 }
 
+#chatsTopPane {
+    -fx-background-color: rgb(10,10,10);
+    -fx-border-color: -mfx-main;  
+    -fx-border-width: 0 0 2 0;   
+    -fx-padding: 5px;
+}
 
-
-
+#chatsTopPane .label {
+  	-fx-font-size: 25;
+    -fx-font-family: System;
+    -fx-font-weight: bold;
+}

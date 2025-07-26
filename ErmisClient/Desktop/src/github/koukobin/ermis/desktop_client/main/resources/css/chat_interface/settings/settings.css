@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-@import url("../dark-theme.css");
+@import url("../../dark-theme.css");
 
 #contentPane {
 	-fx-font: 16 OpenSans;
