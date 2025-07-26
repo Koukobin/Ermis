@@ -113,9 +113,9 @@ public class ChooseServerDialog extends MFXDialog {
 		super.setScrimPriority(ScrimPriority.WINDOW);
 		dialogContent.setHeaderText("Choose server to connect to");
 
-		ImageView headerIcon = new ImageView(Icons.PRIMARY_APPLICATION_ICON_256);
-		headerIcon.setFitWidth(30);
-		headerIcon.setFitHeight(30);
+		ImageView headerIcon = new ImageView(Icons.PRIMARY_APPLICATION_ICON_32);
+		headerIcon.setFitWidth(32);
+		headerIcon.setFitHeight(32);
 		dialogContent.setHeaderIcon(headerIcon);
 
 		super.getContent().getStylesheets().add(ChooseServerDialogInfo.CHOOSE_SERSVER_DIALOG_CSS);

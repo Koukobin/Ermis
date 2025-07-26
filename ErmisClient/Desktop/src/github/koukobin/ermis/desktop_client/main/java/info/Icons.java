@@ -25,6 +25,7 @@ public final class Icons {
 
 	public static final String ICONS_PATH = GeneralAppInfo.MAIN_PROJECT_PATH + "resources/icons/";
 
+	public static final Image PRIMARY_APPLICATION_ICON_32 = new Image(Icons.class.getResource(ICONS_PATH + "primary-application-icon-32.png").toExternalForm());
 	public static final Image PRIMARY_APPLICATION_ICON_92 = new Image(Icons.class.getResource(ICONS_PATH + "primary-application-icon-92.png").toExternalForm());
 	public static final Image PRIMARY_APPLICATION_ICON_256 = new Image(Icons.class.getResource(ICONS_PATH + "primary-application-icon-256.png").toExternalForm());
 	public static final Image PRIMARY_APPLICATION_ICON_512 = new Image(Icons.class.getResource(ICONS_PATH + "primary-application-icon-512.png").toExternalForm());
