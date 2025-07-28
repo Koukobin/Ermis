@@ -1,0 +1,8 @@
+Template: ermis-server/confirm_upgrade
+Type: boolean
+Default: false
+Description: Proceed with upgrade despite compatibility risk?
+ INCOMPATIBLE SERVER VERSION DETECTED — PROCEED WITH CAUTION!
+ This version is flagged as potentially breaking; upgrading from older versions of the server may cause unexpected issues.
+ Please read the changelog for this release and make the necessary modifications accordingly before upgrading!
+

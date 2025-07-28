@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+echo -ne "\e[33m"
+
+DPKG_ACTION="$1"
+if [[ "$DPKG_ACTION" == "install" ]]; then
+    echo "Fresh install"
+    exit 0
+else
+    CONTROL_FILE="$(dirname "$0")/control"
+    OLD_VERSION="$2"
+    NEW_VERSION="unknown"
+    [ -f "$CONTROL_FILE" ] && NEW_VERSION=$(grep '^Version:' "$CONTROL_FILE" | awk '{print $2}')
+
+    if [[ "$NEW_VERSION" == "$OLD_VERSION" ]]; then
+        echo "Reinstalling current version"
+        exit 0
+    fi
+
+    echo "Upgrading from version $OLD_VERSION to $NEW_VERSION"
+    
+    # Check if server version is marked as potentially incompatible with previous installments (which is 
+    # denoted with the -C flag).
+    # 
+    # See https://github.com/Koukobin/Ermis/wiki/ReleasePolicy#server-versioning to learn more about this flag
+    if [[ "$NEW_VERSION" != *"-C"* ]]; then
+        exit 0
+    fi
+fi
+
+db_fset ermis-server/confirm_upgrade seen false # Mark template as not seen to ensure it is displayed
+db_input high ermis-server/confirm_upgrade || true
+db_go || true
+db_get ermis-server/confirm_upgrade
+
+if [[ $RET == false ]]; then
+    echo -e "Upgrade aborted by user"
+    exit 1
+fi
+
+echo -e "\e[33mWarning ⚠️ : \e[4;33;1;3mINCOMPATIBLE SERVER VERSION DETECTED — PROCEED WITH CAUTION!\e[0m"
+echo -e "See the changelog for this release and make the necessary modifications accordingly before upgrading!"
+
+echo -ne "\e[0m"
+
