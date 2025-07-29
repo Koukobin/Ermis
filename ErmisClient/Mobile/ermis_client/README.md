@@ -21,6 +21,14 @@ _**You can install the app from the Play Store here: [Ermis M](https://play.goog
     - **Android**: Tested on API level 33
     - **iOS**: Not tested yet due to Apple's protectionist and closed-platform policies
 
+## Installation
+
+1. Download the appropriate installer for your platform from [GitHub Releases](https://github.com/Koukobin/Ermis/releases?q=Mobile&expanded=true).
+2. Execute installer.
+3. Finally, launch the app.
+
+_**Alternatively: you can install the app from the Play Store here: [Ermis M](https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile)**_
+
 ## Set up Project Locally For Development
 
 For a meticulous step-by-step guide for setting up the mobile client codebase locally, refer to the [wiki](https://github.com/Koukobin/Ermis/wiki/MobileClientSetupGuide)
@@ -78,3 +86,4 @@ For contribution guidelines, please refer to the main Ermis `README` file.
 Ermis-Client is distributed under the GNU Affero General Public License Version 3.0 which can be found in the `LICENSE` file.
 
 By using this software, you agree to the terms outlined in the license agreement.
+
