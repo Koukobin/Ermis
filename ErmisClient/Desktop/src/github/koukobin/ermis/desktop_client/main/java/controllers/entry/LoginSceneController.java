@@ -69,22 +69,21 @@ public final class LoginSceneController extends GeneralEntryController {
 	@FXML
 	public void flipPasswordType(ActionEvent event) {
 		passwordType = switch (passwordType) {
-		case PASSWORD -> PasswordType.BACKUP_VERIFICATION_CODE;
-		case BACKUP_VERIFICATION_CODE -> PasswordType.PASSWORD;
-		};
-
-		switch (passwordType) {
 		case PASSWORD -> {
-			passwordFieldTextHidden.setPromptText("password");
-			passwordFieldTextVisible.setPromptText("password");
-			togglePasswordTypeButton.setText("Use backup verification code");
-		}
-		case BACKUP_VERIFICATION_CODE -> {
 			passwordFieldTextHidden.setPromptText("backup verification code");
 			passwordFieldTextVisible.setPromptText("backup verification code");
 			togglePasswordTypeButton.setText("Use password");
+
+			yield PasswordType.BACKUP_VERIFICATION_CODE;
 		}
+		case BACKUP_VERIFICATION_CODE -> {
+			passwordFieldTextHidden.setPromptText("password");
+			passwordFieldTextVisible.setPromptText("password");
+			togglePasswordTypeButton.setText("Use backup verification code");
+
+			yield PasswordType.PASSWORD;
 		}
+		};
 	}
 
 	@Override
