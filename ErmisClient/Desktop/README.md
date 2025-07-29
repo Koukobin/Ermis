@@ -19,7 +19,7 @@
 
 ## Installation
 
-1. Download the appropriate installer for your platform.
+1. [Download](https://github.com/Koukobin/Ermis/releases?q=Desktop&expanded=true) the appropriate installer for your platform.
 2. Follow the on-screen instructions during the setup process.
 3. Finally, launch the application.
 
