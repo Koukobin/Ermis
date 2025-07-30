@@ -15,7 +15,7 @@
  */
 
 import 'package:ermis_mobile/constants/app_constants.dart';
-import 'package:ermis_mobile/core/exceptions/EnumNotFoundException.dart';
+import 'package:ermis_mobile/core/exceptions/enum_not_found_exception.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 
 enum ChatBackDrop {

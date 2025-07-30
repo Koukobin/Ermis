@@ -17,7 +17,7 @@
 import 'package:ermis_mobile/features/authentication/domain/entities/resultable.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 
-import '../../../exceptions/EnumNotFoundException.dart';
+import '../../../exceptions/enum_not_found_exception.dart';
 
 enum ChangePasswordResult implements Resultable {
   successfullyChangedPassword(

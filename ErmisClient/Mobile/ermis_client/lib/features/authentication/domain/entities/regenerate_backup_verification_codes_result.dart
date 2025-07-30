@@ -14,7 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import '../../../../core/exceptions/EnumNotFoundException.dart';
+import '../../../../core/exceptions/enum_not_found_exception.dart';
 
 enum RegenerateBackupVerificationCodesResult {
   successfullyRegeneratedBackupVerificationCodes(id: 1, success: true),

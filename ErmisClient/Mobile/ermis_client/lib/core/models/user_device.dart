@@ -14,9 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
-import '../exceptions/EnumNotFoundException.dart';
+import '../exceptions/enum_not_found_exception.dart';
 
 enum DeviceType {
   mobile(0),
