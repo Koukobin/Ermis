@@ -4,7 +4,7 @@
 
 ## Overview
 
-**Ermis-Server** is an open-source, Java-based server-side application that handles communication and message routing for the Ermis platform designed for scalability and security.
+**Ermis-Server** is an open-source, Java-based backend application that handles everything related to the server-side for the Ermis platform, — including communication, message routing, and data sync —, designed with scalability and security in mind.
 
 ## Key Features
 
