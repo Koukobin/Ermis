@@ -21,23 +21,23 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Entropy Calculator Tests', () {
     test('1.0', () {
-      double entropy = EntropyCalculator.calculateEntropy("password");
+      double entropy = EntropyCalculator.approximate("password");
       expect(entropy.ceil(), 3);
     });
     test('2.0', () {
-      double entropy = EntropyCalculator.calculateEntropy("password123");
+      double entropy = EntropyCalculator.approximate("password123");
       expect(entropy.ceil(), 4);
     });
     test('3.0', () {
-      double entropy = EntropyCalculator.calculateEntropy("Password123");
+      double entropy = EntropyCalculator.approximate("Password123");
       expect(entropy.ceil(), 4);
     });
     test('4.0', () {
-      double entropy = EntropyCalculator.calculateEntropy("correcthorsebatterystaple");
+      double entropy = EntropyCalculator.approximate("correcthorsebatterystaple");
       expect(entropy.ceil(), 4);
     });
     test('5.0', () {
-      double entropy = EntropyCalculator.calculateEntropy("696969");
+      double entropy = EntropyCalculator.approximate("696969");
       expect(entropy.ceil(), 1);
     });
   });

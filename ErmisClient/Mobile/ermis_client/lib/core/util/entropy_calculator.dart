@@ -16,9 +16,9 @@
 
 import 'dart:math';
 
+/// Terrible Shannon entropy approximation calculator
 class EntropyCalculator {
-  
-  static double calculateEntropy(String input) {
+  static double approximate(String input) {
     if (input.isEmpty) return 0.0;
 
     final Map<String, int> frequencyMap = {};
