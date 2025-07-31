@@ -29,7 +29,8 @@ class FirstMessageSentAchievementPopup {
     FlutterRingtonePlayer().play(fromAsset: AppConstants.firstMessageSentAchievementSoundEffect);
     await Future.delayed(const Duration(milliseconds: 100));
 
-    AchievementToast.show(context, "First Message Sent");
+    const firstMessageSentAncientGreek = "Πρῶτον ἀγγελθὲν μῆνυμα";
+    AchievementToast.show(context, firstMessageSentAncientGreek);
     await Future.delayed(const Duration(milliseconds: 200));
 
     showGeneralDialog(

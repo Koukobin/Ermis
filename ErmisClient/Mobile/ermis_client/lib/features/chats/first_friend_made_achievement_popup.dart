@@ -29,7 +29,8 @@ class FirstFriendMadeAchievementPopup {
     FlutterRingtonePlayer().play(fromAsset: AppConstants.firstMessageSentAchievementSoundEffect);
     await Future.delayed(const Duration(milliseconds: 100));
 
-    AchievementToast.show(context, "First Friend Made");
+    const firstFriendMadeAncientGreek = "Πρῶτος φίλος γενόμενος";
+    AchievementToast.show(context, firstFriendMadeAncientGreek);
     await Future.delayed(const Duration(milliseconds: 200));
 
     showGeneralDialog(
