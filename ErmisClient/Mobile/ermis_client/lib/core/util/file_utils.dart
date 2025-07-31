@@ -143,11 +143,12 @@ Future<String> loadAssetFile(String assetPath) async {
   return await rootBundle.loadString(assetPath);
 }
 
-Future<Uint8List> createWavFile(Uint8List pcmData) async {
+/// Takes in raw PCM audio data and converts it into an in-memory WAV file returned as a [Uint8List]
+Uint8List createInMemoryWavFile(Uint8List pcmData) {
   // WAV Header structure
-  int sampleRate = 44100; // Change if needed
-  int numChannels = 2;    // Stereo
-  int bitDepth = 16;      // 16-bit audio
+  int sampleRate = 44100;
+  int numChannels = 2;
+  int bitDepth = 16;
 
   // Calculate the size of the WAV file
   int pcmDataSize = pcmData.lengthInBytes;
@@ -230,7 +231,6 @@ Future<Uint8List> createWavFile(Uint8List pcmData) async {
   header[42] = (dataSize >> 16) & 0xFF;
   header[43] = (dataSize >> 24) & 0xFF;
 
-  // Write the WAV header and PCM data to a file
   // Combine the header and PCM data
   List<int> wavFileData = [...header, ...pcmData];
   return Uint8List.fromList(wavFileData);
