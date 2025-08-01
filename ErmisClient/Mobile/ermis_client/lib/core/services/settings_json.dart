@@ -35,6 +35,7 @@ final _defaultJsonSettings = {
   "vibrationEnabled": true,
   "useLessDataForCallsEnabled": false,
   "hasUserSentFirstMessage": false, // Used for achievement unlocked popup
+  "hasUserMadeFirstFriend": false, // Used for achievement unlocked popup
 };
 
 class SettingsJson {
@@ -123,6 +124,10 @@ class SettingsJson {
     _settingsJson["hasUserSentFirstMessage"] = hasUserSentFirstMessage;
   }
 
+  void setHasUserMadeFirstFriend(bool hasUserMadeFirstFriend) {
+    _settingsJson["hasUserMadeFirstFriend"] = hasUserMadeFirstFriend;
+  }
+
   bool get useSystemDefaultTheme => _settingsJson["useSystemDefaultTheme"];
   bool get isDarkModeEnabled => _settingsJson["darkMode"];
   ChatBackDrop get chatsBackDrop => ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
@@ -163,6 +168,7 @@ class SettingsJson {
   bool get useLessDataForCallsEnabled => _settingsJson["useLessDataForCallsEnabled"];
 
   bool get hasUserSentFirstMessage => _settingsJson["hasUserSentFirstMessage"];
+  bool get hasUserMadeFirstFriend => _settingsJson["hasUserMadeFirstFriend"];
 
   Future<void> saveSettingsJson() async {
     final path = await _getJsonSettingsFilePath();
