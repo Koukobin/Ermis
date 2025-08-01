@@ -23,6 +23,7 @@ import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
+import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/features/chats/chat_popup_menu_button.dart';
 import 'package:ermis_mobile/features/chats/chat_user_avatar.dart';
@@ -114,19 +115,15 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
       void notifyUserOfNewPotentialChat() {
-        if (_conversations == null) {
-          return;
-        }
+        if (_conversations == null) return;
+        if (_conversations!.length == event.sessions.length) return;
 
-        if (_conversations!.length == event.sessions.length) {
-          return;
-        }
-
-        if (_conversations!.length != 1) {
+        if (SettingsJson().hasUserMadeFirstFriend) {
           showToastDialog(S().new_chat);
           return;
         }
 
+        SettingsJson().setHasUserMadeFirstFriend(true);
         FirstFriendMadeAchievementPopup.show(context);
       }
 

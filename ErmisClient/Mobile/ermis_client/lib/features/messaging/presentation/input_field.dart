@@ -90,7 +90,7 @@ class _InputFieldState extends State<InputField> {
   }
 
   void _addMessage(Message msg) {
-    if (!SettingsJson().hasUserSentFirstMessage) {
+    if (!SettingsJson().hasUserMadeFirstFriend) {
       FirstMessageSentAchievementPopup.show(context);
       SettingsJson().setHasUserSentFirstMessage(true);
     }
