@@ -47,7 +47,7 @@
 
 Ermis is an open-source project and suite of applications designed for secure and seamless communication. The project consists of the following components:
 
-- **Mercury-Client (Desktop)**: The user-facing desktop client application for communication.
+- **Mercury-Client (Desktop)**: The user-facing desktop client application developed with JavaFX.
 - **Ermis Μ (Mobile)**: The mobile client-side application powered by Flutter.
 - **Ermis-Server**: The backend server that handles everything related to server-side.
 - **Ermis-Common**: The shared library containing common functionalities and utilities used by both the client and server.
