@@ -15,7 +15,6 @@
  */
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:ermis_mobile/constants/app_constants.dart';
 import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
@@ -454,15 +453,42 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
       leading: SizedBox(
         width: chatSession.members.length * 10 + 65,
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            for (final (index, member) in chatSession.members.indexed)
+            // Only render up to 4 avatars due to space constraints
+            for (final (index, member) in chatSession.members.take(4).indexed)
               Positioned(
                 left: index * 25,
-                top: index * 5.0 * pow(-1, index + 1),
+                top: switch (index % 2) {
+                  0 => -5,
+                  1 => 10,
+                  _ => 0,
+                },
                 child: ChatUserAvatar(
                   member: member,
                   chatSession: chatSession,
                   pushMessageInterface: pushMessageInterface,
+                ),
+              ),
+            // If members > 4: display remaining members badge
+            if (chatSession.members.length > 4)
+              Positioned(
+                left: 4 * 25 + 12.5,
+                top: 6,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: appColors.tertiaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: appColors.secondaryColor, width: 2.5),
+                  ),
+                  child: Text(
+                    '+${chatSession.members.length - 4}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
           ],
