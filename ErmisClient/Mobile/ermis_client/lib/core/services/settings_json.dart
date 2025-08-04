@@ -35,7 +35,7 @@ final _defaultJsonSettings = {
   "vibrationEnabled": true,
   "useLessDataForCallsEnabled": false,
   "hasUserSentFirstMessage": false, // Used for achievement unlocked popup
-  "hasUserMadeFirstFriend": false, // Used for achievement unlocked popup
+  "hasUserMadeFirstFriend": false,  // Used for achievement unlocked popup
 };
 
 class SettingsJson {
