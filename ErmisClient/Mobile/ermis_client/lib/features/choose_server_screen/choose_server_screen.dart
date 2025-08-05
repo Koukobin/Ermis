@@ -31,6 +31,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/data_sources/api_client.dart';
 import '../../constants/app_constants.dart';
+import '../../core/services/url_launcher.dart';
 import '../../main.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
 import 'whats_new_screen.dart';
@@ -98,227 +99,213 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // Future(() async {
-    //   final z = StreamController<Uint8List>();
-    //   final newPlayer = AudioPlayer();
-    //   await newPlayer.setAudioSource(
-    //     MyUint8ListStreamAudioSource(
-    //       audioStream: z.stream,
-    //     ),
-    //   );
-    //   newPlayer.play();
-    //   z.add(Uint8List.fromList([0,3,65,67,4,78,2345,7,7,23,25,7,45623,]));
-    // });
-
-    return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.fromLTRB(16.0, 100.0, 16.0, 200.0),
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-          colors: [
-            appColors.secondaryColor,
-            isDarkMode ? Colors.black : Colors.white,
-            Color(0xFF00FF00), // Neon green glow
-          ],
-          begin: Alignment.topRight,
-          end: Alignment.bottomCenter,
-        )),
+    Widget buildHowToConfigureYourOwnServerInstanceUrlLauncher() {
+      return Padding(
+        padding: const EdgeInsets.only(top: 25),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Image.asset(
-              AppConstants.appIconPath,
-              width: 100,
-              height: 100,
+            IconButton.outlined(
+              onPressed: () {
+                UrlLauncher.launchURL(
+                  context,
+                  AppConstants.configureServerURL,
+                );
+              },
+              icon: const Icon(Icons.question_mark),
             ),
-            const SizedBox(height: 20),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Dropdown Menu for Server URLs
-                DropdownMenu(cachedServerUrls),
-                const SizedBox(height: 20),
-                // Add Server and Certificate Options
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          String url = await showInputDialog(
-                            context: context,
-                            title: S.current.server_url_enter,
-                            hintText: "example.com",
-                          );
-
-                          if (url.isEmpty) return;
-
-                          ServerInfo serverInfo;
-                          try {
-                            Uri buildUri(String url) => url.startsWith('http')
-                                ? Uri.parse(url)
-                                : Uri.https(url);
-
-                            serverInfo = ServerInfo(buildUri(url));
-                          } on InvalidServerUrlException catch (e) {
-                            showExceptionDialog(context, e.message);
-                            return;
-                          }
-
-                          setState(() => cachedServerUrls.add(serverInfo));
-                          ErmisDB.getConnection().insertServerInfo(serverInfo);
-
-                          // Feedback
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(S.current.server_add_success)),
-                          );
-                        },
-                        icon: const Icon(Icons.add),
-                        label: Text(
-                          softWrap: true,
-                          S.current.server_add,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appColors.primaryColor,
-                          foregroundColor: appColors.tertiaryColor,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: CheckboxListTile(
-                        value: _checkServerCertificate,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            _checkServerCertificate = value!;
-                          });
-                        },
-                        activeColor: appColors.primaryColor,
-                        title: Text(
-                          S.current.server_certificate_check,
-                          style: TextStyle(
-                              fontSize: 16, color: appColors.primaryColor),
-                        ),
-                      ),
-                    ),
-                    // Row(
-                    //   children: [
-                    //     Checkbox(
-                    //       value: _checkServerCertificate,
-                    //       onChanged: (bool? value) {
-                    //         setState(() {
-                    //           _checkServerCertificate = value!;
-                    //         });
-                    //       },
-                    //       activeColor: appColors.primaryColor,
-                    //     ),
-                    //     Text(
-                    //       "Check certificate hello world",
-                    //       style: TextStyle(
-                    //           fontSize: 16, color: appColors.primaryColor),
-                    //     ),
-                    //   ],
-                    // ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-
-                // SizedBox(
-                //   width: 100,
-                //   height: 300,
-                //   child: WebViewWidget(
-                //       controller: WebViewController()
-                //         ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                //         ..setNavigationDelegate(
-                //           NavigationDelegate(
-                //             onProgress: (int progress) {
-                //               // Update loading bar.
-                //             },
-                //             onPageStarted: (String url) {},
-                //             onPageFinished: (String url) {},
-                //             onHttpError: (HttpResponseError error) {},
-                //             onWebResourceError: (WebResourceError error) {},
-                //             onNavigationRequest: (NavigationRequest request) {
-                //               return NavigationDecision.navigate;
-                //             },
-                //           ),
-                //         )
-                //         ..loadRequest(Uri.parse('https://192.168.10.103:9999'))),
-                // ),
-
-                // "Connect" Button
-                ElevatedButton(
-                  onPressed: _isConnectingToServer
-                      ? null
-                      : () async {
-                          // Reset information to ensure nothing leaks from previous sessions
-                          UserInfoManager.resetServerInformation();
-                          UserInfoManager.resetUserInformation();
-                          await Client.instance().disconnect();
-
-                          Uri url = Uri.parse(serverUrl!);
-                          setState(() => _isConnectingToServer = true);
-
-                          ServerInfo serverInfo = ServerInfo(url);
-
-                          final DBConnection conn = ErmisDB.getConnection();
-                          conn.updateServerUrlLastUsed(serverInfo);
-
-                          try {
-                            await Client.instance().initialize(
-                              url,
-                              _checkServerCertificate
-                                  ? ServerCertificateVerification.verify
-                                  : ServerCertificateVerification.ignore,
-                            );
-                          } catch (e) {
-                            UserInfoManager.serverInfo = serverInfo;
-                            await UserInfoManager.fetchProfileInformation();
-                            await UserInfoManager.fetchLocalChatSessions();
-
-                            // Navigate to the main interface
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MainInterface()),
-                              (route) => false, // Removes all previous routes.
-                            );
-
-                            if (e is SocketException) {
-                              await showToastDialog(S.current.connection_refused);
-                              return;
-                            }
-
-                            if (e is ServerVerificationFailedException) {
-                              await showToastDialog(S.current.could_not_verify_server_certificate);
-                              return;
-                            }
-
-                            rethrow;
-                          }
-
-                          setupClientSession(context);
-                        },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: appColors.inferiorColor, // Splash color
-                    backgroundColor: appColors.secondaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: Text(S.current.connect,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: appColors.primaryColor,
-                      )),
-                ),
-              ],
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 120),
+              child: Text(
+                S().how_to_configure_your_own_server,
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
+      );
+    }
+
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          buildConnectToServer(appColors),
+          buildHowToConfigureYourOwnServerInstanceUrlLauncher(),
+        ],
+      ),
+    );
+  }
+
+  Widget buildConnectToServer(AppColors appColors) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16.0, 100.0, 16.0, 200.0),
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+        colors: [
+          appColors.secondaryColor,
+          isDarkMode ? Colors.black : Colors.white,
+          Color(0xFF00FF00), // Neon green glow
+        ],
+        begin: Alignment.topRight,
+        end: Alignment.bottomCenter,
+      )),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Image.asset(
+            AppConstants.appIconPath,
+            width: 100,
+            height: 100,
+          ),
+          const SizedBox(height: 20),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Dropdown Menu for Server URLs
+              DropdownMenu(cachedServerUrls),
+              const SizedBox(height: 20),
+              // Add Server and Certificate Options
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 150,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        String url = await showInputDialog(
+                          context: context,
+                          title: S.current.server_url_enter,
+                          hintText: "example.com",
+                        );
+
+                        if (url.isEmpty) return;
+
+                        ServerInfo serverInfo;
+                        try {
+                          Uri buildUri(String url) => url.startsWith('http')
+                              ? Uri.parse(url)
+                              : Uri.https(url);
+
+                          serverInfo = ServerInfo(buildUri(url));
+                        } on InvalidServerUrlException catch (e) {
+                          showExceptionDialog(context, e.message);
+                          return;
+                        }
+
+                        setState(() => cachedServerUrls.add(serverInfo));
+                        ErmisDB.getConnection().insertServerInfo(serverInfo);
+
+                        // Feedback
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(S.current.server_add_success)),
+                        );
+                      },
+                      icon: const Icon(Icons.add),
+                      label: Text(
+                        softWrap: true,
+                        S.current.server_add,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: appColors.primaryColor,
+                        foregroundColor: appColors.tertiaryColor,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: CheckboxListTile(
+                      value: _checkServerCertificate,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _checkServerCertificate = value!;
+                        });
+                      },
+                      activeColor: appColors.primaryColor,
+                      title: Text(
+                        S.current.server_certificate_check,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: appColors.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              // "Connect" Button
+              ElevatedButton(
+                onPressed: _isConnectingToServer
+                    ? null
+                    : () async {
+                        // Reset information to ensure nothing leaks from previous sessions
+                        UserInfoManager.resetServerInformation();
+                        UserInfoManager.resetUserInformation();
+                        await Client.instance().disconnect();
+
+                        Uri url = Uri.parse(serverUrl!);
+                        setState(() => _isConnectingToServer = true);
+
+                        ServerInfo serverInfo = ServerInfo(url);
+
+                        final DBConnection conn = ErmisDB.getConnection();
+                        conn.updateServerUrlLastUsed(serverInfo);
+
+                        try {
+                          await Client.instance().initialize(
+                            url,
+                            _checkServerCertificate
+                                ? ServerCertificateVerification.verify
+                                : ServerCertificateVerification.ignore,
+                          );
+                        } catch (e) {
+                          UserInfoManager.serverInfo = serverInfo;
+                          await UserInfoManager.fetchProfileInformation();
+                          await UserInfoManager.fetchLocalChatSessions();
+
+                          // Navigate to the main interface
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MainInterface()),
+                            (route) => false, // Removes all previous routes.
+                          );
+
+                          if (e is SocketException) {
+                            await showToastDialog(S.current.connection_refused);
+                            return;
+                          }
+
+                          if (e is ServerVerificationFailedException) {
+                            await showToastDialog(
+                                S.current.could_not_verify_server_certificate);
+                            return;
+                          }
+
+                          rethrow;
+                        }
+
+                        setupClientSession(context);
+                      },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: appColors.inferiorColor, // Splash color
+                  backgroundColor: appColors.secondaryColor,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(S.current.connect,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: appColors.primaryColor,
+                    )),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -327,12 +314,13 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
 class DropdownMenu extends StatefulWidget {
   final Set<ServerInfo> cachedServerUrls;
   const DropdownMenu(this.cachedServerUrls, {super.key});
+
   @override
   State<DropdownMenu> createState() => _DropdownMenuState();
 }
 
 class _DropdownMenuState extends State<DropdownMenu> {
-  /// UniqueKey used to refresh dropdown menu (i.e force rebuild) when a URL is deleted
+  /// [UniqueKey] used to refresh dropdown menu (i.e force rebuild) when a URL is deleted
   Key _widgetKey = UniqueKey();
 
   @override

@@ -133,6 +133,7 @@
   "help": "Помощь",
   "help_settings": "Настройки помощи",
   "hours": "часы",
+  "how_to_configure_your_own_server": "Как настроить собственный сервер",
   "incoming_voice_call": "Входящий голосовой вызов",
   "incompatible_server_version_warning": "Несовместимая версия сервера! Некоторые функции могут работать некорректно!",
   "license_capitalized": "Лицензия",

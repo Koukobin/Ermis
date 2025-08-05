@@ -48,6 +48,8 @@ class AppConstants {
   static const String firstMessageSentAchievementSoundEffect = 'assets/sounds/first_message_sent_achievement_sound_effect.flac';
 
   static const String sourceCodeURL = "https://github.com/Koukobin/Ermis";
+  static const String configureServerURL = "https://github.com/Koukobin/Ermis/wiki/Ermis%E2%80%90Server-Installation";
+
   static const String licenceURL = "$sourceCodeURL/wiki/License";
   static const String licencePath = "assets/LICENCE.txt";
 
