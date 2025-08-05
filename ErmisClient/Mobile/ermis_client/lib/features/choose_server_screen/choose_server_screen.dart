@@ -228,6 +228,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                       activeColor: appColors.primaryColor,
                       title: Text(
                         S.current.server_certificate_check,
+                        textAlign: TextAlign.right,
                         style: TextStyle(
                           fontSize: 16,
                           color: appColors.primaryColor,
