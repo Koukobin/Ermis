@@ -14,14 +14,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../util/dialogs_utils.dart';
 
 class UrlLauncher {
-
   UrlLauncher._();
 
   static Future<void> launchURL(BuildContext context, String url0) async {

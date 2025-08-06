@@ -32,7 +32,6 @@ import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/scroll/custom_scroll_view.dart';
 
 class HelpSettings extends StatefulWidget {
-
   const HelpSettings({super.key});
 
   @override
