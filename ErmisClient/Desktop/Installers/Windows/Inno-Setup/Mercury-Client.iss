@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Mercury-Client"
-#define MyAppVersion "0.99.0"
+#define MyAppVersion "0.101.0"
 #define MyAppExeName "MercuryClient_x64.exe"
 #define MyAppIcon "application-icon.ico"
 #define MyAppLicence "Mercury-Client_x64\LICENSE.txt"
