@@ -5,7 +5,7 @@
 	<groupId>io.github.koukobin.ermis</groupId>
 	<artifactId>ermis.desktop.client</artifactId>
 	<packaging>jar</packaging>
-	<version>0.100.0</version>
+	<version>0.101.0</version>
 
 	<name>desktop-client</name>
 	<url>https://github.com/Koukobin/Ermis</url>
