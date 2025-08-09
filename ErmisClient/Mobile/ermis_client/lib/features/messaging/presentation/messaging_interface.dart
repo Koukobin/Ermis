@@ -220,11 +220,6 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     super.dispose();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   void pushVoiceCall() {
     // VoiceCallThing.initiateVoiceCall(
     //   context,
@@ -421,7 +416,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                         ? BoxDecoration(
                             color: appColors.secondaryColor.withAlpha(100),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.white, width: 1.5),
+                            border: Border.all(color: appColors.inferiorColor, width: 1.5),
                           )
                         : null,
                     child: MessageBubble(
