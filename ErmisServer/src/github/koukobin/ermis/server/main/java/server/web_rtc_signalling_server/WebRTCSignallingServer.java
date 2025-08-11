@@ -145,11 +145,11 @@ public class WebRTCSignallingServer {
 		}
 	}
 
-    /**
-    *
-    * Used solely for testing purposes on browser    
-    *        
-    */
+	/**
+	 *
+	 * Used solely for testing purposes on browser
+	 * 
+	 */
 	private static class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 		private final String wsUri;
