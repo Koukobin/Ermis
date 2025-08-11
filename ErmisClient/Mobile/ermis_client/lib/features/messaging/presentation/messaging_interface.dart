@@ -316,7 +316,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
         }
 
         if (item is VoiceCallHistory) {
-          return item.tsEnded;
+          return item.tsDebuted;
         }
 
         throw Exception("What the fuck is going on");
