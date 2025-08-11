@@ -23,9 +23,15 @@ import '../../../constants/app_constants.dart';
 
 class UserProfilePhoto extends StatefulWidget {
   final double? radius;
-  final Uint8List profileBytes;
+  final Uint8List? profileBytes;
+  final bool removeBorder;
 
-  const UserProfilePhoto({super.key, this.radius, required this.profileBytes});
+  const UserProfilePhoto({
+    super.key,
+    this.radius,
+    this.removeBorder = false,
+    required this.profileBytes,
+  });
 
   @override
   State<UserProfilePhoto> createState() => UserProfilePhotoState();
@@ -41,19 +47,26 @@ class UserProfilePhotoState extends State<UserProfilePhoto> {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+
+    BoxDecoration? boxDecoration = widget.removeBorder
+        ? null
+        : BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: appColors.primaryColor,
+              width: 3.0,
+            ),
+          );
+
+    bool isProfileVacant = widget.profileBytes?.isEmpty ?? true;
+
     return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: appColors.primaryColor,
-          width: 3.0,
-        ),
-      ),
+      decoration: boxDecoration,
       child: CircleAvatar(
         radius: widget.radius,
         backgroundColor: Colors.grey[200],
-        backgroundImage: widget.profileBytes.isNotEmpty ? MemoryImage(widget.profileBytes) : null,
-        child: widget.profileBytes.isEmpty
+        backgroundImage: !isProfileVacant ? MemoryImage(widget.profileBytes!) : null,
+        child: isProfileVacant
             ?
             // Icon(
             //     Icons.person_rounded,

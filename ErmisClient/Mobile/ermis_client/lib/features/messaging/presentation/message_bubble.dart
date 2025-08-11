@@ -19,6 +19,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ermis_mobile/core/data_sources/api_client.dart';
+import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_mobile/core/models/message.dart';
@@ -34,16 +35,19 @@ import 'package:flutter/material.dart';
 
 import '../../../core/event_bus/app_event_bus.dart';
 import '../../../core/models/message_events.dart';
+import '../../../core/widgets/profile_photos/user_profile_photo.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message message;
   final Message? previousMessage;
+  final ChatSession chatSession;
   final AppColors appColors;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.previousMessage,
+    required this.chatSession,
     required this.appColors,
   });
 
@@ -52,17 +56,17 @@ class MessageBubble extends StatelessWidget {
     final bool isMessageOwner = message.clientID == Client.instance().clientID;
 
     const int millisPerSecond = 1000;
-    DateTime currentMessageDate = DateTime.fromMillisecondsSinceEpoch(
+    final DateTime currentMessageDate = DateTime.fromMillisecondsSinceEpoch(
             message.epochSecond * millisPerSecond /* Convert seconds to millis */,
             isUtc: true)
         .toLocal();
 
-    DateTime previousMessageDate = DateTime.fromMillisecondsSinceEpoch(
+    final DateTime previousMessageDate = DateTime.fromMillisecondsSinceEpoch(
             (previousMessage?.epochSecond ?? 0) * millisPerSecond /* Convert seconds to millis */,
             isUtc: true)
         .toLocal();
 
-    bool isNewDay = previousMessageDate.difference(currentMessageDate).inDays != 0;
+    final bool isNewDay = previousMessageDate.difference(currentMessageDate).inDays != 0;
 
     return Column(
       children: [
@@ -75,20 +79,36 @@ class MessageBubble extends StatelessWidget {
                     : Text(
                         CustomDateFormatter.formatDate(currentMessageDate, "yyyy-MM-dd"))),
           ),
+        if (previousMessage?.clientID != message.clientID)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: UserProfilePhoto(
+              radius: 15,
+              removeBorder: false,
+              profileBytes: chatSession.members
+                  .where((m) => m.clientID == message.clientID)
+                  .firstOrNull
+                  ?.icon
+                  .profilePhoto,
+            ),
+          ),
         Align(
           alignment: isMessageOwner ? Alignment.centerRight : Alignment.centerLeft,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                constraints: BoxConstraints(
+                constraints: const BoxConstraints(
                   maxWidth: 250, // Limit max width to prevent overly wide messages
                   minWidth: 100, // Ensure small messages don't shrink too much
                 ),
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   padding: const EdgeInsets.all(10),
-                  constraints: const BoxConstraints(maxWidth: 225, maxHeight: 300),
+                  constraints: const BoxConstraints(
+                    maxWidth: 225,
+                    maxHeight: 300,
+                  ),
                   decoration: BoxDecoration(
                     gradient: isMessageOwner
                         ? LinearGradient(

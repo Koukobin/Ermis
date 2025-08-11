@@ -422,6 +422,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                     child: MessageBubble(
                       message: message,
                       previousMessage: previousMessage,
+                      chatSession: _chatSession,
                       appColors: appColors,
                     )));
           },
