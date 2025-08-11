@@ -153,35 +153,14 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) {
       // Since messages was updated by the message handler simply setState
       setState(() {});
-
-      Message message = event.message;
-
-      if (message.chatSessionID == _chatSession.chatSessionID) {
-        return;
-      }
-
-      ErmisDB.getConnection().insertUnreadMessage(
-        UserInfoManager.serverInfo,
-        message.chatSessionID,
-        message.messageID,
-      );
-
-      SettingsJson settingsJson = SettingsJson();
-      settingsJson.loadSettingsJson();
-      handleChatMessageNotificationForeground(
-        event.chatSession,
-        message,
-        settingsJson,
-        _sendTextMessage,
-      );
     });
 
     subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) {
-      if (mounted) setState(() {});
+      setState(() {});
     });
 
     subscribe(AppEventBus.instance.on<ImageDownloadedEvent>(), (event) {
-      if (mounted) setState(() {});
+      setState(() {});
     });
 
     subscribe(AppEventBus.instance.on<MessageDeletedEvent>(), (event) {
