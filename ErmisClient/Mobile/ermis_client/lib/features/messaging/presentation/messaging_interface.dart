@@ -20,8 +20,6 @@ import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:ermis_mobile/core/models/voice_call_history.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
-import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
-import 'package:ermis_mobile/core/util/message_notification.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
@@ -304,21 +302,6 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
       }),
       bottom: DividerBottom(dividerColor: appColors.inferiorColor),
     );
-  }
-
-  void _sendTextMessage(String text) {
-    Message pendingMessage = Client.instance().sendMessageToClient(text, widget.chatSessionIndex);
-    _addMessage(pendingMessage);
-  }
-
-  void _addMessage(Message msg) {
-    if (mounted) {
-      setState(() {
-        _messages.add(msg);
-      });
-      return;
-    }
-    _messages.add(msg);
   }
 
   Widget _buildMessageList(AppColors appColors) {
@@ -886,3 +869,4 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 //     );
 //   }
 // }
+
