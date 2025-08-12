@@ -162,13 +162,13 @@ class SettingsJson {
     return NewFeaturesPageStatus(hasShown: false, version: AppConstants.applicationVersion);
   }
 
-  bool get isJsonLoaded => _isJsonLoaded;
-  bool get isJsonNotLoaded => !_isJsonLoaded;
-
   bool get useLessDataForCallsEnabled => _settingsJson["useLessDataForCallsEnabled"];
 
   bool get hasUserSentFirstMessage => _settingsJson["hasUserSentFirstMessage"];
   bool get hasUserMadeFirstFriend => _settingsJson["hasUserMadeFirstFriend"];
+
+  bool get isJsonLoaded => _isJsonLoaded;
+  bool get isJsonNotLoaded => !_isJsonLoaded;
 
   Future<void> saveSettingsJson() async {
     final path = await _getJsonSettingsFilePath();
