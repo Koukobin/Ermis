@@ -121,8 +121,9 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
           showToastDialog(S().new_chat);
           return;
         }
-
         SettingsJson().setHasUserMadeFirstFriend(true);
+        SettingsJson().saveSettingsJson();
+
         FirstFriendMadeAchievementPopup.show(context);
       }
 
