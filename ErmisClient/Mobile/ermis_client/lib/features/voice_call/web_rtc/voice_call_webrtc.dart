@@ -89,7 +89,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
   static CallStatus callStatus = CallStatus.connecting;
   // double rms = 0.0;
-  
+
   static TimeElapsedValueNotifier elapsedTimeNotifier = TimeElapsedValueNotifier();
   static TimeElapsedWidget? elapsedTime;
 
@@ -133,7 +133,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     returnToCallOverlayEntry = null;
 
     Timer.periodic(const Duration(seconds: 1), (timer) async {
-      if (!mounted) {
+      if (!mounted || callStatus == CallStatus.ended) {
         timer.cancel();
         return;
       }
@@ -159,8 +159,8 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
       // double totalRMS = 0;
       // for (final track in localStream?.getAudioTracks() ?? []) {
-        // ByteBuffer currentFrame = await track.captureFrame();
-        // totalRMS += calculateRMS(currentFrame.asUint8List());
+      // ByteBuffer currentFrame = await track.captureFrame();
+      // totalRMS += calculateRMS(currentFrame.asUint8List());
       // }
       // rms = totalRMS;
     });
@@ -611,6 +611,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return PopScope(
       canPop: false,
@@ -650,7 +651,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                 Container(
                   height: 120.0,
                   decoration: BoxDecoration(
-                    color: Colors.grey[900],
+                    color: isDarkMode ? Colors.grey[900] : Colors.grey[400],
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(20.0),
                     ),
@@ -664,7 +665,9 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                           backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
                         ),
                         icon: Icon(
-                          isSpeakerPhoneEnabled ? Icons.volume_up : Icons.volume_off,
+                          isSpeakerPhoneEnabled
+                              ? Icons.volume_up
+                              : Icons.volume_off,
                           size: 40,
                           color: isSpeakerPhoneEnabled ? Colors.green : Colors.red,
                         ),
@@ -672,11 +675,11 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                           setState(() {
                             isSpeakerPhoneEnabled = !isSpeakerPhoneEnabled;
                           });
-    
+
                           void updateEnabled(MediaStreamTrack track) {
                             track.enableSpeakerphone(isSpeakerPhoneEnabled);
                           }
-    
+
                           localStream!.getAudioTracks().forEach(updateEnabled);
                         },
                       ),
@@ -706,7 +709,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                           setState(() {
                             isMuted = !isMuted;
                           });
-    
+
                           localStream!.getAudioTracks().forEach((track) {
                             track.enabled = !isMuted;
                           });
