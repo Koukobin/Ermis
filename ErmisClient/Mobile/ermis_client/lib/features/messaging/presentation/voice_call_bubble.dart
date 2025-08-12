@@ -16,6 +16,7 @@
 
 
 import 'package:ermis_mobile/core/models/voice_call_history.dart';
+import 'package:ermis_mobile/features/messaging/presentation/message_bubble.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
@@ -27,14 +28,19 @@ import '../../../core/util/transitions_util.dart';
 import '../../../theme/app_colors.dart';
 import '../../call_history_screen/call_history_screen.dart';
 
-class VoiceCallBubble extends StatelessWidget {
+class VoiceCallBubble extends MessageBubble {
   final VoiceCallHistory entry;
   final VoidCallback pushVoiceCall;
+  final int? previousMessageEpochSecond;
+  final int? previousMessageClientID;
 
   const VoiceCallBubble({
     super.key,
     required this.entry,
     required this.pushVoiceCall,
+    required this.previousMessageEpochSecond,
+    required this.previousMessageClientID,
+    required super.chatSession,
   });
 
   @override
@@ -43,96 +49,120 @@ class VoiceCallBubble extends StatelessWidget {
 
     final bool isMessageOwner = entry.initiatorClientID == Client.instance().clientID;
 
-    return Align(
-      alignment: isMessageOwner ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: const EdgeInsets.all(10),
-        constraints: const BoxConstraints(maxWidth: 225, maxHeight: 300),
-        decoration: BoxDecoration(
-          gradient: isMessageOwner
-              ? const LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 0, 70, 0),
-                    Color.fromARGB(255, 0, 255, 0)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.topRight,
-                )
-              : const LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 70, 70, 70),
-                    Color.fromARGB(255, 40, 40, 40)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.topRight,
-                ),
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(isMessageOwner ? 10 : 2),
-              topRight: Radius.circular(isMessageOwner ? 2 : 10),
-              bottomLeft: const Radius.circular(10),
-              bottomRight: const Radius.circular(10)),
+    const int millisPerSecond = 1000;
+    final DateTime currentMessageDate = DateTime.fromMillisecondsSinceEpoch(
+            entry.tsDebuted * millisPerSecond /* Convert seconds to millis */,
+            isUtc: true)
+        .toLocal();
+
+    final DateTime previousMessageDate = DateTime.fromMillisecondsSinceEpoch(
+            (previousMessageEpochSecond ?? 0) * millisPerSecond /* Convert seconds to millis */,
+            isUtc: true)
+        .toLocal();
+
+    return Column(
+      children: [
+        buildNewDayLabel(
+          previousMessageDate: previousMessageDate,
+          currentMessageDate: currentMessageDate,
         ),
-        child: GestureDetector(
-          onTap: () {
-            pushSlideTransition(
-              context,
-              CallHistoryPage(historyToHighlight: entry),
-            );
-          },
+        buildUserProfile(
+          currentMessageClientID: entry.initiatorClientID,
+          previousMessageClientID: previousMessageClientID,
+          isMessageOwner: isMessageOwner,
+        ),
+        Align(
+          alignment: isMessageOwner ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
-            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            padding: const EdgeInsets.all(10),
+            constraints: const BoxConstraints(maxWidth: 225, maxHeight: 300),
             decoration: BoxDecoration(
-              color: appColors.secondaryColor.withAlpha(100),
-              borderRadius: BorderRadius.circular(12),
+              gradient: isMessageOwner
+                  ? const LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 0, 70, 0),
+                        Color.fromARGB(255, 0, 255, 0)
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                    )
+                  : const LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 70, 70, 70),
+                        Color.fromARGB(255, 40, 40, 40)
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                    ),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(isMessageOwner ? 10 : 2),
+                  topRight: Radius.circular(isMessageOwner ? 2 : 10),
+                  bottomLeft: const Radius.circular(10),
+                  bottomRight: const Radius.circular(10)),
             ),
-            child: Row(
-              children: [
-                IconButton.filled(
-                  style: IconButton.styleFrom(
-                    backgroundColor: appColors.tertiaryColor.withAlpha(100),
-                    foregroundColor: switch(entry.status) {
-                      VoiceCallHistoryStatus.created => Colors.white,
-                      VoiceCallHistoryStatus.accepted => Colors.green,
-                      VoiceCallHistoryStatus.ignored => Colors.red,
-                    },
-                  ),
-                  onPressed: pushVoiceCall,
-                  icon: Icon(
-                    switch (entry.status) {
-                      VoiceCallHistoryStatus.created => Icons.phone_in_talk,
-                      VoiceCallHistoryStatus.accepted => Icons.call,
-                      VoiceCallHistoryStatus.ignored => Icons.phone_missed,
-                    },
-                  ),
+            child: GestureDetector(
+              onTap: () {
+                pushSlideTransition(
+                  context,
+                  CallHistoryPage(historyToHighlight: entry),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: appColors.secondaryColor.withAlpha(100),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 12.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 4,
-                    children: [
-                      Text(
-                        S.current.voice_call,
-                        style: Theme.of(context).textTheme.titleSmall,
-                        softWrap: true,
+                child: Row(
+                  children: [
+                    IconButton.filled(
+                      style: IconButton.styleFrom(
+                        backgroundColor: appColors.tertiaryColor.withAlpha(100),
+                        foregroundColor: switch(entry.status) {
+                          VoiceCallHistoryStatus.created => Colors.white,
+                          VoiceCallHistoryStatus.accepted => Colors.green,
+                          VoiceCallHistoryStatus.ignored => Colors.red,
+                        },
                       ),
-                      Text(
-                        S().started_at_time(CustomDateFormatter.formatDate(
-                          EpochDateTime.fromSecondsSinceEpoch(entry.tsDebuted),
-                          'HH:mm',
-                        )),
-                        softWrap: true,
+                      onPressed: pushVoiceCall,
+                      icon: Icon(
+                        switch (entry.status) {
+                          VoiceCallHistoryStatus.created => Icons.phone_in_talk,
+                          VoiceCallHistoryStatus.accepted => Icons.call,
+                          VoiceCallHistoryStatus.ignored => Icons.phone_missed,
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 12.0),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 4,
+                        children: [
+                          Text(
+                            S.current.voice_call,
+                            style: Theme.of(context).textTheme.titleSmall,
+                            softWrap: true,
+                          ),
+                          Text(
+                            S().started_at_time(CustomDateFormatter.formatDate(
+                              EpochDateTime.fromSecondsSinceEpoch(entry.tsDebuted),
+                              'HH:mm',
+                            )),
+                            softWrap: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 

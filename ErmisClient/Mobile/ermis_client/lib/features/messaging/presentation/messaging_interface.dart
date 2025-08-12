@@ -27,7 +27,7 @@ import 'package:ermis_mobile/features/messaging/presentation/voice_call_bubble.d
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_mobile/features/messaging/presentation/input_field.dart';
-import 'package:ermis_mobile/features/messaging/presentation/message_bubble.dart';
+import 'package:ermis_mobile/features/messaging/presentation/text_bubble.dart';
 import 'package:ermis_mobile/features/messaging/presentation/choose_friends_screen.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
@@ -245,15 +245,18 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
           children: [
             Row(
               children: [
-                UserAvatar(
-                  imageBytes: _chatSession.members[0].icon.profilePhoto,
-                  status: _chatSession.members[0].status,
-                ),
+                for (final member in _chatSession.members)
+                  UserAvatar(
+                    imageBytes: member.icon.profilePhoto,
+                    status: member.status,
+                  ),
                 const SizedBox(width: 10),
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: constraints.maxWidth - 150),
                   child: Text(
-                    S.current.chat_with(widget.chatSession.members[0].username),
+                    S.current.chat_with(widget.chatSession.members
+                        .map((m) => m.username)
+                        .join(', ')),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -328,39 +331,56 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: ScrollViewFixer.createScrollViewWithAppBarSafety(scrollView: InfiniteScrollList(
+        child: ScrollViewFixer.createScrollViewWithAppBarSafety(
+            scrollView: InfiniteScrollList(
           reverse: true,
           itemCount: combined.length,
           isLoaded: true,
           itemBuilder: (context, index) {
             final message = combined[combined.length - index - 1];
 
-            if (message is VoiceCallHistory) {
-              return VoiceCallBubble(
-                entry: message,
-                pushVoiceCall: pushVoiceCall,
-              );
-            }
+            int? previousMessageEpochSecond;
+            int? previousMessageClientID;
 
-            if (message is! Message) {
-              return Text("Unrecognized message: $message");
-            }
-
-            Message? previousMessage;
-
+            // Search for previous message bubble
             if (index != combined.length - 1) {
+              Object? previousMessage;
+
               int num = 2;
               try {
                 while (previousMessage == null) {
                   final obj = combined[combined.length - index - num];
+                  previousMessage = obj;
+
                   if (obj is Message) {
-                    previousMessage = obj;
+                    previousMessageEpochSecond = obj.epochSecond;
+                    previousMessageClientID = obj.clientID;
                   }
+
+                  if (obj is VoiceCallHistory) {
+                    previousMessageEpochSecond = obj.tsDebuted;
+                    previousMessageClientID = obj.initiatorClientID;
+                  }
+
                   num++;
                 }
               } on RangeError {
                 // In case of an error continue
               }
+            }
+
+            if (message is VoiceCallHistory) {
+              return VoiceCallBubble(
+                entry: message,
+                pushVoiceCall: pushVoiceCall,
+                chatSession: _chatSession,
+                previousMessageClientID: previousMessageClientID,
+                previousMessageEpochSecond: previousMessageEpochSecond,
+              );
+            }
+
+            if (message is! Message) {
+              return Text("Unrecognized message: $message");
             }
 
             return GestureDetector(
@@ -381,9 +401,10 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                             border: Border.all(color: appColors.inferiorColor, width: 1.5),
                           )
                         : null,
-                    child: MessageBubble(
+                    child: TextBubble(
                       message: message,
-                      previousMessage: previousMessage,
+                      previousMessageClientID: previousMessageClientID,
+                      previousMessageEpochSecond: previousMessageEpochSecond,
                       chatSession: _chatSession,
                       appColors: appColors,
                     )));
@@ -869,4 +890,3 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 //     );
 //   }
 // }
-
