@@ -1,0 +1,1 @@
+Ermis M (Short for Ermis Mobile) is an open-source, mobile chat application designed for secure and seamless communication with Ermis-Server. Ermis M offers a fast and secure platform for connecting with others.
