@@ -47,8 +47,10 @@ android {
         }
     } else {
         // TODO: Add your own signing config for the release build.
-        // Signing with the debug keys for now, so `flutter run --release` works.
-        // For further details, consult the README file "Releasing" section
+        // No signing key is specified for now; for `flutter run --release`
+        // to work, uncomment `signingConfig signingConfigs.debug` below.
+        //
+        // For further details, consult the README file's "Releasing" section.
     }
 
     buildTypes {
@@ -60,7 +62,8 @@ android {
                 def ANSI_NORMAL = "\u001B[0m";
                 println "${ANSI_YELLOW}Warning: Signing with the debug keys for now; add your own signing config for the release build ${ANSI_NORMAL}"
 
-                signingConfig signingConfigs.debug
+                signingConfig null
+                // signingConfig signingConfigs.debug
             }
         }
     }
@@ -77,4 +80,5 @@ dependencies {
 configurations.all {
     exclude group: "com.google.android.play"
 }
+
 
