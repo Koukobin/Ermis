@@ -104,8 +104,11 @@ public abstract sealed class GeneralEntryController implements Initializable per
 			try {
 				Thread.sleep(100);
 				clientEntry.sendCredentials(credentials);
-			} catch (IOException | InterruptedException ioe) {
+			} catch (IOException ioe) {
 				logger.error(ioe.getMessage(), ioe);
+			} catch (InterruptedException ie) {
+				logger.error(ie.getMessage(), ie);
+				Thread.currentThread().interrupt();
 			}
 		});
 
