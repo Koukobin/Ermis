@@ -17,10 +17,7 @@ package github.koukobin.ermis.desktop_client.main.java.service.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -443,34 +440,4 @@ public class Client {
 		isLoggedIn.set(false);
 	}
 
-    public static void initializeUDP() {
-        try {
-            // Create a DatagramSocket to bind to local port 8081
-            DatagramSocket socket = new DatagramSocket(9090);
-            
-            // Server's address and port
-            InetAddress serverAddress = InetAddress.getByName("192.168.10.103"); // Replace with server IP
-            int serverPort = 8081;
-
-            // Sending data to the server
-            String message = "Hello, server!";
-            byte[] buffer = message.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, serverPort);
-            socket.send(packet);
-            System.out.println("Data sent to " + serverAddress + ":" + serverPort);
-
-            // Listening for responses
-            byte[] receiveBuffer = new byte[1024];
-            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-            while (true) {
-                socket.receive(receivePacket);
-                String receivedData = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                System.out.println("Received: " + receivedData);
-            }
-        } catch (SocketException e) {
-            System.err.println("Socket creation failed: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Failed to initialize UDP socket: " + e.getMessage());
-        }
-    }
 }
