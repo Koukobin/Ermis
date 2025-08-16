@@ -181,25 +181,26 @@ public class WebRTCSignallingServer {
 					send100Continue(ctx);
 				}
 
-				RandomAccessFile raf = new RandomAccessFile(file, "r");
-				long fileLength = raf.length();
+				try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+					long fileLength = raf.length();
 
-				HttpResponse response = new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.OK);
-				HttpUtil.setContentLength(response, fileLength);
-				setContentTypeHeader(response, file);
-				if (HttpUtil.isKeepAlive(request)) {
-					response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-				}
-				ctx.write(response);
+					HttpResponse response = new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.OK);
+					HttpUtil.setContentLength(response, fileLength);
+					setContentTypeHeader(response, file);
+					if (HttpUtil.isKeepAlive(request)) {
+						response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+					}
+					ctx.write(response);
 
-				// Use ChunkedFile instead of DefaultFileRegion
-				@SuppressWarnings("unused")
-				ChannelFuture sendFileFuture = ctx.write(new ChunkedFile(raf), ctx.newProgressivePromise());
-				ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+					// Use ChunkedFile instead of DefaultFileRegion
+					@SuppressWarnings("unused")
+					ChannelFuture sendFileFuture = ctx.write(new ChunkedFile(raf), ctx.newProgressivePromise());
+					ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
 
-				// Optionally add a listener to close the connection if Keep-Alive is not set.
-				if (!HttpUtil.isKeepAlive(request)) {
-					lastContentFuture.addListener(ChannelFutureListener.CLOSE);
+					// Optionally add a listener to close the connection if Keep-Alive is not set.
+					if (!HttpUtil.isKeepAlive(request)) {
+						lastContentFuture.addListener(ChannelFutureListener.CLOSE);
+					}
 				}
 			}
 		}
