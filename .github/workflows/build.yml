@@ -48,16 +48,18 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
 
-      - name: Analyze Dart/Flutter with SonarQube
+      - name: Analyze Dart/Flutter
         working-directory: ErmisClient/Mobile/ermis_client
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           flutter analyze --write=analysis-report.txt || true
-          sonar-scanner \
-            -Dsonar.projectKey=Koukobin_Ermis \
-            -Dsonar.sources=lib \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.dart.analyzer.report.path=analysis-report.txt
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectKey: Koukobin_Ermis
+          organization: koukobin
+          token: ${{ secrets.SONAR_TOKEN }}
+          extraProperties: |
+            sonar.sources=ErmisClient/Mobile/ermis_client/lib
+            sonar.dart.analyzer.report.path=ErmisClient/Mobile/ermis_client/analysis-report.txt
 
