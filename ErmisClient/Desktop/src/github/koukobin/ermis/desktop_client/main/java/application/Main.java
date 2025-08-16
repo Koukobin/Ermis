@@ -107,6 +107,9 @@ public class Main extends Application {
 
 					retry = false;
 				} catch (Exception e) {
+					if (e instanceof InterruptedException) {
+						Thread.currentThread().interrupt();
+					}
 
 					Optional<ButtonType> exceptionDialogResult = DialogsUtil.showExceptionDialog(e);
 
