@@ -129,6 +129,27 @@
 				<directory>${src.resources}</directory>
 				<targetPath>${target.resources}</targetPath>
 				<filtering>true</filtering>
+
+				<!-- Exclude binary files from filtering -->
+				<excludes>
+					<exclude>**/*.wav</exclude>
+					<exclude>**/*.mp3</exclude>
+					<exclude>**/*.png</exclude>
+					<exclude>**/*.jpg</exclude>
+				</excludes>
+			</resource>
+
+			<resource>
+				<directory>${src.resources}</directory>
+				<targetPath>${target.resources}</targetPath>
+				<filtering>false</filtering>
+				
+				<includes>
+					<include>**/*.wav</include>
+					<include>**/*.mp3</include>
+					<include>**/*.png</include>
+					<include>**/*.jpg</include>
+				</includes>
 			</resource>
 		</resources>
 
