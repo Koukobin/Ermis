@@ -60,8 +60,11 @@ jobs:
         with:
           projectKey: Koukobin_Ermis
           organization: koukobin
+          projectBaseDir: ErmisClient/Mobile/ermis_client 
           token: ${{ secrets.SONAR_TOKEN }}
           extraProperties: |
-            sonar.sources=ErmisClient/Mobile/ermis_client/lib
-            sonar.dart.analyzer.report.path=ErmisClient/Mobile/ermis_client/analysis-report.txt
+            sonar.projectKey=Koukobin_Ermis
+            sonar.organization=koukobin
+            sonar.sources=lib
+            sonar.dart.analyzer.report.path=analysis-report.txt
 
