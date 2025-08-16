@@ -12,13 +12,17 @@
 
 [![GitHub Stars](https://img.shields.io/github/stars/Koukobin/Chatapp?style=social)](https://github.com/Koukobin/Ermis/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/Koukobin/Chatapp?style=social)](https://github.com/Koukobin/Ermis/network/members)
-[![GitHub Issues](https://img.shields.io/github/issues/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/pulls)
-[![Wiki](https://img.shields.io/badge/wiki-available-brightgreen?logo=wikipedia&logoColor=white)](https://github.com/Koukobin/Ermis/wiki)
-<img src="https://visitor-badge.laobi.icu/badge?page_id=Koukobin.Ermis&title=views">
-
+[![Build Status](https://github.com/koukobin/ermis/actions/workflows/build.yml/badge.svg)](https://github.com/Koukobin/Ermis/actions/workflows/build.yml)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-0baaaa.svg)](code_of_conduct.md)
 [![License](https://img.shields.io/github/license/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/blob/master/LICENSE)
+<img src="https://visitor-badge.laobi.icu/badge?page_id=Koukobin.Ermis&title=views">
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Koukobin_Ermis&metric=alert_status)](https://sonarcloud.io/dashboard?id=Koukobin_Ermis)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Koukobin_Ermis&metric=security_rating)](https://sonarcloud.io/dashboard?id=Koukobin_Ermis)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Koukobin_Ermis&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=Koukobin_Ermis)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Koukobin_Ermis&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=Koukobin_Ermis)
+
+[![Wiki](https://img.shields.io/badge/wiki-available-brightgreen?logo=wikipedia&logoColor=white)](https://github.com/Koukobin/Ermis/wiki)
 
 <table align="center">
     <tr>

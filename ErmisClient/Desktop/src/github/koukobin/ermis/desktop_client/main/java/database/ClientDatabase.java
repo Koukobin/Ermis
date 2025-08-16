@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import github.koukobin.ermis.common.util.FileUtils;
-import github.koukobin.ermis.desktop_client.main.java.controllers.entry.VerificationDialog;
 import github.koukobin.ermis.desktop_client.main.java.database.models.DatabaseChatMessage;
 import github.koukobin.ermis.desktop_client.main.java.database.models.LocalAccountInfo;
 import github.koukobin.ermis.desktop_client.main.java.database.models.ServerInfo;

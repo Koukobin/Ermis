@@ -21,8 +21,6 @@ import java.lang.reflect.InaccessibleObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import github.koukobin.ermis.desktop_client.main.java.service.client.handlers.CommandResultHandler;
-
 /**
  * @author Ilias Koukovinis
  *

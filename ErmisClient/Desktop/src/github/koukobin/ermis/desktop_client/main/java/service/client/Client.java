@@ -56,7 +56,6 @@ import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.desktop_client.main.java.database.models.LocalAccountInfo;
 import github.koukobin.ermis.desktop_client.main.java.database.models.ServerInfo;
-import github.koukobin.ermis.desktop_client.main.java.info.GeneralAppInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.EntryMessage;
 import github.koukobin.ermis.desktop_client.main.java.service.client.io.ByteBufInputStream;
 import github.koukobin.ermis.desktop_client.main.java.service.client.io.ByteBufOutputStream;
@@ -172,7 +171,6 @@ public class Client {
 						logger.error(e.getMessage(), e);
 					}
 				}
-//				isClientListeningToMessages.set(false);
 			}
 		};
 		thread.setDaemon(true);
@@ -361,9 +359,10 @@ public class Client {
 			throw new IllegalStateException("User can't start writing server if he isn't logged in");
 		}
 
-		Client.messageTransmitter = new MessageTransmitter() {};
+		Client.messageTransmitter = new MessageTransmitter() {
+		};
 		Client.messageTransmitter.setByteBufOutputStream(out);
-		Client.messageTransmitter.startListeningToMessages();
+		Client.messageTransmitter.fetchUserInformation();
 	}
 
 	public static void sendMessageToClient(String message, int chatSessionIndex) throws IOException {
@@ -372,10 +371,6 @@ public class Client {
 
 	public static void sendFile(File file, int chatSessionIndex) throws IOException {
 		messageTransmitter.sendFile(file, chatSessionIndex);
-	}
-
-	public static void stopListeningToMessages() {
-		messageTransmitter.stopListeningToMessages();
 	}
 
 	public static BackupVerificationEntry createNewBackupVerificationEntry() {
@@ -392,10 +387,6 @@ public class Client {
 
 	public static boolean isLoggedIn() {
 		return isLoggedIn.get();
-	}
-
-	public static boolean isClientListeningToMessages() {
-		return messageTransmitter.isClientListeningToMessages();
 	}
 
 	public static String getDisplayName() {

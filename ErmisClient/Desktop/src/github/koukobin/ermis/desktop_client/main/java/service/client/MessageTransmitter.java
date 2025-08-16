@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.io.Files;
@@ -47,7 +46,6 @@ public abstract class MessageTransmitter implements AutoCloseable {
 
 	private ByteBufOutputStream out;
 
-	private AtomicBoolean isClientListeningToMessages = new AtomicBoolean(false);
 	private Commands commands = new Commands();
 
 	private final AtomicInteger lastPendingMessageID = new AtomicInteger();
@@ -351,58 +349,12 @@ public abstract class MessageTransmitter implements AutoCloseable {
 		}
 	}
 
-	/**
-	 * reads incoming messages sent from the server
-	 */
-	public void startListeningToMessages() throws IOException {
-//		if (isClientListeningToMessages()) {
-//			throw new IllegalStateException("Client is already listening to messages!");
-//		}
-//		
-//		isClientListeningToMessages.set(true);
-//
-//		Thread thread = new Thread("Thread-listenToMessages") {
-//			
-//			@Override
-//			public void run() {
-//				while (isClientListeningToMessages()) {
-//					try {
-//						ByteBuf msg = in.read();
-//						ServerMessageType msgType = ServerMessageType.fromId(msg.readInt());
-//
-//						switch (msgType) {
-//						case ENTRY -> {
-//							
-//						}
-//						}
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//				}
-//				
-//				isClientListeningToMessages.set(false);
-//			}
-//		};
-//		thread.setDaemon(true);
-//		thread.start();
-
+	public void fetchUserInformation() throws IOException {
 		commands.fetchProfileInformation();
 		commands.fetchChatSessionIndices();
 		commands.setAccountStatus(ClientStatus.ONLINE);
 		commands.fetchChatRequests();
 		commands.fetchAccountStatus();
-	}
-
-	public void stopListeningToMessages() {
-		if (!isClientListeningToMessages()) {
-			throw new IllegalStateException("Client isn't listening to messages to stop listening to messages!");
-		}
-
-		isClientListeningToMessages.set(false);
-	}
-
-	public boolean isClientListeningToMessages() {
-		return isClientListeningToMessages.get();
 	}
 
 	public Commands getCommands() {
@@ -435,6 +387,6 @@ public abstract class MessageTransmitter implements AutoCloseable {
 
 	@Override
 	public void close() {
-		stopListeningToMessages();
+		// Do nothing.
 	}
 }

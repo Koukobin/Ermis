@@ -214,7 +214,7 @@ public class MessagingController extends GeneralController {
 					MFXDialogsUtil.showSimpleInformationDialog(getStage(), getParentRoot(), "Downloading file...");
 					Client.getCommands().downloadFile(message.getMessageID(), RootReferences.getChatsController().getActiveChatSessionIndex());
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
+					logger.error(ioe.getMessage(), ioe);
 				}
 			});
 			ImageView downloadImage = new ImageView(Icons.DOWNLOAD);

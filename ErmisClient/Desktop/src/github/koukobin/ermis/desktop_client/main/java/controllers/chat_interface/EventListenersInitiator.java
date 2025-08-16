@@ -25,6 +25,9 @@ import java.util.List;
 
 import javax.swing.filechooser.FileSystemView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import github.koukobin.ermis.desktop_client.main.java.info.GeneralAppInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.GlobalMessageDispatcher;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.ChatRequestsEvent;
@@ -54,6 +57,8 @@ import javafx.stage.Stage;
  */
 class EventListenersInitiator {
 
+	private static final Logger logger = LoggerFactory.getLogger(EventListenersInitiator.class);
+	
 	private EventListenersInitiator() {}
 
 	static void initiateEventListeners(Stage stage, Pane rootPane) {
@@ -138,7 +143,7 @@ class EventListenersInitiator {
 
 					Platform.runLater(() -> MFXDialogsUtil.showSimpleInformationDialog(stage, rootPane, "Succesfully saved file!"));
 					} catch (IOException ioe) {
-						ioe.printStackTrace();
+						logger.error(ioe.getMessage(), ioe);
 					}
 		});
 

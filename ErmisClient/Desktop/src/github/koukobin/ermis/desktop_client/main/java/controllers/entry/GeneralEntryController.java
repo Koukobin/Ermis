@@ -18,7 +18,6 @@ package github.koukobin.ermis.desktop_client.main.java.controllers.entry;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
-import github.koukobin.ermis.desktop_client.main.java.controllers.chat_interface.MessagingController;
 import github.koukobin.ermis.desktop_client.main.java.database.ClientDatabase;
 import github.koukobin.ermis.desktop_client.main.java.database.models.LocalAccountInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;

@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import github.koukobin.ermis.desktop_client.main.java.database.ClientDatabase;
 import github.koukobin.ermis.desktop_client.main.java.util.SystemUtils;
 
 /**
