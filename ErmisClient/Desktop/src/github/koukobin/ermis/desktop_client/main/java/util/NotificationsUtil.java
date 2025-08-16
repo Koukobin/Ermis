@@ -48,7 +48,7 @@ public final class NotificationsUtil {
 
 		if (SystemUtils.IS_OS_LINUX) {
 			popupNotificationer = (String message) -> {
-				ProcessBuilder processBuilder = new ProcessBuilder("notify-send", GeneralAppInfo.TITLE, message);
+				ProcessBuilder processBuilder = new ProcessBuilder("/usr/bin/notify-send", GeneralAppInfo.TITLE, message);
 				try {
 					processBuilder.start();
 				} catch (IOException ioe) {
