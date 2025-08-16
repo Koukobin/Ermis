@@ -45,7 +45,7 @@ public class ServerLauncher {
 					ConsoleFormatter.TextStyle.UNDERLINED);
 			System.out.println();
 		} catch (IOException ioe) {
-			ioe.printStackTrace(); // Shouldn't happen
+			throw new RuntimeException(ioe);
 		} finally {
 			Server.start();
 		}

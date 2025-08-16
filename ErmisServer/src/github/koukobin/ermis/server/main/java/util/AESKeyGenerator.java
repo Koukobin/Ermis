@@ -70,7 +70,6 @@ public final class AESKeyGenerator {
 			return new AESGCMCipher(secretKey, encryptionCipher);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
 				| InvalidAlgorithmParameterException e) {
-			e.printStackTrace(); // Shouldn't happen
 			throw new RuntimeException(e);
 		}
 	}
@@ -88,8 +87,7 @@ public final class AESKeyGenerator {
 
 			return cipher.doFinal(ciphertext);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new RuntimeException(e);
 		}
 
 	}

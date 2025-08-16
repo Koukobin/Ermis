@@ -58,7 +58,7 @@ public class ConfigLoader {
 						field.setAccessible(true);
 						field.set(null, propertyValue);
 					} catch (IllegalAccessException iae) {
-						iae.printStackTrace();
+						throw new RuntimeException(iae);
 					}
 				}
 			}
