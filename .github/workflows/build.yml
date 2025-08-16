@@ -58,11 +58,11 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          projectBaseDir: ErmisClient/Mobile/ermis_client 
           args: >
             -Dsonar.projectKey=Koukobin_Ermis
             -Dsonar.organization=koukobin
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=lib
-            -Dsonar.dart.analyzer.report.path=analysis-report.txt
+            -Dsonar.sources=ErmisClient/Desktop/src,ErmisServer/src,ErmisCommon/src,ErmisClient/Mobile/ermis_client/lib
+            -Dsonar.java.binaries=ErmisClient/Desktop/target/classes,ErmisServer/target/classes
+            -Dsonar.dart.analyzer.report.path=ErmisClient/Mobile/ermis_client/analysis-report.txt
 
