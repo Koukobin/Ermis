@@ -55,8 +55,8 @@ public final class SecureRandomNumberGenerator {
 	}
 
 	public static int generateRandomNumber(int numDigits) {
-		int origin = (int) Math.pow(10, numDigits - 1);
-		int bound = (int) (Math.pow(10, numDigits));
+		int origin = (int) Math.pow(10, numDigits - 1.0);
+		int bound  = (int) (Math.pow(10, numDigits));
 		return generateRandomNumber(origin, bound);
 	}
 
