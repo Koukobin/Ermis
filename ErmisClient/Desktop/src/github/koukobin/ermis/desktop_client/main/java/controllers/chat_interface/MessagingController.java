@@ -316,8 +316,9 @@ public class MessagingController extends GeneralController {
 				while (spinner.getProgress() < 0.99) {
 					try {
 						Thread.sleep(25);
-					} catch (InterruptedException e) {
-						logger.error(e.getMessage(), e);
+					} catch (InterruptedException ie) {
+						logger.error(ie.getMessage(), ie);
+						Thread.currentThread().interrupt();
 					}
 					final double progress = spinner.getProgress() + 0.01;
 					spinner.setProgress(progress);
