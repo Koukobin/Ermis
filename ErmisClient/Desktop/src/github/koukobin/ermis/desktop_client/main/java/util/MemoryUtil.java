@@ -18,12 +18,19 @@ package github.koukobin.ermis.desktop_client.main.java.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.InaccessibleObjectException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import github.koukobin.ermis.desktop_client.main.java.service.client.handlers.CommandResultHandler;
+
 /**
  * @author Ilias Koukovinis
  *
  */
 public final class MemoryUtil {
 
+	private static final Logger logger = LoggerFactory.getLogger(MemoryUtil.class);
+	
 	private MemoryUtil() {}
 
 	public static void freeStringFromMemory(String stringToFree) {
@@ -33,7 +40,7 @@ public final class MemoryUtil {
 			field.set(stringToFree, new byte[] {});
 		} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException
 				| InaccessibleObjectException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 }

@@ -20,6 +20,9 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import github.koukobin.ermis.desktop_client.main.java.controllers.chat_interface.dialogs.LogoutDialog;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
 import github.koukobin.ermis.desktop_client.main.java.util.dialogs.CustomDialogButtonTypes;
@@ -39,6 +42,8 @@ import javafx.stage.Stage;
  *
  */
 public class ChatInterfaceController implements Initializable {
+
+	private static final Logger logger = LoggerFactory.getLogger(ChatInterfaceController.class);
 
 	@FXML
 	private BorderPane rootBorderPane;
@@ -73,7 +78,7 @@ public class ChatInterfaceController implements Initializable {
 	public void logout(ActionEvent event) throws IOException {
 		LogoutDialog dialog = new LogoutDialog(stage, rootBorderPane);
 		dialog.showAndWait();
-		
+
 		if (!dialog.isCanceled()) {
 			try {
 				Client.getCommands().logout();
@@ -94,7 +99,7 @@ public class ChatInterfaceController implements Initializable {
 	public void transitionToChatRequests(ActionEvent event) {
 		transitionBetweenOptionsBar(stackPane, RootReferences.getChatRequestsRoot());
 	}
-	
+
 	@FXML
 	public void transitionToSettings(ActionEvent event) {
 		transitionBetweenOptionsBar(stackPane, RootReferences.getSettingsRoot());
@@ -102,7 +107,7 @@ public class ChatInterfaceController implements Initializable {
 
 	private void transitionBetweenOptionsBar(StackPane parentContainer, Node newComponent) {
 		Node oldComponent = stackPane.getChildren().get(0);
-		
+
 		if (newComponent.equals(oldComponent)) {
 			return;
 		}
@@ -119,7 +124,7 @@ public class ChatInterfaceController implements Initializable {
 		try {
 			Client.close();
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			logger.error(ioe.getMessage(), ioe);
 		}
 	}
 

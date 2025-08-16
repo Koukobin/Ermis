@@ -21,6 +21,10 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import github.koukobin.ermis.desktop_client.main.java.database.ClientDatabase;
 import github.koukobin.ermis.desktop_client.main.java.util.SystemUtils;
 
 /**
@@ -29,6 +33,8 @@ import github.koukobin.ermis.desktop_client.main.java.util.SystemUtils;
  */
 public final class GeneralAppInfo {
 
+	private static final Logger logger = LoggerFactory.getLogger(GeneralAppInfo.class);
+	
 	public static final String GENERAL_NAME = "Mercury";
 	public static final String TITLE = GENERAL_NAME + "-Client";
 
@@ -59,7 +65,7 @@ public final class GeneralAppInfo {
 		} catch (FileAlreadyExistsException faee) {
 			// If directory already exists, simply move on.
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			logger.error(ioe.getMessage(), ioe);
 		}
 
 		CLIENT_DATABASE_PATH = appDataFolder + "local-ermis-database.db";

@@ -31,6 +31,9 @@ import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jfoenix.controls.JFXButton;
 
 import github.koukobin.ermis.common.message_types.ClientContentType;
@@ -76,6 +79,8 @@ import javafx.util.Duration;
  */
 public class MessagingController extends GeneralController {
 
+	private static final Logger logger = LoggerFactory.getLogger(MessagingController.class);
+
 	@FXML
 	private VBox messagingBox;
 
@@ -110,7 +115,7 @@ public class MessagingController extends GeneralController {
 						Client.getCommands().fetchWrittenText(RootReferences.getChatsController().getActiveChatSessionIndex());
 						lastTimeRequrestedMoreMessages = Instant.now();
 					} catch (IOException ioe) {
-						ioe.printStackTrace();
+						logger.error(ioe.getMessage(), ioe);
 					}
 				}
 
@@ -174,7 +179,7 @@ public class MessagingController extends GeneralController {
 			try {
 				Client.getCommands().deleteMessage(RootReferences.getChatsController().getActiveChatSessionIndex(), message.getMessageID());
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
+				logger.error(ioe.getMessage(), ioe);
 			}
 		});
 
@@ -312,7 +317,7 @@ public class MessagingController extends GeneralController {
 					try {
 						Thread.sleep(25);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage(), e);
 					}
 					final double progress = spinner.getProgress() + 0.01;
 					spinner.setProgress(progress);
@@ -378,7 +383,7 @@ public class MessagingController extends GeneralController {
 			Client.sendFile(file, RootReferences.getChatsController().getActiveChatSessionIndex());
 			addPendingMessage(null, file.getName().getBytes(), ClientContentType.FILE);
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			logger.error(ioe.getMessage(), ioe);
 		}
 	}
 
@@ -409,7 +414,7 @@ public class MessagingController extends GeneralController {
 			Client.sendMessageToClient(message, RootReferences.getChatsController().getActiveChatSessionIndex());
 			addPendingMessage(message.getBytes(), null, ClientContentType.TEXT);
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			logger.error(ioe.getMessage(), ioe);
 		}
 
 		inputField.setText("");

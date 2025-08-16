@@ -18,6 +18,9 @@ package github.koukobin.ermis.desktop_client.main.java.controllers.entry;
 import java.io.IOException;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
 import github.koukobin.ermis.desktop_client.main.java.util.dialogs.DialogsUtil;
@@ -33,6 +36,8 @@ import javafx.scene.control.TextInputDialog;
  */
 public class VerificationDialog {
 
+	private static final Logger logger = LoggerFactory.getLogger(VerificationDialog.class);
+	
 	private TextInputDialog verificationCodeDialog;
 	private int verificationCode;
 	
@@ -44,11 +49,9 @@ public class VerificationDialog {
 		String headerText = "Enter the code that was sent to your email to verify it is really you";
 
 		ButtonType resendVerificationCodeButtonType = new ButtonType("Resend verification code");
-		verificationCodeDialog = DialogsUtil.createTextInputDialog(headerText, null, "Verification Code",
-				resendVerificationCodeButtonType, ButtonType.OK);
+		verificationCodeDialog = DialogsUtil.createTextInputDialog(headerText, null, "Verification Code", resendVerificationCodeButtonType, ButtonType.OK);
 
-		Button resendVerificationCodeButton = (Button) verificationCodeDialog.getDialogPane()
-				.lookupButton(resendVerificationCodeButtonType);
+		Button resendVerificationCodeButton = (Button) verificationCodeDialog.getDialogPane().lookupButton(resendVerificationCodeButtonType);
 		resendVerificationCodeButton.pressedProperty().addListener(new ChangeListener<Boolean>() {
 
 			@Override
@@ -57,7 +60,7 @@ public class VerificationDialog {
 				try {
 					VerificationDialog.this.verificationEntry.resendVerificationCode();
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
+					logger.error(ioe.getMessage(), ioe);
 				}
 			}
 		});

@@ -20,6 +20,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
@@ -48,6 +51,8 @@ import javafx.scene.input.MouseEvent;
  */
 public class ChatRequestsController extends GeneralController {
 
+	private static final Logger logger = LoggerFactory.getLogger(ChatRequestsController.class);
+	
 	@FXML
 	private JFXListView<ChatRequest> chatRequestsListView;
 	
@@ -80,7 +85,7 @@ public class ChatRequestsController extends GeneralController {
 						try {
 							Client.getCommands().declineChatRequest(chatRequest.clientID());
 						} catch (IOException ioe) {
-							ioe.printStackTrace();
+							logger.error(ioe.getMessage(), ioe);
 						}
 					}
 				});
@@ -91,7 +96,7 @@ public class ChatRequestsController extends GeneralController {
 						try {
 							Client.getCommands().acceptChatRequest(chatRequest.clientID());
 						} catch (IOException ioe) {
-							ioe.printStackTrace();
+							logger.error(ioe.getMessage(), ioe);
 						}
 					}
 				});
@@ -113,15 +118,14 @@ public class ChatRequestsController extends GeneralController {
 						Client.getCommands().sendChatRequest(clientID);
 					}
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
+					logger.error(ioe.getMessage(), ioe);
 				}
 			}
 		});
 	}
-	
+
 	@FXML
 	public void searchChatRequests(KeyEvent event) {
-		
 		int num;
 
 		try {
@@ -129,14 +133,14 @@ public class ChatRequestsController extends GeneralController {
 		} catch (NumberFormatException nfe) {
 			return;
 		}
-		
+
 		List<ChatRequest> items = chatRequestsListView.getItems();
 
 		// A simple bubble sort algorithm that sorts items based on the user's input (num)
 		for (int i = 0; i < items.size(); i++) {
-			
+
 			boolean swapped = false;
-			
+
 			// reverse loop so sorted items appear from top to bottom and not from bottom to top
 			for (int j = items.size() - 1; j > 0; j--) {
 
@@ -151,25 +155,25 @@ public class ChatRequestsController extends GeneralController {
 				}
 
 			}
-			
-			 // If no swaps were made, the list is sorted and hence the break
+
+			// If no swaps were made, the list is sorted and hence the break
 			if (!swapped) {
 				break;
 			}
 		}
 	}
-	
+
 	@FXML
 	public void refreshChatRequestsListView(ActionEvent event) throws IOException {
 		Client.getCommands().fetchChatRequests();
 
 		MFXProgressSpinner progressSpinner = new MFXProgressSpinner();
 		Button refreshButton = (Button) event.getSource();
-		
+
 		refreshButton.setDisable(true);
 		getRoot().getChildren().remove(chatRequestsListView);
 		getRoot().getChildren().add(progressSpinner);
-		
+
 		// Just like in the ChatsController, set a timer of 1 second and subsequently remove progress spinner
 		// Very lazy but works perfectly fine
 		Platform.runLater(() -> {
@@ -180,20 +184,20 @@ public class ChatRequestsController extends GeneralController {
 			});
 		});
 	}
-	
+
 	public void clearChatRequests() {
 		chatRequestsListView.getItems().clear();
 	}
-	
+
 	public void addChatRequests(List<ChatRequest> chatRequests) {
 		for (ChatRequest chatRequest : chatRequests) {
 			addChatRequest(chatRequest);
 		}
 	}
-	
+
 	public void addChatRequest(ChatRequest chatRequest) {
 		chatRequestsListView.getItems().add(chatRequest);
 	}
-	
+
 }
 

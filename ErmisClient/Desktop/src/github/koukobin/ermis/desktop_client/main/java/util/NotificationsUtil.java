@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import org.controlsfx.control.Notifications;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import github.koukobin.ermis.desktop_client.main.java.info.GeneralAppInfo;
 import github.koukobin.ermis.desktop_client.main.java.info.chat_interface.ChatInterfaceInfo;
@@ -33,6 +35,8 @@ import javafx.util.Duration;
  *
  */
 public final class NotificationsUtil {
+
+	private static final Logger logger = LoggerFactory.getLogger(NotificationsUtil.class);
 
 	private static final MediaPlayer notificationPlayer;
 	private static final Consumer<String> popupNotificationer;
@@ -52,7 +56,7 @@ public final class NotificationsUtil {
 				try {
 					processBuilder.start();
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
+					logger.error(ioe.getMessage(), ioe);
 				}
 			};
 		} else {
@@ -70,7 +74,7 @@ public final class NotificationsUtil {
 			};
 		}
 	}
-	
+
 	private NotificationsUtil() {}
 
 	public static void createNotification(String text) {

@@ -21,6 +21,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
 
@@ -59,6 +62,8 @@ import javafx.util.Duration;
  */
 public class ChatsController extends GeneralController {
 
+	private static final Logger logger = LoggerFactory.getLogger(ChatsController.class);
+
 	@FXML
 	private JFXListView<ChatSession> chatSessionsListView;
 
@@ -90,7 +95,7 @@ public class ChatsController extends GeneralController {
 					try {
 						Client.getCommands().fetchWrittenText(chatSession.getChatSessionIndex());
 					} catch (IOException ioe) {
-						ioe.printStackTrace();
+						logger.error(ioe.getMessage(), ioe);
 					}
 				} else {
 					List<Message> messages = chatSession.getMessages();
@@ -108,7 +113,7 @@ public class ChatsController extends GeneralController {
 					try {
 						Client.getCommands().deleteChatSession(getActiveChatSessionIndex());
 					} catch (IOException ioe) {
-						ioe.printStackTrace();
+						logger.error(ioe.getMessage(), ioe);
 					}
 				}
 			});
@@ -205,7 +210,7 @@ public class ChatsController extends GeneralController {
 				});
 			});
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			logger.error(ioe.getMessage(), ioe);
 		}
 	}
 

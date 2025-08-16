@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import github.koukobin.ermis.common.LoadedInMemoryFile;
 import github.koukobin.ermis.common.message_types.ClientCommandResultType;
 import github.koukobin.ermis.common.message_types.ClientContentType;
@@ -45,6 +48,8 @@ import io.netty.buffer.ByteBuf;
  */
 public class CommandResultHandler implements MessageHandler {
 
+	private static final Logger logger = LoggerFactory.getLogger(CommandResultHandler.class);
+	
 	@Override
 	public void handleMessage(ByteBuf msg) {
 		ClientCommandResultType commandResult = ClientCommandResultType.fromId(msg.readInt());
@@ -144,7 +149,7 @@ public class CommandResultHandler implements MessageHandler {
 			try {
 				Client.getCommands().fetchChatSessions(); // Proceed to fetching chat sessions
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
+				logger.error(ioe.getMessage(), ioe);
 			}
 		}
 		case GET_CHAT_SESSIONS -> {

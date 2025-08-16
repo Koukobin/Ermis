@@ -18,6 +18,7 @@ package github.koukobin.ermis.desktop_client.main.java.controllers.entry;
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
+import github.koukobin.ermis.desktop_client.main.java.controllers.chat_interface.MessagingController;
 import github.koukobin.ermis.desktop_client.main.java.database.ClientDatabase;
 import github.koukobin.ermis.desktop_client.main.java.database.models.LocalAccountInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
@@ -29,6 +30,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jfoenix.controls.JFXCheckBox;
 
@@ -48,6 +52,8 @@ import javafx.stage.Stage;
  */
 public abstract sealed class GeneralEntryController implements Initializable permits LoginSceneController, CreateAccountSceneController {
 
+	private static final Logger logger = LoggerFactory.getLogger(GeneralEntryController.class);
+	
 	protected EntryType registrationType;
 	
 	protected FXMLLoader originalFXMLLoader;
@@ -100,7 +106,7 @@ public abstract sealed class GeneralEntryController implements Initializable per
 				Thread.sleep(100);
 				clientEntry.sendCredentials(credentials);
 			} catch (IOException | InterruptedException ioe) {
-				ioe.printStackTrace();
+				logger.error(ioe.getMessage(), ioe);
 			}
 		});
 

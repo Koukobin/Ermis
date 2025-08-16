@@ -31,7 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import github.koukobin.ermis.common.util.FileUtils;
+import github.koukobin.ermis.desktop_client.main.java.controllers.entry.VerificationDialog;
 import github.koukobin.ermis.desktop_client.main.java.database.models.DatabaseChatMessage;
 import github.koukobin.ermis.desktop_client.main.java.database.models.LocalAccountInfo;
 import github.koukobin.ermis.desktop_client.main.java.database.models.ServerInfo;
@@ -43,6 +47,8 @@ import github.koukobin.ermis.desktop_client.main.java.info.GeneralAppInfo;
  */
 public final class ClientDatabase {
 
+	private static final Logger logger = LoggerFactory.getLogger(ClientDatabase.class);
+	
 	private static final DBConnection conn = new DBConnection();
 	
 	private ClientDatabase() throws IllegalAccessException {
@@ -113,7 +119,7 @@ public final class ClientDatabase {
 
 				resultUpdate = addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
-				sqle.printStackTrace();
+				logger.error(sqle.getMessage(), sqle);
 			}
 
 			return resultUpdate;
@@ -127,7 +133,7 @@ public final class ClientDatabase {
 
 				resultUpdate = addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
-				sqle.printStackTrace();
+				logger.error(sqle.getMessage(), sqle);
 			}
 
 			return resultUpdate;
@@ -141,7 +147,7 @@ public final class ClientDatabase {
 
 				resultUpdate = addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
-				sqle.printStackTrace();
+				logger.error(sqle.getMessage(), sqle);
 			}
 
 			return resultUpdate;
@@ -157,7 +163,7 @@ public final class ClientDatabase {
 					serverInfos.add(new ServerInfo(new URL(serverURL)));
 				}
 			} catch (SQLException | UnknownHostException | PortUnreachableException | MalformedURLException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 
 			return serverInfos.toArray(new ServerInfo[] {});
@@ -176,7 +182,7 @@ public final class ClientDatabase {
 
 				result = ps.executeUpdate();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 
 			return result;
@@ -197,7 +203,7 @@ public final class ClientDatabase {
 					account = new LocalAccountInfo(email, passwordHash, lastUsed.toLocalDateTime());
 				}
 			} catch (SQLException sqle) {
-				sqle.printStackTrace();
+				logger.error(sqle.getMessage(), sqle);
 			}
 
 			return Optional.ofNullable(account);
@@ -218,7 +224,7 @@ public final class ClientDatabase {
 					accounts.add(new LocalAccountInfo(email, passwordHash, lastUsed.toLocalDateTime()));
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 
 			return accounts;
@@ -234,7 +240,7 @@ public final class ClientDatabase {
 
 				result = ps.executeUpdate();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 
 			return result;
@@ -250,7 +256,7 @@ public final class ClientDatabase {
 
 				result = ps.executeUpdate();
 			} catch (SQLException sqle) {
-				sqle.printStackTrace();
+				logger.error(sqle.getMessage(), sqle);
 			}
 
 			return result;
@@ -275,7 +281,7 @@ public final class ClientDatabase {
 
 				result = ps.executeUpdate();
 			} catch (SQLException sqle) {
-				sqle.printStackTrace();
+				logger.error(sqle.getMessage(), sqle);
 			}
 
 			return result;
@@ -292,11 +298,11 @@ public final class ClientDatabase {
 				result = ps.executeUpdate();
 
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 
 			return result;
 		}
 	}
-	
+
 }

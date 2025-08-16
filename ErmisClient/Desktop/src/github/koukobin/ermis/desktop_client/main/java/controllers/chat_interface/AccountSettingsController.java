@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jfoenix.controls.JFXButton;
 
 import github.koukobin.ermis.desktop_client.main.java.info.Icons;
@@ -62,6 +65,8 @@ import javafx.util.Duration;
  *
  */
 public class AccountSettingsController extends GeneralController {
+
+	private static final Logger logger = LoggerFactory.getLogger(AccountSettingsController.class);
 
 	@FXML
 	private Circle addProfilePhotoIcon;
@@ -153,7 +158,7 @@ public class AccountSettingsController extends GeneralController {
 						try {
 							Client.getCommands().changeDisplayName(newDisplayName);
 						} catch (IOException ioe) {
-							ioe.printStackTrace();
+							logger.error(ioe.getMessage(), ioe);
 						}
 					}
 				});
@@ -238,7 +243,7 @@ public class AccountSettingsController extends GeneralController {
 						try {
 							Client.getCommands().changePassword(newPassword);
 						} catch (IOException ioe) {
-							ioe.printStackTrace();
+							logger.error(ioe.getMessage(), ioe);
 						}
 					}
 				});

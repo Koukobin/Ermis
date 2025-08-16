@@ -39,6 +39,9 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo;
 import github.koukobin.ermis.common.entry.CreateAccountInfo.CredentialValidation;
@@ -53,6 +56,7 @@ import github.koukobin.ermis.common.message_types.ClientMessageType;
 import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.desktop_client.main.java.database.models.LocalAccountInfo;
 import github.koukobin.ermis.desktop_client.main.java.database.models.ServerInfo;
+import github.koukobin.ermis.desktop_client.main.java.info.GeneralAppInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.EntryMessage;
 import github.koukobin.ermis.desktop_client.main.java.service.client.io.ByteBufInputStream;
 import github.koukobin.ermis.desktop_client.main.java.service.client.io.ByteBufOutputStream;
@@ -67,6 +71,8 @@ import io.netty.buffer.Unpooled;
  * @author Ilias Koukovinis
  */
 public class Client {
+
+	private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
 	private static ByteBufInputStream in;
 	private static ByteBufOutputStream out;
@@ -150,7 +156,7 @@ public class Client {
 		  try {
 			in.read();
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			logger.error(ioe.getMessage(), ioe);
 		}
 	}
 
@@ -163,7 +169,7 @@ public class Client {
 						ByteBuf msg = in.read();
 						GlobalMessageDispatcher.getDispatcher().dispatchMessage(msg);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error(e.getMessage(), e);
 					}
 				}
 //				isClientListeningToMessages.set(false);
@@ -200,7 +206,7 @@ public class Client {
 			out.write(buffer);
 			isLoggedIn.set(in.read().readBoolean());
 		} catch (IOException ioe) {
-			ioe.printStackTrace(); // Should not happen
+			logger.error(ioe.getMessage(), ioe); // Should not happen
 		}
 
         return isLoggedIn();
