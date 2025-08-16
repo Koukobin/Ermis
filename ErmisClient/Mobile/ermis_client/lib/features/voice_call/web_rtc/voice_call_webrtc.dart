@@ -29,12 +29,12 @@ import 'package:ermis_mobile/features/voice_call/web_rtc/call_status_enum.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/end_to_end_encrypted_indicator.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/local_camera_overlay_widget.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/time_elapsed_widget.dart';
-import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:web_socket_channel/io.dart';
 
+import '../../../generated/l10n.dart';
 import '../../../constants/app_constants.dart';
 import '../../../core/data_sources/api_client.dart';
 import '../../../core/event_bus/app_event_bus.dart';
