@@ -28,7 +28,7 @@ import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
-import github.koukobin.ermis.server.main.java.util.InsecureRandomNumberGenerator;
+import github.koukobin.ermis.server.main.java.util.SecureRandomNumberGenerator;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -51,7 +51,7 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 
 	{
 		attemptsRemaining = ATTEMPTS;
-		generatedVerificationCode = InsecureRandomNumberGenerator.generateRandomNumber(GENERATED_VERIFICATION_CODE_LENGTH);
+		generatedVerificationCode = SecureRandomNumberGenerator.generateRandomNumber(GENERATED_VERIFICATION_CODE_LENGTH);
 	}
 
 	protected VerificationHandler(ClientInfo clientInfo, String email) {
