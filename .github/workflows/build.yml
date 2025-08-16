@@ -51,6 +51,8 @@ jobs:
       - name: Analyze Dart/Flutter
         working-directory: ErmisClient/Mobile/ermis_client
         run: |
+          chmod +x build.sh
+          ./build.sh
           flutter analyze --write=analysis-report.txt || true
 
       - name: SonarCloud Scan
