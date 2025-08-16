@@ -26,6 +26,7 @@ jobs:
           flutter-version: '3.32.0'
 
       - name: Install Flutter dependencies
+        working-directory: ErmisClient/Mobile/ermis_client
         run: flutter pub get
 
       - name: Cache SonarQube packages
@@ -48,6 +49,7 @@ jobs:
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
 
       - name: Analyze Dart/Flutter with SonarQube
+        working-directory: ErmisClient/Mobile/ermis_client
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
