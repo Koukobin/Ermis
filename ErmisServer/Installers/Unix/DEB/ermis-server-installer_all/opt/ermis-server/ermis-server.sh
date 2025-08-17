@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
 #
@@ -14,6 +14,13 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+FOLDERS_TO_BACKUP=("/var/ermis-server/www" "/etc/nginx")
+
+declare -A BACKUP_FOLDERS
+for folder in "${FOLDERS_TO_BACKUP[@]}"; do
+    BACKUP_FOLDERS[$folder]="${folder}_${$}_back"
+done
 
 debute_server () {
     chmod +x apply_server_settings.pl
@@ -40,59 +47,60 @@ debute_server () {
     PROGRAM_ARGUMENTS=""
 
     (
-        sudo turnserver --log-file stdout --tls-listening-port=5439 --listening-port=5440
+        turnserver --log-file stdout --tls-listening-port=5439 --listening-port=5440
     ) &
+    TURN_SERVER_PID+=($!)
 
     if [ -n "$JAVA_HOME" ]; then
-      sudo $JAVA_HOME/bin/java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
+      $JAVA_HOME/bin/java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
     else
-      sudo java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
+      java -jar $VM_ARGUMENTS $ERMIS_SERVER_JAR_FILE $PROGRAM_ARGUMENTS
     fi
+
+    kill "$TURN_SERVER_PID" # Kill turnserver process once Java server dies
 }
 
-create_folder_backup_and_restore_once_process_dies () {
-    touch /tmp/session.keepalive # File denoting process is active
-
-    kill_file_denoting_process_is_alive() {
-        rm -f /tmp/session.keepalive # Kill file denoting process is active
+restore_backup_folders() {
+    restore_folder() {
+        folder="$1"
+        backup_folder="$2"
+        echo -e "\nRestoring original folder: $backup_folder -> $folder ..."
+        sudo rm -rf "$folder"
+        sudo cp -r "$backup_folder" "$folder"
+        sudo chmod -R 700 "$folder"
+        sudo rm -rf "$backup_folder"
     }
 
-    trap kill_file_denoting_process_is_alive EXIT
-    # UPPERCASE IS CRUCIAL SINCE THE VARIABLES NOW ARE GLOBAL AND THE TRAP WORKS
-    FOLDER="$1/"
-    BACKUP="$1_backup/"
-
-    restore_backup() {
-        echo "\nRestoring original folder: $BACKUP -> $FOLDER ..."
-        sudo rm -rf "$FOLDER"
-        sudo cp -r "$BACKUP" "$FOLDER"
-        sudo chmod -R 777 "$FOLDER"
-        sudo rm -rf "$BACKUP"
-    }
+    if [ -z "$1" ] && [ -z "$2" ]; then
+        restore_folder $1 $2
+        return
+    fi
     
-    # If backup exists then perform cleanup
-    if [ -d "$BACKUP" ]; then
-        restore_backup
-    fi
-
-    (
-        while [ -f /tmp/session.keepalive ]; do
-            sleep 1
-        done
-
-        echo "Parent shell died. Exiting subshell."
-        trap restore_backup EXIT INT TERM
-    ) &
-
-    # Copy the original directory to a backup location
-    sudo cp -r --no-preserve=ownership "$FOLDER" "$BACKUP"
-
-    echo "Created backup for server folder $FOLDER -> $BACKUP..."
-
-    # Folder automatically restored by subshell above
+    for folder in "${FOLDERS_TO_BACKUP[@]}"; do
+        backup_folder="${BACKUP_FOLDERS[$folder]}"
+        restore_folder $folder $backup_folder
+    done
 }
 
-create_folder_backup_and_restore_once_process_dies "/var/ermis-server/www"
-create_folder_backup_and_restore_once_process_dies "/etc/nginx"
+create_backup_folders() {
+    for folder in "${FOLDERS_TO_BACKUP[@]}"; do
+        backup_folder="${BACKUP_FOLDERS[$folder]}"
+        
+        # If backup exists then perform cleanup
+        if [ -d "$backup_folder" ]; then
+            restore_backup $folder $backup_folder
+        fi
+
+        # Copy the original directory to a backup location
+        sudo cp -r --no-preserve=ownership "$folder" "$backup_folder"
+
+        echo "Created backup for server folder $folder -> $backup_folder..."
+
+        # Folder automatically restored by trap
+    done
+}
+
+create_backup_folders
+trap restore_backup_folders EXIT
 
 debute_server
