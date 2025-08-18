@@ -108,7 +108,6 @@ class CommandResultHandler {
         // ClientID
         UserInfoManager.clientID = msg.readInt32();
         _eventBus.fire(ClientIdReceivedEvent(UserInfoManager.clientID));
-        print(UserInfoManager.clientID);
 
         // Username
         final usernameBytes = msg.readBytes(msg.readInt32());
