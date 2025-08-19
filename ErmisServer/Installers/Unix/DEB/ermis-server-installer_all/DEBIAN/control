@@ -3,6 +3,7 @@ Version: 0.100.0
 Priority: optional
 Essential: no
 Pre-Depends: debconf (>= 0.5) | debconf-2.0
+Depends: java-runtime (>= 17), postgresql (>= 14), nginx-full, coturn
 Architecture: all
 Maintainer: Ilias Koukovinis
 Homepage: https://github.com/Koukobin/Ermis
