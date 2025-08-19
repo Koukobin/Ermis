@@ -3,7 +3,7 @@ Description=Ermis-Server
 After=network.target
 
 [Service]
-User=root
+User=ermis
 WorkingDirectory=/opt/ermis-server/
 ExecStart=/bin/bash -c 'cd /opt/ermis-server/ && ./ermis-server.sh'
 Restart=always
