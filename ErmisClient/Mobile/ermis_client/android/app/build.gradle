@@ -60,7 +60,9 @@ android {
             } else {
                 def ANSI_YELLOW = "\u001B[33m";
                 def ANSI_NORMAL = "\u001B[0m";
-                println "${ANSI_YELLOW}Warning: Signing with the debug keys for now; add your own signing config for the release build ${ANSI_NORMAL}"
+                print "${ANSI_YELLOW}Warning: No signing key is specified for now - "
+                print "app installment on a physical device will fail; you will have to add your own signing config for the release build ${ANSI_NORMAL}"
+                println ""
 
                 signingConfig null
                 // signingConfig signingConfigs.debug
@@ -80,5 +82,4 @@ dependencies {
 configurations.all {
     exclude group: "com.google.android.play"
 }
-
 
