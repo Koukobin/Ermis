@@ -422,7 +422,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: Color(0xffAEADB2).withValues(alpha: 0.4),
+              color: const Color(0xffAEADB2).withValues(alpha: 0.4),
               width: 0.2,
             ),
           ),

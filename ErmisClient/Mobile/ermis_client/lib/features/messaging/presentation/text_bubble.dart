@@ -97,8 +97,11 @@ class TextBubble extends MessageBubble {
                   ),
                   decoration: BoxDecoration(
                     gradient: isMessageOwner
-                        ? LinearGradient(
-                            colors: [Color.fromARGB(255, 30, 155, 25), Color.fromARGB(255, 68, 136, 66)],
+                        ? const LinearGradient(
+                            colors: [
+                              Color.fromARGB(255, 30, 155, 25),
+                              Color.fromARGB(255, 68, 136, 66),
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           )
@@ -170,7 +173,7 @@ class TextBubble extends MessageBubble {
         break;
       case MessageDeliveryStatus.delivered || MessageDeliveryStatus.lateDelivered:
         icon = Icons.done_all; // ✅✅ Double checkmarks
-        color = Color(0xFF34B7F1); // Apparently the color used by WhatsApp for read messages (According to ChatGPT)
+        color = const Color(0xFF34B7F1); // Apparently the color used by WhatsApp for read messages (According to ChatGPT)
         break;
       case MessageDeliveryStatus.failed:
         icon = Icons.sms_failed_rounded;
@@ -242,9 +245,9 @@ class TextBubble extends MessageBubble {
                               );
                             },
                             child: isDownloading
-                                ? Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: const CircularProgressIndicator(),
+                                ? const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: CircularProgressIndicator(),
                                   )
                                 : const Icon(Icons.download),
                           ),
