@@ -30,13 +30,17 @@ import '../../../../core/util/dialogs_utils.dart';
 import '../../register_interface.dart';
 
 /// Setups client session in accordance to the most recently used accounts associated with server
-Future<void> setupClientSession(BuildContext context, {LocalAccountInfo? accountInfo, bool keepPreviousRoutes = false}) async {
+Future<void> setupClientSession(
+  BuildContext context, {
+  LocalAccountInfo? accountInfo,
+  bool keepPreviousRoutes = false,
+}) async {
   String serverVersion = await Client.instance().readServerVersion();
 
   // Check if the first digit of the application version - which is also the most significant -
   // matches the server version. For instance, app version 1.x.x should be compatible
-  // (theoretically at least) with server version 1.y.z; but not
-  // with server version 2.0.0! (Using "!" to avoid ambiguity with version dots)
+  // (theoretically at least) with server version 1.y.z; but not with server version
+  // 2.0.0! (Using "!" to avoid ambiguity with version dots)
   if (AppConstants.applicationVersion.codeUnitAt(0) != serverVersion.codeUnitAt(0)) {
     showToastDialog(S.current.incompatible_server_version_warning);
   }
