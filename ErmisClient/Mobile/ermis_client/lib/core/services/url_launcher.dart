@@ -14,7 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../util/dialogs_utils.dart';
@@ -25,8 +27,18 @@ class UrlLauncher {
   static Future<void> launchURL(BuildContext context, String url0) async {
     final Uri url = Uri.parse(url0);
 
-    if (!await launchUrl(url)) {
-      showErrorDialog(context, "Unable to open the URL: $url");
+    try {
+      final success = await launchUrl(url);
+      if (success) return;
+    } on PlatformException catch (pe) {
+      if (kDebugMode) debugPrint("Launch URL error: $pe");
     }
+
+    if (context.mounted) {
+      showErrorDialog(context, "Unable to open the URL: $url");
+      return;
+    }
+
+    showToastDialog("Unable to open the URL: $url");
   }
 }
