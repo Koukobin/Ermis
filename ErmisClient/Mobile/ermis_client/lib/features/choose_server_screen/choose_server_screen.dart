@@ -173,48 +173,45 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    width: 150,
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        String url = await showInputDialog(
-                          context: context,
-                          title: S.current.server_url_enter,
-                          hintText: "example.com",
-                        );
-
-                        if (url.isEmpty) return;
-
-                        ServerInfo serverInfo;
-                        try {
-                          Uri buildUri(String url) => url.startsWith('http')
-                              ? Uri.parse(url)
-                              : Uri.https(url);
-
-                          serverInfo = ServerInfo(buildUri(url));
-                        } on InvalidServerUrlException catch (e) {
-                          showExceptionDialog(context, e.message);
-                          return;
-                        }
-
-                        setState(() => cachedServerUrls.add(serverInfo));
-                        ErmisDB.getConnection().insertServerInfo(serverInfo);
-
-                        // Feedback
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(S.current.server_add_success)),
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: Text(
-                        softWrap: true,
-                        S.current.server_add,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: appColors.primaryColor,
-                        foregroundColor: appColors.tertiaryColor,
-                      ),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      String url = await showInputDialog(
+                        context: context,
+                        title: S.current.server_url_enter,
+                        hintText: "example.com",
+                      );
+                  
+                      if (url.isEmpty) return;
+                  
+                      ServerInfo serverInfo;
+                      try {
+                        Uri buildUri(String url) => url.startsWith('http')
+                            ? Uri.parse(url)
+                            : Uri.https(url);
+                  
+                        serverInfo = ServerInfo(buildUri(url));
+                      } on InvalidServerUrlException catch (e) {
+                        showExceptionDialog(context, e.message);
+                        return;
+                      }
+                  
+                      setState(() => cachedServerUrls.add(serverInfo));
+                      ErmisDB.getConnection().insertServerInfo(serverInfo);
+                  
+                      // Feedback
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(S.current.server_add_success)),
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      softWrap: true,
+                      S.current.server_add,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appColors.primaryColor,
+                      foregroundColor: appColors.tertiaryColor,
                     ),
                   ),
                   Expanded(
