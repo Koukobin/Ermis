@@ -96,10 +96,13 @@ Future<void> showVerificationDialog({
                                 setState(() {
                                   isSubmitting = true;
                                 });
-            
+
                                 // Set a delay to close dialog
                                 Future.delayed(const Duration(seconds: 1), () {
-                                  Navigator.pop(context);
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+
                                   onSumbittedCode(codeInt);
                                 }).whenComplete(() {
                                   setState(() {
