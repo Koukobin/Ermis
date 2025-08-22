@@ -20,7 +20,7 @@ import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/core/util/transitions_util.dart';
-import 'package:ermis_mobile/core/services/url_launcher.dart';
+import 'package:ermis_mobile/core/util/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 

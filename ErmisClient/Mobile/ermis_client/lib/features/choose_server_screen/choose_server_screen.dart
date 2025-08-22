@@ -31,7 +31,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/data_sources/api_client.dart';
 import '../../constants/app_constants.dart';
-import '../../core/services/url_launcher.dart';
+import '../../core/util/url_launcher.dart';
 import '../../main.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
 import 'whats_new_screen.dart';
