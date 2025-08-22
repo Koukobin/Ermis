@@ -117,7 +117,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                       ),
                       const SizedBox(height: 8),
                       AnimatedSwitcher(
-                        duration: Duration(milliseconds: 600),
+                        duration: const Duration(milliseconds: 600),
                         switchInCurve: Curves.easeInOut,
                         switchOutCurve: Curves.easeInOut,
                         child: _useBackupverificationCode

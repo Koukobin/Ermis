@@ -334,12 +334,10 @@ class NotificationService {
         AndroidNotificationAction(
           NotificationAction.actionReply.id,
           'Reply',
-          icon: DrawableResourceAndroidBitmap('notification_icon'),
+          icon: const DrawableResourceAndroidBitmap('notification_icon'),
           titleColor: AppConstants.darkAppColors.primaryColor,
           inputs: [
-            AndroidNotificationActionInput(
-              label: 'Type your reply...',
-            ),
+            const AndroidNotificationActionInput(label: 'Type your reply...')
           ],
         ),
         AndroidNotificationAction(

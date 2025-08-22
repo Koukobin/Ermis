@@ -102,7 +102,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
           const Divider(),
           Text(
             S.current.other_settings,
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
 
           SwitchListTile(

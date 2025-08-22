@@ -147,7 +147,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
         colors: [
           appColors.secondaryColor,
           isDarkMode ? Colors.black : Colors.white,
-          Color(0xFF00FF00), // Neon green glow
+          const Color(0xFF00FF00), // Neon green glow
         ],
         begin: Alignment.topRight,
         end: Alignment.bottomCenter,
