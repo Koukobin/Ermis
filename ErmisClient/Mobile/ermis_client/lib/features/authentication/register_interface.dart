@@ -53,8 +53,8 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
 
   late final CreateAccountEntry createAccountEntry;
 
-  Requirements _passwordRequirements = Requirements.empty(); // By default empty
-  Requirements _usernameRequirements = Requirements.empty(); // By default empty
+  Requirements _passwordRequirements = const Requirements.empty(); // By default empty
+  Requirements _usernameRequirements = const Requirements.empty(); // By default empty
 
   double _passwordEntropy = 0.0;
 
