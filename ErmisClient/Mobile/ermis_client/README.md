@@ -1,5 +1,7 @@
 # Ermis M (Mobile)
 
+<a href="https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile" target="_blank"><img src="./docs/assets/get-it-on-play.png" alt="Get it on Google Play" height="28"></a>
+
 [ilias.koukovinis@gmail.com]: https://mail.google.com/mail/u/0/?tab=rm&ogbl#search/ilias.koukovinis%40gmail.com
 
 ## Overview
