@@ -1,14 +1,10 @@
 # Ermis M (Mobile)
 
-<a href="https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile" target="_blank"><img src="./docs/assets/get-it-on-play.png" alt="Get it on Google Play" height="28"></a>
+<a href="https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile" target="_blank"><img src="./docs/assets/get-it-on-play.png" alt="Get it on Google Play" height="35"></a>
 
 [ilias.koukovinis@gmail.com]: https://mail.google.com/mail/u/0/?tab=rm&ogbl#search/ilias.koukovinis%40gmail.com
 
-## Overview
-
 **Ermis M** is an open-source, Flutter client application designed for secure and seamless communication with the Ermis server. Ermis M offers a fast and secure platform for connecting with others. Since the dedicated app is built with Flutter, it runs seamlessly on both Android and iOS, while maintaining an almost identical experience across all devices.
-
-_**You can install the app from the Play Store here: [Ermis M](https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile)**_
 
 ## Key Features
 
@@ -22,6 +18,18 @@ _**You can install the app from the Play Store here: [Ermis M](https://play.goog
 - **Supported Platforms**:
     - **Android**: Tested on API level 33
     - **iOS**: Not tested yet due to Apple's protectionist and closed-platform policies
+
+## Download
+
+Ermis M can be downloaded from several sources:
+
+- Ermis M on [Google Play](https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile)
+- Ermis M on F-Droid (Coming soon!)
+- [Github Releases](https://github.com/Koukobin/Ermis/releases)
+
+Check out the [Release Notes](https://github.com/Koukobin/Ermis/releases) to find out what changed in each version.
+
+The SHA-256 fingerprints for our signing certificates are available in [SECURITY.md](./SECURITY.md#verifying-fingerprints).
 
 ## Installation
 
