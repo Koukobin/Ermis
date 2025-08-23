@@ -29,14 +29,6 @@ Ermis M can be downloaded from several sources:
 
 Check out the [Release Notes](https://github.com/Koukobin/Ermis/releases) to find out what changed in each version.
 
-## Installation
-
-1. Download the appropriate installer for your platform from [GitHub Releases](https://github.com/Koukobin/Ermis/releases?q=Mobile&expanded=true).
-2. Execute installer.
-3. Finally, launch the app.
-
-_**Alternatively: you can install the app from the Play Store here: [Ermis M](https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile)**_
-
 ## Set up Project Locally For Development
 
 For a meticulous step-by-step guide for setting up the mobile client codebase locally, refer to the [wiki](https://github.com/Koukobin/Ermis/wiki/MobileClientSetupGuide)
