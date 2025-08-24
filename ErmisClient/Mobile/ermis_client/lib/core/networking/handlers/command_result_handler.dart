@@ -48,8 +48,8 @@ class CommandResultHandler {
   static Future<void> handle(ClientCommandResultType commandResult, ByteBuf msg) async {
     switch (commandResult) {
       case ClientCommandResultType.downloadFile:
-        final chatSessionID = msg.readInt32();
         final messageID = msg.readInt32();
+        final chatSessionID = msg.readInt32();
         final fileNameLength = msg.readInt32();
         final fileNameBytes = msg.readBytes(fileNameLength);
         final fileBytes = msg.readBytes(msg.readableBytes);
@@ -67,8 +67,8 @@ class CommandResultHandler {
         _eventBus.fire(FileDownloadedEvent(file, messageID));
         break;
       case ClientCommandResultType.downloadImage:
-        final chatSessionID = msg.readInt32();
         final messageID = msg.readInt32();
+        final chatSessionID = msg.readInt32();
         final fileNameLength = msg.readInt32();
         final fileNameBytes = msg.readBytes(fileNameLength);
         final fileBytes = msg.readBytes(msg.readableBytes);
