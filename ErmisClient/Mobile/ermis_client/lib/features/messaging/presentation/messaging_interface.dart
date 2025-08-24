@@ -252,7 +252,9 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                   ),
                 const SizedBox(width: 10),
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: constraints.maxWidth - 150),
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth * 0.55, // Number chosen arbitrarily
+                  ),
                   child: Text(
                     S.current.chat_with(widget.chatSession.members
                         .map((m) => m.username)
