@@ -13,7 +13,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/Koukobin/Chatapp?style=social)](https://github.com/Koukobin/Ermis/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/Koukobin/Chatapp?style=social)](https://github.com/Koukobin/Ermis/network/members)
 [![Build Status](https://github.com/koukobin/ermis/actions/workflows/build.yml/badge.svg)](https://github.com/Koukobin/Ermis/actions/workflows/build.yml)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-0baaaa.svg)](code_of_conduct.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-0baaaa.svg)](CODE_OF_CONDUCT.md)
 [![License](https://img.shields.io/github/license/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/blob/master/LICENSE)
 <img src="https://visitor-badge.laobi.icu/badge?page_id=Koukobin.Ermis&title=views">
 
