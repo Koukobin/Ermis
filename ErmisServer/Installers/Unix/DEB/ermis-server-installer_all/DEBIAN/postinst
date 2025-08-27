@@ -20,22 +20,24 @@ echo "\033[0m" # Clear any styling present from preinst
 # Debut and configure Nginx to automatically initialize on system startup
 sudo systemctl enable --now nginx
 
+# Create user 'ermis' (skip if already exists)
 if ! grep -q 'ermis' /etc/passwd; then
     echo "\033[1mCreating ermis user\033[0m"
-    sudo adduser ermis
+    
+    # Add 'ermis' to sudo and www-data groups for elevated and web access
     sudo usermod -aG sudo ermis
+    sudo usermod -aG www-data ermis
 
-    sudo chown ermis /var/ermis-server
-    sudo chown ermis /opt/ermis-server
-    sudo chown ermis /etc/nginx
-
+    # Grant ownership to 'ermis'
     sudo chown -R ermis:ermis /var/ermis-server
     sudo chown -R ermis:ermis /opt/ermis-server
-    sudo chown -R ermis:ermis /etc/nginx
+    
+    sudo chmod -R 750 /var/ermis-server
+    sudo chmod -R 750 /opt/ermis-server
 
-    sudo chmod 700 /var/ermis-server
-    sudo chmod 700 /opt/ermis-server
-    sudo chmod 700 /etc/nginx
+    # Delegate Nginx directory ownership to root (essential for service operation)
+    sudo chown -R root:root /etc/nginx
+    sudo chmod -R 755 /etc/nginx
 else
     echo "\033[1m'ermis' user detected; skipping user creation process.\033[0m"
 fi
