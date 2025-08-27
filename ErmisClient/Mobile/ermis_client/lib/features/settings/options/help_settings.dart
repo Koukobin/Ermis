@@ -69,21 +69,24 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               // Section 1: Source Code
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(S.current.source_code,
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text(
+                  S.current.source_code,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
               ListTile(
                 leading: const Icon(FontAwesomeIcons.github),
-                title: Text(S.current.server_source_code, style: const TextStyle(fontSize: 16)),
+                title: Text(S.current.source_code, style: const TextStyle(fontSize: 16)),
                 onTap: () {
                   UrlLauncher.launchURL(context, AppConstants.sourceCodeURL);
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.code),
-                title:
-                    Text(S.current.server_source_code, style: const TextStyle(fontSize: 16)),
+                title: Text(
+                  S.current.server_source_code,
+                  style: const TextStyle(fontSize: 16),
+                ),
                 onTap: () {
                   Client.instance().commands?.requestServerSourceCodeHTMLPage();
                 },
@@ -94,22 +97,25 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               // Section 2: Donations
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(S.current.donations,
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text(
+                  S.current.donations,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.favorite),
                 title:
-                    Text(S.current.donate_to_hoster, style: TextStyle(fontSize: 16)),
+                    Text(S.current.donate_to_hoster, style: const TextStyle(fontSize: 16)),
                 onTap: () {
                   Client.instance().commands?.requestDonationHTMLPage();
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.favorite),
-                title: Text(S.current.donate_to_ermis_project,
-                    style: TextStyle(fontSize: 16)),
+                title: Text(
+                  S.current.donate_to_ermis_project,
+                  style: const TextStyle(fontSize: 16),
+                ),
                 onTap: () {
                   showSnackBarDialog(
                     context: context,
@@ -123,9 +129,10 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               // Section 3: Other
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(S.current.other,
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text(
+                  S.current.other,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
               ListTile(
                 leading: const Icon(FontAwesomeIcons.shieldHalved),
@@ -137,9 +144,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: Text(S.current.app_info, style: const TextStyle(fontSize: 16)),
-                onTap: () async {
-                  pushSlideTransition(context, const AppInfo());
-                },
+                onTap: () => pushSlideTransition(context, const AppInfo()),
               ),
             ],
           ))),
@@ -163,14 +168,14 @@ class AppInfo extends StatelessWidget {
             children: [
               Text(
                 "Ermis Messenger",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 "${S.current.version_capitalized}: ${AppConstants.applicationVersion}",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFF9E9E9E),
                 ),
@@ -191,8 +196,7 @@ class AppInfo extends StatelessWidget {
               ),
               const SizedBox(height: 25),
               ElevatedButton(
-                onPressed: () =>
-                    {pushSlideTransition(context, const LicenceInfo())},
+                onPressed: () => pushSlideTransition(context, const LicenceInfo()),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: appColors.inferiorColor, // Splash color
                   backgroundColor: appColors.primaryColor,
@@ -219,7 +223,6 @@ class LicenceInfo extends StatefulWidget {
 }
 
 class _LicenceInfoState extends State<LicenceInfo> {
-
   String _licenceContent = "";
 
   @override
@@ -228,7 +231,7 @@ class _LicenceInfoState extends State<LicenceInfo> {
     _readLicenceFile();
   }
 
-  void _readLicenceFile() async{
+  void _readLicenceFile() async {
     String content = await loadAssetFile(AppConstants.licencePath);
     setState(() {
       _licenceContent = content;
@@ -239,13 +242,16 @@ class _LicenceInfoState extends State<LicenceInfo> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: AppBar(title: Text("Licence"), backgroundColor: appColors.secondaryColor,),
+      appBar: AppBar(
+        title: Text("Licence"),
+        backgroundColor: appColors.secondaryColor,
+      ),
       body: Padding(
         padding: const EdgeInsets.only(bottom: 5.0),
         child: SingleChildScrollView(
           child: Text(
             _licenceContent,
-            style: TextStyle(fontSize: 14, color: Color(0xFF9E9E9E)),
+            style: const TextStyle(fontSize: 14, color: Color(0xFF9E9E9E)),
           ),
         ),
       ),
