@@ -158,7 +158,7 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
                     children: [
                       Text('${S().caller_capitalized}: ${entry.callerUsername}'),
                       Text(
-                        '${formatDateTime('MMM d, yyyy', startDate)}, ${formatDateTime('HH:mm', endDate)}',
+                        '${formatDateTime('MMM d, yyyy', startDate)}, ${formatDateTime('MMM d, yyyy', endDate)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       Text(
