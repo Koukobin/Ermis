@@ -56,8 +56,8 @@ class ByteBuf {
     return ByteBuf(buffer.length, growable: growable)..writeBytes(buffer);
   }
 
-  /// Creates a small buffer of 256 bytes.
-  ByteBuf.smallBuffer({this.growable = false}) : _buffer = Uint8List(256);
+  /// Creates a small buffer of 128 bytes.
+  ByteBuf.smallBuffer({this.growable = false}) : _buffer = Uint8List(128);
 
   /// Creates an empty buffer.
   ByteBuf.empty({this.growable = false}) : _buffer = Uint8List(0);
