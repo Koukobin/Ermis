@@ -1,4 +1,3 @@
-
 # Sets the minimum number of idle connections in the pool.
 generalPurposePoolMinIdle=10
 writeChatMessagesPoolMinIdle=10
