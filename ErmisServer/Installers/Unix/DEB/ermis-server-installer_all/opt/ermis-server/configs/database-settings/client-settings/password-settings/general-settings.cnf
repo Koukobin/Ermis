@@ -3,7 +3,7 @@
     passwordInvalidCharacters=
 
     # Min Entropy in bits
-    minEntropy=30
+    minEntropy=15
 
 =-=-=-=-=-=-=-=-=-=-=-=Hashing=-=-=-=-=-=-=-=-=-=-=-=-=
 
