@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+/* Copyright (C) 2024-2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -16,6 +16,20 @@
 
 import 'package:flutter/material.dart';
 
+/// Color nomenclature (i.e. hierarchy) inspired by protein structure levels.
+/// A fan parallel/resemblance I found:
+///
+/// ```text
+/// +-------------------+----------------------------------------+----------------+
+/// | Protein Structure | Description                            | Color Analogy  |
+/// +-------------------+----------------------------------------+----------------+
+/// | Primary           | Sequence of amino acids                | primaryColor   |
+/// | Secondary         | Local folding (e.g., alpha helices)    | secondaryColor |
+/// | Tertiary          | 3D structure of a single polypeptide   | tertiaryColor  |
+/// | Quaternary        | Assembly of multiple polypeptides      | quaternaryColor|
+/// | (No analog)       | —                                      | inferiorColor  |
+/// +-------------------+----------------------------------------+----------------+
+/// ```
 class AppColors extends ThemeExtension<AppColors> {
   final Color primaryColor;
   final Color secondaryColor;
