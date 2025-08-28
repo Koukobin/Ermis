@@ -56,12 +56,10 @@ enum NotificationAction {
   }
 }
 
-
 ReplyCallback? _replyCallback;
 VoidCallback? _voiceCallEndCallback;
 VoidCallback? _voiceCallAcceptCallback;
 
-@pragma('vm:entry-point')
 void onDidReceiveNotification(NotificationResponse response) async {
   String? actionId = response.actionId;
   if (actionId == null) {
@@ -144,6 +142,11 @@ void onDidReceiveNotification(NotificationResponse response) async {
   }
 }
 
+@pragma('vm:entry-point')
+void onDidReceiveBackgroundNotificationResponse(NotificationResponse response) {
+  onDidReceiveNotification(response);
+}
+
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -162,7 +165,7 @@ class NotificationService {
     // Initialize the plugin with the specified settings
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
+      onDidReceiveBackgroundNotificationResponse: onDidReceiveBackgroundNotificationResponse,
       onDidReceiveNotificationResponse: onDidReceiveNotification,
     );
 
