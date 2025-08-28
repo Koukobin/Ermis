@@ -3,7 +3,7 @@ isProductionReady=true
 sourceCodeURL=https://github.com/Koukobin/Ermis
 
 address= ------
-port= ------
+port=5551
 backlog= ------
 
 # in millis (1 min = 60,000)
