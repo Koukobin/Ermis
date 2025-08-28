@@ -24,6 +24,9 @@ sudo systemctl enable --now nginx
 if ! grep -q 'ermis' /etc/passwd; then
     echo "\033[1mCreating ermis user\033[0m"
     
+    # Create user
+    sudo adduser ermis
+
     # Add 'ermis' to sudo and www-data groups for elevated and web access
     sudo usermod -aG sudo ermis
     sudo usermod -aG www-data ermis
