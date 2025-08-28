@@ -4,7 +4,7 @@ sourceCodeURL=https://github.com/Koukobin/Ermis
 
 address= ------
 port=5551
-backlog= ------
+backlog=0
 
 # in millis (1 min = 60,000)
 connectTimeoutMillis=0
