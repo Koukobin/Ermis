@@ -173,8 +173,13 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Constrain size of button to ensure other widgets are
+                  // not out of bounds in devices with large text fonts
                   ConstrainedBox(
-                    constraints: const BoxConstraints.tightForFinite(),
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.5,
+                      maxHeight: MediaQuery.of(context).size.height * 0.1,
+                    ),
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         String url = await showInputDialog(
