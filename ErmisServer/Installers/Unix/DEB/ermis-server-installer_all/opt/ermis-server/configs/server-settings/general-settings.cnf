@@ -16,4 +16,4 @@ workerThreads=5
 maxClientMessageFileBytes=1048576
 
 # max amount of bytes a simple client text message can be
-maxClientMessageTextBytes=600
+maxClientMessageTextBytes=512
