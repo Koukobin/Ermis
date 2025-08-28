@@ -148,6 +148,8 @@ mixin Verification {
     bool isSuccessful = false;
 
     while (!verificationEntry.isVerificationComplete) {
+      Future<EntryResult> entryResultFuture = verificationEntry.getResult();
+
       await showVerificationDialog(
           context: context,
           title: S.current.verification,
@@ -155,7 +157,7 @@ mixin Verification {
           onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
-      entryResult = await verificationEntry.getResult();
+      entryResult = await entryResultFuture;
       isSuccessful = entryResult.resultHolder.isSuccessful;
       String resultMessage = entryResult.resultHolder.message;
 
@@ -182,6 +184,8 @@ mixin Verification {
     bool isSuccessful = false;
 
     while (!verificationEntry.isVerificationComplete) {
+      Future<EntryResult> entryResultFuture = verificationEntry.getChangePasswordResult();
+
       await showVerificationDialog(
           context: context,
           title: S.current.verification,
@@ -189,7 +193,7 @@ mixin Verification {
           onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
-      entryResult = await verificationEntry.getChangePasswordResult();
+      entryResult = await entryResultFuture;
       isSuccessful = entryResult.resultHolder.isSuccessful;
       String resultMessage = entryResult.resultHolder.message;
 
@@ -211,6 +215,8 @@ mixin Verification {
     bool isSuccessful = false;
 
     while (!verificationEntry.isVerificationComplete) {
+      Future<EntryResult> entryResultFuture = verificationEntry.getResult();
+
       await showVerificationDialog(
           context: context,
           title: S.current.verification,
@@ -218,7 +224,7 @@ mixin Verification {
           onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
-      entryResult = await verificationEntry.getResult();
+      entryResult = await entryResultFuture;
       isSuccessful = entryResult.resultHolder.isSuccessful;
       String resultMessage = entryResult.resultHolder.message;
 
