@@ -18,7 +18,7 @@
 echo "\033[0m" # Clear any styling present from preinst
 
 # Debut and configure Nginx to automatically initialize on system startup
-sudo systemctl enable --now nginx
+sudo systemctl enable --now nginx.service
 
 # Create user 'ermis' (skip if already exists)
 if ! grep -q 'ermis' /etc/passwd; then
@@ -31,11 +31,16 @@ if ! grep -q 'ermis' /etc/passwd; then
     sudo usermod -aG sudo ermis
     sudo usermod -aG www-data ermis
 
+    # Ensure vital folder for database function exists
+    mkdir /var/lib/ermis-server
+
     # Grant ownership to 'ermis'
     sudo chown -R ermis:ermis /var/ermis-server
+    sudo chown -R ermis:ermis /var/lib/ermis-server
     sudo chown -R ermis:ermis /opt/ermis-server
     
     sudo chmod -R 750 /var/ermis-server
+    sudo chmod -R 750 /var/lib/ermis-server
     sudo chmod -R 750 /opt/ermis-server
 
     # Delegate Nginx directory ownership to root (essential for service operation)
