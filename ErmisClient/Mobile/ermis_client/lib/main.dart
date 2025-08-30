@@ -148,11 +148,13 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return AppTheme(
-      darkAppColors: widget.darkAppColors,
-      lightAppColors: widget.lightAppColors,
-      theme: widget.themeMode,
-      home: const SplashScreen(),
+    return SafeArea(
+      child: AppTheme(
+        darkAppColors: widget.darkAppColors,
+        lightAppColors: widget.lightAppColors,
+        theme: widget.themeMode,
+        home: const SplashScreen(),
+      ),
     );
   }
 }
