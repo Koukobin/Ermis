@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.101.3+5
+version: 0.101.4+6
 
 environment:
   sdk: ^3.5.4
@@ -124,7 +124,7 @@ dev_dependencies:
 # I have no idea why, but it works.
 flutter_launcher_icons:
   android: true
-  ios: true
+  ios: false
   image_path: "assets/application_icon.png"
   remove_alpha_ios: true
 
