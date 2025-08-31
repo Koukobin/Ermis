@@ -70,7 +70,6 @@ public class CommandResultHandler implements MessageHandler {
 		case DOWNLOAD_IMAGE -> {
 			int chatSessionID = msg.readInt();
 			int messageID = msg.readInt();
-			int fileNameLength = msg.readInt();
 
 			byte[] fileNameBytes = new byte[msg.readInt()];
 			msg.readBytes(fileNameBytes);
