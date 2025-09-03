@@ -78,7 +78,7 @@ USER_ALREADY_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE r
 if [ "$USER_ALREADY_EXISTS" = "1" ]; then
     echo -e "\033[1mermis admin already exists; skipping process.\033[0m"
 else
-    read -r -p "Would you like to database user? [y/N] " response
+    read -r -p "Would you like to create database user? [y/N] " response
     response=${response,,}    # tolower
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo -e "\033[1mCreating ermis admin\033[0m"
