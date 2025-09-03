@@ -18,6 +18,7 @@
 echo -e "\033[0m" # Clear any styling present from preinst
 
 # Debut and configure Nginx to automatically initialize on system startup
+sudo systemctl enable --now nginx
 
 # Create user 'ermis' (skip if already exists)
 if ! grep -q 'ermis' /etc/passwd; then
@@ -108,7 +109,6 @@ EOF
        echo -e "\033[1mSuccessfully created $DATABASE_NAME\033[0m"
     fi
 fi
-
 
 
 echo
