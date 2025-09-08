@@ -302,7 +302,7 @@ class CommandResultHandler {
           int clientID = msg.readInt32();
           String email = utf8.decode(msg.readBytes(msg.readInt32()));
           String displayName = utf8.decode(msg.readBytes(msg.readInt32()));
-          Uint8List profilePhoto = msg.readBytes(msg.readInt32());
+          Uint8List profilePhoto = Uint8List(0);
 
           UserInfoManager.otherAccounts!.add(Account(
             profilePhoto: profilePhoto,

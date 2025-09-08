@@ -168,7 +168,6 @@ public interface UserProfileModule extends BaseComponent {
 				SELECT up.display_name,
 				u.email,
 				ui.client_id,
-				up.profile_photo_id
 				FROM user_profiles up
 				JOIN user_ips ui ON up.client_id = ui.client_id
 				JOIN users u ON up.client_id = u.client_id
@@ -196,15 +195,6 @@ public interface UserProfileModule extends BaseComponent {
 				int clientID = rs.getInt(3);
 				byte[] profilePhoto = EmptyArrays.EMPTY_BYTE_ARRAY;
 
-				String profileID = rs.getString(4);
-				if (profileID != null) {
-					try {
-						profilePhoto = FilesStorage.loadProfilePhoto(profileID);
-					} catch (IOException ioe) {
-						logger.error("Could not retrieve profile photo", ioe);
-					}
-				}
-				
 				accounts[i] = new Account(profilePhoto, email, displayName, clientID);
 				i++;
 			}

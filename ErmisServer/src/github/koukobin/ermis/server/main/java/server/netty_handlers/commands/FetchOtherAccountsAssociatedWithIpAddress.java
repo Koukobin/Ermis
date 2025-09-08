@@ -57,10 +57,6 @@ public class FetchOtherAccountsAssociatedWithIpAddress implements ICommand {
 			String displayName = account.displayName();
 			payload.writeInt(displayName.length());
 			payload.writeBytes(displayName.getBytes());
-
-			byte[] profilePhoto = account.profilePhoto();
-			payload.writeInt(profilePhoto.length);
-			payload.writeBytes(profilePhoto);
 		}
 
 		channel.writeAndFlush(payload);
