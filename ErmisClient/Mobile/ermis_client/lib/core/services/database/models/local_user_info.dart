@@ -29,7 +29,7 @@ class LocalUserInfo {
     required this.lastUpdatedEpochSecond,
   });
 
-  Map<String, Object?> toMap1() {
+  Map<String, Object?> toMap() {
     return {
       'display_name': displayName,
       'client_id': clientID,
