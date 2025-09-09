@@ -74,8 +74,8 @@ public class ChangePassword implements ICommand {
 					}
 
 			@Override
-			public String createEmailMessage(String account, String generatedVerificationCode) {
-				return ServerSettings.EmailCreator.Verification.ChangePassword.createEmail(VerificationEmailTemplate.of(clientInfo.getEmail(), account, generatedVerificationCode));
+			public String createEmailMessage(String generatedVerificationCode) {
+				return ServerSettings.EmailCreator.Verification.ChangePassword.createEmail(VerificationEmailTemplate.of(clientInfo.getEmail(), generatedVerificationCode));
 			}
 		});
 	}

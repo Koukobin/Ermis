@@ -171,9 +171,10 @@ public final class LoginHandler extends EntryHandler {
 				}
 
 				@Override
-				public String createEmailMessage(String account, String generatedVerificationCode) {
-					return createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
+				public String createEmailMessage(String generatedVerificationCode) {
+					return createEmail(VerificationEmailTemplate.of(email, generatedVerificationCode));
 				}
+
 			};
 
 			ctx.pipeline().replace(LoginHandler.this, VerificationHandler.class.getName(), verificationHandler);
@@ -181,4 +182,3 @@ public final class LoginHandler extends EntryHandler {
 		}
 	}
 }
-

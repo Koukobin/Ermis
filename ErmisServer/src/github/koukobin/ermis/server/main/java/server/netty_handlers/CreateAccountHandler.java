@@ -170,8 +170,8 @@ public final class CreateAccountHandler extends EntryHandler {
 			}
 
 			@Override
-			public String createEmailMessage(String account, String generatedVerificationCode) {
-				return createEmail(VerificationEmailTemplate.of(email, account, generatedVerificationCode));
+			public String createEmailMessage(String generatedVerificationCode) {
+				return createEmail(VerificationEmailTemplate.of(email, generatedVerificationCode));
 			}
 		};
 

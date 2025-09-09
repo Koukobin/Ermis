@@ -119,12 +119,12 @@ public final class ServerSettings {
 
 			public interface VerificationEmailTemplate {
 
-				static VerificationEmailTemplate of(String userEmail, String account, String verificationCode) {
+				static VerificationEmailTemplate of(String userEmail, String verificationCode) {
 					return new VerificationEmailTemplate() {
 
 						Map<String, String> replacements = Map.of(
 								"USER_EMAIL", userEmail,
-								"USER_ACCOUNT", account,
+								"USER_ACCOUNT", userEmail,
 								"VERIFICATION_CODE", verificationCode,
 								"SERVER_ADDRESS", SERVER_ADDRESS,
 								"SERVER_PORT", Integer.toString(SERVER_PORT)

@@ -69,7 +69,7 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 
 		pendingEmailsQueue.thenRunAsync(() -> {
 			try {
-				EmailerService.sendEmailWithHTML("Security Alert", createEmailMessage(emailAddress, codeString), emailAddress);
+				EmailerService.sendEmailWithHTML("Security Alert", createEmailMessage(codeString), emailAddress);
 			} catch (MessagingException me) {
 				getLogger().error("Failed to send email", me);
 			}
@@ -131,6 +131,6 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 		login(ctx, clientInfo);
 	}
 
-	public abstract String createEmailMessage(String account, String generatedVerificationCode);
+	public abstract String createEmailMessage(String generatedVerificationCode);
 	public abstract GeneralResult executeWhenVerificationSuccessful() throws IOException;
 }
