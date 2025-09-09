@@ -32,6 +32,7 @@ import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
+import github.koukobin.ermis.server.main.java.configs.DatabaseSettings.Client.BackupVerificationCodes;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase.Insert;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.BackupVerificationCodesGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ClientIDGenerator;
@@ -96,8 +97,8 @@ public interface AuthService
 			return new GeneralResult(CreateAccountInfo.CreateAccount.Result.DATABASE_MAX_SIZE_REACHED);
 		}
 
-		String salt;
-		String passwordHash;
+		final String salt;
+		final String passwordHash;
 		String[] rawBackupVerificationCodes;
 		String[] hashedBackupVerificationCodes;
 
@@ -197,11 +198,11 @@ public interface AuthService
 		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
 	}
 
-	default boolean checkAuthenticationViaHash(String email, String enteredPasswordpasswordHash) {
+	default boolean checkAuthenticationViaHash(String email, String enteredPasswordHash) {
 		String passwordHash = getPasswordHash(email);
 
 		if (passwordHash != null) {
-			return passwordHash.equals(enteredPasswordpasswordHash);
+			return passwordHash.equals(enteredPasswordHash);
 		}
 
 		return false;
@@ -247,7 +248,7 @@ public interface AuthService
 			String enteredHashedCode = HashUtil.createHash(
 					backupVerificationCode, 
 					getSalt(email),
-					DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM)
+					BackupVerificationCodes.Hashing.HASHING_ALGORITHM)
 					.getHashString();
 
 			pstmt.setString(1, enteredHashedCode);
