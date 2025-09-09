@@ -26,6 +26,7 @@ import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/util/screen_reset.dart';
 import '../../generated/l10n.dart';
 import '../../core/data_sources/api_client.dart';
 import '../../core/widgets/scroll/custom_scroll_view.dart';
@@ -159,7 +160,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                 showLogoutConfirmationDialog(
                   context,
                   S.current.are_you_sure_you_want_to_logout_from_this_device,
-                  () => Client.instance().commands?.logoutThisDevice(),
+                  () => Client.instance()
+                      .commands
+                      ?.logoutThisDevice()
+                      .whenComplete(() => resetToStartingScreen(context)),
                 );
               },
             )

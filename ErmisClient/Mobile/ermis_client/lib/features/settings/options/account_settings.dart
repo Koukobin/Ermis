@@ -398,13 +398,15 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
             ElevatedButton(
               onPressed: () async {
                 Client.instance().commands?.deleteAccount(
-                    _emailController.text, _passwordController.text);
+                      _emailController.text,
+                      _passwordController.text,
+                    );
                 final isSuccessful = await performDeleteAccountVerification(
-                    context, _emailController.text);
+                  context,
+                  _emailController.text,
+                );
 
-                if (isSuccessful) {
-                  SystemNavigator.pop();
-                }
+                if (isSuccessful) SystemNavigator.pop();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
