@@ -125,7 +125,11 @@ class Client {
 
     buffer.writeInt32(userInfo.email.length);
     buffer.writeBytes(utf8.encode(userInfo.email));
+
+    buffer.writeInt32(userInfo.passwordHash.length);
     buffer.writeBytes(utf8.encode(userInfo.passwordHash));
+
+    buffer.writeBytes(utf8.encode(userInfo.deviceUUID));
 
     _outputStream!.write(buffer);
 

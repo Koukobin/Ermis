@@ -16,7 +16,8 @@
 package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.nio.charset.Charset;
+import java.util.UUID;
 
 import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.server.main.java.configs.GeneralServerInfo;
@@ -96,14 +97,18 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 			byte[] emailBytes = new byte[emailLength];
 			msg.readBytes(emailBytes);
 
-			byte[] passwordHashBytes = new byte[msg.readableBytes()];
+			String email = new String(emailBytes);
+
+			int passwordHashLength = msg.readInt();
+			byte[] passwordHashBytes = new byte[passwordHashLength];
 			msg.readBytes(passwordHashBytes);
 
-			String email = new String(emailBytes);
+			String deviceUUIDString = (String) msg.readCharSequence(msg.readableBytes(), Charset.defaultCharset());
+			UUID deviceUUID = UUID.fromString(deviceUUIDString);
+
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				InetAddress address = clientInfo.getInetAddress();
-				if (!conn.isLoggedIn(email, address)) {
-					getLogger().debug("IP: {}, failed to login into email: {}, via password hash", address, email);
+				if (!conn.isLoggedIn(email, deviceUUID)) {
+					getLogger().debug("Device UUID: {}, failed to login into email: {}, via password hash", deviceUUID, email);
 					return;
 				}
 

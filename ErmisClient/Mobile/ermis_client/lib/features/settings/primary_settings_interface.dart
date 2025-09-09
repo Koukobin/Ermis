@@ -148,7 +148,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
               title: Text(
                 S.current.logout_from_this_device,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.redAccent,
                   fontWeight: FontWeight.bold,
@@ -157,9 +157,10 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
               onTap: () {
                 showLogoutConfirmationDialog(
-                    context,
-                    S.current.are_you_sure_you_want_to_logout_from_this_device,
-                    () => Client.instance().commands?.logoutThisDevice());
+                  context,
+                  S.current.are_you_sure_you_want_to_logout_from_this_device,
+                  () => Client.instance().commands?.logoutThisDevice(),
+                );
               },
             )
           ],

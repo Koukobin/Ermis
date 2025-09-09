@@ -38,6 +38,7 @@ extension AccountsExtension on DBConnection {
           'server_url': serverInfo.toString(),
           'email': userAccount.email,
           'password_hash': userAccount.passwordHash,
+          'device_uuid': userAccount.deviceUUID,
           'last_used': userAccount.lastUsed.toIso8601String(),
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
@@ -48,7 +49,7 @@ extension AccountsExtension on DBConnection {
 
     final List<Map<String, dynamic>> userAccounts = await db.query(
       'server_accounts',
-      columns: ['email', 'password_hash', 'last_used'],
+      columns: ['email', 'password_hash', 'device_uuid', 'last_used'],
       where: 'server_url = ?',
       whereArgs: [serverInfo.toString()],
       orderBy: 'last_used DESC',
@@ -63,11 +64,13 @@ extension AccountsExtension on DBConnection {
 
     final String email = firstRow['email'] as String;
     final String passwordHash = firstRow['password_hash'] as String;
+    final String deviceUUID = firstRow['device_uuid'] as String;
     final String lastUsed = firstRow['last_used'] as String;
 
     return LocalAccountInfo(
       email: email,
       passwordHash: passwordHash,
+      deviceUUID: deviceUUID,
       lastUsed: DateTime.parse(lastUsed),
     );
   }
@@ -80,7 +83,7 @@ extension AccountsExtension on DBConnection {
 
     final List<Map<String, Object?>> userAccountMap = await db.query(
       "server_accounts",
-      columns: ["email", "password_hash", "last_used"],
+      columns: ["email", "password_hash", "device_uuid", "last_used"],
       where: 'server_url = ?',
       whereArgs: [serverInfo.toString()],
     );
@@ -88,11 +91,13 @@ extension AccountsExtension on DBConnection {
     List<LocalAccountInfo> userAccounts = userAccountMap.map((record) {
       final String email = record['email'] as String;
       final String passwordHash = record['password_hash'] as String;
+      final String deviceUUID = record['device_uuid'] as String;
       final String lastUsed = record['last_used'] as String;
 
       return LocalAccountInfo(
         email: email,
         passwordHash: passwordHash,
+        deviceUUID: deviceUUID,
         lastUsed: DateTime.parse(lastUsed),
       );
     }).toList();

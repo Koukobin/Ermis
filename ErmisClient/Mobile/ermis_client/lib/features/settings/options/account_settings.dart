@@ -123,6 +123,7 @@ class AccountSettings extends StatefulWidget {
                       matchingAccount ??= LocalAccountInfo(
                         email: serverAccount.email,
                         passwordHash: "",
+                        deviceUUID: "",
                         lastUsed: DateTime.now(),
                       );
 

@@ -61,7 +61,7 @@ public final class BackupVerificationCodesGenerator {
 			String code = backupCodes[i];
 
 			SimpleHash hash = HashUtil.createHash(
-					new String(code),
+					code,
 					salt,
 					BackupVerificationCodes.Hashing.HASHING_ALGORITHM);
 

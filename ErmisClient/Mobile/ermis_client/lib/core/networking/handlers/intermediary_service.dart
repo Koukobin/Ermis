@@ -91,6 +91,10 @@ class IntermediaryService {
     return _databaseService.getLocalUserInfo(server, accountInfo.email);
   }
 
+  Future<LocalAccountInfo?> fetchLocalAccountInfo({required ServerInfo server}) {
+    return _databaseService.getLastUsedAccount(server);
+  }
+
   Future<void> addLocalUserInfo({
     required ServerInfo server,
     required LocalUserInfo info,

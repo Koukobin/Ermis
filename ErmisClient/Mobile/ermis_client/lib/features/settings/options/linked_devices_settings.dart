@@ -140,7 +140,22 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                     child: ListTile(
                       leading: Icon(deviceIcon, color: appColors.primaryColor),
                       title: Text(device.osName),
-                      subtitle: Text('IP: ${device.ipAddress}'),
+                      subtitle: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text('UUID: ${device.deviceUUID}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          )),
+
+                          // Widget to hide rest of UUID for security reasons
+                          Text(
+                            '##############',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
                       trailing: PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'logout') {
@@ -149,7 +164,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                                 () {
                               Client.instance()
                                   .commands
-                                  ?.logoutOtherDevice(device.ipAddress);
+                                  ?.logoutOtherDevice(device.deviceUUID);
                             });
                           }
                         },
@@ -172,7 +187,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                             () {
                           Client.instance()
                               .commands
-                              ?.logoutOtherDevice(device.ipAddress);
+                              ?.logoutOtherDevice(device.deviceUUID);
                         });
                       },
                     ),

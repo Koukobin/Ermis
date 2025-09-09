@@ -15,6 +15,8 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
+import java.util.UUID;
+
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
@@ -30,8 +32,13 @@ public class LogoutThisDevices implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
+		byte[] deviceUUIDBytes = new byte[args.readableBytes()];
+		args.readBytes(deviceUUIDBytes);
+
+		UUID deviceUUID = UUID.fromString(new String(deviceUUIDBytes));
+
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			conn.logout(channel.remoteAddress().getAddress(), clientInfo.getClientID());
+			conn.logout(deviceUUID, clientInfo.getClientID());
 		}
 
 		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {

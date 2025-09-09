@@ -17,15 +17,18 @@
 class LocalAccountInfo {
   final String email;
   final String passwordHash;
+  final String deviceUUID;
   final DateTime lastUsed;
 
   factory LocalAccountInfo.fuck({
     required String email,
     required String passwordHash,
+    required String deviceUUID,
   }) {
     return LocalAccountInfo(
       email: email,
       passwordHash: passwordHash,
+      deviceUUID: deviceUUID,
       lastUsed: DateTime.now(),
     );
   }
@@ -33,6 +36,7 @@ class LocalAccountInfo {
   const LocalAccountInfo({
     required this.email,
     required this.passwordHash,
+    required this.deviceUUID,
     required this.lastUsed,
   });
 
@@ -40,6 +44,7 @@ class LocalAccountInfo {
     return {
       'email': email,
       'password_hash': passwordHash,
+      'device_uuid': deviceUUID,
       'last_used': lastUsed.toIso8601String()
     };
   }

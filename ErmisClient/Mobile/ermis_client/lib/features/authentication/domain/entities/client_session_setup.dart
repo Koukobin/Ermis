@@ -56,6 +56,7 @@ Future<void> setupClientSession(
       if (kDebugMode) {
         debugPrint(userInfo.email);
         debugPrint(userInfo.passwordHash);
+        debugPrint(userInfo.deviceUUID);
       }
 
       authenticationSuccess = await showLoadingDialog(

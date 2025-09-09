@@ -156,6 +156,7 @@ public interface AuthService
 				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
 				addedInfo.put(AddedInfo.PASSWORD_HASH, passwordHash);
 				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, String.join("\n", rawBackupVerificationCodes));
+				addedInfo.put(AddedInfo.DEVICE_UUID, deviceInfo.deviceUUID().toString());
 
 				return new GeneralResult(CreateAccountInfo.CreateAccount.Result.SUCCESFULLY_CREATED_ACCOUNT, addedInfo);
 			}
@@ -284,6 +285,7 @@ public interface AuthService
 				// Add regenerated backup verification codes to result
 				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
 				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, codesString);
+				addedInfo.put(AddedInfo.DEVICE_UUID, deviceInfo.deviceUUID().toString());
 				return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
 			}
 
@@ -306,6 +308,7 @@ public interface AuthService
 		if (result != Insert.NOTHING_CHANGED) {
 			Map<AddedInfo, String> info = new EnumMap<>(AddedInfo.class);
 			info.put(AddedInfo.PASSWORD_HASH, passwordHash);
+			info.put(AddedInfo.DEVICE_UUID, deviceInfo.deviceUUID().toString());
 			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, info);
 		}
 

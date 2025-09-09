@@ -17,6 +17,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.mail.MessagingException;
@@ -119,8 +120,8 @@ public final class LoginHandler extends EntryHandler {
 		case BACKUP_VERIFICATION_CODE -> {
 			GeneralResult entryResult;
 
-			String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
-			UserDeviceInfo deviceInfo = new UserDeviceInfo(address, deviceType, osName);
+			UUID deviceUUID = UUID.randomUUID();
+			UserDeviceInfo deviceInfo = new UserDeviceInfo(deviceUUID, deviceType, osName);
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				entryResult = conn.loginUsingBackupVerificationCode(email, password, deviceInfo);
 			}
@@ -155,8 +156,8 @@ public final class LoginHandler extends EntryHandler {
 
 				@Override
 				public GeneralResult executeWhenVerificationSuccessful() {
-					String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
-					UserDeviceInfo deviceInfo = new UserDeviceInfo(address, deviceType, osName);
+					UUID deviceUUID = UUID.randomUUID();
+					UserDeviceInfo deviceInfo = new UserDeviceInfo(deviceUUID, deviceType, osName);
 
 					GeneralResult result;
 					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
@@ -174,7 +175,6 @@ public final class LoginHandler extends EntryHandler {
 				public String createEmailMessage(String generatedVerificationCode) {
 					return createEmail(VerificationEmailTemplate.of(email, generatedVerificationCode));
 				}
-
 			};
 
 			ctx.pipeline().replace(LoginHandler.this, VerificationHandler.class.getName(), verificationHandler);
@@ -182,3 +182,4 @@ public final class LoginHandler extends EntryHandler {
 		}
 	}
 }
+

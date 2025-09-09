@@ -15,10 +15,10 @@
  */
 package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access;
 
-import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import com.google.common.base.Throwables;
 
@@ -40,14 +40,14 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 
 	default Insert insertUserIp(int clientID, UserDeviceInfo deviceInfo) {
 		String sql = """
-				  INSERT INTO user_ips (client_id, ip_address, device_type, os_name)
+				  INSERT INTO user_devices (client_id, device_uuid, device_type, os_name)
 				  VALUES (?, ?, ?, ?)
-				  ON CONFLICT (client_id, ip_address) DO NOTHING;
+				  ON CONFLICT (client_id, device_uuid) DO NOTHING;
 				""";
 
 		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
 			pstmt.setInt(1, clientID);
-			pstmt.setString(2, deviceInfo.ipAddress());
+			pstmt.setString(2, deviceInfo.deviceUUID().toString());
 			pstmt.setInt(3, DeviceTypeConverter.getDeviceTypeAsDatabaseInt(deviceInfo.deviceType()));
 			pstmt.setString(4, deviceInfo.osName());
 
@@ -60,12 +60,12 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 		return Insert.NOTHING_CHANGED;
 	}
 
-	default boolean logout(InetAddress address, int clientID) {
+	default boolean logout(UUID deviceUUID, int clientID) {
 		int resultUpdate = 0;
 
-		String sql = "DELETE FROM user_ips WHERE ip_address=? AND client_id=?";
+		String sql = "DELETE FROM user_devices WHERE device_uuid=? AND client_id=?";
 		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
-			pstmt.setString(1, address.getHostName());
+			pstmt.setString(1, deviceUUID.toString());
 			pstmt.setInt(2, clientID);
 
 			resultUpdate = pstmt.executeUpdate();
@@ -79,7 +79,7 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 	default boolean logoutAllDevices(int clientID) {
 		int resultUpdate = 0;
 
-		String sql = "DELETE FROM user_ips WHERE client_id=?";
+		String sql = "DELETE FROM user_devices WHERE client_id=?";
 		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
 			pstmt.setInt(1, clientID);
 
@@ -91,19 +91,19 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 		return resultUpdate == 1;
 	}
 
-	default boolean isLoggedIn(String email, InetAddress address) {
+	default boolean isLoggedIn(String email, UUID deviceUUID) {
 		boolean isLoggedIn = false;
 
 		String query = """
 				    SELECT 1
 				    FROM users u
-				    JOIN user_ips ui
-				    ON u.client_id = ui.client_id
-				    WHERE u.email = ? AND ui.ip_address = ?;
+				    JOIN user_devices ud
+				    ON u.client_id = ud.client_id
+				    WHERE u.email = ? AND ud.device_uuid = ?;
 				""";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
 			pstmt.setString(1, email);
-			pstmt.setString(2, address.getHostName());
+			pstmt.setString(2, deviceUUID.toString());
 
 			ResultSet rs = pstmt.executeQuery();
 			isLoggedIn = rs.next();
@@ -118,7 +118,7 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 		UserDeviceInfo[] userIPS = EmptyArrays.EMPTY_DEVICE_INFO_ARRAY;
 
 		try (PreparedStatement pstmt = getConn().prepareStatement(
-				"SELECT ip_address, device_type, os_name FROM user_ips WHERE client_id=?",
+				"SELECT device_uuid, device_type, os_name FROM user_devices WHERE client_id=?",
 				ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
 
 			pstmt.setInt(1, clientID);
@@ -133,10 +133,10 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 
 			int i = 0;
 			while (rs.next()) {
-				String address = rs.getString("ip_address");
+				UUID deviceUUID = UUID.fromString(rs.getString("device_uuid"));
 				DeviceType deviceType = DeviceTypeConverter.getDatabaseIntAsDeviceType(rs.getInt("device_type"));
 				String osName = rs.getString("os_name");
-				userIPS[i] = new UserDeviceInfo(address, deviceType, osName);
+				userIPS[i] = new UserDeviceInfo(deviceUUID, deviceType, osName);
 				i++;
 			}
 		} catch (SQLException sqle) {

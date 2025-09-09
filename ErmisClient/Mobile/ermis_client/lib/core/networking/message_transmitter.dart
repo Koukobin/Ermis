@@ -531,19 +531,22 @@ class Commands {
     out.write(payload);
   }
 
-  void logoutThisDevice() {
+  Future<void> logoutThisDevice() async {
+    final info = await UserInfoManager.fetchAccountInformation();
+
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.logoutThisDevice.id);
+    payload.writeBytes(Uint8List.fromList(info.deviceUUID.codeUnits));
 
     out.write(payload);
   }
 
-  void logoutOtherDevice(String ipAddress) {
+  void logoutOtherDevice(String deviceUUID) {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.logoutOtherDevice.id);
-    payload.writeBytes(Uint8List.fromList(ipAddress.codeUnits));
+    payload.writeBytes(Uint8List.fromList(deviceUUID.codeUnits));
 
     out.write(payload);
   }

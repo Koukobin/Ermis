@@ -61,13 +61,14 @@ class DBConnection {
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         if (oldVersion != newVersion) {
           await db.execute('DROP TABLE IF EXISTS server_profiles;');
+          await db.execute('DROP TABLE IF EXISTS server_accounts;');
           await db.execute('DROP TABLE IF EXISTS members;');
           await db.execute('DROP TABLE IF EXISTS chat_session_members;');
           await db.execute('DROP TABLE IF EXISTS chat_sessions;');
           await db.execute('DROP TABLE IF EXISTS chat_messages;');
         }
       },
-      version: 6,
+      version: 8,
     );
 
     // Create the 'servers' table
@@ -85,6 +86,7 @@ class DBConnection {
         server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
         email TEXT NOT NULL,
         password_hash TEXT NOT NULL,
+        device_uuid TEXT NOT NULL,
         last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (server_url, email)
       );

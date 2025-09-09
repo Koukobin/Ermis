@@ -17,6 +17,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.UUID;
 
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.message_types.ServerInfoMessage;
@@ -35,31 +36,23 @@ public class LogoutOtherDevice implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
-		byte[] addressBytes = new byte[args.readableBytes()];
-		args.readBytes(addressBytes);
+		byte[] deviceUUIDBytes = new byte[args.readableBytes()];
+		args.readBytes(deviceUUIDBytes);
 
-		InetAddress address;
-
-		try {
-			address = InetAddress.getByName(new String(addressBytes));
-		} catch (UnknownHostException uhe) {
-			getLogger().debug(String.format("Address not recognized %s", new String(addressBytes)), uhe);
-			MessageByteBufCreator.sendMessageInfo(channel, ServerInfoMessage.INET_ADDRESS_NOT_RECOGNIZED.id);
-			return;
-		}
+		UUID deviceUUID = UUID.fromString(new String(deviceUUIDBytes));
 
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			conn.logout(address, clientInfo.getClientID());
+			conn.logout(deviceUUID, clientInfo.getClientID());
 		}
 
-		// Search for the specific IP address and if found logout that address
-		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
-			if (!ci.getInetAddress().equals(address)) {
-				return;
-			}
-
-			ci.getChannel().close();
-		});
+//		// Search for the specific IP address and if found logout that address
+//		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
+//			if (!ci.getInetAddress().equals(address)) {
+//				return;
+//			}
+//
+//			ci.getChannel().close();
+//		});
 
 		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
 			CommandsHolder.getCommand(ClientCommandType.FETCH_LINKED_DEVICES).execute(clientInfo, Unpooled.EMPTY_BUFFER);

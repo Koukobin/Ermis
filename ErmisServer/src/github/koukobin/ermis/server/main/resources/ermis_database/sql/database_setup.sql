@@ -71,14 +71,14 @@ EXECUTE FUNCTION update_last_updated_at();
 --END
 --$$;
 
--- Create user_ips table
-CREATE TABLE IF NOT EXISTS user_ips (
+-- Create user_devices table
+CREATE TABLE IF NOT EXISTS user_devices (
     client_id INTEGER NOT NULL REFERENCES users(client_id) ON DELETE CASCADE,
-    ip_address TEXT NOT NULL,
+    device_uuid TEXT NOT NULL,
     device_type INTEGER NOT NULL,
     os_name TEXT NOT NULL,
     logged_in_at TIMESTAMP NOT NULL DEFAULT now(),
-    PRIMARY KEY (client_id, ip_address)
+    PRIMARY KEY (client_id, device_uuid)
 );
 
 -- Create chat_requests tables

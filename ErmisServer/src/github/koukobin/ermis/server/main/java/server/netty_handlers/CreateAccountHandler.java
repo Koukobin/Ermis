@@ -18,6 +18,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.mail.MessagingException;
 
@@ -137,16 +138,16 @@ public final class CreateAccountHandler extends EntryHandler {
 
 	private void onUserMeetsRequirements(ChannelHandlerContext ctx) {
 		String email = credentials.get(Credential.EMAIL);
+		String username = credentials.get(Credential.USERNAME);
 
 		VerificationHandler verificationHandler = new VerificationHandler(clientInfo, email) {
 
 			@Override
 			public GeneralResult executeWhenVerificationSuccessful() {
-				String address = clientInfo.getChannel().remoteAddress().getAddress().getHostName();
-				String username = credentials.get(Credential.USERNAME);
-				String password = credentials.get(Credential.PASSWORD);
+				UUID deviceUUID = UUID.randomUUID();
+				UserDeviceInfo deviceInfo = new UserDeviceInfo(deviceUUID, deviceType, osName);
 
-				UserDeviceInfo deviceInfo = new UserDeviceInfo(address, deviceType, osName);
+				String password = credentials.get(Credential.PASSWORD);
 
 				GeneralResult result;
 				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {

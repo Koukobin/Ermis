@@ -45,9 +45,9 @@ public class FetchLinkedDevices implements ICommand {
 		for (int i = 0; i < devices.length; i++) {
 			payload.writeInt(devices[i].deviceType().id);
 
-			String ipAddress = devices[i].ipAddress();
-			payload.writeInt(ipAddress.length());
-			payload.writeBytes(ipAddress.getBytes());
+			String uuid = devices[i].deviceUUID().toString();
+			payload.writeInt(uuid.length());
+			payload.writeBytes(uuid.getBytes());
 
 			String osName = devices[i].osName();
 			payload.writeInt(osName.length());

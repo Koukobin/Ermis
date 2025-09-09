@@ -232,8 +232,10 @@ mixin Verification {
         showToastDialog(resultMessage);
         ErmisDB.getConnection().addUserAccount(
           LocalAccountInfo.fuck(
-              email: email,
-              passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!),
+            email: email,
+            passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!,
+            deviceUUID: entryResult.addedInfo[AddedInfo.deviceUUID]!,
+          ),
           UserInfoManager.serverInfo,
         );
 

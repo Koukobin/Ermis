@@ -25,6 +25,7 @@ import 'package:ermis_mobile/core/services/database/models/local_user_info.dart'
 import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:flutter/foundation.dart';
 
+import '../services/database/models/local_account_info.dart';
 import 'handlers/intermediary_service.dart';
 
 class UserInfoManager {
@@ -77,6 +78,11 @@ class UserInfoManager {
     }
 
     return userInfo;
+  }
+
+  static Future<LocalAccountInfo> fetchAccountInformation() async {
+    LocalAccountInfo? info = await IntermediaryService().fetchLocalAccountInfo(server: serverInfo);
+    return info!;
   }
 
   static Future<List<ChatSession>> fetchLocalChatSessions() async {

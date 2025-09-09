@@ -51,30 +51,30 @@ enum DeviceType {
 
 
 class UserDeviceInfo {
-  final String ipAddress;
+  final String deviceUUID;
   final DeviceType deviceType;
   final String osName;
 
-  const UserDeviceInfo(this.ipAddress, this.deviceType, this.osName);
+  const UserDeviceInfo(this.deviceUUID, this.deviceType, this.osName);
 
   @override
-  int get hashCode => ipAddress.hashCode ^ deviceType.hashCode ^ osName.hashCode;
+  int get hashCode => deviceUUID.hashCode ^ deviceType.hashCode ^ osName.hashCode;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! UserDeviceInfo) return false;
-    return other.ipAddress == ipAddress &&
+    return other.deviceUUID == deviceUUID &&
         other.deviceType == deviceType &&
         other.osName == osName;
   }
 
   String formattedInfo() {
-    return '${deviceType.name} $osName: $ipAddress';
+    return '${deviceType.name} $osName: $deviceUUID';
   }
 
   @override
   String toString() {
-    return 'UserDeviceInfo(ipAddress: $ipAddress, deviceType: ${deviceType.name}, osName: $osName)';
+    return 'UserDeviceInfo(deviceUUID: $deviceUUID, deviceType: ${deviceType.name}, osName: $osName)';
   }
 }

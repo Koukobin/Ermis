@@ -169,7 +169,7 @@ public interface UserProfileModule extends BaseComponent {
 				u.email,
 				ui.client_id,
 				FROM user_profiles up
-				JOIN user_ips ui ON up.client_id = ui.client_id
+				JOIN user_devices ui ON up.client_id = ui.client_id
 				JOIN users u ON up.client_id = u.client_id
 				WHERE ui.ip_address = ?;
 				""";

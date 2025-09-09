@@ -17,7 +17,7 @@
 import '../../../../core/exceptions/enum_not_found_exception.dart';
 
 enum AddedInfo {
-  passwordHash(1), backupVerificationCodes(2);
+  passwordHash(1), backupVerificationCodes(2), deviceUUID(3);
 
   final int id;
   const AddedInfo(this.id);
