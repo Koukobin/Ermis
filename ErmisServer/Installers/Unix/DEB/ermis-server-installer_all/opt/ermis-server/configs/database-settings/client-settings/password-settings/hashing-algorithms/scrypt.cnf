@@ -1,3 +1,6 @@
+# Note that modifying any of these settings once any user accounts 
+# have been created will certainly break those accounts
+
 # Defines the CPU/memory cost. Must be a power of 2
 workFactor=65536
 

@@ -1,3 +1,6 @@
+# Note that modifying any of these settings once any user accounts 
+# have been created will certainly break those accounts
+
 # Defines amount of memory (in kilobytes) to use
 memory=15
 

@@ -1,3 +1,6 @@
+# Note that modifying any of these settings once any user accounts 
+# have been created will certainly break those accounts
+
 # Defines the minor version of bcrypt. The suggested version of the algorithm is B, the latest one. 
 # The other versions should be used only for backward compatibility reasons and we recommend to update 
 # your hashes as soon as possible

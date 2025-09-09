@@ -21,4 +21,6 @@
                 OWAPS recommends using it (if scrypt's adoption is not feasible) with a work factor of 10 or more and
                 with a password limit of 72 bytes
 
+    # Note that modifying this once any user accounts have 
+    # been created will certainly break those accounts
     algorithmType=Argon2
