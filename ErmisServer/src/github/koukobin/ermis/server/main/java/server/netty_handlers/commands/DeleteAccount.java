@@ -20,13 +20,13 @@ import java.io.IOException;
 import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.message_types.ClientCommandType;
 import github.koukobin.ermis.common.results.GeneralResult;
-import github.koukobin.ermis.server.main.java.configs.ServerSettings;
-import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.EntryHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntryHandler;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.VerificationHandler;
+import github.koukobin.ermis.server.main.java.server.util.EmailCreator;
+import github.koukobin.ermis.server.main.java.server.util.EmailCreator.Verification.VerificationEmailTemplate;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
 
@@ -77,10 +77,8 @@ public class DeleteAccount implements ICommand {
 
 					@Override
 					public String createEmailMessage(String generatedVerificationCode) {
-						return ServerSettings.EmailCreator.Verification.DeleteAccount
-								.createEmail(VerificationEmailTemplate.of(
-										clientInfo.getEmail(), 
-										generatedVerificationCode));
+						return EmailCreator.Verification.DeleteAccount.createEmail(
+								VerificationEmailTemplate.of(clientInfo.getEmail(), generatedVerificationCode));
 					}
 				});
 	}

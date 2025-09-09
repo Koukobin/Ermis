@@ -31,14 +31,14 @@ import github.koukobin.ermis.common.entry.CreateAccountInfo.Credential;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
-import github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
+import github.koukobin.ermis.server.main.java.server.util.EmailCreator;
+import github.koukobin.ermis.server.main.java.server.util.EmailCreator.Verification.VerificationEmailTemplate;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
-import static github.koukobin.ermis.server.main.java.configs.ServerSettings.EmailCreator.Verification.CreateAccount.createEmail;
 
 /**
  * @author Ilias Koukovinis
@@ -172,7 +172,8 @@ public final class CreateAccountHandler extends EntryHandler {
 
 			@Override
 			public String createEmailMessage(String generatedVerificationCode) {
-				return createEmail(VerificationEmailTemplate.of(email, generatedVerificationCode));
+				return EmailCreator.Verification.CreateAccount
+						.createEmail(VerificationEmailTemplate.of(email, generatedVerificationCode));
 			}
 		};
 

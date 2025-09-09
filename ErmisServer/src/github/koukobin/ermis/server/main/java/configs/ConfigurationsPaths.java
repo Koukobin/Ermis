@@ -101,7 +101,7 @@ public final class ConfigurationsPaths {
 
             private Verification() {}
 		}
-
+		
         private EmailCreator() {}
 	}
 

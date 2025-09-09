@@ -15,15 +15,11 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.UUID;
 
 import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
-import github.koukobin.ermis.server.main.java.server.util.MessageByteBufCreator;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
