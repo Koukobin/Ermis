@@ -15,10 +15,12 @@
  */
 package github.koukobin.ermis.common;
 
+import java.util.UUID;
+
 /**
  * @author Ilias Koukovinis
  *
  */
-public record UserDeviceInfo(String ipAddress, DeviceType deviceType, String osName) {
+public record UserDeviceInfo(UUID deviceUUID, DeviceType deviceType, String osName) {
 
 }

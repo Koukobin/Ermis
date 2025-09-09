@@ -33,7 +33,6 @@ public final class HashUtil {
 	private HashUtil() {}
 
 	public static SimpleHash createHash(String string, int saltLength, HashingFunction hashingFunction) {
-
 		byte[] salt = new byte[saltLength];
 		secureRandom.nextBytes(salt);
 

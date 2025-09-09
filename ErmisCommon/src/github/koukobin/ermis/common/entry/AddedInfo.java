@@ -26,7 +26,8 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  */
 public enum AddedInfo {
 	PASSWORD_HASH(1),
-	BACKUP_VERIFICATION_CODES(2);
+	BACKUP_VERIFICATION_CODES(2),
+	DEVICE_UUID(3);
 
 	private static final Map<Integer, AddedInfo> valuesById = new HashMap<>();
 
