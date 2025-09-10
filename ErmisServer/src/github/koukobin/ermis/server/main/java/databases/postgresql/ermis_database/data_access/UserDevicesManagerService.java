@@ -26,19 +26,18 @@ import github.koukobin.ermis.common.DeviceType;
 import github.koukobin.ermis.common.UserDeviceInfo;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.DeviceTypeConverter;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase.Insert;
 
 /**
  * @author Ilias Koukovinis
  *
  */
-public interface UserIpManagerService extends BaseComponent, UserProfileModule {
+public interface UserDevicesManagerService extends BaseComponent, UserProfileModule {
 
-	default Insert insertUserIp(String email, UserDeviceInfo deviceInfo) {
-		return insertUserIp(getClientID(email).orElseThrow(), deviceInfo);
+	default Insert insertUserDevice(String email, UserDeviceInfo deviceInfo) {
+		return insertUserDevice(getClientID(email).orElseThrow(), deviceInfo);
 	}
 
-	default Insert insertUserIp(int clientID, UserDeviceInfo deviceInfo) {
+	default Insert insertUserDevice(int clientID, UserDeviceInfo deviceInfo) {
 		String sql = """
 				  INSERT INTO user_devices (client_id, device_uuid, device_type, os_name)
 				  VALUES (?, ?, ?, ?)
@@ -57,10 +56,10 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return Insert.NOTHING_CHANGED;
+		return Insert.INTERNAL_ERROR;
 	}
 
-	default boolean logout(UUID deviceUUID, int clientID) {
+	default boolean logoutDevice(UUID deviceUUID, int clientID) {
 		int resultUpdate = 0;
 
 		String sql = "DELETE FROM user_devices WHERE device_uuid=? AND client_id=?";
@@ -91,7 +90,7 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 		return resultUpdate == 1;
 	}
 
-	default boolean isLoggedIn(String email, UUID deviceUUID) {
+	default boolean isDeviceLoggedIn(String email, UUID deviceUUID) {
 		boolean isLoggedIn = false;
 
 		String query = """
@@ -114,8 +113,8 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 		return isLoggedIn;
 	}
 
-	default UserDeviceInfo[] getUserIPS(int clientID) {
-		UserDeviceInfo[] userIPS = EmptyArrays.EMPTY_DEVICE_INFO_ARRAY;
+	default UserDeviceInfo[] getUserDevices(int clientID) {
+		UserDeviceInfo[] userDevices = EmptyArrays.EMPTY_DEVICE_INFO_ARRAY;
 
 		try (PreparedStatement pstmt = getConn().prepareStatement(
 				"SELECT device_uuid, device_type, os_name FROM user_devices WHERE client_id=?",
@@ -129,20 +128,20 @@ public interface UserIpManagerService extends BaseComponent, UserProfileModule {
 			int rowCount = rs.getRow(); // Get total rows
 			rs.beforeFirst();
 
-			userIPS = new UserDeviceInfo[rowCount];
+			userDevices = new UserDeviceInfo[rowCount];
 
 			int i = 0;
 			while (rs.next()) {
 				UUID deviceUUID = UUID.fromString(rs.getString("device_uuid"));
 				DeviceType deviceType = DeviceTypeConverter.getDatabaseIntAsDeviceType(rs.getInt("device_type"));
 				String osName = rs.getString("os_name");
-				userIPS[i] = new UserDeviceInfo(deviceUUID, deviceType, osName);
+				userDevices[i] = new UserDeviceInfo(deviceUUID, deviceType, osName);
 				i++;
 			}
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return userIPS;
+		return userDevices;
 	}
 }

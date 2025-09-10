@@ -40,7 +40,7 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.ChatSessionsManagerModule;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.MessagesService;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserCredentialsRepository;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserIpManagerService;
+import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserDevicesManagerService;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.UserProfileModule;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access.VoiceCallHistoryManagerService;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ChatSessionIDGenerator;
@@ -132,14 +132,6 @@ public final class ErmisDatabase {
 
 	public static WriteChatMessagesDBConnection getWriteChatMessagesConnection() {
 		return new WriteChatMessagesDBConnection();
-	}
-
-	public enum Insert {
-		SUCCESSFUL_INSERT, DUPLICATE_ENTRY, NOTHING_CHANGED, INTERNAL_ERROR;
-	}
-
-	public enum Select {
-		NOT_FOUND;
 	}
 
 	private static class DBConnection implements AutoCloseable {
@@ -259,7 +251,7 @@ public final class ErmisDatabase {
 			ChatSessionsManagerModule,
 			MessagesService,
 			UserCredentialsRepository,
-			UserIpManagerService,
+			UserDevicesManagerService,
 			UserProfileModule,
 			VoiceCallHistoryManagerService {
 

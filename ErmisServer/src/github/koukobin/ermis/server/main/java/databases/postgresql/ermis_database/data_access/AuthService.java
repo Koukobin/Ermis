@@ -33,7 +33,6 @@ import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings;
 import github.koukobin.ermis.server.main.java.configs.DatabaseSettings.Client.BackupVerificationCodes;
-import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase.Insert;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.BackupVerificationCodesGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ClientIDGenerator;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.hashing.HashUtil;
@@ -44,7 +43,7 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
  *
  */
 public interface AuthService
-		extends BaseComponent, UserIpManagerService, BackupVerificationCodesModule, AccountRepository {
+		extends BaseComponent, UserDevicesManagerService, BackupVerificationCodesModule, AccountRepository {
 
 	default CreateAccountInfo.CredentialValidation.Result checkIfUserMeetsRequirementsToCreateAccount(
 			String username, 
@@ -66,23 +65,6 @@ public interface AuthService
 
 		return CreateAccountInfo.CredentialValidation.Result.SUCCESFULLY_EXCHANGED_CREDENTIALS;
 	}
-
-//	/**
-//	 * First checks if user meets requirements method before createAccount method
-//	 */
-//	public CreateAccountResult checkAndCreateAccount1(String username,
-//			String password,
-//			UserDeviceInfo deviceInfo,
-//			String emailAddress) {
-//
-//		CreateAccountResult resultHolder = new CreateAccountResult(checkIfUserMeetsRequirementsToCreateAccount(username, password, emailAddress));
-//
-//		if (!resultHolder.getEnumIndicatingResult().resultHolder.isSuccessful()) {
-//			return resultHolder;
-//		}
-//
-//		return createAccount(username, password, deviceInfo, emailAddress);
-//	}
 
 	default GeneralResult createAccount(String username,
 			String password,
@@ -150,8 +132,7 @@ public interface AuthService
 			int resultUpdate = createProfile.executeUpdate();
 
 			if (resultUpdate == 1) {
-
-				insertUserIp(clientID, deviceInfo);
+				insertUserDevice(clientID, deviceInfo);
 
 				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
 				addedInfo.put(AddedInfo.PASSWORD_HASH, passwordHash);
@@ -179,7 +160,6 @@ public interface AuthService
 
 		// Perform authentication to ensure email and password match
 		Optional<String> passwordHash = checkAuthentication(enteredEmail, enteredPassword);
-
 		if (passwordHash.isEmpty()) {
 			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_PASSWORD);
 		}
@@ -188,7 +168,6 @@ public interface AuthService
 			pstmt.setInt(1, clientID);
 
 			int resultUpdate = pstmt.executeUpdate();
-
 			if (resultUpdate == 1 /* SUCCESS */) {
 				return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
 			}
@@ -211,7 +190,10 @@ public interface AuthService
 
 	default Optional<String> checkAuthentication(String email, String enteredPassword) {
 		String passwordHash = getPasswordHash(email);
-		SimpleHash enteredPasswordHash = HashUtil.createHash(enteredPassword, getSalt(email), DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
+		SimpleHash enteredPasswordHash = HashUtil.createHash(enteredPassword,
+				getSalt(email),
+				DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
+
 		return passwordHash.equals(enteredPasswordHash.getHashString())
 				? Optional.of(passwordHash)
 				: Optional.ofNullable(null);
@@ -225,71 +207,47 @@ public interface AuthService
 		return LoginInfo.CredentialsExchange.Result.SUCCESFULLY_EXCHANGED_CREDENTIALS;
 	}
 
-//	public LoginResult checkRequirementsAndLogin(String email, String password, UserDeviceInfo deviceInfo) {
-//		Result resultHolder = checkIfUserMeetsRequirementsToLogin(email);
-//
-//		if (!resultHolder.resultHolder.isSuccessful()) {
-//			return new LoginResult(resultHolder);
-//		}
-//
-//		return loginUsingPassword(email, password, deviceInfo);
-//	}
+	default GeneralResult loginUsingBackupVerificationCode(String email, String backupVerificationCode) {
+		boolean isCodeCorrect = false;
 
-	default GeneralResult loginUsingBackupVerificationCode(String email, String backupVerificationCode, UserDeviceInfo deviceInfo) {
-		boolean isBackupVerificationCodeCorrect = false;
-		int backupVerificationCodesAmount = 0;
-
+		String enteredHashedCode = HashUtil.createHash(
+				backupVerificationCode, 
+				getSalt(email),
+				BackupVerificationCodes.Hashing.HASHING_ALGORITHM)
+				.getHashString();
+		
 		String query = """
-				SELECT array_length(backup_verification_codes::TEXT[], 1)
+				SELECT 1
 				FROM users
 				WHERE ? = ANY(backup_verification_codes)
 				AND email=?;
 				""";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
-			String enteredHashedCode = HashUtil.createHash(
-					backupVerificationCode, 
-					getSalt(email),
-					BackupVerificationCodes.Hashing.HASHING_ALGORITHM)
-					.getHashString();
-
 			pstmt.setString(1, enteredHashedCode);
 			pstmt.setString(2, email);
 
 			ResultSet rs = pstmt.executeQuery();
-
-			if (rs.next()) {
-				isBackupVerificationCodeCorrect = true;
-				backupVerificationCodesAmount = rs.getInt(1);
-			}
+			isCodeCorrect = rs.next();
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		if (!isBackupVerificationCodeCorrect) {
+		if (!isCodeCorrect) {
 			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE);
 		}
 
-		// Add address to user logged in ip addresses
-		Insert resultC = insertUserIp(email, deviceInfo);
+		// Remove backup verification code; a backup verification
+		// code can only be used once.
+		int codesLeftAmount = removeBackupVerificationCode(enteredHashedCode, email).orElse(0);
 
-		if (resultC == Insert.SUCCESSFUL_INSERT || resultC == Insert.DUPLICATE_ENTRY) {
-			// Remove backup verification code from user; a backup verification
-			// code can only be used once.
-			removeBackupVerificationCode(backupVerificationCode, email);
+		if (codesLeftAmount == 0) {
+			String[] codesArray = regenerateBackupVerificationCodes(email).orElse(EmptyArrays.EMPTY_STRING_ARRAY);
+			String codesString = String.join("\n", codesArray);
 
-			// Regenerate backup verification codes if they have become 0
-			if (backupVerificationCodesAmount - 1 == 0) {
-				String[] codesArray = regenerateBackupVerificationCodes(email).orElse(EmptyArrays.EMPTY_STRING_ARRAY);
-				String codesString = String.join(",", codesArray);
+			Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
+			addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, codesString);
 
-				// Add regenerated backup verification codes to result
-				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
-				addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, codesString);
-				addedInfo.put(AddedInfo.DEVICE_UUID, deviceInfo.deviceUUID().toString());
-				return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
-			}
-
-			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
+			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
 		}
 
 		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
@@ -302,13 +260,12 @@ public interface AuthService
 		}
 		String passwordHash = passwordHashOptional.get();
 
-		// Add address to user logged in ip addresses
-		Insert result = insertUserIp(email, deviceInfo);
-
+		Insert result = insertUserDevice(email, deviceInfo);
 		if (result != Insert.NOTHING_CHANGED) {
 			Map<AddedInfo, String> info = new EnumMap<>(AddedInfo.class);
 			info.put(AddedInfo.PASSWORD_HASH, passwordHash);
 			info.put(AddedInfo.DEVICE_UUID, deviceInfo.deviceUUID().toString());
+
 			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, info);
 		}
 
