@@ -39,7 +39,7 @@ public class SendChatRequest implements ICommand {
 		int senderClientID = clientInfo.getClientID();
 
 		if (receiverID == senderClientID) {
-			getLogger().debug("You can't create chat session with yourself");
+			getLogger().debug("You cannot form a chat session with yourself");
 			return;
 		}
 
@@ -50,10 +50,10 @@ public class SendChatRequest implements ICommand {
 				.flatMap(Collection::stream)
 				.filter((ClientInfo ci) -> ci.getClientID() == receiverID)
 				.count() != 0) {
-			getLogger().debug("You can't create chat session with yourself");
+			getLogger().debug("You cannot form chat session with yourself");
 			return;
 		}
-		
+
 		boolean success;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 			success = conn.sendChatRequest(receiverID, senderClientID);
