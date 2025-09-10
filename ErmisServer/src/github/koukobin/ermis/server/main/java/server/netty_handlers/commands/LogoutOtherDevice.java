@@ -38,7 +38,7 @@ public class LogoutOtherDevice implements ICommand {
 		UUID deviceUUID = UUID.fromString(new String(deviceUUIDBytes));
 
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			conn.logout(deviceUUID, clientInfo.getClientID());
+			conn.logoutDevice(deviceUUID, clientInfo.getClientID());
 		}
 
 //		// Search for the specific IP address and if found logout that address

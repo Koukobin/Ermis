@@ -64,20 +64,29 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 		return Optional.empty();
 	}
 
-	default int removeBackupVerificationCode(String backupVerificationCode, String email) {
-		int resultUpdate = 0;
+	default Optional<Integer> removeBackupVerificationCode(String backupVerificationCode, String email) {
+		String sql = """
+				UPDATE users
+				SET backup_verification_codes=array_remove(backup_verification_codes, ?)
+				WHERE email=?
+				RETURNING array_length(backup_verification_codes::TEXT[], 1)
+				""";
 
-		String sql = "UPDATE users SET backup_verification_codes=array_remove(backup_verification_codes, ?) WHERE email=?";
 		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
 			pstmt.setString(1, backupVerificationCode);
 			pstmt.setString(2, email);
 
-			pstmt.executeUpdate();
+			ResultSet rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				int codesAmount = rs.getInt(1);
+				return Optional.of(codesAmount);
+			}
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate;
+		return Optional.empty();
 	}
 
 	default String[] getBackupVerificationCodesAsStringArray(String email) {

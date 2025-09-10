@@ -107,7 +107,7 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 			UUID deviceUUID = UUID.fromString(deviceUUIDString);
 
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				if (!conn.isLoggedIn(email, deviceUUID)) {
+				if (!conn.isDeviceLoggedIn(email, deviceUUID)) {
 					getLogger().debug("Device UUID: {}, failed to login into email: {}, via password hash", deviceUUID, email);
 					return;
 				}

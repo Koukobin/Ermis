@@ -39,7 +39,7 @@ public class FetchLinkedDevices implements ICommand {
 		UserDeviceInfo[] devices;
 
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			devices = conn.getUserIPS(clientInfo.getClientID());
+			devices = conn.getUserDevices(clientInfo.getClientID());
 		}
 
 		for (int i = 0; i < devices.length; i++) {

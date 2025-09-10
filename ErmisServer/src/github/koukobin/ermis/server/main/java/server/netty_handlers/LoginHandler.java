@@ -19,7 +19,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 import javax.mail.MessagingException;
 
 import github.koukobin.ermis.common.DeviceType;
@@ -119,21 +118,19 @@ public final class LoginHandler extends EntryHandler {
 		case BACKUP_VERIFICATION_CODE -> {
 			GeneralResult entryResult;
 
-			UUID deviceUUID = UUID.randomUUID();
-			UserDeviceInfo deviceInfo = new UserDeviceInfo(deviceUUID, deviceType, osName);
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				entryResult = conn.loginUsingBackupVerificationCode(email, password, deviceInfo);
+				entryResult = conn.loginUsingBackupVerificationCode(email, password);
 			}
 
 			if (entryResult.isSuccessful()) {
 				clientInfo.setEmail(email);
 				login(ctx, clientInfo);
 
-				@Nullable String newlyGeneratedBackupVerificationCodes = entryResult.getAddedInfo().get(AddedInfo.BACKUP_VERIFICATION_CODES);
+				String newlyGeneratedCodes = entryResult.getAddedInfo().get(AddedInfo.BACKUP_VERIFICATION_CODES);
 
-				if (newlyGeneratedBackupVerificationCodes != null) {
+				if (newlyGeneratedCodes != null) {
 					try {
-						EmailerService.sendEmail("Backup verification codes", newlyGeneratedBackupVerificationCodes, email);
+						EmailerService.sendEmail("Backup verification codes", newlyGeneratedCodes, email);
 					} catch (MessagingException me) {
 						getLogger().error("An error occured while trying to send email", me);
 					}

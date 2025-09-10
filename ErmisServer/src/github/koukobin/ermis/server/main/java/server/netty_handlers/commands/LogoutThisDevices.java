@@ -38,7 +38,7 @@ public class LogoutThisDevices implements ICommand {
 		UUID deviceUUID = UUID.fromString(new String(deviceUUIDBytes));
 
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			conn.logout(deviceUUID, clientInfo.getClientID());
+			conn.logoutDevice(deviceUUID, clientInfo.getClientID());
 		}
 
 		forActiveAccounts(clientInfo.getClientID(), (ClientInfo ci) -> {
