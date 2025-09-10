@@ -30,6 +30,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,7 +191,7 @@ public final class ClientDatabase {
 		public Optional<LocalAccountInfo> getLastUsedAccount(ServerInfo serverInfo) {
 			LocalAccountInfo account = null;
 
-			String sql = "SELECT email, password_hash, last_used FROM server_accounts WHERE server_url = ? ORDER BY last_used DESC LIMIT 1;";
+			String sql = "SELECT email, password_hash, device_uuid, last_used FROM server_accounts WHERE server_url = ? ORDER BY last_used DESC LIMIT 1;";
 			try (PreparedStatement ps = conn.prepareStatement(sql)) {
 				ps.setString(1, serverInfo.getURL().toString());
 				ResultSet rs = ps.executeQuery();
@@ -198,8 +199,9 @@ public final class ClientDatabase {
 				if (rs.next()) {
 					String email = rs.getString("email");
 					String passwordHash = rs.getString("password_hash");
+					UUID deviceUUID = UUID.fromString(rs.getString("device_uuid"));
 					Timestamp lastUsed = rs.getTimestamp("last_used");
-					account = new LocalAccountInfo(email, passwordHash, lastUsed.toLocalDateTime());
+					account = new LocalAccountInfo(email, passwordHash, deviceUUID, lastUsed.toLocalDateTime());
 				}
 			} catch (SQLException sqle) {
 				logger.error(sqle.getMessage(), sqle);
@@ -210,7 +212,7 @@ public final class ClientDatabase {
 
 		public List<LocalAccountInfo> getUserAccounts(ServerInfo serverInfo) {
 			List<LocalAccountInfo> accounts = new ArrayList<>();
-			String sql = "SELECT email, password_hash, last_used FROM server_accounts WHERE server_url = ?;";
+			String sql = "SELECT email, password_hash, device_uuid, last_used FROM server_accounts WHERE server_url = ?;";
 
 			try (PreparedStatement ps = conn.prepareStatement(sql)) {
 				ps.setString(1, serverInfo.getURL().toString());
@@ -219,8 +221,9 @@ public final class ClientDatabase {
 				while (rs.next()) {
 					String email = rs.getString("email");
 					String passwordHash = rs.getString("password_hash");
+					UUID deviceUUID = UUID.fromString(rs.getString("device_uuid"));
 					Timestamp lastUsed = rs.getTimestamp("last_used");
-					accounts.add(new LocalAccountInfo(email, passwordHash, lastUsed.toLocalDateTime()));
+					accounts.add(new LocalAccountInfo(email, passwordHash, deviceUUID, lastUsed.toLocalDateTime()));
 				}
 			} catch (SQLException e) {
 				logger.error(e.getMessage(), e);

@@ -28,6 +28,7 @@ import github.koukobin.ermis.common.entry.Resultable;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -139,9 +140,12 @@ public abstract sealed class GeneralEntryController implements Initializable per
 
 			if (success) {
 				DialogsUtil.showSuccessDialog(resultMessage);
-				
+
 				String passwordHash = entryResult.addedInfo().get(AddedInfo.PASSWORD_HASH);
-				ClientDatabase.getDBConnection().addUserAccount(Client.getServerInfo(), new LocalAccountInfo(email, passwordHash, LocalDateTime.now()));
+				UUID deviceUUID = UUID.fromString(entryResult.addedInfo().get(AddedInfo.DEVICE_UUID));
+
+				var accountInfo = new LocalAccountInfo(email, passwordHash, deviceUUID, LocalDateTime.now());
+				ClientDatabase.getDBConnection().addUserAccount(Client.getServerInfo(), accountInfo);
 				break;
 			}
 

@@ -16,19 +16,24 @@
 package github.koukobin.ermis.desktop_client.main.java.database.models;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author Ilias Koukovinis
  *
  */
 public class LocalAccountInfo {
+
 	private String email;
 	private String passwordHash;
+	private UUID deviceUUID;
 	private LocalDateTime lastUsed;
 
-	public LocalAccountInfo(String email, String passwordHash, LocalDateTime lastUsed) {
+	public LocalAccountInfo(String email, String passwordHash, UUID deviceUUID, LocalDateTime lastUsed) {
 		this.email = email;
 		this.passwordHash = passwordHash;
+		this.deviceUUID = deviceUUID;
 		this.lastUsed = lastUsed;
 	}
 
@@ -40,7 +45,42 @@ public class LocalAccountInfo {
 		return passwordHash;
 	}
 
+	public UUID getDeviceUUID() {
+		return deviceUUID;
+	}
+
 	public LocalDateTime getLastUsed() {
 		return lastUsed;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(deviceUUID, email, lastUsed, passwordHash);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+
+		if (obj == null)
+			return false;
+
+		if (getClass() != obj.getClass())
+			return false;
+
+		LocalAccountInfo other = (LocalAccountInfo) obj;
+		return Objects.equals(deviceUUID, other.deviceUUID) 
+				&& Objects.equals(email, other.email)
+				&& Objects.equals(lastUsed, other.lastUsed) 
+				&& Objects.equals(passwordHash, other.passwordHash);
+	}
+
+	@Override
+	public String toString() {
+		return "LocalAccountInfo [email=" + email 
+				+ ", passwordHash=" + passwordHash 
+				+ ", deviceUUID=" + deviceUUID
+				+ ", lastUsed=" + lastUsed + "]";
 	}
 }

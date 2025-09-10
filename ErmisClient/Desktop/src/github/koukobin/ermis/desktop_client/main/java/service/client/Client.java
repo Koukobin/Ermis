@@ -150,9 +150,9 @@ public class Client {
 
 		Client.serverInfo = serverInfo;
 	}
-	
-	  public static void syncWithServer() {
-		  try {
+
+	public static void syncWithServer() {
+		try {
 			in.read();
 		} catch (IOException ioe) {
 			logger.error(ioe.getMessage(), ioe);
@@ -177,38 +177,42 @@ public class Client {
 		thread.start();
 	}
 
-    /**
-     * Attempts to authenticate user by sending their email and password hash
-     * over the network to the server for validation.
-     * 
-     * @param userInfo The local account information containing the user's email
-     *                 and password hash.
-     * @throws IOException 
-     * @returns A CompletableFuture that resolves to a boolean indicating whether 
-     *          the login attempt was successful.
-     */
-    public static boolean attemptHashedLogin(LocalAccountInfo userInfo) {
-        ByteBuf buffer = Unpooled.buffer();
-        buffer.writeInt(ClientMessageType.USER_ENTRY.id);
-        buffer.writeInt(EntryType.LOGIN.id);
+	/**
+	 * Attempts to authenticate user by sending their email and password hash over
+	 * the network to the server for validation.
+	 * 
+	 * @param userInfo The local account information containing the user's email and
+	 *                 password hash.
+	 * @throws IOException
+	 * @returns A CompletableFuture that resolves to a boolean indicating whether
+	 *          the login attempt was successful.
+	 */
+	public static boolean attemptHashedLogin(LocalAccountInfo userInfo) {
+		ByteBuf buffer = Unpooled.buffer();
+		buffer.writeInt(ClientMessageType.USER_ENTRY.id);
+		buffer.writeInt(EntryType.LOGIN.id);
 
-        // Email length and email
-        buffer.writeInt(userInfo.getEmail().length());
-        buffer.writeBytes(userInfo.getEmail().getBytes());
+		// Email length and email
+		buffer.writeInt(userInfo.getEmail().length());
+		buffer.writeBytes(userInfo.getEmail().getBytes());
 
-        // Password hash
-        buffer.writeBytes(userInfo.getPasswordHash().getBytes());
+		// Password hash
+		buffer.writeInt(userInfo.getPasswordHash().length());
+		buffer.writeBytes(userInfo.getPasswordHash().getBytes());
 
-        // Send the request
-        try {
+		// Device UUID
+		buffer.writeBytes(userInfo.getDeviceUUID().toString().getBytes());
+
+		// Send the request
+		try {
 			out.write(buffer);
 			isLoggedIn.set(in.read().readBoolean());
 		} catch (IOException ioe) {
 			logger.error(ioe.getMessage(), ioe); // Should not happen
 		}
 
-        return isLoggedIn();
-    }
+		return isLoggedIn();
+	}
 
 	public static class Entry<T extends EntryType.CredentialInterface> {
 
