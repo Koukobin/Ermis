@@ -19,7 +19,7 @@ FOLDERS_TO_BACKUP=("/var/ermis-server/www" "/etc/nginx")
 
 declare -A BACKUP_FOLDERS
 for folder in "${FOLDERS_TO_BACKUP[@]}"; do
-    BACKUP_FOLDERS[$folder]="${folder}_${$}_back"
+    BACKUP_FOLDERS[$folder]="${folder}_back"
 done
 
 debute_server () {
@@ -58,24 +58,24 @@ debute_server () {
     fi
 
     kill "$TURN_SERVER_PID" # Kill turnserver process once Java server dies
+
+    echo -e
+
+    restore_backup_folders
+}
+
+restore_folder() {
+    folder="$1"
+    backup_folder="$2"
+
+    echo "Restoring original folder: $backup_folder -> $folder ..."
+
+    sudo rm -rf "$folder"
+    sudo mv "$backup_folder" "$folder"
+    sudo rm -rf "$backup_folder"
 }
 
 restore_backup_folders() {
-    restore_folder() {
-        folder="$1"
-        backup_folder="$2"
-        echo -e "\nRestoring original folder: $backup_folder -> $folder ..."
-        sudo rm -rf "$folder"
-        sudo cp -r "$backup_folder" "$folder"
-        sudo chmod -R 700 "$folder"
-        sudo rm -rf "$backup_folder"
-    }
-
-    if [ -z "$1" ] && [ -z "$2" ]; then
-        restore_folder $1 $2
-        return
-    fi
-    
     for folder in "${FOLDERS_TO_BACKUP[@]}"; do
         backup_folder="${BACKUP_FOLDERS[$folder]}"
         restore_folder $folder $backup_folder
@@ -88,7 +88,7 @@ create_backup_folders() {
         
         # If backup exists then perform cleanup
         if [ -d "$backup_folder" ]; then
-            restore_backup $folder $backup_folder
+            restore_folder $folder $backup_folder
         fi
 
         # Copy the original directory to a backup location
@@ -101,6 +101,5 @@ create_backup_folders() {
 }
 
 create_backup_folders
-trap restore_backup_folders EXIT
 
 debute_server
