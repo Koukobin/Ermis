@@ -90,10 +90,10 @@ public abstract sealed class GeneralEntryController implements Initializable per
 	}
 	
 	@FXML
-	public abstract void switchScene(ActionEvent event)  throws IOException;
+	public abstract void switchScene(ActionEvent event) throws IOException;
 	
 	@FXML
-	public abstract void register(ActionEvent event)  throws IOException;
+	public abstract void register(ActionEvent event) throws IOException;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected boolean sendAndValidateCredentials(Client.Entry clientEntry, Map<? extends CredentialInterface, String> credentials) {
