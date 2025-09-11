@@ -64,6 +64,10 @@ public final class LoginSceneController extends GeneralEntryController {
 	public void initialize(URL location, ResourceBundle resources) {
 		registrationType = EntryType.LOGIN;
 		passwordType = PasswordType.PASSWORD;
+
+		// Temporarily disable switch to backup verification
+		// code button because that process fails
+		togglePasswordTypeButton.setDisable(true);
 	}
 
 	@FXML
