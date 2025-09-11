@@ -166,12 +166,12 @@ public interface UserProfileModule extends BaseComponent {
 
 		String query = """
 				SELECT up.display_name,
-				u.email,
-				ui.client_id,
-				FROM user_profiles up
-				JOIN user_devices ui ON up.client_id = ui.client_id
-				JOIN users u ON up.client_id = u.client_id
-				WHERE ui.ip_address = ?;
+				 u.email,
+				 ud.client_id
+				 FROM user_profiles up
+				 JOIN user_devices ud ON up.client_id = ud.client_id
+				 JOIN users u ON up.client_id = u.client_id
+				 WHERE ud.device_uuid = ?;
 				""";
 
 		try (PreparedStatement pstmt = getConn().prepareStatement(
