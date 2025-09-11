@@ -14,29 +14,36 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-class VerificationResult {
+import '../../../../generated/l10n.dart';
+import 'resultable.dart';
+
+enum VerificationResult implements Resultable {
+  successfullyVerified(1, true),
+  wrongCode(2, false),
+  runOutOfAttempts(3, false),
+  invalidEmailAddress(4, false);
+
   final int id;
   final bool success;
 
-  const VerificationResult._(this.id, this.success);
-
-  static const successfullyVerified = VerificationResult._(1, true);
-  static const wrongCode = VerificationResult._(2, false);
-  static const runOutOfAttempts = VerificationResult._(3, false);
-  static const invalidEmailAddress = VerificationResult._(4, false);
-
-  static const List<VerificationResult> values = [
-    successfullyVerified,
-    wrongCode,
-    runOutOfAttempts,
-    invalidEmailAddress,
-  ];
+  const VerificationResult(this.id, this.success);
 
   static final Map<int, VerificationResult> _valuesById = {
     for (var result in values) result.id: result
   };
 
   static VerificationResult? fromId(int id) => _valuesById[id];
+  
+  @override
+  bool get isSuccessful => success;
+  
+  @override
+  String get message => switch(this) {
+    VerificationResult.successfullyVerified => S.current.verification_success,
+    VerificationResult.wrongCode => S.current.verification_code_incorrect,
+    VerificationResult.runOutOfAttempts => S.current.verification_attempts_exhausted,
+    VerificationResult.invalidEmailAddress => S.current.verification_email_invalid,
+  };
 }
 
 enum VerificationAction {

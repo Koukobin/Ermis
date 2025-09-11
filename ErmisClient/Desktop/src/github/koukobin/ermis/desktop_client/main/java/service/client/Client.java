@@ -294,7 +294,10 @@ public class Client {
 				map.put(addedInfo, new String(messageBytes));
 			}
 
-            return new EntryResult<>(
+			if (!isLoggedIn())
+				return new EntryResult<>(Verification.Result.fromId(id), map);
+
+			return new EntryResult<>(
                     entryType == EntryType.CREATE_ACCOUNT
                     ? CreateAccountInfo.CreateAccount.Result.fromId(id)
                     : LoginInfo.Login.Result.fromId(id),

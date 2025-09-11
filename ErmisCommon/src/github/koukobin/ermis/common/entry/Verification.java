@@ -53,7 +53,7 @@ public final class Verification {
 		}
 	}
 
-	public enum Result implements IDable {
+	public enum Result implements IDable, Resultable {
         SUCCESFULLY_VERIFIED(1, true, "Succesfully verified!"),
         WRONG_CODE(2, false, "Incorrect code!"),
         RUN_OUT_OF_ATTEMPTS(3, false, "Run out of attempts!"),
@@ -87,6 +87,11 @@ public final class Verification {
 		@Override
 		public boolean isSuccessful() {
 			return resultHolder.isSuccessful();
+		}
+
+		@Override
+		public String message() {
+			return resultHolder.getResultMessage();
 		}
 	}
 }

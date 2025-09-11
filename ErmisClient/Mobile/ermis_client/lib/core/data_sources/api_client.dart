@@ -323,6 +323,8 @@ class Entry<T extends CredentialInterface> {
       map[addedInfo] = utf8.decode(message.toList());
     }
 
+    if (!isLoggedIn) return EntryResult(VerificationResult.fromId(id)!, map);
+
     EntryResult result = EntryResult(
         entryType == EntryType.createAccount
             ? CreateAccountResult.fromId(id)!
