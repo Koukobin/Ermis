@@ -28,7 +28,7 @@ import io.netty.channel.epoll.EpollSocketChannel;
  * @author Ilias Koukovinis
  *
  */
-public class FetchOtherAccountsAssociatedWithIpAddress implements ICommand {
+public class FetchOtherAccountsAssociatedWithDevice implements ICommand {
 
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
