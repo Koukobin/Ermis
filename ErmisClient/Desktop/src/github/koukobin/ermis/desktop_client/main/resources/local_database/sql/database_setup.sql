@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS server_accounts (
     server_url TEXT NOT NULL,
     email TEXT NOT NULL,
     password_hash TEXT NOT NULL,
+    device_uuid TEXT NOT NULL,
     last_used TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(server_url, email),
     FOREIGN KEY (server_url) REFERENCES server_info(server_url) ON DELETE CASCADE
