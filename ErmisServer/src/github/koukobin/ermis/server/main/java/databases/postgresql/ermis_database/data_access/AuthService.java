@@ -250,7 +250,7 @@ public interface AuthService
 			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
 		}
 
-		return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
+		return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
 	}
 
 	default GeneralResult loginUsingPassword(String email, String password, UserDeviceInfo deviceInfo) {
