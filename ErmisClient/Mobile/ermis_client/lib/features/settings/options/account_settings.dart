@@ -34,6 +34,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../constants/app_constants.dart';
 import '../../../core/networking/user_info_manager.dart';
+import '../../../core/util/screen_reset.dart';
 import '../../../core/widgets/custom_textfield.dart';
 import '../../../generated/l10n.dart';
 import '../../../core/data_sources/api_client.dart';
@@ -406,7 +407,8 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
                   _emailController.text,
                 );
 
-                if (isSuccessful) SystemNavigator.pop();
+                if (!mounted) return;
+                if (isSuccessful) resetToStartingScreen(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
