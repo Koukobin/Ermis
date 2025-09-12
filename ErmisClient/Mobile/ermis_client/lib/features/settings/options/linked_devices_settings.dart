@@ -144,10 +144,13 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Flexible(
-                            child: Text('UUID: ${device.deviceUUID}',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          )),
+                            child: SensitiveContent(
+                              sensitivity: ContentSensitivity.sensitive,
+                              child: Text('UUID: ${device.deviceUUID}',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                            )),
 
                           // Widget to hide rest of UUID for security reasons
                           Text(
