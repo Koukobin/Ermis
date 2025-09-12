@@ -98,9 +98,11 @@ public final class ConfigurationsPaths {
             public static final String CREATE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.create_account.body.path");
 			public static final String DELETE_ACCOUNT_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.delete_account.body.path");
 			public static final String CHANGE_PASSWORD_VERIFICATION_EMAIL_BODY_FILE_PATH = getProperty("email.templates.verification.change_password.body.path");
-
+			
             private Verification() {}
 		}
+		
+		public static final String BACKUP_VERIFICATION_CODES_EMAIL_BODY_FILE_PATH = getProperty("email.templates.backup_verification_codes.body.path");
 		
         private EmailCreator() {}
 	}

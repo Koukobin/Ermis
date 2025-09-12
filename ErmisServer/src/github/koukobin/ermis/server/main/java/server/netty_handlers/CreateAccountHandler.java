@@ -164,7 +164,9 @@ public final class CreateAccountHandler extends EntryHandler {
 				String backupCodes = result.getAddedInfo().get(AddedInfo.BACKUP_VERIFICATION_CODES);
 
 				try {
-					EmailerService.sendEmail("Backup verification codes", backupCodes, email);
+					String emailBody = EmailCreator.BackupVerification
+							.createEmail(EmailCreator.BackupVerification.EmailTemplate.of(email, backupCodes));
+					EmailerService.sendEmailWithHTML("Backup verification codes", emailBody, email);
 				} catch (MessagingException me) {
 					getLogger().error("An error occured while trying to send email", me);
 				}

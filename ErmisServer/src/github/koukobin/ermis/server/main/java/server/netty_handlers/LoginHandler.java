@@ -130,7 +130,9 @@ public final class LoginHandler extends EntryHandler {
 
 				if (newlyGeneratedCodes != null) {
 					try {
-						EmailerService.sendEmail("Backup verification codes", newlyGeneratedCodes, email);
+						String emailBody = EmailCreator.BackupVerification.createEmail(
+								EmailCreator.BackupVerification.EmailTemplate.of(email, newlyGeneratedCodes));
+						EmailerService.sendEmailWithHTML("Backup verification codes", emailBody, email);
 					} catch (MessagingException me) {
 						getLogger().error("An error occured while trying to send email", me);
 					}

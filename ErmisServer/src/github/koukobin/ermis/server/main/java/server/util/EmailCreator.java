@@ -162,6 +162,49 @@ public class EmailCreator {
 		}
 
 	}
+	
+	public static class BackupVerification {
+		
+		public static final String VERIFICATION_EMAIL_BODY;
+
+		public interface EmailTemplate {
+
+			static EmailTemplate of(String userEmail, String backupCodes) {
+				return new EmailTemplate() {
+
+					Map<String, String> replacements = Map.of(
+							"USER_EMAIL", userEmail,
+							"USER_ACCOUNT", userEmail,
+							"BACKUP_VERIFICATION_CODES", backupCodes,
+							"SERVER_ADDRESS", ServerSettings.SERVER_ADDRESS,
+							"SERVER_PORT", Integer.toString(ServerSettings.SERVER_PORT)
+							);
+
+					public String createEmail(String emailBody) {
+						return EmailCreator.createEmail(emailBody, replacements);
+					}
+
+				};
+			}
+
+			String createEmail(String emailBody);
+		}
+		
+		static {
+			try {
+				VERIFICATION_EMAIL_BODY = FileUtils.readFile(ConfigurationsPaths.EmailCreator.BACKUP_VERIFICATION_CODES_EMAIL_BODY_FILE_PATH);
+			} catch (IOException ioe) {
+				logger.fatal(Throwables.getStackTraceAsString(ioe));
+				throw new RuntimeException(ioe);
+			}
+		}
+
+		private BackupVerification() {}
+
+		public static String createEmail(EmailTemplate template) {
+			return template.createEmail(VERIFICATION_EMAIL_BODY);
+		}
+	}
 
 	private EmailCreator() {}
 }
