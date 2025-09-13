@@ -20,10 +20,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.google.common.base.Throwables;
 
+import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ChatSessionIDGenerator;
 
 /**
@@ -31,7 +30,7 @@ import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databas
  *
  */
 public interface ChatRequestsHandlerModule extends BaseComponent {
-	
+
 	/**
 	 * Accepts a chat request and creates a new chat session.
 	 *
@@ -168,10 +167,9 @@ public interface ChatRequestsHandlerModule extends BaseComponent {
 
 		return resultUpdate == 1;
 	}
-	
-	default Integer[] getChatRequests(int clientID) {
 
-		Integer[] friendRequests = ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY;
+	default Integer[] getChatRequests(int clientID) {
+		Integer[] friendRequests = EmptyArrays.EMPTY_INTEGER_OBJECT_ARRAY;
 
 		try (PreparedStatement pstmt = getConn()
 				.prepareStatement("SELECT sender_client_id FROM chat_requests WHERE receiver_client_id=?;",

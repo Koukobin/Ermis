@@ -19,10 +19,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.google.common.base.Throwables;
 
+import github.koukobin.ermis.common.util.EmptyArrays;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.generators.ChatSessionIDGenerator;
 import github.koukobin.ermis.server.main.java.server.netty_handlers.ClientUpdate;
 
@@ -100,7 +99,7 @@ public interface ChatSessionsManagerModule extends BaseComponent {
 	 * @returns the ids of the chat sessions that the user belongs to.
 	 */
 	default Integer[] getChatSessionsUserBelongsTo(int clientID) {
-		Integer[] chatSessions = ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY;
+		Integer[] chatSessions = EmptyArrays.EMPTY_INTEGER_OBJECT_ARRAY;
 
 		try (PreparedStatement getChatSessionIDS = getConn().prepareStatement(
 				"SELECT chat_session_id FROM chat_session_members WHERE member_id=?;",
@@ -141,7 +140,7 @@ public interface ChatSessionsManagerModule extends BaseComponent {
 	 * @return the client ids of the members in a chat session
 	 */
 	default Integer[] getMembersOfChatSession(int chatSessionID) {
-		Integer[] members = ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY;
+		Integer[] members = EmptyArrays.EMPTY_INTEGER_OBJECT_ARRAY;
 
 		try (PreparedStatement getMembersOfChatSessions = getConn().prepareStatement(
 				"SELECT member_id FROM chat_session_members WHERE chat_session_id=?;", 
