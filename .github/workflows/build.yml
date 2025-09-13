@@ -1,4 +1,6 @@
 name: SonarQube
+permissions:
+  contents: read
 on:
   push:
     branches:
