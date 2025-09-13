@@ -38,7 +38,6 @@ public final class SendChatRequestDialog extends MFXActionDialog {
 	private int clientID;
 	
 	public SendChatRequestDialog(Stage stage, Parent rootPane)	{
-
 		super(stage, rootPane);
 
 		MFXTextField friendRequestTextField = new MFXTextField();

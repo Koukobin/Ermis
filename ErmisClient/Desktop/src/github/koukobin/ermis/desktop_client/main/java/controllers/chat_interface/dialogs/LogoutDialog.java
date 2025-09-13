@@ -27,7 +27,6 @@ import javafx.stage.Stage;
 public final class LogoutDialog extends MFXActionDialog {
 	
 	public LogoutDialog(Stage stage, Parent rootPane)	{
-
 		super(stage, rootPane);
 
 		dialogContent.setContentText("Are you sure you want to logout?");
