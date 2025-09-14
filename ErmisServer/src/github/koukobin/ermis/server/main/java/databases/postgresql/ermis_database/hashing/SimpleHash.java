@@ -34,7 +34,7 @@ public class SimpleHash {
 		this.hash = hash;
 	}
 
-	public SimpleHash(HashingFunction hashFunction, String result, byte[] hashBytes, String salt) {
+	public SimpleHash(HashingFunction hashFunction, String result, byte[] hashBytes, byte[] salt) {
 		hash = new Hash(hashFunction, result, hashBytes, salt);
 	}
 

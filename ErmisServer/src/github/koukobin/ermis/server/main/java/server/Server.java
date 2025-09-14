@@ -16,6 +16,7 @@
 package github.koukobin.ermis.server.main.java.server;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLEngine;
@@ -41,7 +42,8 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.handler.ssl.SslHandler;
@@ -59,8 +61,8 @@ public final class Server {
 
 	private static EpollServerSocketChannel serverSocketChannel;
 
-	private static EpollEventLoopGroup bossGroup;
-	private static EpollEventLoopGroup workerGroup;
+	private static MultiThreadIoEventLoopGroup bossGroup;
+	private static MultiThreadIoEventLoopGroup workerGroup;
 
 	private static ClientConnector clientConnector;
 
@@ -83,8 +85,12 @@ public final class Server {
 			ErmisDatabase.initialize();
 			CommandsHolder.initialize();
 
-			bossGroup = new EpollEventLoopGroup(1, (Runnable r) -> new Thread(r, "Thread-ClientConnector"));
-			workerGroup = new EpollEventLoopGroup(ServerSettings.WORKER_THREADS);
+			// Block scope leveraged to group related logic both visually and semantically
+			{
+				ThreadFactory bossGroupThreadFactory = (Runnable r) -> new Thread(r, "Thread-ClientConnector");
+				bossGroup = new MultiThreadIoEventLoopGroup(1, bossGroupThreadFactory, EpollIoHandler.newFactory());
+			}
+			workerGroup = new MultiThreadIoEventLoopGroup(ServerSettings.WORKER_THREADS, EpollIoHandler.newFactory());
 
 			clientConnector = new ClientConnector();
 

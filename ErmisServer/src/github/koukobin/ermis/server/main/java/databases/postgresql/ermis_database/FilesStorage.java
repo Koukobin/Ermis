@@ -132,7 +132,7 @@ public final class FilesStorage {
 			byte[] photoBytes = profilePhotosCache.get(photoUUID);
 
 			if (CompressionDetector.isZstdCompressed(photoBytes)) {
-				return Zstd.decompress(photoBytes, (int) Zstd.decompressedSize(photoBytes));
+				return Zstd.decompress(photoBytes, (int) Zstd.getFrameContentSize(photoBytes));
 			}
 
 			return photoBytes;
@@ -146,7 +146,7 @@ public final class FilesStorage {
 			byte[] fileBytes = filesCache.get(fileUUID);
 
 			if (CompressionDetector.isZstdCompressed(fileBytes)) {
-				return Zstd.decompress(fileBytes, (int) Zstd.decompressedSize(fileBytes));
+				return Zstd.decompress(fileBytes, (int) Zstd.getFrameContentSize(fileBytes));
 			}
 
 			return fileBytes;

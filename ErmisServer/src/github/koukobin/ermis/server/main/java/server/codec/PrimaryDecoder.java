@@ -99,7 +99,7 @@ public final class PrimaryDecoder extends Decoder {
 		in.readBytes(compressedData);
 		in.resetReaderIndex();
 
-		int decompressedSize = (int) Zstd.decompressedSize(compressedData);
+		int decompressedSize = (int) Zstd.getFrameContentSize(compressedData);
 		byte[] decompressedData = Zstd.decompress(compressedData, decompressedSize);
 
 		in.writerIndex(0);

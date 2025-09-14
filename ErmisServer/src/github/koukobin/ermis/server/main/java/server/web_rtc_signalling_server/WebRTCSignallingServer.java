@@ -54,8 +54,9 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -96,8 +97,8 @@ public class WebRTCSignallingServer {
 	}
 
 	public static void run() throws InterruptedException {
-		EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1);
-		EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(1);
+		MultiThreadIoEventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(1, EpollIoHandler.newFactory());
+		MultiThreadIoEventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(1, EpollIoHandler.newFactory());
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 			b.group(bossGroup, workerGroup)
