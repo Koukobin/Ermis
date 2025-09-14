@@ -116,7 +116,7 @@ CREATE OR REPLACE FUNCTION delete_private_chats_on_user_delete()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Delete chat sessions where the deleted user used to be a member
-    -- and the session has consequently only one member remaining.
+    -- and the session consequently has only one member remaining.
     DELETE FROM chat_sessions
     WHERE chat_session_id IN (
         SELECT csm.chat_session_id
