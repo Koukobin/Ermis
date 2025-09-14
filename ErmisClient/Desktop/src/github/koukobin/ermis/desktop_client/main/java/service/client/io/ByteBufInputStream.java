@@ -68,7 +68,7 @@ public class ByteBufInputStream implements AutoCloseable {
 
 	private static ByteBuf zstdDecompress(byte[] compressedData) throws IOException {
 		try {
-			byte[] decompressedBytes = Zstd.decompress(compressedData, (int) Zstd.decompressedSize(compressedData));
+			byte[] decompressedBytes = Zstd.decompress(compressedData, (int) Zstd.getFrameContentSize(compressedData));
 			return Unpooled.wrappedBuffer(decompressedBytes);
 		} catch (Exception e) {
 			throw new IOException("Failed to decompress data", e);
