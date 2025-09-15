@@ -56,8 +56,7 @@ public final class Verification {
 	public enum Result implements IDable, Resultable {
         SUCCESFULLY_VERIFIED(1, true, "Succesfully verified!"),
         WRONG_CODE(2, false, "Incorrect code!"),
-        RUN_OUT_OF_ATTEMPTS(3, false, "Run out of attempts!"),
-        INVALID_EMAIL_ADDRESS(4, false, "Invalid email address");
+        RUN_OUT_OF_ATTEMPTS(3, false, "Run out of attempts!");
 
 		private static final Map<Integer, Result> valuesById = new HashMap<>();
 

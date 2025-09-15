@@ -20,40 +20,37 @@ import 'resultable.dart';
 enum VerificationResult implements Resultable {
   successfullyVerified(1, true),
   wrongCode(2, false),
-  runOutOfAttempts(3, false),
-  invalidEmailAddress(4, false);
-
-  final int id;
-  final bool success;
-
-  const VerificationResult(this.id, this.success);
+  runOutOfAttempts(3, false);
 
   static final Map<int, VerificationResult> _valuesById = {
     for (var result in values) result.id: result
   };
 
+  final int id;
+  final bool success;
+  const VerificationResult(this.id, this.success);
+
   static VerificationResult? fromId(int id) => _valuesById[id];
-  
+
   @override
   bool get isSuccessful => success;
-  
+
   @override
   String get message => switch(this) {
     VerificationResult.successfullyVerified => S.current.verification_success,
     VerificationResult.wrongCode => S.current.verification_code_incorrect,
     VerificationResult.runOutOfAttempts => S.current.verification_attempts_exhausted,
-    VerificationResult.invalidEmailAddress => S.current.verification_email_invalid,
   };
 }
 
 enum VerificationAction {
   resendCode(1);
 
-  final int id;
   static final Map<int, VerificationAction> _valuesById = {
     for (var action in VerificationAction.values) action.id: action
   };
 
+  final int id;
   const VerificationAction(this.id);
 
   static VerificationAction? fromId(int id) => _valuesById[id];
