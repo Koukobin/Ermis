@@ -98,7 +98,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   static int endVoiceCallNotificationID = -1;
 
   Future<void> _resetCallData() async {
-    await channel?.innerWebSocket?.close();
+    await channel?.sink.close();
     await localStream?.dispose();
     await peerConnection?.close();
     await remoteRenderer?.dispose();
@@ -205,6 +205,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         Uri.parse('wss://${UserInfoManager.serverInfo.address!.host}:${e.port}/ws'),
         customClient: client,
       );
+      await channel!.ready;
 
       await _startListeningForMessagesFromCounterpart();
 
