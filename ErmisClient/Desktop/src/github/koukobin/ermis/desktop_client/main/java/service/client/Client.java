@@ -276,32 +276,34 @@ public class Client {
 					.blockingGet();
 			ByteBuf payload = msg.getBuffer();
 
-			isVerificationComplete = payload.readBoolean();
-			isLoggedIn.set(payload.readBoolean());
+			int verifyId = payload.readInt();
+			var verificationStatus = Verification.Result.fromId(verifyId);
+			if (!verificationStatus.isSuccessful()) {
+				return new EntryResult<Resultable>(verificationStatus, Map.of());
+			}
 
-			int id = payload.readInt();
+			int entryId = payload.readInt();
+			Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
 
-			Map<AddedInfo, String> map = new EnumMap<>(AddedInfo.class);
-
-			// Reading additional information from the ByteBuf
+			// Read additional information from the ByteBuf
 			while (payload.readableBytes() > 0) {
-				AddedInfo addedInfo = AddedInfo.fromId(payload.readInt());
+				AddedInfo key = AddedInfo.fromId(payload.readInt());
 				int messageLength = payload.readInt();
 				byte[] messageBytes = new byte[messageLength];
 				payload.readBytes(messageBytes);
 
-				// Adding the added info to the map with the UTF-8 decoded message
-				map.put(addedInfo, new String(messageBytes));
+				// Add the added info to the map with the UTF-8 decoded message
+				addedInfo.put(key, new String(messageBytes));
 			}
 
-			if (!isLoggedIn())
-				return new EntryResult<>(Verification.Result.fromId(id), map);
-
-			return new EntryResult<>(
+			EntryResult<Resultable> entry = new EntryResult<>(
                     entryType == EntryType.CREATE_ACCOUNT
-                    ? CreateAccountInfo.CreateAccount.Result.fromId(id)
-                    : LoginInfo.Login.Result.fromId(id),
-                map);
+	                    ? CreateAccountInfo.CreateAccount.Result.fromId(entryId)
+	                    : LoginInfo.Login.Result.fromId(entryId),
+                    addedInfo);
+
+			isLoggedIn.set(entry.success());
+			return entry;
 		}
 
 		public void resendVerificationCode() throws IOException {

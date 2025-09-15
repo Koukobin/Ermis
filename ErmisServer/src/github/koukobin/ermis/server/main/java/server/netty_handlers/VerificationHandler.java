@@ -22,8 +22,8 @@ import java.util.concurrent.CompletableFuture;
 import javax.mail.MessagingException;
 
 import github.koukobin.ermis.common.entry.AddedInfo;
+import github.koukobin.ermis.common.entry.Verification;
 import github.koukobin.ermis.common.entry.Verification.Action;
-import github.koukobin.ermis.common.entry.Verification.Result;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.results.GeneralResult;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
@@ -89,46 +89,55 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 	public void channelRead1(ChannelHandlerContext ctx, ByteBuf msg) throws IOException {
 		attemptsRemaining--;
 
-		boolean isVerificationComplete = false;
+		int clientCodeGuess = msg.readInt();
+		getLogger().debug("Client guessed: {}", clientCodeGuess);
 
-		int clientGuessForVerificationCode = msg.readInt();
-		getLogger().debug("Client guessed: {}", clientGuessForVerificationCode);
+		Verification.Result verificationStatusCode;
+		GeneralResult entryResult = null;
 
-		GeneralResult entryResult;
-		if (generatedVerificationCode == clientGuessForVerificationCode) {
+		boolean isGuessCorrect = (generatedVerificationCode == clientCodeGuess);
+		boolean areAttemptsExhausted = (attemptsRemaining == 0);
+
+		if (isGuessCorrect) {
 			entryResult = executeWhenVerificationSuccessful();
-			isVerificationComplete = true;
-		} else if (attemptsRemaining == 0) {
-			entryResult = new GeneralResult(Result.RUN_OUT_OF_ATTEMPTS);
-			isVerificationComplete = true;
+			verificationStatusCode = Verification.Result.SUCCESFULLY_VERIFIED;
+		} else if (areAttemptsExhausted) {
+			verificationStatusCode = Verification.Result.RUN_OUT_OF_ATTEMPTS;
 		} else {
-			entryResult = new GeneralResult(Result.WRONG_CODE);
+			verificationStatusCode = Verification.Result.WRONG_CODE;
 		}
 
 		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.ENTRY.id);
-		payload.writeBoolean(isVerificationComplete);
-		payload.writeBoolean(entryResult.isSuccessful());
-		payload.writeInt(entryResult.getIDable().getID());
-		for (Entry<AddedInfo, String> addedInfo : entryResult.getAddedInfo().entrySet()) {
-			payload.writeInt(addedInfo.getKey().id);
-			byte[] info = addedInfo.getValue().getBytes();
-			payload.writeInt(info.length);
-			payload.writeBytes(info);
+		payload.writeInt(verificationStatusCode.getID());
+
+		if (entryResult != null) {
+			payload.writeInt(entryResult.getIDable().getID());
+			for (Entry<AddedInfo, String> addedInfo : entryResult.getAddedInfo().entrySet()) {
+				AddedInfo key = addedInfo.getKey();
+				byte[] valueBytes = addedInfo.getValue().getBytes();
+
+				payload.writeInt(key.id);
+				payload.writeInt(valueBytes.length);
+				payload.writeBytes(valueBytes);
+			}
 		}
 
 		ctx.channel().writeAndFlush(payload);
 
-		if (!isVerificationComplete) {
+		if (isGuessCorrect) {
+			if (!entryResult.isSuccessful()) {
+				registrationFailed(ctx);
+				return;
+			}
+
+			login(ctx, clientInfo);
 			return;
 		}
 
-		if (!entryResult.isSuccessful()) {
+		if (areAttemptsExhausted) {
 			registrationFailed(ctx);
-			return;
 		}
-
-		login(ctx, clientInfo);
 	}
 
 	public abstract String createEmailMessage(String generatedVerificationCode);

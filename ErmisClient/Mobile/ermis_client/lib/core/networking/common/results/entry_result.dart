@@ -20,9 +20,11 @@ import '../../../../features/authentication/domain/entities/added_info.dart';
 
 class EntryResult<T extends Resultable> {
   final T resultHolder;
-	final Map<AddedInfo, String> addedInfo;
+  final Map<AddedInfo, String> addedInfo;
 
   const EntryResult(this.resultHolder, this.addedInfo);
+  const EntryResult.noInfo(this.resultHolder) : addedInfo = const {};
 
-  T get isSuccessful => resultHolder;
+  bool get success => resultHolder.isSuccessful;
+  String get message => resultHolder.message;
 }

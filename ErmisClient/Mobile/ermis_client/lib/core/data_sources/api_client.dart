@@ -309,29 +309,29 @@ class Entry<T extends CredentialInterface> {
     if (buffer == null) throw Exception("Buffer is null");
     ByteBuf payload = buffer!;
 
-    isVerificationComplete = payload.readBoolean();
-    isLoggedIn = payload.readBoolean();
-
-    Client.instance()._isLoggedIn = isLoggedIn;
-    int id = payload.readInt32();
-
-    Map<AddedInfo, String> map = HashMap();
-
-    while (payload.readableBytes > 0) {
-      AddedInfo addedInfo = AddedInfo.fromId(payload.readInt32());
-      Uint8List message = payload.readBytes(payload.readInt32());
-      map[addedInfo] = utf8.decode(message.toList());
+    int verifyId = payload.readInt32();
+    final verificationStatus = VerificationResult.fromId(verifyId)!;
+    if (!verificationStatus.isSuccessful) {
+      return EntryResult.noInfo(verificationStatus);
     }
 
-    if (!isLoggedIn) return EntryResult(VerificationResult.fromId(id)!, map);
+    int entryId = payload.readInt32();
+    Map<AddedInfo, String> addedInfo = HashMap();
+    while (payload.readableBytes > 0) {
+      AddedInfo key = AddedInfo.fromId(payload.readInt32());
+      Uint8List message = payload.readBytes(payload.readInt32());
+      addedInfo[key] = utf8.decode(message.toList());
+    }
 
-    EntryResult result = EntryResult(
+    EntryResult entryResult = EntryResult(
         entryType == EntryType.createAccount
-            ? CreateAccountResult.fromId(id)!
-            : LoginResult.fromId(id)!,
-        map);
+            ? CreateAccountResult.fromId(entryId)!
+            : LoginResult.fromId(entryId)!,
+        addedInfo);
 
-    return result;
+    isLoggedIn = entryResult.success;
+    Client.instance()._isLoggedIn = isLoggedIn;
+    return entryResult;
   }
 
   void resendVerificationCodeToEmail() {
