@@ -169,7 +169,7 @@
   "message_copied": "Το μήνυμα αντιγράφηκε στο πρόχειρο",
   "message_deletion_unsuccessful": "Η διαγραφή μηνύματος απέτυχε",
   "message_group_call_tones": "Ήχοι μηνυμάτων, ομάδων και κλήσεων",
-  "message_length_exceeded": "Το μήκος μηνύματος υπερβαίνει το μέγιστο μήκος {|characters}",
+  "message_length_exceeded": "Το μήνυμα απορρίφθηκε. Το μήκος του μηνύματος υπερβαίνει το όριο χαρακτήρων",
   "message_type_not_implemented": "Ο τύπος μηνύματος δεν έχει υλοποιηθεί!",
   "message_type_not_recognized": "Ο τύπος μηνύματος που λήφθηκε δεν αναγνωρίστηκε.",
   "message_type_unknown": "Άγνωστος τύπος μηνύματος!",
