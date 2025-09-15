@@ -24,5 +24,13 @@ import github.koukobin.ermis.common.entry.Resultable;
  * @author Ilias Koukovinis
  *
  */
-public record EntryResult<T extends Resultable> (T resultHolder, Map<AddedInfo, String> addedInfo) {
+public record EntryResult<T extends Resultable>(T resultHolder, Map<AddedInfo, String> addedInfo) {
+
+	public boolean success() {
+		return resultHolder.isSuccessful();
+	}
+
+	public String message() {
+		return resultHolder.message();
+	}
 }
