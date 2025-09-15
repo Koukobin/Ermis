@@ -35,7 +35,7 @@ class ByteBuf {
   /// Creates a [ByteBuf] with a specified capacity.
   ///
   /// If `growable` is set to `true`, the buffer will expand when needed.
-  ByteBuf(int capacity, {this.growable = false}) : _buffer = Uint8List(capacity);
+  ByteBuf(int capacity, {this.growable = true}) : _buffer = Uint8List(capacity);
 
   /// Wraps an existing [Uint8List] buffer into a [ByteBuf].
   /// 
@@ -43,7 +43,7 @@ class ByteBuf {
   /// A shallow wrap means the [ByteBuf] directly references the original buffer without 
   /// copying its contents. Consequently, any changes made to the original [Uint8List] 
   /// buffer will also be reflected to the [ByteBuf] buffer as well - and vice versa.
-  ByteBuf.shallowWrap(Uint8List buffer, {this.growable = false}) : _buffer = buffer;
+  ByteBuf.shallowWrap(Uint8List buffer, {this.growable = true}) : _buffer = buffer;
 
   /// Wraps an existing [Uint8List] buffer into a [ByteBuf].
   ///
@@ -52,12 +52,12 @@ class ByteBuf {
   /// [Uint8List] buffer into it. Consequently, these two buffers are completely
   /// independent from each other, and any changes made to the original [Uint8List]
   /// buffer will not be reflected to the [ByteBuf] buffer.
-  factory ByteBuf.deepWrap(Uint8List buffer, {growable = false}) {
+  factory ByteBuf.deepWrap(Uint8List buffer, {growable = true}) {
     return ByteBuf(buffer.length, growable: growable)..writeBytes(buffer);
   }
 
   /// Creates a small buffer of 128 bytes.
-  ByteBuf.smallBuffer({this.growable = false}) : _buffer = Uint8List(128);
+  ByteBuf.smallBuffer({this.growable = true}) : _buffer = Uint8List(128);
 
   /// Creates an empty buffer.
   ByteBuf.empty({this.growable = false}) : _buffer = Uint8List(0);
