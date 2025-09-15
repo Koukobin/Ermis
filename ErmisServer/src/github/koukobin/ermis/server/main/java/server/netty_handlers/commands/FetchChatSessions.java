@@ -15,6 +15,7 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -63,9 +64,9 @@ public class FetchChatSessions implements ICommand {
 			}
 
 			int chatSessionID = chatSession.getChatSessionID();
-			ClientUpdate[] claimedMembers = new ClientUpdate[args.readInt()];
-			for (int j = 0; j < claimedMembers.length; j++) {
-				claimedMembers[j] = new ClientUpdate(args.readInt(), args.readLong());
+			List<ClientUpdate> claimedMembers = new ArrayList<>(args.readInt());
+			for (int j = 0; j < claimedMembers.size(); j++) {
+				claimedMembers.set(j, new ClientUpdate(args.readInt(), args.readLong()));
 			}
 
 			ClientUpdate[] actualMembers;
@@ -75,9 +76,8 @@ public class FetchChatSessions implements ICommand {
 
 			// TODO: OPTIMIZE
 			List<ClientUpdate> outdatedMembersInfo = Arrays.asList(actualMembers).stream()
-					.filter((ClientUpdate member) -> !Arrays.asList(claimedMembers).contains(member)
-							&& clientInfo.getClientID() != member.clientID())
 					.distinct()
+					.filter(member -> !claimedMembers.contains(member) && clientInfo.getClientID() != member.clientID())
 					.toList();
 			List<Integer> memberIDS = outdatedMembersInfo.stream().map(ClientUpdate::clientID).toList();
 
@@ -103,7 +103,6 @@ public class FetchChatSessions implements ICommand {
 
 					addMemberInfoToPayload(payload, conn, clientID);
 				}
-
 			}
 
 		}
