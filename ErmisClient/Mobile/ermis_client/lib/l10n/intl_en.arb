@@ -169,7 +169,7 @@
   "message_copied": "Message copied to clipboard",
   "message_deletion_unsuccessful": "Message deletion was unsuccessful",
   "message_group_call_tones": "Message, group, and call tones",
-  "message_length_exceeded": "Message length exceeds maximum length {|characters}",
+  "message_length_exceeded": "Message was discarded; message length exceeds character limit",
   "message_type_not_implemented": "Message type not implemented!",
   "message_type_not_recognized": "The message type received was not recognized.",
   "message_type_unknown": "Message type not recognized!",
