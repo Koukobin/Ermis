@@ -15,7 +15,6 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +45,6 @@ public class FetchChatSessions implements ICommand {
 		Map<Integer, Integer> mapKeepingTrackHowManyTimesEachMotherfuckerHasBeenSent = new HashMap<>();
 
 		while (args.readableBytes() > 0) {
-
 			int chatSessionIndex = args.readInt();
 			payload.writeInt(chatSessionIndex);
 
@@ -64,9 +62,9 @@ public class FetchChatSessions implements ICommand {
 			}
 
 			int chatSessionID = chatSession.getChatSessionID();
-			List<ClientUpdate> claimedMembers = new ArrayList<>(args.readInt());
-			for (int j = 0; j < claimedMembers.size(); j++) {
-				claimedMembers.set(j, new ClientUpdate(args.readInt(), args.readLong()));
+			ClientUpdate[] claimedMembers = new ClientUpdate[args.readInt()];
+			for (int j = 0; j < claimedMembers.length; j++) {
+				claimedMembers[j] = new ClientUpdate(args.readInt(), args.readLong());
 			}
 
 			ClientUpdate[] actualMembers;
@@ -76,8 +74,9 @@ public class FetchChatSessions implements ICommand {
 
 			// TODO: OPTIMIZE
 			List<ClientUpdate> outdatedMembersInfo = Arrays.asList(actualMembers).stream()
+					.filter((ClientUpdate member) -> !Arrays.asList(claimedMembers).contains(member)
+							&& clientInfo.getClientID() != member.clientID())
 					.distinct()
-					.filter(member -> !claimedMembers.contains(member) && clientInfo.getClientID() != member.clientID())
 					.toList();
 			List<Integer> memberIDS = outdatedMembersInfo.stream().map(ClientUpdate::clientID).toList();
 
@@ -92,7 +91,6 @@ public class FetchChatSessions implements ICommand {
 
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 				for (int j = 0; j < memberIDS.size(); j++) {
-
 					int clientID = memberIDS.get(j);
 
 					payload.writeInt(clientID);
