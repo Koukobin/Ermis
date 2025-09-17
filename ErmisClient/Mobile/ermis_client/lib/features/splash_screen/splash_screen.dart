@@ -20,6 +20,7 @@ import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/util/ermis_loading_messages.dart';
 import '../choose_server_screen/choose_server_screen.dart';
 import '../../constants/app_constants.dart';
 import '../../core/services/database/database_service.dart';
@@ -84,6 +85,15 @@ class _SplashScreenState extends State<SplashScreen> {
                   AppConstants.appIconPath,
                   height: 120,
                   width: 120,
+                ),
+              ),
+
+              Text(
+                ErmisLoadingMessages.randomMessage(),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
