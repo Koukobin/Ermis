@@ -22,6 +22,7 @@ import 'package:ermis_mobile/features/authentication/domain/entities/added_info.
 import 'package:ermis_mobile/core/networking/common/results/entry_result.dart';
 import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/verification.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
@@ -158,8 +159,8 @@ mixin Verification {
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
       entryResult = await entryResultFuture;
-      isSuccessful = entryResult.resultHolder.isSuccessful;
-      String resultMessage = entryResult.resultHolder.message;
+      isSuccessful = entryResult.result.isSuccessful;
+      String resultMessage = entryResult.result.message;
 
       if (isSuccessful) {
         showToastDialog(resultMessage);
@@ -172,6 +173,13 @@ mixin Verification {
       }
 
       showToastDialog(resultMessage);
+
+      // If the operation failed (success == false) and the result is not 
+      // a verification attempt - meaning it's either a login or account 
+      // creation - then break due to authentication failure.
+      if (entryResult.result is! VerificationResult) {
+        break;
+      }
     }
 
     return isSuccessful;
@@ -194,8 +202,8 @@ mixin Verification {
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
       entryResult = await entryResultFuture;
-      isSuccessful = entryResult.resultHolder.isSuccessful;
-      String resultMessage = entryResult.resultHolder.message;
+      isSuccessful = entryResult.result.isSuccessful;
+      String resultMessage = entryResult.result.message;
 
       if (isSuccessful) {
         showToastDialog(resultMessage);
@@ -203,6 +211,13 @@ mixin Verification {
       }
 
       showToastDialog(resultMessage);
+
+      // If the operation failed (success == false) and the result is not 
+      // a verification attempt - meaning it's either a login or account 
+      // creation - then break due to authentication failure.
+      if (entryResult.result is! VerificationResult) {
+        break;
+      }
     }
 
     return isSuccessful;
@@ -225,8 +240,8 @@ mixin Verification {
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
       entryResult = await entryResultFuture;
-      isSuccessful = entryResult.resultHolder.isSuccessful;
-      String resultMessage = entryResult.resultHolder.message;
+      isSuccessful = entryResult.success;
+      String resultMessage = entryResult.message;
 
       if (isSuccessful) {
         showToastDialog(resultMessage);
@@ -247,6 +262,13 @@ mixin Verification {
       }
 
       showToastDialog(resultMessage);
+
+      // If the operation failed (success == false) and the result is not 
+      // a verification attempt - meaning it's either a login or account 
+      // creation - then break due to authentication failure.
+      if (entryResult.result is! VerificationResult) {
+        break;
+      }
     }
 
     return isSuccessful;

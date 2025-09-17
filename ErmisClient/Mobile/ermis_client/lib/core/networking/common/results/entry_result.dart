@@ -19,12 +19,12 @@ import 'package:ermis_mobile/features/authentication/domain/entities/resultable.
 import '../../../../features/authentication/domain/entities/added_info.dart';
 
 class EntryResult<T extends Resultable> {
-  final T resultHolder;
+  final T result;
   final Map<AddedInfo, String> addedInfo;
 
-  const EntryResult(this.resultHolder, this.addedInfo);
-  const EntryResult.noInfo(this.resultHolder) : addedInfo = const {};
+  const EntryResult(this.result, this.addedInfo);
+  const EntryResult.noInfo(this.result) : addedInfo = const {};
 
-  bool get success => resultHolder.isSuccessful;
-  String get message => resultHolder.message;
+  bool get success => result.isSuccessful;
+  String get message => result.message;
 }
