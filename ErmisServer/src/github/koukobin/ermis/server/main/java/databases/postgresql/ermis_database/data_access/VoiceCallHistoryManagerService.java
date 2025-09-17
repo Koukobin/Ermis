@@ -149,8 +149,8 @@ public interface VoiceCallHistoryManagerService extends BaseComponent {
 				int i = 0;
 				do {
 					long tsDebuted = rs.getTimestamp("ts_debuted").toInstant().getEpochSecond();
-					long tsEnded;
 
+					long tsEnded;
 					{
 						var tsEndedTimeStamp = rs.getTimestamp("ts_ended");
 
@@ -166,7 +166,7 @@ public interface VoiceCallHistoryManagerService extends BaseComponent {
 
 					VoiceCallHistoryStatus status;
 					{
-						if (initiatorClientID == clientID0) {
+						if (initiatorClientID == clientID) {
 							status = VoiceCallHistoryStatus.CREATED;
 						} else if (clientID0 == clientID) {
 							status = VoiceCallHistoryStatus.ACCEPTED;
