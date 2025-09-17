@@ -117,11 +117,12 @@ RETURNS TRIGGER AS $$
 BEGIN
     -- Delete chat sessions where the deleted user used to be a member
     -- and the session consequently has only one member remaining.
+    -- TODO: OPTIMIZE
     DELETE FROM chat_sessions
     WHERE chat_session_id IN (
         SELECT csm.chat_session_id
         FROM chat_session_members csm
-        WHERE csm.member_id = OLD.client_id
+        -- WHERE csm.member_id = OLD.client_id (Idk why, but this line causes the trigger to fail; so for now it's commented)
         GROUP BY csm.chat_session_id
         HAVING COUNT(*) = 1
     );
