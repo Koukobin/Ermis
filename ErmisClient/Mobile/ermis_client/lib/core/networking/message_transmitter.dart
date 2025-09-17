@@ -362,7 +362,7 @@ class Commands {
     out.write(payload);
   }
 
-  void fetchChatSessions() async {
+  void fetchChatSessions() {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchChatSessions.id);
