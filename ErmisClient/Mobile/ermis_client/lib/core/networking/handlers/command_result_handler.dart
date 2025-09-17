@@ -190,7 +190,12 @@ class CommandResultHandler {
           try {
             chatSession = UserInfoManager.chatSessions![chatSessionIndex];
           } on RangeError {
-            continue; // This could happen potentially if this chat session had been cached in local database and when the conditional request was it did not know what to do and it sent -1. Outdated chat sessions will be deleted  after new chat sessions have been processed
+            // This could happen potentially if this chat session
+            // had been cached in the local database and when the
+            // conditional request was made, the server did not know
+            // what to do and sent -1. Outdated chat sessions - locally
+            // will be deleted after new chat sessions have been processed.
+            continue;
           }
 
           List<Member> members = chatSession.members;
