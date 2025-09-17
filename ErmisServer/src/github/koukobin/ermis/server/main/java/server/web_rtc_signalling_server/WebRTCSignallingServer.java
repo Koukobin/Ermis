@@ -257,6 +257,10 @@ public class WebRTCSignallingServer {
 		WebRTCSignallingHandler.chatSessionIDToParticipants.put(chatSessionID, call);
 	}
 
+	public static boolean isVoiceCallAlreadyActive(int chatSessionID) {
+		return WebRTCSignallingHandler.chatSessionIDToParticipants.get(chatSessionID) != null;
+	}
+
 	private static class WebRTCSignallingHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
 		private static final Map<InetAddress, VoiceChatUser> addressToUsers = new ConcurrentHashMap<>();
