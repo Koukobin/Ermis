@@ -118,22 +118,24 @@ class Client {
   ///                 and password hash.
   /// * A Future that resolves to a boolean indicating whether the login
   ///          attempt was successful.
-  Future<bool> attemptHashedLogin(LocalAccountInfo userInfo) async {
+  Future<bool> attemptHashedLogin(LocalAccountInfo accountInfo) async {
     ByteBuf buffer = ByteBuf.smallBuffer();
     buffer.writeInt32(ClientMessageType.entry.id);
     buffer.writeInt32(EntryType.login.id);
 
-    buffer.writeInt32(userInfo.email.length);
-    buffer.writeBytes(utf8.encode(userInfo.email));
+    buffer.writeInt32(accountInfo.email.length);
+    buffer.writeBytes(utf8.encode(accountInfo.email));
 
-    buffer.writeInt32(userInfo.passwordHash.length);
-    buffer.writeBytes(utf8.encode(userInfo.passwordHash));
+    buffer.writeInt32(accountInfo.passwordHash.length);
+    buffer.writeBytes(utf8.encode(accountInfo.passwordHash));
 
-    buffer.writeBytes(utf8.encode(userInfo.deviceUUID));
+    buffer.writeBytes(utf8.encode(accountInfo.deviceUUID));
 
     _outputStream!.write(buffer);
 
-    return _isLoggedIn = (await _inputStream!.read()).readBoolean();
+    _isLoggedIn = (await _inputStream!.read()).readBoolean();
+    if (_isLoggedIn) UserInfoManager.accountInfo = accountInfo;
+    return _isLoggedIn;
   }
 
   Message sendMessageToClient(String text, int chatSessionIndex) {

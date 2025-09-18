@@ -26,9 +26,11 @@ import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:flutter/foundation.dart';
 
 import '../services/database/models/local_account_info.dart';
-import 'handlers/intermediary_service.dart';
+import 'intermediary_service.dart';
 
 class UserInfoManager {
+  static LocalAccountInfo? accountInfo;
+
   static String? username;
   static int clientID = -1;
   static ClientStatus? accountStatus;
@@ -69,7 +71,10 @@ class UserInfoManager {
   }
 
   static Future<LocalUserInfo?> fetchProfileInformation() async {
-    LocalUserInfo? userInfo = await IntermediaryService().fetchLocalUserInfo(server: serverInfo);
+    LocalUserInfo? userInfo = await IntermediaryService().fetchLocalUserInfo(
+      accountInfo: accountInfo!,
+      server: serverInfo,
+    );
 
     if (userInfo != null) {
       clientID = userInfo.clientID;
@@ -80,13 +85,15 @@ class UserInfoManager {
     return userInfo;
   }
 
-  static Future<LocalAccountInfo> fetchAccountInformation() async {
-    LocalAccountInfo? info = await IntermediaryService().fetchLocalAccountInfo(server: serverInfo);
-    return info!;
+  static LocalAccountInfo fetchAccountInformation() {
+    return accountInfo!;
   }
 
   static Future<List<ChatSession>> fetchLocalChatSessions() async {
-    List<ChatSession> sessions = await IntermediaryService().fetchChatSessions(server: serverInfo);
+    List<ChatSession> sessions = await IntermediaryService().fetchChatSessions(
+      accountInfo: accountInfo!,
+      server: serverInfo,
+    );
 
     for (ChatSession session in sessions) {
       chatSessionIDSToChatSessions[session.chatSessionID] = session;
