@@ -15,16 +15,15 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:ui';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ermis_mobile/constants/app_constants.dart';
 import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
+import 'package:ermis_mobile/core/util/ermis_loading_messages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 
@@ -169,56 +168,27 @@ void maintainWebSocketConnection(ServiceInstance service) {
   });
 }
 
-/// Dedicated service which runs on background - i.e when app is closed -
-/// and listens for messages and incoming voice calls.
-///
-/// TODO: Refactor this service to `flutter_foreground_task` instead of `flutter_background_service`.
-///
-/// This is attributed to the fact that `flutter_background_service` does not specify a foreground 
-/// service type, leading to runtime crashes on SDK 34+.
-///
-/// Stack trace:
-/// ```
-///   Unable to create service id.flutter.flutter_background_service.BackgroundService:
-///    android.app.MissingForegroundServiceTypeException: Starting FGS without a type
-///    callerApp=ProcessRecord{eb4ca71 10076:com.example.ermisclient/u0a373} targetSDK=35
-/// ```
 class ErmisBackgroudService {
+
   static void startBackgroundService() async {
     FlutterBackgroundService().configure(
       androidConfiguration: AndroidConfiguration(
         onStart: onAndroidBackground,
-        autoStartOnBoot: false,
+        autoStartOnBoot: true,
         autoStart: false, // Automatically start the service when the app is launched
-        isForegroundMode: true, // Keep the service running in the background
+        isForegroundMode: true, // Displays a silent notification when used according to Android's Policy
+
+        //notificationChannelId: 'ermis_mobile',
+        initialNotificationTitle: 'Ermis is listening for messages...',
+        initialNotificationContent: ErmisLoadingMessages.randomMessage(),
+        foregroundServiceNotificationId: 4,
+        foregroundServiceTypes: [AndroidForegroundType.remoteMessaging],
       ),
       iosConfiguration: IosConfiguration(
         autoStart: false,
         onBackground: onIosBackground,
       ),
     );
-
-    if (Platform.isAndroid) {
-      final deviceInfo = DeviceInfoPlugin();
-      final androidInfo = await deviceInfo.androidInfo;
-
-      if (androidInfo.version.sdkInt >= 34) {
-        // Don't proceed because on SDK 34+, many issues arise due to foreground service type
-        // not specified by `flutter_background_service`.
-        //
-        // This causes a runtime crash:
-        //
-        //   "Unable to create service id.flutter.flutter_background_service.BackgroundService:
-        //    android.app.MissingForegroundServiceTypeException: Starting FGS without a type
-        //    callerApp=ProcessRecord{eb4ca71 10076:com.example.ermisclient/u0a373} targetSDK=35"
-        //
-        // Hence the reason this background service should be refactored to use
-        // `flutter_foreground_task` instead - because it resolves this issue and
-        // properly supports foreground service types required on Android 14+ (SDK 34+)
-        // and beyond.
-        return;
-      }
-    }
 
     final service = FlutterBackgroundService();
     service.startService();
@@ -235,6 +205,8 @@ class ErmisBackgroudService {
 
   static Future<bool> isRunning() => FlutterBackgroundService().isRunning();
 }
+
+// flutter_foreground_task
 
 // void initForegroundTask() {
 // FlutterForegroundTask.init(
