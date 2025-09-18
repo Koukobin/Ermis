@@ -18,7 +18,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/models/voice_call_history.dart';
-import 'package:ermis_mobile/core/networking/handlers/intermediary_service.dart';
+import 'package:ermis_mobile/core/networking/intermediary_service.dart';
 import 'package:ermis_mobile/core/data_sources/api_client.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
