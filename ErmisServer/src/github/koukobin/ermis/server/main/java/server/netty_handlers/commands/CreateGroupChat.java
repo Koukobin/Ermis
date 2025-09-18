@@ -49,9 +49,19 @@ public class CreateGroupChat implements ICommand {
 
 		List<Integer> memberIdsList = Ints.asList(memberIds);
 
-		boolean existsAlready = true;
+		boolean existsAlready = false;
 		for (ChatSession session : clientInfo.getChatSessions()) {
-			existsAlready &= session.getMembers().equals(memberIdsList);
+			boolean lengthDiffers = session.getMembers().size() != memberIdsList.size();
+
+			if (lengthDiffers) {
+				continue;
+			}
+
+			existsAlready |= memberIdsList.containsAll(session.getMembers());
+
+			if (existsAlready) {
+				break;
+			}
 		}
 
 		if (existsAlready) {
