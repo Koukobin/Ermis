@@ -16,11 +16,11 @@
 package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.data_access;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.google.common.base.Throwables;
 
@@ -161,7 +161,7 @@ public interface UserProfileModule extends BaseComponent {
 		return Optional.empty();
 	}
 
-	default Account[] getAccountsAssociatedWithDevice(InetAddress address) {
+	default Account[] getAccountsAssociatedWithDevice(UUID uuid) {
 		Account[] accounts = EmptyArrays.EMPTY_ACCOUNT_ARRAY;
 
 		String query = """
@@ -178,9 +178,9 @@ public interface UserProfileModule extends BaseComponent {
 				query,
 				ResultSet.TYPE_SCROLL_SENSITIVE,
 				ResultSet.CONCUR_UPDATABLE)) {
-			pstmt.setString(1, address.getHostName());
+			pstmt.setString(1, uuid.toString());
 			ResultSet rs = pstmt.executeQuery();
-			
+
 			// Move to the last row to get the row count
 			rs.last();
 			int rowCount = rs.getRow(); // Get total rows

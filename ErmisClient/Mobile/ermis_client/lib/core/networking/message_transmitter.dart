@@ -531,8 +531,8 @@ class Commands {
     out.write(payload);
   }
 
-  Future<void> logoutThisDevice() async {
-    final info = await UserInfoManager.fetchAccountInformation();
+  void logoutThisDevice() {
+    final info = UserInfoManager.fetchAccountInformation();
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
@@ -580,6 +580,7 @@ class Commands {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.fetchOtherAccountsAssociatedWithDevice.id);
+    payload.writeBytes(utf8.encode(UserInfoManager.accountInfo!.deviceUUID));
     out.write(payload);
   }
 
