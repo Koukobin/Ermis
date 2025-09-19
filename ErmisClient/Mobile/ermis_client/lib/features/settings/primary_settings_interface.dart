@@ -62,21 +62,21 @@ class SettingsScreenState extends State<SettingsScreen> {
         scrollView: ListView(
           children: [
             ListTile(
-                contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                leading: const PersonalProfilePhoto(radius: 25),
-                title: const DisplayName(),
-                subtitle: Text(S.current.profile_change_name_id),
-                onTap: () {
-                  navigateWithFade(context, const ProfileSettings());
-                },
-                trailing: IconButton(
-                    onPressed: () async {
-                      await AccountSettings.showOtherAccounts(context);
-                    },
-                    icon: Icon(
-                      Icons.add_circle_outline,
-                      color: appColors.primaryColor,
-                    ))),
+              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+              leading: const PersonalProfilePhoto(radius: 25),
+              title: const DisplayName(),
+              subtitle: Text(S.current.profile_change_name_id),
+              onTap: () {
+                navigateWithFade(context, const ProfileSettings());
+              },
+              trailing: IconButton(
+                onPressed: () => AccountSettings.showOtherAccounts(context),
+                icon: Icon(
+                  Icons.add_circle_outline,
+                  color: appColors.primaryColor,
+                ),
+              ),
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.key),
@@ -160,10 +160,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                 showLogoutConfirmationDialog(
                   context,
                   S.current.are_you_sure_you_want_to_logout_from_this_device,
-                  () => Client.instance()
-                      .commands
-                      ?.logoutThisDevice()
-                      .whenComplete(() => resetToStartingScreen(context)),
+                  () async {
+                    Client.instance().commands?.logoutThisDevice();
+
+                    // Simulate brief/transient wait
+                    await showLoadingDialog(
+                      context,
+                      Future.delayed(const Duration(seconds: 2)),
+                    );
+
+                    resetToStartingScreen(context);
+                  },
                 );
               },
             )
