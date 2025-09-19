@@ -17,10 +17,13 @@ package github.koukobin.ermis.server.main.java.databases.postgresql.ermis_databa
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.base.Throwables;
 
+import github.koukobin.ermis.common.entry.AddedInfo;
 import github.koukobin.ermis.common.entry.LoginInfo;
 import github.koukobin.ermis.common.results.ChangePasswordResult;
 import github.koukobin.ermis.common.results.GeneralResult;
@@ -46,17 +49,21 @@ public interface ChangePasswordService extends BaseComponent, UserProfileModule,
 		}
 
 		String salt = getSalt(enteredEmail);
-		SimpleHash passwordHash = HashUtil.createHash(newPassword, salt, DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
+		SimpleHash simpleHash = HashUtil.createHash(newPassword, salt, DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
+		String passwordHash = simpleHash.getHashString();
 
 		try (PreparedStatement changePassword = getConn()
 				.prepareStatement("UPDATE users SET password_hash=? WHERE email=?")) {
 
-			changePassword.setString(1, passwordHash.getHashString());
+			changePassword.setString(1, passwordHash);
 			changePassword.setString(2, enteredEmail);
 
 			int resultUpdate = changePassword.executeUpdate();
 			if (resultUpdate == 1) {
-				return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD);
+				Map<AddedInfo, String> info = new EnumMap<>(AddedInfo.class);
+				info.put(AddedInfo.PASSWORD_HASH, passwordHash);
+
+				return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD, info);
 			}
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));

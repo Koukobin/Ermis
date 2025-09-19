@@ -283,21 +283,21 @@ class Entry<T extends CredentialInterface> {
     if (buffer == null) throw Exception("Buffer is null");
     ByteBuf payload = buffer!;
 
-    isVerificationComplete = payload.readBoolean();
-    // ignore: unused_local_variable
-    bool isSuccessful = payload.readBoolean();
-
-    int id = payload.readInt32();
-
-    Map<AddedInfo, String> map = HashMap();
-
-    while (payload.readableBytes > 0) {
-      AddedInfo addedInfo = AddedInfo.fromId(payload.readInt32());
-      Uint8List message = payload.readBytes(payload.readInt32());
-      map[addedInfo] = utf8.decode(message.toList());
+    int verifyId = payload.readInt32();
+    final verificationStatus = VerificationResult.fromId(verifyId)!;
+    if (!verificationStatus.isSuccessful) {
+      return EntryResult.noInfo(verificationStatus);
     }
 
-    EntryResult result = EntryResult(ChangePasswordResult.fromId(id), map);
+    int entryId = payload.readInt32();
+    Map<AddedInfo, String> addedInfo = HashMap();
+    while (payload.readableBytes > 0) {
+      AddedInfo key = AddedInfo.fromId(payload.readInt32());
+      Uint8List message = payload.readBytes(payload.readInt32());
+      addedInfo[key] = utf8.decode(message.toList());
+    }
+
+    EntryResult result = EntryResult(ChangePasswordResult.fromId(entryId), addedInfo);
 
     return result;
   }  
