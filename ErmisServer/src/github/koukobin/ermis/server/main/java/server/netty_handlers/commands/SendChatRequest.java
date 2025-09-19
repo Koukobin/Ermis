@@ -50,7 +50,7 @@ public class SendChatRequest implements ICommand {
 				.flatMap(Collection::stream)
 				.filter((ClientInfo ci) -> ci.getClientID() == receiverID)
 				.count() != 0) {
-			getLogger().debug("You cannot form chat session with yourself");
+			getLogger().debug("You cannot send chat request to someone with which you already share a chat session");
 			return;
 		}
 
