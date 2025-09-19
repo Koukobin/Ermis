@@ -207,6 +207,18 @@ mixin Verification {
 
       if (isSuccessful) {
         showToastDialog(resultMessage);
+
+        final accountInfo = LocalAccountInfo.fuck(
+          email: email,
+          passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!,
+          deviceUUID: UserInfoManager.accountInfo!.deviceUUID,
+        );
+        ErmisDB.getConnection().addUserAccount(
+          accountInfo,
+          UserInfoManager.serverInfo,
+        );
+
+        UserInfoManager.accountInfo = accountInfo;
         break;
       }
 
@@ -245,12 +257,14 @@ mixin Verification {
 
       if (isSuccessful) {
         showToastDialog(resultMessage);
+
+        final accountInfo = LocalAccountInfo.fuck(
+          email: email,
+          passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!,
+          deviceUUID: entryResult.addedInfo[AddedInfo.deviceUUID]!,
+        );
         ErmisDB.getConnection().addUserAccount(
-          LocalAccountInfo.fuck(
-            email: email,
-            passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!,
-            deviceUUID: entryResult.addedInfo[AddedInfo.deviceUUID]!,
-          ),
+          accountInfo,
           UserInfoManager.serverInfo,
         );
 
@@ -258,6 +272,7 @@ mixin Verification {
         // user information from this account is not transferred
         // to the next
         UserInfoManager.resetUserInformation();
+        UserInfoManager.accountInfo = accountInfo;
         break;
       }
 
