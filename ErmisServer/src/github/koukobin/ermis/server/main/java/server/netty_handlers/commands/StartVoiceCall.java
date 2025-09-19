@@ -41,8 +41,8 @@ public class StartVoiceCall implements ICommand {
 			ByteBuf acceptVoiceCallPayload = channel.alloc().ioBuffer();
 			acceptVoiceCallPayload.writeByte(chatSessionIndex);
 
-			CommandsHolder.executeCommand(ClientCommandType.ACCEPT_VOICE_CALL, 
-					clientInfo, 
+			CommandsHolder.executeCommand(ClientCommandType.ACCEPT_VOICE_CALL,
+					clientInfo,
 					acceptVoiceCallPayload);
 			return;
 		}
