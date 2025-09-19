@@ -207,7 +207,7 @@ public interface AuthService
 		return LoginInfo.CredentialsExchange.Result.SUCCESFULLY_EXCHANGED_CREDENTIALS;
 	}
 
-	default GeneralResult loginUsingBackupVerificationCode(String email, String backupVerificationCode) {
+	default GeneralResult loginUsingBackupVerificationCode(String email, String backupVerificationCode, UserDeviceInfo deviceInfo) {
 		boolean isCodeCorrect = false;
 
 		String enteredHashedCode = HashUtil.createHash(
@@ -215,7 +215,7 @@ public interface AuthService
 				getSalt(email),
 				BackupVerificationCodes.Hashing.HASHING_ALGORITHM)
 				.getHashString();
-		
+
 		String query = """
 				SELECT 1
 				FROM users
@@ -236,21 +236,27 @@ public interface AuthService
 			return new GeneralResult(LoginInfo.Login.Result.INCORRECT_BACKUP_VERIFICATION_CODE);
 		}
 
+		Insert result = insertUserDevice(email, deviceInfo);
+		if (result != Insert.SUCCESSFUL_INSERT) {
+			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
+		}
+
 		// Remove backup verification code; a backup verification
 		// code can only be used once.
 		int codesLeftAmount = removeBackupVerificationCode(enteredHashedCode, email).orElse(0);
+
+		Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
+		addedInfo.put(AddedInfo.PASSWORD_HASH, getPasswordHash(email));
+		addedInfo.put(AddedInfo.DEVICE_UUID, deviceInfo.deviceUUID().toString());
 
 		if (codesLeftAmount == 0) {
 			String[] codesArray = regenerateBackupVerificationCodes(email).orElse(EmptyArrays.EMPTY_STRING_ARRAY);
 			String codesString = String.join("\n", codesArray);
 
-			Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
 			addedInfo.put(AddedInfo.BACKUP_VERIFICATION_CODES, codesString);
-
-			return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
 		}
 
-		return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
+		return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN, addedInfo);
 	}
 
 	default GeneralResult loginUsingPassword(String email, String password, UserDeviceInfo deviceInfo) {

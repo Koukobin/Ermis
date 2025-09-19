@@ -18,6 +18,7 @@ package github.koukobin.ermis.server.main.java.server.netty_handlers;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import javax.mail.MessagingException;
 
@@ -114,12 +115,15 @@ public final class LoginHandler extends EntryHandler {
 		String email = credentials.get(Credential.EMAIL);
 		String password = credentials.get(Credential.PASSWORD);
 
+		UUID deviceUUID = UUID.randomUUID();
+		UserDeviceInfo deviceInfo = new UserDeviceInfo(deviceUUID, deviceType, osName);
+
 		switch (passwordType) {
 		case BACKUP_VERIFICATION_CODE -> {
 			GeneralResult entryResult;
 
 			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				entryResult = conn.loginUsingBackupVerificationCode(email, password);
+				entryResult = conn.loginUsingBackupVerificationCode(email, password, deviceInfo);
 			}
 
 			if (entryResult.isSuccessful()) {
@@ -144,8 +148,16 @@ public final class LoginHandler extends EntryHandler {
 
 			ByteBuf payload = ctx.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.ENTRY.id);
-			payload.writeBoolean(entryResult.isSuccessful());
 			payload.writeInt(entryResult.getIDable().getID());
+
+			for (Entry<AddedInfo, String> addedInfo : entryResult.getAddedInfo().entrySet()) {
+				AddedInfo key = addedInfo.getKey();
+				byte[] valueBytes = addedInfo.getValue().getBytes();
+
+				payload.writeInt(key.id);
+				payload.writeInt(valueBytes.length);
+				payload.writeBytes(valueBytes);
+			}
 
 			ctx.channel().writeAndFlush(payload);
 		}
@@ -154,9 +166,6 @@ public final class LoginHandler extends EntryHandler {
 
 				@Override
 				public GeneralResult executeWhenVerificationSuccessful() {
-					UUID deviceUUID = UUID.randomUUID();
-					UserDeviceInfo deviceInfo = new UserDeviceInfo(deviceUUID, deviceType, osName);
-
 					GeneralResult result;
 					try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 						result = conn.loginUsingPassword(email, password, deviceInfo);

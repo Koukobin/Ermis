@@ -169,7 +169,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                             LoginCredential.email: _emailController.text,
                             LoginCredential.password: _useBackupverificationCode ? _backupVerificationController.text : _passwordController.text,
                           });
-                          
+
                           Resultable entryResult = await loginEntry.getCredentialsExchangeResult();
 
                           bool isExchangeSuccessful = entryResult.isSuccessful;
@@ -181,16 +181,14 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                                 content: S.current.registration_failed(resultMessage));
                             return;
                           }
-                          
+
                           bool isSuccessful = false;
 
                           // If password is used, further verification/authentication is required
                           if (_usePassword) {
                             isSuccessful = await performRegistrationVerification(context, _emailController.text);
                           } else {
-                            entryResult = await loginEntry.getBackupVerificationCodeResult();
-                            isSuccessful = entryResult.isSuccessful;
-                            showToastDialog(entryResult.message);
+                            isSuccessful = await getBackupVerification(context, loginEntry, _emailController.text);
                           }
 
                           if (isSuccessful) {

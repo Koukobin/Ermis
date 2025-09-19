@@ -235,6 +235,31 @@ mixin Verification {
     return isSuccessful;
   }
 
+  Future<bool> getBackupVerification(BuildContext context, LoginEntry loginEntry, String email) async {
+    EntryResult entryResult = await loginEntry.getBackupVerificationCodeResult();
+
+    showToastDialog(entryResult.message);
+    if (entryResult.success) {
+      final accountInfo = LocalAccountInfo.fuck(
+        email: email,
+        passwordHash: entryResult.addedInfo[AddedInfo.passwordHash]!,
+        deviceUUID: entryResult.addedInfo[AddedInfo.deviceUUID]!,
+      );
+      ErmisDB.getConnection().addUserAccount(
+        accountInfo,
+        UserInfoManager.serverInfo,
+      );
+
+      // Reset user information before switching to ensure that
+      // user information from this account is not transferred
+      // to the next
+      UserInfoManager.resetUserInformation();
+      UserInfoManager.accountInfo = accountInfo;
+    }
+
+    return entryResult.success;
+  }
+
   Future<bool> performRegistrationVerification(BuildContext context, String email) async {
     Entry verificationEntry = Client.instance().createNewVerificationEntry();
     EntryResult entryResult;

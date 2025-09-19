@@ -250,14 +250,21 @@ class Entry<T extends CredentialInterface> {
     }
   }
 
-  Future<Resultable> getBackupVerificationCodeResult() async {
+  Future<EntryResult<Resultable>> getBackupVerificationCodeResult() async {
     ByteBuf payload = (await AppEventBus.instance.on<EntryMessage>().first).buffer;
 
-    isLoggedIn = payload.readBoolean();
-    Client.instance()._isLoggedIn = isLoggedIn;
+    int entryId = payload.readInt32();
+    Map<AddedInfo, String> addedInfo = HashMap();
+    while (payload.readableBytes > 0) {
+      AddedInfo key = AddedInfo.fromId(payload.readInt32());
+      Uint8List message = payload.readBytes(payload.readInt32());
+      addedInfo[key] = utf8.decode(message.toList());
+    }
 
-    int id = payload.readInt32();
-    return LoginResult.fromId(id)!;
+    EntryResult result = EntryResult(LoginResult.fromId(entryId)!, addedInfo);
+    isLoggedIn = result.success;
+    Client.instance()._isLoggedIn = isLoggedIn;
+    return result;
   }
 
   void sendEntryType() {
@@ -298,7 +305,6 @@ class Entry<T extends CredentialInterface> {
     }
 
     EntryResult result = EntryResult(ChangePasswordResult.fromId(entryId), addedInfo);
-
     return result;
   }  
 
