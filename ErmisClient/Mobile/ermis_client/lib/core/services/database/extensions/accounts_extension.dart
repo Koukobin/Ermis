@@ -33,15 +33,16 @@ extension AccountsExtension on DBConnection {
     final db = await database;
 
     await db.insert(
-        'server_accounts',
-        {
-          'server_url': serverInfo.toString(),
-          'email': userAccount.email,
-          'password_hash': userAccount.passwordHash,
-          'device_uuid': userAccount.deviceUUID,
-          'last_used': userAccount.lastUsed.toIso8601String(),
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace);
+      'server_accounts',
+      {
+        'server_url': serverInfo.toString(),
+        'email': userAccount.email,
+        'password_hash': userAccount.passwordHash,
+        'device_uuid': userAccount.deviceUUID,
+        'last_used': userAccount.lastUsed.toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<LocalAccountInfo?> getLastUsedAccount(ServerInfo serverInfo) async {
