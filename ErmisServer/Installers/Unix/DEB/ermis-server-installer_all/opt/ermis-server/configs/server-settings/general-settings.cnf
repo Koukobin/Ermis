@@ -2,7 +2,7 @@ isProductionReady=true
 
 sourceCodeURL=https://github.com/Koukobin/Ermis
 
-address= ------
+address=0.0.0.0
 port=5551
 backlog=0
 
