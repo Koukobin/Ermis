@@ -90,6 +90,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
               Text(
                 ErmisLoadingMessages.randomMessage(),
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
                   fontStyle: FontStyle.italic,
