@@ -34,9 +34,9 @@ public final class ClientInfo {
 	private String username;
 	private String email;
 	private int clientID;
-	
+
 	private ClientStatus status;
-	
+
 	private List<ChatSession> chatSessions;
 	private List<Integer> chatRequestsClientIDS;
 
@@ -73,7 +73,7 @@ public final class ClientInfo {
 	public void setStatus(ClientStatus status) {
 		this.status = status;
 	}
-	
+
 	public void setChatSessions(List<ChatSession> chatSessions) {
 		this.chatSessions = chatSessions;
 	}
@@ -85,7 +85,7 @@ public final class ClientInfo {
 	public void setChannel(Channel channel) {
 		this.channel = (EpollSocketChannel) channel;
 	}
-	
+
 	public String getUsername() {
 		return username;
 	}
@@ -97,7 +97,7 @@ public final class ClientInfo {
 	public int getClientID() {
 		return clientID;
 	}
-	
+
 	public ClientStatus getStatus() {
 		return status;
 	}
@@ -113,11 +113,11 @@ public final class ClientInfo {
 	public EpollSocketChannel getChannel() {
 		return channel;
 	}
-	
+
 	public InetSocketAddress getInetSocketAddress() {
 		return channel.remoteAddress();
 	}
-	
+
 	public InetAddress getInetAddress() {
 		return channel.remoteAddress().getAddress();
 	}
@@ -132,19 +132,19 @@ public final class ClientInfo {
 		if (this == obj) {
 			return true;
 		}
-		
+
 		if (obj == null) {
 			return false;
 		}
-		
+
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		
+
 		ClientInfo other = (ClientInfo) obj;
-		return Objects.equals(channel, other.channel) 
+		return Objects.equals(channel, other.channel)
 				&& Objects.equals(chatRequestsClientIDS, other.chatRequestsClientIDS)
-				&& Objects.equals(chatSessions, other.chatSessions) 
+				&& Objects.equals(chatSessions, other.chatSessions)
 				&& clientID == other.clientID
 				&& status.equals(other.status)
 				&& Objects.equals(email, other.email)
@@ -157,4 +157,3 @@ public final class ClientInfo {
 	}
 
 }
-
