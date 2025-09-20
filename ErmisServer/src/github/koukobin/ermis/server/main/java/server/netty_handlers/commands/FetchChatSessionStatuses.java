@@ -44,8 +44,12 @@ public class FetchChatSessionStatuses implements ICommand {
 				friendsToFetchStatuses[i] = args.readInt();
 			} // TODO: IMPLEMENENT CHECK THAT THESE ARE ACTUALLY FRIENDS
 		} else {
-			friendsToFetchStatuses = clientInfo.getChatSessions().stream().map(ChatSession::getMembers)
-					.flatMap(Collection::stream).distinct().toArray(Integer[]::new);
+			friendsToFetchStatuses = clientInfo.getChatSessions()
+					.stream()
+					.map(ChatSession::getMembers)
+					.flatMap(Collection::stream)
+					.distinct()
+					.toArray(Integer[]::new);
 		}
 
 		ByteBuf payload = channel.alloc().ioBuffer();
