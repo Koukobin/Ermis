@@ -19,6 +19,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/services/database/models/local_account_info.dart';
 import 'package:ermis_mobile/core/services/database/models/local_user_info.dart';
 import 'package:ermis_mobile/core/services/database/models/server_info.dart';
@@ -31,6 +32,8 @@ import '../../../util/image_utils.dart';
 extension AccountsExtension on DBConnection {
   Future<void> addUserAccount(LocalAccountInfo userAccount, ServerInfo serverInfo) async {
     final db = await database;
+
+    await setServerDeviceUUID(serverInfo, userAccount.deviceUUID);
 
     await db.insert(
       'server_accounts',

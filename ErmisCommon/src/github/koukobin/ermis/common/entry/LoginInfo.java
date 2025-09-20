@@ -80,7 +80,7 @@ public final class LoginInfo {
 	}
 
 	public enum Action {
-		TOGGLE_PASSWORD_TYPE(1), ADD_DEVICE_INFO(2);
+		TOGGLE_PASSWORD_TYPE(1), ADD_DEVICE_INFO(2), SET_UUID(3);
 
 		private static final Map<Integer, Action> valuesById = new HashMap<>();
 

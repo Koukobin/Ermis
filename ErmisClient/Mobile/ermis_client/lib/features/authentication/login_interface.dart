@@ -14,6 +14,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/resultable.dart';
 import 'package:ermis_mobile/features/authentication/register_interface.dart';
 import 'package:ermis_mobile/features/authentication/verification_mixin.dart';
@@ -164,6 +167,14 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                           loginEntry.sendEntryType();
                           loginEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
                           loginEntry.setPasswordType(passwordType);
+
+                          String? deviceUUID =
+                              await ErmisDB.getConnection().getServerDeviceUUID(
+                            UserInfoManager.serverInfo,
+                          );
+                          if (deviceUUID != null) {
+                            loginEntry.setDeviceUUID(deviceUUID);
+                          }
 
                           loginEntry.sendCredentials({
                             LoginCredential.email: _emailController.text,

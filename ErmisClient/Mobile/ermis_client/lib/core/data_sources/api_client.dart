@@ -350,6 +350,18 @@ class Entry<T extends CredentialInterface> {
 
     outputStream.write(payload);
   }
+
+  void setDeviceUUID(String uuid) {
+    int actionId = LoginAction.setDeviceUUID.id;
+
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.entry.id);
+    payload.writeInt32(GeneralEntryAction.action.id);
+    payload.writeInt32(actionId);
+    payload.writeBytes(utf8.encode(uuid));
+
+    outputStream.write(payload);
+  }
 }
 
 class CreateAccountEntry extends Entry<CreateAccountCredential> {

@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/requirements.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/resultable.dart';
 import 'package:ermis_mobile/features/authentication/utils/entry_buttons.dart';
@@ -28,6 +29,8 @@ import 'package:ermis_mobile/core/util/entropy_calculator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
+import '../../core/networking/user_info_manager.dart';
+import '../../core/services/database/database_service.dart';
 import 'domain/entities/create_account_info.dart';
 import '../../constants/app_constants.dart';
 import '../../main.dart';
@@ -194,6 +197,15 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                         onPressed: () async {
                           createAccountEntry.sendEntryType();
                           createAccountEntry.addDeviceInfo(await getDeviceType(), await getDeviceDetails());
+
+                          String? deviceUUID =
+                              await ErmisDB.getConnection().getServerDeviceUUID(
+                            UserInfoManager.serverInfo,
+                          );
+                          if (deviceUUID != null) {
+                            createAccountEntry.setDeviceUUID(deviceUUID);
+                          }
+                          
                           createAccountEntry.sendCredentials({
                             CreateAccountCredential.email: _emailController.text,
                             CreateAccountCredential.username: _usernameController.text,

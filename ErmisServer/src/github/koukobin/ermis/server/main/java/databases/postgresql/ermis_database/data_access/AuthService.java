@@ -237,7 +237,7 @@ public interface AuthService
 		}
 
 		Insert result = insertUserDevice(email, deviceInfo);
-		if (result != Insert.SUCCESSFUL_INSERT) {
+		if (result == Insert.INTERNAL_ERROR) {
 			return new GeneralResult(LoginInfo.Login.Result.ERROR_WHILE_LOGGING_IN);
 		}
 
@@ -267,7 +267,7 @@ public interface AuthService
 		String passwordHash = passwordHashOptional.get();
 
 		Insert result = insertUserDevice(email, deviceInfo);
-		if (result != Insert.NOTHING_CHANGED) {
+		if (result != Insert.INTERNAL_ERROR) {
 			Map<AddedInfo, String> info = new EnumMap<>(AddedInfo.class);
 			info.put(AddedInfo.PASSWORD_HASH, passwordHash);
 			info.put(AddedInfo.DEVICE_UUID, deviceInfo.deviceUUID().toString());

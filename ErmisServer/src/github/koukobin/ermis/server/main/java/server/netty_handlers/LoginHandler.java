@@ -46,6 +46,8 @@ import io.netty.channel.ChannelHandlerContext;
 public final class LoginHandler extends EntryHandler {
 
 	private PasswordType passwordType = PasswordType.PASSWORD;
+
+	private UUID deviceUUID = null;
 	private DeviceType deviceType = DeviceType.UNSPECIFIED;
 	private String osName = "Unknown";
 
@@ -71,6 +73,12 @@ public final class LoginHandler extends EntryHandler {
 			byte[] osNameBytes = new byte[msg.readableBytes()];
 			msg.readBytes(osNameBytes);
 			osName = new String(osNameBytes);
+		}
+		case SET_UUID -> {
+			byte[] uuidBytes = new byte[msg.readableBytes()];
+			msg.readBytes(uuidBytes);
+
+			deviceUUID = UUID.nameUUIDFromBytes(uuidBytes);
 		}
 		}
 
@@ -115,7 +123,9 @@ public final class LoginHandler extends EntryHandler {
 		String email = credentials.get(Credential.EMAIL);
 		String password = credentials.get(Credential.PASSWORD);
 
-		UUID deviceUUID = UUID.randomUUID();
+		if (deviceUUID == null)
+			deviceUUID = UUID.randomUUID();
+
 		UserDeviceInfo deviceInfo = new UserDeviceInfo(deviceUUID, deviceType, osName);
 
 		switch (passwordType) {

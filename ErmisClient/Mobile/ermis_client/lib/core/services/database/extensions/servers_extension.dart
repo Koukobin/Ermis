@@ -25,8 +25,9 @@ extension ServersExtension on DBConnection {
     await db.update(
       'servers',
       {
+        // Set current timestamp
         'last_used': serverInfo.lastUsed.toIso8601String()
-      }, // Set current timestamp
+      },
       where: 'server_url = ?',
       whereArgs: [
         serverInfo.toString(), // Identifier
@@ -56,8 +57,41 @@ extension ServersExtension on DBConnection {
   Future<void> removeServerInfo(ServerInfo info) async {
     final db = await database;
 
-    await db.delete('servers',
-        where: 'server_url = ?', whereArgs: [info.serverUrl.toString()]);
+    await db.delete(
+      'servers',
+      where: 'server_url = ?',
+      whereArgs: [info.serverUrl.toString()],
+    );
+  }
+
+  Future<void> setServerDeviceUUID(ServerInfo info, String uuid) async {
+    final db = await database;
+
+    await db.insert(
+      'server_device_uuids',
+      {
+        "server_url": info.toString(),
+        "device_uuid": uuid,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<String?> getServerDeviceUUID(ServerInfo info) async {
+    final db = await database;
+
+    final rows = await db.query(
+      'server_device_uuids',
+      where: 'server_url = ?',
+      whereArgs: [info.serverUrl.toString()],
+      limit: 1,
+    );
+
+    if (rows.isEmpty) {
+      return null;
+    }
+
+    return rows.first['device_uuid'] as String;
   }
 
   Future<ServerInfo> getServerUrlLastUsed() async {

@@ -91,7 +91,8 @@ enum LoginCredentialResult implements Resultable {
 
 enum LoginAction {
   togglePasswordType(1),
-  addDeviceInfo(2);
+  addDeviceInfo(2),
+  setDeviceUUID(3);
 
   final int id;
   const LoginAction(this.id);
