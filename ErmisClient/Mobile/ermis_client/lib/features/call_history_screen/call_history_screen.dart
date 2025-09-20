@@ -141,18 +141,22 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
                   selectedColor: Colors.white,
                   contentPadding: const EdgeInsets.all(10),
                   leading: Icon(
-                    switch(entry.status) {
+                    switch (entry.status) {
                       VoiceCallHistoryStatus.created => Icons.phone_in_talk,
                       VoiceCallHistoryStatus.accepted => Icons.call,
                       VoiceCallHistoryStatus.ignored => Icons.phone_missed,
                     },
-                    color: switch(entry.status) {
+                    color: switch (entry.status) {
                       VoiceCallHistoryStatus.created => Colors.white,
                       VoiceCallHistoryStatus.accepted => Colors.green,
                       VoiceCallHistoryStatus.ignored => Colors.red,
                     },
                   ),
-                  title: Text('${S().session_capitalized} (ID: ${entry.chatSessionID}): ${UserInfoManager.chatSessionIDSToChatSessions[entry.chatSessionID]!.toString()}'),
+                  title: Text(
+                    '${S().session_capitalized} '
+                    '(ID: ${entry.chatSessionID}): '
+                    '${UserInfoManager.chatSessionIDSToChatSessions[entry.chatSessionID]!.toString()}',
+                  ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
