@@ -20,8 +20,8 @@ import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:ermis_mobile/core/models/voice_call_history.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
-import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/core/util/transitions_util.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
 import 'package:ermis_mobile/features/messaging/presentation/voice_call_bubble.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
@@ -211,6 +211,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
           member: _chatSession.members[0],
           isInitiator: true,
         ));
+
   }
 
   @override
@@ -253,7 +254,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                 const SizedBox(width: 10),
                 ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: constraints.maxWidth * 0.55, // Number chosen arbitrarily
+                    maxWidth: constraints.maxWidth * 0.45, // Number chosen arbitrarily
                   ),
                   child: Text(
                     S.current.chat_with(widget.chatSession.members
