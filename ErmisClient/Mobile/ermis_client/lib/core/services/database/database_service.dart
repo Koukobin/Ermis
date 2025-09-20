@@ -102,21 +102,6 @@ class DBConnection {
       );
     ''');
 
-    // Create 'server_accounts' table
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS server_accounts_key_pairs (
-        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
-        email TEXT NOT NULL REFERENCES server_accounts(email) ON DELETE CASCADE,
-        public_key TEXT NOT NULL,
-        private_key TEXT NOT NULL,
-        PRIMARY KEY (server_url, email)
-      );
-    ''');
-
-    // await db.execute('''
-    //   DROP TABLE server_profiles;
-    // ''');
-
     // Create 'server_profiles' table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS server_profiles (
@@ -129,16 +114,6 @@ class DBConnection {
         PRIMARY KEY (server_url, email, client_id)
       );
     ''');
-
-    // await db.execute('''
-    //   DROP TABLE members;
-    // ''');
-    // await db.execute('''
-    //   DROP TABLE chat_session_members;
-    // ''');
-    // await db.execute('''
-    //   DROP TABLE chat_sessions;
-    // ''');
 
     // 'chat_sessions' table
     await db.execute('''
@@ -170,10 +145,6 @@ class DBConnection {
         PRIMARY KEY (server_url, chat_session_id, client_id)
       );
     ''');
-
-    // await db.execute('''
-    //   DROP TABLE chat_messages;
-    // ''');
 
     // 'chat_messages' table
     await db.execute('''
