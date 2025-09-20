@@ -30,9 +30,14 @@ class IntermediaryService {
   IntermediaryService();
 
   Future<List<ChatSession>> fetchChatSessions({
-    required LocalAccountInfo accountInfo,
+    required LocalAccountInfo? accountInfo,
     required ServerInfo server,
   }) async {
+    accountInfo ??= await IntermediaryService().fetchLastUsedAccount(
+      server: server,
+    );
+    if (accountInfo == null) return [];
+
     LocalUserInfo? userInfo =  await _databaseService.getLocalUserInfo(server, accountInfo.email);
     return _databaseService.fetchChatSessions(
       server: server,
@@ -80,13 +85,18 @@ class IntermediaryService {
   }
 
   Future<LocalUserInfo?> fetchLocalUserInfo({
-    required LocalAccountInfo accountInfo,
+    required LocalAccountInfo? accountInfo,
     required ServerInfo server,
-  }) {
+  }) async {
+    accountInfo ??= await IntermediaryService().fetchLastUsedAccount(
+      server: server,
+    );
+    if (accountInfo == null) return null;
+
     return _databaseService.getLocalUserInfo(server, accountInfo.email);
   }
 
-  Future<LocalAccountInfo?> fetchLocalAccountInfo({required ServerInfo server}) {
+  Future<LocalAccountInfo?> fetchLastUsedAccount({required ServerInfo server}) {
     return _databaseService.getLastUsedAccount(server);
   }
 

@@ -72,7 +72,7 @@ class UserInfoManager {
 
   static Future<LocalUserInfo?> fetchProfileInformation() async {
     LocalUserInfo? userInfo = await IntermediaryService().fetchLocalUserInfo(
-      accountInfo: accountInfo!,
+      accountInfo: accountInfo,
       server: serverInfo,
     );
 
@@ -91,7 +91,7 @@ class UserInfoManager {
 
   static Future<List<ChatSession>> fetchLocalChatSessions() async {
     List<ChatSession> sessions = await IntermediaryService().fetchChatSessions(
-      accountInfo: accountInfo!,
+      accountInfo: accountInfo,
       server: serverInfo,
     );
 
