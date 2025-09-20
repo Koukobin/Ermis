@@ -46,7 +46,8 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
     super.initState();
     _callHistory = UserInfoManager.chatSessionIDSToVoiceCallHistory.values
         .expand((list) => list)
-        .toList();
+        .toList()
+      ..sort((a, b) => b.tsDebuted.compareTo(a.tsDebuted));
   }
 
   String formatDateTime(String pattern, DateTime dateTime) {
