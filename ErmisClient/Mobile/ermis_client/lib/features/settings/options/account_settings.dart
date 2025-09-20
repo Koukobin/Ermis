@@ -80,7 +80,9 @@ class AccountSettings extends StatefulWidget {
                 child: Text(
                   S.current.profile,
                   style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -103,8 +105,8 @@ class AccountSettings extends StatefulWidget {
                         () async {
                       ServerInfo serverDetails = UserInfoManager.serverInfo;
                       final DBConnection conn = ErmisDB.getConnection();
-                      List<LocalAccountInfo> localAccounts =
-                          await conn.getUserAccounts(serverDetails);
+
+                      List<LocalAccountInfo> localAccounts = await conn.getUserAccounts(serverDetails);
                       LocalAccountInfo? matchingAccount;
 
                       for (LocalAccountInfo localAccount in localAccounts) {
