@@ -207,12 +207,11 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         customClient: client,
       );
       await channel!.ready;
-      channel!.sink.add(
-        ByteBuf.smallBuffer()
-          ..writeInt32(widget.chatSessionID)
-          ..writeInt32(UserInfoManager.clientID)
-          ..buffer.toList(),
-      );
+
+      final sessionData = ByteBuf(8); // Allocate buffer for two 4-byte integers
+      sessionData.writeInt32(widget.chatSessionID);
+      sessionData.writeInt32(UserInfoManager.clientID);
+      channel!.sink.add(sessionData.buffer.toList());
 
       await _startListeningForMessagesFromCounterpart();
 
