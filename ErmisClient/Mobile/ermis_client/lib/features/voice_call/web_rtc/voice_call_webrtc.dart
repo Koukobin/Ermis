@@ -20,6 +20,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/core/util/notifications_util.dart';
@@ -206,6 +207,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         customClient: client,
       );
       await channel!.ready;
+      channel!.sink.add(
+        ByteBuf.smallBuffer()
+          ..writeInt32(widget.chatSessionID)
+          ..writeInt32(UserInfoManager.clientID)
+          ..buffer.toList(),
+      );
 
       await _startListeningForMessagesFromCounterpart();
 

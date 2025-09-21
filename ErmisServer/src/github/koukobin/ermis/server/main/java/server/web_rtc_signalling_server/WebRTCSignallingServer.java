@@ -42,6 +42,7 @@ import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ActiveChatSessions;
+import github.koukobin.ermis.server.main.java.server.ActiveClients;
 import github.koukobin.ermis.server.main.java.server.ChatSession;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import github.koukobin.ermis.server.main.java.server.SslContextProvider;
@@ -105,8 +106,12 @@ public class WebRTCSignallingServer {
 				.channel(EpollServerSocketChannel.class)
 				.childHandler(connector);
 
-			Channel ch = b.bind(ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT).sync().channel();
-			LOGGER.info("WebRTC Signalling Server successfully debuted on https://{}:{}", ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
+			Channel ch = b.bind(ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT)
+					.sync()
+					.channel();
+			LOGGER.info("WebRTC Signalling Server successfully debuted on https://{}:{}", 
+					ServerSettings.SERVER_ADDRESS, 
+					ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
 			ch.closeFuture().sync();
 		} finally {
 			bossGroup.shutdownGracefully();
@@ -137,8 +142,7 @@ public class WebRTCSignallingServer {
 			// Route requests either to static file serving or to WebSocket (the former should be removed in the future)
 			p.addLast(new HttpRequestHandler("/ws"));
 
-			// If upgrade is requested to WebSocket at /ws, this handler will take care of
-			// handshake
+			// If upgrade is requested to WebSocket at /ws, this handler will take care of handshake
 			p.addLast(new WebSocketServerProtocolHandler("/ws"));
 
 			// Handler that performs WebRTC signalling
@@ -236,16 +240,6 @@ public class WebRTCSignallingServer {
 	public static void addVoiceCall(ChatSession chatSession, int initiatorClientID) {
 		int chatSessionID = chatSession.getChatSessionID();
 
-		List<Channel> channelsList = Lists.newArrayList();
-		for (ClientInfo member : chatSession.getActiveMembers()) {
-			VoiceChatUser user = WebRTCSignallingHandler.addressToUsers.get(member.getInetAddress());
-
-			if (user == null) {
-				user = new VoiceChatUser(chatSessionID, member.getClientID());
-				WebRTCSignallingHandler.addressToUsers.put(member.getInetAddress(), user);
-			}
-		}
-
 		long tsDebuted = Instant.now().getEpochSecond();
 
 		int voiceCallHistoryID;
@@ -253,7 +247,9 @@ public class WebRTCSignallingServer {
 			voiceCallHistoryID = conn.addActiveVoiceCall(tsDebuted, chatSessionID, initiatorClientID);
 		}
 
+		List<Channel> channelsList = Lists.newArrayList();
 		ActiveVoiceChat call = new ActiveVoiceChat(tsDebuted, voiceCallHistoryID, initiatorClientID, channelsList);
+
 		WebRTCSignallingHandler.chatSessionIDToParticipants.put(chatSessionID, call);
 	}
 
@@ -263,28 +259,12 @@ public class WebRTCSignallingServer {
 
 	private static class WebRTCSignallingHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-		private static final Map<InetAddress, VoiceChatUser> addressToUsers = new ConcurrentHashMap<>();
 		private static final Map<Integer, ActiveVoiceChat> chatSessionIDToParticipants = new ConcurrentHashMap<>();
 
 		private VoiceChatUser user;
 
 		@Override
-		public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-			user = addressToUsers.get(getInetAddressOfChannel(ctx));
-			user.channel = ctx.channel();
-
-			ActiveVoiceChat call = chatSessionIDToParticipants.get(user.chatSessionID);
-			call.activeChannels().add(user.channel);
-
-			try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-				conn.addVoiceCallParticipant(call.voiceCallID(), user.clientID);
-			}
-		}
-
-		@Override
-		public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-			addressToUsers.remove(getInetAddressOfChannel(ctx));
-
+		public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 			int chatSessionID = user.chatSessionID;
 			ActiveVoiceChat call = chatSessionIDToParticipants.get(chatSessionID);
 
@@ -312,12 +292,42 @@ public class WebRTCSignallingServer {
 			}
 		}
 
-		private static InetAddress getInetAddressOfChannel(ChannelHandlerContext ctx) {
-			return ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress();
-		}
-
 		@Override
 		protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
+			// Expect user information to be defined
+			if (user == null) {
+				outer: {
+					ByteBuf content = frame.content();
+
+					int chatSessionID = content.readInt();
+					int clientID = content.readInt();
+					Channel channel = ctx.channel();
+
+					// Verify user; if verification fails shutdown connection
+					InetAddress channelAddress = ((InetSocketAddress) channel.remoteAddress()).getAddress();
+
+					List<ClientInfo> activeClients = ActiveClients.getClient(clientID);
+					for (ClientInfo ci : activeClients) {
+						if (ci.getInetAddress().equals(channelAddress)) {
+							user = new VoiceChatUser(chatSessionID, clientID, channel);
+							break outer;
+						}
+					}
+
+					ctx.close();
+					return;
+				}
+
+				ActiveVoiceChat call = chatSessionIDToParticipants.get(user.chatSessionID);
+				call.activeChannels().add(user.channel);
+
+				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+					conn.addVoiceCallParticipant(call.voiceCallID(), user.clientID);
+				}
+
+				return;
+			}
+
 			// Only handle text frames
 			if (frame instanceof TextWebSocketFrame textWebSocketFrame) {
 				String message = textWebSocketFrame.text();
@@ -336,7 +346,6 @@ public class WebRTCSignallingServer {
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 			LOGGER.debug(Throwables.getStackTraceAsString(cause));
-			ctx.close();
 		}
 	}
 }
