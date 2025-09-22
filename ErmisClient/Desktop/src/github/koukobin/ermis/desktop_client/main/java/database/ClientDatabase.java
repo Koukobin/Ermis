@@ -171,14 +171,19 @@ public final class ClientDatabase {
 
 		public int addUserAccount(ServerInfo serverInfo, LocalAccountInfo userAccount) {
 			int result = 0;
-			String sql = "INSERT OR REPLACE INTO server_accounts (server_url, email, password_hash, last_used) VALUES (?, ?, ?, ?);";
 
+			String sql = """
+					INSERT OR REPLACE INTO
+					server_accounts (server_url, email, password_hash, device_uuid, last_used)
+					VALUES (?, ?, ?, ?, ?);
+					""";
 			try (PreparedStatement ps = conn.prepareStatement(sql)) {
 				Timestamp timeStamp = new Timestamp(userAccount.getLastUsed().toEpochSecond(ZoneOffset.UTC));
 				ps.setString(1, serverInfo.getURL().toString());
 				ps.setString(2, userAccount.getEmail());
 				ps.setString(3, userAccount.getPasswordHash());
-				ps.setTimestamp(4, timeStamp);
+				ps.setString(4, userAccount.getDeviceUUID().toString());
+				ps.setTimestamp(5, timeStamp);
 
 				result = ps.executeUpdate();
 			} catch (SQLException e) {
