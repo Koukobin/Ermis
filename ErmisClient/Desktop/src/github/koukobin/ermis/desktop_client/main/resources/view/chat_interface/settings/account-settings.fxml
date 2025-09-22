@@ -69,24 +69,6 @@
 						<Insets left="10.0" />
 					</padding>
 				</HBox>
-				<Label layoutX="26.0" layoutY="432.0" text="Your password" />
-				<HBox fx:id="changePasswordHbox" alignment="CENTER" layoutX="14.0" layoutY="455.0" prefHeight="35.0" prefWidth="310.0" spacing="5.0">
-					<children>
-						<MFXPasswordField fx:id="changePasswordField" floatMode="DISABLED" prefWidth="260.0" promptText="New password" />
-						<JFXButton fx:id="changePasswordButton" text="">
-							<graphic>
-								<ImageView fx:id="passwordButtonImageView" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-									<image>
-										<Image url="@../../../icons/material_design_icons/edit.png" />
-									</image>
-								</ImageView>
-							</graphic>
-						</JFXButton>
-					</children>
-					<padding>
-						<Insets left="10.0" />
-					</padding>
-				</HBox>
 				<Label layoutX="97.0" layoutY="217.0" text="Add profile photo" />
             <Circle fx:id="addProfilePhotoIcon" fill="#1f93ff" layoutX="166.0" layoutY="107.0" onMouseClicked="#addAccountIcon" radius="100.0" stroke="BLACK" strokeType="INSIDE" />
 			</children>

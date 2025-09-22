@@ -34,10 +34,10 @@ import github.koukobin.ermis.desktop_client.main.java.service.client.UserInfoMan
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.AddProfilePhotoResultEvent;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.ClientIdEvent;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.ReceivedProfilePhotoEvent;
+import github.koukobin.ermis.desktop_client.main.java.service.client.Events.UsernameReceivedEvent;
 import github.koukobin.ermis.desktop_client.main.java.util.UITransitions;
 import github.koukobin.ermis.desktop_client.main.java.util.UITransitions.Direction.Which;
 import github.koukobin.ermis.desktop_client.main.java.util.dialogs.MFXDialogsUtil;
-import io.github.palexdev.materialfx.controls.MFXPasswordField;
 import javafx.animation.Interpolator;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -78,11 +78,6 @@ public class AccountSettingsController extends GeneralController {
 	@FXML private JFXButton changeDisplayNameButton;
 	@FXML private ImageView displayNameButtonImageView;
 	@FXML private HBox changeDisplayNameHbox;
-
-	@FXML private MFXPasswordField changePasswordField;
-	@FXML private JFXButton changePasswordButton;
-	@FXML private ImageView passwordButtonImageView;
-	@FXML private HBox changePasswordHbox;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -126,14 +121,20 @@ public class AccountSettingsController extends GeneralController {
 			.observeMessages()
 			.ofType(ClientIdEvent.class)
 			.subscribe((ClientIdEvent event) -> {
-				clientIDLabel.setText(String.valueOf(Client.getClientID()));
+				clientIDLabel.setText(String.valueOf(event.getClientId()));
+		});
+
+		GlobalMessageDispatcher.getDispatcher()
+			.observeMessages()
+			.ofType(UsernameReceivedEvent.class)
+			.subscribe((UsernameReceivedEvent event) -> {
+				changeDisplayNameTextField.setText(event.getDisplayName());
 		});
 
 		clientIDLabel.setText(String.valueOf(Client.getClientID()));
 
 		changeDisplayNameTextField.setText(Client.getDisplayName());
 		disableDisplayNameTextField();
-		disablePasswordTextField();
 
 		EventHandler<ActionEvent> handler = new EventHandler<ActionEvent>() {
 
@@ -163,7 +164,7 @@ public class AccountSettingsController extends GeneralController {
 					}
 				});
 
-				// Listener to disable textfield and remove CSS once it loses focus
+				// Listener to disable TextField and remove CSS once it loses focus
 				ChangeListener<Boolean> focusListener = new ChangeListener<>() {
 
 					private boolean set = false;
@@ -192,7 +193,7 @@ public class AccountSettingsController extends GeneralController {
 					}
 				};
 
-				// Listener to disable textfield and remove CSS once it loses focus
+				// Listener to disable TextField and remove CSS once it loses focus
 				ChangeListener<Boolean> focusListener2 = new ChangeListener<>() {
 
 					private boolean set = false;
@@ -219,91 +220,6 @@ public class AccountSettingsController extends GeneralController {
 		};
 
 		changeDisplayNameButton.setOnAction(handler);
-
-		EventHandler<ActionEvent> handler2 = new EventHandler<ActionEvent>() {
-
-			private int count = 0;
-
-			@Override
-			public void handle(ActionEvent event) {
-
-				enablePasswordTextField();
-
-				changePasswordButton.setOnAction(new EventHandler<ActionEvent>() {
-
-					@Override
-					public void handle(ActionEvent event) {
-
-						String newPassword = changePasswordField.getText();
-
-						if (newPassword.isBlank()) {
-							return;
-						}
-
-						try {
-							Client.getCommands().changePassword(newPassword);
-						} catch (IOException ioe) {
-							logger.error(ioe.getMessage(), ioe);
-						}
-					}
-				});
-
-				// Listener to disable textfield and remove CSS once it loses focus
-				ChangeListener<Boolean> focusListener = new ChangeListener<>() {
-
-					private boolean set = false;
-
-					@Override
-					public void changed(ObservableValue<? extends Boolean> observable, 
-							Boolean oldValue,
-							Boolean newValue) {
-
-						if (Boolean.TRUE.equals(newValue)) {
-							return;
-						}
-
-						if (!set) {
-							count++;
-							set = true;
-						}
-
-						if (count == 2) {
-							disablePasswordTextField();
-							changePasswordField.focusedProperty().removeListener(this);
-							changePasswordButton.focusedProperty().removeListener(this);
-							changePasswordButton.setOnAction((event) -> handle(event));
-							count = 0;
-						}
-					}
-				};
-
-				// Listener to disable textfield and remove CSS once it loses focus
-				ChangeListener<Boolean> focusListener2 = new ChangeListener<>() {
-
-					private boolean set = false;
-
-					@Override
-					public void changed(ObservableValue<? extends Boolean> observable, 
-							Boolean oldValue,
-							Boolean newValue) {
-
-						if (Boolean.TRUE.equals(newValue)) {
-							return;
-						}
-
-						if (!set) {
-							count++;
-							set = true;
-						}
-					}
-				};
-
-				changePasswordButton.focusedProperty().addListener(focusListener);
-				changePasswordField.focusedProperty().addListener(focusListener2);
-			}
-		};
-
-		changePasswordButton.setOnAction(handler2);
 	}
 
 	private void enableDisplayNameTextField() {
@@ -312,14 +228,6 @@ public class AccountSettingsController extends GeneralController {
 
 	private void disableDisplayNameTextField() {
 		disableTextField(changeDisplayNameHbox, changeDisplayNameTextField, displayNameButtonImageView);
-	}
-
-	private void enablePasswordTextField() {
-		enableTextField(changePasswordHbox, changePasswordField, passwordButtonImageView);
-	}
-
-	private void disablePasswordTextField() {
-		disableTextField(changePasswordHbox, changePasswordField, passwordButtonImageView);
 	}
 
 	private static void enableTextField(HBox hbox, TextField textField, ImageView textFieldButtonImageView) {
