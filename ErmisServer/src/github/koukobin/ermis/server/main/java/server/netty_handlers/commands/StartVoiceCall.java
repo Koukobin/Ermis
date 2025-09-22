@@ -33,13 +33,15 @@ public class StartVoiceCall implements ICommand {
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		int chatSessionIndex = args.readInt();
+
 		ChatSession chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
+
 		int chatSessionID = chatSession.getChatSessionID();
 		int initiatorClientID = clientInfo.getClientID();
 
 		if (WebRTCSignallingServer.isVoiceCallAlreadyActive(chatSessionID)) {
 			ByteBuf acceptVoiceCallPayload = channel.alloc().ioBuffer();
-			acceptVoiceCallPayload.writeByte(chatSessionIndex);
+			acceptVoiceCallPayload.writeInt(chatSessionIndex);
 
 			CommandsHolder.executeCommand(ClientCommandType.ACCEPT_VOICE_CALL,
 					clientInfo,
@@ -61,7 +63,6 @@ public class StartVoiceCall implements ICommand {
 			payload.retain();
 			activeMember.getChannel().writeAndFlush(payload);
 		}
-
 		payload.release();
 
 		WebRTCSignallingServer.addVoiceCall(chatSession, initiatorClientID);
