@@ -123,12 +123,15 @@ class Client {
     buffer.writeInt32(ClientMessageType.entry.id);
     buffer.writeInt32(EntryType.login.id);
 
+    // Email
     buffer.writeInt32(accountInfo.email.length);
     buffer.writeBytes(utf8.encode(accountInfo.email));
 
+    // Password
     buffer.writeInt32(accountInfo.passwordHash.length);
     buffer.writeBytes(utf8.encode(accountInfo.passwordHash));
 
+    // Device UUID
     buffer.writeBytes(utf8.encode(accountInfo.deviceUUID));
 
     _outputStream!.write(buffer);
