@@ -21,7 +21,6 @@ library;
 import 'dart:typed_data';
 
 import 'package:ermis_mobile/core/models/chat_request.dart';
-import 'package:ermis_mobile/core/models/inet_socket_address.dart';
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/models/message.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
@@ -172,17 +171,6 @@ class VoiceCallAcceptedEvent {
     required this.chatSessionID,
     required this.chatSessionIndex,
     required this.member,
-  });
-}
-
-class MemberAddedToVoiceCalll {
-  final int chatSessionID;
-  final int clientID;
-  final JavaInetSocketAddress socket;
-  const MemberAddedToVoiceCalll({
-    required this.chatSessionID,
-    required this.clientID,
-    required this.socket,
   });
 }
 
