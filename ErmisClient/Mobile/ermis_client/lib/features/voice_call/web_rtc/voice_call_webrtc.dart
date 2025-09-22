@@ -47,13 +47,39 @@ import '../../../core/widgets/wrapper_widget.dart';
 import '../../../theme/app_colors.dart';
 import 'end_voice_call_screen.dart';
 
-class VoiceCallWebrtc extends StatefulWidget {
+GlobalKey _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
+
+void pushVoiceCallWebRTC(
+  BuildContext context, {
+  required int chatSessionID,
+  required int chatSessionIndex,
+  required Member member,
+  required bool isInitiator,
+}) {
+  // Ensure previous voice call screen is popped
+  if (_voiceCallKey.currentContext != null) {
+    Navigator.pop(_voiceCallKey.currentContext!);
+    _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
+  }
+
+  pushSlideTransition(
+      context,
+      _VoiceCallWebrtc(
+        key: _voiceCallKey,
+        chatSessionIndex: chatSessionIndex,
+        chatSessionID: chatSessionID,
+        member: member,
+        isInitiator: isInitiator,
+      ));
+}
+
+class _VoiceCallWebrtc extends StatefulWidget {
   final int chatSessionID;
   final int chatSessionIndex;
   final Member member;
   final bool isInitiator;
 
-  const VoiceCallWebrtc({
+  const _VoiceCallWebrtc({
     super.key,
     required this.chatSessionID,
     required this.chatSessionIndex,
@@ -62,10 +88,10 @@ class VoiceCallWebrtc extends StatefulWidget {
   });
 
   @override
-  State<VoiceCallWebrtc> createState() => _VoiceCallWebrtcState();
+  State<_VoiceCallWebrtc> createState() => _VoiceCallWebrtcState();
 }
 
-class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
+class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
   /// STUN configuration for ICE candidates.
   static final Map<String, dynamic> configuration = {
     'iceServers': [
@@ -224,7 +250,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     });
   }
 
-  /// Helper function to send JSON messages over the WebSocket.
+  /// Helper function to send JSON messages over the WebSocket
   void sendChannelMessage(Map<String, dynamic> message) {
     channel!.sink.add(jsonEncode(message));
   }
@@ -233,23 +259,23 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     remoteRenderer = RTCVideoRenderer();
     await remoteRenderer!.initialize();
 
-    // Listen for incoming signaling messages.
+    // Listen for incoming signaling messages
     channel!.stream.listen((data) async {
       final Map<String, dynamic> message = jsonDecode(data);
       print("Received message: $message");
       switch (message['type']) {
         case "offer":
           {
-            // When an offer is received, create a peer connection if one doesn't exist.
+            // When an offer is received, create a peer connection if one doesn't exist
             if (peerConnection == null) {
               peerConnection = await createPeerConnection(configuration);
-              // If a local stream already exists, add all its tracks to the connection.
+              // If a local stream already exists, add all its tracks to the connection
               if (localStream != null) {
                 localStream!.getTracks().forEach((track) {
                   peerConnection!.addTrack(track, localStream!);
                 });
               }
-              // Listen for ICE candidates and send them.
+              // Listen for ICE candidates and send them
               peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
                 if (candidate.candidate != null &&
                     candidate.candidate!.isNotEmpty) {
@@ -259,7 +285,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                   });
                 }
               };
-              // Handle remote tracks.
+              // Handle remote tracks
               peerConnection!.onTrack = (RTCTrackEvent event) {
                 if (event.streams.isNotEmpty) {
                   print("Remote stream received: ${event.streams[0].id}");
@@ -275,13 +301,13 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                 }
               };
             }
-            // Set the offer as remote description.
+            // Set the offer as remote description
             RTCSessionDescription remoteOffer = RTCSessionDescription(
               message['data']['sdp'],
               message['data']['type'],
             );
             await peerConnection!.setRemoteDescription(remoteOffer);
-            // Create, set, and send the answer.
+            // Create, set, and send the answer
             RTCSessionDescription answer = await peerConnection!.createAnswer();
             await peerConnection!.setLocalDescription(answer);
             sendChannelMessage({
@@ -338,11 +364,11 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       }
     });
 
-    // Wait until the WebSocket connection opens
-    await Future.delayed(const Duration(seconds: 1)); // Give a brief delay to ensure connection is open.
+    // Give a brief delay to ensure WebSocket connection is open
+    await Future.delayed(const Duration(seconds: 1));
     print("Signaling WebSocket connected.");
 
-    // Obtain the local media stream (audio and video).
+    // Obtain the local media stream (audio and video)
     localStream = await navigator.mediaDevices.getUserMedia({
       'video': true,
       'audio': true,
@@ -751,7 +777,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     );
   }
 
-  Future<void> _endCall() async {
+  void _endCall() async {
     setState(() => callStatus = CallStatus.ended);
     sendChannelMessage({'type': 'end_call'});
 
@@ -768,7 +794,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     NotificationService.cancelNotification(endVoiceCallNotificationID);
 
-    await _resetCallData();
+    _resetCallData();
 
     // Update obsolete voice call history (Slight delay to ensure server had
     // a sufficient amount of time to handle voice call history in database).

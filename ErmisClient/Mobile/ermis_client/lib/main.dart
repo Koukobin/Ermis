@@ -300,14 +300,13 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
 
     subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (incomingEvent) async {
       void pushVoiceCall() {
-        pushSlideTransition(
-            context,
-            VoiceCallWebrtc(
-              chatSessionID: incomingEvent.chatSessionID,
-              chatSessionIndex: incomingEvent.chatSessionIndex,
-              member: incomingEvent.member,
-              isInitiator: false,
-            ));
+        pushVoiceCallWebRTC(
+          context,
+          chatSessionID: incomingEvent.chatSessionID,
+          chatSessionIndex: incomingEvent.chatSessionIndex,
+          member: incomingEvent.member,
+          isInitiator: false,
+        );
       }
 
       StreamSubscription<CancelVoiceCallIncomingEvent>? subscription;

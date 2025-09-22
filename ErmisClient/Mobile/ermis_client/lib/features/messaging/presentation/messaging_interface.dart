@@ -20,7 +20,6 @@ import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:ermis_mobile/core/models/voice_call_history.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
-import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
 import 'package:ermis_mobile/features/messaging/presentation/voice_call_bubble.dart';
@@ -203,15 +202,13 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     //   chatSessionIndex: _chatSessionIndex,
     //   chatSessionID: _chatSession.chatSessionID,
     // );
-    pushSlideTransition(
-        context,
-        VoiceCallWebrtc(
-          chatSessionIndex: _chatSessionIndex,
-          chatSessionID: _chatSession.chatSessionID,
-          member: _chatSession.members[0],
-          isInitiator: true,
-        ));
-
+    pushVoiceCallWebRTC(
+      context,
+      chatSessionIndex: _chatSessionIndex,
+      chatSessionID: _chatSession.chatSessionID,
+      member: _chatSession.members[0],
+      isInitiator: true,
+    );
   }
 
   @override

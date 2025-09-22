@@ -23,7 +23,6 @@ import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/util/permissions.dart';
-import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
@@ -111,14 +110,12 @@ void onDidReceiveNotification(NotificationResponse response) async {
 
         await Future.delayed(const Duration(seconds: 5)); // Await until first screen builds
 
-        pushSlideTransition(
+        pushVoiceCallWebRTC(
           NavigationService.currentContext,
-          VoiceCallWebrtc(
-            chatSessionID: data['chatSessionID'],
-            chatSessionIndex: data['chatSessionIndex'],
-            member: Member.fromJson(jsonDecode(data['member'])),
-            isInitiator: data['isInitiator'],
-          ),
+          chatSessionID: data['chatSessionID'],
+          chatSessionIndex: data['chatSessionIndex'],
+          member: Member.fromJson(jsonDecode(data['member'])),
+          isInitiator: data['isInitiator'],
         );
       });
       break;

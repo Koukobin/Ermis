@@ -16,7 +16,6 @@
 
 import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
-import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/core/widgets/profile_photos/interactive_user_avatar.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
@@ -46,14 +45,13 @@ class ChatUserAvatar extends InteractiveUserAvatar {
             IconButton(
                 onPressed: () {
                   popContext();
-                  pushSlideTransition(
-                      context,
-                      VoiceCallWebrtc(
-                        chatSessionID: chatSession.chatSessionID,
-                        chatSessionIndex: chatSession.chatSessionIndex,
-                        member: member,
-                        isInitiator: true,
-                      ));
+                  pushVoiceCallWebRTC(
+                    context,
+                    chatSessionID: chatSession.chatSessionID,
+                    chatSessionIndex: chatSession.chatSessionIndex,
+                    member: member,
+                    isInitiator: true,
+                  );
                 },
                 icon: Icon(
                   Icons.phone_outlined,
@@ -62,14 +60,13 @@ class ChatUserAvatar extends InteractiveUserAvatar {
             IconButton(
                 onPressed: () {
                   popContext();
-                  pushSlideTransition(
-                      context,
-                      VoiceCallWebrtc(
-                        chatSessionID: chatSession.chatSessionID,
-                        chatSessionIndex: chatSession.chatSessionIndex,
-                        member: member,
-                        isInitiator: true,
-                      ));
+                  pushVoiceCallWebRTC(
+                    context,
+                    chatSessionID: chatSession.chatSessionID,
+                    chatSessionIndex: chatSession.chatSessionIndex,
+                    member: member,
+                    isInitiator: true,
+                  );
                 },
                 icon: Icon(
                   Icons.video_call_outlined,
