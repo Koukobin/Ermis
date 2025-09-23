@@ -55,9 +55,20 @@ enum NotificationAction {
   }
 }
 
-ReplyCallback? _replyCallback;
-VoidCallback? _voiceCallEndCallback;
-VoidCallback? _voiceCallAcceptCallback;
+/// Perhaps these callbacks should be placed into a singular
+/// map for maintainability.
+///
+/// Something such as:
+/// ```dart
+///
+/// Map<NotificationAction, dynamic> actionCallBacks...
+///
+/// ```
+/// 
+/// For now, I suppose this will suffice.
+///
+VoidCallback? _voiceCallEndCallback, _voiceCallAcceptCallback;
+ReplyCallback? _replyToMessageCallback;
 
 void onDidReceiveNotification(NotificationResponse response) async {
   String? actionId = response.actionId;
@@ -131,7 +142,7 @@ void onDidReceiveNotification(NotificationResponse response) async {
         return;
       }
 
-      _replyCallback?.call(input);
+      _replyToMessageCallback?.call(input);
       break;
     case NotificationAction.markAsRead:
       // To be implemented in the future
@@ -317,7 +328,7 @@ class NotificationService {
       return;
     }
 
-    _replyCallback = replyCallBack;
+    _replyToMessageCallback = replyCallBack;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
       'instant_notification_id',
@@ -337,6 +348,7 @@ class NotificationService {
           'Reply',
           icon: const DrawableResourceAndroidBitmap('notification_icon'),
           titleColor: AppConstants.darkAppColors.primaryColor,
+          showsUserInterface: true, // Crucial for it to work
           inputs: [
             const AndroidNotificationActionInput(label: 'Type your reply...')
           ],
@@ -390,6 +402,7 @@ class NotificationService {
         AndroidNotificationAction(
           NotificationAction.endVoiceCall.id,
           'End Call',
+          showsUserInterface: true, // Crucial for it to work
           titleColor: AppConstants.darkAppColors.primaryColor,
         ),
       ],
