@@ -128,7 +128,6 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.detached:
         // App is being terminated
-        ErmisBackgroudService.startListeningToMessagesAndIncomingCalls();
         break;
       case AppLifecycleState.inactive:
         // App is temporarily inactive

@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
@@ -66,14 +67,37 @@ void maintainWebSocketConnection(ServiceInstance service) {
   debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
   debugPrint("BACKGROUND SERVICE IS INITIALIZING...");
 
-  WidgetsFlutterBinding.ensureInitialized();
-
   service.on("stop").listen((event) {
     service.stopSelf();
     debugPrint("background process is now stopped");
   });
 
-  service.on("start_listening_for_messages").listen((event) async {
+  bool uiAlive = false;
+
+  // Listen for UI heartbeat
+  service.on('ui_alive').listen((event) {
+    uiAlive = true;
+  });
+
+  Timer.periodic(const Duration(seconds: 30), (_) async {
+    if (uiAlive) {
+      debugPrint("UI isolate is alive");
+      debugPrint("UI isolate is alive");
+      debugPrint("UI isolate is alive");
+      debugPrint("UI isolate is alive");
+      debugPrint("UI isolate is alive");
+      uiAlive = false;
+      return;
+    }
+    
+    debugPrint("UI isolate is dead");
+    debugPrint("UI isolate is dead");
+    debugPrint("UI isolate is dead");
+    debugPrint("UI isolate is dead");
+    debugPrint("UI isolate is dead");
+  
+    WidgetsFlutterBinding.ensureInitialized();
+
     await AppConstants.initialize();
     await NotificationService.init();
 
@@ -166,16 +190,17 @@ void maintainWebSocketConnection(ServiceInstance service) {
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
     debugPrint("BACKGROUND SERVICE INITIALIZED SUCCESSFULLY!");
   });
+
 }
 
 class ErmisBackgroudService {
 
-  static void startBackgroundService() async {
+  static void configureBackgroundService() async {
     FlutterBackgroundService().configure(
       androidConfiguration: AndroidConfiguration(
         onStart: onAndroidBackground,
         autoStartOnBoot: true,
-        autoStart: false, // Automatically start the service when the app is launched
+        autoStart: true,
         isForegroundMode: true, // Displays a silent notification when used according to Android's Policy
 
         //notificationChannelId: 'ermis_mobile',
@@ -192,10 +217,12 @@ class ErmisBackgroudService {
 
     final service = FlutterBackgroundService();
     service.startService();
-  }
 
-  static void startListeningToMessagesAndIncomingCalls() {
-    FlutterBackgroundService().invoke("start_listening_for_messages");
+    // Timer which periodically informs background service 
+    // UI is alive
+    Timer.periodic(const Duration(seconds: 15), (_) {
+      FlutterBackgroundService().invoke('ui_alive');
+    });
   }
 
   static void stopBackgroundService() {
@@ -204,6 +231,7 @@ class ErmisBackgroudService {
   }
 
   static Future<bool> isRunning() => FlutterBackgroundService().isRunning();
+
 }
 
 // flutter_foreground_task
