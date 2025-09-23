@@ -15,6 +15,7 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
+import java.nio.charset.Charset;
 import java.util.UUID;
 
 import github.koukobin.ermis.common.Account;
@@ -38,9 +39,8 @@ public class FetchOtherAccountsAssociatedWithDevice implements ICommand {
 		payload.writeInt(ServerMessageType.COMMAND_RESULT.id);
 		payload.writeInt(ClientCommandResultType.FETCH_OTHER_ACCOUNTS_ASSOCIATED_WITH_IP_ADDRESS.id);
 
-		byte[] uuidBytes = new byte[args.readableBytes()];
-		args.readBytes(uuidBytes);
-		UUID uuid = UUID.nameUUIDFromBytes(uuidBytes);
+		String uuidString = (String) args.readCharSequence(args.readableBytes(), Charset.defaultCharset());
+		UUID uuid = UUID.fromString(uuidString);
 
 		Account[] accounts;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
