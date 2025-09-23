@@ -183,11 +183,18 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
       setState(() {
+        // After a comprehensive review of the code, this line is
+        // probably unnecessary/redundant; keeping it for now because
+        // I don't want to break any functionality
         _chatSession = event.sessions.firstWhere((ChatSession session) =>
             session.chatSessionID == _chatSession.chatSessionID);
       });
     });
 
+    subscribe(AppEventBus.instance.on<VoiceCallHistoryReceivedEvent>(), (event) {
+      if (event.chatSessionID != _chatSession.chatSessionID) return;
+      setState(() {});
+    });
   }
 
   @override

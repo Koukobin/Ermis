@@ -23,6 +23,7 @@ import 'dart:typed_data';
 import 'package:ermis_mobile/core/models/chat_request.dart';
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/models/message.dart';
+import 'package:ermis_mobile/core/models/voice_call_history.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_mobile/core/models/user_device.dart';
 import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
@@ -171,6 +172,15 @@ class VoiceCallAcceptedEvent {
     required this.chatSessionID,
     required this.chatSessionIndex,
     required this.member,
+  });
+}
+
+class VoiceCallHistoryReceivedEvent {
+  final int chatSessionID;
+  final List<VoiceCallHistory> history;
+  const VoiceCallHistoryReceivedEvent({
+    required this.chatSessionID,
+    required this.history,
   });
 }
 

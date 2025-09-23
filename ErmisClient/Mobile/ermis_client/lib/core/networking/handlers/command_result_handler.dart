@@ -400,9 +400,9 @@ class CommandResultHandler {
       case ClientCommandResultType.fetchVoiceCallHistory:
         int chatSessionID = msg.readInt32();
 
-        List<VoiceCallHistory>? voiceCallsHistory = UserInfoManager.chatSessionIDSToVoiceCallHistory[chatSessionID];
-        voiceCallsHistory ??= [];
-        voiceCallsHistory.clear();
+        List<VoiceCallHistory>? callsHistory = UserInfoManager.chatSessionIDSToVoiceCallHistory[chatSessionID];
+        callsHistory ??= [];
+        callsHistory.clear();
 
         ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
         while (msg.readableBytes > 0) {
@@ -429,12 +429,17 @@ class CommandResultHandler {
             status: status,
           );
 
-          voiceCallsHistory.add(callHistory);
+          callsHistory.add(callHistory);
         }
 
-        voiceCallsHistory.sort((a, b) => a.tsDebuted.compareTo(b.tsDebuted));
+        callsHistory.sort((a, b) => a.tsDebuted.compareTo(b.tsDebuted));
 
-        UserInfoManager.chatSessionIDSToVoiceCallHistory[chatSessionID] = voiceCallsHistory;
+        UserInfoManager.chatSessionIDSToVoiceCallHistory[chatSessionID] = callsHistory;
+
+        _eventBus.fire(VoiceCallHistoryReceivedEvent(
+          chatSessionID: chatSessionID,
+          history: callsHistory,
+        ));
         break;
       case ClientCommandResultType.fetchAccountIcon:
         UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
