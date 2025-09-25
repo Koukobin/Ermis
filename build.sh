@@ -11,4 +11,3 @@ cd ErmisClient/Mobile/ermis_client/ || {
 
 chmod +x build.sh
 ./build.sh
-
