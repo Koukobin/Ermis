@@ -221,7 +221,7 @@ void maintainWebSocketConnection(ServiceInstance service) {
 
 class ErmisBackgroudService {
 
-  static void startBackgroundService() async {
+  static void startBackgroundService() {
     FlutterBackgroundService().configure(
       androidConfiguration: AndroidConfiguration(
         onStart: onAndroidBackground,

@@ -62,11 +62,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isAndroid || Platform.isIOS) {
-    // If background service is running - stop and reinitialize to avoid potential issues
-    if (await ErmisBackgroudService.isRunning()) {
-      ErmisBackgroudService.stopBackgroundService();
-    }
-
     ErmisBackgroudService.startBackgroundService();
   }
 
