@@ -107,7 +107,7 @@ void maintainWebSocketConnection(ServiceInstance service) {
     final DBConnection conn = ErmisDB.getConnection();
     ServerInfo serverInfo = await conn.getServerUrlLastUsed();
 
-    void setupClient() async {
+    Future<void> setupClient() async {
       try {
         await Client.instance().initialize(
           serverInfo.serverUrl,
@@ -132,11 +132,37 @@ void maintainWebSocketConnection(ServiceInstance service) {
         Client.instance().commands!.setAccountStatus(ClientStatus.offline);
       } catch (e) {
         // Attempt to reinitialize client in case of failure
-        Future.delayed(const Duration(seconds: 30), setupClient);
+        await Future.delayed(const Duration(seconds: 30), setupClient);
       }
     }
 
-    setupClient();
+    setupClient().whenComplete(() {
+      final sessions = Client.instance().chatSessions!;
+      for (final session in sessions) {
+        Client.instance().commands!.fetchWrittenText(session.chatSessionIndex);
+      }
+    });
+
+    AppEventBus.instance.on<WrittenTextEvent>().listen((event) async {
+      ChatSession chatSession = event.chatSession;
+      List<Message> messages = event.chatSession.messages;
+
+      DBConnection conn = ErmisDB.getConnection();
+
+      for (Message msg in messages) {
+        int resultUpdate = await conn.insertChatMessage(
+          serverInfo: serverInfo,
+          message: msg,
+        );
+
+        if (resultUpdate > 0 && msg.clientID != Client.instance().clientID) {
+          handleChatMessageNotificationBackground(chatSession, msg, settingsJson, (String text) {
+            Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex);
+          });
+        }
+
+      }
+    });
 
     AppEventBus.instance.on<ConnectionResetEvent>().listen((event) {
       // Attempt to re-establish connection in case of a connection reset
@@ -231,7 +257,6 @@ class ErmisBackgroudService {
   }
 
   static Future<bool> isRunning() => FlutterBackgroundService().isRunning();
-
 }
 
 // flutter_foreground_task
