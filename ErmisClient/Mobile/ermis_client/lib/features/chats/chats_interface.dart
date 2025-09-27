@@ -84,8 +84,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
   /// Even though it's only referenced once in the code, using the refresh indicator
   /// to refresh the chat session will trigger the stream again. If you wish to see
   /// this for yourself, try the code without the broadcast stream.
-  final Stream<int> _stream =
-      Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
+  final Stream<int> _stream = Stream.periodic(const Duration(seconds: 5), (x) => x).asBroadcastStream();
 
   _ChatsState() : super(ConvultedTask.normal);
 
@@ -115,16 +114,18 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
     subscribe(AppEventBus.instance.on<ChatSessionsEvent>(), (event) {
       void notifyUserOfNewPotentialChat() {
         if (_conversations == null) return;
-        if (_conversations!.length == event.sessions.length) return;
 
-        if (SettingsJson().hasUserMadeFirstFriend) {
-          showToastDialog(S().new_chat);
-          return;
+        if (_conversations!.length > event.sessions.length) {
+          if (SettingsJson().hasUserMadeFirstFriend) {
+            showToastDialog(S().new_chat);
+            return;
+          }
+
+          SettingsJson().setHasUserMadeFirstFriend(true);
+          SettingsJson().saveSettingsJson();
+
+          FirstFriendMadeAchievementPopup.show(context);
         }
-        SettingsJson().setHasUserMadeFirstFriend(true);
-        SettingsJson().saveSettingsJson();
-
-        FirstFriendMadeAchievementPopup.show(context);
       }
 
       notifyUserOfNewPotentialChat();
