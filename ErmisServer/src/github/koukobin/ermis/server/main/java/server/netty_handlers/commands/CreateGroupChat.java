@@ -47,30 +47,14 @@ public class CreateGroupChat implements ICommand {
 		}
 		memberIds[memberIds.length - 1] = clientInfo.getClientID();
 
-		List<Integer> memberIdsList = Ints.asList(memberIds);
-
-		boolean existsAlready = false;
-		for (ChatSession session : clientInfo.getChatSessions()) {
-			boolean lengthDiffers = session.getMembers().size() != memberIdsList.size();
-
-			if (lengthDiffers) {
-				continue;
-			}
-
-			existsAlready |= memberIdsList.containsAll(session.getMembers());
-
-			if (existsAlready) {
-				break;
-			}
-		}
-
-		if (existsAlready) {
-			getLogger().debug("An identical group chat session already exists");
+		if (!ActiveChatSessions.areMembersFriendOfUser(clientInfo, memberIds)) {
+			getLogger().debug("Members specified are not friends");
 			return;
 		}
 
-		if (!ActiveChatSessions.areMembersFriendOfUser(clientInfo, memberIds)) {
-			getLogger().debug("Members specified are not friends");
+		List<Integer> memberIdsList = Ints.asList(memberIds);
+		if (ActiveChatSessions.doesChatSessionAlreadyExist(clientInfo.getChatSessions(), memberIdsList)) {
+			getLogger().debug("An identical group chat session already exists");
 			return;
 		}
 

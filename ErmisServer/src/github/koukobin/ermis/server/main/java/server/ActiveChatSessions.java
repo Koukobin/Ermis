@@ -88,6 +88,26 @@ public class ActiveChatSessions {
 		return isMemberIDFriendOrJustRandomIndividual;
 	}
 
+	public static boolean doesChatSessionAlreadyExist(List<ChatSession> existingSessions, List<Integer> participantIds) {
+		boolean existsAlready = false;
+
+		for (ChatSession session : existingSessions) {
+			boolean lengthDiffers = session.getMembers().size() != participantIds.size();
+
+			if (lengthDiffers) {
+				continue;
+			}
+
+			existsAlready |= participantIds.containsAll(session.getMembers());
+
+			if (existsAlready) {
+				break;
+			}
+		}
+
+		return existsAlready;
+	}
+
 	public static void broadcastToChatSession(ByteBuf payload, int chatSessionID) {
 		ChatSession chatSession = chatSessionIDSToActiveChatSessions.get(chatSessionID);
 		broadcastToChatSession(payload, chatSession);
