@@ -192,7 +192,8 @@ class AppThemeState extends State<AppTheme> {
       splashFactory: InkRipple.splashFactory, // Smooth ripple
       primaryColor: widget.lightAppColors.primaryColor,
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: widget.darkAppColors.primaryColor,
+        backgroundColor: widget.lightAppColors.primaryColor,
+        foregroundColor: widget.lightAppColors.secondaryColor,
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
