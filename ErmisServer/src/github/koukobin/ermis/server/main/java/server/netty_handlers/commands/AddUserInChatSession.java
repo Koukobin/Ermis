@@ -15,6 +15,7 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -37,17 +38,28 @@ public class AddUserInChatSession implements ICommand {
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		int chatSessionID;
-
+		ChatSession chatSession;
 		{
 			int chatSessionIndex = args.readInt();
-			chatSessionID = clientInfo.getChatSessions().get(chatSessionIndex).getChatSessionID();
+
+			chatSession = clientInfo.getChatSessions().get(chatSessionIndex);
+			chatSessionID = chatSession.getChatSessionID();
 		}
 
 		int memberID = args.readInt();
 
-		// TODO: Add check here to ensure member is not already in session to minimize
-		// pressure on database
+		if (chatSession.getMembers().contains(memberID)) {
+			return;
+		}
+
 		if (!ActiveChatSessions.areMembersFriendOfUser(clientInfo, memberID)) {
+			return;
+		}
+
+		List<Integer> memberIdsList = new ArrayList<>(chatSession.getMembers());
+		memberIdsList.add(memberID);
+		if (ActiveChatSessions.doesChatSessionAlreadyExist(clientInfo.getChatSessions(), memberIdsList)) {
+			getLogger().debug("An identical group chat session already exists");
 			return;
 		}
 
@@ -64,31 +76,24 @@ public class AddUserInChatSession implements ICommand {
 			// TODO
 		}
 
-		ChatSession chatSession = ActiveChatSessions.getChatSession(chatSessionID);
+		chatSession.getMembers().add(memberID);
 
-		// Ensure chat session isn't null, albeit this is virtually improbable.
-		// Edge case: client disconnects immediately once server receives command.
-		if (chatSession != null) {
-			chatSession.getMembers().add(memberID);
+		List<ClientInfo> memberActiveConnections = ActiveClients.getClient(memberID);
+		if (memberActiveConnections != null) {
+			chatSession.getActiveMembers().addAll(memberActiveConnections);
 
-			List<ClientInfo> memberActiveConnections = ActiveClients.getClient(memberID);
-			if (memberActiveConnections != null) {
-				chatSession.getActiveMembers().addAll(memberActiveConnections);
-
-				for (ClientInfo member : chatSession.getActiveMembers()) {
-					member.getChatSessions().add(chatSession);
-				}
+			for (ClientInfo member : chatSession.getActiveMembers()) {
+				member.getChatSessions().add(chatSession);
 			}
-
-			// To ensure changes are reflected...
-			Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> {
-				// Send updated indices to the client. This triggers a catalytic process
-				// which leads to the retrieval of current chat sessions and their statuses.
-				CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
-			};
-			chatSession.getActiveMembers().forEach(updateSessions::accept);
-
 		}
+
+		// To ensure changes are reflected...
+		Consumer<ClientInfo> updateSessions = (ClientInfo ci) -> {
+			// Send updated indices to the client. This triggers a catalytic process
+			// which leads to the retrieval of current chat sessions and their statuses.
+			CommandsHolder.executeCommand(ClientCommandType.FETCH_CHAT_SESSION_INDICES, ci, Unpooled.EMPTY_BUFFER);
+		};
+		chatSession.getActiveMembers().forEach(updateSessions::accept);
 	}
 
 	@Override
