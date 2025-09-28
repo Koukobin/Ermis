@@ -321,12 +321,16 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
         },
       );
 
+      Completer completer = Completer();
+
       subscription = AppEventBus.instance
           .on<CancelVoiceCallIncomingEvent>()
           .listen((cancelEvent) {
         if (cancelEvent.chatSessionID == incomingEvent.chatSessionID) {
-          // Pop incoming call screen which is pushed below
-          Navigator.pop(context);
+          // Pop incoming call screen which is pushed below - if still displayed
+          if (!completer.isCompleted) {
+            Navigator.pop(context);
+          }
 
           // Cancel notification
           NotificationService.cancelNotification(notificationID);
@@ -336,6 +340,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       });
 
       bool? didAccept = await navigateWithFade(context, IncomingCallScreen(member: incomingEvent.member));
+      completer.complete();
 
       if (kDebugMode) {
         debugPrint(didAccept.toString());
