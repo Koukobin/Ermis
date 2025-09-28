@@ -43,6 +43,7 @@ import 'core/models/file_heap.dart';
 import 'core/models/message_events.dart';
 import 'core/networking/user_info_manager.dart';
 import 'core/util/file_utils.dart';
+import 'core/util/glitching_overlay.dart';
 import 'features/chat_requests_screen/chat_requests_screen.dart';
 import 'features/messaging/presentation/messaging_interface.dart';
 import 'features/settings/options/profile_settings.dart';
@@ -198,6 +199,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
 
     subscribe(AppEventBus.instance.on<ConnectionResetEvent>(), (event) {
       showToastDialog(S.current.connection_reset);
+      setState(() {});
     });
 
     subscribe(AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>(), (event) {
@@ -355,6 +357,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
   @override
   void dispose() {
     _pageController.dispose();
+    GlitchingOverlay.removeOverlay();
     super.dispose();
   }
 
@@ -407,7 +410,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       });
     }
 
-    return Scaffold(
+    Widget body = Scaffold(
       body: PageView(
         controller: _pageController,
         onPageChanged: onItemTapped,
@@ -434,11 +437,25 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
               duration: const Duration(milliseconds: 300),
               curve: Curves.fastEaseInToSlowEaseOut,
             );
-
           },
           destinations: _barItems,
         ),
       ),
     );
+
+    if (Client.instance().isConnectionReset() ||
+        Client.instance().isConnectionRefused()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        GlitchingOverlay.showOverlay(context);
+      });
+
+      body = Transform.translate(
+        offset: const Offset(15, 5),
+        child: body,
+      );
+    }
+
+    return body;
   }
 }
+

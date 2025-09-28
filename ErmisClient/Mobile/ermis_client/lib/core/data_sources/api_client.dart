@@ -61,6 +61,9 @@ class Client {
     return _instance;
   }
 
+  bool _isConnectionRefused = false;
+  bool _isConnectionReset = false;
+
   ByteBufInputStream? _inputStream;
   ByteBufOutputStream? _outputStream;
 
@@ -107,6 +110,7 @@ class Client {
       }
       rethrow;
     } on SocketException {
+      _isConnectionRefused = true;
       rethrow;
     }
   }
@@ -193,6 +197,7 @@ class Client {
     _isMessageDispatcherRunning = true;
 
     AppEventBus.instance.on<ConnectionResetEvent>().listen((e) {
+      _isConnectionReset = true;
       _inputStream?.socket.destroy();
     });
   }
@@ -205,6 +210,8 @@ class Client {
     broadcastStream = null;
     _messageTransmitter = null;
     _isMessageDispatcherRunning = false;
+    _isConnectionRefused = false;
+    _isConnectionReset = false;
 
     UserInfoManager.resetUserInformation();
     UserInfoManager.resetServerInformation();
@@ -221,6 +228,9 @@ class Client {
   List<Account>? get otherAccounts => UserInfoManager.otherAccounts;
 
   bool isLoggedIn() => _isLoggedIn;
+
+  bool isConnectionRefused() => _isConnectionRefused;
+  bool isConnectionReset() => _isConnectionReset;
 
 }
 
