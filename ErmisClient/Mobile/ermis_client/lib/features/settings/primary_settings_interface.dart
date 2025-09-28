@@ -160,15 +160,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                 showLogoutConfirmationDialog(
                   context,
                   S.current.are_you_sure_you_want_to_logout_from_this_device,
-                  () async {
+                  () {
                     Client.instance().commands?.logoutThisDevice();
-
-                    // Simulate brief/transient wait
-                    await showLoadingDialog(
-                      context,
-                      Future.delayed(const Duration(seconds: 2)),
-                    );
-
                     resetToStartingScreen(context);
                   },
                 );

@@ -178,8 +178,8 @@ Future<void> showLogoutConfirmationDialog(
             ),
             TextButton(
               onPressed: () {
-                onYes();
                 Navigator.of(context).pop();
+                onYes();
               },
               child: Text(S.current.logout_capitalized,
                   style: const TextStyle(color: Colors.red)),
