@@ -1,5 +1,5 @@
 Package: ermis-server
-Version: 0.101.1
+Version: 1.0.0-C
 Priority: optional
 Essential: no
 Pre-Depends: debconf (>= 0.5) | debconf-2.0
