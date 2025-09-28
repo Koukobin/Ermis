@@ -19,6 +19,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+import 'package:ermis_mobile/core/data_sources/managed_socket.dart';
 import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
 import 'package:ermis_mobile/core/models/account.dart';
 import 'package:ermis_mobile/core/networking/user_info_manager.dart';
@@ -63,7 +64,7 @@ class Client {
   ByteBufInputStream? _inputStream;
   ByteBufOutputStream? _outputStream;
 
-  Socket? _sslSocket;
+  ManagedSocket? _socket;
   Stream<Uint8List>? broadcastStream;
 
   bool _isLoggedIn = false;
@@ -80,7 +81,7 @@ class Client {
 
     try {
       final sslContext = SecurityContext.defaultContext;
-      _sslSocket = await SecureSocket.connect(
+      final sslSocket = await SecureSocket.connect(
         uri.host,
         uri.port,
         context: sslContext,
@@ -89,19 +90,23 @@ class Client {
             scv == ServerCertificateVerification.ignore,
       );
 
-      broadcastStream = _sslSocket!.asBroadcastStream();
+      broadcastStream = sslSocket.asBroadcastStream();
 
       UserInfoManager.serverInfo = ServerInfo(uri);
 
-      _inputStream = ByteBufInputStream(socket: _sslSocket!, stream: broadcastStream!);
-      _outputStream = ByteBufOutputStream(socket: _sslSocket!);
+      _inputStream = ByteBufInputStream(socket: sslSocket, stream: broadcastStream!);
+      _outputStream = ByteBufOutputStream(socket: sslSocket);
 
       _messageTransmitter = MessageTransmitter();
       _messageTransmitter!.setByteBufOutputStream(_outputStream!);
+
+      _socket = ManagedSocket(sslSocket);
     } on HandshakeException {
       if (scv == ServerCertificateVerification.verify) {
         throw const ServerVerificationFailedException();
       }
+      rethrow;
+    } on SocketException {
       rethrow;
     }
   }
@@ -186,16 +191,21 @@ class Client {
 
     MessageDispatcher(inputStream: _inputStream!).debute();
     _isMessageDispatcherRunning = true;
+
+    AppEventBus.instance.on<ConnectionResetEvent>().listen((e) {
+      _inputStream?.socket.destroy();
+    });
   }
 
   Future<void> disconnect() async {
-    await _sslSocket?.close();
-    _sslSocket = null;
+    await _socket?.ifActive((socket) async => await socket.close());
+    _socket = null;
     _outputStream = null;
     _inputStream = null;
     broadcastStream = null;
     _messageTransmitter = null;
     _isMessageDispatcherRunning = false;
+
     UserInfoManager.resetUserInformation();
     UserInfoManager.resetServerInformation();
   }
@@ -210,9 +220,7 @@ class Client {
   List<UserDeviceInfo>? get userDevices => UserInfoManager.userDevices;
   List<Account>? get otherAccounts => UserInfoManager.otherAccounts;
 
-  bool isLoggedIn() {
-    return _isLoggedIn;
-  }
+  bool isLoggedIn() => _isLoggedIn;
 
 }
 
