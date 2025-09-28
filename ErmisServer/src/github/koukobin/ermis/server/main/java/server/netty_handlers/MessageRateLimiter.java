@@ -37,8 +37,8 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 
 	private static final Logger LOGGER = LogManager.getLogger("server");
 
-	private static final int MAX_REQUESTS_PER_DESIGNATED_TIME = 50;
-	private static final int DESIGNATED_TIME_LIMIT_SECONDS = 5;
+	private static final int MAX_REQUESTS_PER_DESIGNATED_TIME = 100;
+	private static final int DESIGNATED_TIME_SECONDS = 5;
 	private static final int BLOCK_DURATION_SECONDS = 10;
 
 	private int requestCount;
@@ -64,7 +64,7 @@ public final class MessageRateLimiter extends ChannelInboundHandlerAdapter {
 		// If the designated time has passed since the last message was sent - reset the
 		// request count. Otherwise, increment it and check whether or not it has
 		// exceeded the limit.
-		if (currentTime.getEpochSecond() - lastMessageSent.getEpochSecond() >= DESIGNATED_TIME_LIMIT_SECONDS) {
+		if (currentTime.getEpochSecond() - lastMessageSent.getEpochSecond() >= DESIGNATED_TIME_SECONDS) {
 			requestCount = 1;
 		} else {
 			requestCount++;
