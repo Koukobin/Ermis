@@ -43,7 +43,6 @@ class MessageDispatcher {
         }
       },
       onDone: () {
-        _inputStream.socket.destroy();
         _eventBus.fire(const ConnectionResetEvent());
       },
       onError: (dynamic e) {
