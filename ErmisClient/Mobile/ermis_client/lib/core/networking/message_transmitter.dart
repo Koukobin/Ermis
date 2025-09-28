@@ -619,6 +619,8 @@ class Commands {
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.addOrSwitchToNewAccount.id);
     out.write(payload);
+
+    UserInfoManager.resetUserInformation();
   }
 
   void startVoiceCall(int chatSessionIndex) {
