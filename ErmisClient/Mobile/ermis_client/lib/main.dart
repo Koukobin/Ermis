@@ -36,6 +36,7 @@ import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/util/notifications_util.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:sqflite/sql.dart';
 
 import 'core/event_bus/app_event_bus.dart';
@@ -60,6 +61,7 @@ import 'dart:io' show Platform;
 
 void main() async {
   // Ensure that Flutter bindings are initialized before running the app
+  // (necessary for specifying things such as screen orientation).
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isAndroid || Platform.isIOS) {
@@ -82,11 +84,15 @@ void main() async {
     themeData = ThemeMode.light;
   }
 
-  runApp(_MyApp(
-    lightAppColors: AppConstants.lightAppColors,
-    darkAppColors: AppConstants.darkAppColors,
-    themeMode: themeData,
-  ));
+  // Restrict app orientation to portrait mode only
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]).then((value) => runApp(_MyApp(
+        lightAppColors: AppConstants.lightAppColors,
+        darkAppColors: AppConstants.darkAppColors,
+        themeMode: themeData,
+      )));
 }
 
 class _MyApp extends StatefulWidget {
