@@ -39,6 +39,7 @@ dependencies:
   visibility_detector: ^0.4.0+2
   flutter_keyboard_visibility: ^6.0.0
   shimmer: ^3.0.0
+  keep_screen_on: ^5.0.0
 
   # Storage & Database
   sqflite: ^2.4.2
@@ -61,8 +62,8 @@ dependencies:
 
   # Background & Notifications
   flutter_background_service: ^5.1.0
-  flutter_ringtone_player: ^4.0.0+4
   flutter_local_notifications: ^18.0.1
+  flutter_ringtone_player: ^4.0.0+4
   fluttertoast: ^8.2.13
   vibration: ^3.1.4
 
@@ -70,7 +71,6 @@ dependencies:
   audio_waveforms: ^1.3.0
 
   # Utilities & Networking
-  # intl: ^0.20.2
   url_launcher: ^6.3.2
   timezone: ^0.10.1
   flutter_webrtc: ^1.2.0

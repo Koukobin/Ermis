@@ -33,6 +33,7 @@ import 'package:ermis_mobile/features/voice_call/web_rtc/time_elapsed_widget.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:keep_screen_on/keep_screen_on.dart';
 import 'package:web_socket_channel/io.dart';
 
 import '../../../generated/l10n.dart';
@@ -150,11 +151,16 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
     elapsedTime = null;
 
     endVoiceCallNotificationID = -1;
+
+    await KeepScreenOn.turnOff(); // Disable screen-on lock
   }
 
   @override
   void initState() {
     super.initState();
+
+    // Disable screen from automatically turning off
+    KeepScreenOn.turnOn();
 
     returnToCallOverlayEntry?.remove();
     returnToCallOverlayEntry = null;
