@@ -22,11 +22,11 @@ import 'package:ermis_mobile/core/models/voice_call_history.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
-import 'package:ermis_mobile/features/messaging/presentation/voice_call_bubble.dart';
+import 'package:ermis_mobile/features/messaging/widgets/bubbles/voice_call_bubble.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_mobile/features/messaging/presentation/input_field.dart';
-import 'package:ermis_mobile/features/messaging/presentation/text_bubble.dart';
+import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/presentation/choose_friends_screen.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
@@ -149,14 +149,6 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
     subscribe(AppEventBus.instance.on<MessageReceivedEvent>(), (event) {
       // Since messages was updated by the message handler simply setState
-      setState(() {});
-    });
-
-    subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) {
-      setState(() {});
-    });
-
-    subscribe(AppEventBus.instance.on<ImageDownloadedEvent>(), (event) {
       setState(() {});
     });
 
@@ -408,7 +400,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                             border: Border.all(color: appColors.inferiorColor, width: 1.5),
                           )
                         : null,
-                    child: TextBubble(
+                    child: MessageBubble(
                       message: message,
                       previousMessageClientID: previousMessageClientID,
                       previousMessageEpochSecond: previousMessageEpochSecond,

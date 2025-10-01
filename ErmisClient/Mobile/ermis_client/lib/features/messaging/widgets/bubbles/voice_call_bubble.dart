@@ -16,19 +16,19 @@
 
 
 import 'package:ermis_mobile/core/models/voice_call_history.dart';
-import 'package:ermis_mobile/features/messaging/presentation/message_bubble.dart';
+import 'package:ermis_mobile/features/messaging/widgets/bubbles/abstract_bubble.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/data_sources/api_client.dart';
-import '../../../core/networking/common/message_types/voice_call_history_status.dart';
-import '../../../core/util/custom_date_formatter.dart';
-import '../../../core/util/datetime_utils.dart';
-import '../../../core/util/transitions_util.dart';
-import '../../../theme/app_colors.dart';
-import '../../call_history_screen/call_history_screen.dart';
+import '../../../../core/data_sources/api_client.dart';
+import '../../../../core/networking/common/message_types/voice_call_history_status.dart';
+import '../../../../core/util/custom_date_formatter.dart';
+import '../../../../core/util/datetime_utils.dart';
+import '../../../../core/util/transitions_util.dart';
+import '../../../../theme/app_colors.dart';
+import '../../../call_history_screen/call_history_screen.dart';
 
-class VoiceCallBubble extends MessageBubble {
+class VoiceCallBubble extends Bubble {
   final VoiceCallHistory entry;
   final VoidCallback pushVoiceCall;
   final int? previousMessageEpochSecond;

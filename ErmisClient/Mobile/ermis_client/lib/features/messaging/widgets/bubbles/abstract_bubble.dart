@@ -17,14 +17,14 @@
 import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/util/custom_date_formatter.dart';
-import '../../../core/widgets/profile_photos/user_profile_photo.dart';
-import '../../../generated/l10n.dart';
+import '../../../../core/util/custom_date_formatter.dart';
+import '../../../../core/widgets/profile_photos/user_profile_photo.dart';
+import '../../../../generated/l10n.dart';
 
-abstract class MessageBubble extends StatelessWidget {
+abstract class Bubble extends StatelessWidget {
   final ChatSession chatSession;
 
-  const MessageBubble({super.key, required this.chatSession});
+  const Bubble({super.key, required this.chatSession});
 
   Widget buildNewDayLabel({
     required DateTime previousMessageDate,
