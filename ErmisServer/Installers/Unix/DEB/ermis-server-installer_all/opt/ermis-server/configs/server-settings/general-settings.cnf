@@ -2,7 +2,11 @@ isProductionReady=true
 
 sourceCodeURL=https://github.com/Koukobin/Ermis
 
+# This default setting binds the server to all network interfaces.
+# However, it also causes issues with the the donation page and
+# proper email formatting. 
 address=0.0.0.0
+
 port=5551
 backlog=0
 
