@@ -27,6 +27,7 @@ import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:ermis_mobile/core/services/ermis_backgroud_service.dart';
 import 'package:ermis_mobile/core/util/message_notification.dart';
 import 'package:ermis_mobile/core/util/transitions_util.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/features/splash_screen/splash_screen.dart';
@@ -57,7 +58,7 @@ import 'package:timezone/data/latest.dart' as timezones;
 
 import 'core/util/dialogs_utils.dart';
 
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, Socket;
 
 void main() async {
   // Ensure that Flutter bindings are initialized before running the app
@@ -458,7 +459,53 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
         Client.instance().isConnectionRefused()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         GlitchingOverlay.showOverlay(context);
+
+        Future.doWhile(() async {
+          ServerInfo serverInfo = UserInfoManager.serverInfo;
+
+          Future<bool> hasInternet() async {
+            try {
+              final socket = await Socket.connect(
+                serverInfo.address!.host,
+                serverInfo.port!,
+                timeout: const Duration(seconds: 5),
+              );
+              socket.destroy();
+
+              return true;
+            } catch (e) {
+              if (kDebugMode) debugPrint('$e');
+              return false;
+            }
+          }
+
+          bool isConnected() {
+            return !Client.instance().isConnectionReset() &&
+                !Client.instance().isConnectionRefused();
+          }
+
+          return await Future.delayed(const Duration(seconds: 10), () async {
+            if (isConnected()) return false;
+            if (!await hasInternet()) return true;
+
+            await Client.instance().disconnect();
+            try {
+              await Client.instance().initialize(
+                serverInfo.serverUrl,
+                ServerCertificateVerification.ignore,
+              );
+            } catch (e) {
+              if (kDebugMode) debugPrint('$e');
+              return true;
+            }
+
+            if (context.mounted) setupClientSession(context);
+
+            return false;
+          });
+        });
       });
+
 
       body = Transform.translate(
         offset: const Offset(15, 5),
