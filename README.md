@@ -15,13 +15,13 @@
 [![Build Status](https://github.com/koukobin/ermis/actions/workflows/build.yml/badge.svg)](https://github.com/Koukobin/Ermis/actions/workflows/build.yml)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-0baaaa.svg)](CODE_OF_CONDUCT.md)
 [![License](https://img.shields.io/github/license/Koukobin/Chatapp)](https://github.com/Koukobin/Ermis/blob/master/LICENSE)
-<img src="https://visitor-badge.laobi.icu/badge?page_id=Koukobin.Ermis&title=views">
 <a href="https://play.google.com/store/apps/details?id=io.github.koukobin.ermis.ermismobile" target="_blank"><img align="right" src="ErmisClient/Mobile/ermis_client/docs/assets/get-it-on-play.png" alt="Get it on Google Play" height="80"></a>
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Koukobin_Ermis&metric=alert_status)](https://sonarcloud.io/dashboard?id=Koukobin_Ermis)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Koukobin_Ermis&metric=security_rating)](https://sonarcloud.io/dashboard?id=Koukobin_Ermis)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Koukobin_Ermis&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=Koukobin_Ermis)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Koukobin_Ermis&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=Koukobin_Ermis)
+<img src="https://visitor-badge.laobi.icu/badge?page_id=Koukobin.Ermis&title=views">
 
 [![Wiki](https://img.shields.io/badge/wiki-available-brightgreen?logo=wikipedia&logoColor=white)](https://github.com/Koukobin/Ermis/wiki)
 
