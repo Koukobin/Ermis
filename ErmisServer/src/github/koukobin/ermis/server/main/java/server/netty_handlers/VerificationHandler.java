@@ -107,6 +107,11 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 			verificationStatusCode = Verification.Result.WRONG_CODE;
 		}
 
+		if (verificationStatusCode == Verification.Result.RUN_OUT_OF_ATTEMPTS) {
+			registrationFailed(ctx);
+			return;
+		}
+
 		ByteBuf payload = ctx.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.ENTRY.id);
 		payload.writeInt(verificationStatusCode.getID());
@@ -132,12 +137,8 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 			}
 
 			login(ctx, clientInfo);
-			return;
 		}
 
-		if (areAttemptsExhausted) {
-			registrationFailed(ctx);
-		}
 	}
 
 	public abstract String createEmailMessage(String generatedVerificationCode);
