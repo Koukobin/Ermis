@@ -240,10 +240,7 @@ class Entry<T extends CredentialInterface> {
   final ByteBufInputStream inputStream;
   final ByteBufOutputStream outputStream;
 
-  bool isLoggedIn = false;
-  bool isVerificationComplete = false;
-
-  Entry(this.entryType, this.outputStream, this.inputStream);
+  const Entry(this.entryType, this.outputStream, this.inputStream);
 
   Future<Resultable> getCredentialsExchangeResult() async {
     ByteBuf? buffer;
@@ -283,8 +280,7 @@ class Entry<T extends CredentialInterface> {
     }
 
     EntryResult result = EntryResult(LoginResult.fromId(entryId)!, addedInfo);
-    isLoggedIn = result.success;
-    Client.instance()._isLoggedIn = isLoggedIn;
+    Client.instance()._isLoggedIn = result.success;
     return result;
   }
 
@@ -358,8 +354,7 @@ class Entry<T extends CredentialInterface> {
             : LoginResult.fromId(entryId)!,
         addedInfo);
 
-    isLoggedIn = entryResult.success;
-    Client.instance()._isLoggedIn = isLoggedIn;
+    Client.instance()._isLoggedIn = entryResult.success;
     return entryResult;
   }
 

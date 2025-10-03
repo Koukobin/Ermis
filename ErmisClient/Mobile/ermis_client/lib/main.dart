@@ -167,8 +167,6 @@ class MainInterface extends StatefulWidget {
 }
 
 class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionMixin {
-  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
   static const Chats _chatsWidget = Chats();
   static const ChatRequests _chatRequestsWidget = ChatRequests();
   static const SettingsScreen _settingsScreenWidget = SettingsScreen();

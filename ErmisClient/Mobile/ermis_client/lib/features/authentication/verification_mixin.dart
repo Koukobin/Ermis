@@ -148,7 +148,7 @@ mixin Verification {
 
     bool isSuccessful = false;
 
-    while (!verificationEntry.isVerificationComplete) {
+    for (;;) {
       Future<EntryResult> entryResultFuture = verificationEntry.getResult();
 
       await showVerificationDialog(
@@ -191,7 +191,7 @@ mixin Verification {
 
     bool isSuccessful = false;
 
-    while (!verificationEntry.isVerificationComplete) {
+    for (;;) {
       Future<EntryResult> entryResultFuture = verificationEntry.getChangePasswordResult();
 
       await showVerificationDialog(
@@ -266,7 +266,7 @@ mixin Verification {
 
     bool isSuccessful = false;
 
-    while (!verificationEntry.isVerificationComplete) {
+    for (;;) {
       Future<EntryResult> entryResultFuture = verificationEntry.getResult();
 
       await showVerificationDialog(
