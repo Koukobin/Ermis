@@ -56,11 +56,11 @@ class MyCamera {
   }
 }
 
-Future<String?> saveFileToDownloads(String fileName, Uint8List fileData) async {
+Future<bool> saveFileToDownloads(String fileName, Uint8List fileData) async {
   bool isSuccessful = await requestAllPermissions();
 
   if (!isSuccessful) {
-    return null;
+    return false;
   }
 
   final params = SaveFileDialogParams(
@@ -68,8 +68,9 @@ Future<String?> saveFileToDownloads(String fileName, Uint8List fileData) async {
     data: fileData,
   );
 
+  // Note that this returned file path is broken for whatever reason
   final filePath = await FlutterFileDialog.saveFile(params: params);
-  return filePath;
+  return filePath != null;
 }
 
 Future<void> writeFile(Uint8List fileData, String filePath) async {
@@ -141,6 +142,11 @@ Future<void> deleteAndCreateFile(String filePath) async {
 
 Future<String> loadAssetFile(String assetPath) async {
   return await rootBundle.loadString(assetPath);
+}
+
+Future<bool> checkIfFileExists(String filePath) async {
+  final file = File(filePath);
+  return file.exists();
 }
 
 /// Takes in raw PCM audio data and converts it into an in-memory WAV file returned as a [Uint8List]

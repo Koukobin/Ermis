@@ -41,10 +41,8 @@ import 'package:flutter/services.dart';
 import 'package:sqflite/sql.dart';
 
 import 'core/event_bus/app_event_bus.dart';
-import 'core/models/file_heap.dart';
 import 'core/models/message_events.dart';
 import 'core/networking/user_info_manager.dart';
-import 'core/util/file_utils.dart';
 import 'core/util/glitching_overlay.dart';
 import 'features/chat_requests_screen/chat_requests_screen.dart';
 import 'features/messaging/presentation/messaging_interface.dart';
@@ -288,19 +286,6 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       );
     });
 
-    subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) async {
-      LoadedInMemoryFile file = event.file;
-      String? filePath = await saveFileToDownloads(file.fileName, file.fileBytes);
-
-      if (!mounted) return; // Probably impossible but still check just in case
-      if (filePath != null) {
-        showSnackBarDialog(context: context, content: S.current.downloaded_file);
-        return;
-      }
-
-      showExceptionDialog(context, S.current.error_saving_file);
-    });
-
     subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (incomingEvent) async {
       void pushVoiceCall() {
         pushVoiceCallWebRTC(
@@ -505,7 +490,6 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
           });
         });
       });
-
 
       body = Transform.translate(
         offset: const Offset(15, 5),

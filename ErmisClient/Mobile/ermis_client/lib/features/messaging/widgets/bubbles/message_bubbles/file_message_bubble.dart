@@ -14,6 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:ermis_mobile/core/data_sources/api_client.dart';
 import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
 import 'package:ermis_mobile/core/models/message.dart';
@@ -23,6 +25,7 @@ import 'package:ermis_mobile/core/util/file_utils.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
 
 import '../../../../../theme/app_colors.dart';
 
@@ -42,104 +45,121 @@ class FileMessageBubble extends StatefulWidget {
 
 class _FileMessageBubbleState extends State<FileMessageBubble> with EventBusSubscriptionMixin {
   Message get message => widget.message;
+  bool get isFetched => message.fileBytes != null;
 
-  bool isDownloading = false;
-  bool hasDownloaded = false;
+  bool isFetching = false;
 
   @override
   void initState() {
     super.initState();
+  }
 
-    hasDownloaded = message.fileBytes != null;
+  Future<void> fetchFile() async {
+    setState(() {
+      isFetching = true;
+    });
+    Client.instance().commands?.downloadFile(
+          message.messageID,
+          message.chatSessionIndex,
+        );
 
-    subscribe(AppEventBus.instance.on<FileDownloadedEvent>(), (event) {
-      if (event.messageID == message.messageID) {
+    Completer completer = Completer();
+
+    StreamSubscription<FileDownloadedEvent>? sub;
+    sub = AppEventBus.instance.on<FileDownloadedEvent>().listen((event) async {
+      if (event.messageID == widget.message.messageID) {
         setState(() {
-          hasDownloaded = true;
-          isDownloading = false;
+          isFetching = false;
+        });
+
+        sub!.cancel().then((_) {
+          completer.complete();
         });
       }
     });
+
+    return completer.future;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      // Occupy as little space as possible
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: widget.appColors.secondaryColor.withAlpha(100),
-                  borderRadius: BorderRadius.circular(12),
+        GestureDetector(
+          onTap: () async {
+            if (!isFetched) await fetchFile();
+    
+            String filePath = (await createTempFile(
+              message.fileBytes!,
+              message.fileName,
+            ))
+                .path;
+    
+            OpenFilex.open(filePath);
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: widget.appColors.secondaryColor.withAlpha(100),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    if (!isFetched) await fetchFile();
+                
+                    bool success = await saveFileToDownloads(
+                      message.fileName,
+                      message.fileBytes!,
+                    );
+                
+                    if (!context.mounted) return;
+                
+                    if (success) {
+                      showSnackBarDialog(
+                        context: context,
+                        content: S.current.downloaded_file,
+                      );
+                      return;
+                    }
+                
+                    showExceptionDialog(
+                      context,
+                      S.current.error_saving_file,
+                    );
+                  },
+                  child: isFetching
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Icon(Icons.download),
                 ),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () async {
-                        if (!hasDownloaded) {
-                          setState(() {
-                            isDownloading = true;
-                          });
-                          Client.instance().commands?.downloadFile(
-                                message.messageID,
-                                message.chatSessionIndex,
-                              );
-                          return;
-                        }
-
-                        String? filePath = await saveFileToDownloads(message.fileName, message.fileBytes!);
-
-                        if (filePath != null) {
-                          showSnackBarDialog(
-                            context: context,
-                            content: S.current.downloaded_file,
-                          );
-                          return;
-                        }
-
-                        showExceptionDialog(
-                          context,
-                          S.current.error_saving_file,
-                        );
-                      },
-                      child: isDownloading
-                          ? const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: CircularProgressIndicator(),
-                            )
-                          : const Icon(Icons.download),
-                    ),
-                    const SizedBox(width: 5),
-                    Flexible(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            message.fileName,
-                            softWrap: true, // Enable text wrapping
-                            overflow: TextOverflow.clip,
-                            maxLines: null,
-                          ),
-                          Text(S.current.unknown_size),
-                        ],
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        message.fileName,
+                        softWrap: true, // Enable text wrapping
+                        overflow: TextOverflow.clip,
+                        maxLines: null,
                       ),
-                    ),
-                  ],
+                      Text(S.current.unknown_size),
+                    ],
+                  ),
                 ),
-              ),
-              Text(
-                message.fileName,
-                softWrap: true, // Enable text wrapping
-                overflow: TextOverflow.clip,
-                maxLines: null,
-              ),
-            ],
+              ],
+            ),
           ),
+        ),
+        Text(
+          message.fileName,
+          softWrap: true, // Enable text wrapping
+          overflow: TextOverflow.clip,
+          maxLines: null,
         ),
       ],
     );
