@@ -193,11 +193,6 @@ class MessageTransmitter {
   }
 
   Future<void> fetchUserInformation() async {
-    // Proactively reset user information to ensure that
-    // user information does not leak into this account
-    // in case of an account switch
-    UserInfoManager.resetUserInformation();
-
     commands.fetchProfileInformation();
     commands.fetchChatSessionIndices();
     commands.setAccountStatus(ClientStatus.online);
@@ -620,6 +615,9 @@ class Commands {
     payload.writeInt32(ClientCommandType.addOrSwitchToNewAccount.id);
     out.write(payload);
 
+    // Proactively reset user information to ensure that
+    // user information does not leak into this account
+    // in case of an account switch
     UserInfoManager.resetUserInformation();
   }
 

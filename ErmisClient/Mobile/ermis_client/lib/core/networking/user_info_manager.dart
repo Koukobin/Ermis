@@ -105,11 +105,14 @@ class UserInfoManager {
 
   /// Resets all user information; useful for when switching between accounts
   static void resetUserInformation() {
+    accountInfo = null;
+
     username = null;
     clientID = -1;
     accountStatus = null;
     profilePhoto = null;
     userDevices = null;
+    otherAccounts = null;
 
     chatSessionIDSToChatSessions.clear();
     chatSessions = null;

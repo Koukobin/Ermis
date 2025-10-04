@@ -16,6 +16,7 @@
 package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
@@ -48,6 +49,7 @@ public final class CreateAccountHandler extends EntryHandler {
 
 	private DeviceType deviceType = DeviceType.UNSPECIFIED;
 	private String osName = "Unknown";
+	private UUID deviceUUID = null;
 
 	private final Map<Credential, String> credentials = new EnumMap<>(Credential.class);
 
@@ -88,6 +90,10 @@ public final class CreateAccountHandler extends EntryHandler {
 			ctx.channel().writeAndFlush(payload);
 
 			getLogger().debug("Sending credential requirements!");
+		}
+		case SET_UUID -> {
+			String deviceUUIDString = (String) msg.readCharSequence(msg.readableBytes(), Charset.defaultCharset());
+			deviceUUID = UUID.fromString(deviceUUIDString);
 		}
 		}
 
@@ -144,7 +150,9 @@ public final class CreateAccountHandler extends EntryHandler {
 
 			@Override
 			public GeneralResult executeWhenVerificationSuccessful() {
-				UUID deviceUUID = UUID.randomUUID();
+				if (deviceUUID == null)
+					deviceUUID = UUID.randomUUID();
+
 				UserDeviceInfo deviceInfo = new UserDeviceInfo(deviceUUID, deviceType, osName);
 
 				String password = credentials.get(Credential.PASSWORD);

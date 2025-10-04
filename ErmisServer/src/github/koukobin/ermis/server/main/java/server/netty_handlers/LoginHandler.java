@@ -15,6 +15,7 @@
  */
 package github.koukobin.ermis.server.main.java.server.netty_handlers;
 
+import java.nio.charset.Charset;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
@@ -75,10 +76,8 @@ public final class LoginHandler extends EntryHandler {
 			osName = new String(osNameBytes);
 		}
 		case SET_UUID -> {
-			byte[] uuidBytes = new byte[msg.readableBytes()];
-			msg.readBytes(uuidBytes);
-
-			deviceUUID = UUID.nameUUIDFromBytes(uuidBytes);
+			String deviceUUIDString = (String) msg.readCharSequence(msg.readableBytes(), Charset.defaultCharset());
+			deviceUUID = UUID.fromString(deviceUUIDString);
 		}
 		}
 
