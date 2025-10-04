@@ -368,7 +368,9 @@ class Entry<T extends CredentialInterface> {
   }
 
   void setDeviceUUID(String uuid) {
-    int actionId = LoginAction.setDeviceUUID.id;
+    int actionId = entryType == EntryType.login
+        ? LoginAction.setDeviceUUID.id
+        : CreateAccountAction.setDeviceUUID.id;
 
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.entry.id);

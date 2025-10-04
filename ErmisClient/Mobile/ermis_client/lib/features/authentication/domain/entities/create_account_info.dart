@@ -41,7 +41,7 @@ enum GeneralEntryAction {
 }
 
 enum CreateAccountAction {
-  addDeviceInfo(1), fetchRequirements(3);
+  addDeviceInfo(1), fetchRequirements(3), setDeviceUUID(4);
 
   final int id;
   const CreateAccountAction(this.id);
