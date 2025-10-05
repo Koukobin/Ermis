@@ -21,7 +21,6 @@ import github.koukobin.ermis.common.message_types.ClientContentType;
 import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.common.message_types.UserMessage;
-import github.koukobin.ermis.server.main.java.configs.ServerSettings;
 import github.koukobin.ermis.server.main.java.databases.postgresql.ermis_database.ErmisDatabase;
 import github.koukobin.ermis.server.main.java.server.ClientInfo;
 import io.netty.buffer.ByteBuf;
@@ -33,6 +32,8 @@ import io.netty.channel.epoll.EpollSocketChannel;
  */
 public class FetchWrittenText implements ICommand {
 
+	public static final int NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME = 30;
+	
 	@Override
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		int chatSessionIndex = args.readInt();
@@ -44,7 +45,7 @@ public class FetchWrittenText implements ICommand {
 		UserMessage[] messages;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
 			messages = conn.selectMessages(chatSessionID, numOfMessagesAlreadySelected,
-					ServerSettings.NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME,
+					NUMBER_OF_MESSAGES_TO_READ_FROM_THE_DATABASE_AT_A_TIME,
 					clientInfo.getClientID());
 		}
 
