@@ -65,7 +65,17 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble> with EventBusSu
         ? null
         : Hero(
             tag: '${message.messageID}',
-            child: Image.memory(message.fileBytes!),
+            child: Image.memory(
+              message.fileBytes!,
+              errorBuilder: (context, error, stackTrace) {
+                return Column(
+                  children: [
+                    Icon(Icons.image_not_supported_outlined, size: 120),
+                    Text("$error"),
+                  ],
+                );
+              },
+            ),
           );
 
     return GestureDetector(
