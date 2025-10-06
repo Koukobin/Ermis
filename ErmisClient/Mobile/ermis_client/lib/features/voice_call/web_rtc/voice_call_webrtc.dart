@@ -521,10 +521,21 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
         });
   }
 
+  void updateSpeakerPhone() {
+    void updateEnabled(MediaStreamTrack track) {
+      track.enableSpeakerphone(isSpeakerPhoneEnabled);
+    }
+
+    localStream!.getAudioTracks().forEach(updateEnabled);
+  }
+
   void toggleVideoMode() {
     setState(() {
       isShowingVideo = !isShowingVideo;
+      isSpeakerPhoneEnabled = isShowingVideo;
     });
+
+    updateSpeakerPhone();
 
     localStream!.getVideoTracks().forEach((track) {
       track.enabled = isShowingVideo;
@@ -715,11 +726,7 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
                             isSpeakerPhoneEnabled = !isSpeakerPhoneEnabled;
                           });
 
-                          void updateEnabled(MediaStreamTrack track) {
-                            track.enableSpeakerphone(isSpeakerPhoneEnabled);
-                          }
-
-                          localStream!.getAudioTracks().forEach(updateEnabled);
+                          updateSpeakerPhone();
                         },
                       ),
                       IconButton.filled(
