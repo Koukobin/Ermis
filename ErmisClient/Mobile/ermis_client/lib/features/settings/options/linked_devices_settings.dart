@@ -17,6 +17,7 @@
 import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
 import 'package:ermis_mobile/core/models/user_device.dart';
 import 'package:ermis_mobile/core/models/message_events.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import 'package:ermis_mobile/core/widgets/loading_state.dart';
 import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_mobile/core/widgets/dots_loading_screen.dart';
@@ -122,10 +123,16 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
           scrollView: Column(
         children: [
           Flexible(
-            child: devices!.isNotEmpty ? ListView.builder(
+            child: devices!.length > 1 ? ListView.builder(
               itemCount: devices!.length,
               itemBuilder: (context, index) {
                 final device = devices![index];
+
+                // Exclude self
+                if (device.deviceUUID == UserInfoManager.accountInfo!.deviceUUID) {
+                  return const SizedBox.shrink();
+                }
+
                 IconData deviceIcon = switch (device.deviceType) {
                   DeviceType.mobile => Icons.smartphone,
                   DeviceType.desktop => Icons.computer,
