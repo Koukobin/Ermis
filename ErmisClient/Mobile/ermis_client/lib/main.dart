@@ -26,9 +26,7 @@ import 'package:ermis_mobile/core/services/database/extensions/unread_messages_e
 import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:ermis_mobile/core/services/ermis_backgroud_service.dart';
 import 'package:ermis_mobile/core/util/message_notification.dart';
-import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
-import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/features/splash_screen/splash_screen.dart';
 import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
@@ -285,67 +283,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
     });
 
     subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (incomingEvent) async {
-      void pushVoiceCall() {
-        pushVoiceCallWebRTC(
-          context,
-          chatSessionID: incomingEvent.chatSessionID,
-          chatSessionIndex: incomingEvent.chatSessionIndex,
-          member: incomingEvent.member,
-          isInitiator: false,
-        );
-      }
-
-      StreamSubscription<CancelVoiceCallIncomingEvent>? subscription;
-
-      int notificationID = await NotificationService.showVoiceCallNotification(
-        icon: incomingEvent.member.icon.profilePhoto,
-        callerName: incomingEvent.member.username,
-        onAccept: () {
-          // Pop incoming call screen which is pushed below
-          Navigator.pop(context);
-
-          // Actually push call
-          pushVoiceCall();
-
-          subscription!.cancel();
-        },
-      );
-
-      Completer completer = Completer();
-
-      subscription = AppEventBus.instance
-          .on<CancelVoiceCallIncomingEvent>()
-          .listen((cancelEvent) {
-        if (cancelEvent.chatSessionID == incomingEvent.chatSessionID) {
-          // Pop incoming call screen which is pushed below - if still displayed
-          if (!completer.isCompleted) {
-            Navigator.pop(context);
-          }
-
-          // Cancel notification
-          NotificationService.cancelNotification(notificationID);
-
-          subscription!.cancel();
-        }
-      });
-
-      bool? didAccept = await navigateWithFade(context, IncomingCallScreen(member: incomingEvent.member));
-      completer.complete();
-
-      if (kDebugMode) {
-        debugPrint(didAccept.toString());
-        debugPrint(didAccept.toString());
-        debugPrint(didAccept.toString());
-        debugPrint(didAccept.toString());
-        debugPrint(didAccept.toString());
-        debugPrint(didAccept.toString());
-      }
-
-      if (didAccept == true) {
-        pushVoiceCall();
-        NotificationService.cancelNotification(notificationID);
-        subscription.cancel();
-      }
+      showIncomingCallScreen(context, incomingEvent);
     });
   }
 

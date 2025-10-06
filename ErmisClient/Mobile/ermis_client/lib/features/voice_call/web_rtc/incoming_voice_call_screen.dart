@@ -14,26 +14,80 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/widgets/profile_photos/user_profile_photo.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class IncomingCallScreen extends StatefulWidget {
-  final Member member;
+import '../../../core/event_bus/app_event_bus.dart';
+import '../../../core/models/message_events.dart';
+import '../../../core/util/notifications_util.dart';
+import '../../../core/util/transitions_util.dart';
 
-  const IncomingCallScreen({super.key, required this.member});
+void showIncomingCallScreen(
+  BuildContext context,
+  VoiceCallIncomingEvent incomingEvent,
+) async {
+  bool? didAccept = await navigateWithFade(
+    context,
+    IncomingCallScreen(
+      parentContext: context,
+      incomingEvent: incomingEvent,
+    ),
+  );
+
+  if (kDebugMode) {
+    debugPrint(didAccept.toString());
+    debugPrint(didAccept.toString());
+    debugPrint(didAccept.toString());
+    debugPrint(didAccept.toString());
+    debugPrint(didAccept.toString());
+    debugPrint(didAccept.toString());
+  }
+}
+
+void _pushVoiceCall(BuildContext context, VoiceCallIncomingEvent incomingEvent) {
+  pushVoiceCallWebRTC(
+    context,
+    chatSessionID: incomingEvent.chatSessionID,
+    chatSessionIndex: incomingEvent.chatSessionIndex,
+    member: incomingEvent.member,
+    isInitiator: false,
+  );
+}
+
+class IncomingCallScreen extends StatefulWidget {
+  final BuildContext parentContext;
+  final VoiceCallIncomingEvent incomingEvent;
+
+  const IncomingCallScreen({
+    super.key,
+    required this.parentContext,
+    required this.incomingEvent,
+  });
 
   @override
   State<IncomingCallScreen> createState() => _IncomingCallScreenState();
 }
 
-class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProviderStateMixin {
+class _IncomingCallScreenState extends State<IncomingCallScreen>
+    with TickerProviderStateMixin, EventBusSubscriptionMixin {
   late AnimationController acceptButtonAnimationController;
   late Animation<double> acceptButtonAnimation;
 
   late AnimationController declineButtonAnimationController;
   late Animation<double> declineButtonAnimation;
+
+  VoiceCallIncomingEvent get incomingEvent => widget.incomingEvent;
+  Member get member => incomingEvent.member;
+
+  bool? didAccept;
+  late int notificationID;
 
   @override
   void initState() {
@@ -64,13 +118,55 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
         curve: Curves.easeInOut,
       ),
     );
+
+    Future(() async {
+      notificationID = await NotificationService.showVoiceCallNotification(
+        icon: incomingEvent.member.icon.profilePhoto,
+        callerName: incomingEvent.member.username,
+        onAccept: popAccept,
+      );
+    });
+
+    late StreamSubscription<CancelVoiceCallIncomingEvent> subscription;
+    subscription = AppEventBus.instance
+        .on<CancelVoiceCallIncomingEvent>()
+        .listen((cancelEvent) {
+      if (cancelEvent.chatSessionID == incomingEvent.chatSessionID) {
+        if (context.mounted) popReject();
+
+        // Cancel voice call notification
+        NotificationService.cancelNotification(notificationID);
+
+        subscription.cancel();
+      }
+    });
   }
 
   @override
   void dispose() {
     acceptButtonAnimationController.dispose();
     declineButtonAnimationController.dispose();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (didAccept ?? false) {
+        _pushVoiceCall(widget.parentContext, incomingEvent);
+
+        // Cancel voice call notification
+        NotificationService.cancelNotification(notificationID);
+      }
+    });
+
     super.dispose();
+  }
+
+  void popAccept() {
+    didAccept = true;
+    Navigator.pop(context, didAccept);
+  }
+
+  void popReject() {
+    didAccept = false;
+    Navigator.pop(context, didAccept);
   }
 
   @override
@@ -81,15 +177,15 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
         fit: StackFit.expand,
         children: [
           // Background image: self-explanatory
-          if (widget.member.icon.profilePhoto.isNotEmpty)
+          if (member.icon.profilePhoto.isNotEmpty)
             Image.memory(
-              widget.member.icon.profilePhoto,
+              member.icon.profilePhoto,
               fit: BoxFit.cover,
             )
           else
             FittedBox(
               fit: BoxFit.contain,
-              child: Text(widget.member.username[0].toUpperCase()),
+              child: Text(member.username[0].toUpperCase()),
             ),
           // A semi-transparent overlay to darken background
           Container(
@@ -103,12 +199,12 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
                 // Caller Avatar
                 UserProfilePhoto(
                   radius: 60,
-                  profileBytes: widget.member.icon.profilePhoto,
+                  profileBytes: member.icon.profilePhoto,
                 ),
                 const SizedBox(height: 20),
                 // Caller name
                 Text(
-                  widget.member.username,
+                  member.username,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -163,12 +259,8 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
                               onLongPressEnd: (details) {
                                 acceptButtonAnimationController.repeat(reverse: true);
                               },
-                              onTap: () {
-                                Navigator.pop(context, false);
-                              },
-                              onDragEndOnMinY: () {
-                                Navigator.pop(context, false);
-                              },
+                              onTap: popReject,
+                              onDragEndOnMinY: popReject,
                               child: Container(
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
@@ -234,12 +326,8 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
                                 acceptButtonAnimationController.repeat(
                                     reverse: true);
                               },
-                              onTap: () {
-                                Navigator.pop(context, true);
-                              },
-                              onDragEndOnMinY: () {
-                                Navigator.pop(context, true);
-                              },
+                              onTap: popAccept,
+                              onDragEndOnMinY: popAccept,
                               child: Container(
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
