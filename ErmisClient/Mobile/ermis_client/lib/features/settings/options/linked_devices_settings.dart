@@ -180,7 +180,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                         },
                         itemBuilder: (context) => [
                           PopupMenuItem(
-                            value: S.current.logout,
+                            value: 'logout',
                             child: Row(
                               children: [
                                 const Icon(Icons.delete, color: Colors.red),
