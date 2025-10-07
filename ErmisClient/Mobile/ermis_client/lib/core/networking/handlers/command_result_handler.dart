@@ -451,9 +451,9 @@ class CommandResultHandler {
 
         while (msg.readableBytes > 0) {
           DeviceType deviceType = DeviceType.fromId(msg.readInt32());
-          String address = utf8.decode(msg.readBytes(msg.readInt32()));
+          String deviceUUID = utf8.decode(msg.readBytes(msg.readInt32()));
           String osName = utf8.decode(msg.readBytes(msg.readInt32()));
-          UserInfoManager.userDevices!.add(UserDeviceInfo(address, deviceType, osName));
+          UserInfoManager.userDevices!.add(UserDeviceInfo(deviceUUID, deviceType, osName));
         }
         _eventBus.fire(UserDevicesEvent(UserInfoManager.userDevices!));
         break;
