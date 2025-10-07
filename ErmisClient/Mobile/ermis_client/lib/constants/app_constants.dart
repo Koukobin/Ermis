@@ -18,12 +18,25 @@ import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../core/exceptions/class_not_initialized_exception.dart';
+
 class AppConstants {
-  static late final String applicationVersion;
+  static String? _applicationVersion;
 
   static Future<void> initialize() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    applicationVersion = packageInfo.version;
+    Future<String> fetchAppVersion() async {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      return packageInfo.version;
+    }
+
+    _applicationVersion ??= await fetchAppVersion();
+  }
+
+  static String get applicationVersion {
+    if (_applicationVersion == null) {
+      throw ClassNotInitializedException("$AppConstants not initialized");
+    }
+    return _applicationVersion!;
   }
 
   static const String applicationTitle = "Ermis";
@@ -113,7 +126,7 @@ class AppConstants {
     // Locale('gu', 'IN'), // Gujarati
   ];
 
-static const Map<String, String> languageNames = {
+  static const Map<String, String> languageNames = {
     'en': 'English',
     'fr': 'Français',
     'es': 'Español',
