@@ -411,7 +411,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
         maxLength: usernameMaxLength,
         invalidCharacters: invalidCharacters,
       );
-      if (kDebugMode) debugPrint(invalidCharacters);
+      if (kDebugMode) debugPrint("Username Invalid Characters: $invalidCharacters");
     }
 
     {
@@ -423,6 +423,7 @@ class CreateAccountEntry extends Entry<CreateAccountCredential> {
         maxLength: passwordMaxLength,
         invalidCharacters: invalidCharacters,
       );
+      if (kDebugMode) debugPrint("Password Invalid Characters: $invalidCharacters");
     }
   }
 
