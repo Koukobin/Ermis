@@ -76,6 +76,7 @@ Future<bool> requestAllPermissions() async {
       Permission.audio,
       Permission.videos,
       Permission.microphone,
+      Permission.notification,
     ];
 
     for (Permission permission in permissions) {

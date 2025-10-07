@@ -26,6 +26,7 @@ import 'package:ermis_mobile/core/services/database/extensions/unread_messages_e
 import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:ermis_mobile/core/services/ermis_backgroud_service.dart';
 import 'package:ermis_mobile/core/util/message_notification.dart';
+import 'package:ermis_mobile/core/util/permissions.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/features/splash_screen/splash_screen.dart';
@@ -186,6 +187,13 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedPageIndex);
+
+    // Request all essential app permissions proactively.
+    // This is required for the proper functioning of push notifications;
+    // many users may not receive any notifications while the app is alive
+    // for notification permission to be explicitly requested - causing push
+    // notifications triggered by background service to fail.
+    requestAllPermissions();
 
     subscribe(AppEventBus.instance.on<DataReceivedEvent>(), (event) {
       ErmisDB.getConnection().insertDataBytesReceived(
