@@ -38,7 +38,7 @@ class EntropyCalculator {
       entropy -= probability * (log(probability) / ln2);
     }
 
-    if (input.length > 6) return entropy * 30;
+    if (input.length > 12) return entropy * 30;
     return entropy * 4;
   }
 }
