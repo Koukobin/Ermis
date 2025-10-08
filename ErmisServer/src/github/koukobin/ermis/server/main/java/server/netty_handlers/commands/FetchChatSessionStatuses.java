@@ -69,8 +69,8 @@ public class FetchChatSessionStatuses implements ICommand {
 			if (member == null) {
 				clientStatus = ClientStatus.OFFLINE;
 			} else {
-				ClientInfo random = member.get(0);
-				clientStatus = random.getStatus();
+				boolean isOnline = member.stream().anyMatch(m -> m.getStatus() == ClientStatus.ONLINE);
+				clientStatus = isOnline ? ClientStatus.ONLINE : ClientStatus.OFFLINE;
 			}
 
 			payload.writeInt(clientID);
