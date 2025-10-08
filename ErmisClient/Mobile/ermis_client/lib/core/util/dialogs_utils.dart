@@ -163,8 +163,8 @@ Future<void> showConfirmationDialog(
 }
 
 Future<void> showLogoutConfirmationDialog(
-    BuildContext context, String content, VoidCallback onYes) async {
-  await showDialog(
+    BuildContext context, String content, VoidCallback onYes) {
+  return showDialog(
     context: context,
     builder: (BuildContext context) {
       return WhatsAppPopupDialog(
@@ -181,8 +181,10 @@ Future<void> showLogoutConfirmationDialog(
                 Navigator.of(context).pop();
                 onYes();
               },
-              child: Text(S.current.logout_capitalized,
-                  style: const TextStyle(color: Colors.red)),
+              child: Text(
+                S.current.logout_capitalized,
+                style: const TextStyle(color: Colors.red),
+              ),
             ),
           ],
         ),
