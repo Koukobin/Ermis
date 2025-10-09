@@ -132,7 +132,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen>
         .on<CancelVoiceCallIncomingEvent>()
         .listen((cancelEvent) {
       if (cancelEvent.chatSessionID == incomingEvent.chatSessionID) {
-        if (context.mounted) popReject();
+        if (context.mounted && mounted) popReject();
 
         // Cancel voice call notification
         NotificationService.cancelNotification(notificationID);
