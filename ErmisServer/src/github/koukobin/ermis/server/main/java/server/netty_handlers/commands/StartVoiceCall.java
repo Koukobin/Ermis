@@ -40,12 +40,6 @@ public class StartVoiceCall implements ICommand {
 		int initiatorClientID = clientInfo.getClientID();
 
 		if (WebRTCSignallingServer.isVoiceCallAlreadyActive(chatSessionID)) {
-			ByteBuf acceptVoiceCallPayload = channel.alloc().ioBuffer();
-			acceptVoiceCallPayload.writeInt(chatSessionIndex);
-
-			CommandsHolder.executeCommand(ClientCommandType.ACCEPT_VOICE_CALL,
-					clientInfo,
-					acceptVoiceCallPayload);
 			return;
 		}
 
