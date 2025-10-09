@@ -148,7 +148,8 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
                       VoiceCallHistoryStatus.ignored => Icons.phone_missed,
                     },
                     color: switch (entry.status) {
-                      VoiceCallHistoryStatus.created => Colors.white,
+                      VoiceCallHistoryStatus.created =>
+                        highlight ? Colors.white : appColors.inferiorColor,
                       VoiceCallHistoryStatus.accepted => Colors.green,
                       VoiceCallHistoryStatus.ignored => Colors.red,
                     },
