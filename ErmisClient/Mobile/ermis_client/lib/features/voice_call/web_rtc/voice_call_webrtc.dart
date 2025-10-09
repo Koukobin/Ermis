@@ -59,7 +59,7 @@ void pushVoiceCallWebRTC(
 }) {
   // Ensure previous voice call screen is popped
   if (_voiceCallKey.currentContext != null) {
-    Navigator.pop(_voiceCallKey.currentContext!);
+    Navigator.of(_voiceCallKey.currentContext!).popUntil((route) => route.isFirst);
     _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
   }
 
