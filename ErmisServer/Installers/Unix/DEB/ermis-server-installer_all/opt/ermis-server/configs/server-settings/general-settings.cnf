@@ -17,7 +17,7 @@ connectTimeoutMillis=0
 workerThreads=5
 
 # max number bytes a file sent by client can be
-maxClientMessageFileBytes=1048576
+maxClientMessageFileBytes=10485760
 
 # max amount of bytes a simple client text message can be
 maxClientMessageTextBytes=512
