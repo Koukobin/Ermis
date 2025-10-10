@@ -89,6 +89,8 @@ class _IncomingCallScreenState extends State<IncomingCallScreen>
   bool? didAccept;
   late int notificationID;
 
+  late StreamSubscription<CancelVoiceCallIncomingEvent> cancelVoiceCallSub;
+
   @override
   void initState() {
     super.initState();
@@ -127,8 +129,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen>
       );
     });
 
-    late StreamSubscription<CancelVoiceCallIncomingEvent> subscription;
-    subscription = AppEventBus.instance
+    cancelVoiceCallSub = AppEventBus.instance
         .on<CancelVoiceCallIncomingEvent>()
         .listen((cancelEvent) {
       if (cancelEvent.chatSessionID == incomingEvent.chatSessionID) {
@@ -137,7 +138,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen>
         // Cancel voice call notification
         NotificationService.cancelNotification(notificationID);
 
-        subscription.cancel();
+        cancelVoiceCallSub.cancel();
       }
     });
   }
@@ -151,8 +152,10 @@ class _IncomingCallScreenState extends State<IncomingCallScreen>
       if (didAccept ?? false) {
         _pushVoiceCall(widget.parentContext, incomingEvent);
 
-        // Cancel voice call notification
+        // Cancel voice call notification and associated
+        // subscription for obvious reasons
         NotificationService.cancelNotification(notificationID);
+        cancelVoiceCallSub.cancel();
       }
     });
 
