@@ -160,21 +160,39 @@ public class Client {
 	}
 
 	public static void initiateMessageDispatcher() {
-		Thread thread = new Thread("Thread-listenToMessages") {
-			@Override
-			public void run() {
-				for (;;) {
-					try {
-						ByteBuf msg = in.read();
-						GlobalMessageDispatcher.getDispatcher().dispatchMessage(msg);
-					} catch (Exception e) {
-						logger.error(e.getMessage(), e);
-					}
+		Thread.startVirtualThread(() -> {
+			for (;;) {
+				try {
+					ByteBuf msg = in.read();
+					GlobalMessageDispatcher.getDispatcher().dispatchMessage(msg);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
-		};
-		thread.setDaemon(true);
-		thread.start();
+		});
+		/**
+		 * Legacy thread-based message listener implementation.
+		 * 
+		 * Kept here for science purposes.
+		 * 
+		 * <pre>
+		 * Thread thread = new Thread("Thread-listenToMessages") {
+		 * 	@Override
+		 * 	public void run() {
+		 * 		for (;;) {
+		 * 			try {
+		 * 				ByteBuf msg = in.read();
+		 * 				GlobalMessageDispatcher.getDispatcher().dispatchMessage(msg);
+		 * 			} catch (Exception e) {
+		 * 				logger.error(e.getMessage(), e);
+		 * 			}
+		 * 		}
+		 * 	}
+		 * };
+		 * thread.setDaemon(true);
+		 * thread.start();
+		 * </pre>
+		 */
 	}
 
 	/**

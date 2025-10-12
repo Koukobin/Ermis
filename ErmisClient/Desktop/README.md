@@ -15,7 +15,7 @@
 
 ## Requirements
 
-* **JREv17+** (Note: Installers for both Linux and Windows include a bundled compact JRE within the application)
+* **JREv21+** (Note: Installers for both Linux and Windows include a bundled compact JRE within the application)
 
 ## Installation
 

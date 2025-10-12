@@ -57,7 +57,7 @@ update_files $ARM64_OPT_PATH
 update_files $ALL_OPT_PATH
 
 # Create DEB packages
-install_individual_jre "$AMD64_OPT_PATH/jre"  "zulu17.40.19-ca-jre17.0.6-linux_x64" "x86-64 Zulu Java 17"
+install_individual_jre "$AMD64_OPT_PATH/jre"  "zulu21.42.19-ca-jre21.0.7-linux_x64" "x86-64 Zulu Java 21"
 create_deb_package $AMD64_INSTALLER_PATH
 
 install_individual_jre "$ARM64_OPT_PATH/jre"  "zulu21.42.19-ca-jre21.0.7-linux_aarch64" "AArch64 Zulu Java 21"
