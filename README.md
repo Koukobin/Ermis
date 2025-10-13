@@ -230,8 +230,3 @@ For a brief synopsis of the license refer to [Wiki](https://github.com/Koukobin/
 
 By using this software, you agree to the terms outlined in the license agreement.
 
-
-
-
-
-
