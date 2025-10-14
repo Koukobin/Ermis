@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build ErmisCommon, ErmisServer and ErmisClient (Desktop)
+# Build ErmisCommon, ErmisServer and ErmisClient/Desktop
 mvn clean install
 
 # Navigate to the mobile client directory
