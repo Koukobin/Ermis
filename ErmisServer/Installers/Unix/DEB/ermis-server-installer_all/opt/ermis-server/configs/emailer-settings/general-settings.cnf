@@ -1,5 +1,8 @@
+# NOTE: if emailer fails silently, you may have to change
+# the SMTP port; consider switching to port 588 or 2525.
+
 mailSmtpHost=smtp.gmail.com
-mailSmtpPort=465
+mailSmtpPort=587
 
 emailUsername= ------
 
