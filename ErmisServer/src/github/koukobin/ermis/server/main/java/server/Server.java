@@ -92,6 +92,18 @@ public final class Server {
 			}
 			workerGroup = new MultiThreadIoEventLoopGroup(ServerSettings.WORKER_THREADS, EpollIoHandler.newFactory());
 
+			/**
+			 * WorkerGroup utilizing virtual threads alternatively:
+			 * 
+			 * <pre>
+			 * workerGroup = new MultiThreadIoEventLoopGroup(
+		     * 		ServerSettings.WORKER_THREADS,
+			 * 		Thread.ofVirtual().factory(), 
+			 * 		EpollIoHandler.newFactory()
+			 * );
+			 * </pre>
+			 */
+
 			clientConnector = new ClientConnector();
 
 			isRunning = new AtomicBoolean(false);
