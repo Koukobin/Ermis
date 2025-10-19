@@ -1,4 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+<manifest 
+  xmlns:android="http://schemas.android.com/apk/res/android" 
+  android:installLocation="internalOnly"
+  xmlns:tools="http://schemas.android.com/tools"
+  >
 
     <!-- Adds the Internet permission here -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -65,7 +69,7 @@
             </intent-filter>
         </receiver>
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
-        <receiver android:exported="true" android:name=".BootBroadcastReceiver" >
+        <receiver android:enabled="true" android:exported="true" android:name=".BootBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
