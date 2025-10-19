@@ -17,10 +17,13 @@
 import 'event_bus.dart';
 
 class AppEventBus {
-  static final EventBus _eventBus = EventBus();
+  static EventBus _eventBus = EventBus();
 
   /// Prevent instantiation
   AppEventBus._();
 
   static EventBus get instance => _eventBus;
+
+  static void destroyInstance() => _eventBus.destroy();
+  static void restoreInstance() => _eventBus = EventBus();
 }

@@ -18,9 +18,10 @@ import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/widgets/profile_photos/user_profile_photo.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import '../../../theme/app_colors.dart';
 
-class EndVoiceCallScreen extends StatelessWidget {
+class EndVoiceCallScreen extends StatefulWidget {
   final Member member;
   final String callDuration;
 
@@ -31,10 +32,23 @@ class EndVoiceCallScreen extends StatelessWidget {
   });
 
   @override
+  State<EndVoiceCallScreen> createState() => _EndVoiceCallScreenState();
+}
+
+class _EndVoiceCallScreenState extends State<EndVoiceCallScreen> {
+  @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    Future.delayed(const Duration(seconds: 3), Navigator.of(context).pop);
+    Future.delayed(const Duration(seconds: 3), () async {
+      if (mounted) Navigator.of(context).pop();
+
+      if (await FlutterOverlayWindow.isActive()) {
+        await FlutterOverlayWindow.closeOverlay();
+      } else {
+        Navigator.of(context).pop();
+      }
+    });
 
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
@@ -56,7 +70,7 @@ class EndVoiceCallScreen extends StatelessWidget {
               //   color: Colors.red[400],
               //   size: 80,
               // ),
-              UserProfilePhoto(radius: 65, profileBytes: member.icon.profilePhoto),
+              UserProfilePhoto(radius: 65, profileBytes: widget.member.icon.profilePhoto),
               const SizedBox(height: 20),
               // Call ended text
               Text(
@@ -69,7 +83,7 @@ class EndVoiceCallScreen extends StatelessWidget {
               const SizedBox(height: 10),
               // Call duration
               Text(
-                callDuration,
+                widget.callDuration,
                 style: const TextStyle(fontSize: 18),
               ),
             ],
