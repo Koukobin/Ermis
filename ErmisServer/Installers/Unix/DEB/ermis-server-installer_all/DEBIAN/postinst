@@ -43,10 +43,10 @@ if ! grep -q 'ermis' /etc/passwd && [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS
     sudo chown -R ermis:ermis /var/lib/ermis-server
     sudo chown -R ermis:ermis /opt/ermis-server
     
-    sudo chmod -R 750 /var/ermis-server
-    sudo chmod -R 750 /var/lib/ermis-server
-    sudo chmod -R 750 /opt/ermis-server
-
+    sudo chmod -R 755 /var/ermis-server/
+    sudo chmod -R 755 /var/lib/ermis-server
+    sudo chmod -R 755 /opt/ermis-server
+    
     # Delegate Nginx directory ownership to root (essential for service operation)
     sudo chown -R root:root /etc/nginx
     sudo chmod -R 755 /etc/nginx
