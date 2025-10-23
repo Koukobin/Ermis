@@ -25,15 +25,22 @@ read -r -p "Create dedicated dedicated user 'ermis'? [y/N]
 (Recommended for production environments.  
 If you're testing or planning to modify code, choose 'No'): " shouldCreateLinuxUser
 
-if ! grep -q 'ermis' /etc/passwd && [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    echo -e "\033[1mCreating ermis user\033[0m"
+if [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    if ! grep -q 'ermis' /etc/passwd; then
+        echo -e "\033[1mCreating ermis user\033[0m"
 
-    # Create user
-    sudo adduser ermis
+        # Create user
+        sudo adduser ermis
+    
+        echo -e "\033[1mSuccessfully created ermis user\033[0m"
+    else
+        echo -e "\033[1m'ermis' user detected; skipping user creation process.\033[0m"
+    fi
 
-    # Add 'ermis' to sudo and www-data groups for elevated and web access
-    sudo usermod -aG sudo ermis
+    # Add 'ermis' to www-data group and delegate write (essential for service operation)
     sudo usermod -aG www-data ermis
+    sudo chmod -R g+w /etc/nginx
+    sudo chmod -R g+r /etc/nginx
 
     # Ensure vital folder for database function exists
     mkdir /var/lib/ermis-server
@@ -42,19 +49,13 @@ if ! grep -q 'ermis' /etc/passwd && [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS
     sudo chown -R ermis:ermis /var/ermis-server
     sudo chown -R ermis:ermis /var/lib/ermis-server
     sudo chown -R ermis:ermis /opt/ermis-server
-    
-    sudo chmod -R 755 /var/ermis-server/
-    sudo chmod -R 755 /var/lib/ermis-server
-    sudo chmod -R 755 /opt/ermis-server
-    
-    # Delegate Nginx directory ownership to root (essential for service operation)
-    sudo chown -R root:root /etc/nginx
-    sudo chmod -R 755 /etc/nginx
 
-    echo -e "\033[1mSuccessfully created ermis user\033[0m"
-else
-    echo -e "\033[1m'ermis' user detected; skipping user creation process.\033[0m"
+    sudo chmod -R 777 /var/ermis-server/
+    sudo chmod -R 700 /var/lib/ermis-server
+    sudo chmod -R 700 /opt/ermis-server
+    sudo chmod -R 755 /etc/nginx
 fi
+
 
 # Create database (skip if already exists)
 DATABASE_NAME="ermis_database"
