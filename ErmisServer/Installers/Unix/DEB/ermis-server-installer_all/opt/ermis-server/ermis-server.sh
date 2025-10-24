@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-FOLDERS_TO_BACKUP=("/var/ermis-server/www" "/etc/nginx")
+FOLDERS_TO_BACKUP=("/var/ermis-server/www" "/etc/nginx/sites-enabled" "/etc/nginx/modules-enabled")
 
 declare -A BACKUP_FOLDERS
 for folder in "${FOLDERS_TO_BACKUP[@]}"; do
@@ -24,7 +24,7 @@ done
 
 debute_server () {
     chmod +x apply_server_settings.pl
-    sudo ./apply_server_settings.pl
+    ./apply_server_settings.pl
 
     # Attempt to find server JAR file
     ERMIS_SERVER_JAR_FILE=$(find bin -maxdepth 1 -name "*.jar" -print -quit)
@@ -70,9 +70,9 @@ restore_folder() {
 
     echo "Restoring original folder: $backup_folder -> $folder ..."
 
-    sudo rm -rf "$folder"
-    sudo mv "$backup_folder" "$folder"
-    sudo rm -rf "$backup_folder"
+    rm -rf "$folder"
+    mv "$backup_folder" "$folder"
+    rm -rf "$backup_folder"
 }
 
 restore_backup_folders() {
@@ -92,7 +92,7 @@ create_backup_folders() {
         fi
 
         # Copy the original directory to a backup location
-        sudo cp -r --no-preserve=ownership "$folder" "$backup_folder"
+        cp -r --no-preserve=ownership "$folder" "$backup_folder"
 
         echo "Created backup for server folder $folder -> $backup_folder..."
 

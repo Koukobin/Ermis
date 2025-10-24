@@ -71,7 +71,7 @@ close $fh;
 
 
 # Find all files in the target directories
-my @dirs = ('/var/ermis-server/www', '/etc/nginx/');
+my @dirs = ('/var/ermis-server/www', '/etc/nginx/sites-enabled', '/etc/nginx/modules-enabled');
 find(sub {
     return unless -f $_;  # Only process files
     # Replace placeholders with the extracted values
