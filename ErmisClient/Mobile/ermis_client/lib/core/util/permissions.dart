@@ -75,8 +75,6 @@ Future<bool> requestAllPermissions() async {
       Permission.photos,
       Permission.audio,
       Permission.videos,
-      Permission.microphone,
-      Permission.notification,
     ];
 
     for (Permission permission in permissions) {
@@ -85,6 +83,9 @@ Future<bool> requestAllPermissions() async {
   }
 
   success &= await checkAndRequestPermission(Permission.notification);
+  success &= await checkAndRequestPermission(Permission.systemAlertWindow);
+  success &= await checkAndRequestPermission(Permission.camera);
+  success &= await checkAndRequestPermission(Permission.microphone);
 
   if (!success) openAppSettings();
   return success;
