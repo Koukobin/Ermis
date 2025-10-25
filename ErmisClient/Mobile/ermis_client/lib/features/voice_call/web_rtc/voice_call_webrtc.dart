@@ -31,9 +31,11 @@ import 'package:ermis_mobile/features/voice_call/web_rtc/end_to_end_encrypted_in
 import 'package:ermis_mobile/features/voice_call/web_rtc/local_camera_overlay_widget.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/time_elapsed_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:keep_screen_on/keep_screen_on.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:web_socket_channel/io.dart';
 
 import '../../../generated/l10n.dart';
@@ -56,43 +58,86 @@ void pushVoiceCallWebRTC(
   required int chatSessionIndex,
   required Member member,
   required bool isInitiator,
-}) {
+}) async {
   // Ensure previous voice call screen is popped
   if (_voiceCallKey.currentContext != null) {
     Navigator.of(_voiceCallKey.currentContext!).popUntil((route) => route.isFirst);
     _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
   }
 
-  pushSlideTransition(
-      context,
-      _VoiceCallWebrtc(
-        key: _voiceCallKey,
-        chatSessionIndex: chatSessionIndex,
-        chatSessionID: chatSessionID,
-        member: member,
-        isInitiator: isInitiator,
-      ));
+  /// check if overlay permission is granted
+  bool? isOverlayGranted = await FlutterOverlayWindow.isPermissionGranted();
+  if (!isOverlayGranted) {
+    isOverlayGranted = await FlutterOverlayWindow.requestPermission() ?? false;
+  }
+
+  void fetchCallHistory() {
+    // Update obsolete voice call history (Slight delay to ensure server had
+    // a sufficient amount of time to handle voice call history in database).
+    Future.delayed(const Duration(seconds: 3), () {
+      Client.instance()
+          .commands
+          ?.fetchVoiceCallHistory(chatSessionIndex);
+    });
+  }
+
+  // Ensure permissions are granted
+  await Permission.camera.request();
+  await Permission.microphone.request();
+
+  if (!isOverlayGranted) {
+    pushSlideTransition(
+        context,
+        VoiceCallWebrtc(
+          key: _voiceCallKey,
+          chatSessionIndex: chatSessionIndex,
+          chatSessionID: chatSessionID,
+          member: member,
+          isInitiator: isInitiator,
+          isSystemOverlay: false,
+        )).whenComplete(fetchCallHistory);
+    return;
+  }
+
+  if (await FlutterOverlayWindow.isActive()) await FlutterOverlayWindow.closeOverlay();
+  await FlutterOverlayWindow.showOverlay(
+    overlayTitle: "WebRTC Voice Call With ${member.username}",
+    overlayContent: 'Overlay Enabled',
+    flag: OverlayFlag.defaultFlag,
+    visibility: NotificationVisibility.visibilityPublic,
+    positionGravity: PositionGravity.auto,
+    startPosition: OverlayPosition(0, 12),
+  );
+  await FlutterOverlayWindow.shareData(jsonEncode({
+    'chatSessionID': chatSessionID,
+    'chatSessionIndex': chatSessionIndex,
+    'member': jsonEncode(member.toJson()),
+    'isInitiator': isInitiator,
+  }));
+  FlutterOverlayWindow.overlayListener.first.whenComplete(fetchCallHistory);
 }
 
-class _VoiceCallWebrtc extends StatefulWidget {
+class VoiceCallWebrtc extends StatefulWidget {
   final int chatSessionID;
   final int chatSessionIndex;
   final Member member;
   final bool isInitiator;
+  final bool isSystemOverlay;
 
-  const _VoiceCallWebrtc({
+  const VoiceCallWebrtc({
     super.key,
     required this.chatSessionID,
     required this.chatSessionIndex,
     required this.member,
     required this.isInitiator,
+    required this.isSystemOverlay,
   });
 
   @override
-  State<_VoiceCallWebrtc> createState() => _VoiceCallWebrtcState();
+  State<VoiceCallWebrtc> createState() => _VoiceCallWebrtcState();
 }
 
-class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
+class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   /// STUN configuration for ICE candidates.
   static final Map<String, dynamic> configuration = {
     'iceServers': [
@@ -122,10 +167,11 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
   static TimeElapsedWidget? elapsedTime;
 
   static OverlayEntry? returnToCallOverlayEntry;
+  static bool buildSystemOverlay = false;
 
   static int endVoiceCallNotificationID = -1;
 
-  Future<void> _resetCallData() async {
+  static Future<void> _resetCallData() async {
     await channel?.sink.close();
     await localStream?.dispose();
     await peerConnection?.close();
@@ -152,7 +198,7 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
 
     endVoiceCallNotificationID = -1;
 
-    await KeepScreenOn.turnOff(); // Disable screen-on lock
+    // await KeepScreenOn.turnOff(); // Disable screen-on lock
   }
 
   @override
@@ -160,7 +206,7 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
     super.initState();
 
     // Disable screen from automatically turning off
-    KeepScreenOn.turnOn();
+    // KeepScreenOn.turnOn();
 
     returnToCallOverlayEntry?.remove();
     returnToCallOverlayEntry = null;
@@ -224,10 +270,10 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
 
     Future(() async {
       if (widget.isInitiator) {
-        Client.instance().commands?.startVoiceCall(widget.chatSessionIndex);
+        Client.instance().commands!.startVoiceCall(widget.chatSessionIndex);
       }
 
-      Client.instance().commands?.fetchSignallingServerPort();
+      Client.instance().commands!.fetchSignallingServerPort();
       SignallingServerPortEvent e = await AppEventBus.instance.on<SignallingServerPortEvent>().first;
 
       // Create WebSocket to signalling server
@@ -252,13 +298,13 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
         return;
       }
 
-      Client.instance().commands?.acceptVoiceCall(widget.chatSessionIndex);
+      Client.instance().commands!.acceptVoiceCall(widget.chatSessionIndex);
     });
   }
 
   /// Helper function to send JSON messages over the WebSocket
   void sendChannelMessage(Map<String, dynamic> message) {
-    channel!.sink.add(jsonEncode(message));
+    channel?.sink.add(jsonEncode(message));
   }
 
   Future<void> _startListeningForMessagesFromCounterpart() async {
@@ -658,10 +704,44 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
     );
   }
 
+  void shareScreen() async {
+    MediaStream stream = await navigator.mediaDevices.getDisplayMedia({
+      'video': true,
+      'audio': true,
+    });
+
+    peerConnection!.addStream(stream);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    if (callStatus == CallStatus.ended) return const SizedBox.shrink();
+
+    if (widget.isSystemOverlay && buildSystemOverlay) {
+      final int width = 150;
+      final int height = 200;
+      FlutterOverlayWindow.resizeOverlay(width.toInt(), height.toInt(), true);
+
+      return GestureDetector(
+        onDoubleTap: () => setState(() => buildSystemOverlay = false),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            color: appColors.quaternaryColor,
+            child: _buildPeerViewport(),
+          ),
+        ),
+      );
+    }
+
+    if (widget.isSystemOverlay) {
+      FlutterOverlayWindow.resizeOverlay(-1, -1, false);
+      FlutterOverlayWindow.moveOverlay(OverlayPosition(0, 12));
+    }
 
     return PopScope(
       canPop: false,
@@ -673,6 +753,12 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
       },
       child: Scaffold(
         appBar: ErmisAppBar(
+          leading: widget.isSystemOverlay
+              ? IconButton(
+                  onPressed: () => setState(() => buildSystemOverlay = true),
+                  icon: const Icon(Icons.arrow_back),
+                )
+              : null,
           title: Text(S.current.voice_call),
         ),
         body: Center(
@@ -682,21 +768,33 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Call information
-                Column(
+                Stack(
+                  alignment: AlignmentGeometry.center,
                   children: [
-                    Text(
-                      "ChatSession: ${widget.chatSessionID}",
-                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                    Align(
+                      alignment: AlignmentGeometry.centerRight,
+                      child: IconButton(
+                        onPressed: shareScreen,
+                        icon: const Icon(Icons.share),
+                      ),
                     ),
-                    buildCallStatusAndEndToEndEncryptedIndicator(),
+                    Column(
+                      children: [
+                        Text(
+                          "ChatSession: ${widget.chatSessionID}",
+                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                        ),
+                        buildCallStatusAndEndToEndEncryptedIndicator(),
+                      ],
+                    ),
                   ],
                 ),
-
+      
                 // Peer viewport
                 Expanded(
                   child: _buildPeerViewport(),
                 ),
-
+      
                 // Bottom screen actions
                 Container(
                   height: 120.0,
@@ -725,7 +823,7 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
                           setState(() {
                             isSpeakerPhoneEnabled = !isSpeakerPhoneEnabled;
                           });
-
+      
                           updateSpeakerPhone();
                         },
                       ),
@@ -755,7 +853,7 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
                           setState(() {
                             isMuted = !isMuted;
                           });
-
+      
                           localStream!.getAudioTracks().forEach((track) {
                             track.enabled = !isMuted;
                           });
@@ -796,7 +894,6 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
 
     FlutterRingtonePlayer().play(fromAsset: AppConstants.endCallSoundPath);
 
-    Navigator.pop(context);
     navigateWithFade(
       context,
       EndVoiceCallScreen(
@@ -809,12 +906,9 @@ class _VoiceCallWebrtcState extends State<_VoiceCallWebrtc> {
 
     _resetCallData();
 
-    // Update obsolete voice call history (Slight delay to ensure server had
-    // a sufficient amount of time to handle voice call history in database).
-    Future.delayed(const Duration(seconds: 3), () {
-      Client.instance()
-          .commands
-          ?.fetchVoiceCallHistory(widget.chatSessionIndex);
-    });
+    if (widget.isSystemOverlay) {
+      Client.instance().disconnect();
+      FlutterOverlayWindow.shareData(""); // Send message indicating overlay closed
+    }
   }
 }

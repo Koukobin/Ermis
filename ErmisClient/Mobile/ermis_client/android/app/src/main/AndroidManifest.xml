@@ -28,9 +28,11 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL"/> NOT NEEDED FOR NOW-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <!-- Adds File IO permission here (Android 13 (API level 33))-->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
@@ -58,6 +60,12 @@
         <service android:name="fooService" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Push notifications"/>
+        </service>
+        <service android:name="flutter.overlay.window.flutter_overlay_window.OverlayService" 
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Voice/Video Calls"/>
         </service>
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">

@@ -15,11 +15,14 @@
  */
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:ermis_mobile/core/data_sources/api_client.dart';
 import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/models/message.dart';
 import 'package:ermis_mobile/constants/app_constants.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
@@ -28,6 +31,7 @@ import 'package:ermis_mobile/core/services/ermis_backgroud_service.dart';
 import 'package:ermis_mobile/core/util/message_notification.dart';
 import 'package:ermis_mobile/core/util/permissions.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/features/splash_screen/splash_screen.dart';
 import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
@@ -37,11 +41,14 @@ import 'package:ermis_mobile/core/util/notifications_util.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:sqflite/sql.dart';
 
 import 'core/event_bus/app_event_bus.dart';
+import 'core/models/member.dart';
 import 'core/models/message_events.dart';
 import 'core/networking/user_info_manager.dart';
+import 'core/services/database/models/local_account_info.dart';
 import 'core/util/glitching_overlay.dart';
 import 'features/chat_requests_screen/chat_requests_screen.dart';
 import 'features/messaging/presentation/messaging_interface.dart';
@@ -82,15 +89,108 @@ void main() async {
     themeData = ThemeMode.light;
   }
 
-  // Restrict app orientation to portrait mode only
+  runApp(_MyApp(
+    lightAppColors: AppConstants.lightAppColors,
+    darkAppColors: AppConstants.darkAppColors,
+    themeMode: themeData,
+  ));
+}
+
+// overlay entry point
+@pragma("vm:entry-point")
+void overlayMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await AppConstants.initialize();
+  await NotificationService.init();
+
+  final jsonSettings = SettingsJson();
+  await jsonSettings.loadSettingsJson();
+
+  ThemeMode themeData;
+  if (jsonSettings.useSystemDefaultTheme) {
+    themeData = ThemeMode.system;
+  } else if (jsonSettings.isDarkModeEnabled) {
+    themeData = ThemeMode.dark;
+  } else {
+    themeData = ThemeMode.light;
+  }
+
+  Future<void> setupClient() async {
+    final DBConnection conn = ErmisDB.getConnection();
+    ServerInfo serverInfo = await conn.getServerUrlLastUsed();
+
+    try {
+      await Client.instance().initialize(
+        serverInfo.serverUrl,
+        ServerCertificateVerification
+            .ignore, // Since user connected once he has no issue connecting again
+      );
+
+      await Client.instance().readServerVersion();
+      Client.instance().startMessageDispatcher();
+
+      LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
+
+      bool success = await Client.instance().attemptHashedLogin(userInfo!);
+      if (!success) {
+        return;
+      }
+
+      Client.instance().fetchUserInformation();
+      Client.instance().commands!.setAccountStatus(ClientStatus.offline);
+    } catch (e) {
+      // Attempt to reinitialize client in case of failure
+      await Future.delayed(const Duration(seconds: 30), setupClient);
+    }
+  }
+
+  /// streams message shared between overlay and main app
+  FlutterOverlayWindow.overlayListener.listen((event) async {
+    if (!Client.instance().isLoggedIn()) await setupClient();
+
+    dynamic data = jsonDecode(event);
+    if (kDebugMode) {
+      print(data['chatSessionID']);
+      print(data['chatSessionIndex']);
+      print(Member.fromJson(jsonDecode(data['member'])));
+      print(data['isInitiator']);
+    }
+
+    runApp(AppTheme(
+      darkAppColors: AppConstants.darkAppColors,
+      lightAppColors: AppConstants.lightAppColors,
+      theme: themeData,
+      home: VoiceCallWebrtc(
+        chatSessionID: data['chatSessionID'],
+        chatSessionIndex: data['chatSessionIndex'],
+        member: Member.fromJson(jsonDecode(data['member'])),
+        isInitiator: data['isInitiator'],
+        isSystemOverlay: true,
+      ),
+    ));
+  });
+
+  // Restrict call orientation to portrait mode only
+  /*
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]).then((value) => runApp(_MyApp(
-        lightAppColors: AppConstants.lightAppColors,
+  ]).then((value) => runApp(AppTheme(
         darkAppColors: AppConstants.darkAppColors,
-        themeMode: themeData,
+        lightAppColors: AppConstants.lightAppColors,
+        theme: themeData,
+        home: Material(
+          color: Colors.transparent,
+          child: VoiceCallWebrtc(
+            chatSessionID: data['chatSessionID'],
+            chatSessionIndex: data['chatSessionIndex'],
+            member: Member.fromJson(jsonDecode(data['member'])),
+            isInitiator: data['isInitiator'],
+          ),
+        ),
       )));
+      */
 }
 
 class _MyApp extends StatefulWidget {
