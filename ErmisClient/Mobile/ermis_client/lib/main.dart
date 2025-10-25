@@ -390,8 +390,13 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       );
     });
 
-    subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (incomingEvent) async {
-      showIncomingCallScreen(context, incomingEvent);
+    subscribe(AppEventBus.instance.on<VoiceCallIncomingEvent>(), (incomingEvent) {
+      if (kDebugMode) showToastDialog("Incoming call screen");
+
+      // Wait two seconds to ensure connection is open
+      Future.delayed(const Duration(seconds: 2), () {
+        showIncomingCallScreen(context, incomingEvent);
+      });
     });
   }
 
