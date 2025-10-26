@@ -54,6 +54,7 @@ if [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     sudo chmod -R 777 /var/ermis-server/
     sudo chmod -R 700 /var/lib/ermis-server
     sudo chmod -R 700 /opt/ermis-server
+    sudo chmod -R 755 /etc/nginx
 fi
 
 
