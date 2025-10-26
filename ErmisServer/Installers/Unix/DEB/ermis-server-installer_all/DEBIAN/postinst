@@ -29,13 +29,9 @@ if [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     if ! grep -q 'ermis' /etc/passwd; then
         echo -e "\033[1mCreating ermis user\033[0m"
 
-        # Create 'ermis' user:
-        # -r: Creates system account.
-        # -s /usr/sbin/nologin: Prevents login access in startup login screen.
-        # -d /nonexistent: No home directory.
-        # -M: No home directory (2).
-        sudo useradd -r -s /usr/sbin/nologin -d /nonexistent -M ermis
-    
+        # Create 'ermis' user
+        sudo adduser --no-create-home ermis
+
         echo -e "\033[1mSuccessfully created ermis user\033[0m"
     else
         echo -e "\033[1m'ermis' user detected; skipping user creation process.\033[0m"
@@ -53,11 +49,11 @@ if [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     sudo chown -R ermis:ermis /var/ermis-server
     sudo chown -R ermis:ermis /var/lib/ermis-server
     sudo chown -R ermis:ermis /opt/ermis-server
+    sudo chown -R ermis:ermis /etc/nginx/
 
     sudo chmod -R 777 /var/ermis-server/
     sudo chmod -R 700 /var/lib/ermis-server
     sudo chmod -R 700 /opt/ermis-server
-    sudo chmod -R 755 /etc/nginx
 fi
 
 
