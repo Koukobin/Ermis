@@ -17,8 +17,9 @@
 
 echo -e "\033[0m" # Clear any styling present from preinst
 
-# Debut and configure Nginx to automatically initialize on system startup
+# Debut and configure Nginx, PostgreSQL to automatically initialize on system startup
 sudo systemctl enable --now nginx
+sudo systemctl enable --now postgresql
 
 # Create user 'ermis' (skip if already exists)
 read -r -p "Create dedicated dedicated user 'ermis'? [y/N]
