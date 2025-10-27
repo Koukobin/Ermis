@@ -58,7 +58,7 @@ class _InputFieldState extends State<InputField> {
   void _sendTextMessage(String text) {
     Message pendingMessage =
         Client.instance().sendMessageToClient(text, widget.chatSessionIndex);
-    _addMessage(pendingMessage);
+    _showAchievementScreen(pendingMessage);
   }
 
   Future<void> _sendVoiceCallMessage() async {
@@ -85,19 +85,17 @@ class _InputFieldState extends State<InputField> {
         fileBytes,
         widget.chatSessionIndex,
       );
-      _addMessage(pendingMessage);
+      _showAchievementScreen(pendingMessage);
     }
   }
 
-  void _addMessage(Message msg) {
+  void _showAchievementScreen(Message msg) {
     if (!SettingsJson().hasUserSentFirstMessage) {
       SettingsJson().setHasUserSentFirstMessage(true);
       SettingsJson().saveSettingsJson();
 
       FirstMessageSentAchievementPopup.show(context);
     }
-
-    widget.messages.add(msg);
   }
 
   @override
@@ -179,7 +177,7 @@ class _InputFieldState extends State<InputField> {
                         fileContent,
                         widget.chatSessionIndex,
                       );
-                      _addMessage(pendingMessage);
+                      _showAchievementScreen(pendingMessage);
                     },
                     imageCallBack: (String fileName, Uint8List fileContent) {
                       Message pendingMessage =
@@ -188,7 +186,7 @@ class _InputFieldState extends State<InputField> {
                         fileContent,
                         widget.chatSessionIndex,
                       );
-                      _addMessage(pendingMessage);
+                      _showAchievementScreen(pendingMessage);
                     },
                   ),
                   const SizedBox(width: 15),

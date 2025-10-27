@@ -187,8 +187,9 @@ class MessageTransmitter {
         epochSecond: (DateTime.now().millisecondsSinceEpoch / 1000).toInt(),
         contentType: contentType,
         deliveryStatus: MessageDeliveryStatus.sending);
-    
+
     UserInfoManager.pendingMessagesQueue[tempMessageID] = m;
+    UserInfoManager.chatSessions![chatSessionIndex].messages.add(m);
     return m;
   }
 
