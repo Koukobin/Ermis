@@ -115,7 +115,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
       void notifyUserOfNewPotentialChat() {
         if (_conversations == null) return;
 
-        if (_conversations!.length > event.sessions.length) {
+        if (_conversations!.length < event.sessions.length) {
           if (SettingsJson().hasUserMadeFirstFriend) {
             showToastDialog(S().new_chat);
             return;
