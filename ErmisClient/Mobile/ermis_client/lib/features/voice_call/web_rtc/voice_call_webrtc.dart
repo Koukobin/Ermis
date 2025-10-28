@@ -114,7 +114,13 @@ void pushVoiceCallWebRTC(
     'member': jsonEncode(member.toJson()),
     'isInitiator': isInitiator,
   }));
-  FlutterOverlayWindow.overlayListener.first.whenComplete(fetchCallHistory);
+  Future(() async {
+    while (await FlutterOverlayWindow.isActive()) {
+      await Future.delayed(const Duration(seconds: 2));
+      continue;
+    }
+    fetchCallHistory();
+  });
 }
 
 class VoiceCallWebrtc extends StatefulWidget {
@@ -229,9 +235,14 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
           callerName: widget.member.username,
           voiceCallEndCallback: _endCall,
         );
+
+        if (widget.isSystemOverlay) {
+          Client.instance().disconnect();
+        }
       }
 
       // Ensure local stream audio tracks are up to date
+      // TODO: SHOULD REMOVE THIS MOTHERFUCKER
       localStream?.getAudioTracks().forEach((track) {
         track.enableSpeakerphone(isSpeakerPhoneEnabled);
       });
@@ -908,7 +919,6 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     if (widget.isSystemOverlay) {
       Client.instance().disconnect();
-      FlutterOverlayWindow.shareData(""); // Send message indicating overlay closed
     }
   }
 }
