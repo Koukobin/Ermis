@@ -77,9 +77,12 @@ void maintainWebSocketConnection(ServiceInstance service) {
   // Listen for UI heartbeat
   service.on('ui_alive').listen((event) {
     uiAlive = true;
-    Client.instance().disconnect();
-    AppEventBus.destroyInstance();
-    AppEventBus.restoreInstance();
+
+    if (Client.instance().isLoggedIn()) {
+      Client.instance().disconnect();
+      AppEventBus.destroyInstance();
+      AppEventBus.restoreInstance();
+    }
   });
 
   Timer.periodic(const Duration(seconds: 30), (_) async {
@@ -93,7 +96,9 @@ void maintainWebSocketConnection(ServiceInstance service) {
       uiAlive = false;
       return;
     }
-    
+
+    if (Client.instance().isLoggedIn()) return;
+
     debugPrint("UI isolate is dead");
     debugPrint("UI isolate is dead");
     debugPrint("UI isolate is dead");
