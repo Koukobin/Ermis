@@ -30,6 +30,7 @@ import 'package:ermis_mobile/features/voice_call/web_rtc/call_status_enum.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/end_to_end_encrypted_indicator.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/local_camera_overlay_widget.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/time_elapsed_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -214,6 +215,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     // Disable screen from automatically turning off
     // KeepScreenOn.turnOn();
 
+    if (kDebugMode) {
+      print("INITIALIZING VOICE CALL");
+      print("INITIALIZING VOICE CALL");
+      print("INITIALIZING VOICE CALL");
+    }
+
     returnToCallOverlayEntry?.remove();
     returnToCallOverlayEntry = null;
 
@@ -240,12 +247,6 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
           Client.instance().disconnect();
         }
       }
-
-      // Ensure local stream audio tracks are up to date
-      // TODO: SHOULD REMOVE THIS MOTHERFUCKER
-      localStream?.getAudioTracks().forEach((track) {
-        track.enableSpeakerphone(isSpeakerPhoneEnabled);
-      });
 
       // double totalRMS = 0;
       // for (final track in localStream?.getAudioTracks() ?? []) {
