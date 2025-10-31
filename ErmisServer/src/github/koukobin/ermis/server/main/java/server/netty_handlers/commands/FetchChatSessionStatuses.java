@@ -69,7 +69,14 @@ public class FetchChatSessionStatuses implements ICommand {
 			if (member == null) {
 				clientStatus = ClientStatus.OFFLINE;
 			} else {
-				boolean isOnline = member.stream().anyMatch(m -> m.getStatus() == ClientStatus.ONLINE);
+				boolean isOnline = member.stream().anyMatch(s -> {
+					if (s == null) {
+						getLogger().error("Null active session found in member {} ({})?", clientID, member.toString());
+						return true;
+					}
+
+					return s.getStatus() == ClientStatus.ONLINE;
+				});
 				clientStatus = isOnline ? ClientStatus.ONLINE : ClientStatus.OFFLINE;
 			}
 
