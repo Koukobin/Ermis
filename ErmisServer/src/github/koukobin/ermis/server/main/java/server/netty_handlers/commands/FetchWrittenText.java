@@ -81,7 +81,7 @@ public class FetchWrittenText implements ICommand {
 					s.writeInt(messageID);
 					forActiveAccounts(senderClientID, (ClientInfo ci) -> {
 						s.retain();
-						ci.getChannel().writeAndFlush(s);
+						ci.getChannel().writeAndFlush(s.duplicate());
 					});
 					s.release();
 					assert s.refCnt() == 0;
