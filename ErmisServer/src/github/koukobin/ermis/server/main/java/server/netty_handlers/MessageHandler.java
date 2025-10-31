@@ -245,8 +245,8 @@ final class MessageHandler extends AbstractChannelClientHandler {
 				s.writeInt(tempMessageID);
 				s.writeInt(messageID);
 
-				List<ClientInfo> activeClients = ActiveClients.getClient(clientInfo.getClientID());
-				for (ClientInfo ci : activeClients) {
+				List<ClientInfo> activeSessions = ActiveClients.getClient(clientInfo.getClientID());
+				for (ClientInfo ci : activeSessions) {
 					s.retain();
 					ci.getChannel().writeAndFlush(s.duplicate());
 				}
