@@ -245,8 +245,13 @@ final class MessageHandler extends AbstractChannelClientHandler {
 				s.writeInt(tempMessageID);
 				s.writeInt(messageID);
 
-				List<ClientInfo> activeSessions = ActiveClients.getClient(clientInfo.getClientID());
+				final int clientID = clientInfo.getClientID();
+				List<ClientInfo> activeSessions = ActiveClients.getClient(clientID);
 				for (ClientInfo ci : activeSessions) {
+					if (ci == null) {
+						getLogger().error("Null active session found in member {} ({})?", clientID, activeSessions.toString());
+						continue;
+					}
 					s.retain();
 					ci.getChannel().writeAndFlush(s.duplicate());
 				}
