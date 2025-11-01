@@ -64,14 +64,16 @@ public class FetchChatSessionStatuses implements ICommand {
 			}
 
 			ClientStatus clientStatus;
-			List<ClientInfo> member = ActiveClients.getClient(clientID);
+			List<ClientInfo> activeSessions = ActiveClients.getClient(clientID);
 
-			if (member == null) {
+			if (activeSessions == null) {
 				clientStatus = ClientStatus.OFFLINE;
 			} else {
-				boolean isOnline = member.stream().anyMatch(s -> {
+				boolean isOnline = activeSessions.stream().anyMatch(s -> {
 					if (s == null) {
-						getLogger().error("Null active session found in member {} ({})?", clientID, member.toString());
+						getLogger().error("Null active session found in member {} ({})?",
+								clientID,
+								activeSessions.toString());
 						return true;
 					}
 
