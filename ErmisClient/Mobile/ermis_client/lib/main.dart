@@ -21,15 +21,16 @@ import 'package:ermis_mobile/core/data_sources/api_client.dart';
 import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/models/message.dart';
 import 'package:ermis_mobile/constants/app_constants.dart';
-import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:ermis_mobile/core/services/ermis_backgroud_service.dart';
+import 'package:ermis_mobile/core/services/navigation_service.dart';
 import 'package:ermis_mobile/core/util/message_notification.dart';
 import 'package:ermis_mobile/core/util/permissions.dart';
+import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
@@ -40,7 +41,6 @@ import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/util/notifications_util.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:sqflite/sql.dart';
 
@@ -96,13 +96,14 @@ void main() async {
   ));
 }
 
-// overlay entry point
+/// overlay entry point
 @pragma("vm:entry-point")
 void overlayMain() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AppConstants.initialize();
   await NotificationService.init();
+  timezones.initializeTimeZones();
 
   final jsonSettings = SettingsJson();
   await jsonSettings.loadSettingsJson();
@@ -138,16 +139,16 @@ void overlayMain() async {
       }
 
       Client.instance().fetchUserInformation();
-      Client.instance().commands!.setAccountStatus(ClientStatus.offline);
     } catch (e) {
       // Attempt to reinitialize client in case of failure
-      await Future.delayed(const Duration(seconds: 30), setupClient);
+      await setupClient();
     }
   }
 
   /// streams message shared between overlay and main app
   FlutterOverlayWindow.overlayListener.listen((event) async {
-    if (!Client.instance().isLoggedIn()) await setupClient();
+    await Client.instance().disconnect();
+    await setupClient();
 
     dynamic data = jsonDecode(event);
     if (kDebugMode) {
