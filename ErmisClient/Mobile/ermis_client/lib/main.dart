@@ -145,6 +145,8 @@ void overlayMain() async {
     }
   }
 
+  bool fuck = false;
+
   /// streams message shared between overlay and main app
   FlutterOverlayWindow.overlayListener.listen((event) async {
     await Client.instance().disconnect();
@@ -158,6 +160,21 @@ void overlayMain() async {
       print(data['isInitiator']);
     }
 
+    if (fuck) {
+      pushMaterialTransition(
+        NavigationService.currentContext,
+        VoiceCallWebrtc(
+          chatSessionID: data['chatSessionID'],
+          chatSessionIndex: data['chatSessionIndex'],
+          member: Member.fromJson(jsonDecode(data['member'])),
+          isInitiator: data['isInitiator'],
+          isSystemOverlay: true,
+        ),
+      );
+      return;
+    }
+
+    fuck = true;
     runApp(AppTheme(
       darkAppColors: AppConstants.darkAppColors,
       lightAppColors: AppConstants.lightAppColors,
