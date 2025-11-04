@@ -62,7 +62,7 @@ dependencies:
 
   # Background & Notifications
   flutter_background_service: ^5.1.0
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^19.5.0
   flutter_ringtone_player: ^4.0.0+4
   fluttertoast: ^8.2.13
   vibration: ^3.1.4
