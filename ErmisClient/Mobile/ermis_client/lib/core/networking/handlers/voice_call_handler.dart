@@ -56,25 +56,6 @@ class VoiceCallHandler {
           chatSessionID: chatSessionID,
         ));
         break;
-      case VoiceCallMessageType.acceptVoiceCall:
-        int chatSessionID = msg.readInt32();
-        int clientID = msg.readInt32();
-
-        ChatSession session = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
-
-        Member? member;
-        for (var j = 0; j < session.members.length; j++) {
-          if (session.members[j].clientID == clientID) {
-            member = session.members[j];
-          }
-        }
-
-        _eventBus.fire(VoiceCallAcceptedEvent(
-          chatSessionID: chatSessionID,
-          chatSessionIndex: session.chatSessionIndex,
-          member: member ?? session.members[0],
-        ));
-        break;
     }
   }
 }

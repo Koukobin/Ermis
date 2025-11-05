@@ -164,17 +164,6 @@ class CancelVoiceCallIncomingEvent {
   });
 }
 
-class VoiceCallAcceptedEvent {
-  final int chatSessionID;
-  final int chatSessionIndex;
-  final Member member;
-  const VoiceCallAcceptedEvent({
-    required this.chatSessionID,
-    required this.chatSessionIndex,
-    required this.member,
-  });
-}
-
 class VoiceCallHistoryReceivedEvent {
   final int chatSessionID;
   final List<VoiceCallHistory> history;

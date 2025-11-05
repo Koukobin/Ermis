@@ -53,7 +53,6 @@ enum ClientCommandType {
   fetchWrittenText(CommandLevel.heavy, 309),
   downloadFile(CommandLevel.heavy, 310),
   startVoiceCall(CommandLevel.heavy, 312),
-  acceptVoiceCall(CommandLevel.heavy, 313),
 
   // External Pages
   requestDonationPage(CommandLevel.light, 400),

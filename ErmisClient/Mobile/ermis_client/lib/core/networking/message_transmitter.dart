@@ -630,14 +630,6 @@ class Commands {
     out.write(payload);
   }
 
-  void acceptVoiceCall(int chatSessionIndex) {
-    ByteBuf payload = ByteBuf.smallBuffer();
-    payload.writeInt32(ClientMessageType.command.id);
-    payload.writeInt32(ClientCommandType.acceptVoiceCall.id);
-    payload.writeInt32(chatSessionIndex);
-    out.write(payload);
-  }
-
   void fetchVoiceCallHistory(int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer();
     payload.writeInt32(ClientMessageType.command.id);
