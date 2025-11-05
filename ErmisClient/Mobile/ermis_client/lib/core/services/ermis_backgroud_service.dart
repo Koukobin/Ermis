@@ -27,6 +27,7 @@ import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:ermis_mobile/core/util/ermis_loading_messages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:timezone/data/latest.dart' as timezones;
 
 import '../data_sources/api_client.dart';
 import '../event_bus/app_event_bus.dart';
@@ -109,6 +110,7 @@ void maintainWebSocketConnection(ServiceInstance service) {
 
     await AppConstants.initialize();
     await NotificationService.init();
+    timezones.initializeTimeZones();
 
     final settingsJson = SettingsJson();
     await settingsJson.loadSettingsJson();
