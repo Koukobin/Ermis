@@ -24,9 +24,15 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
 
 /**
+ * 
+ * @Deprecated
+ * 
+ * Still exists for client versions <= 1.1.0
+ * 
  * @author Ilias Koukovinis
  *
  */
+@Deprecated(forRemoval = true)
 public class AcceptVoiceCall implements ICommand {
 
 	@Override
@@ -37,7 +43,7 @@ public class AcceptVoiceCall implements ICommand {
 
 		ByteBuf payload = channel.alloc().ioBuffer();
 		payload.writeInt(ServerMessageType.VOICE_CALLS.id);
-		payload.writeByte(VoiceCallMessageType.ACCEPT_VOICE_CALL.id);
+		payload.writeByte(VoiceCallMessageType.VOICE_CALL_ACCEPTED.id);
 		payload.writeInt(chatSessionID);
 		payload.writeInt(clientInfo.getClientID());
 
