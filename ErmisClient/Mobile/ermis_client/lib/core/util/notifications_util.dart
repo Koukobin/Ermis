@@ -142,6 +142,11 @@ void onDidReceiveNotification(NotificationResponse response) async {
         return;
       }
 
+      if (kDebugMode) {
+        print(input);
+        print(_replyToMessageCallback);
+      }
+
       _replyToMessageCallback?.call(input);
       break;
     case NotificationAction.markAsRead:
