@@ -145,7 +145,7 @@ void overlayMain() async {
     }
   }
 
-  bool fuck = false;
+  bool hasOverlayLaunched = false;
 
   /// streams message shared between overlay and main app
   FlutterOverlayWindow.overlayListener.listen((event) async {
@@ -160,7 +160,7 @@ void overlayMain() async {
       print(data['isInitiator']);
     }
 
-    if (fuck) {
+    if (hasOverlayLaunched) {
       pushMaterialTransition(
         NavigationService.currentContext,
         VoiceCallWebrtc(
@@ -174,7 +174,7 @@ void overlayMain() async {
       return;
     }
 
-    fuck = true;
+    hasOverlayLaunched = true;
     runApp(AppTheme(
       darkAppColors: AppConstants.darkAppColors,
       lightAppColors: AppConstants.lightAppColors,
