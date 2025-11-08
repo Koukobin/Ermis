@@ -25,9 +25,16 @@ import 'package:ermis_mobile/core/services/database/models/local_user_info.dart'
 import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 
 class IntermediaryService {
-  final DBConnection _databaseService = ErmisDB.getConnection();
+  static IntermediaryService? _instance;
 
-  IntermediaryService();
+  IntermediaryService._();
+
+  factory IntermediaryService() {
+    _instance ??= IntermediaryService._();
+    return _instance!;
+  }
+
+  DBConnection get _conn => ErmisDB.getConnection();
 
   Future<List<ChatSession>> fetchChatSessions({
     required LocalAccountInfo? accountInfo,
@@ -38,8 +45,8 @@ class IntermediaryService {
     );
     if (accountInfo == null) return [];
 
-    LocalUserInfo? userInfo =  await _databaseService.getLocalUserInfo(server, accountInfo.email);
-    return _databaseService.fetchChatSessions(
+    LocalUserInfo? userInfo =  await _conn.getLocalUserInfo(server, accountInfo.email);
+    return _conn.fetchChatSessions(
       server: server,
       clientIDExclude: userInfo?.clientID ?? -1,
     );
@@ -50,7 +57,7 @@ class IntermediaryService {
     required LocalAccountInfo accountInfo,
     required ServerInfo server,
   }) {
-    return _databaseService.fetchMembersAssociatedWithChatSession(
+    return _conn.fetchMembersAssociatedWithChatSession(
       server: server,
       serverAccountEmail: accountInfo.email,
       chatSessionID: chatSessionID,
@@ -61,16 +68,16 @@ class IntermediaryService {
     required LocalAccountInfo accountInfo,
     required ServerInfo server,
   }) {
-    return _databaseService.fetchChatSessionIDS(server: server, email: accountInfo.email);
+    return _conn.fetchChatSessionIDS(server: server, email: accountInfo.email);
   }
 
   void insertChatSession({
     required ServerInfo server,
     required ChatSession session,
   }) async {
-    await _databaseService.insertChatSession(server.toString(), session.chatSessionID);
-    await _databaseService.insertMembers(serverUrl: server.toString(), members: session.members);
-    _databaseService.insertChatSessionMembers(
+    await _conn.insertChatSession(server.toString(), session.chatSessionID);
+    await _conn.insertMembers(serverUrl: server.toString(), members: session.members);
+    _conn.insertChatSessionMembers(
       serverUrl: server.toString(),
       chatSessionId: session.chatSessionID,
       memberIDs: session.members.map((m) => m.clientID).toList(),
@@ -81,7 +88,7 @@ class IntermediaryService {
     required ServerInfo server,
     required ChatSession session,
   }) {
-    return _databaseService.deleteChatSession(server.toString(), session.chatSessionID);
+    return _conn.deleteChatSession(server.toString(), session.chatSessionID);
   }
 
   Future<LocalUserInfo?> fetchLocalUserInfo({
@@ -93,18 +100,18 @@ class IntermediaryService {
     );
     if (accountInfo == null) return null;
 
-    return _databaseService.getLocalUserInfo(server, accountInfo.email);
+    return _conn.getLocalUserInfo(server, accountInfo.email);
   }
 
   Future<LocalAccountInfo?> fetchLastUsedAccount({required ServerInfo server}) {
-    return _databaseService.getLastUsedAccount(server);
+    return _conn.getLastUsedAccount(server);
   }
 
   Future<void> addLocalUserInfo({
     required ServerInfo server,
     required LocalUserInfo info,
   }) async {
-    await _databaseService.insertLocalUserInfo(server, info);
+    await _conn.insertLocalUserInfo(server, info);
   }
 
   // Future<void> updateLocalMessages(int chatSessionId, List<Map<String, dynamic>> messages) async {
