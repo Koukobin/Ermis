@@ -187,9 +187,9 @@ class CommandResultHandler {
           int chatSessionIndex = msg.readInt32();
           ChatSession chatSession;
 
-          try {
+          if (chatSessionIndex >= 0 && chatSessionIndex < UserInfoManager.chatSessions!.length) {
             chatSession = UserInfoManager.chatSessions![chatSessionIndex];
-          } on RangeError {
+          } else {
             // This could happen potentially if this chat session
             // had been cached in the local database and when the
             // conditional request was made, the server did not know
@@ -247,8 +247,6 @@ class CommandResultHandler {
             members.removeWhere((Member member) => member.clientID == memberID);
             members.add(member);
           }
-
-          chatSession.setMembers(members.toList());
 
           if (isChatSessionChanged) {
             IntermediaryService().insertChatSession(
