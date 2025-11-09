@@ -28,6 +28,7 @@ import '../../../core/data_sources/api_client.dart';
 import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/util/file_utils.dart';
+import '../../../core/widgets/scroll/custom_scroll_view.dart';
 
 class ProfileSettings extends StatefulWidget {
   const ProfileSettings({super.key});
@@ -99,8 +100,8 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
         appBar: ErmisAppBar(titleText: S.current.profile_settings),
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: ScrollViewFixer.createScrollViewWithAppBarSafety(
+              scrollView: ListView(
             children: [
               // Profile Image Section
               Center(
@@ -189,7 +190,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                 },
               ),
             ],
-          ),
+          )),
         ),
       ),
     );

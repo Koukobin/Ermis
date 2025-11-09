@@ -22,6 +22,7 @@ import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
+import '../../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../../theme/app_theme.dart';
 
 class ThemeSettingsPage extends StatefulWidget {
@@ -77,8 +78,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ScrollViewFixer.createScrollViewWithAppBarSafety(
+            scrollView: ListView(
           children: [
             Text(
               S.current.theme_mode,
@@ -248,7 +249,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               ),
             )
           ],
-        ),
+        )),
       ),
     );
   }

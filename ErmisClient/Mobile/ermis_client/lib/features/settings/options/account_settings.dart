@@ -36,6 +36,7 @@ import '../../../constants/app_constants.dart';
 import '../../../core/networking/user_info_manager.dart';
 import '../../../core/util/screen_reset.dart';
 import '../../../core/widgets/custom_textfield.dart';
+import '../../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../../generated/l10n.dart';
 import '../../../core/data_sources/api_client.dart';
 import '../../../core/services/database/database_service.dart';
@@ -244,9 +245,8 @@ class _ChangePasswordPageState extends State<ChangePasswordSettings>
       appBar: ErmisAppBar(titleText: S.current.change_password),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: ScrollViewFixer.createScrollViewWithAppBarSafety(
+            scrollView: ListView(
           children: [
             // App icon display
             Image.asset(
@@ -302,7 +302,7 @@ class _ChangePasswordPageState extends State<ChangePasswordSettings>
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }
@@ -333,8 +333,8 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
       appBar: ErmisAppBar(titleText: S.current.account_delete),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ScrollViewFixer.createScrollViewWithAppBarSafety(
+            scrollView: ListView(
           children: [
             Row(
               children: [
@@ -425,7 +425,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
               ),
             ),
           ],
-        ),
+        )),
       ),
     );
   }
