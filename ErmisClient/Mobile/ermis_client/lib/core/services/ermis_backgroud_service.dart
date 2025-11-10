@@ -19,12 +19,12 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:ermis_mobile/constants/app_constants.dart';
-import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
-import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:ermis_mobile/core/util/ermis_loading_messages.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:timezone/data/latest.dart' as timezones;
@@ -38,7 +38,6 @@ import '../networking/common/message_types/client_status.dart';
 import '../util/message_notification.dart';
 import '../util/notifications_util.dart';
 import 'database/database_service.dart';
-import 'database/models/local_account_info.dart';
 import 'database/models/server_info.dart';
 
 @pragma("vm:entry-point")
@@ -80,6 +79,13 @@ void maintainWebSocketConnection(ServiceInstance service) {
     uiAlive = true;
 
     if (Client.instance().isLoggedIn()) {
+      if (kDebugMode) {
+        print("Destroy client and event bus");
+        print("Destroy client and event bus");
+        print("Destroy client and event bus");
+        print("Destroy client and event bus");
+        print("Destroy client and event bus");
+      }
       Client.instance().disconnect();
       AppEventBus.destroyInstance();
       AppEventBus.restoreInstance();
@@ -115,39 +121,21 @@ void maintainWebSocketConnection(ServiceInstance service) {
     final settingsJson = SettingsJson();
     await settingsJson.loadSettingsJson();
 
-    final DBConnection conn = ErmisDB.getConnection();
-    ServerInfo serverInfo = await conn.getServerUrlLastUsed();
-
-    Future<void> setupClient() async {
+    Future<void> setupOfflineClient() async {
       try {
-        await Client.instance().initialize(
-          serverInfo.serverUrl,
-          ServerCertificateVerification.ignore, // Since user connected once he has no issue connecting again
-        );
-
-        await Client.instance().readServerVersion();
-        Client.instance().startMessageDispatcher();
-
-        LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
-        if (userInfo == null) {
-          return;
-        }
-
-        bool success = await Client.instance().attemptHashedLogin(userInfo);
-
-        if (!success) {
-          return;
-        }
-
-        await Client.instance().fetchUserInformation();
-        Client.instance().commands!.setAccountStatus(ClientStatus.offline);
+        await silentClientConnect();
       } catch (e) {
         // Attempt to reinitialize client in case of failure
-        await Future.delayed(const Duration(seconds: 30), setupClient);
+        await Future.delayed(const Duration(seconds: 30), silentClientConnect);
       }
+
+      Client.instance().commands!.setAccountStatus(ClientStatus.offline);
     }
 
-    setupClient().whenComplete(() {
+    late ServerInfo serverInfo;
+    setupOfflineClient().whenComplete(() {
+      serverInfo = Client.instance().serverInfo!;
+
       final sessions = Client.instance().chatSessions!;
       for (final session in sessions) {
         Client.instance().commands!.fetchWrittenText(session.chatSessionIndex);
@@ -177,7 +165,7 @@ void maintainWebSocketConnection(ServiceInstance service) {
 
     AppEventBus.instance.on<ConnectionResetEvent>().listen((event) {
       // Attempt to re-establish connection in case of a connection reset
-      Future.delayed(const Duration(seconds: 30), setupClient);
+      Future.delayed(const Duration(seconds: 30), setupOfflineClient);
     });
 
     AppEventBus.instance.on<MessageReceivedEvent>().listen((event) {

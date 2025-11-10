@@ -16,10 +16,12 @@
 
 import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
+import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/services/database/models/local_account_info.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../../constants/app_constants.dart';
+import '../../../../core/services/database/models/server_info.dart';
 import '../../../../generated/l10n.dart';
 import 'package:flutter/material.dart';
 
@@ -90,4 +92,29 @@ Future<void> setupClientSession(
     MaterialPageRoute(builder: (context) => const MainInterface()),
     (route) => false, // Removes all previous routes.
   );
+}
+
+Future<void> silentClientConnect() async {
+  final DBConnection conn = ErmisDB.getConnection();
+  ServerInfo serverInfo = await conn.getServerUrlLastUsed();
+
+  await Client.instance().initialize(
+    serverInfo.serverUrl,
+    ServerCertificateVerification.ignore, // Since user connected once he has no issue connecting again
+  );
+
+  await Client.instance().readServerVersion();
+  Client.instance().startMessageDispatcher();
+
+  LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
+  if (userInfo == null) {
+    return;
+  }
+
+  bool success = await Client.instance().attemptHashedLogin(userInfo);
+  if (!success) {
+    return;
+  }
+
+  await Client.instance().fetchUserInformation();
 }

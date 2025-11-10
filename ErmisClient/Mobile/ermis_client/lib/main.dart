@@ -21,7 +21,6 @@ import 'package:ermis_mobile/core/data_sources/api_client.dart';
 import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/models/message.dart';
 import 'package:ermis_mobile/constants/app_constants.dart';
-import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
@@ -48,7 +47,6 @@ import 'core/event_bus/app_event_bus.dart';
 import 'core/models/member.dart';
 import 'core/models/message_events.dart';
 import 'core/networking/user_info_manager.dart';
-import 'core/services/database/models/local_account_info.dart';
 import 'core/util/glitching_overlay.dart';
 import 'features/chat_requests_screen/chat_requests_screen.dart';
 import 'features/messaging/presentation/messaging_interface.dart';
@@ -117,40 +115,12 @@ void overlayMain() async {
     themeData = ThemeMode.light;
   }
 
-  Future<void> setupClient() async {
-    final DBConnection conn = ErmisDB.getConnection();
-    ServerInfo serverInfo = await conn.getServerUrlLastUsed();
-
-    try {
-      await Client.instance().initialize(
-        serverInfo.serverUrl,
-        ServerCertificateVerification
-            .ignore, // Since user connected once he has no issue connecting again
-      );
-
-      await Client.instance().readServerVersion();
-      Client.instance().startMessageDispatcher();
-
-      LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
-
-      bool success = await Client.instance().attemptHashedLogin(userInfo!);
-      if (!success) {
-        return;
-      }
-
-      Client.instance().fetchUserInformation();
-    } catch (e) {
-      // Attempt to reinitialize client in case of failure
-      await setupClient();
-    }
-  }
-
   bool hasOverlayLaunched = false;
 
   /// streams message shared between overlay and main app
   FlutterOverlayWindow.overlayListener.listen((event) async {
     await Client.instance().disconnect();
-    await setupClient();
+    await silentClientConnect();
 
     dynamic data = jsonDecode(event);
     if (kDebugMode) {
