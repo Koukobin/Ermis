@@ -264,7 +264,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
             Row(
               children: [
                 IconButton(
-                  onPressed: pushVoiceCall,
+                  // Disable group chat voice/video calls - for now.
+                  onPressed: _chatSession.memberIDs.length == 2 ? pushVoiceCall : null,
                   icon: const Icon(Icons.phone_outlined),
                 ),
                 PopupMenuButton<VoidCallback>(
