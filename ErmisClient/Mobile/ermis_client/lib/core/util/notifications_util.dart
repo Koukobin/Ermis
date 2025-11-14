@@ -101,23 +101,7 @@ void onDidReceiveNotification(NotificationResponse response) async {
 
       // Connect to call once flutter has initialized
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final DBConnection conn = ErmisDB.getConnection();
-        ServerInfo serverInfo = await conn.getServerUrlLastUsed();
-
-        await Client.instance().initialize(
-          serverInfo.serverUrl,
-          ServerCertificateVerification.ignore, // Since user connected once he has no issue connecting again
-        );
-
-        await Client.instance().readServerVersion();
-        Client.instance().startMessageDispatcher();
-
-        LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
-        if (userInfo == null) {
-          return;
-        }
-
-        bool success = await Client.instance().attemptHashedLogin(userInfo);
+        silentClientConnect();
 
         if (!success) {
           return;
