@@ -24,15 +24,13 @@ class ChatSession {
   int chatSessionID;
   int chatSessionIndex;
   List<Member> _members;
-  List<int> memberIDs;
   List<Message> _messages;
   bool _hasLatestMessages;
 
   ChatSession(this.chatSessionID, this.chatSessionIndex)
       : _members = [],
         _messages = [],
-        _hasLatestMessages = false,
-        memberIDs = [];
+        _hasLatestMessages = false;
 
   ChatSession.withDetails(
     this.chatSessionID,
@@ -40,7 +38,6 @@ class ChatSession {
     this._messages,
     this._members,
     this._hasLatestMessages,
-    this.memberIDs,
   );
 
   void setMembers(List<Member> members) => _members = members;
@@ -89,7 +86,6 @@ class ChatSession {
         chatSessionID,
         chatSessionIndex,
         Object.hashAll(_members),
-        Object.hashAll(memberIDs),
         Object.hashAll(_messages),
         _hasLatestMessages,
       );
