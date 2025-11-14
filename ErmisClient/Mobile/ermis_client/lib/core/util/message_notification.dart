@@ -109,6 +109,6 @@ void handleChatMessageNotification(ChatSession chatSession, Message msg, Setting
     contentText: body,
     contentTitle: msg.username,
     summaryText: chatSession.toString(),
-    replyCallBack: replyCallBack,
+    sessionIdex: chatSession.chatSessionIndex,
   );
 }

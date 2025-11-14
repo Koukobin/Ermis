@@ -18,11 +18,9 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:ermis_mobile/constants/app_constants.dart';
-import 'package:ermis_mobile/core/data_sources/api_client.dart';
 import 'package:ermis_mobile/core/models/member.dart';
-import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
-import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/util/permissions.dart';
+import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
@@ -31,10 +29,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../networking/common/message_types/client_status.dart';
-import '../services/database/database_service.dart';
-import '../services/database/models/local_account_info.dart';
-import '../services/database/models/server_info.dart';
+import '../data_sources/api_client.dart';
 import '../services/navigation_service.dart';
 import 'dialogs_utils.dart';
 
@@ -68,7 +63,25 @@ enum NotificationAction {
 /// For now, I suppose this will suffice.
 ///
 VoidCallback? _voiceCallEndCallback, _voiceCallAcceptCallback;
-ReplyCallback? _replyToMessageCallback;
+
+final Map<NotificationAction, dynamic> actionCallBacks = {
+  NotificationAction.actionReply: (String text, int sessionIndex) async {
+    if (!Client.instance().isLoggedIn()) await silentClientConnect();
+    Client.instance().sendMessageToClient(text, sessionIndex);
+  },
+  NotificationAction.acceptVoiceCall: () {
+    // TODO
+  },
+  NotificationAction.ignoreVoiceCall: () {
+    // Nothing.
+  },
+  NotificationAction.endVoiceCall: () {
+
+  },
+  NotificationAction.markAsRead: () {
+    // Nothing for now.
+  },
+};
 
 void onDidReceiveNotification(NotificationResponse response) async {
   String? actionId = response.actionId;
@@ -113,6 +126,7 @@ void onDidReceiveNotification(NotificationResponse response) async {
         await Client.instance().fetchUserInformation();
         Client.instance().commands?.setAccountStatus(ClientStatus.offline);
 
+
         showToastDialog(S.current.Connecting);
         showSnackBarDialog(
           context: NavigationService.currentContext,
@@ -142,12 +156,28 @@ void onDidReceiveNotification(NotificationResponse response) async {
         return;
       }
 
+      String? payload = response.payload;
+      if (payload == null) {
+        if (kDebugMode) {
+          print("Payload: null (Should have been a chat session index)");
+          print("Payload: null (Should have been a chat session index)");
+          print("Payload: null (Should have been a chat session index)");
+          print("Payload: null (Should have been a chat session index)");
+          print("Payload: null (Should have been a chat session index)");
+        }
+        return;
+      }
+      int chatSessionIndex = int.parse(payload);
+
       if (kDebugMode) {
         print(input);
-        print(_replyToMessageCallback);
+        print(chatSessionIndex);
       }
 
-      _replyToMessageCallback?.call(input);
+      // actionCallBacks[NotificationAction.actionReply](input, chatSessionIndex);
+
+      if (!Client.instance().isLoggedIn()) await silentClientConnect();
+      Client.instance().sendMessageToClient(input, chatSessionIndex);
       break;
     case NotificationAction.markAsRead:
       // To be implemented in the future
@@ -318,7 +348,6 @@ class NotificationService {
     return notificationID;
   }
 
-
   // Show an instant Notification
   static Future<void> showInstantNotification({
     required Uint8List icon,
@@ -326,14 +355,13 @@ class NotificationService {
     required String summaryText,
     required String contentTitle,
     required String contentText,
-    required ReplyCallback replyCallBack,
+    required int sessionIdex,
   }) async {
     if (!await checkAndRequestPermission(Permission.notification)) {
       showPermissionDeniedDialog(NavigationService.currentContext, Permission.notification);
       return;
     }
 
-    _replyToMessageCallback = replyCallBack;
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: AndroidNotificationDetails(
       'instant_notification_id',
@@ -379,6 +407,7 @@ class NotificationService {
       AppConstants.applicationTitle,
       body,
       platformChannelSpecifics,
+      payload: sessionIdex.toString(),
     );
   }
 
