@@ -116,13 +116,6 @@ class AccountSettings extends StatefulWidget {
                         }
                       }
 
-                      if (matchingAccount != null) {
-                        await conn.updateLastUsedAccount(
-                          serverDetails,
-                          matchingAccount.email,
-                        );
-                      }
-
                       // Pick arbitrary parameters in case of no match
                       matchingAccount ??= LocalAccountInfo(
                         email: serverAccount.email,
