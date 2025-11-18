@@ -66,7 +66,10 @@ Future<void> setupClientSession(
         Client.instance().attemptHashedLogin(userInfo),
       );
 
-      if (authenticationSuccess) break;
+      if (authenticationSuccess) {
+        conn.updateLastUsedAccount(UserInfoManager.serverInfo, userInfo.email);
+        break;
+      }
     }
   } else {
     authenticationSuccess = await showLoadingDialog(
@@ -108,13 +111,13 @@ Future<void> silentClientConnect() async {
 
   LocalAccountInfo? userInfo = await conn.getLastUsedAccount(serverInfo);
   if (userInfo == null) {
-    return;
+    throw Exception("User info of last used account was null while trying to silently connect to server");
   }
 
   bool success = await Client.instance().attemptHashedLogin(userInfo);
   if (!success) {
-    return;
+    throw Exception("Hashed login failed while trying to silently connect to server");
   }
 
-  await Client.instance().fetchUserInformation();
+  return Client.instance().fetchUserInformation();
 }
