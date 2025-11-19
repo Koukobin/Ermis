@@ -615,11 +615,6 @@ class Commands {
     payload.writeInt32(ClientMessageType.command.id);
     payload.writeInt32(ClientCommandType.addOrSwitchToNewAccount.id);
     out.write(payload);
-
-    // Proactively reset user information to ensure that
-    // user information does not leak into this account
-    // in case of an account switch
-    UserInfoManager.resetUserInformation();
   }
 
   void startVoiceCall(int chatSessionIndex) {

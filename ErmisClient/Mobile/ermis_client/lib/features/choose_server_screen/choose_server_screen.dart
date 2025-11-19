@@ -249,9 +249,8 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                 onPressed: _isConnectingToServer
                     ? null
                     : () async {
-                        // Reset information to ensure nothing leaks from previous sessions
-                        UserInfoManager.resetServerInformation();
-                        UserInfoManager.resetUserInformation();
+                        // Disconnect & reset information to ensure
+                        // nothing leaks from previous sessions
                         await Client.instance().disconnect();
 
                         Uri url = Uri.parse(serverUrl!);

@@ -146,7 +146,15 @@ class Client {
     _outputStream!.write(buffer);
 
     _isLoggedIn = (await _inputStream!.read()).readBoolean();
-    if (_isLoggedIn) UserInfoManager.accountInfo = accountInfo;
+    if (_isLoggedIn) {
+      // Proactively reset user information to ensure that
+      // user information does not leak into this account
+      // in case of an account switch
+      UserInfoManager.resetUserInformation();
+
+      UserInfoManager.accountInfo = accountInfo;
+    }
+
     return _isLoggedIn;
   }
 
@@ -281,6 +289,13 @@ class Entry<T extends CredentialInterface> {
 
     EntryResult result = EntryResult(LoginResult.fromId(entryId)!, addedInfo);
     Client.instance()._isLoggedIn = result.success;
+    if (Client.instance()._isLoggedIn) {
+      // Reset user information before switching to ensure that
+      // user information from this account is not transferred
+      // to the next
+      UserInfoManager.resetUserInformation();
+    }
+
     return result;
   }
 
@@ -355,6 +370,13 @@ class Entry<T extends CredentialInterface> {
         addedInfo);
 
     Client.instance()._isLoggedIn = entryResult.success;
+    if (Client.instance()._isLoggedIn) {
+      // Reset user information before switching to ensure that
+      // user information from this account is not transferred
+      // to the next
+      UserInfoManager.resetUserInformation();
+    }
+
     return entryResult;
   }
 

@@ -164,11 +164,6 @@ mixin Verification {
 
       if (isSuccessful) {
         showToastDialog(resultMessage);
-
-        // Reset user information before switching to ensure that
-        // user information from this account is not transferred
-        // to the next
-        UserInfoManager.resetUserInformation();
         break;
       }
 
@@ -250,10 +245,6 @@ mixin Verification {
         UserInfoManager.serverInfo,
       );
 
-      // Reset user information before switching to ensure that
-      // user information from this account is not transferred
-      // to the next
-      UserInfoManager.resetUserInformation();
       UserInfoManager.accountInfo = accountInfo;
     }
 
@@ -293,10 +284,6 @@ mixin Verification {
           UserInfoManager.serverInfo,
         );
 
-        // Reset user information before switching to ensure that
-        // user information from this account is not transferred
-        // to the next
-        UserInfoManager.resetUserInformation();
         UserInfoManager.accountInfo = accountInfo;
         break;
       }
