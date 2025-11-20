@@ -22,6 +22,8 @@ import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
+import '../voice_call/web_rtc/call_info.dart';
+
 class ChatUserAvatar extends InteractiveUserAvatar {
   final void Function(BuildContext, ChatSession) pushMessageInterface;
 
@@ -47,10 +49,12 @@ class ChatUserAvatar extends InteractiveUserAvatar {
                   popContext();
                   pushVoiceCallWebRTC(
                     context,
-                    chatSessionID: chatSession.chatSessionID,
-                    chatSessionIndex: chatSession.chatSessionIndex,
-                    member: member,
-                    isInitiator: true,
+                    CallInfo(
+                      chatSessionID: chatSession.chatSessionID,
+                      chatSessionIndex: chatSession.chatSessionIndex,
+                      member: member,
+                      isInitiator: true,
+                    ),
                   );
                 },
                 icon: Icon(
@@ -62,10 +66,12 @@ class ChatUserAvatar extends InteractiveUserAvatar {
                   popContext();
                   pushVoiceCallWebRTC(
                     context,
-                    chatSessionID: chatSession.chatSessionID,
-                    chatSessionIndex: chatSession.chatSessionIndex,
-                    member: member,
-                    isInitiator: true,
+                    CallInfo(
+                      chatSessionID: chatSession.chatSessionID,
+                      chatSessionIndex: chatSession.chatSessionIndex,
+                      member: member,
+                      isInitiator: true,
+                    ),
                   );
                 },
                 icon: Icon(

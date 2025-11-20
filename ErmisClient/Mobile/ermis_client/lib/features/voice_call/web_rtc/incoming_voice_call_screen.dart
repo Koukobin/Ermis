@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/widgets/profile_photos/user_profile_photo.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/call_info.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
@@ -53,12 +54,13 @@ void showIncomingCallScreen(
 
 void _pushVoiceCall(BuildContext context, VoiceCallIncomingEvent incomingEvent) {
   pushVoiceCallWebRTC(
-    context,
-    chatSessionID: incomingEvent.chatSessionID,
-    chatSessionIndex: incomingEvent.chatSessionIndex,
-    member: incomingEvent.member,
-    isInitiator: false,
-  );
+      context,
+      CallInfo(
+        chatSessionID: incomingEvent.chatSessionID,
+        chatSessionIndex: incomingEvent.chatSessionIndex,
+        member: incomingEvent.member,
+        isInitiator: false,
+      ));
 }
 
 class IncomingCallScreen extends StatefulWidget {

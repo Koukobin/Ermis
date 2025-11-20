@@ -49,6 +49,7 @@ import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/scroll/infinite_scroll_list.dart';
 import '../../../core/widgets/profile_photos/user_avatar.dart';
+import '../../voice_call/web_rtc/call_info.dart';
 
 class MessagingInterface extends StatefulWidget {
   final int chatSessionIndex;
@@ -203,10 +204,12 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     // );
     pushVoiceCallWebRTC(
       context,
-      chatSessionIndex: _chatSessionIndex,
-      chatSessionID: _chatSession.chatSessionID,
-      member: _chatSession.members[0],
-      isInitiator: true,
+      CallInfo(
+        chatSessionID: _chatSession.chatSessionID,
+        chatSessionIndex: _chatSessionIndex,
+        member: _chatSession.members[0],
+        isInitiator: true,
+      ),
     );
   }
 

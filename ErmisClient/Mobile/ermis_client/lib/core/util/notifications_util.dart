@@ -18,9 +18,9 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:ermis_mobile/constants/app_constants.dart';
-import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/util/permissions.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/call_info.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
@@ -97,19 +97,11 @@ void onDidReceiveNotification(NotificationResponse response) async {
         return;
       }
 
-      dynamic data = jsonDecode(response.payload!);
+      dynamic json = jsonDecode(response.payload!);
 
       // Connect to call once flutter has initialized
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         silentClientConnect();
-
-        if (!success) {
-          return;
-        }
-
-        await Client.instance().fetchUserInformation();
-        Client.instance().commands?.setAccountStatus(ClientStatus.offline);
-
 
         showToastDialog(S.current.Connecting);
         showSnackBarDialog(
@@ -121,10 +113,7 @@ void onDidReceiveNotification(NotificationResponse response) async {
 
         pushVoiceCallWebRTC(
           NavigationService.currentContext,
-          chatSessionID: data['chatSessionID'],
-          chatSessionIndex: data['chatSessionIndex'],
-          member: Member.fromJson(jsonDecode(data['member'])),
-          isInitiator: data['isInitiator'],
+          CallInfo.fromJson(json),
         );
       });
       break;

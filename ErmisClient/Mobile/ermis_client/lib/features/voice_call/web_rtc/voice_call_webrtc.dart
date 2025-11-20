@@ -25,6 +25,7 @@ import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/core/util/notifications_util.dart';
 import 'package:ermis_mobile/core/util/transitions_util.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/call_info.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_activity_indicator.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/call_status_enum.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/end_to_end_encrypted_indicator.dart';
@@ -54,13 +55,12 @@ import 'end_voice_call_screen.dart';
 
 GlobalKey _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
 
-void pushVoiceCallWebRTC(
-  BuildContext context, {
-  required int chatSessionID,
-  required int chatSessionIndex,
-  required Member member,
-  required bool isInitiator,
-}) async {
+void pushVoiceCallWebRTC(BuildContext context, CallInfo callInfo) async {
+  final Member member        = callInfo.member;
+  final bool isInitiator     = callInfo.isInitiator;
+  final int chatSessionID    = callInfo.chatSessionID;
+  final int chatSessionIndex = callInfo.chatSessionIndex;
+
   // Ensure previous voice call screen is popped
   if (_voiceCallKey.currentContext != null) {
     Navigator.of(_voiceCallKey.currentContext!).popUntil((route) => route.isFirst);
@@ -92,10 +92,7 @@ void pushVoiceCallWebRTC(
         context,
         VoiceCallWebrtc(
           key: _voiceCallKey,
-          chatSessionIndex: chatSessionIndex,
-          chatSessionID: chatSessionID,
-          member: member,
-          isInitiator: isInitiator,
+          callInfo: callInfo,
           isSystemOverlay: false,
         )).whenComplete(fetchCallHistory);
     return;
@@ -110,12 +107,7 @@ void pushVoiceCallWebRTC(
     positionGravity: PositionGravity.auto,
     startPosition: OverlayPosition(0, 12),
   );
-  await FlutterOverlayWindow.shareData(jsonEncode({
-    'chatSessionID': chatSessionID,
-    'chatSessionIndex': chatSessionIndex,
-    'member': jsonEncode(member.toJson()),
-    'isInitiator': isInitiator,
-  }));
+  await FlutterOverlayWindow.shareData(jsonEncode(callInfo.toJson()));
   Future(() async {
     while (await FlutterOverlayWindow.isActive()) {
       await Future.delayed(const Duration(seconds: 2));
@@ -126,20 +118,19 @@ void pushVoiceCallWebRTC(
 }
 
 class VoiceCallWebrtc extends StatefulWidget {
-  final int chatSessionID;
-  final int chatSessionIndex;
-  final Member member;
-  final bool isInitiator;
+  final CallInfo callInfo;
   final bool isSystemOverlay;
 
   const VoiceCallWebrtc({
     super.key,
-    required this.chatSessionID,
-    required this.chatSessionIndex,
-    required this.member,
-    required this.isInitiator,
     required this.isSystemOverlay,
+    required this.callInfo,
   });
+
+  int get chatSessionID => callInfo.chatSessionID;
+  int get chatSessionIndex => callInfo.chatSessionIndex;
+  Member get member => callInfo.member;
+  bool get isInitiator => callInfo.isInitiator;
 
   @override
   State<VoiceCallWebrtc> createState() => _VoiceCallWebrtcState();

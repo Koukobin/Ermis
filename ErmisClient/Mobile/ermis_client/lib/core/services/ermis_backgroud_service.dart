@@ -24,6 +24,7 @@ import 'package:ermis_mobile/core/services/database/extensions/unread_messages_e
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:ermis_mobile/core/util/ermis_loading_messages.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/call_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -193,12 +194,14 @@ void maintainWebSocketConnection(ServiceInstance service) {
       NotificationService.showVoiceCallNotification(
           icon: event.member.icon.profilePhoto,
           callerName: event.member.username,
-          payload: jsonEncode({
-            'chatSessionID': event.chatSessionID,
-            'chatSessionIndex': event.chatSessionIndex,
-            'member': jsonEncode(event.member.toJson()),
-            'isInitiator': false,
-          }),
+          payload: jsonEncode(
+            CallInfo(
+              chatSessionID: event.chatSessionID,
+              chatSessionIndex: event.chatSessionIndex,
+              member: event.member,
+              isInitiator: false,
+            ).toJson(),
+          ),
           onAccept: () {
             // Won't get called since app will be brought from background to foreground
           });

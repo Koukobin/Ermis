@@ -31,6 +31,7 @@ import 'package:ermis_mobile/core/util/message_notification.dart';
 import 'package:ermis_mobile/core/util/permissions.dart';
 import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
+import 'package:ermis_mobile/features/voice_call/web_rtc/call_info.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/features/splash_screen/splash_screen.dart';
@@ -40,11 +41,11 @@ import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/util/notifications_util.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:sqflite/sql.dart';
 
 import 'core/event_bus/app_event_bus.dart';
-import 'core/models/member.dart';
 import 'core/models/message_events.dart';
 import 'core/networking/user_info_manager.dart';
 import 'core/util/glitching_overlay.dart';
@@ -122,22 +123,21 @@ void overlayMain() async {
     await Client.instance().disconnect();
     await silentClientConnect();
 
-    dynamic data = jsonDecode(event);
+    dynamic json = jsonDecode(event);
+    CallInfo callInfo = CallInfo.fromJson(json);
+
     if (kDebugMode) {
-      print(data['chatSessionID']);
-      print(data['chatSessionIndex']);
-      print(Member.fromJson(jsonDecode(data['member'])));
-      print(data['isInitiator']);
+      print(callInfo.chatSessionID);
+      print(callInfo.chatSessionIndex);
+      print(callInfo.member);
+      print(callInfo.isInitiator);
     }
 
     if (hasOverlayLaunched) {
       pushMaterialTransition(
         NavigationService.currentContext,
         VoiceCallWebrtc(
-          chatSessionID: data['chatSessionID'],
-          chatSessionIndex: data['chatSessionIndex'],
-          member: Member.fromJson(jsonDecode(data['member'])),
-          isInitiator: data['isInitiator'],
+          callInfo: callInfo,
           isSystemOverlay: true,
         ),
       );
@@ -150,35 +150,27 @@ void overlayMain() async {
       lightAppColors: AppConstants.lightAppColors,
       theme: themeData,
       home: VoiceCallWebrtc(
-        chatSessionID: data['chatSessionID'],
-        chatSessionIndex: data['chatSessionIndex'],
-        member: Member.fromJson(jsonDecode(data['member'])),
-        isInitiator: data['isInitiator'],
+        callInfo: callInfo,
         isSystemOverlay: true,
       ),
     ));
-  });
 
-  // Restrict call orientation to portrait mode only
-  /*
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]).then((value) => runApp(AppTheme(
-        darkAppColors: AppConstants.darkAppColors,
-        lightAppColors: AppConstants.lightAppColors,
-        theme: themeData,
-        home: Material(
-          color: Colors.transparent,
-          child: VoiceCallWebrtc(
-            chatSessionID: data['chatSessionID'],
-            chatSessionIndex: data['chatSessionIndex'],
-            member: Member.fromJson(jsonDecode(data['member'])),
-            isInitiator: data['isInitiator'],
+    /*
+    // Restrict call orientation to portrait mode only
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]).then((value) => runApp(AppTheme(
+          darkAppColors: AppConstants.darkAppColors,
+          lightAppColors: AppConstants.lightAppColors,
+          theme: themeData,
+          home: VoiceCallWebrtc(
+            callInfo: callInfo,
+            isSystemOverlay: true,
           ),
-        ),
-      )));
-      */
+        )));
+    */
+  });
 }
 
 class _MyApp extends StatefulWidget {
