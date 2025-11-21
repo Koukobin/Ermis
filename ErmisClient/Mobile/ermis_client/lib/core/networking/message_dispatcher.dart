@@ -29,11 +29,11 @@ import 'common/message_types/server_message_type.dart';
 import '../event_bus/event_bus.dart';
 import '../data/models/network/byte_buf.dart';
 
-final EventBus _eventBus = AppEventBus.instance;
-
 class MessageDispatcher {
   final ByteBufInputStream _inputStream;
   const MessageDispatcher({required ByteBufInputStream inputStream}) : _inputStream = inputStream;
+
+  EventBus get _eventBus => AppEventBus.instance;
 
   void debute() {
     _inputStream.listen(
