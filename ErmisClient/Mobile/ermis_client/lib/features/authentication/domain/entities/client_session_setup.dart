@@ -76,6 +76,11 @@ Future<void> setupClientSession(
       context,
       Client.instance().attemptHashedLogin(accountInfo),
     );
+
+    if (authenticationSuccess) {
+      final DBConnection conn = ErmisDB.getConnection();
+      conn.updateLastUsedAccount(UserInfoManager.serverInfo, accountInfo.email);
+    }
   }
 
   if (!authenticationSuccess) {
@@ -89,6 +94,38 @@ Future<void> setupClientSession(
   }
 
   await showLoadingDialog(context, Client.instance().fetchUserInformation());
+  // Navigate to the main interface
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => const MainInterface()),
+    (route) => false, // Removes all previous routes.
+  );
+}
+
+Future<void> _switchClientSession(
+  BuildContext context, {
+  required LocalAccountInfo accountInfo,
+}) async {
+  Client.instance().commands?.switchAccount();
+
+  bool authenticationSuccess = false;
+  authenticationSuccess = await showLoadingDialog(
+    context,
+    Client.instance().attemptHashedLogin(accountInfo),
+  );
+
+  if (!authenticationSuccess) {
+    // Navigate to the Registration interface
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateAccountInterface()),
+      (route) => true, // Retain all previous routes.
+    );
+    return;
+  }
+
+  await showLoadingDialog(context, Client.instance().fetchUserInformation());
+
   // Navigate to the main interface
   Navigator.pushAndRemoveUntil(
     context,
