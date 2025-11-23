@@ -68,7 +68,7 @@ class Client {
   ByteBufOutputStream? _outputStream;
 
   ManagedSocket? _socket;
-  Stream<Uint8List>? broadcastStream;
+  Stream<Uint8List>? _broadcastStream;
 
   bool _isLoggedIn = false;
 
@@ -93,11 +93,11 @@ class Client {
             scv == ServerCertificateVerification.ignore,
       );
 
-      broadcastStream = sslSocket.asBroadcastStream();
+      _broadcastStream = sslSocket.asBroadcastStream();
 
       UserInfoManager.serverInfo = ServerInfo(uri);
 
-      _inputStream = ByteBufInputStream(socket: sslSocket, stream: broadcastStream!);
+      _inputStream = ByteBufInputStream(socket: sslSocket, stream: _broadcastStream!);
       _outputStream = ByteBufOutputStream(socket: sslSocket);
 
       _messageTransmitter = MessageTransmitter();
@@ -212,14 +212,15 @@ class Client {
 
   Future<void> disconnect() async {
     await _socket?.ifActive((socket) async => await socket.close());
-    _socket = null;
-    _outputStream = null;
-    _inputStream = null;
-    broadcastStream = null;
-    _messageTransmitter = null;
+    _socket                     = null;
+    _inputStream                = null;
+    _outputStream               = null;
+    _broadcastStream            = null;
+    _messageTransmitter         = null;
     _isMessageDispatcherRunning = false;
-    _isConnectionRefused = false;
-    _isConnectionReset = false;
+    _isConnectionRefused        = false;
+    _isConnectionReset          = false;
+    _isLoggedIn                 = false;
 
     UserInfoManager.resetUserInformation();
     UserInfoManager.resetServerInformation();
