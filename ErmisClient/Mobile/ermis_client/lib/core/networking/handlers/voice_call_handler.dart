@@ -21,9 +21,8 @@ import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/voice_call_message_type.dart';
 import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import '../../event_bus/app_event_bus.dart';
-import '../../event_bus/event_bus.dart';
 
-final EventBus _eventBus = AppEventBus.instance;
+final AppEventBus _eventBus = AppEventBus.instance;
 
 class VoiceCallHandler {
   static void handle(ByteBuf msg) {

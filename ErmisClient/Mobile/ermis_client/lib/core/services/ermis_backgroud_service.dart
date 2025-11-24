@@ -88,8 +88,8 @@ void maintainWebSocketConnection(ServiceInstance service) {
         print("Destroy client and event bus");
       }
       Client.instance().disconnect();
-      AppEventBus.destroyInstance();
-      AppEventBus.restoreInstance();
+      AppEventBus.instance.destroyInstance();
+      AppEventBus.instance.restoreInstance();
     }
   });
 

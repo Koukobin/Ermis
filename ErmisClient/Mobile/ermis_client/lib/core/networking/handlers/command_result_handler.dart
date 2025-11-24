@@ -36,11 +36,10 @@ import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/core/services/database/models/local_user_info.dart';
 import '../../event_bus/app_event_bus.dart';
-import '../../event_bus/event_bus.dart';
 import '../../models/member_icon.dart';
 import '../common/message_types/voice_call_history_status.dart';
 
-final EventBus _eventBus = AppEventBus.instance;
+final AppEventBus _eventBus = AppEventBus.instance;
 
 class CommandResultHandler {
   const CommandResultHandler._();
@@ -255,7 +254,7 @@ class CommandResultHandler {
             );
           }
         }
-        
+
         // Delete outdated chat sessions
         for (final session in UserInfoManager.chatSessionIDSToChatSessions.values) {
           if (UserInfoManager.chatSessions!.contains(session)) continue;

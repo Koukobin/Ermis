@@ -26,14 +26,13 @@ import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:flutter/foundation.dart';
 
 import 'common/message_types/server_message_type.dart';
-import '../event_bus/event_bus.dart';
 import '../data/models/network/byte_buf.dart';
 
 class MessageDispatcher {
   final ByteBufInputStream _inputStream;
   const MessageDispatcher({required ByteBufInputStream inputStream}) : _inputStream = inputStream;
 
-  EventBus get _eventBus => AppEventBus.instance;
+  AppEventBus get _eventBus => AppEventBus.instance;
 
   void debute() {
     _inputStream.listen(

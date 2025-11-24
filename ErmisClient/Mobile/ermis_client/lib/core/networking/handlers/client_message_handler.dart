@@ -24,9 +24,8 @@ import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/models/message.dart';
 import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import '../../event_bus/app_event_bus.dart';
-import '../../event_bus/event_bus.dart';
 
-final EventBus _eventBus = AppEventBus.instance;
+final AppEventBus _eventBus = AppEventBus.instance;
 
 class ClientMessageHandler {
   static void handle(ByteBuf msg) {

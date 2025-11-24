@@ -33,7 +33,6 @@ import 'common/message_types/client_command_type.dart';
 import 'common/message_types/client_message_type.dart';
 import 'common/message_types/content_type.dart';
 import '../models/user_device.dart';
-import '../event_bus/event_bus.dart';
 import '../data/models/network/byte_buf.dart';
 import '../models/chat_request.dart';
 import '../models/chat_session.dart';
@@ -59,7 +58,6 @@ class MessageTransmitter {
   late final Writer _writer;
 
   late final Commands _commands;
-  final EventBus eventBus = AppEventBus.instance;
 
   MessageTransmitter();
 
@@ -374,6 +372,12 @@ class Commands {
       for (Member member in members) {
         payload.writeInt32(member.clientID);
         payload.writeInt64(member.lastUpdatedAtEpochSecond);
+
+        if (kDebugMode) {
+          print("------======------");
+          print("ClientID: ${member.clientID}");
+          print("EpochSecond: ${member.lastUpdatedAtEpochSecond}");
+        }
       }
     }
 

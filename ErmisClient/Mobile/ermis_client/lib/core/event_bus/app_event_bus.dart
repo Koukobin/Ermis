@@ -17,13 +17,17 @@
 import 'event_bus.dart';
 
 class AppEventBus {
-  static EventBus _eventBus = EventBus();
+  EventBus _eventBus = EventBus();
+
+  static final AppEventBus _appEventBus = AppEventBus._();
+  static AppEventBus get instance => _appEventBus;
 
   /// Prevent instantiation
   AppEventBus._();
 
-  static EventBus get instance => _eventBus;
+  Stream<T> on<T>() => _eventBus.on<T>();
+  void fire<T>(T event) => _eventBus.fire(event);
 
-  static void destroyInstance() => _eventBus.destroy();
-  static void restoreInstance() => _eventBus = EventBus();
+  void destroyInstance() => _eventBus.destroy();
+  void restoreInstance() => _eventBus = EventBus();
 }
