@@ -58,7 +58,7 @@ class EventBus {
   StreamController get streamController => _streamController;
 
   /// Sends a new event onto the event bus, broadcasting the specified [event].
-  void fire(event) {
+  void fire<T>(T event) {
     streamController.add(event);
   }
 
