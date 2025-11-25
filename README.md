@@ -229,4 +229,3 @@ Ermis is distributed under the _**GNU Affero General Public License Version 3.0*
 For a brief synopsis of the license refer to [Wiki](https://github.com/Koukobin/Ermis/wiki/License).
 
 By using this software, you agree to the terms outlined in the license agreement.
-
