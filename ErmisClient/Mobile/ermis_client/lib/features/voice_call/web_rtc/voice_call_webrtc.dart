@@ -55,6 +55,8 @@ import 'end_voice_call_screen.dart';
 
 GlobalKey _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
 
+Future<bool> canRunAsSystemOverlay() => FlutterOverlayWindow.isActive();
+
 void pushVoiceCallWebRTC(BuildContext context, CallInfo callInfo) async {
   final Member member        = callInfo.member;
   final bool isInitiator     = callInfo.isInitiator;
@@ -98,7 +100,7 @@ void pushVoiceCallWebRTC(BuildContext context, CallInfo callInfo) async {
     return;
   }
 
-  if (await FlutterOverlayWindow.isActive()) await FlutterOverlayWindow.closeOverlay();
+  if (await canRunAsSystemOverlay()) await FlutterOverlayWindow.closeOverlay();
   await FlutterOverlayWindow.showOverlay(
     overlayTitle: "WebRTC Voice Call With ${member.username}",
     overlayContent: 'Overlay Enabled',
@@ -109,7 +111,7 @@ void pushVoiceCallWebRTC(BuildContext context, CallInfo callInfo) async {
   );
   await FlutterOverlayWindow.shareData(jsonEncode(callInfo.toJson()));
   Future(() async {
-    while (await FlutterOverlayWindow.isActive()) {
+    while (await canRunAsSystemOverlay()) {
       await Future.delayed(const Duration(seconds: 2));
       continue;
     }

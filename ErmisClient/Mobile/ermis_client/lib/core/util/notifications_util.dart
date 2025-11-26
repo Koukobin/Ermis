@@ -21,7 +21,6 @@ import 'package:ermis_mobile/constants/app_constants.dart';
 import 'package:ermis_mobile/core/util/permissions.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/client_session_setup.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/call_info.dart';
-import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +31,8 @@ import 'package:permission_handler/permission_handler.dart';
 import '../data_sources/api_client.dart';
 import '../services/navigation_service.dart';
 import 'dialogs_utils.dart';
+
+import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart' as voice_call;
 
 typedef ReplyCallback = void Function(String message);
 
@@ -62,7 +63,7 @@ enum NotificationAction {
 /// 
 /// For now, I suppose this will suffice.
 ///
-VoidCallback? _voiceCallEndCallback, _voiceCallAcceptCallback;
+VoidCallback? _voiceCallAcceptCallback, _voiceCallEndCallback;
 
 final Map<NotificationAction, dynamic> actionCallBacks = {
   NotificationAction.actionReply: (String text, int sessionIndex) async {
@@ -99,9 +100,17 @@ void onDidReceiveNotification(NotificationResponse response) async {
 
       dynamic json = jsonDecode(response.payload!);
 
+      if (await voice_call.canRunAsSystemOverlay()) {
+        voice_call.pushVoiceCallWebRTC(
+          NavigationService.currentContext,
+          CallInfo.fromJson(json),
+        );
+        return;
+      }
+
       // Connect to call once flutter has initialized
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        silentClientConnect();
+        await silentClientConnect();
 
         showToastDialog(S.current.Connecting);
         showSnackBarDialog(
@@ -109,9 +118,9 @@ void onDidReceiveNotification(NotificationResponse response) async {
           content: S.current.Connecting,
         );
 
-        await Future.delayed(const Duration(seconds: 5)); // Await until first screen builds
+        await Future.delayed(const Duration(seconds: 3)); // Await until first screen builds
 
-        pushVoiceCallWebRTC(
+        voice_call.pushVoiceCallWebRTC(
           NavigationService.currentContext,
           CallInfo.fromJson(json),
         );
