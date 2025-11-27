@@ -15,6 +15,7 @@ import package_info_plus
 import path_provider_foundation
 import sqflite_darwin
 import url_launcher_macos
+import wakelock_plus
 import zstandard_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
@@ -28,5 +29,6 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
+  WakelockPlusMacosPlugin.register(with: registry.registrar(forPlugin: "WakelockPlusMacosPlugin"))
   ZstandardMacosPlugin.register(with: registry.registrar(forPlugin: "ZstandardMacosPlugin"))
 }

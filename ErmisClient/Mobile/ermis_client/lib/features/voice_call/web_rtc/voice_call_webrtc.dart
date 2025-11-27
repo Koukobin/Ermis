@@ -36,9 +36,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:keep_screen_on/keep_screen_on.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:synchronized/extension.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:web_socket_channel/io.dart';
 
 import '../../../generated/l10n.dart';
@@ -53,14 +53,15 @@ import '../../../core/widgets/wrapper_widget.dart';
 import '../../../theme/app_colors.dart';
 import 'end_voice_call_screen.dart';
 
+/// Key used to determine if a voice call is currently active
 GlobalKey _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
 
 Future<bool> canRunAsSystemOverlay() => FlutterOverlayWindow.isActive();
 
 void pushVoiceCallWebRTC(BuildContext context, CallInfo callInfo) async {
   final Member member        = callInfo.member;
-  final bool isInitiator     = callInfo.isInitiator;
-  final int chatSessionID    = callInfo.chatSessionID;
+  final bool isInitiator     = callInfo.isInitiator; // ignore: unused_local_variable
+  final int chatSessionID    = callInfo.chatSessionID; // ignore: unused_local_variable
   final int chatSessionIndex = callInfo.chatSessionIndex;
 
   // Ensure previous voice call screen is popped
@@ -199,7 +200,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     endVoiceCallNotificationID = -1;
 
-    // await KeepScreenOn.turnOff(); // Disable screen-on lock
+    WakelockPlus.enable(); // Disable screen-on lock
   }
 
   @override
@@ -207,7 +208,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     super.initState();
 
     // Disable screen from automatically turning off
-    // KeepScreenOn.turnOn();
+    WakelockPlus.disable();
 
     if (kDebugMode) {
       print("INITIALIZING VOICE CALL");
