@@ -8,9 +8,12 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            Intent i = new Intent(context, MainActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+            Intent serviceIntent = new Intent();
+            serviceIntent.setClassName(
+                context.getPackageName(),
+                "id.flutter.background_service.BackgroundService"
+            );
+            context.startForegroundService(serviceIntent);
         }
     }
 }
