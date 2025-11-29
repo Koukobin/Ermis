@@ -71,7 +71,7 @@ void pushVoiceCallWebRTC(BuildContext context, CallInfo callInfo) async {
   }
 
   /// check if overlay permission is granted
-  bool? isOverlayGranted = await FlutterOverlayWindow.isPermissionGranted();
+  bool isOverlayGranted = await FlutterOverlayWindow.isPermissionGranted();
   if (!isOverlayGranted) {
     isOverlayGranted = await FlutterOverlayWindow.requestPermission() ?? false;
   }
@@ -200,7 +200,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     endVoiceCallNotificationID = -1;
 
-    WakelockPlus.enable(); // Disable screen-on lock
+    WakelockPlus.disable(); // Disable screen-on lock
   }
 
   @override
@@ -208,7 +208,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     super.initState();
 
     // Disable screen from automatically turning off
-    WakelockPlus.disable();
+    WakelockPlus.enable();
 
     if (kDebugMode) {
       print("INITIALIZING VOICE CALL");
