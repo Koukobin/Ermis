@@ -33,6 +33,7 @@ import 'package:ermis_mobile/features/voice_call/web_rtc/local_camera_overlay_wi
 import 'package:ermis_mobile/features/voice_call/web_rtc/time_elapsed_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -201,11 +202,20 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     endVoiceCallNotificationID = -1;
 
     WakelockPlus.disable(); // Disable screen-on lock
+
+    // Reset orientation to operating system default
+    SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
   }
 
   @override
   void initState() {
     super.initState();
+
+    // Restrict call orientation to portrait mode only
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
     // Disable screen from automatically turning off
     WakelockPlus.enable();
