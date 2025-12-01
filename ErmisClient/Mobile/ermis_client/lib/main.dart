@@ -41,7 +41,6 @@ import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/util/notifications_util.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:sqflite/sql.dart';
 
@@ -154,22 +153,6 @@ void overlayMain() async {
         isSystemOverlay: true,
       ),
     ));
-
-    /*
-    // Restrict call orientation to portrait mode only
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]).then((value) => runApp(AppTheme(
-          darkAppColors: AppConstants.darkAppColors,
-          lightAppColors: AppConstants.lightAppColors,
-          theme: themeData,
-          home: VoiceCallWebrtc(
-            callInfo: callInfo,
-            isSystemOverlay: true,
-          ),
-        )));
-    */
   });
 }
 
