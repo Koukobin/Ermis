@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'dialogs_utils.dart';
@@ -83,9 +84,11 @@ Future<bool> requestAllPermissions() async {
   }
 
   success &= await checkAndRequestPermission(Permission.notification);
-  success &= await checkAndRequestPermission(Permission.systemAlertWindow);
   success &= await checkAndRequestPermission(Permission.camera);
   success &= await checkAndRequestPermission(Permission.microphone);
+
+  success &= await checkAndRequestPermission(Permission.systemAlertWindow);
+  FlutterOverlayWindow.requestPermission();
 
   if (!success) openAppSettings();
   return success;

@@ -73,9 +73,6 @@ void pushVoiceCallWebRTC(BuildContext context, CallInfo callInfo) async {
 
   /// check if overlay permission is granted
   bool isOverlayGranted = await FlutterOverlayWindow.isPermissionGranted();
-  if (!isOverlayGranted) {
-    isOverlayGranted = await FlutterOverlayWindow.requestPermission() ?? false;
-  }
 
   void fetchCallHistory() {
     // Update obsolete voice call history (Slight delay to ensure server had
