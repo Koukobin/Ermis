@@ -140,7 +140,90 @@ class VoiceCallWebrtc extends StatefulWidget {
   State<VoiceCallWebrtc> createState() => _VoiceCallWebrtcState();
 }
 
-class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
+IOWebSocketChannel? _channel;
+MediaStream? _localStream;
+RTCPeerConnection? _peerConnection;
+
+RTCVideoRenderer? _remoteRenderer;
+RTCVideoRenderer? _localRenderer;
+
+bool _isReceivingVideo = false;
+bool _isSpeakerPhoneEnabled = false;
+bool _isShowingVideo = false;
+bool _isMuted = false;
+
+bool _showEndToEndEncryptedIndicator = false;
+
+CallStatus _callStatus = CallStatus.connecting;
+// double rms = 0.0;
+
+TimeElapsedValueNotifier _elapsedTimeNotifier = TimeElapsedValueNotifier();
+TimeElapsedWidget? _elapsedTime;
+
+OverlayEntry? _returnToCallOverlayEntry;
+bool _buildSystemOverlay = false;
+
+int _endVoiceCallNotificationID = -1;
+
+mixin _Helper on State<VoiceCallWebrtc> {
+  /// Helper function to send JSON messages over the WebSocket
+  void sendChannelMessage(Map<String, dynamic> message) {
+    _channel?.sink.add(jsonEncode(message));
+  }
+
+  double calculateRMS(Uint8List audioChunk) {
+    if (audioChunk.isEmpty) {
+      return 0.0; // Return 0 for empty audio samples
+    }
+
+    Int16List audioSamples = audioChunk.buffer.asInt16List();
+    num sumOfSquares = audioSamples
+        .map((int sample) => pow(sample, 2))
+        .reduce((num a, num b) => a + b);
+    return sqrt(sumOfSquares / audioSamples.length);
+  }
+
+  void updateSpeakerPhone() {
+    void updateEnabled(MediaStreamTrack track) {
+      track.enableSpeakerphone(_isSpeakerPhoneEnabled);
+    }
+
+    _localStream!.getAudioTracks().forEach(updateEnabled);
+  }
+
+  void toggleVideoMode() {
+    // Synchronize because spamming toggle may result in multiple overlays
+    synchronized(() {
+      setState(() {
+        _isShowingVideo = !_isShowingVideo;
+        _isSpeakerPhoneEnabled = _isShowingVideo;
+      });
+
+      updateSpeakerPhone();
+
+      _localStream!.getVideoTracks().forEach((track) {
+        track.enabled = _isShowingVideo;
+      });
+
+      if (_isShowingVideo) {
+        sendChannelMessage({'type': 'enabled_camera'});
+      } else {
+        sendChannelMessage({'type': 'disabled_camera'});
+      }
+    });
+  }
+
+  void shareScreen() async {
+    MediaStream stream = await navigator.mediaDevices.getDisplayMedia({
+      'video': true,
+      'audio': true,
+    });
+
+    _peerConnection!.addStream(stream);
+  }
+}
+
+class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
   /// STUN configuration for ICE candidates.
   static final Map<String, dynamic> configuration = {
     'iceServers': [
@@ -149,59 +232,34 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     ]
   };
 
-  static IOWebSocketChannel? channel;
-  static MediaStream? localStream;
-  static RTCPeerConnection? peerConnection;
-
-  static RTCVideoRenderer? remoteRenderer;
-  static RTCVideoRenderer? localRenderer;
-
-  static bool isReceivingVideo = false;
-  static bool isSpeakerPhoneEnabled = false;
-  static bool isShowingVideo = false;
-  static bool isMuted = false;
-
-  static bool showEndToEndEncryptedIndicator = false;
-
-  static CallStatus callStatus = CallStatus.connecting;
-  // double rms = 0.0;
-
-  static TimeElapsedValueNotifier elapsedTimeNotifier = TimeElapsedValueNotifier();
-  static TimeElapsedWidget? elapsedTime;
-
-  static OverlayEntry? returnToCallOverlayEntry;
-  static bool buildSystemOverlay = false;
-
-  static int endVoiceCallNotificationID = -1;
-
   static Future<void> _resetCallData() async {
-    await channel?.sink.close();
-    await localStream?.dispose();
-    await peerConnection?.close();
-    await remoteRenderer?.dispose();
-    await localRenderer?.dispose();
+    await _channel?.sink.close();
+    await _localStream?.dispose();
+    await _peerConnection?.close();
+    await _remoteRenderer?.dispose();
+    await _localRenderer?.dispose();
 
-    channel = null;
-    localStream = null;
-    peerConnection = null;
-    remoteRenderer = null;
-    localRenderer = null;
+    _channel = null;
+    _localStream = null;
+    _peerConnection = null;
+    _remoteRenderer = null;
+    _localRenderer = null;
 
-    isReceivingVideo = false;
-    isSpeakerPhoneEnabled = false;
-    isShowingVideo = false;
-    isMuted = false;
-    showEndToEndEncryptedIndicator = false;
+    _isReceivingVideo = false;
+    _isSpeakerPhoneEnabled = false;
+    _isShowingVideo = false;
+    _isMuted = false;
+    _showEndToEndEncryptedIndicator = false;
 
-    callStatus = CallStatus.connecting;
+    _callStatus = CallStatus.connecting;
 
-    elapsedTimeNotifier.release();
-    elapsedTimeNotifier = TimeElapsedValueNotifier();
-    elapsedTime = null;
+    _elapsedTimeNotifier.release();
+    _elapsedTimeNotifier = TimeElapsedValueNotifier();
+    _elapsedTime = null;
 
-    endVoiceCallNotificationID = -1;
+    _endVoiceCallNotificationID = -1;
 
-    WakelockPlus.disable(); // Disable screen-on lock
+    WakelockPlus.enable(); // Disable screen-on lock
 
     // Reset orientation to operating system default
     SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
@@ -218,7 +276,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     ]);
 
     // Disable screen from automatically turning off
-    WakelockPlus.enable();
+    WakelockPlus.disable();
 
     if (kDebugMode) {
       print("INITIALIZING VOICE CALL");
@@ -226,24 +284,24 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       print("INITIALIZING VOICE CALL");
     }
 
-    returnToCallOverlayEntry?.remove();
-    returnToCallOverlayEntry = null;
+    _returnToCallOverlayEntry?.remove();
+    _returnToCallOverlayEntry = null;
 
     Timer.periodic(const Duration(seconds: 1), (timer) async {
-      if (!mounted || callStatus == CallStatus.ended) {
+      if (!mounted || _callStatus == CallStatus.ended) {
         timer.cancel();
         return;
       }
 
-      if (peerConnection?.getRemoteStreams().isNotEmpty ?? false) {
+      if (_peerConnection?.getRemoteStreams().isNotEmpty ?? false) {
         timer.cancel();
 
         setState(() {
-          callStatus = CallStatus.active;
-          elapsedTime = TimeElapsedWidget(elapsedTime: elapsedTimeNotifier);
+          _callStatus = CallStatus.active;
+          _elapsedTime = TimeElapsedWidget(elapsedTime: _elapsedTimeNotifier);
         });
 
-        endVoiceCallNotificationID =
+        _endVoiceCallNotificationID =
             await NotificationService.showPersistentEndVoiceCallNotification(
           callerName: widget.member.username,
           voiceCallEndCallback: _endCall,
@@ -265,7 +323,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     Timer.periodic(const Duration(seconds: 5), (timer) async {
       // Show end-to-end encrypted indicator for only five seconds,
       // whereas call status for 10 seconds.
-      if (!showEndToEndEncryptedIndicator) {
+      if (!_showEndToEndEncryptedIndicator) {
         await Future.delayed(const Duration(seconds: 5));
       }
 
@@ -275,7 +333,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       }
 
       setState(() {
-        showEndToEndEncryptedIndicator = !showEndToEndEncryptedIndicator;
+        _showEndToEndEncryptedIndicator = !_showEndToEndEncryptedIndicator;
       });
     });
 
@@ -284,7 +342,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     // the ⬅ button on the top left and return by double tapping
     // the overlay, resulting in this method re-executing.
     // Kinda shitty, but a compromise needed.
-    if (callStatus != CallStatus.connecting) return;
+    if (_callStatus != CallStatus.connecting) return;
 
     Future(() async {
       if (widget.isInitiator) {
@@ -298,16 +356,16 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
-      channel = IOWebSocketChannel.connect(
+      _channel = IOWebSocketChannel.connect(
         Uri.parse('wss://${UserInfoManager.serverInfo.address!.host}:${e.port}/ws'),
         customClient: client,
       );
-      await channel!.ready;
+      await _channel!.ready;
 
       final sessionData = ByteBuf(8); // Allocate buffer for two 4-byte integers
       sessionData.writeInt32(widget.chatSessionID);
       sessionData.writeInt32(UserInfoManager.clientID);
-      channel!.sink.add(sessionData.buffer.toList());
+      _channel!.sink.add(sessionData.buffer.toList());
 
       await _startListeningForMessagesFromCounterpart();
 
@@ -320,33 +378,28 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     });
   }
 
-  /// Helper function to send JSON messages over the WebSocket
-  void sendChannelMessage(Map<String, dynamic> message) {
-    channel?.sink.add(jsonEncode(message));
-  }
-
   Future<void> _startListeningForMessagesFromCounterpart() async {
-    remoteRenderer = RTCVideoRenderer();
-    await remoteRenderer!.initialize();
+    _remoteRenderer = RTCVideoRenderer();
+    await _remoteRenderer!.initialize();
 
     // Listen for incoming signaling messages
-    channel!.stream.listen((data) async {
+    _channel!.stream.listen((data) async {
       final Map<String, dynamic> message = jsonDecode(data);
       print("Received message: $message");
       switch (message['type']) {
         case "offer":
           {
             // When an offer is received, create a peer connection if one doesn't exist
-            if (peerConnection == null) {
-              peerConnection = await createPeerConnection(configuration);
+            if (_peerConnection == null) {
+              _peerConnection = await createPeerConnection(configuration);
               // If a local stream already exists, add all its tracks to the connection
-              if (localStream != null) {
-                localStream!.getTracks().forEach((track) {
-                  peerConnection!.addTrack(track, localStream!);
+              if (_localStream != null) {
+                _localStream!.getTracks().forEach((track) {
+                  _peerConnection!.addTrack(track, _localStream!);
                 });
               }
               // Listen for ICE candidates and send them
-              peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+              _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
                 if (candidate.candidate != null &&
                     candidate.candidate!.isNotEmpty) {
                   sendChannelMessage({
@@ -356,7 +409,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                 }
               };
               // Handle remote tracks
-              peerConnection!.onTrack = (RTCTrackEvent event) {
+              _peerConnection!.onTrack = (RTCTrackEvent event) {
                 if (event.streams.isNotEmpty) {
                   print("Remote stream received: ${event.streams[0].id}");
                 }
@@ -365,7 +418,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                   // event.streams might contain the remote stream
                   if (event.streams.isNotEmpty) {
                     setState(() {
-                      remoteRenderer!.srcObject = event.streams[0];
+                      _remoteRenderer!.srcObject = event.streams[0];
                     });
                   }
                 }
@@ -376,10 +429,10 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
               message['data']['sdp'],
               message['data']['type'],
             );
-            await peerConnection!.setRemoteDescription(remoteOffer);
+            await _peerConnection!.setRemoteDescription(remoteOffer);
             // Create, set, and send the answer
-            RTCSessionDescription answer = await peerConnection!.createAnswer();
-            await peerConnection!.setLocalDescription(answer);
+            RTCSessionDescription answer = await _peerConnection!.createAnswer();
+            await _peerConnection!.setLocalDescription(answer);
             sendChannelMessage({
               'type': 'answer',
               'data': answer.toMap(),
@@ -388,31 +441,31 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
           }
         case "answer":
           {
-            if (peerConnection != null) {
+            if (_peerConnection != null) {
               RTCSessionDescription remoteAnswer = RTCSessionDescription(
                 message['data']['sdp'],
                 message['data']['type'],
               );
-              await peerConnection!.setRemoteDescription(remoteAnswer);
+              await _peerConnection!.setRemoteDescription(remoteAnswer);
             }
             break;
           }
         case "candidate":
           {
-            if (peerConnection != null) {
+            if (_peerConnection != null) {
               final candidateMap = message['data'];
               RTCIceCandidate candidate = RTCIceCandidate(
                 candidateMap['candidate'],
                 candidateMap['sdpMid'],
                 candidateMap['sdpMLineIndex'],
               );
-              await peerConnection!.addCandidate(candidate);
+              await _peerConnection!.addCandidate(candidate);
             }
             break;
           }
         case "accept":
           {
-            peerConnection = await createPeerConnection(configuration);
+            _peerConnection = await createPeerConnection(configuration);
 
             if (kDebugMode) {
               print("Peer connection established!!");
@@ -425,12 +478,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
             }
 
             // Add local media tracks
-            localStream!.getTracks().forEach((track) {
-              peerConnection!.addTrack(track, localStream!);
+            _localStream!.getTracks().forEach((track) {
+              _peerConnection!.addTrack(track, _localStream!);
             });
 
             // Set up ICE candidates and track handling
-            peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+            _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
               if (candidate.candidate != null &&
                   candidate.candidate!.isNotEmpty) {
                 sendChannelMessage({
@@ -440,7 +493,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
               }
             };
 
-            peerConnection!.onTrack = (RTCTrackEvent event) {
+            _peerConnection!.onTrack = (RTCTrackEvent event) {
               if (event.streams.isNotEmpty) {
                 print("Remote stream received: ${event.streams[0].id}");
               }
@@ -448,16 +501,16 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                 // event.streams might contain the remote stream
                 if (event.streams.isNotEmpty) {
                   setState(() {
-                    remoteRenderer!.srcObject = event.streams[0];
+                    _remoteRenderer!.srcObject = event.streams[0];
                   });
                 }
               }
             };
 
-            peerConnection!.onRenegotiationNeeded = () async {
+            _peerConnection!.onRenegotiationNeeded = () async {
               try {
-                RTCSessionDescription newOffer = await peerConnection!.createOffer();
-                await peerConnection!.setLocalDescription(newOffer);
+                RTCSessionDescription newOffer = await _peerConnection!.createOffer();
+                await _peerConnection!.setLocalDescription(newOffer);
                 sendChannelMessage({'type': 'offer', 'data': newOffer.toMap()});
               } catch (err) {
                 print("Renegotiation failed: $err");
@@ -465,8 +518,8 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
             };
 
             // Create the offer and send it over the signaling channel
-            RTCSessionDescription offer = await peerConnection!.createOffer();
-            await peerConnection!.setLocalDescription(offer);
+            RTCSessionDescription offer = await _peerConnection!.createOffer();
+            await _peerConnection!.setLocalDescription(offer);
             sendChannelMessage({
               'type': 'offer',
               'data': offer.toMap(),
@@ -477,14 +530,14 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         case "enabled_camera":
           {
             setState(() {
-              isReceivingVideo = true;
+              _isReceivingVideo = true;
             });
             break;
           }
         case "disabled_camera":
           {
             setState(() {
-              isReceivingVideo = false;
+              _isReceivingVideo = false;
             });
             break;
           }
@@ -506,128 +559,33 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     print("Signaling WebSocket connected.");
 
     // Obtain the local media stream (audio and video)
-    localStream = await navigator.mediaDevices.getUserMedia({
+    _localStream = await navigator.mediaDevices.getUserMedia({
       'video': true,
       'audio': true,
     });
 
-    localRenderer = RTCVideoRenderer();
-    await localRenderer!.initialize();
-    localRenderer!.srcObject = localStream;
+    _localRenderer = RTCVideoRenderer();
+    await _localRenderer!.initialize();
+    _localRenderer!.srcObject = _localStream;
 
-    localStream!.getVideoTracks()[0].enabled = isShowingVideo;
+    _localStream!.getVideoTracks()[0].enabled = _isShowingVideo;
 
-    print("Local media stream obtained: ${localStream!.id}");
+    print("Local media stream obtained: ${_localStream!.id}");
   }
 
   Future<void> _awaitVoiceCallAcceptResponse() async {
     setState(() {
-      callStatus = CallStatus.calling;
+      _callStatus = CallStatus.calling;
     });
 
     Future.doWhile(() async {
-      if (callStatus == CallStatus.calling) {
+      if (_callStatus == CallStatus.calling) {
         FlutterRingtonePlayer().play(fromAsset: AppConstants.outgoingCallSoundPath);
         await Future.delayed(const Duration(seconds: 5)); // Wait until player has completed
       }
 
-      return callStatus == CallStatus.calling &&
+      return _callStatus == CallStatus.calling &&
           kReleaseMode /* Only in release mode because it drives me insane during debugging */;
-    });
-  }
-
-  double calculateRMS(Uint8List audioChunk) {
-    if (audioChunk.isEmpty) {
-      return 0.0; // Return 0 for empty audio samples
-    }
-
-    Int16List audioSamples = audioChunk.buffer.asInt16List();
-    num sumOfSquares = audioSamples
-        .map((int sample) => pow(sample, 2))
-        .reduce((num a, num b) => a + b);
-    return sqrt(sumOfSquares / audioSamples.length);
-  }
-
-  AnimatedSwitcher buildCallStatusAndEndToEndEncryptedIndicator() {
-    return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 600),
-        child: showEndToEndEncryptedIndicator
-            ? const EndToEndEncryptedIndicator(
-                key: ValueKey<bool>(false),
-              )
-            : WrapperWidget(
-                key: ValueKey<bool>(true),
-                child: callStatus == CallStatus.active
-                    ? elapsedTime!
-                    : Text(callStatus.text),
-              ),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          final Animation<double> fadeOutAnimation = Tween<double>(
-            begin: 0.0,
-            end: 1.0,
-          ).animate(
-            CurvedAnimation(
-              parent: animation,
-              curve: const Interval(0.0, 0.5, curve: Curves.easeInOut),
-            ),
-          );
-
-          // Slide in animation for the incoming widget
-          final Animation<Offset> slideInAnimation = Tween<Offset>(
-            begin: const Offset(0.0, 1.0), // Start from the bottom
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(
-              parent: animation,
-              curve: const Interval(0.5, 1.0, curve: Curves.easeInOut),
-            ),
-          );
-
-          if (showEndToEndEncryptedIndicator ==
-              (child.key as ValueKey<bool>).value) {
-            return FadeTransition(
-              opacity: fadeOutAnimation,
-              child: child,
-            );
-          }
-          return SlideTransition(
-            position: slideInAnimation,
-            child: FadeTransition(
-              // Apply fade in for smoothness
-              opacity: animation,
-              child: child,
-            ),
-          );
-        });
-  }
-
-  void updateSpeakerPhone() {
-    void updateEnabled(MediaStreamTrack track) {
-      track.enableSpeakerphone(isSpeakerPhoneEnabled);
-    }
-
-    localStream!.getAudioTracks().forEach(updateEnabled);
-  }
-
-  void toggleVideoMode() {
-    // Synchronize because spamming toggle may result in multiple overlays
-    synchronized(() {
-      setState(() {
-        isShowingVideo = !isShowingVideo;
-        isSpeakerPhoneEnabled = isShowingVideo;
-      });
-
-      updateSpeakerPhone();
-
-      localStream!.getVideoTracks().forEach((track) {
-        track.enabled = isShowingVideo;
-      });
-
-      if (isShowingVideo) {
-        sendChannelMessage({'type': 'enabled_camera'});
-      } else {
-        sendChannelMessage({'type': 'disabled_camera'});
-      }
     });
   }
 
@@ -645,7 +603,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     double height = minHeight;
 
     final appColors = Theme.of(context).extension<AppColors>()!;
-    returnToCallOverlayEntry = OverlayEntry(
+    _returnToCallOverlayEntry = OverlayEntry(
       builder: (context) => AnimatedPositioned(
         duration: const Duration(milliseconds: 200),
         curve: [
@@ -668,7 +626,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
             width = width.clamp(minWidth, maxWidth);
             height = height.clamp(minHeight, maxHeight);
 
-            returnToCallOverlayEntry?.markNeedsBuild();
+            _returnToCallOverlayEntry?.markNeedsBuild();
           },
           onDoubleTap: () {
             top = 0;
@@ -680,12 +638,12 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
             width = screenWidth;
             height = screenHeight;
 
-            returnToCallOverlayEntry?.markNeedsBuild();
+            _returnToCallOverlayEntry?.markNeedsBuild();
 
             Future.delayed(const Duration(milliseconds: 180), () {
               navigateWithFade(context, widget);
-              returnToCallOverlayEntry!.remove();
-              returnToCallOverlayEntry = null;
+              _returnToCallOverlayEntry!.remove();
+              _returnToCallOverlayEntry = null;
             });
           },
           child: ClipRRect(
@@ -701,20 +659,20 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     );
 
     // Add overlay to global context
-    Overlay.of(context).insert(returnToCallOverlayEntry!);
+    Overlay.of(context).insert(_returnToCallOverlayEntry!);
   }
 
   Widget _buildPeerViewport() {
     return Stack(
       children: [
-        if (remoteRenderer?.srcObject != null && isReceivingVideo)
+        if (_remoteRenderer?.srcObject != null && _isReceivingVideo)
           Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(12)),
                 child: RTCVideoView(
-                  remoteRenderer!,
+                  _remoteRenderer!,
                   objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                   mirror: false,
                 ),
@@ -722,7 +680,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
             ),
           )
         else ...[
-          if (callStatus == CallStatus.active)
+          if (_callStatus == CallStatus.active)
             const Center(child: IndicatorDenotingVoiceActivity()),
           Center(
             child: UserProfilePhoto(
@@ -731,23 +689,14 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
             ),
           ),
         ],
-        localRenderer?.srcObject != null && isShowingVideo
+        _localRenderer?.srcObject != null && _isShowingVideo
             ? LocalCameraOverlayWidget(
-                localRenderer: localRenderer!,
-                localStream: localStream!,
+                localRenderer: _localRenderer!,
+                localStream: _localStream!,
               )
             : const SizedBox.shrink(),
       ],
     );
-  }
-
-  void shareScreen() async {
-    MediaStream stream = await navigator.mediaDevices.getDisplayMedia({
-      'video': true,
-      'audio': true,
-    });
-
-    peerConnection!.addStream(stream);
   }
 
   @override
@@ -755,15 +704,15 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    if (callStatus == CallStatus.ended) return const SizedBox.shrink();
+    if (_callStatus == CallStatus.ended) return const SizedBox.shrink();
 
-    if (widget.isSystemOverlay && buildSystemOverlay) {
+    if (widget.isSystemOverlay && _buildSystemOverlay) {
       final int width = 150;
       final int height = 200;
       FlutterOverlayWindow.resizeOverlay(width.toInt(), height.toInt(), true);
 
       return GestureDetector(
-        onDoubleTap: () => setState(() => buildSystemOverlay = false),
+        onDoubleTap: () => setState(() => _buildSystemOverlay = false),
         child: ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           child: Container(
@@ -792,7 +741,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
         appBar: ErmisAppBar(
           leading: widget.isSystemOverlay
               ? IconButton(
-                  onPressed: () => setState(() => buildSystemOverlay = true),
+                  onPressed: () => setState(() => _buildSystemOverlay = true),
                   icon: const Icon(Icons.arrow_back),
                 )
               : null,
@@ -850,15 +799,15 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                           backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
                         ),
                         icon: Icon(
-                          isSpeakerPhoneEnabled
+                          _isSpeakerPhoneEnabled
                               ? Icons.volume_up
                               : Icons.volume_off,
                           size: 40,
-                          color: isSpeakerPhoneEnabled ? Colors.green : Colors.red,
+                          color: _isSpeakerPhoneEnabled ? Colors.green : Colors.red,
                         ),
                         onPressed: () {
                           setState(() {
-                            isSpeakerPhoneEnabled = !isSpeakerPhoneEnabled;
+                            _isSpeakerPhoneEnabled = !_isSpeakerPhoneEnabled;
                           });
       
                           updateSpeakerPhone();
@@ -870,9 +819,9 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                           backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
                         ),
                         icon: Icon(
-                          isShowingVideo ? Icons.videocam : Icons.videocam_off,
+                          _isShowingVideo ? Icons.videocam : Icons.videocam_off,
                           size: 40,
-                          color: isShowingVideo ? Colors.green : Colors.red,
+                          color: _isShowingVideo ? Colors.green : Colors.red,
                         ),
                         onPressed: toggleVideoMode,
                       ),
@@ -882,17 +831,17 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                           backgroundColor: WidgetStateProperty.all<Color>(appColors.tertiaryColor),
                         ),
                         icon: Icon(
-                          isMuted ? Icons.mic_off : Icons.mic,
+                          _isMuted ? Icons.mic_off : Icons.mic,
                           size: 40,
-                          color: isMuted ? Colors.red : Colors.green,
+                          color: _isMuted ? Colors.red : Colors.green,
                         ),
                         onPressed: () {
                           setState(() {
-                            isMuted = !isMuted;
+                            _isMuted = !_isMuted;
                           });
       
-                          localStream!.getAudioTracks().forEach((track) {
-                            track.enabled = !isMuted;
+                          _localStream!.getAudioTracks().forEach((track) {
+                            track.enabled = !_isMuted;
                           });
                         },
                       ),
@@ -926,7 +875,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   }
 
   void _endCall() async {
-    setState(() => callStatus = CallStatus.ended);
+    setState(() => _callStatus = CallStatus.ended);
     sendChannelMessage({'type': 'end_call'});
 
     FlutterRingtonePlayer().play(fromAsset: AppConstants.endCallSoundPath);
@@ -935,11 +884,11 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       context,
       EndVoiceCallScreen(
         member: widget.member,
-        callDuration: elapsedTime?.getTimeElapsedAsString() ?? "",
+        callDuration: _elapsedTime?.getTimeElapsedAsString() ?? "",
       ),
     );
 
-    NotificationService.cancelNotification(endVoiceCallNotificationID);
+    NotificationService.cancelNotification(_endVoiceCallNotificationID);
 
     _resetCallData();
 
@@ -947,4 +896,57 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       Client.instance().disconnect();
     }
   }
+}
+
+AnimatedSwitcher buildCallStatusAndEndToEndEncryptedIndicator() {
+  return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      child: _showEndToEndEncryptedIndicator
+          ? const EndToEndEncryptedIndicator(
+              key: ValueKey<bool>(false),
+            )
+          : WrapperWidget(
+              key: ValueKey<bool>(true),
+              child: _callStatus == CallStatus.active
+                  ? _elapsedTime!
+                  : Text(_callStatus.text),
+            ),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        final Animation<double> fadeOutAnimation = Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.0, 0.5, curve: Curves.easeInOut),
+          ),
+        );
+
+        // Slide in animation for the incoming widget
+        final Animation<Offset> slideInAnimation = Tween<Offset>(
+          begin: const Offset(0.0, 1.0), // Start from the bottom
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.5, 1.0, curve: Curves.easeInOut),
+          ),
+        );
+
+        if (_showEndToEndEncryptedIndicator ==
+            (child.key as ValueKey<bool>).value) {
+          return FadeTransition(
+            opacity: fadeOutAnimation,
+            child: child,
+          );
+        }
+        return SlideTransition(
+          position: slideInAnimation,
+          child: FadeTransition(
+            // Apply fade in for smoothness
+            opacity: animation,
+            child: child,
+          ),
+        );
+      });
 }
