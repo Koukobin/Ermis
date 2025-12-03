@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 /* Copyright (C) 2025 Ilias Koukovinis <ilias.koukovinis@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -55,7 +57,7 @@ import '../../../theme/app_colors.dart';
 import 'end_voice_call_screen.dart';
 
 /// Key used to determine if a voice call is currently active
-GlobalKey _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
+GlobalKey<_VoiceCallWebrtcState> _voiceCallKey = GlobalKey<_VoiceCallWebrtcState>();
 
 Future<bool> canRunAsSystemOverlay() => FlutterOverlayWindow.isActive();
 
@@ -137,6 +139,14 @@ class VoiceCallWebrtc extends StatefulWidget {
   State<VoiceCallWebrtc> createState() => _VoiceCallWebrtcState();
 }
 
+/// STUN configuration for ICE candidates.
+final Map<String, dynamic> configuration = {
+  'iceServers': [
+    const {'urls': 'stun:stun.l.google.com:19302'},
+    {'urls': 'stun:${UserInfoManager.serverInfo.address!.host}:5439'}
+  ]
+};
+
 IOWebSocketChannel? _channel;
 MediaStream? _localStream;
 RTCPeerConnection? _peerConnection;
@@ -162,106 +172,269 @@ bool _buildSystemOverlay = false;
 
 int _endVoiceCallNotificationID = -1;
 
-mixin _Helper on State<VoiceCallWebrtc> {
-  /// Helper function to send JSON messages over the WebSocket
-  void sendChannelMessage(Map<String, dynamic> message) {
-    _channel?.sink.add(jsonEncode(message));
-  }
+Future<void> resetCallData() async {
+  await _channel?.sink.close();
+  await _localStream?.dispose();
+  await _peerConnection?.close();
+  await _remoteRenderer?.dispose();
+  await _localRenderer?.dispose();
 
-  double calculateRMS(Uint8List audioChunk) {
-    if (audioChunk.isEmpty) {
-      return 0.0; // Return 0 for empty audio samples
-    }
+  _channel = null;
+  _localStream = null;
+  _peerConnection = null;
+  _remoteRenderer = null;
+  _localRenderer = null;
 
-    Int16List audioSamples = audioChunk.buffer.asInt16List();
-    num sumOfSquares = audioSamples
-        .map((int sample) => pow(sample, 2))
-        .reduce((num a, num b) => a + b);
-    return sqrt(sumOfSquares / audioSamples.length);
-  }
+  _isReceivingVideo = false;
+  _isSpeakerPhoneEnabled = false;
+  _isShowingVideo = false;
+  _isMuted = false;
+  _showEndToEndEncryptedIndicator = false;
 
-  void updateSpeakerPhone() {
-    void updateEnabled(MediaStreamTrack track) {
-      track.enableSpeakerphone(_isSpeakerPhoneEnabled);
-    }
+  _callStatus = CallStatus.connecting;
 
-    _localStream!.getAudioTracks().forEach(updateEnabled);
-  }
+  _elapsedTimeNotifier.release();
+  _elapsedTimeNotifier = TimeElapsedValueNotifier();
+  _elapsedTime = null;
 
-  void toggleVideoMode() {
-    // Synchronize because spamming toggle may result in multiple overlays
-    synchronized(() {
-      setState(() {
-        _isShowingVideo = !_isShowingVideo;
-        _isSpeakerPhoneEnabled = _isShowingVideo;
-      });
-
-      updateSpeakerPhone();
-
-      _localStream!.getVideoTracks().forEach((track) {
-        track.enabled = _isShowingVideo;
-      });
-
-      if (_isShowingVideo) {
-        sendChannelMessage({'type': 'enabled_camera'});
-      } else {
-        sendChannelMessage({'type': 'disabled_camera'});
-      }
-    });
-  }
-
-  void shareScreen() async {
-    MediaStream stream = await navigator.mediaDevices.getDisplayMedia({
-      'video': true,
-      'audio': true,
-    });
-
-    _peerConnection!.addStream(stream);
-  }
+  _endVoiceCallNotificationID = -1;
 }
 
-class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
-  /// STUN configuration for ICE candidates.
-  static final Map<String, dynamic> configuration = {
-    'iceServers': [
-      const {'urls': 'stun:stun.l.google.com:19302'},
-      {'urls': 'stun:${UserInfoManager.serverInfo.address!.host}:5439'}
-    ]
-  };
+/// Helper function to send JSON messages over the WebSocket
+void _sendChannelMessage(Map<String, dynamic> message) {
+  _channel?.sink.add(jsonEncode(message));
+}
 
-  static Future<void> _resetCallData() async {
-    await _channel?.sink.close();
-    await _localStream?.dispose();
-    await _peerConnection?.close();
-    await _remoteRenderer?.dispose();
-    await _localRenderer?.dispose();
-
-    _channel = null;
-    _localStream = null;
-    _peerConnection = null;
-    _remoteRenderer = null;
-    _localRenderer = null;
-
-    _isReceivingVideo = false;
-    _isSpeakerPhoneEnabled = false;
-    _isShowingVideo = false;
-    _isMuted = false;
-    _showEndToEndEncryptedIndicator = false;
-
-    _callStatus = CallStatus.connecting;
-
-    _elapsedTimeNotifier.release();
-    _elapsedTimeNotifier = TimeElapsedValueNotifier();
-    _elapsedTime = null;
-
-    _endVoiceCallNotificationID = -1;
-
-    WakelockPlus.enable(); // Disable screen-on lock
-
-    // Reset orientation to operating system default
-    SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
+Future<void> _startListeningForMessagesFromCounterpart() async {
+  if (_remoteRenderer == null) {
+    _remoteRenderer = RTCVideoRenderer();
+    await _remoteRenderer!.initialize();
   }
 
+  final _VoiceCallWebrtcState? state = _voiceCallKey.currentState;
+
+  // Listen for incoming signaling messages
+  _channel!.stream.listen((data) async {
+    final Map<String, dynamic> message = jsonDecode(data);
+    print("Received message: $message");
+    switch (message['type']) {
+      case "offer":
+        {
+          // When an offer is received, create a peer connection if one doesn't exist
+          if (_peerConnection == null) {
+            _peerConnection = await createPeerConnection(configuration);
+            // If a local stream already exists, add all its tracks to the connection
+            if (_localStream != null) {
+              _localStream!.getTracks().forEach((track) {
+                _peerConnection!.addTrack(track, _localStream!);
+              });
+            }
+            // Listen for ICE candidates and send them
+            _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+              if (candidate.candidate != null &&
+                  candidate.candidate!.isNotEmpty) {
+                _sendChannelMessage({
+                  'type': 'candidate',
+                  'data': candidate.toMap(),
+                });
+              }
+            };
+            // Handle remote tracks
+            _peerConnection!.onTrack = (RTCTrackEvent event) {
+              if (event.streams.isNotEmpty) {
+                print("Remote stream received: ${event.streams[0].id}");
+              }
+
+              if (event.track.kind == 'video') {
+                // event.streams might contain the remote stream
+                if (event.streams.isNotEmpty) {
+                  state?.setState(() {
+                    _remoteRenderer!.srcObject = event.streams[0];
+                  });
+                }
+              }
+            };
+          }
+          // Set the offer as remote description
+          RTCSessionDescription remoteOffer = RTCSessionDescription(
+            message['data']['sdp'],
+            message['data']['type'],
+          );
+          await _peerConnection!.setRemoteDescription(remoteOffer);
+          // Create, set, and send the answer
+          RTCSessionDescription answer = await _peerConnection!.createAnswer();
+          await _peerConnection!.setLocalDescription(answer);
+          _sendChannelMessage({
+            'type': 'answer',
+            'data': answer.toMap(),
+          });
+          break;
+        }
+      case "answer":
+        {
+          if (_peerConnection != null) {
+            RTCSessionDescription remoteAnswer = RTCSessionDescription(
+              message['data']['sdp'],
+              message['data']['type'],
+            );
+            await _peerConnection!.setRemoteDescription(remoteAnswer);
+          }
+          break;
+        }
+      case "candidate":
+        {
+          if (_peerConnection != null) {
+            final candidateMap = message['data'];
+            RTCIceCandidate candidate = RTCIceCandidate(
+              candidateMap['candidate'],
+              candidateMap['sdpMid'],
+              candidateMap['sdpMLineIndex'],
+            );
+            await _peerConnection!.addCandidate(candidate);
+          }
+          break;
+        }
+      case "accept":
+        {
+          _peerConnection = await createPeerConnection(configuration);
+
+          if (kDebugMode) {
+            print("Peer connection established!!");
+            print("Peer connection established!!");
+            print("Peer connection established!!");
+            print("Peer connection established!!");
+            print("Peer connection established!!");
+            print("Peer connection established!!");
+            print("Peer connection established!!");
+          }
+
+          // Add local media tracks
+          _localStream!.getTracks().forEach((track) {
+            _peerConnection!.addTrack(track, _localStream!);
+          });
+
+          // Set up ICE candidates and track handling
+          _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+            if (candidate.candidate != null &&
+                candidate.candidate!.isNotEmpty) {
+              _sendChannelMessage({
+                'type': 'candidate',
+                'data': candidate.toMap(),
+              });
+            }
+          };
+
+          _peerConnection!.onTrack = (RTCTrackEvent event) {
+            if (event.streams.isNotEmpty) {
+              print("Remote stream received: ${event.streams[0].id}");
+            }
+            if (event.track.kind == 'video') {
+              // event.streams might contain the remote stream
+              if (event.streams.isNotEmpty) {
+                state?.setState(() {
+                  _remoteRenderer!.srcObject = event.streams[0];
+                });
+              }
+            }
+          };
+
+          _peerConnection!.onRenegotiationNeeded = () async {
+            try {
+              RTCSessionDescription newOffer = await _peerConnection!.createOffer();
+              await _peerConnection!.setLocalDescription(newOffer);
+              _sendChannelMessage({'type': 'offer', 'data': newOffer.toMap()});
+            } catch (err) {
+              print("Renegotiation failed: $err");
+            }
+          };
+
+          // Create the offer and send it over the signaling channel
+          RTCSessionDescription offer = await _peerConnection!.createOffer();
+          await _peerConnection!.setLocalDescription(offer);
+          _sendChannelMessage({
+            'type': 'offer',
+            'data': offer.toMap(),
+          });
+          print("Offer sent: ${offer.sdp}");
+          break;
+        }
+      case "enabled_camera":
+        {
+          state?.setState(() {
+            _isReceivingVideo = true;
+          });
+          break;
+        }
+      case "disabled_camera":
+        {
+          state?.setState(() {
+            _isReceivingVideo = false;
+          });
+          break;
+        }
+      case "end_call":
+        {
+          showToastDialog(S.current.call_ended);
+          _endCall();
+          break;
+        }
+      default:
+        {
+          print("Unknown message type: ${message['type']}");
+        }
+    }
+  });
+
+  // Give a brief delay to ensure WebSocket connection is open
+  await Future.delayed(const Duration(seconds: 1));
+  print("Signaling WebSocket connected.");
+
+  // Obtain the local media stream (audio and video)
+  _localStream = await navigator.mediaDevices.getUserMedia({
+    'video': true,
+    'audio': true,
+  });
+
+  _localRenderer = RTCVideoRenderer();
+  await _localRenderer!.initialize();
+  _localRenderer!.srcObject = _localStream;
+
+  _localStream!.getVideoTracks()[0].enabled = _isShowingVideo;
+
+  print("Local media stream obtained: ${_localStream!.id}");
+}
+
+// ignore: unused_element
+double _calculateRMS(Uint8List audioChunk) {
+  if (audioChunk.isEmpty) {
+    return 0.0; // Return 0 for empty audio samples
+  }
+
+  Int16List audioSamples = audioChunk.buffer.asInt16List();
+  num sumOfSquares = audioSamples
+      .map((int sample) => pow(sample, 2))
+      .reduce((num a, num b) => a + b);
+  return sqrt(sumOfSquares / audioSamples.length);
+}
+
+void _updateSpeakerPhone() {
+  void updateEnabled(MediaStreamTrack track) {
+    track.enableSpeakerphone(_isSpeakerPhoneEnabled);
+  }
+
+  _localStream!.getAudioTracks().forEach(updateEnabled);
+}
+
+void _shareScreen() async {
+  MediaStream stream = await navigator.mediaDevices.getDisplayMedia({
+    'video': true,
+    'audio': true,
+  });
+
+  _peerConnection!.addStream(stream);
+}
+
+class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
   @override
   void initState() {
     super.initState();
@@ -283,6 +456,30 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
 
     _returnToCallOverlayEntry?.remove();
     _returnToCallOverlayEntry = null;
+
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
+      // Show end-to-end encrypted indicator for only five seconds,
+      // whereas call status for 10 seconds.
+      if (!_showEndToEndEncryptedIndicator) {
+        await Future.delayed(const Duration(seconds: 5));
+      }
+
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      setState(() {
+        _showEndToEndEncryptedIndicator = !_showEndToEndEncryptedIndicator;
+      });
+    });
+
+    // Check call status and only proceed if is connecting;
+    // check is necessary because user can exit screen by pressing
+    // the ⬅ button on the top left and return by double tapping
+    // the overlay, resulting in this method re-executing.
+    // Kinda shitty, but a compromise needed.
+    if (_callStatus != CallStatus.connecting) return;
 
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (!mounted || _callStatus == CallStatus.ended) {
@@ -317,30 +514,6 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
       // rms = totalRMS;
     });
 
-    Timer.periodic(const Duration(seconds: 5), (timer) async {
-      // Show end-to-end encrypted indicator for only five seconds,
-      // whereas call status for 10 seconds.
-      if (!_showEndToEndEncryptedIndicator) {
-        await Future.delayed(const Duration(seconds: 5));
-      }
-
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
-      setState(() {
-        _showEndToEndEncryptedIndicator = !_showEndToEndEncryptedIndicator;
-      });
-    });
-
-    // Check call status and only proceed if is connecting;
-    // check is necessary because user can exit screen by pressing
-    // the ⬅ button on the top left and return by double tapping
-    // the overlay, resulting in this method re-executing.
-    // Kinda shitty, but a compromise needed.
-    if (_callStatus != CallStatus.connecting) return;
-
     Future(() async {
       if (widget.isInitiator) {
         Client.instance().commands!.startVoiceCall(widget.chatSessionIndex);
@@ -371,203 +544,18 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
         return;
       }
 
-      sendChannelMessage({'type': 'accept'});
+      _sendChannelMessage({'type': 'accept'});
     });
   }
 
-  Future<void> _startListeningForMessagesFromCounterpart() async {
-    _remoteRenderer = RTCVideoRenderer();
-    await _remoteRenderer!.initialize();
+  @override
+  void dispose() {
+    WakelockPlus.enable(); // Disable screen-on lock
 
-    // Listen for incoming signaling messages
-    _channel!.stream.listen((data) async {
-      final Map<String, dynamic> message = jsonDecode(data);
-      print("Received message: $message");
-      switch (message['type']) {
-        case "offer":
-          {
-            // When an offer is received, create a peer connection if one doesn't exist
-            if (_peerConnection == null) {
-              _peerConnection = await createPeerConnection(configuration);
-              // If a local stream already exists, add all its tracks to the connection
-              if (_localStream != null) {
-                _localStream!.getTracks().forEach((track) {
-                  _peerConnection!.addTrack(track, _localStream!);
-                });
-              }
-              // Listen for ICE candidates and send them
-              _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
-                if (candidate.candidate != null &&
-                    candidate.candidate!.isNotEmpty) {
-                  sendChannelMessage({
-                    'type': 'candidate',
-                    'data': candidate.toMap(),
-                  });
-                }
-              };
-              // Handle remote tracks
-              _peerConnection!.onTrack = (RTCTrackEvent event) {
-                if (event.streams.isNotEmpty) {
-                  print("Remote stream received: ${event.streams[0].id}");
-                }
+    // Reset orientation to operating system default
+    SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
 
-                if (event.track.kind == 'video') {
-                  // event.streams might contain the remote stream
-                  if (event.streams.isNotEmpty) {
-                    setState(() {
-                      _remoteRenderer!.srcObject = event.streams[0];
-                    });
-                  }
-                }
-              };
-            }
-            // Set the offer as remote description
-            RTCSessionDescription remoteOffer = RTCSessionDescription(
-              message['data']['sdp'],
-              message['data']['type'],
-            );
-            await _peerConnection!.setRemoteDescription(remoteOffer);
-            // Create, set, and send the answer
-            RTCSessionDescription answer = await _peerConnection!.createAnswer();
-            await _peerConnection!.setLocalDescription(answer);
-            sendChannelMessage({
-              'type': 'answer',
-              'data': answer.toMap(),
-            });
-            break;
-          }
-        case "answer":
-          {
-            if (_peerConnection != null) {
-              RTCSessionDescription remoteAnswer = RTCSessionDescription(
-                message['data']['sdp'],
-                message['data']['type'],
-              );
-              await _peerConnection!.setRemoteDescription(remoteAnswer);
-            }
-            break;
-          }
-        case "candidate":
-          {
-            if (_peerConnection != null) {
-              final candidateMap = message['data'];
-              RTCIceCandidate candidate = RTCIceCandidate(
-                candidateMap['candidate'],
-                candidateMap['sdpMid'],
-                candidateMap['sdpMLineIndex'],
-              );
-              await _peerConnection!.addCandidate(candidate);
-            }
-            break;
-          }
-        case "accept":
-          {
-            _peerConnection = await createPeerConnection(configuration);
-
-            if (kDebugMode) {
-              print("Peer connection established!!");
-              print("Peer connection established!!");
-              print("Peer connection established!!");
-              print("Peer connection established!!");
-              print("Peer connection established!!");
-              print("Peer connection established!!");
-              print("Peer connection established!!");
-            }
-
-            // Add local media tracks
-            _localStream!.getTracks().forEach((track) {
-              _peerConnection!.addTrack(track, _localStream!);
-            });
-
-            // Set up ICE candidates and track handling
-            _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
-              if (candidate.candidate != null &&
-                  candidate.candidate!.isNotEmpty) {
-                sendChannelMessage({
-                  'type': 'candidate',
-                  'data': candidate.toMap(),
-                });
-              }
-            };
-
-            _peerConnection!.onTrack = (RTCTrackEvent event) {
-              if (event.streams.isNotEmpty) {
-                print("Remote stream received: ${event.streams[0].id}");
-              }
-              if (event.track.kind == 'video') {
-                // event.streams might contain the remote stream
-                if (event.streams.isNotEmpty) {
-                  setState(() {
-                    _remoteRenderer!.srcObject = event.streams[0];
-                  });
-                }
-              }
-            };
-
-            _peerConnection!.onRenegotiationNeeded = () async {
-              try {
-                RTCSessionDescription newOffer = await _peerConnection!.createOffer();
-                await _peerConnection!.setLocalDescription(newOffer);
-                sendChannelMessage({'type': 'offer', 'data': newOffer.toMap()});
-              } catch (err) {
-                print("Renegotiation failed: $err");
-              }
-            };
-
-            // Create the offer and send it over the signaling channel
-            RTCSessionDescription offer = await _peerConnection!.createOffer();
-            await _peerConnection!.setLocalDescription(offer);
-            sendChannelMessage({
-              'type': 'offer',
-              'data': offer.toMap(),
-            });
-            print("Offer sent: ${offer.sdp}");
-            break;
-          }
-        case "enabled_camera":
-          {
-            setState(() {
-              _isReceivingVideo = true;
-            });
-            break;
-          }
-        case "disabled_camera":
-          {
-            setState(() {
-              _isReceivingVideo = false;
-            });
-            break;
-          }
-        case "end_call":
-          {
-            showToastDialog(S.current.call_ended);
-            _endCall();
-            break;
-          }
-        default:
-          {
-            print("Unknown message type: ${message['type']}");
-          }
-      }
-    });
-
-    // Give a brief delay to ensure WebSocket connection is open
-    await Future.delayed(const Duration(seconds: 1));
-    print("Signaling WebSocket connected.");
-
-    // Obtain the local media stream (audio and video)
-    _localStream = await navigator.mediaDevices.getUserMedia({
-      'video': true,
-      'audio': true,
-    });
-
-    _localRenderer = RTCVideoRenderer();
-    await _localRenderer!.initialize();
-    _localRenderer!.srcObject = _localStream;
-
-    _localStream!.getVideoTracks()[0].enabled = _isShowingVideo;
-
-    print("Local media stream obtained: ${_localStream!.id}");
+    super.dispose();
   }
 
   Future<void> _awaitVoiceCallAcceptResponse() async {
@@ -638,7 +626,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
             _returnToCallOverlayEntry?.markNeedsBuild();
 
             Future.delayed(const Duration(milliseconds: 180), () {
-              navigateWithFade(context, widget);
+              navigateWithFade(context, widget /* Pass same widget to retain info */);
               _returnToCallOverlayEntry!.remove();
               _returnToCallOverlayEntry = null;
             });
@@ -694,6 +682,28 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
             : const SizedBox.shrink(),
       ],
     );
+  }
+
+  void toggleVideoMode() {
+    // Synchronize because spamming toggle may result in multiple overlays
+    synchronized(() {
+      setState(() {
+        _isShowingVideo = !_isShowingVideo;
+        _isSpeakerPhoneEnabled = _isShowingVideo;
+      });
+
+      _updateSpeakerPhone();
+
+      _localStream!.getVideoTracks().forEach((track) {
+        track.enabled = _isShowingVideo;
+      });
+
+      if (_isShowingVideo) {
+        _sendChannelMessage({'type': 'enabled_camera'});
+      } else {
+        _sendChannelMessage({'type': 'disabled_camera'});
+      }
+    });
   }
 
   @override
@@ -757,7 +767,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
                     Align(
                       alignment: AlignmentGeometry.centerRight,
                       child: IconButton(
-                        onPressed: shareScreen,
+                        onPressed: _shareScreen,
                         icon: const Icon(Icons.share),
                       ),
                     ),
@@ -807,7 +817,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
                             _isSpeakerPhoneEnabled = !_isSpeakerPhoneEnabled;
                           });
       
-                          updateSpeakerPhone();
+                          _updateSpeakerPhone();
                         },
                       ),
                       IconButton.filled(
@@ -871,27 +881,32 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> with _Helper {
     );
   }
 
-  void _endCall() async {
-    setState(() => _callStatus = CallStatus.ended);
-    sendChannelMessage({'type': 'end_call'});
+}
 
-    FlutterRingtonePlayer().play(fromAsset: AppConstants.endCallSoundPath);
+void _endCall() async {
+  final _VoiceCallWebrtcState? state = _voiceCallKey.currentState;
 
+  state?.setState(() => _callStatus = CallStatus.ended);
+  _sendChannelMessage({'type': 'end_call'});
+
+  FlutterRingtonePlayer().play(fromAsset: AppConstants.endCallSoundPath);
+
+  if (state != null) {
     navigateWithFade(
-      context,
+      state.context,
       EndVoiceCallScreen(
-        member: widget.member,
+        member: state.widget.member,
         callDuration: _elapsedTime?.getTimeElapsedAsString() ?? "",
       ),
     );
+  }
 
-    NotificationService.cancelNotification(_endVoiceCallNotificationID);
+  NotificationService.cancelNotification(_endVoiceCallNotificationID);
 
-    _resetCallData();
+  resetCallData();
 
-    if (widget.isSystemOverlay) {
-      Client.instance().disconnect();
-    }
+  if (state?.widget.isSystemOverlay ?? false) {
+    Client.instance().disconnect();
   }
 }
 
