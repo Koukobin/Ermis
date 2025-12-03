@@ -87,8 +87,15 @@ Future<bool> requestAllPermissions() async {
   success &= await checkAndRequestPermission(Permission.camera);
   success &= await checkAndRequestPermission(Permission.microphone);
 
-  success &= await checkAndRequestPermission(Permission.systemAlertWindow);
-  FlutterOverlayWindow.requestPermission();
+  // If overlay permission is not yet granted - but also not explicitly denied -,
+  // request it once. This avoids repeatedly prompting users who have already
+  // refused the permission.
+  if (!await Permission.systemAlertWindow.isGranted) {
+    if (!await Permission.systemAlertWindow.isDenied) {
+      success &= await Permission.systemAlertWindow.request().isGranted;
+      FlutterOverlayWindow.requestPermission();
+    }
+  }
 
   if (!success) openAppSettings();
   return success;
