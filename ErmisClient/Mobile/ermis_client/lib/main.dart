@@ -132,6 +132,8 @@ void overlayMain() async {
       print(callInfo.isInitiator);
     }
 
+    showToastDialog("If call overlay fails to initiate, disable system overlay permission granted in settings");
+
     if (hasOverlayLaunched) {
       pushMaterialTransition(
         NavigationService.currentContext,
