@@ -446,7 +446,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
     ]);
 
     // Disable screen from automatically turning off
-    WakelockPlus.disable();
+    WakelockPlus.enable();
 
     if (kDebugMode) {
       print("INITIALIZING VOICE CALL");
@@ -550,7 +550,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
   @override
   void dispose() {
-    WakelockPlus.enable(); // Disable screen-on lock
+    WakelockPlus.disable(); // Disable screen-on lock
 
     // Reset orientation to operating system default
     SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
