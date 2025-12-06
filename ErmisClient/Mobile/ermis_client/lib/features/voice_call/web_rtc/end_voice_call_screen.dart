@@ -36,25 +36,32 @@ class EndVoiceCallScreen extends StatefulWidget {
 }
 
 class _EndVoiceCallScreenState extends State<EndVoiceCallScreen> {
+  bool popped = false;
+
+  void pop() async {
+    if (popped) return;
+    popped = true;
+
+    Navigator.of(context).pop();
+
+    if (await FlutterOverlayWindow.isActive()) {
+      await FlutterOverlayWindow.closeOverlay();
+    } else {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    Future.delayed(const Duration(seconds: 3), () async {
-      if (mounted) Navigator.of(context).pop();
-
-      if (await FlutterOverlayWindow.isActive()) {
-        await FlutterOverlayWindow.closeOverlay();
-      } else {
-        Navigator.of(context).pop();
-      }
-    });
+    Future.delayed(const Duration(seconds: 3), pop);
 
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
       appBar: AppBar(
         leading: IconButton(
-          onPressed: Navigator.of(context).pop,
+          onPressed: pop,
           icon: const Icon(Icons.close),
         ),
       ),
