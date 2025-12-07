@@ -27,6 +27,7 @@ import 'package:ermis_mobile/core/util/device_utils.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/core/util/entropy_calculator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import '../../core/networking/user_info_manager.dart';
@@ -71,13 +72,20 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
     createAccountEntry.fetchCredentialRequirements().whenComplete(() {
       _passwordRequirements = createAccountEntry.passwordRequirements!;
       _usernameRequirements = createAccountEntry.usernameRequirements!;
-      setState(() {});
+      setState(() { /* Credential requirements fetched. */ });
     });
 
     _passwordController.addListener(() {
       _passwordEntropy = EntropyCalculator.approximate(_passwordController.text);
-      setState(() {});
-    }); 
+      setState(() { /* Password entropy changed. */ });
+    });
+
+    // Restrict orientation to portrait mode
+    // only to assure correct layout
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 
   @override
@@ -86,6 +94,10 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
     _emailController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
+
+    // Reset orientation to operating system default
+    SystemChrome.setPreferredOrientations(<DeviceOrientation>[]);
+
     super.dispose();
   }
 
