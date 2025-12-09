@@ -27,7 +27,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/event_bus/app_event_bus.dart';
 import '../../../core/models/message_events.dart';
-import '../../../core/util/notifications_util.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/util/transitions_util.dart';
 
 void showIncomingCallScreen(

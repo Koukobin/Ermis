@@ -37,7 +37,7 @@ import '../models/message.dart';
 import '../models/message_events.dart';
 import '../networking/common/message_types/client_status.dart';
 import '../util/message_notification.dart';
-import '../util/notifications_util.dart';
+import 'notification_service.dart';
 import 'database/database_service.dart';
 import 'database/models/server_info.dart';
 

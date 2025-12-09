@@ -38,7 +38,7 @@ import 'package:ermis_mobile/features/splash_screen/splash_screen.dart';
 import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:ermis_mobile/core/services/database/database_service.dart';
-import 'package:ermis_mobile/core/util/notifications_util.dart';
+import 'package:ermis_mobile/core/services/notification_service.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';

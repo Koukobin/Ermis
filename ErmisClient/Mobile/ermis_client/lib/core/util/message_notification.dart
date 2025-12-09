@@ -28,7 +28,7 @@ import '../../generated/l10n.dart';
 import '../models/chat_session.dart';
 import '../models/message.dart';
 import '../services/settings_json.dart';
-import 'notifications_util.dart';
+import '../services/notification_service.dart';
 
 void handleChatMessageNotificationForeground(ChatSession chatSession, Message msg, SettingsJson settingsJson, ReplyCallback replyCallBack) {
   handleChatMessageNotification(

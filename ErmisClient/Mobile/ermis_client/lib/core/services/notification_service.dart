@@ -29,8 +29,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../data_sources/api_client.dart';
-import '../services/navigation_service.dart';
-import 'dialogs_utils.dart';
+import 'navigation_service.dart';
+import '../util/dialogs_utils.dart';
 
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart' as voice_call;
 
