@@ -25,7 +25,7 @@ import 'dart:typed_data';
 import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
-import 'package:ermis_mobile/core/util/notifications_util.dart';
+import 'package:ermis_mobile/core/services/notification_service.dart';
 import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/call_info.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_activity_indicator.dart';
