@@ -4,7 +4,6 @@
     <groupId>io.github.koukobin.ermis</groupId>
 	<artifactId>ermis.common</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.0</version>
 
 	<name>ermis-common</name>
     <url>https://github.com/Koukobin/Ermis</url>
