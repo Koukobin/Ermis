@@ -145,13 +145,17 @@ public final class Server {
 			LOGGER.info("Messaging Server started successfully on port {} and at address {}", serverAddress.getPort(),
 					serverAddress.getHostName());
 			LOGGER.info("Waiting for new connections...");
-
-			WebRTCSignallingServer.run();
 		} catch (Exception e) {
 			LOGGER.fatal(Throwables.getStackTraceAsString(e));
 			throw new RuntimeException("Failed to start Messaging Server", e);
 		}
 
+		try {
+			WebRTCSignallingServer.run();
+		} catch (Exception e) {
+			LOGGER.fatal(Throwables.getStackTraceAsString(e));
+			throw new RuntimeException("Failed to start WebRTC Signaling Server", e);
+		}
 	}
 
 	private static class ClientConnector extends ChannelInitializer<EpollSocketChannel> {
