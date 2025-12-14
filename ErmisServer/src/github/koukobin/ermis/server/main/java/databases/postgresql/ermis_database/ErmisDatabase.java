@@ -83,7 +83,7 @@ public final class ErmisDatabase {
 					.setMaximumPoolSize(DatabaseSettings.ConnectionPool.GeneralPurposePool.MAX_POOL_SIZE)
 					.setConnectionTimeout(0)
 					.build();
-			
+
 			writeChatMessagesDataSource = new PostgreSQLDatabase.HikariDataSourceBuilder()
 					.setUser(DatabaseSettings.USER)
 					.setServerNames(DatabaseSettings.DATABASE_ADDRESS)
