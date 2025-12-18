@@ -58,11 +58,9 @@ public final class ConfigurationsPaths {
 
 	private static String getProperty(String key) {
 		String propertyValue = properties.getProperty(key);
-
 		if (propertyValue == null) {
 			throw new RuntimeException("Configuration key \"" + key + "\" not recognized");
 		}
-
 		return propertyValue;
 	}
 
