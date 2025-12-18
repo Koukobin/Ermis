@@ -35,7 +35,8 @@ public final class ConfigurationsPaths {
     private ConfigurationsPaths() {}
 
 	static {
-		try (InputStream input = ConfigurationsPaths.class.getResourceAsStream("/github/koukobin/ermis/server/main/resources/config.properties")) {
+		final String configPath = "/github/koukobin/ermis/server/main/resources/config.properties";
+		try (InputStream input = ConfigurationsPaths.class.getResourceAsStream(configPath)) {
 			properties.load(input);
 			PropertiesUtil.resolvePlaceholders(properties);
 		} catch (IOException e) {
