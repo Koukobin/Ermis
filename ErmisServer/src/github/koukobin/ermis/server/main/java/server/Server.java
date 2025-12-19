@@ -17,7 +17,6 @@ package github.koukobin.ermis.server.main.java.server;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLEngine;
 
@@ -136,10 +135,13 @@ public final class Server {
 			LOGGER.info("Messaging Server started successfully on port {} and at address {}", serverAddress.getPort(),
 					serverAddress.getHostName());
 			LOGGER.info("Waiting for new connections...");
+
+			Server.addNettyTerminationShutdownHook();
 		} catch (Exception e) {
 			LOGGER.fatal(Throwables.getStackTraceAsString(e));
 			throw new RuntimeException("Failed to start Messaging Server", e);
 		}
+
 
 		try {
 			WebRTCSignallingServer.run();
@@ -176,13 +178,13 @@ public final class Server {
 		}
 	}
 
-	public static void stop() {
-		workerGroup.shutdownGracefully();
-		bossGroup.shutdownGracefully();
+	private static void addNettyTerminationShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			workerGroup.shutdownGracefully();
+			bossGroup.shutdownGracefully();
 
-		LOGGER.info("Server stopped succesfully on port {} and at address {}",
-				serverSocketChannel.localAddress().getHostName(), serverSocketChannel.localAddress().getPort());
-
-		LOGGER.info("Stopped waiting for new connections...");
+			// Logger not available in shutdown hook - use sysout instead
+			System.out.println("Stopped waiting for new connections...");
+		}));
 	}
 }

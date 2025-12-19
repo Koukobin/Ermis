@@ -100,23 +100,24 @@ public class WebRTCSignallingServer {
 	public static void run() throws InterruptedException {
 		MultiThreadIoEventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(1, EpollIoHandler.newFactory());
 		MultiThreadIoEventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(1, EpollIoHandler.newFactory());
-		try {
-			ServerBootstrap b = new ServerBootstrap();
-			b.group(bossGroup, workerGroup)
-				.channel(EpollServerSocketChannel.class)
-				.childHandler(connector);
 
-			Channel ch = b.bind(ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT)
-					.sync()
-					.channel();
-			LOGGER.info("WebRTC Signalling Server successfully debuted on https://{}:{}", 
-					ServerSettings.SERVER_ADDRESS, 
-					ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
-			ch.closeFuture().sync();
-		} finally {
+		ServerBootstrap b = new ServerBootstrap();
+		b.group(bossGroup, workerGroup)
+			.channel(EpollServerSocketChannel.class)
+			.childHandler(connector);
+
+		@SuppressWarnings("unused")
+		Channel ch = b.bind(ServerSettings.SERVER_ADDRESS, ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT)
+				.sync()
+				.channel();
+		LOGGER.info("WebRTC Signalling Server successfully debuted on https://{}:{}", 
+				ServerSettings.SERVER_ADDRESS, 
+				ServerSettings.VOICE_CALL_SIGNALLING_SERVER_PORT);
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			bossGroup.shutdownGracefully();
 			workerGroup.shutdownGracefully();
-		}
+		}));
 	}
 
 	private static class ClientInitializer extends ChannelInitializer<SocketChannel> {
