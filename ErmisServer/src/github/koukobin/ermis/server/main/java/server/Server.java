@@ -66,8 +66,6 @@ public final class Server {
 
 	private static ClientConnector clientConnector;
 
-	private static AtomicBoolean isRunning;
-
 	private Server() throws IllegalAccessException {
 		throw new IllegalAccessException("Server cannot be constructed since it is statically initialized!");
 	}
@@ -105,8 +103,6 @@ public final class Server {
 			 */
 
 			clientConnector = new ClientConnector();
-
-			isRunning = new AtomicBoolean(false);
 		} catch (Exception e) {
 			LOGGER.fatal(Throwables.getStackTraceAsString(e));
 			throw new RuntimeException(e);
@@ -114,10 +110,6 @@ public final class Server {
 	}
 
 	public static void start() {
-		if (Server.isRunning.get()) {
-			throw new IllegalStateException("Server cannot start since the server is already running");
-		}
-
 		try {
 			InetSocketAddress localAddress = new InetSocketAddress(ServerSettings.SERVER_ADDRESS, ServerSettings.SERVER_PORT);
 
@@ -134,12 +126,11 @@ public final class Server {
 			// If server isn't production ready we add a logging handler for more detailed logging
 			if (!ServerSettings.IS_PRODUCTION_READY) {
 				ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
+
+				for (int i = 0; i < 10; i++) LOGGER.warn("WARNING: SERVER RUNNING IN DEVELOPMENT MODE");
 			}
 
 			serverSocketChannel = (EpollServerSocketChannel) bootstrapTCP.bind().sync().channel();
-
-			Server.isRunning.set(true);
-
 			InetSocketAddress serverAddress = serverSocketChannel.localAddress();
 
 			LOGGER.info("Messaging Server started successfully on port {} and at address {}", serverAddress.getPort(),
@@ -186,14 +177,8 @@ public final class Server {
 	}
 
 	public static void stop() {
-		if (!Server.isRunning.get()) {
-			throw new IllegalStateException("Server has not started therefore cannot be stopped");
-		}
-
 		workerGroup.shutdownGracefully();
 		bossGroup.shutdownGracefully();
-
-		Server.isRunning.set(false);
 
 		LOGGER.info("Server stopped succesfully on port {} and at address {}",
 				serverSocketChannel.localAddress().getHostName(), serverSocketChannel.localAddress().getPort());
