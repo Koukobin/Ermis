@@ -117,6 +117,12 @@ public final class ErmisDatabase {
 
 				ChatSessionIDGenerator.generateAvailableChatSessionIDS(conn);
 				ClientIDGenerator.generateAvailableClientIDS(conn);
+
+				ResultSet rs = stmt.executeQuery("SHOW ssl;");
+				if (rs.next()) {
+					String sslStatus = rs.getString(1);
+					for (int i = 0; i < 5; i++) logger.info("SSL status: " + sslStatus);
+				}
 			}
 
 			FilesStorage.initialize();
