@@ -17,6 +17,7 @@ package github.koukobin.ermis.server.main.java.server;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLEngine;
 
@@ -125,8 +126,6 @@ public final class Server {
 			// If server isn't production ready we add a logging handler for more detailed logging
 			if (!ServerSettings.IS_PRODUCTION_READY) {
 				ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
-
-				for (int i = 0; i < 10; i++) LOGGER.warn("WARNING: SERVER RUNNING IN DEVELOPMENT MODE");
 			}
 
 			serverSocketChannel = (EpollServerSocketChannel) bootstrapTCP.bind().sync().channel();
@@ -142,12 +141,21 @@ public final class Server {
 			throw new RuntimeException("Failed to start Messaging Server", e);
 		}
 
-
 		try {
 			WebRTCSignallingServer.run();
 		} catch (Exception e) {
 			LOGGER.fatal(Throwables.getStackTraceAsString(e));
 			throw new RuntimeException("Failed to start WebRTC Signaling Server", e);
+		}
+
+		// Add two second delay before warning "server is running
+		// in development mode" to ensure it is not obscured among
+		// other console output
+		try {
+			TimeUnit.SECONDS.sleep(2);
+			for (int i = 0; i < 10; i++) LOGGER.warn("WARNING: SERVER RUNNING IN DEVELOPMENT MODE");
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 	}
 
