@@ -31,6 +31,8 @@ import github.koukobin.ermis.server.main.java.server.netty_handlers.StartingEntr
 import github.koukobin.ermis.server.main.java.server.netty_handlers.commands.CommandsHolder;
 import github.koukobin.ermis.server.main.java.server.util.EmailerService;
 import github.koukobin.ermis.server.main.java.server.web_rtc_signalling_server.WebRTCSignallingServer;
+import github.koukobin.ermis.server.main.java.util.ConsoleFormatter;
+import github.koukobin.ermis.server.main.java.util.ConsoleFormatter.TextStyle;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -192,7 +194,7 @@ public final class Server {
 			bossGroup.shutdownGracefully();
 
 			// Logger not available in shutdown hook - use sysout instead
-			System.out.println("Stopped waiting for new connections...");
+			ConsoleFormatter.styledPrint("\nStopped waiting for new connections...", TextStyle.RED);
 		}));
 	}
 }
