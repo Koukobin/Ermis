@@ -44,7 +44,7 @@ if [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     sudo chmod -R g+r /etc/nginx
 
     # Ensure vital folder for database function exists
-    mkdir /var/lib/ermis-server
+    mkdir -p /var/lib/ermis-server
 
     # Grant ownership to 'ermis'
     sudo chown -R ermis:ermis /var/ermis-server
