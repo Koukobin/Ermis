@@ -17,6 +17,8 @@ package github.koukobin.ermis.server.main.java.configs;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
@@ -51,14 +53,29 @@ public final class DatabaseSettings {
 
 	public static final int MAX_USERS = Integer.parseInt(GENERAL_PROPERTIES.getProperty("maxUsers"));
 
-	public static final String USER = GENERAL_PROPERTIES.getProperty("user");
-	public static final String USER_PASSWORD = new String(
-			GENERAL_PROPERTIES.getProperty("userPassword")
-			.getBytes(StandardCharsets.ISO_8859_1 /* use this charset so password can contain latin characters */));
-
 	public static final String DATABASE_ADDRESS = GENERAL_PROPERTIES.getProperty("databaseAddress");
 	public static final String DATABASE_NAME = GENERAL_PROPERTIES.getProperty("databaseName");
 	public static final int DATABASE_PORT = Integer.parseInt(GENERAL_PROPERTIES.getProperty("databasePort"));
+
+	public static final String USER = GENERAL_PROPERTIES.getProperty("user");
+	public static final String USER_PASSWORD;
+
+	static {
+		try {
+			if (ServerSettings.IS_PRODUCTION_READY) {				
+				USER_PASSWORD = Files.readString(
+						Path.of("/run/credentials/ermis-server.service/db_user_password"),
+						StandardCharsets.ISO_8859_1 // Use this charset so password can contain latin characters
+				).trim();
+			} else {
+				USER_PASSWORD = FileUtils.
+						readPropertiesFile(ConfigurationsPaths.DevelopmentMode.CONF_SETTINGS)
+						.getProperty("db_user_password");
+			}
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
+	}
 
 	private DatabaseSettings() {}
 

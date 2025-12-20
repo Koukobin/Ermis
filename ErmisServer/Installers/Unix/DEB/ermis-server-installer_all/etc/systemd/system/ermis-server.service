@@ -1,9 +1,16 @@
 [Unit]
-Description=Ermis-Server
+Description=Ermis-Server Service
 After=network.target
 
 [Service]
 User=ermis
+Type=simple
+
+LoadCredential=server_key-store_password:/etc/ermis-server/server_key-store_password.cred
+LoadCredential=db_user_password:/etc/ermis-server/db_user_password.cred
+LoadCredential=db_key-store_password:/etc/ermis-server/db_key-store_password.cred
+LoadCredential=emailer_password:/etc/ermis-server/emailer_password.cred
+
 WorkingDirectory=/opt/ermis-server/
 ExecStart=/bin/bash -c 'cd /opt/ermis-server/ && ./ermis-server.sh'
 Restart=always

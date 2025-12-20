@@ -1,0 +1,32 @@
+On Production Mode:
+    This service requires the following systemd credentials:
+        - "server_key-store_password"
+        - "db_user_password"
+        - "db_key-store_password"
+        - "emailer_password"
+
+    Instructions for each:
+        "server_key-store_password":
+           cd /opt/ermis-server/ && ./set_systemd_credential.sh
+
+        "db_user_password":
+           cd /opt/ermis-server/ && ./set_systemd_credential.sh
+
+        "db_key-store_password":
+           cd /opt/ermis-server/ && ./set_systemd_credential.sh
+
+        # Keep in mind that if you have 2-step verification enabled,
+        # you cannot simply use your regular password.
+        # You'll have to generate an app-specific password instead:
+        # https://support.google.com/accounts/answer/185833?hl=en
+        "emailer_password":
+           cd /opt/ermis-server/ && ./set_systemd_credential.sh
+
+    Then restart (or start) the service:
+      systemctl re(start) ermis-server
+
+On Development Mode (NOT INTENDED FOR PRODUCTION USE):
+    - Open /etc/ermis-server/dev.conf
+    - Fill out all the required credentials
+    - Execute application
+

@@ -68,7 +68,6 @@ public final class ConfigurationsPaths {
 	public static final String CONFIGURATIONS_ROOT_FOLDER_PATH = getProperty("configurations.root.folder");
 
 	public static class Server {
-
 		public static final String SETTINGS = getProperty("server.settings");
 		public static final String GENERAL_SETTINGS = getProperty("server.general.settings");
 		public static final String SSL_SETTINGS = getProperty("server.ssl.settings");
@@ -77,7 +76,6 @@ public final class ConfigurationsPaths {
 	}
 
 	public static class Donations {
-
 		public static final String DONATIONS_SETTINGS_PATH = getProperty("donations.settings.path");
 		public static final String HTML_FILE_PATH = getProperty("donations.html.file.path");
 
@@ -176,4 +174,9 @@ public final class ConfigurationsPaths {
 		private Logger() {}
 	}
 
+	public static class DevelopmentMode {
+		public static final String CONF_SETTINGS = getProperty("configurations.development.mode");
+
+		private DevelopmentMode() {}
+	}
 }

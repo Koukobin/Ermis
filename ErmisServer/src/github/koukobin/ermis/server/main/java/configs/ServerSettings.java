@@ -17,6 +17,8 @@ package github.koukobin.ermis.server.main.java.configs;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
@@ -82,9 +84,24 @@ public final class ServerSettings {
 
 		public static final String CERTIFICATE_TYPE = SSL_PROPERTIES.getProperty("key-store-type");
 		public static final String CERTIFICATE_LOCATION = SSL_PROPERTIES.getProperty("key-store");
-		public static final String CERTIFICATE_PASSWORD = new String(
-				SSL_PROPERTIES.getProperty("key-store-password")
-				.getBytes(StandardCharsets.ISO_8859_1 /* use this charset so password can contain latin characters */));
+		public static final String CERTIFICATE_PASSWORD;
+
+		static {
+			try {
+				if (ServerSettings.IS_PRODUCTION_READY) {
+					CERTIFICATE_PASSWORD = Files.readString(
+							Path.of("/run/credentials/ermis-server.service/db_key-store_password"),
+							StandardCharsets.ISO_8859_1 // Use this charset so password can contain latin characters
+					).trim();
+				} else {
+					CERTIFICATE_PASSWORD = FileUtils.
+							readPropertiesFile(ConfigurationsPaths.DevelopmentMode.CONF_SETTINGS)
+							.getProperty("server_key-store_password");
+				}
+			} catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			}
+		}
 
 		private static final String[] ENABLED_PROTOCOLS = SSL_PROPERTIES.getProperty("enabled-protocols").replace(" ", "").split(",");
 		private static final String[] ENABLED_CIPHER_SUITES = SSL_PROPERTIES.getProperty("ciphers").replace(" ", "").split(",");

@@ -2,7 +2,6 @@ See the KeyStore section in https://docs.oracle.com/en/java/javase/17/docs/specs
 key-store-type=JKS
 
 key-store= ------
-key-store-password= ------
 
 enabled-protocols=TLSv1.2, TLSv1.3
 ciphers=TLS_AES_256_GCM_SHA384,TLS_AES_128_GCM_SHA256,TLS_CHACHA20_POLY1305_SHA256

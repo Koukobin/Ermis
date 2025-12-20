@@ -5,9 +5,3 @@ mailSmtpHost=smtp.gmail.com
 mailSmtpPort=587
 
 emailUsername= ------
-
-# Keep in mind that if you have 2-step verification enabled,
-# you cannot simply use your regular password.
-# You'll have to generate an app-specific password instead:
-# https://support.google.com/accounts/answer/185833?hl=en
-emailPassword= ------

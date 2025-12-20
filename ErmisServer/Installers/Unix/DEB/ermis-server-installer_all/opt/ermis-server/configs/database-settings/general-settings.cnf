@@ -1,15 +1,13 @@
 maxUsers= 1000
 maxOpenChats= 5000
 
-user=ermis_admin
-userPassword= ------
-
 databaseAddress=localhost
 databaseName=ermis_database
 databasePort=5432
 
+user=ermis_admin
+
 key-store= ------
-certificateKeyStorePassword= ------
 
 # Number of already written messages to retrieve and send to users whenever they request.
 numberOfAlreadyMessagesToSendToUsersWheneverTheyRequest=200

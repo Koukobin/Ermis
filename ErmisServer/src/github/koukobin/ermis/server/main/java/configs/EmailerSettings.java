@@ -17,6 +17,8 @@ package github.koukobin.ermis.server.main.java.configs;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import github.koukobin.ermis.common.util.FileUtils;
@@ -41,9 +43,24 @@ public final class EmailerSettings {
 	public static final String MAIL_SMTP_PORT = GENERAL_PROPERTIES.getProperty("mailSmtpPort");
 
 	public static final String EMAIL_USERNAME = GENERAL_PROPERTIES.getProperty("emailUsername");
-	public static final String EMAIL_PASSWORD = new String(
-			GENERAL_PROPERTIES.getProperty("emailPassword")
-			.getBytes(StandardCharsets.ISO_8859_1 /* This charset is used to ensure password can contain latin characters */));
+	public static final String EMAIL_PASSWORD;
+
+	static {
+		try {
+			if (ServerSettings.IS_PRODUCTION_READY) {
+				EMAIL_PASSWORD = Files.readString(
+						Path.of("/run/credentials/ermis-server.service/emailer_password"),
+						StandardCharsets.ISO_8859_1 // This charset is used to ensure password can contain latin characters
+				).trim();
+			} else {
+				EMAIL_PASSWORD = FileUtils.
+						readPropertiesFile(ConfigurationsPaths.DevelopmentMode.CONF_SETTINGS)
+						.getProperty("emailer_password");
+			}
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
+	}
 
 	private EmailerSettings() {}
 }
