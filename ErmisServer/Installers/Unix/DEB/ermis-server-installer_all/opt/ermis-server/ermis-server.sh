@@ -91,11 +91,11 @@ create_backup_folders() {
         fi
 
         # Copy the original directory to a backup location
-        cp -r --no-preserve=ownership "$folder" "$backup_folder"
+        cp -r -p "$folder" "$backup_folder"
 
         echo "Created backup for server folder $folder -> $backup_folder..."
 
-        # Folder automatically restored by trap
+        # Folder is restored at termination
     done
 }
 
