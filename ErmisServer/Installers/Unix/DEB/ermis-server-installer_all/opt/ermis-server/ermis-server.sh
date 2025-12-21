@@ -72,7 +72,6 @@ restore_folder() {
 
     rm -rf "$folder"
     mv "$backup_folder" "$folder"
-    rm -rf "$backup_folder"
 }
 
 restore_backup_folders() {
