@@ -47,7 +47,7 @@ public final class ServerSettings {
 		}
 	}
 
-	public static final boolean IS_PRODUCTION_READY = Boolean.parseBoolean(GENERAL_PROPERTIES.getProperty("isProductionReady"));
+	public static final boolean IS_PRODUCTION_MODE = Boolean.parseBoolean(GENERAL_PROPERTIES.getProperty("isProductionMode"));
 
 	public static final String SOURCE_CODE_URL = GENERAL_PROPERTIES.getProperty("sourceCodeURL");
 
@@ -88,7 +88,7 @@ public final class ServerSettings {
 
 		static {
 			try {
-				if (ServerSettings.IS_PRODUCTION_READY) {
+				if (ServerSettings.IS_PRODUCTION_MODE) {
 					CERTIFICATE_PASSWORD = Files.readString(
 							Path.of("/run/credentials/ermis-server.service/db_key-store_password"),
 							StandardCharsets.ISO_8859_1 // Use this charset so password can contain latin characters

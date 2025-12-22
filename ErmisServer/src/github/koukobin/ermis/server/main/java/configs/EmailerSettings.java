@@ -47,7 +47,7 @@ public final class EmailerSettings {
 
 	static {
 		try {
-			if (ServerSettings.IS_PRODUCTION_READY) {
+			if (ServerSettings.IS_PRODUCTION_MODE) {
 				EMAIL_PASSWORD = Files.readString(
 						Path.of("/run/credentials/ermis-server.service/emailer_password"),
 						StandardCharsets.ISO_8859_1 // This charset is used to ensure password can contain latin characters

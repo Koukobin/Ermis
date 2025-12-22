@@ -62,7 +62,7 @@ public final class DatabaseSettings {
 
 	static {
 		try {
-			if (ServerSettings.IS_PRODUCTION_READY) {				
+			if (ServerSettings.IS_PRODUCTION_MODE) {				
 				USER_PASSWORD = Files.readString(
 						Path.of("/run/credentials/ermis-server.service/db_user_password"),
 						StandardCharsets.ISO_8859_1 // Use this charset so password can contain latin characters

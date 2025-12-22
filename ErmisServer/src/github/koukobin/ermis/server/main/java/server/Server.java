@@ -126,7 +126,7 @@ public final class Server {
 				.childOption(ChannelOption.SO_KEEPALIVE, true);
 
 			// If server isn't production ready we add a logging handler for more detailed logging
-			if (!ServerSettings.IS_PRODUCTION_READY) {
+			if (!ServerSettings.IS_PRODUCTION_MODE) {
 				ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
 			}
 

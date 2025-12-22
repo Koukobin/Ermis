@@ -72,7 +72,7 @@ public final class EmailerService {
 				return new PasswordAuthentication(EmailerSettings.EMAIL_USERNAME, EmailerSettings.EMAIL_PASSWORD);
 			}
 		});
-		session.setDebug(!ServerSettings.IS_PRODUCTION_READY);
+		session.setDebug(!ServerSettings.IS_PRODUCTION_MODE);
 
 		// Send test email to self to ensure emailer works correctly
 		try {

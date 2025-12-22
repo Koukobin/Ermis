@@ -1,7 +1,7 @@
 # Do NOT set to false on production mode - and ensure 
 # /etc/ermis-server/dev.conf does not contain any 
 # sensitive info.
-isProductionReady=true
+isProductionMode=true
 
 sourceCodeURL=https://github.com/Koukobin/Ermis
 
