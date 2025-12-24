@@ -50,11 +50,13 @@ if [[ "$shouldCreateLinuxUser" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     sudo chown -R ermis:ermis /var/ermis-server
     sudo chown -R ermis:ermis /var/lib/ermis-server
     sudo chown -R ermis:ermis /opt/ermis-server
+    sudo chown -R ermis:ermis /etc/ermis-server
     sudo chown -R ermis:ermis /etc/nginx/
 
     sudo chmod -R 777 /var/ermis-server/
     sudo chmod -R 700 /var/lib/ermis-server
     sudo chmod -R 700 /opt/ermis-server
+    sudo chmod -R 755 /etc/ermis-server
     sudo chmod -R 755 /etc/nginx
 fi
 
