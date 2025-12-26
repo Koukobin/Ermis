@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-  <!-- Allow cleartext for development (if needed) -->
-  <base-config cleartextTrafficPermitted="true">
+  <base-config cleartextTrafficPermitted="false">
     <trust-anchors>
       <!-- Trust user-installed CAs -->
       <certificates src="user" />
-      <!-- System CAs are still trusted -->
+      <!-- Trust System CAs -->
       <certificates src="system" />
     </trust-anchors>
   </base-config>
-  <domain-config cleartextTrafficPermitted="true">
-    <domain includeSubdomains="true">192.168.10.103</domain>
-    <!-- If you have a hostname, you can specify it here as well -->
-  </domain-config>
 </network-security-config>
-
