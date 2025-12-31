@@ -16,6 +16,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ermis_mobile/core/models/message.dart';
@@ -44,9 +45,10 @@ class VoiceMessage extends StatefulWidget {
 
 class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMixin {
   late final Message _message;
-  VoiceMessageState state = VoiceMessageState.playing;
 
+  VoiceMessageState state = VoiceMessageState.playing;
   PlayerController? _player;
+  List<double>? waveformData;
 
   @override
   void initState() {
@@ -105,6 +107,8 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
     File file = await createTempFile(fileBytes, fileName);
     _player = PlayerController();
     await _player!.preparePlayer(path: file.path);
+
+    waveformData = await _player!.extractWaveformData(path: file.path);
 
     _startPlayer();
   }
@@ -170,7 +174,34 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
               playAudio();
             },
             icon: widgetAction,
-          )
+          ),
+          if (_message.fileBytes != null)
+            Expanded(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.07,
+                ),
+                child: _player == null
+                    ? Transform.translate(
+                        offset: const Offset(0, 20),
+                        child: SimpleWaveform(
+                          samples: waveformData ?? [],
+                        ),
+                      )
+                    : AudioFileWaveforms(
+                        size: const Size(
+                          double.infinity,
+                          50,
+                        ),
+                        playerWaveStyle: PlayerWaveStyle(
+                          liveWaveColor: Colors.greenAccent,
+                          spacing: 1.7,
+                          waveThickness: 1.3,
+                        ),
+                        waveformType: WaveformType.fitWidth,
+                        playerController: _player!),
+              ),
+            ),
         ],
       ),
     );
@@ -179,13 +210,11 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
 
 class SimpleWaveform extends StatelessWidget {
   final List<double> samples;
-  final Color color;
   final double strokeWidth;
 
   const SimpleWaveform({
     super.key,
     required this.samples,
-    this.color = Colors.blue,
     this.strokeWidth = 2.0,
   });
 
@@ -195,48 +224,118 @@ class SimpleWaveform extends StatelessWidget {
       builder: (context, constraints) {
         return CustomPaint(
           size: Size(constraints.maxWidth, constraints.maxHeight),
-          painter: _WaveformPainter(samples, color, strokeWidth),
+          painter: _WaveformPainter(samples, strokeWidth),
         );
       },
     );
   }
 }
 
+List<int> buildPeaks({
+  required Uint8List pcmSamples,
+  required int totalBars,
+}) {
+  final int samplesPerBar = (pcmSamples.length / totalBars).floor();
+  if (samplesPerBar == 0) return [];
+
+  final List<int> peaks = [];
+
+  for (int i = 0; i < totalBars; i++) {
+    final int start = i * samplesPerBar;
+    int end = start + samplesPerBar;
+
+    if (end > pcmSamples.length) end = pcmSamples.length;
+
+    final peak = peakFromUint8(
+      pcmSamples.sublist(start, end),
+    );
+
+    peaks.add(peak);
+  }
+
+  return peaks;
+}
+
+int peakFromUint8(Uint8List samples) {
+  int maxValue = 0;
+
+  for (final s in samples) {
+    if (s > maxValue) {
+      maxValue = s;
+    }
+  }
+
+  return maxValue; // normalize to 0.0–1.0
+}
+
 class _WaveformPainter extends CustomPainter {
-  final List<double> samples;
-  final Color color;
+  final List<double> peaks;
   final double strokeWidth;
 
-  _WaveformPainter(this.samples, this.color, this.strokeWidth);
+  _WaveformPainter(
+    this.peaks,
+    this.strokeWidth,
+  );
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (samples.isEmpty) return;
+    if (peaks.isEmpty) return;
 
     final paint = Paint()
-      ..color = color
+      ..color = Colors.greenAccent
       ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
+      ..strokeCap = StrokeCap.round;
 
-    final sampleCount = samples.length;
-    final widthPerSample = size.width / (sampleCount - 1); // Adjust for the last point
-    final centerY = size.height / 2;
-    final maxHeight = size.height / 2; // Limit the wave amplitude
-
-    for (int i = 0; i < sampleCount - 1; i++) {
-      final x1 = i * widthPerSample;
-      final y1 = centerY - samples[i] * maxHeight;
-      final x2 = (i + 1) * widthPerSample;
-      final y2 = centerY - samples[i + 1] * maxHeight;
-
-      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
+    List<double> downSampledPeaks = List<double>.filled((peaks.length / 2).toInt(), 0);
+    {
+      int i = 0;
+      int j = 1;
+      int k = 0;
+      while (i < downSampledPeaks.length) {
+        downSampledPeaks[i] = peaks[j] + peaks[k];
+        i++;
+        j += 2;
+        k += 2;
+      }
     }
+
+    final double centerY = size.height / 5;
+    final double maxBarHeight = size.height;
+
+    final double spacing = size.width / downSampledPeaks.length;
+
+    for (int i = 0; i < downSampledPeaks.length; i++) {
+      final double x = i * spacing;
+      final double barHeight = downSampledPeaks[i] * maxBarHeight;
+
+      canvas.drawLine(
+        Offset(x, centerY - barHeight),
+        Offset(x, centerY + barHeight),
+        paint,
+      );
+    }
+
+    /*
+    final whitePaint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.square;
+
+    canvas.saveLayer(Offset.zero & size, Paint());
+    final double x = (animation!.value * 100) * spacing;
+    final double barHeight = peaks[(animation!.value * 100).floor().clamp(0, 99)] * maxBarHeight * 2;
+
+    canvas.restore();
+    canvas.drawLine(
+      Offset(x, centerY - barHeight),
+      Offset(x, centerY + barHeight),
+      whitePaint,
+    );
+    */
   }
 
   @override
   bool shouldRepaint(_WaveformPainter oldDelegate) {
-    return oldDelegate.samples != samples ||
-           oldDelegate.color != color ||
-           oldDelegate.strokeWidth != strokeWidth;
+    return oldDelegate.peaks != peaks || oldDelegate.strokeWidth != strokeWidth;
   }
 }
