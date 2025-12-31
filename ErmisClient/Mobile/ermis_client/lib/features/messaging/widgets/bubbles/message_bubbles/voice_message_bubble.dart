@@ -231,43 +231,6 @@ class SimpleWaveform extends StatelessWidget {
   }
 }
 
-List<int> buildPeaks({
-  required Uint8List pcmSamples,
-  required int totalBars,
-}) {
-  final int samplesPerBar = (pcmSamples.length / totalBars).floor();
-  if (samplesPerBar == 0) return [];
-
-  final List<int> peaks = [];
-
-  for (int i = 0; i < totalBars; i++) {
-    final int start = i * samplesPerBar;
-    int end = start + samplesPerBar;
-
-    if (end > pcmSamples.length) end = pcmSamples.length;
-
-    final peak = peakFromUint8(
-      pcmSamples.sublist(start, end),
-    );
-
-    peaks.add(peak);
-  }
-
-  return peaks;
-}
-
-int peakFromUint8(Uint8List samples) {
-  int maxValue = 0;
-
-  for (final s in samples) {
-    if (s > maxValue) {
-      maxValue = s;
-    }
-  }
-
-  return maxValue; // normalize to 0.0–1.0
-}
-
 class _WaveformPainter extends CustomPainter {
   final List<double> peaks;
   final double strokeWidth;
