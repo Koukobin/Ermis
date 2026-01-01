@@ -211,7 +211,7 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
                         ),
                       )
                     : AudioFileWaveforms(
-                      waveformData: waveformData?.downSampled ?? [],
+                        waveformData: waveformData?.downSampled ?? [],
                         size: Size(
                           MediaQuery.of(context).size.width,
                           50,
@@ -223,7 +223,8 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
                           scaleFactor: 50,
                         ),
                         waveformType: WaveformType.fitWidth,
-                        playerController: _player!),
+                        playerController: _player!,
+                      ),
               ),
             ),
         ],
