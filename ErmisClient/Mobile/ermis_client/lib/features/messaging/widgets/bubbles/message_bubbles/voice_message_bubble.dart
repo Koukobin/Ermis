@@ -16,7 +16,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ermis_mobile/core/models/message.dart';
@@ -31,8 +30,34 @@ import '../../../../../core/widgets/dots_loading_screen.dart';
 import '../../../../../mixins/event_bus_subscription_mixin.dart';
 import '../../../../../theme/app_colors.dart';
 
-enum VoiceMessageState {
-  playing, paused, downloading;
+class _WaveformData {
+  final List<double> fullRes;
+  final List<double> downSampled;
+
+  _WaveformData({required this.fullRes}) : downSampled = _downSample(fullRes);
+
+  static List<double> _downSample(List<double> fullResolution) {
+    List<double> sampled = List.filled((fullResolution.length / 2).toInt(), 0);
+
+    // Alternative way to write ensuing while loop (idk which is clearer)
+    /*
+    * for (int i = 0, j = 1; i < sampled.length; i++, j += 2) {
+    *   sampled[i] = fullResolution[j] + fullResolution[j - 1];
+    * }
+    */
+
+    {
+      int i = 0;
+      int j = 1;
+      while (i < sampled.length) {
+        sampled[i] = fullResolution[j] + fullResolution[j - 1];
+        i++;
+        j += 2;
+      }
+    }
+
+    return sampled;
+  }
 }
 
 class VoiceMessage extends StatefulWidget {
@@ -46,15 +71,20 @@ class VoiceMessage extends StatefulWidget {
 class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMixin {
   late final Message _message;
 
-  VoiceMessageState state = VoiceMessageState.playing;
+  bool isDownloading = false;
   PlayerController? _player;
-  List<double>? waveformData;
+  _WaveformData? waveformData;
+
+  /// Dummy key used to force rebuild when [_player] state mutates
+  Key _widgetKey = UniqueKey();
 
   @override
   void initState() {
     _message = widget.message;
 
     subscribe(AppEventBus.instance.on<VoiceDownloadedEvent>(), (event) {
+      isDownloading = false;
+
       if (event.messageID != _message.messageID) return;
       _message.setFileName(Uint8List.fromList(utf8.encode(event.file.fileName)));
       _message.fileBytes = event.file.fileBytes;
@@ -66,17 +96,13 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
 
   void playAudio() async {
     if (_player?.playerState.isPaused ?? false) {
-      setState(() {
-        state = VoiceMessageState.paused;
-      });
+      setState(() => _widgetKey = UniqueKey());
       _startPlayer();
       return;
     }
 
     if (_player?.playerState.isPlaying ?? false) {
-      setState(() {
-        state = VoiceMessageState.playing;
-      });
+      setState(() => _widgetKey = UniqueKey());
       _player?.pausePlayer();
       return;
     }
@@ -108,24 +134,21 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
     _player = PlayerController();
     await _player!.preparePlayer(path: file.path);
 
-    waveformData = await _player!.extractWaveformData(path: file.path);
+    List<double> waveform = await _player!.extractWaveformData(path: file.path);
+    waveformData = _WaveformData(fullRes: waveform);
 
     _startPlayer();
   }
 
   void _startPlayer() {
-    setState(() {
-      state = VoiceMessageState.paused;
-    });
+    setState(() => _widgetKey = UniqueKey());
 
     // Audioplayer will be automatically disposed once completed
     _player!.startPlayer();
 
     _player?.onCompletion.listen((void x /* What even is this? */) {
       _player = null;
-      setState(() {
-        state = VoiceMessageState.playing;
-      });
+      setState(() => _widgetKey = UniqueKey());
     });
   }
 
@@ -135,16 +158,14 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
 
     Widget widgetAction;
 
-    switch (state) {
-      case VoiceMessageState.playing:
-        widgetAction = const Icon(Icons.play_arrow);
-        break;
-      case VoiceMessageState.paused:
+    if (isDownloading) {
+      widgetAction = const SizedBox(height: 50, child: DotsLoadingScreen());
+    } else {
+      if (_player?.playerState.isPlaying ?? false) {
         widgetAction = const Icon(Icons.pause);
-        break;
-      case VoiceMessageState.downloading:
-        widgetAction = const SizedBox(height: 50, child: DotsLoadingScreen());
-        break;
+      } else {
+        widgetAction = const Icon(Icons.play_arrow);
+      }
     }
 
     return Container(
@@ -156,6 +177,7 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
         // Row expands and covers max space as dictated by box constraints
         children: [
           IconButton(
+            key: _widgetKey,
             onPressed: () {
               if (_message.fileBytes == null) {
                 // Audio will be played automatically once voice message is received
@@ -165,7 +187,7 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
                     );
 
                 setState(() {
-                  state = VoiceMessageState.downloading;
+                  isDownloading = true;
                 });
 
                 return;
@@ -185,18 +207,20 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
                     ? Transform.translate(
                         offset: const Offset(0, 20),
                         child: SimpleWaveform(
-                          samples: waveformData ?? [],
+                          samples: waveformData?.downSampled ?? [],
                         ),
                       )
                     : AudioFileWaveforms(
-                        size: const Size(
-                          double.infinity,
+                      waveformData: waveformData?.downSampled ?? [],
+                        size: Size(
+                          MediaQuery.of(context).size.width,
                           50,
                         ),
                         playerWaveStyle: PlayerWaveStyle(
                           liveWaveColor: Colors.greenAccent,
-                          spacing: 1.7,
-                          waveThickness: 1.3,
+                          spacing: 3,
+                          waveThickness: 1.5,
+                          scaleFactor: 50,
                         ),
                         waveformType: WaveformType.fitWidth,
                         playerController: _player!),
@@ -249,27 +273,14 @@ class _WaveformPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
-    List<double> downSampledPeaks = List<double>.filled((peaks.length / 2).toInt(), 0);
-    {
-      int i = 0;
-      int j = 1;
-      int k = 0;
-      while (i < downSampledPeaks.length) {
-        downSampledPeaks[i] = peaks[j] + peaks[k];
-        i++;
-        j += 2;
-        k += 2;
-      }
-    }
-
     final double centerY = size.height / 5;
     final double maxBarHeight = size.height;
 
-    final double spacing = size.width / downSampledPeaks.length;
+    final double spacing = size.width / peaks.length;
 
-    for (int i = 0; i < downSampledPeaks.length; i++) {
+    for (int i = 0; i < peaks.length; i++) {
       final double x = i * spacing;
-      final double barHeight = downSampledPeaks[i] * maxBarHeight;
+      final double barHeight = peaks[i] * maxBarHeight;
 
       canvas.drawLine(
         Offset(x, centerY - barHeight),
