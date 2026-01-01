@@ -206,7 +206,7 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
                 child: _player == null
                     ? Transform.translate(
                         offset: const Offset(0, 20),
-                        child: SimpleWaveform(
+                        child: _SimpleWaveform(
                           samples: waveformData?.downSampled ?? [],
                         ),
                       )
@@ -232,9 +232,9 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
   }
 }
 
-class SimpleWaveform extends StatelessWidget {
+class _SimpleWaveform extends StatelessWidget {
   final List<double> samples;
-  const SimpleWaveform({required this.samples});
+  const _SimpleWaveform({required this.samples});
 
   @override
   Widget build(BuildContext context) {
