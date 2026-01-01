@@ -234,13 +234,7 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
 
 class SimpleWaveform extends StatelessWidget {
   final List<double> samples;
-  final double strokeWidth;
-
-  const SimpleWaveform({
-    super.key,
-    required this.samples,
-    this.strokeWidth = 2.0,
-  });
+  const SimpleWaveform({required this.samples});
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +242,7 @@ class SimpleWaveform extends StatelessWidget {
       builder: (context, constraints) {
         return CustomPaint(
           size: Size(constraints.maxWidth, constraints.maxHeight),
-          painter: _WaveformPainter(samples, strokeWidth),
+          painter: _WaveformPainter(samples),
         );
       },
     );
@@ -257,12 +251,7 @@ class SimpleWaveform extends StatelessWidget {
 
 class _WaveformPainter extends CustomPainter {
   final List<double> peaks;
-  final double strokeWidth;
-
-  _WaveformPainter(
-    this.peaks,
-    this.strokeWidth,
-  );
+  _WaveformPainter(this.peaks);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -270,7 +259,7 @@ class _WaveformPainter extends CustomPainter {
 
     final paint = Paint()
       ..color = Colors.greenAccent
-      ..strokeWidth = strokeWidth
+      ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round;
 
     final double centerY = size.height / 5;
@@ -310,6 +299,6 @@ class _WaveformPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WaveformPainter oldDelegate) {
-    return oldDelegate.peaks != peaks || oldDelegate.strokeWidth != strokeWidth;
+    return oldDelegate.peaks != peaks;
   }
 }
