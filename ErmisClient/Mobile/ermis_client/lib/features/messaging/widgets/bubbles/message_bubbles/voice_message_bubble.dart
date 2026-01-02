@@ -280,21 +280,21 @@ class _WaveformPainter extends CustomPainter {
     }
 
     /*
-    final whitePaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.square;
-
-    canvas.saveLayer(Offset.zero & size, Paint());
-    final double x = (animation!.value * 100) * spacing;
-    final double barHeight = peaks[(animation!.value * 100).floor().clamp(0, 99)] * maxBarHeight * 2;
-
-    canvas.restore();
-    canvas.drawLine(
-      Offset(x, centerY - barHeight),
-      Offset(x, centerY + barHeight),
-      whitePaint,
-    );
+    * final whitePaint = Paint()
+    *  ..color = Colors.white
+    *  ..strokeWidth = strokeWidth
+    *  ..strokeCap = StrokeCap.square;
+    *
+    * canvas.saveLayer(Offset.zero & size, Paint());
+    * final double x = (animation!.value * 100) * spacing;
+    * final double barHeight = peaks[(animation!.value * 100).floor().clamp(0, 99)] * maxBarHeight * 2;
+    *
+    * canvas.restore();
+    * canvas.drawLine(
+    *   Offset(x, centerY - barHeight),
+    *   Offset(x, centerY + barHeight),
+    *   whitePaint,
+    * );
     */
   }
 
