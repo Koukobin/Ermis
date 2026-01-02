@@ -69,6 +69,8 @@ class VoiceMessage extends StatefulWidget {
 }
 
 class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMixin {
+  static Map<Message, _WaveformData> waveformCache = {};
+
   late final Message _message;
 
   bool isDownloading = false;
@@ -81,6 +83,7 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
   @override
   void initState() {
     _message = widget.message;
+    waveformData = waveformCache[_message];
 
     subscribe(AppEventBus.instance.on<VoiceDownloadedEvent>(), (event) {
       isDownloading = false;
@@ -89,15 +92,15 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
       _message.setFileName(Uint8List.fromList(utf8.encode(event.file.fileName)));
       _message.fileBytes = event.file.fileBytes;
 
-      playAudio();
+      togglePlayer();
     });
     super.initState();
   }
 
-  void playAudio() async {
+  void togglePlayer() async {
     if (_player?.playerState.isPaused ?? false) {
       setState(() => _widgetKey = UniqueKey());
-      _startPlayer();
+      startPlayer();
       return;
     }
 
@@ -110,36 +113,27 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
     Uint8List fileBytes = _message.fileBytes!;
     String fileName = _message.fileName;
 
-    if (kDebugMode) {
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-    }
-
     File file = await createTempFile(fileBytes, fileName);
     _player = PlayerController();
     await _player!.preparePlayer(path: file.path);
 
-    List<double> waveform = await _player!.extractWaveformData(path: file.path);
-    waveformData = _WaveformData(fullRes: waveform);
+    if (waveformData == null) {
+      List<double> waveform = await _player!.extractWaveformData(path: file.path);
+      waveformData = _WaveformData(fullRes: waveform);
+      waveformCache[_message] = waveformData!;
+    }
 
-    _startPlayer();
+    startPlayer();
   }
 
-  void _startPlayer() {
+  void startPlayer() {
     setState(() => _widgetKey = UniqueKey());
 
     // Audioplayer will be automatically disposed once completed
     _player!.startPlayer();
 
-    _player?.onCompletion.listen((void x /* What even is this? */) {
+    _player!.onCompletion.listen((void x /* What even is this? */) {
+      _player!.release();
       _player = null;
       setState(() => _widgetKey = UniqueKey());
     });
@@ -186,7 +180,7 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
                 return;
               }
 
-              playAudio();
+              togglePlayer();
             },
             icon: widgetAction,
           ),
