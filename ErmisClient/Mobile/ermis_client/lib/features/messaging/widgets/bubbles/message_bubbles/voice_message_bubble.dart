@@ -121,13 +121,6 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
       debugPrint("playing audio");
       debugPrint("playing audio");
       debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
-      debugPrint("playing audio");
     }
 
     File file = await createTempFile(fileBytes, fileName);
