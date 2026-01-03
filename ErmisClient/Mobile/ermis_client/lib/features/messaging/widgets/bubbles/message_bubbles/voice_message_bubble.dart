@@ -133,7 +133,6 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
     _player!.startPlayer();
 
     _player!.onCompletion.listen((void x /* What even is this? */) {
-      _player!.release();
       _player = null;
       setState(() => _widgetKey = UniqueKey());
     });
