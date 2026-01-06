@@ -49,6 +49,7 @@ import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/scroll/infinite_scroll_list.dart';
 import '../../../core/widgets/profile_photos/user_avatar.dart';
+import '../../../theme/doodle_painter.dart';
 import '../../voice_call/web_rtc/call_info.dart';
 
 class MessagingInterface extends StatefulWidget {
@@ -222,10 +223,23 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
           : _buildMainAppBar(appColors),
       body: Container(
         decoration: _getDecoration(SettingsJson().chatsBackDrop),
-        child: Column(
+        child: Stack(
           children: [
-            _buildMessageList(appColors),
-            _buildInputField(appColors),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return CustomPaint(
+                  size: Size(constraints.maxWidth, constraints.maxHeight),
+                  painter: ErmisDoodlePainter(),
+                );
+              },
+            ),
+            Column(
+              children: [
+                _buildMessageList(appColors),
+                _buildInputField(appColors),
+              ],
+            ),
+
           ],
         ),
       ),

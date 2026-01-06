@@ -97,6 +97,8 @@ dependencies:
   json_annotation: ^4.9.0
   json_serializable: ^6.11.1
 
+  vector_graphics: ^1.1.9
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -113,6 +115,7 @@ dev_dependencies:
   test: ^1.25.7
 
   change_app_package_name: ^1.5.0
+  vector_graphics_compiler: ^1.1.9
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -142,6 +145,7 @@ flutter:
     - assets/ermis/calling-ermis.png
     - assets/chat_backgrounds/parthenon.jpg
     - assets/chat_backgrounds/ermis_wallpaper_by_solvazquez_on_reddit.png
+    - assets/chat_backgrounds/doodle_icons/vg/
     - assets/empty_user_profile_icon/empty_user_icon_profile.png
     - assets/achievement_images/first_message_sent_achievement.png
     - assets/achievement_images/first_friend_made_achievement.png

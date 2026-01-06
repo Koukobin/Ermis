@@ -14,20 +14,79 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:vector_graphics/vector_graphics_compat.dart';
+
+class _DoodleAssets {
+  static final List<PictureInfo> _cache = [];
+  static final Random _random = Random();
+
+  static bool _isInitialized = false;
+
+  static void init() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+
+    for (var i = 0; i < 25; i++) {
+      final info = await vg.loadPicture(
+        AssetBytesLoader('assets/chat_backgrounds/doodle_icons/vg/${_random.nextInt(400)}.vg'),
+        null,
+      );
+      _cache.add(info);
+    }
+  }
+
+  static PictureInfo chooseRandomly() {
+    return _cache[_random.nextInt(_cache.length)];
+  }
+}
 
 class ErmisDoodlePainter extends CustomPainter {
+  ErmisDoodlePainter() {
+    _DoodleAssets.init();
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey.withOpacity(0.2) // Subtle doodle color
+      ..color = Colors.grey.withValues(alpha: 0.4) // Subtle doodle color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
     // Draw Circles
     for (double x = 0; x < size.width; x += 50) {
-      for (double y = 0; y < size.height; y += 50) {
+      for (double y = 0, i = 0; y < size.height; y += 50, i++) {
         canvas.drawCircle(Offset(x, y), 15, paint);
+
+        if (_DoodleAssets._cache.isNotEmpty) {
+          final scale = 0.2;
+          final radians = Random().nextDouble() * 0.3;
+          final pictureInfo = _DoodleAssets.chooseRandomly();
+
+          canvas.saveLayer(
+            null,
+            Paint()
+              ..colorFilter = ColorFilter.mode(
+                Color.fromARGB(
+                  Random().nextInt(50) + 205,
+                  Random().nextInt(255),
+                  Random().nextInt(255),
+                  Random().nextInt(255),
+                ),
+                BlendMode.srcIn,
+              ),
+          );
+
+          canvas.translate(x, y);
+          canvas.scale(scale);
+          canvas.rotate(radians);
+
+          canvas.drawPicture(pictureInfo.picture);
+
+          canvas.restore();
+        }
       }
     }
 
@@ -43,7 +102,5 @@ class ErmisDoodlePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false; // Redraw only if necessary
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
