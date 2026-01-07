@@ -27,6 +27,7 @@ import 'package:path_provider/path_provider.dart';
 final _defaultJsonSettings = {
   "useSystemDefaultTheme": true,
   "darkMode": false,
+  "ermisDoodlesEnabled": true,
   "chatsBackDrop": ChatBackDrop.monotone.id,
   "gradientColors": [Colors.blue.value, Colors.green.value],
   "notificationsEnabled": true,
@@ -83,6 +84,10 @@ class SettingsJson {
     _settingsJson["darkMode"] = darkMode;
   }
 
+  void setErmisDoodlesEnabled(bool enabled) {
+    _settingsJson["ermisDoodlesEnabled"] = enabled;
+  }
+
   void setChatBackDrop(int backdropId) {
     _settingsJson["chatsBackDrop"] = backdropId;
   }
@@ -130,6 +135,7 @@ class SettingsJson {
 
   bool get useSystemDefaultTheme => _settingsJson["useSystemDefaultTheme"];
   bool get isDarkModeEnabled => _settingsJson["darkMode"];
+  bool get ermisDoodlesEnabled => _settingsJson["ermisDoodlesEnabled"];
   ChatBackDrop get chatsBackDrop => ChatBackDrop.fromId(_settingsJson["chatsBackDrop"]);
   List<Color> get gradientColors => (_settingsJson['gradientColors'] as List)
       .map((colorInt) => Color(colorInt))

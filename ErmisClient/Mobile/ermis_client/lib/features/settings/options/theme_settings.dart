@@ -37,6 +37,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
 
   bool _isDarkMode = false;
   bool _useSystemDefault = false;
+  bool _ermisDoodlesEnabled = false;
   ChatBackDrop _selectedBackdrop = ChatBackDrop.abstract;
   List<Color> _gradientColors = [Colors.red, Colors.green];
 
@@ -51,6 +52,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     setState(() {
       _isDarkMode = _settingsJson.isDarkModeEnabled;
       _useSystemDefault = _settingsJson.useSystemDefaultTheme;
+      _ermisDoodlesEnabled = _settingsJson.ermisDoodlesEnabled;
       _selectedBackdrop = _settingsJson.chatsBackDrop;
       _gradientColors = _settingsJson.gradientColors;
     });
@@ -138,6 +140,19 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               S.current.chat_backdrop,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            CheckboxListTile(
+              title: Text("Add Ermis Doodles"),
+              value: _ermisDoodlesEnabled,
+              onChanged: (newValue) {
+                setState(() {
+                  _ermisDoodlesEnabled = newValue!;
+                });
+
+                _settingsJson.setErmisDoodlesEnabled(_ermisDoodlesEnabled);
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            const SizedBox(height: 10),
             DropdownButtonFormField<ChatBackDrop>(
               value: _selectedBackdrop,
               decoration: InputDecoration(

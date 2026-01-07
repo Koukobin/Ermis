@@ -225,14 +225,15 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
         decoration: _getDecoration(SettingsJson().chatsBackDrop),
         child: Stack(
           children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                return CustomPaint(
-                  size: Size(constraints.maxWidth, constraints.maxHeight),
-                  painter: ErmisDoodlePainter(),
-                );
-              },
-            ),
+            if (SettingsJson().ermisDoodlesEnabled)
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return CustomPaint(
+                    size: Size(constraints.maxWidth, constraints.maxHeight),
+                    painter: ErmisDoodlePainter(),
+                  );
+                },
+              ),
             Column(
               children: [
                 _buildMessageList(appColors),
