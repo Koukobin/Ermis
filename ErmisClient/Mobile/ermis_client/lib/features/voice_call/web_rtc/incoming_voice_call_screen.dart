@@ -217,9 +217,9 @@ class _IncomingCallScreenState extends State<IncomingCallScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  "Incoming Voice Call", // TODO: ADD MULTIPLE LANGUAGES
-                  style: TextStyle(
+                Text(
+                  S().incoming_voice_call,
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 18,
                   ),
