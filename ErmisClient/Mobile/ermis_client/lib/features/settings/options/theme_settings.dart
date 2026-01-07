@@ -142,6 +142,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             ),
             CheckboxListTile(
               title: Text("Add Ermis Doodles"),
+              activeColor: appColors.primaryColor,
               value: _ermisDoodlesEnabled,
               onChanged: (newValue) {
                 setState(() {
