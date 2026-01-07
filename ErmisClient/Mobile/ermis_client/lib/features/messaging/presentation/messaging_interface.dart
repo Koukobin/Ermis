@@ -228,19 +228,23 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
             if (SettingsJson().ermisDoodlesEnabled)
               LayoutBuilder(
                 builder: (context, constraints) {
-                  return CustomPaint(
-                    size: Size(constraints.maxWidth, constraints.maxHeight),
-                    painter: ErmisDoodlePainter(),
+                  // Wrap CustomPaint in RepaintBoundary to ensure
+                  // the former is cached and ultimately reduce
+                  // performance overhead.
+                  return RepaintBoundary(
+                    child: CustomPaint(
+                      size: Size(constraints.maxWidth, constraints.maxHeight),
+                      painter: ErmisDoodlePainter(),
+                    ),
                   );
                 },
               ),
             Column(
               children: [
                 _buildMessageList(appColors),
-                _buildInputField(appColors),
+                InputField(chatSessionIndex: _chatSessionIndex, messages: _messages),
               ],
             ),
-
           ],
         ),
       ),
@@ -530,10 +534,6 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
       ],
       bottom: DividerBottom(dividerColor: appColors.inferiorColor),
     );
-  }
-
-  Widget _buildInputField(AppColors appColors) {
-    return InputField(chatSessionIndex: _chatSessionIndex, messages: _messages);
   }
 
   @override
