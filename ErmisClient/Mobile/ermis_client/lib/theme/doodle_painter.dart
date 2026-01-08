@@ -19,9 +19,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vector_graphics/vector_graphics_compat.dart';
 
+final Random _random = Random();
+
 class _DoodleAssets {
   static final List<PictureInfo> _cache = [];
-  static final Random _random = Random();
 
   static bool _isInitialized = false;
 
@@ -37,6 +38,8 @@ class _DoodleAssets {
       _cache.add(info);
     }
   }
+
+  static bool get isNotEmpty => _cache.isNotEmpty;
 
   static PictureInfo chooseRandomly() {
     return _cache[_random.nextInt(_cache.length)];
@@ -60,21 +63,16 @@ class ErmisDoodlePainter extends CustomPainter {
       for (double y = 0, i = 0; y < size.height; y += 50, i++) {
         canvas.drawCircle(Offset(x, y), 15, paint);
 
-        if (_DoodleAssets._cache.isNotEmpty) {
+        if (_DoodleAssets.isNotEmpty) {
           final scale = 0.2;
-          final radians = Random().nextDouble() * 0.3;
+          final radians = _random.nextDouble() * 0.3;
           final pictureInfo = _DoodleAssets.chooseRandomly();
 
           canvas.saveLayer(
             null,
             Paint()
               ..colorFilter = ColorFilter.mode(
-                Color.fromARGB(
-                  Random().nextInt(50) + 205,
-                  Random().nextInt(255),
-                  Random().nextInt(255),
-                  Random().nextInt(255),
-                ),
+                const Color.fromARGB(255, 75, 150, 80).withValues(alpha: 0.8),
                 BlendMode.srcIn,
               ),
           );
