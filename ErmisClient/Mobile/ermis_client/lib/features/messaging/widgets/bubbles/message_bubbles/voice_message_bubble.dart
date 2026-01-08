@@ -227,9 +227,15 @@ class _SimpleWaveform extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return CustomPaint(
-          size: Size(constraints.maxWidth, constraints.maxHeight),
-          painter: _WaveformPainter(samples),
+        // Wrap CustomPaint in RepaintBoundary to ensure
+        // the former is cached and ultimately reduce
+        // performance overhead (albeit it may be overkill
+        // for this case).
+        return RepaintBoundary(
+          child: CustomPaint(
+            size: Size(constraints.maxWidth, constraints.maxHeight),
+            painter: _WaveformPainter(samples),
+          ),
         );
       },
     );
