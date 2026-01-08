@@ -32,7 +32,7 @@ class _DoodleAssets {
 
     for (var i = 0; i < 25; i++) {
       final info = await vg.loadPicture(
-        AssetBytesLoader('assets/chat_backgrounds/doodle_icons/vg/${_random.nextInt(400)}.vg'),
+        AssetBytesLoader('assets/chat_backgrounds/doodle_icons/vg/${_random.nextInt(439)}.vg'),
         null,
       );
       _cache.add(info);
