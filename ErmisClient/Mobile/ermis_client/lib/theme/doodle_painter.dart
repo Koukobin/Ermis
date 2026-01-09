@@ -54,7 +54,7 @@ class ErmisDoodlePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey.withValues(alpha: 0.4) // Subtle doodle color
+      ..color = Colors.grey.withValues(alpha: 0.1) // Subtle doodle color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -72,7 +72,7 @@ class ErmisDoodlePainter extends CustomPainter {
             null,
             Paint()
               ..colorFilter = ColorFilter.mode(
-                const Color.fromARGB(255, 75, 150, 80).withValues(alpha: 0.8),
+                const Color.fromARGB(255, 75, 150, 80).withValues(alpha: 0.4),
                 BlendMode.srcIn,
               ),
           );
