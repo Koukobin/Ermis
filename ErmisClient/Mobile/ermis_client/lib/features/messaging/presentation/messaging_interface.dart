@@ -20,7 +20,6 @@ import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:ermis_mobile/core/models/voice_call_history.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
-import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/voice_call_bubble.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
@@ -226,18 +225,29 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
         child: Stack(
           children: [
             if (SettingsJson().ermisDoodlesEnabled)
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  // Wrap CustomPaint in RepaintBoundary to ensure
-                  // the former is cached and ultimately reduce
-                  // performance overhead.
-                  return RepaintBoundary(
-                    child: CustomPaint(
+              // Wrap LayoutBuilder in RepaintBoundary to ensure
+              // the former is cached and ultimately reduce
+              // performance overhead.
+              RepaintBoundary(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Because it is certain that the doodles will
+                    // not have been loaded on the first execution
+                    // of the doodle painter, configure doodler to
+                    // repaint after a certain time interval.
+                    if (!ErmisDoodlePainter.areDoodlesLoaded()) {
+                      Future.delayed(
+                        const Duration(milliseconds: 100),
+                        () => setState(() {}),
+                      );
+                    }
+
+                    return CustomPaint(
                       size: Size(constraints.maxWidth, constraints.maxHeight),
                       painter: ErmisDoodlePainter(),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             Column(
               children: [
