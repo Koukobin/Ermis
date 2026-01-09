@@ -32,30 +32,18 @@ class ThemeSettingsPage extends StatefulWidget {
   State<ThemeSettingsPage> createState() => _ThemeSettingsPageState();
 }
 
-class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
-  final SettingsJson _settingsJson = SettingsJson();
+final SettingsJson _settingsJson = SettingsJson();
 
-  bool _isDarkMode = false;
-  bool _useSystemDefault = false;
-  bool _ermisDoodlesEnabled = false;
-  ChatBackDrop _selectedBackdrop = ChatBackDrop.abstract;
-  List<Color> _gradientColors = [Colors.red, Colors.green];
+class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
+  bool _isDarkMode               = _settingsJson.isDarkModeEnabled;
+  bool _useSystemDefault         = _settingsJson.useSystemDefaultTheme;
+  bool _ermisDoodlesEnabled      = _settingsJson.ermisDoodlesEnabled;
+  List<Color> _gradientColors    = _settingsJson.gradientColors;
+  ChatBackDrop _selectedBackdrop = _settingsJson.chatsBackDrop;
 
   @override
   void initState() {
     super.initState();
-    _loadSettings();
-  }
-
-  void _loadSettings() async {
-    if (_settingsJson.isJsonNotLoaded) await _settingsJson.loadSettingsJson();
-    setState(() {
-      _isDarkMode = _settingsJson.isDarkModeEnabled;
-      _useSystemDefault = _settingsJson.useSystemDefaultTheme;
-      _ermisDoodlesEnabled = _settingsJson.ermisDoodlesEnabled;
-      _selectedBackdrop = _settingsJson.chatsBackDrop;
-      _gradientColors = _settingsJson.gradientColors;
-    });
   }
 
   void _saveSettingsJson() async {
