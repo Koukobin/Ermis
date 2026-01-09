@@ -562,7 +562,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
         ),
         title: Row(
           children: [
-            UserAvatar(imageBytes: Uint8List(0), status: ClientStatus.offline),
+            UserAvatar.empty(),
             const SizedBox(width: 10),
             Text(S.current.chat_with(widget.chatSession.members[0].username),
                 style: TextStyle(color: appColors.inferiorColor)),
