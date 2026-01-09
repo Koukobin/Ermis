@@ -51,6 +51,8 @@ class ErmisDoodlePainter extends CustomPainter {
     _DoodleAssets.init();
   }
 
+  static bool areDoodlesLoaded() => _DoodleAssets.isNotEmpty;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -65,7 +67,7 @@ class ErmisDoodlePainter extends CustomPainter {
 
         if (_DoodleAssets.isNotEmpty) {
           final scale = 0.2;
-          final radians = _random.nextDouble() * 0.3;
+          final radians = _random.nextDouble() * (_random.nextBool() ? 2.0 : -1.0);
           final pictureInfo = _DoodleAssets.chooseRandomly();
 
           canvas.saveLayer(
