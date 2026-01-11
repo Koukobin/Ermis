@@ -237,7 +237,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                     // repaint after a certain time interval.
                     if (!ErmisDoodlePainter.areDoodlesLoaded()) {
                       Future.delayed(
-                        const Duration(milliseconds: 100),
+                        const Duration(milliseconds: 300),
                         () => setState(() {}),
                       );
                     }
