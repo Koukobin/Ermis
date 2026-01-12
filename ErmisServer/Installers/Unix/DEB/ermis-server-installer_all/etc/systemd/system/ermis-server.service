@@ -13,7 +13,7 @@ LoadCredential=emailer_password:/etc/ermis-server/emailer_password.cred
 
 WorkingDirectory=/opt/ermis-server/
 ExecStart=/bin/bash -c 'cd /opt/ermis-server/ && ./ermis-server.sh'
-Restart=always
+Restart=no
 
 [Install]
 WantedBy=multi-user.target
