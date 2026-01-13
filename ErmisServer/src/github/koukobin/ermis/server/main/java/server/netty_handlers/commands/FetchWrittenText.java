@@ -89,7 +89,7 @@ public class FetchWrittenText implements ICommand {
 			}
 
 			switch (contentType) {
-			case TEXT -> {
+			case TEXT, GIF -> {
 				payload.writeInt(messageBytes.length);
 				payload.writeBytes(messageBytes);
 			}

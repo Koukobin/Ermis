@@ -180,7 +180,7 @@ public final class PrimaryDecoder extends Decoder {
 		switch (contentType) {
 		case FILE, IMAGE, VOICE:
 			return ServerSettings.MAX_CLIENT_MESSAGE_FILE_BYTES;
-		case TEXT:
+		case TEXT, GIF:
 			return ServerSettings.MAX_CLIENT_MESSAGE_TEXT_BYTES;
 		default:
 			LOGGER.debug("Content type not implemented!");

@@ -205,6 +205,14 @@ final class MessageHandler extends AbstractChannelClientHandler {
 			payload.writeInt(fileNameLength);
 			payload.writeBytes(fileNameBytes);
 		}
+		case GIF -> {
+			int gifLength = msg.readInt();
+			textBytes = new byte[gifLength];
+			msg.readBytes(textBytes);
+
+			payload.writeInt(gifLength);
+			payload.writeBytes(textBytes);
+		}
 		}
 
 		int messageID;
