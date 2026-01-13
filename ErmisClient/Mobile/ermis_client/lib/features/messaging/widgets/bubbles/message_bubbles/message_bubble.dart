@@ -201,8 +201,17 @@ class MessageBubble extends Bubble {
           key: Key("${message.messageID}") /* CRITICAL FOR SOME REASON DO NOT REMOVE */,
           message: message,
         );
+      case MessageContentType.gif:
+        return _GifPage(gifUrl: message.text);
     }
   }
 
 }
 
+class _GifPage extends StatelessWidget {
+  final String gifUrl;
+  const _GifPage({required this.gifUrl});
+
+  @override
+  Widget build(BuildContext context) => Image.network(gifUrl);
+}

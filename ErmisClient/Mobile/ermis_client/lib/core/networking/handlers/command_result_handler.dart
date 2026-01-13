@@ -345,7 +345,7 @@ class CommandResultHandler {
           }
 
           switch (contentType) {
-            case MessageContentType.text:
+            case MessageContentType.text || MessageContentType.gif:
               messageBytes = msg.readBytes(msg.readInt32());
               break;
             case MessageContentType.file || MessageContentType.image || MessageContentType.voice:

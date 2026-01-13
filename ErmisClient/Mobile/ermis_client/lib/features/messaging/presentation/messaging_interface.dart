@@ -494,7 +494,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
                 String data;
                 switch (message.contentType) {
-                  case MessageContentType.text:
+                  case MessageContentType.text || MessageContentType.gif:
                     data = message.text;
                     break;
                   case MessageContentType.file || MessageContentType.image || MessageContentType.voice:

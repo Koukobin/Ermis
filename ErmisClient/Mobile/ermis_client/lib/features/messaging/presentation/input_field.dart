@@ -22,6 +22,7 @@ import 'dart:typed_data';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:ermis_mobile/features/messaging/presentation/first_message_sent_achievement_popup.dart';
+import 'package:ermis_mobile/features/messaging/presentation/gif_finder.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/data_sources/api_client.dart';
@@ -205,6 +206,21 @@ class _InputFieldState extends State<InputField> {
                         ),
                       ),
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.gif_box_outlined),
+                    onPressed: () async {
+                      String? gif = await showModalBottomSheet(
+                        context: context,
+                        builder: (context) => const GifFinder(),
+                      );
+                      if (gif == null) return;
+
+                      Client.instance().sendGifMessageToClient(
+                        Uint8List.fromList(gif.codeUnits),
+                        widget.chatSessionIndex,
+                      );
+                    },
                   ),
                   ValueListenableBuilder<TextEditingValue>(
                       valueListenable: _inputController,

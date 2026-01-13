@@ -37,7 +37,7 @@ class ClientMessageHandler {
     Uint8List? text;
     Uint8List? fileNameBytes;
     switch (contentType) {
-      case MessageContentType.text:
+      case MessageContentType.text || MessageContentType.gif:
         var textLength = msg.readInt32();
         text = msg.readBytes(textLength);
         break;

@@ -55,7 +55,7 @@ class ChatSession {
     }
 
     switch (message.contentType) {
-      case MessageContentType.text:
+      case MessageContentType.text || MessageContentType.gif:
         return message.text;
       case MessageContentType.file || MessageContentType.image || MessageContentType.voice:
         return message.fileName;

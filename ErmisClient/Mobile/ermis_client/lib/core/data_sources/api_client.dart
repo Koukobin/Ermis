@@ -174,6 +174,10 @@ class Client {
     return _messageTransmitter!.sendVoiceToClient(fileName, fileContentBytes, chatSessionIndex);
   }
 
+  Message sendGifMessageToClient(Uint8List gifBytes, int chatSessionIndex) {
+    return _messageTransmitter!.sendGifToClient(gifBytes, chatSessionIndex);
+  }
+
   Entry createNewVerificationEntry() {
     return Entry(EntryType.login, _outputStream!, _inputStream!);
   }

@@ -166,6 +166,26 @@ class MessageTransmitter {
     );
   }
 
+  Message sendGifToClient(Uint8List gifBytes, int chatSessionIndex) {
+    ByteBuf payload = ByteBuf.smallBuffer(growable: true);
+    payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(++UserInfoManager.lastPendingMessageID);
+    payload.writeInt32(MessageContentType.gif.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(gifBytes.length);
+    payload.writeBytes(gifBytes);
+
+    _writer.write(payload);
+
+    return createPendingMessage(
+      text: gifBytes,
+      contentType: MessageContentType.gif,
+      chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionIndex: chatSessionIndex,
+      tempMessageID: UserInfoManager.lastPendingMessageID,
+    );
+  }
+
   Message createPendingMessage({
     Uint8List? text,
     Uint8List? fileName,

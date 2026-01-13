@@ -88,7 +88,7 @@ void handleChatMessageNotification(ChatSession chatSession, Message msg, Setting
 
   String body;
   switch (msg.contentType) {
-    case MessageContentType.text:
+    case MessageContentType.text || MessageContentType.gif:
       body = msg.text;
       break;
     case MessageContentType.file ||
