@@ -23,6 +23,7 @@ class ErmisLoadingMessages {
     'Ermis is preparing your divine experience...',
     'Ermis is putting on his talaria... wait a sec',
     'Ermis is dusting his caduceus... just a moment',
+    'Sic mundus creatus est',
   ];
 
   const ErmisLoadingMessages._();
