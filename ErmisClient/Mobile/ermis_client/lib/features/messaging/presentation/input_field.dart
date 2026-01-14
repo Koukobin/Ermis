@@ -103,6 +103,151 @@ class _InputFieldState extends State<InputField> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
+    final normalInput = Container(
+      height: 65,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          Flexible(
+            child: Container(
+              decoration: BoxDecoration(
+                color: appColors.tertiaryColor,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              child: Row(
+                children: [
+                  SendFilePopupMenu(
+                    chatSessionIndex: widget.chatSessionIndex,
+                    fileCallBack: (String fileName, Uint8List fileContent) {
+                      Message pendingMessage =
+                          Client.instance().sendFileToClient(
+                        fileName,
+                        fileContent,
+                        widget.chatSessionIndex,
+                      );
+                      _showAchievementScreen(pendingMessage);
+                    },
+                    imageCallBack: (String fileName, Uint8List fileContent) {
+                      Message pendingMessage =
+                          Client.instance().sendImageToClient(
+                        fileName,
+                        fileContent,
+                        widget.chatSessionIndex,
+                      );
+                      _showAchievementScreen(pendingMessage);
+                    },
+                  ),
+                  Expanded(
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        inputDecorationTheme: InputDecorationTheme(
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          labelStyle: const TextStyle(color: Colors.white),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.2),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                        ),
+                      ),
+                      child: TextField(
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        controller: _inputController,
+                        decoration: InputDecoration(
+                          hintText: S.current.type_message,
+                          filled: true,
+                          fillColor: appColors.tertiaryColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.gif_box_outlined),
+                    onPressed: () async {
+                      String? gif = await showModalBottomSheet(
+                        context: context,
+                        builder: (context) => const GifFinder(),
+                      );
+                      if (gif == null) return;
+                  
+                      Client.instance().sendGifMessageToClient(
+                        Uint8List.fromList(gif.codeUnits),
+                        widget.chatSessionIndex,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _inputController,
+              builder: (context, value, child) {
+                final isEmpty = value.text.trim().isEmpty;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: CircleAvatar(
+                    backgroundColor:
+                        isEmpty ? appColors.primaryColor : Colors.transparent,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 150),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return ScaleTransition(
+                          scale: animation,
+                          child: child,
+                        );
+                      },
+                      child: isEmpty
+                          ? IconButton(
+                              key: ValueKey(
+                                  'selected_send_voice_button${widget.chatSessionIndex}'), // Unique key for the selected state)
+                              onPressed: () async {
+                                setState(() {
+                                  _isMakingVoiceMessage = true;
+                                });
+                                if (recorderController.hasPermission) {
+                                  recorderController.record(
+                                    sampleRate: 48000, // High sample rate for high quality audio
+                                    bitRate: 1000, // High bit rate for high quality audio
+                                  );
+                                }
+                              },
+                              icon: Icon(
+                                Icons.mic,
+                                color: appColors.secondaryColor,
+                              ),
+                            )
+                          : IconButton(
+                              key: ValueKey(
+                                  'selected_send_text_button_${widget.chatSessionIndex}'),
+                              onPressed:
+                                  () async /* async is necessary (idk why) */ {
+                                _sendTextMessage(_inputController.text);
+                                _inputController.clear();
+                              },
+                              icon: Icon(
+                                Icons.send,
+                                color: appColors.inferiorColor,
+                              ),
+                            ),
+                    ),
+                  ),
+                );
+              }),
+        ],
+      ),
+    );
+
+
     return AnimatedSwitcher(
       transitionBuilder: (Widget child, Animation<double> animation) {
         return ScaleTransition(
@@ -164,119 +309,7 @@ class _InputFieldState extends State<InputField> {
                 ],
               ),
             )
-          : Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: Row(
-                children: [
-                  const SizedBox(width: 5),
-                  SendFilePopupMenu(
-                    chatSessionIndex: widget.chatSessionIndex,
-                    fileCallBack: (String fileName, Uint8List fileContent) {
-                      Message pendingMessage =
-                          Client.instance().sendFileToClient(
-                        fileName,
-                        fileContent,
-                        widget.chatSessionIndex,
-                      );
-                      _showAchievementScreen(pendingMessage);
-                    },
-                    imageCallBack: (String fileName, Uint8List fileContent) {
-                      Message pendingMessage =
-                          Client.instance().sendImageToClient(
-                        fileName,
-                        fileContent,
-                        widget.chatSessionIndex,
-                      );
-                      _showAchievementScreen(pendingMessage);
-                    },
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: TextField(
-                      maxLines: null,
-                      keyboardType: TextInputType.multiline,
-                      controller: _inputController,
-                      decoration: InputDecoration(
-                        hintText: S.current.type_message,
-                        filled: true,
-                        fillColor: appColors.secondaryColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.gif_box_outlined),
-                    onPressed: () async {
-                      String? gif = await showModalBottomSheet(
-                        context: context,
-                        builder: (context) => const GifFinder(),
-                      );
-                      if (gif == null) return;
-
-                      Client.instance().sendGifMessageToClient(
-                        Uint8List.fromList(gif.codeUnits),
-                        widget.chatSessionIndex,
-                      );
-                    },
-                  ),
-                  ValueListenableBuilder<TextEditingValue>(
-                      valueListenable: _inputController,
-                      builder: (context, value, child) {
-                        final isEmpty = value.text.trim().isEmpty;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: CircleAvatar(
-                            backgroundColor: isEmpty
-                                ? appColors.primaryColor
-                                : Colors.transparent,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 150),
-                              transitionBuilder: (Widget child, Animation<double> animation) {
-                                return ScaleTransition(
-                                  scale: animation,
-                                  child: child,
-                                );
-                              },
-                              child: isEmpty
-                                  ? IconButton(
-                                      key: ValueKey('selected_send_voice_button${widget.chatSessionIndex}'), // Unique key for the selected state)
-                                      onPressed: () async {
-                                        setState(() {
-                                          _isMakingVoiceMessage = true;
-                                        });
-                                        if (recorderController.hasPermission) {
-                                          recorderController.record(
-                                            sampleRate: 48000, // High sample rate for high quality audio
-                                            bitRate: 1000, // High bit rate for high quality audio
-                                          );
-                                        }
-                                      },
-                                      icon: Icon(
-                                        Icons.mic,
-                                        color: appColors.secondaryColor,
-                                      ),
-                                    )
-                                  : IconButton(
-                                      key: ValueKey('selected_send_text_button_${widget.chatSessionIndex}'),
-                                      onPressed: () async /* async is necessary (idk why) */ {
-                                        _sendTextMessage(_inputController.text);
-                                        _inputController.clear();
-                                      },
-                                      icon: Icon(
-                                        Icons.send,
-                                        color: appColors.inferiorColor,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        );
-                      }),
-                ],
-              ),
-            ),
+          : normalInput,
     );
   }
 }
