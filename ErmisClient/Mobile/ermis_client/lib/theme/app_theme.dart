@@ -104,7 +104,7 @@ class AppThemeState extends State<AppTheme> {
         ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: widget.darkAppColors.tertiaryColor.withOpacity(1.0),
+        backgroundColor: widget.darkAppColors.tertiaryColor.withValues(alpha: 1.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
@@ -119,7 +119,7 @@ class AppThemeState extends State<AppTheme> {
       ),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: Colors.green, // Color of the blinking text cursor
-        selectionColor: Colors.greenAccent.withOpacity(0.5), // Color of the selected text background
+        selectionColor: Colors.greenAccent.withValues(alpha: 0.5), // Color of the selected text background
         selectionHandleColor: Colors.green, // Color of the selection handles
       ),
       radioTheme: RadioThemeData(
@@ -139,7 +139,7 @@ class AppThemeState extends State<AppTheme> {
           backgroundColor: WidgetStateProperty.all(Colors.green),
           overlayColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return Colors.green.withOpacity(0.2); // Splash effect color
+              return Colors.green.withValues(alpha: 0.2); // Splash effect color
             }
             return null; // Default for other states
           }),
@@ -147,7 +147,7 @@ class AppThemeState extends State<AppTheme> {
         progressIndicatorTheme:
             ProgressIndicatorThemeData(color: Colors.grey),
         bottomSheetTheme: BottomSheetThemeData(
-            backgroundColor: widget.darkAppColors.tertiaryColor.withOpacity(1.0)),
+            backgroundColor: widget.darkAppColors.tertiaryColor.withValues(alpha: 1.0)),
       popupMenuTheme: PopupMenuThemeData(
           color: const Color.fromARGB(255, 25, 25, 25),
           elevation: 5,
@@ -222,7 +222,7 @@ class AppThemeState extends State<AppTheme> {
         ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: widget.lightAppColors.tertiaryColor.withOpacity(1.0),
+        backgroundColor: widget.lightAppColors.tertiaryColor.withValues(alpha: 1.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
@@ -237,7 +237,7 @@ class AppThemeState extends State<AppTheme> {
       ),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: Colors.green, // Color of the blinking text cursor
-        selectionColor: Colors.greenAccent.withOpacity(0.5), // Color of the selected text background
+        selectionColor: Colors.greenAccent.withValues(alpha: 0.5), // Color of the selected text background
         selectionHandleColor: Colors.green, // Color of the selection handles
       ),
       radioTheme: RadioThemeData(
@@ -257,7 +257,7 @@ class AppThemeState extends State<AppTheme> {
           backgroundColor: WidgetStateProperty.all(Colors.green),
           overlayColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return Colors.green.withOpacity(0.2); // Splash effect color
+              return Colors.green.withValues(alpha: 0.2); // Splash effect color
             }
             return null; // Default for other states
           }),
@@ -265,7 +265,7 @@ class AppThemeState extends State<AppTheme> {
         progressIndicatorTheme:
             ProgressIndicatorThemeData(color: Colors.grey),
         bottomSheetTheme: BottomSheetThemeData(
-            backgroundColor: widget.lightAppColors.tertiaryColor.withOpacity(1.0)),
+            backgroundColor: widget.lightAppColors.tertiaryColor.withValues(alpha: 1.0)),
       popupMenuTheme: PopupMenuThemeData(
           color: const Color.fromARGB(255, 210, 210, 210),
           elevation: 5,

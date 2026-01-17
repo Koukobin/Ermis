@@ -118,7 +118,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 if (_useSystemDefault)
                   Positioned.fill(
                     child: Container(
-                        color: Colors.white70.withOpacity(0.3), // Semi-transparent overlay
+                        color: Colors.white70.withValues(alpha: 0.3), // Semi-transparent overlay
                         child: null),
                   ),
               ],

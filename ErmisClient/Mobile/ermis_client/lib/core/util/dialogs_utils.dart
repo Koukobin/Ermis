@@ -419,7 +419,7 @@ class _InputDialogState extends State<InputDialog>
 
     return WhatsAppPopupDialog(
       child: AlertDialog(
-        backgroundColor: appColors.tertiaryColor.withOpacity(0.95),
+        backgroundColor: appColors.tertiaryColor.withValues(alpha: 0.95),
         title: Text(widget.title),
         content: ConstrainedBox(
           // Not ideal, but this was only way I found to constrain width on tablets

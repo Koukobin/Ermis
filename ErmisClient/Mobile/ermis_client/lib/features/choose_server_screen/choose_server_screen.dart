@@ -337,7 +337,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         decoration: BoxDecoration(
-          color: appColors.secondaryColor.withOpacity(0.1),
+          color: appColors.secondaryColor.withValues(alpha: 0.1),
           borderRadius: borderRadius,
           border: Border.all(color: appColors.primaryColor, width: 1.5),
         ),
@@ -358,7 +358,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
                 serverUrl = selectedUrl!;
               });
             },
-            dropdownColor: appColors.secondaryColor.withOpacity(0.9),
+            dropdownColor: appColors.secondaryColor.withValues(alpha: 0.9),
             style: TextStyle(
               color: appColors.primaryColor,
               fontSize: 16,

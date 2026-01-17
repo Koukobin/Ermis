@@ -56,7 +56,7 @@ class _ChatSearchFieldState extends State<ChatSearchField> {
       child: Container(
         height: 45,
         decoration: BoxDecoration(
-          color: appColors.secondaryColor.withOpacity(0.4),
+          color: appColors.secondaryColor.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: appColors.secondaryColor, width: 1.5),
         ),
@@ -70,7 +70,7 @@ class _ChatSearchFieldState extends State<ChatSearchField> {
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.2),
+              fillColor: Colors.white.withValues(alpha: 0.2),
               contentPadding: const EdgeInsets.symmetric(vertical: 5),
             ),
           ),

@@ -270,7 +270,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: appColors.inferiorColor.withOpacity(0.4),
+                color: appColors.inferiorColor.withValues(alpha: 0.4),
                 width: 1,
               ),
             ),
