@@ -20,10 +20,11 @@ jobs:
           distribution: 'zulu'
 
       - name: Build
-        run: mvn clean install
-             cd ErmisServer/Installers/Unix/DEB
-             chmod +x build_debian_installer.sh
-             ./build_debian_installer.sh
+        run: |
+          mvn clean install
+          cd ErmisServer/Installers/Unix/DEB
+          chmod +x build_debian_installer.sh
+          ./build_debian_installer.sh
 
       - name: Upload JAR to Release
         uses: softprops/action-gh-release@v2
