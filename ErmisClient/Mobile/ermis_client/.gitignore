@@ -35,6 +35,7 @@ migrate_working_dir/
 
 # Automatically generated dart language files
 /lib/generated/**
+/lib/*.g.dart
 
 # Symbolication related
 app.*.symbols
