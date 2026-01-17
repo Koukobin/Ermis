@@ -1,0 +1,32 @@
+name: Server Release (DEB)
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    if: startsWith(github.ref_name, 'server')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'zulu'
+
+      - name: Build
+        run: mvn clean install
+             cd ErmisServer/Installers/Unix/DEB
+             chmod +x build_debian_installer.sh
+             ./build_debian_installer.sh
+
+      - name: Upload JAR to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ErmisServer/Installers/Unix/DEB/ermis-server-installer_all.deb
