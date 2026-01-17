@@ -89,16 +89,17 @@ class AppThemeState extends State<AppTheme> {
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        fillColor: widget.darkAppColors.quaternaryColor,
         hintStyle: const TextStyle(color: Colors.grey),
         labelStyle: const TextStyle(color: Colors.green),
         border: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.green),
           borderRadius: BorderRadius.circular(8),
         ),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.green, width: 2),
         ),
-        enabledBorder: const OutlineInputBorder(
+        enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.green),
         ),
       ),
@@ -206,16 +207,17 @@ class AppThemeState extends State<AppTheme> {
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        fillColor: widget.darkAppColors.quaternaryColor,
         hintStyle: const TextStyle(color: Colors.grey),
         labelStyle: const TextStyle(color: Colors.green),
         border: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.green),
           borderRadius: BorderRadius.circular(8),
         ),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.green, width: 2),
         ),
-        enabledBorder: const OutlineInputBorder(
+        enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.green),
         ),
       ),
@@ -450,3 +452,4 @@ class AncientGreekCupertinoLocalizationsDelegate extends LocalizationsDelegate<C
   @override
   bool shouldReload(AncientGreekCupertinoLocalizationsDelegate old) => false;
 }
+
