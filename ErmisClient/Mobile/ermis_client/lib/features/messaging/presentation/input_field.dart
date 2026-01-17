@@ -141,16 +141,13 @@ class _InputFieldState extends State<InputField> {
                   Expanded(
                     child: Theme(
                       data: Theme.of(context).copyWith(
-                        inputDecorationTheme: InputDecorationTheme(
-                          hintStyle: const TextStyle(color: Colors.grey),
-                          labelStyle: const TextStyle(color: Colors.white),
+                        inputDecorationTheme: const InputDecorationTheme(
+                          hintStyle: TextStyle(color: Colors.grey),
+                          labelStyle: TextStyle(color: Colors.white),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide.none,
                           ),
-                          filled: true,
-                          fillColor: Colors.white.withOpacity(0.2),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                          contentPadding: EdgeInsets.symmetric(vertical: 5),
                         ),
                       ),
                       child: TextField(
