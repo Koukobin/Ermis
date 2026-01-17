@@ -1,5 +1,8 @@
 name: Server Release (DEB)
 
+permissions:
+  contents: write
+
 on:
   release:
     types: [published]
@@ -26,7 +29,7 @@ jobs:
           chmod +x build_debian_installer.sh
           ./build_debian_installer.sh
 
-      - name: Upload JAR to Release
+      - name: Upload DEB to Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
