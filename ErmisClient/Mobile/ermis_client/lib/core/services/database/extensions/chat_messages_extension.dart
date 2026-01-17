@@ -119,14 +119,15 @@ extension ChatMessagesExtension on DBConnection {
     );
 
     List<Message> messages = messagesMap.map((record) {
-      final String displayName = record['display_name'] as String;
-      final int clientID = record['client_id'] as int;
-      final int messageID = record['message_id'] as int;
-      final String timeWritten = record['ts_entered'] as String;
-      final MessageContentType contentType = ContentTypeConverter.databaseIntsToContentTypes[record['content_type'] as int]!;
-      final MessageDeliveryStatus deliveryStatus = DeliveryStatusConverter.databaseIntsToDeliveryStatus[record['delivery_status'] as int]!;
-      final String? text = record['text'] as String?;
-      final String? fileName = record['file_name'] as String?;
+      String displayName = record['display_name'] as String;
+      int clientID       = record['client_id']    as int;
+      int messageID      = record['message_id']   as int;
+      String timeWritten = record['ts_entered']   as String;
+      String? text       = record['text']         as String?;
+      String? fileName   = record['file_name']    as String?;
+
+      final contentType = ContentTypeConverter.databaseIntsToContentTypes[record['content_type'] as int]!;
+      final deliveryStatus = DeliveryStatusConverter.databaseIntsToDeliveryStatus[record['delivery_status'] as int]!;
 
       return Message(
         username: displayName,
