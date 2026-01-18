@@ -7,8 +7,6 @@ on:
     branches: [ "master" ]
   schedule:
     - cron: '26 23 * * 3'
-  paths-ignore:
-      - '**/*.md'
 
 jobs:
   analyze:
