@@ -411,10 +411,10 @@ double _calculateRMS(Uint8List audioChunk) {
   }
 
   Int16List audioSamples = audioChunk.buffer.asInt16List();
-  num sumOfSquares = audioSamples
+  num summOfSquares = audioSamples
       .map((int sample) => pow(sample, 2))
       .reduce((num a, num b) => a + b);
-  return sqrt(sumOfSquares / audioSamples.length);
+  return sqrt(summOfSquares / audioSamples.length);
 }
 
 void _updateSpeakerPhone() {
