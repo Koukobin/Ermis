@@ -36,7 +36,7 @@ jobs:
 
   desktop_client:
     name: Build Desktop Client
-    needs: detect_module_changes
+    needs: detect-module-changes
     if: needs.detect-module-changes.outputs.desktop-client == 'true' || needs.detect-module-changes.outputs.common == 'true'
     runs-on: ubuntu-latest
 
@@ -56,7 +56,7 @@ jobs:
 
   ermis_client:
     name: Build Mobile Client
-    needs: detect_module_changes
+    needs: detect-module-changes
     if: needs.detect-module-changes.outputs.ermis-client == 'true'
     runs-on: ubuntu-latest
 
