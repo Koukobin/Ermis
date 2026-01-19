@@ -11,11 +11,12 @@ dart run build_runner build --delete-conflicting-outputs
 # of clipping, masking, and overdraw.
 cd assets/chat_backgrounds/doodle_icons
 rm -r vg
+
+dart run vector_graphics_compiler --input-dir SVG/ --out-dir vg/
+
 i=0
-for f in SVG/**/*.svg; do
+for f in vg/*.svg.vec; do
   out="vg/$i.vg"
-  mkdir -p "$(dirname "$out")"
-  dart run vector_graphics_compiler -i "$f" -o "$out"
+  mv "$f" "$out"
   ((i++))
 done
-
