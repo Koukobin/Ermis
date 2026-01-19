@@ -26,9 +26,9 @@ jobs:
       ermis-client: ${{ steps.filter.outputs.ermis-client }}
 
     steps:
-        uses: actions/checkout@v4
+        - uses: actions/checkout@v4
 
-        uses: dorny/paths-filter@v3
+        - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
