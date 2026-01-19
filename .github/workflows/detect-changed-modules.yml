@@ -7,13 +7,13 @@ on:
   workflow_call:
     outputs:
       server:
-        value: ${{ jobs.detect.outputs.server }}
+        value: ${{ jobs.detect-changes.outputs.server }}
       common:
-        value: ${{ jobs.detect.outputs.common }}
+        value: ${{ jobs.detect-changes.outputs.common }}
       desktop-client:
-        value: ${{ steps.filter.outputs.desktop-client }}
+        value: ${{ jobs.detect-changes.outputs.desktop-client }}
       ermis-client:
-        value: ${{ steps.filter.outputs.ermis-client }}
+        value: ${{ jobs.detect-changes.outputs.ermis-client }}
 
 jobs:
   detect-changes:
@@ -36,8 +36,8 @@ jobs:
               - 'ErmisServer/**'
             common:
               - 'ErmisCommon/**'
-            desktop_client:
+            desktop-client:
               - 'ErmisClient/Desktop/**'
-            ermis_client:
+            ermis-client:
               - 'ErmisClient/Mobile/**'
 
