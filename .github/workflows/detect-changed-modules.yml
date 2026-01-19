@@ -1,5 +1,8 @@
 name: Detect Changed Modules
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
     outputs:
@@ -7,10 +10,10 @@ on:
         value: ${{ jobs.detect.outputs.server }}
       common:
         value: ${{ jobs.detect.outputs.common }}
-      desktop_client:
-        value: ${{ steps.filter.outputs.desktop_client }}
-      ermis_client:
-        value: ${{ steps.filter.outputs.ermis_client }}
+      desktop-client:
+        value: ${{ steps.filter.outputs.desktop-client }}
+      ermis-client:
+        value: ${{ steps.filter.outputs.ermis-client }}
 
 jobs:
   detect-changes:
@@ -19,8 +22,8 @@ jobs:
     outputs:
       server: ${{ steps.filter.outputs.server }}
       common: ${{ steps.filter.outputs.common }}
-      desktop_client: ${{ steps.filter.outputs.desktop_client }}
-      ermis_client: ${{ steps.filter.outputs.ermis_client }}
+      desktop-client: ${{ steps.filter.outputs.desktop-client }}
+      ermis-client: ${{ steps.filter.outputs.ermis-client }}
 
     steps:
         uses: actions/checkout@v4
