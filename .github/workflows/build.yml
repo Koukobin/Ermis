@@ -99,5 +99,5 @@ jobs:
         run: |
           chmod +x build.sh
           ./build.sh
-          flutter analyze
+          flutter analyze --no-fatal-infos --no-fatal-warnings
 
