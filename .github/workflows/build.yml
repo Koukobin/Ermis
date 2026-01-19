@@ -16,7 +16,7 @@ jobs:
 
   server:
     name: Build Server
-    needs: detect_module_changes
+    needs: detect-module-changes
     if: needs.detect-module-changes.outputs.server == 'true' || needs.detect-module-changes.outputs.common == 'true'
     runs-on: ubuntu-latest
 
