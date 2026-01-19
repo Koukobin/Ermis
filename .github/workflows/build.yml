@@ -11,38 +11,13 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  detect-changes:
-    name: Detect changed modules
-    runs-on: ubuntu-latest
-
-    outputs:
-      server: ${{ steps.filter.outputs.server }}
-      common: ${{ steps.filter.outputs.common }}
-      desktop_client: ${{ steps.filter.outputs.desktop_client }}
-      ermis_client: ${{ steps.filter.outputs.ermis_client }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Filter paths
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            server:
-              - 'ErmisServer/**'
-            common:
-              - 'ErmisCommon/**'
-            desktop_client:
-              - 'ErmisClient/Desktop/**'
-            ermis_client:
-              - 'ErmisClient/Mobile/**'
+  detect-module-changes:
+    uses: ./.github/workflows/detect-changed-modules.yml
 
   server:
     name: Build Server
-    needs: detect-changes
-    if: needs.detect-changes.outputs.server == 'true' || needs.detect-changes.outputs.common == 'true'
+    needs: detect_module_changes
+    if: needs.detect-module-changes.outputs.server == 'true' || needs.detect-module-changes.outputs.common == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -61,8 +36,8 @@ jobs:
 
   desktop_client:
     name: Build Desktop Client
-    needs: detect-changes
-    if: needs.detect-changes.outputs.desktop_client == 'true' || needs.detect-changes.outputs.common == 'true'
+    needs: detect_module_changes
+    if: needs.detect-module-changes.outputs.desktop_client == 'true' || needs.detect-module-changes.outputs.common == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -81,8 +56,8 @@ jobs:
 
   ermis_client:
     name: Build Mobile Client
-    needs: detect-changes
-    if: needs.detect-changes.outputs.ermis_client == 'true'
+    needs: detect_module_changes
+    if: needs.detect-module-changes.outputs.ermis_client == 'true'
     runs-on: ubuntu-latest
 
     steps:

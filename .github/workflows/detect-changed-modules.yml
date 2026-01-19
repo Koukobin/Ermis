@@ -1,0 +1,40 @@
+name: Detect Changed Modules
+
+on:
+  workflow_call:
+    outputs:
+      server:
+        value: ${{ jobs.detect.outputs.server }}
+      common:
+        value: ${{ jobs.detect.outputs.common }}
+      desktop_client:
+        value: ${{ steps.filter.outputs.desktop_client }}
+      ermis_client:
+        value: ${{ steps.filter.outputs.ermis_client }}
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      common: ${{ steps.filter.outputs.common }}
+      desktop_client: ${{ steps.filter.outputs.desktop_client }}
+      ermis_client: ${{ steps.filter.outputs.ermis_client }}
+
+    steps:
+        uses: actions/checkout@v4
+
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'ErmisServer/**'
+            common:
+              - 'ErmisCommon/**'
+            desktop_client:
+              - 'ErmisClient/Desktop/**'
+            ermis_client:
+              - 'ErmisClient/Mobile/**'
+
