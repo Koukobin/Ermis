@@ -8,6 +8,142 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
+  detect-module-changes:
+    uses: ./.github/workflows/detect-changed-modules.yml
+
+  server:
+    name: Analyze Server
+    needs: detect-module-changes
+    if: needs.detect-module-changes.outputs.server == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build Server
+        run: |
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Koukobin_Ermis
+            -Dsonar.organization=koukobin
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=ErmisServer/src,ErmisCommon/src,
+            -Dsonar.java.binaries=ErmisServer/target/classes
+
+  desktop_client:
+    name: Analyze Desktop Client
+    needs: detect-module-changes
+    if: needs.detect-module-changes.outputs.desktop-client == 'true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build Desktop Client
+        run: |
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Koukobin_Ermis
+            -Dsonar.organization=koukobin
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=ErmisClient/Desktop/src,,ErmisCommon/src,
+            -Dsonar.java.binaries=ErmisClient/Desktop/target/classes,
+
+  ermis_client:
+    name: Analyze Mobile Client
+    needs: detect-module-changes
+    if: needs.detect-module-changes.outputs.ermis-client == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.5'
+
+      - name: Build Mobile Client
+        working-directory: ErmisClient/Mobile/ermis_client
+        run: |
+          chmod +x build.sh
+          ./build.sh
+          flutter analyze --write=analysis-report.txt || true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Koukobin_Ermis
+            -Dsonar.organization=koukobin
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=ErmisClient/Mobile/ermis_client/lib
+            -Dsonar.dart.analyzer.report.path=ErmisClient/Mobile/ermis_client/analysis-report.txt
+
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
