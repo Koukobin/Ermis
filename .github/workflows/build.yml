@@ -31,13 +31,13 @@ jobs:
         with:
           filters: |
             server:
-              - 'Ermis-Server/**'
+              - 'ErmisServer/**'
             common:
-              - 'Ermis-Common/**'
+              - 'ErmisCommon/**'
             desktop_client:
-              - 'Ermis-Client/Desktop/**'
+              - 'ErmisClient/Desktop/**'
             ermis_client:
-              - 'Ermis-Client/Mobile/**'
+              - 'ErmisClient/Mobile/**'
 
   server:
     name: Build Server
