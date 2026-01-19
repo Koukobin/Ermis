@@ -60,7 +60,7 @@ jobs:
   desktop_client:
     name: Analyze Desktop Client
     needs: detect-module-changes
-    if: needs.detect-module-changes.outputs.desktop-client == 'true
+    if: needs.detect-module-changes.outputs.desktop-client == 'true'
     runs-on: ubuntu-latest
 
     steps:
