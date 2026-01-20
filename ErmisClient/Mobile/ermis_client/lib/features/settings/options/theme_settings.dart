@@ -129,7 +129,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             CheckboxListTile(
-              title: Text("Add Ermis Doodles"),
+              title: const Text("Ermis Doodles"),
               activeColor: appColors.primaryColor,
               value: _ermisDoodlesEnabled,
               onChanged: (newValue) {
