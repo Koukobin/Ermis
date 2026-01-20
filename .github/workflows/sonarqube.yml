@@ -41,7 +41,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build Server
+      - name: Analyze Server
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
 
@@ -87,7 +87,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build Desktop Client
+      - name: Analyze Desktop Client
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
 
@@ -125,7 +125,7 @@ jobs:
         with:
           flutter-version: '3.35.5'
 
-      - name: Build Mobile Client
+      - name: Analyze Mobile Client
         working-directory: ErmisClient/Mobile/ermis_client
         run: |
           chmod +x build.sh
@@ -144,65 +144,4 @@ jobs:
             -Dsonar.sources=ErmisClient/Mobile/ermis_client/lib
             -Dsonar.dart.analyzer.report.path=ErmisClient/Mobile/ermis_client/analysis-report.txt
 
-  build:
-    name: Build and analyze
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: 'temurin'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.38.7'
-
-      - name: Install Flutter dependencies
-        working-directory: ErmisClient/Mobile/ermis_client
-        run: flutter pub get
-
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Build and analyze Java
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
-
-      - name: Analyze Dart/Flutter
-        working-directory: ErmisClient/Mobile/ermis_client
-        run: |
-          chmod +x build.sh
-          ./build.sh
-          flutter analyze --write=analysis-report.txt || true
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=Koukobin_Ermis
-            -Dsonar.organization=koukobin
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=ErmisClient/Desktop/src,ErmisServer/src,ErmisCommon/src,ErmisClient/Mobile/ermis_client/lib
-            -Dsonar.java.binaries=ErmisClient/Desktop/target/classes,ErmisServer/target/classes
-            -Dsonar.dart.analyzer.report.path=ErmisClient/Mobile/ermis_client/analysis-report.txt
 
