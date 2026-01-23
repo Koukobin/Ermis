@@ -22,9 +22,9 @@ jobs:
           flutter-version: '3.38.7'
 
       - name: Decode Keystore
+        working-directory: ErmisClient/Mobile/ermis_client
         run: |
-          mkdir -p android/app/
-          touch my-release-key.keystore
+          touch android/app/my-release-key.keystore
           echo "$RELEASE_STORE_FILE_ENCODED" | base64 --decode > android/app/my-release-key.keystore
         env:
           RELEASE_STORE_FILE_ENCODED: ${{ secrets.RELEASE_STORE_FILE_ENCODED }}
@@ -37,7 +37,7 @@ jobs:
           flutter build apk --release
           flutter build apk --release --split-per-abi
         env:
-          RELEASE_STORE_FILE: android/app/my-release-key.keystore
+          RELEASE_STORE_FILE: my-release-key.keystore
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
