@@ -69,7 +69,7 @@ android {
 
     buildTypes {
         release {
-            if (project.hasProperty('RELEASE_STORE_FILE')) {
+            if ((keystoreFile != null && keystoreFile.exists()) || project.hasProperty('RELEASE_STORE_FILE')) {
                 signingConfig signingConfigs.release
             } else {
                 def ANSI_YELLOW = "\u001B[33m";
