@@ -22,7 +22,10 @@ jobs:
           flutter-version: '3.38.7'
 
       - name: Decode Keystore
-        run: echo "$RELEASE_STORE_FILE_ENCODED" | base64 --decode > android/app/my-release-key.keystore
+        run: |
+          mkdir -p android/app/
+          touch my-release-key.keystore
+          echo "$RELEASE_STORE_FILE_ENCODED" | base64 --decode > android/app/my-release-key.keystore
         env:
           RELEASE_STORE_FILE_ENCODED: ${{ secrets.RELEASE_STORE_FILE_ENCODED }}
 
