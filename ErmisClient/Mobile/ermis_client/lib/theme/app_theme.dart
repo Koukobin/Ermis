@@ -207,7 +207,7 @@ class AppThemeState extends State<AppTheme> {
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        fillColor: widget.darkAppColors.quaternaryColor,
+        fillColor: widget.lightAppColors.quaternaryColor,
         hintStyle: const TextStyle(color: Colors.grey),
         labelStyle: const TextStyle(color: Colors.green),
         border: OutlineInputBorder(
