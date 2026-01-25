@@ -15,6 +15,7 @@ class AvatarGlow extends StatefulWidget {
     this.glowBorderRadius,
     this.duration = const Duration(seconds: 2),
     this.startDelay,
+    this.repeatDelay,
     this.animate = true,
     this.repeat = true,
     this.curve = Curves.fastOutSlowIn,
@@ -22,6 +23,10 @@ class AvatarGlow extends StatefulWidget {
   })  : assert(
           glowShape != BoxShape.circle || glowBorderRadius == null,
           'Cannot specify a border radius if the shape is a circle.',
+        ),
+        assert(
+          repeat || repeatDelay == null,
+          'Cannot specify intermediary delay between repeats if repeat is false',
         );
 
   /// The child widget to display inside the glowing effect.
@@ -44,6 +49,9 @@ class AvatarGlow extends StatefulWidget {
 
   /// The delay before starting the glowing animation.
   final Duration? startDelay;
+
+  /// The time interval to wait before repeatting the glowing animation.
+  final Duration? repeatDelay;
 
   /// Whether to animate the glowing effect.
   final bool animate;
@@ -74,13 +82,30 @@ class _AvatarGlowState extends State<AvatarGlow>
     }
 
     // Check if the widget is still mounted before starting the animation.
-    if (mounted) {
-      if (widget.repeat) {
-        _controller.repeat();
-      } else {
-        _controller.forward();
-      }
+    if (!mounted) {
+      return;
     }
+
+    if (!widget.repeat) {
+      _controller.forward();
+      return;
+    }
+
+    if (widget.repeatDelay == null) {
+      _controller.repeat();
+      return;
+    }
+
+    _controller.forward();
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Future.delayed(widget.repeatDelay!, () {
+          if (mounted) {
+            _controller.forward(from: 0.0);
+          }
+        });
+      }
+    });
   }
 
   void _stopAnimation() {

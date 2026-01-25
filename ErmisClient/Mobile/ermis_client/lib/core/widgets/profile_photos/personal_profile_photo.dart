@@ -26,6 +26,7 @@ import '../../../theme/app_colors.dart';
 import '../../event_bus/app_event_bus.dart';
 import '../../models/message_events.dart';
 import '../../util/dialogs_utils.dart';
+import 'avatar_glow.dart';
 
 class PersonalProfilePhoto extends StatefulWidget {
   final double? radius;
@@ -74,6 +75,34 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
   @override
   Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+    final bool isProfileEmpty = _profileBytes?.isEmpty ?? true;
+
+    Widget avatar = CircleAvatar(
+      radius: widget.radius,
+      backgroundColor: Colors.grey[200],
+      backgroundImage: isProfileEmpty ? null : MemoryImage(_profileBytes!),
+      child: isProfileEmpty
+          ?
+          // Icon(
+          //     Icons.person_rounded,
+          //     color: Colors.grey,
+          //     size:  widget.radius == null ? 40 : widget.radius! * 2,
+          //   )
+          Image.asset(AppConstants.emptyUserProfileIconPath)
+          : null,
+    );
+
+    if (isProfileEmpty) {
+      avatar = AvatarGlow(
+        repeat: true,
+        glowRadiusFactor: 0.5,
+        glowColor: appColors.primaryColor,
+        repeatDelay: const Duration(milliseconds: 500),
+        startDelay: const Duration(seconds: 1),
+        child: avatar,
+      );
+    }
+
     return Hero(
       tag: "personal-user-profile",
       child: Container(
@@ -84,20 +113,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
             width: 3.0,
           ),
         ),
-        child: CircleAvatar(
-          radius: widget.radius,
-          backgroundColor: Colors.grey[200],
-          backgroundImage: _profileBytes?.isEmpty ?? true ? null : MemoryImage(_profileBytes!),
-          child: _profileBytes?.isEmpty ?? true
-              ? 
-              // Icon(
-              //     Icons.person_rounded,
-              //     color: Colors.grey,
-              //     size:  widget.radius == null ? 40 : widget.radius! * 2,
-              //   )
-              Image.asset(AppConstants.emptyUserProfileIconPath)
-              : null,
-        ),
+        child: avatar,
       ),
     );
   }
