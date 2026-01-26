@@ -21,13 +21,18 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Future<void> showToastDialog(String msg) async {
-  await Fluttertoast.showToast(
-      msg: msg,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.TOP,
-      timeInSecForIosWeb: 1,
-      textColor: Colors.white,
-      fontSize: 16.0);
+  debugPrint("Toast dialog message: \"$msg\"");
+  try {
+    await Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  } catch (e) {
+    debugPrint("Failed to show toast dialog - caused by $e");
+  }
 }
 
 /// This method must be used for dialogs that utilize the Hero animation to work correctly.
