@@ -96,7 +96,7 @@ class AppThemeState extends State<AppTheme> {
           borderSide: const BorderSide(color: Colors.green),
           borderRadius: BorderRadius.circular(8),
         ),
-        focusedBorder: const UnderlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.green, width: 2),
         ),
         enabledBorder: const UnderlineInputBorder(
