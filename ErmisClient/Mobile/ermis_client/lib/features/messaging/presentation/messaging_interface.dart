@@ -50,6 +50,7 @@ import '../../../core/widgets/scroll/infinite_scroll_list.dart';
 import '../../../core/widgets/profile_photos/user_avatar.dart';
 import '../../../theme/doodle_painter.dart';
 import '../../voice_call/web_rtc/call_info.dart';
+import '../widgets/scroll_to_latest_message_button.dart';
 
 class MessagingInterface extends StatefulWidget {
   final int chatSessionIndex;
@@ -81,6 +82,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
   bool _isEditingMessage = false;
   final Set<Message> _messagesBeingEdited = {};
+
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -193,6 +196,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
   @override
   void dispose() {
     MessageInterfaceTracker._isScreenInstanceActive = false;
+     _scrollController.dispose();
     super.dispose();
   }
 
@@ -220,6 +224,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
       appBar: _isEditingMessage
           ? _buildEditMessageAppBar(appColors)
           : _buildMainAppBar(appColors),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: ScrollToLatestMessageButton(scrollController: _scrollController),
       body: Container(
         decoration: _getDecoration(SettingsJson().chatsBackDrop),
         child: Stack(
@@ -368,6 +374,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
           reverse: true,
           itemCount: combined.length,
           isLoaded: true,
+          controller: _scrollController,
           itemBuilder: (context, index) {
             final message = combined[combined.length - index - 1];
 
@@ -610,3 +617,4 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     }
   }
 }
+

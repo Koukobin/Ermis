@@ -21,6 +21,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class InfiniteScrollList extends StatefulWidget {
+  final ScrollController? controller;
   final Function(int page)? onLoadingStart;
   final bool isLoaded;
   final EdgeInsetsGeometry? padding;
@@ -45,8 +46,10 @@ class InfiniteScrollList extends StatefulWidget {
   final VoidCallback reLoadingTop;
   final int itemCount;
   final Widget? Function(BuildContext, int) itemBuilder;
+  
   const InfiniteScrollList({
     super.key,
+    this.controller,
     this.onLoadingStart,
     this.isLoaded = false,
     this.padding,
@@ -138,6 +141,7 @@ class _InfiniteScrollListState extends State<InfiniteScrollList> {
               return false;
             },
             child: ListView.builder(
+              controller: widget.controller,
               physics: widget.physics,
               reverse: widget.reverse,
               primary: widget.primary,
