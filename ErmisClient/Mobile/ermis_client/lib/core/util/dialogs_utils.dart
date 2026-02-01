@@ -296,48 +296,6 @@ Widget createSimpleAlertDialog(
   );
 }
 
-class Test extends StatefulWidget {
-  final Widget child;
-  const Test({super.key, required this.child});
-
-  @override
-  State<Test> createState() => _TestState();
-}
-
-class _TestState extends State<Test> with TickerProviderStateMixin {
-  late final AnimationController _animationController;
-  late final Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 50.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic, // Smooth transition curve
-      ),
-    );
-
-    // Launch animation
-    _animationController.forward();
-    return AnimatedBuilder(
-      animation: _scaleAnimation,
-      builder: (context, child) {
-        return widget.child;
-      },
-    );
-  }
-}
-
 class InputDialog extends StatefulWidget {
   final String title;
   final String hintText;
