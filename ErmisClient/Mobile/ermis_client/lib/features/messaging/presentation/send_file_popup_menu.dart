@@ -15,13 +15,46 @@
  */
 
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:ermis_mobile/core/util/file_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:pro_image_editor/pro_image_editor.dart';
+import 'package:vibration/vibration.dart';
 
 import '../../../generated/l10n.dart';
 import '../../../theme/app_colors.dart';
+
+Future<void> _showEditImageDialog(
+  BuildContext context, {
+  required String fileName,
+  required Uint8List fileBytes,
+  required ImageCallBack sendImageFile,
+}) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+        child: ProImageEditor.memory(
+          fileBytes,
+          callbacks: ProImageEditorCallbacks(
+            onImageEditingComplete: (Uint8List modifiedBytes) async {
+              sendImageFile(fileName, modifiedBytes);
+              Navigator.pop(context);
+            },
+            mainEditorCallbacks: MainEditorCallbacks(
+              helperLines: HelperLinesCallbacks(onLineHit: () {
+                Vibration.vibrate(duration: 3);
+              }),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
 
 class SendFilePopupMenu extends StatefulWidget {
   final int chatSessionIndex;
@@ -112,10 +145,17 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                           context,
                           icon: Icons.image,
                           label: S.current.gallery,
-                          onTap: () async {
-                            Navigator.pop(context);
-                            attachSingleFile(context, (String fileName, Uint8List fileBytes) {
-                              _sendImageFile(fileName, fileBytes);
+                          onTap: () {
+                            attachSingleFile(context, (
+                              String fileName,
+                              Uint8List fileBytes,
+                            ) {
+                              _showEditImageDialog(
+                                context,
+                                fileName: fileName,
+                                fileBytes: fileBytes,
+                                sendImageFile: _sendImageFile,
+                              ).whenComplete(() => Navigator.pop(context));
                             });
                           },
                         ),
@@ -125,7 +165,6 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                           icon: Icons.camera_alt,
                           label: S.current.camera,
                           onTap: () async {
-                            Navigator.pop(context);
                             XFile? file = await MyCamera.capturePhoto();
 
                             if (file == null) {
@@ -135,7 +174,14 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                             String fileName = file.name;
                             Uint8List fileBytes = await file.readAsBytes();
 
-                            _sendImageFile(fileName, fileBytes);
+                            await _showEditImageDialog(
+                              context,
+                              fileName: fileName,
+                              fileBytes: fileBytes,
+                              sendImageFile: _sendImageFile,
+                            );
+
+                            Navigator.pop(context);
                           },
                         ),
                         const SizedBox(width: 5),
