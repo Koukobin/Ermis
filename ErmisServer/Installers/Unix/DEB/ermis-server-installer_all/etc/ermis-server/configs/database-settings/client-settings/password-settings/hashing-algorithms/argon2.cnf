@@ -2,7 +2,7 @@
 # have been created will certainly break those accounts
 
 # Defines amount of memory (in kilobytes) to use
-memory=15
+memory=65536
 
 # Defines number of iterations to perform
 iterations=2
