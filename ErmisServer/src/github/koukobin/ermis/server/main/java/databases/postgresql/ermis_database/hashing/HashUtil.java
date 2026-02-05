@@ -28,7 +28,7 @@ import com.password4j.Password;
 public final class HashUtil {
 
 	private static final SecureRandom secureRandom = new SecureRandom();
-	private static final Base64.Encoder encoder = Base64.getEncoder();
+	private static final Base64.Encoder saltEncoder = Base64.getEncoder();
 
 	private HashUtil() {}
 
@@ -36,7 +36,9 @@ public final class HashUtil {
 		byte[] salt = new byte[saltLength];
 		secureRandom.nextBytes(salt);
 
-		return new SimpleHash(Password.hash(string).addSalt(encoder.encodeToString(salt)).with(hashingFunction));
+		return new SimpleHash(Password.hash(string)
+				.addSalt(saltEncoder.encodeToString(salt))
+				.with(hashingFunction));
 	}
 
 	public static SimpleHash createHash(String string, String salt, HashingFunction hashingFunction) {
