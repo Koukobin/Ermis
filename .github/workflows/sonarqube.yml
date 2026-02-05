@@ -41,9 +41,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Analyze Server
+      - name: Build Server
         run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
+          # Build ErmisCommon
+          cd ErmisCommon
+          mvn clean install
+          cd ..
+          # Build ErmisServer
+          cd ErmisServer
+          mvn clean install
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -55,7 +61,7 @@ jobs:
             -Dsonar.organization=koukobin
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.sources=ErmisServer/src,ErmisCommon/src,
-            -Dsonar.java.binaries=ErmisServer/target/classes
+            -Dsonar.java.binaries=ErmisServer/target/classes,ErmisCommon/target/classes
 
   desktop_client:
     name: Analyze Desktop Client
@@ -87,9 +93,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Analyze Desktop Client
+      - name: Build Desktop Client
         run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Koukobin_Ermis
+          # Build ErmisCommon
+          cd ErmisCommon
+          mvn clean install
+          cd ..
+          # Build ErmisClient/Desktop
+          cd ErmisClient/Desktop
+          mvn clean install
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -100,8 +112,8 @@ jobs:
             -Dsonar.projectKey=Koukobin_Ermis
             -Dsonar.organization=koukobin
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=ErmisClient/Desktop/src,,ErmisCommon/src,
-            -Dsonar.java.binaries=ErmisClient/Desktop/target/classes,
+            -Dsonar.sources=ErmisClient/Desktop/src,ErmisCommon/src
+            -Dsonar.java.binaries=ErmisClient/Desktop/target/classes,ErmisCommon/target/classes
 
   ermis_client:
     name: Analyze Mobile Client
