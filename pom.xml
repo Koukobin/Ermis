@@ -32,6 +32,7 @@
     </scm>
 
     <properties>
+      <sonar.projectKey>Koukobin_Ermis</sonar.projectKey>
       <sonar.organization>koukobin</sonar.organization>
       <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
