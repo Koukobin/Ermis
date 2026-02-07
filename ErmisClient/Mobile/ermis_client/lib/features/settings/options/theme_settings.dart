@@ -20,8 +20,8 @@ import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/core/services/settings_json.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
+import '../../../core/widgets/color_picker/colorpicker.dart';
 import '../../../core/widgets/scroll/custom_scroll_view.dart';
 import '../../../theme/app_theme.dart';
 
