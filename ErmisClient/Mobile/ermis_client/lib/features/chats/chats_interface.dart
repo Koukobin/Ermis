@@ -68,8 +68,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
   Set<ChatSession> selectedConversations = {}; // Set instead of list to prevent duplicates
 
   /// Maps each chat session's ID to its corresponding [List] of unread messages
-  static final Map<int /* chat session id */,
-          List<int /* message id */ >? /* unread messages count */ >
+  static final Map<int /* chat session id */, int /* unread messages count */ >
       unreadMessageCounts = {};
 
   final TextEditingController _searchController = TextEditingController();
@@ -152,7 +151,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
 
   void retrieveUnreadMessages() async {
     for (final ChatSession session in _conversations ?? const []) {
-      List<int>? messages = await ErmisDB.getConnection().retrieveUnreadMessages(
+      int messages = await ErmisDB.getConnection().retrieveUnreadMessagesCount(
         UserInfoManager.serverInfo,
         session.chatSessionID,
       );
@@ -365,6 +364,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
       endIndex = startingIndex + _searchController.text.length;
     }
 
+    final int? unreadMessagesCount = unreadMessageCounts[chatSession.chatSessionID];
     void pushMessageInterface(BuildContext context, ChatSession chatSession) {
       pushSlideTransition(
           context,
@@ -372,23 +372,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
             chatSessionIndex: chatSession.chatSessionIndex,
             chatSession: chatSession,
           ));
-
-      final List<int>? unreadMessages =
-          unreadMessageCounts[chatSession.chatSessionID];
-
-      if (unreadMessages == null) return;
-
-      ErmisDB.getConnection().deleteUnreadMessages(
-        UserInfoManager.serverInfo,
-        chatSession.chatSessionID,
-        unreadMessages,
-      );
-
-      unreadMessageCounts.remove(chatSession.chatSessionID);
     }
-
-    final int? unreadMessages =
-        unreadMessageCounts[chatSession.chatSessionID]?.length;
 
     final appColors = Theme.of(context).extension<AppColors>()!;
     return ListTile(
@@ -416,12 +400,12 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (unreadMessages != null)
+          if ((unreadMessagesCount ?? 0) > 0)
             CircleAvatar(
               backgroundColor: Colors.red,
               radius: 16.0,
               child: Text(
-                "$unreadMessages",
+                "$unreadMessagesCount",
                 style: TextStyle(
                   color: appColors.inferiorColor,
                   fontSize: 12.0,

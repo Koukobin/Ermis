@@ -20,6 +20,7 @@ import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:ermis_mobile/core/models/voice_call_history.dart';
 import 'package:ermis_mobile/core/services/database/extensions/chat_messages_extension.dart';
+import 'package:ermis_mobile/core/services/database/extensions/unread_messages_extension.dart';
 import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/voice_call_bubble.dart';
 import 'package:ermis_mobile/features/voice_call/web_rtc/voice_call_webrtc.dart';
@@ -85,6 +86,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
   final ScrollController _scrollController = ScrollController();
 
+  final List<int> unreadMessages = [];
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +121,26 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
       }
 
       _setupListeners(); // Register message listeners
+
+      void retrieveUnreadMessages() async {
+        List<int>? messages =
+            await ErmisDB.getConnection().retrieveUnreadMessages(
+          UserInfoManager.serverInfo,
+          _chatSession.chatSessionID,
+        );
+
+        if (messages == null) return;
+        unreadMessages.addAll(messages);
+        unreadMessages.sort((a, b) => a.compareTo(b));
+
+        ErmisDB.getConnection().deleteUnreadMessages(
+          UserInfoManager.serverInfo,
+          _chatSession.chatSessionID,
+          unreadMessages,
+        );
+      }
+
+      retrieveUnreadMessages();
     });
 
     _voiceCallsHistory = UserInfoManager.chatSessionIDSToVoiceCallHistory[_chatSession.chatSessionID];
@@ -376,7 +399,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
           isLoaded: true,
           controller: _scrollController,
           itemBuilder: (context, index) {
-            final message = combined[combined.length - index - 1];
+            final Object message = combined[combined.length - index - 1];
 
             int? previousMessageEpochSecond;
             int? previousMessageClientID;
@@ -440,12 +463,34 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                             border: Border.all(color: appColors.inferiorColor, width: 1.5),
                           )
                         : null,
-                    child: MessageBubble(
-                      message: message,
-                      previousMessageClientID: previousMessageClientID,
-                      previousMessageEpochSecond: previousMessageEpochSecond,
-                      chatSession: _chatSession,
-                      appColors: appColors,
+                    child: Column(
+                      children: [
+                        if (message.messageID == unreadMessages.firstOrNull)
+                          Container(
+                            width: double.infinity,
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            decoration: BoxDecoration(
+                              color: appColors.tertiaryColor.withAlpha(170),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                              decoration: BoxDecoration(
+                                color: appColors.primaryColor.withAlpha(175),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(S().new_message),
+                            ),
+                          ),
+                        MessageBubble(
+                          message: message,
+                          previousMessageClientID: previousMessageClientID,
+                          previousMessageEpochSecond: previousMessageEpochSecond,
+                          chatSession: _chatSession,
+                          appColors: appColors,
+                        ),
+                      ],
                     )));
           },
           reLoadingTop: () async {

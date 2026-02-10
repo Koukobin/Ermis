@@ -54,6 +54,20 @@ extension UnreadMessagesExtension on DBConnection {
     );
   }
 
+  Future<int> retrieveUnreadMessagesCount(ServerInfo serverInfo, int chatSessionID) async {
+    final db = await database;
+
+    var result = await db.rawQuery(
+      '''
+        SELECT COUNT(message_id) FROM unread_messages
+          WHERE server_url = '${serverInfo.toString()}' AND chat_session_id = $chatSessionID
+      ''',
+    );
+    int? count = Sqflite.firstIntValue(result);
+
+    return count ?? 0;
+  }
+
   Future<List<int>?> retrieveUnreadMessages(ServerInfo serverInfo, int chatSessionID) async {
     final db = await database;
 
