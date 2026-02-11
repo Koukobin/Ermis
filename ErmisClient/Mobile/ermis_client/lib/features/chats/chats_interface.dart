@@ -369,7 +369,6 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
       pushSlideTransition(
           context,
           MessagingInterface(
-            chatSessionIndex: chatSession.chatSessionIndex,
             chatSession: chatSession,
           ));
     }

@@ -54,12 +54,10 @@ import '../../voice_call/web_rtc/call_info.dart';
 import '../widgets/scroll_to_latest_message_button.dart';
 
 class MessagingInterface extends StatefulWidget {
-  final int chatSessionIndex;
   final ChatSession chatSession;
 
   const MessagingInterface({
     super.key,
-    required this.chatSessionIndex,
     required this.chatSession,
   });
 
@@ -75,7 +73,8 @@ class MessageInterfaceTracker {
 
 class _MessagingInterfaceState extends LoadingState<MessagingInterface> with EventBusSubscriptionMixin {
 
-  late final int _chatSessionIndex;
+  int get _chatSessionID => _chatSession.chatSessionID;
+  int get _chatSessionIndex => _chatSession.chatSessionIndex;
   late ChatSession _chatSession; // Not final because can be updated by server
 
   List<Message> _messages = []; // Not final because can be updated by server
@@ -94,7 +93,6 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
     MessageInterfaceTracker._isScreenInstanceActive = true;
 
-    _chatSessionIndex = widget.chatSessionIndex;
     _chatSession = widget.chatSession;
 
     Future(() async {
@@ -126,7 +124,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
         List<int>? messages =
             await ErmisDB.getConnection().retrieveUnreadMessages(
           UserInfoManager.serverInfo,
-          _chatSession.chatSessionID,
+          _chatSessionID,
         );
 
         if (messages == null) return;
@@ -135,7 +133,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
         ErmisDB.getConnection().deleteUnreadMessages(
           UserInfoManager.serverInfo,
-          _chatSession.chatSessionID,
+          _chatSessionID,
           unreadMessages,
         );
       }
@@ -148,7 +146,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
   Future<List<Message>> _retrieveFurtherLocalMessages() async {
     List<Message> messages = await ErmisDB.getConnection().retrieveChatMessages(
-      chatSessionID: _chatSession.chatSessionID,
+      chatSessionID: _chatSessionID,
       serverInfo: UserInfoManager.serverInfo,
       offset: _messages.length,
     );
@@ -183,7 +181,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
       ChatSession session = event.chatSession;
       int messageID = event.messageId;
 
-      if (session.chatSessionID != _chatSession.chatSessionID) {
+      if (session.chatSessionID != _chatSessionID) {
         return;
       }
 
@@ -195,7 +193,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     subscribe(AppEventBus.instance.on<MessageDeliveryStatusEvent>(), (event) {
       Message message = event.message;
 
-      if (message.chatSessionID == _chatSession.chatSessionID) {
+      if (message.chatSessionID == _chatSessionID) {
         setState(() {});
       }
     });
@@ -206,12 +204,12 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
         // probably unnecessary/redundant; keeping it for now because
         // I don't want to break any functionality
         _chatSession = event.sessions.firstWhere((ChatSession session) =>
-            session.chatSessionID == _chatSession.chatSessionID);
+            session.chatSessionID == _chatSessionID);
       });
     });
 
     subscribe(AppEventBus.instance.on<VoiceCallHistoryReceivedEvent>(), (event) {
-      if (event.chatSessionID != _chatSession.chatSessionID) return;
+      if (event.chatSessionID != _chatSessionID) return;
       setState(() {});
     });
   }
@@ -232,7 +230,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     pushVoiceCallWebRTC(
       context,
       CallInfo(
-        chatSessionID: _chatSession.chatSessionID,
+        chatSessionID: _chatSessionID,
         chatSessionIndex: _chatSessionIndex,
         member: _chatSession.members[0],
         isInitiator: true,
