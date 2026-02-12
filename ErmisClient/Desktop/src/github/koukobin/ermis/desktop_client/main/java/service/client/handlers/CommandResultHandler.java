@@ -263,6 +263,12 @@ public class CommandResultHandler implements MessageHandler {
 					fileNameBytes = new byte[msg.readInt()];
 					msg.readBytes(fileNameBytes);
 				}
+				default -> {
+					messageBytes = "Error: content type not recognized".getBytes();
+
+					// Skip message content
+					msg.skipBytes(msg.readInt());
+				}
 				}
 
 				if (contentType != null) {

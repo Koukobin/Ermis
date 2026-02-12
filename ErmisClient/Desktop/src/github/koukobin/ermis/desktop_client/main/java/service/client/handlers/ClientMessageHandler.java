@@ -33,10 +33,10 @@ public class ClientMessageHandler implements MessageHandler {
 	@Override
 	public void handleMessage(ByteBuf msg) {
 		Message message = new Message();
-		
+
 		ClientContentType contentType = ClientContentType.fromId(msg.readInt());
 		long epochSecond = msg.readLong();
-		
+
 		byte[] text = null;
 		byte[] fileNameBytes = null;
 
@@ -49,16 +49,22 @@ public class ClientMessageHandler implements MessageHandler {
 			fileNameBytes = new byte[msg.readInt()];
 			msg.readBytes(fileNameBytes);
 		}
+		default -> {
+			text = "Error: content type not recognized".getBytes();
+
+			// Skip message content
+			msg.skipBytes(msg.readInt());
 		}
-		
+		}
+
 		byte[] usernameBytes = new byte[msg.readInt()];
 		msg.readBytes(usernameBytes);
 		String username = new String(usernameBytes);
-		
+
 		int clientID = msg.readInt();
 		int messageID = msg.readInt();
 		int chatSessionID = msg.readInt();
-		
+
 		message.setContentType(contentType);
 		message.setUsername(username);
 		message.setClientID(clientID);
@@ -71,9 +77,9 @@ public class ClientMessageHandler implements MessageHandler {
 		message.setFileName(fileNameBytes);
 		message.setEpochSecond(epochSecond);
 		message.setDeliveryStatus(MessageDeliveryStatus.DELIVERED);
-		
+
 		ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions.get(chatSessionID);
-		
+
 		if (chatSession.haveChatMessagesBeenCached()) {
 			chatSession.getMessages().add(message);
 		}
