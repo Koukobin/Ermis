@@ -407,25 +407,27 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
               Object? previousMessage;
 
               int num = 2;
-              try {
-                while (previousMessage == null) {
-                  final obj = combined[combined.length - index - num];
-                  previousMessage = obj;
-
-                  if (obj is Message) {
-                    previousMessageEpochSecond = obj.epochSecond;
-                    previousMessageClientID = obj.clientID;
-                  }
-
-                  if (obj is VoiceCallHistory) {
-                    previousMessageEpochSecond = obj.tsDebuted;
-                    previousMessageClientID = obj.initiatorClientID;
-                  }
-
-                  num++;
+              while (previousMessage == null) {
+                int previousMessageIndex = combined.length - index - num;
+                if (previousMessageIndex < 0 ||
+                    previousMessageIndex > combined.length) {
+                  break;
                 }
-              } on RangeError {
-                // In case of an error continue
+
+                final obj = combined[previousMessageIndex];
+                previousMessage = obj;
+
+                if (obj is Message) {
+                  previousMessageEpochSecond = obj.epochSecond;
+                  previousMessageClientID = obj.clientID;
+                }
+
+                if (obj is VoiceCallHistory) {
+                  previousMessageEpochSecond = obj.tsDebuted;
+                  previousMessageClientID = obj.initiatorClientID;
+                }
+
+                num++;
               }
             }
 
