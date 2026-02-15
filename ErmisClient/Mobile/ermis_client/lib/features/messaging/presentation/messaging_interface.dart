@@ -399,35 +399,50 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
           itemBuilder: (context, index) {
             final Object message = combined[combined.length - index - 1];
 
-            int? previousMessageEpochSecond;
-            int? previousMessageClientID;
+            // Find oldest message bubble in the latest consecutive
+            // message sequence sent by current message user:
+            //
+            // Here is a visual depiction of this process to help
+            // you conceptualize it:
+            //
+            // +-------------------+-------------------------------------+
+            // | —                 | OtherUserMessage2                   |
+            // | —                 | OtherUserMessage1                   |
+            // | Msg3  <-- oldest  | —                                   |
+            // | Message2          | —                                   |
+            // | Message1          | —                                   |
+            // +-------------------+-------------------------------------+
+            //
+            // (Useful for adding timestamps and profiles above consecutive
+            // message sequences in group chats.)
+            int? oldestMessageEpochSecond;
+            int? oldestMessageClientID;
 
-            // Search for previous message bubble
             if (index != combined.length - 1) {
-              Object? previousMessage;
+              Object? oldestBubble;
 
-              int num = 2;
-              while (previousMessage == null) {
-                int previousMessageIndex = combined.length - index - num;
-                if (previousMessageIndex < 0 ||
-                    previousMessageIndex > combined.length) {
+              int j = 2;
+              while (oldestBubble == null) {
+                int oldestMessageIndex = combined.length - index - j;
+                if (oldestMessageIndex < 0 ||
+                    oldestMessageIndex > combined.length) {
                   break;
                 }
 
-                final obj = combined[previousMessageIndex];
-                previousMessage = obj;
+                final obj = combined[oldestMessageIndex];
+                oldestBubble = obj;
 
                 if (obj is Message) {
-                  previousMessageEpochSecond = obj.epochSecond;
-                  previousMessageClientID = obj.clientID;
+                  oldestMessageEpochSecond = obj.epochSecond;
+                  oldestMessageClientID = obj.clientID;
                 }
 
                 if (obj is VoiceCallHistory) {
-                  previousMessageEpochSecond = obj.tsDebuted;
-                  previousMessageClientID = obj.initiatorClientID;
+                  oldestMessageEpochSecond = obj.tsDebuted;
+                  oldestMessageClientID = obj.initiatorClientID;
                 }
 
-                num++;
+                j++;
               }
             }
 
@@ -436,8 +451,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                 entry: message,
                 pushVoiceCall: pushVoiceCall,
                 chatSession: _chatSession,
-                previousMessageClientID: previousMessageClientID,
-                previousMessageEpochSecond: previousMessageEpochSecond,
+                previousMessageClientID: oldestMessageClientID,
+                previousMessageEpochSecond: oldestMessageEpochSecond,
               );
             }
 
@@ -485,8 +500,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                           ),
                         MessageBubble(
                           message: message,
-                          previousMessageClientID: previousMessageClientID,
-                          previousMessageEpochSecond: previousMessageEpochSecond,
+                          previousMessageClientID: oldestMessageClientID,
+                          previousMessageEpochSecond: oldestMessageEpochSecond,
                           chatSession: _chatSession,
                           appColors: appColors,
                         ),
