@@ -14,7 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'package:camera/camera.dart';
 import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
 import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:ermis_mobile/core/widgets/profile_photos/personal_profile_photo.dart';
@@ -27,7 +26,6 @@ import 'package:flutter/services.dart';
 import '../../../core/data_sources/api_client.dart';
 import '../../../core/util/dialogs_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
-import '../../../core/util/file_utils.dart';
 import '../../../core/widgets/scroll/custom_scroll_view.dart';
 
 class ProfileSettings extends StatefulWidget {
@@ -106,7 +104,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
               // Profile Image Section
               Center(
                 child: GestureDetector(
-                  onTap: onChangeProfileImage,
+                  onTap: () => PersonalProfilePhoto.changeProfileImage(context),
                   child: Stack(
                     alignment: Alignment.bottomRight,
                     children: [
@@ -192,97 +190,6 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
             ],
           )),
         ),
-      ),
-    );
-  }
-
-  void onChangeProfileImage() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                S.current.profile_photo,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildPopupOption(
-                    context,
-                    icon: Icons.image_outlined,
-                    label: S.current.profile_gallery,
-                    onTap: () async {
-                      Navigator.pop(context);
-                      attachSingleFile(context, (String fileName, Uint8List fileBytes) {
-                        Client.instance().commands?.setAccountIcon(fileBytes);
-                      });
-                    },
-                  ),
-                  SizedBox(
-                    width: 90,
-                  ),
-                  _buildPopupOption(
-                    context,
-                    icon: Icons.camera_alt_outlined,
-                    label: S.current.profile_camera,
-                    onTap: () async {
-                      Navigator.pop(context);
-                      XFile? file = await MyCamera.capturePhoto();
-
-                      if (file == null) {
-                        return;
-                      }
-
-                      Uint8List fileBytes = await file.readAsBytes();
-                      Client.instance().commands?.setAccountIcon(fileBytes);
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPopupOption(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: appColors.inferiorColor.withValues(alpha: 0.4),
-                width: 1,
-              ),
-            ),
-            child: CircleAvatar(
-              radius: 27,
-              backgroundColor: appColors.tertiaryColor,
-              child: Icon(icon, size: 28, color: appColors.primaryColor),
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 14)),
-        ],
       ),
     );
   }
