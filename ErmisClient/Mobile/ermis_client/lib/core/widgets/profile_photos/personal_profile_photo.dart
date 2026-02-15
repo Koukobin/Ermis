@@ -21,6 +21,7 @@ import 'package:ermis_mobile/constants/app_constants.dart';
 import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import 'package:ermis_mobile/core/widgets/loading_state.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/mixins/event_bus_subscription_mixin.dart';
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_colors.dart';
@@ -134,7 +135,7 @@ class PersonalProfilePhoto extends StatefulWidget {
   LoadingState<PersonalProfilePhoto> createState() => PersonalProfilePhotoState();
 }
 
-class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
+class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> with EventBusSubscriptionMixin {
   Uint8List? _profileBytes = UserInfoManager.profilePhoto;
 
   @override
@@ -144,7 +145,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
     // Determine initial loading state based on availability of profile photo
     isLoading = _profileBytes == null;
 
-    AppEventBus.instance.on<ProfilePhotoReceivedEvent>().listen((event) async {
+    subscribe(AppEventBus.instance.on<ProfilePhotoReceivedEvent>(),(event) {
       if (!mounted) return;
       setState(() {
         _profileBytes = event.photoBytes;
@@ -152,12 +153,12 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> {
       });
     });
 
-    AppEventBus.instance.on<_ProfilePhotoUpdatingEvent>().listen((event) {
+    subscribe(AppEventBus.instance.on<_ProfilePhotoUpdatingEvent>(), (event) {
       if (!mounted) return;
       setState(() => isLoading = true);
     });
 
-    AppEventBus.instance.on<AddProfilePhotoResultEvent>().listen((event) async {
+    subscribe(AppEventBus.instance.on<AddProfilePhotoResultEvent>(), (event) {
       if (!mounted) return;
 
       if (event.success) {
