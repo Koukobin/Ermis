@@ -104,7 +104,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
-  intl_utils: ^2.0.0
+  intl_utils: ^2.8.14
   build_runner: ^2.11.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
