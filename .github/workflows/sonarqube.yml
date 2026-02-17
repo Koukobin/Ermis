@@ -115,7 +115,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.5'
+          flutter-version: '3.41.1'
 
       - name: Analyze Mobile Client
         working-directory: ErmisClient/Mobile/ermis_client
