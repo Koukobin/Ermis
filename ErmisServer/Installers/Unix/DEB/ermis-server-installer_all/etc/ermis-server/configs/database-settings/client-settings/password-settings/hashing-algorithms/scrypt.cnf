@@ -2,7 +2,7 @@
 # have been created will certainly break those accounts
 
 # Defines the CPU/memory cost. Must be a power of 2
-workFactor=65536
+workFactor=131072
 
 # Defines the size of memory blocks
 resources=8
