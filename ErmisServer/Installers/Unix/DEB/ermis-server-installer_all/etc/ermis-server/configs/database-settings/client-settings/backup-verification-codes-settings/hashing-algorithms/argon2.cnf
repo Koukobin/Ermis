@@ -5,7 +5,7 @@
 memory=65536
 
 # Defines number of iterations to perform
-iterations=2
+iterations=3
 
 # Defines the degree of parallelism (number of threads)
 parallelism=4
