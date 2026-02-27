@@ -413,7 +413,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
             // | Message1          | —                                   |
             // +-------------------+-------------------------------------+
             //
-            // (Useful for adding timestamps and profiles above consecutive
+            // (Useful for adding timestamps and, profiles above consecutive
             // message sequences in group chats.)
             int? oldestMessageEpochSecond;
             int? oldestMessageClientID;
