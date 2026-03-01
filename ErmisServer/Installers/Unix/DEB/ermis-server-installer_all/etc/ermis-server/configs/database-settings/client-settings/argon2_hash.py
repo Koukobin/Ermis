@@ -1,3 +1,7 @@
+# Before running, execute:
+#   sudo apt update
+#   sudo apt install python3-argon2
+
 import argon2.low_level as argon2
 import base64
 
