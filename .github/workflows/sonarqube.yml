@@ -41,6 +41,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Build Client
+        run: |
+          mvn clean install
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -50,8 +54,7 @@ jobs:
             -Dsonar.projectKey=Koukobin_Ermis
             -Dsonar.organization=koukobin
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=ErmisServer/src,ErmisCommon/src,
-            -Dsonar.java.binaries=ErmisServer/target/classes,ErmisCommon/target/classes
+            -Dsonar.sources=ErmisServer/src,ErmisCommon/src
 
   desktop_client:
     name: Analyze Desktop Client
@@ -83,6 +86,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Build Server
+        run: |
+          mvn clean install
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -92,8 +99,9 @@ jobs:
             -Dsonar.projectKey=Koukobin_Ermis
             -Dsonar.organization=koukobin
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=ErmisClient/Desktop/src,ErmisCommon/src
-            -Dsonar.java.binaries=ErmisClient/Desktop/target/classes,ErmisCommon/target/classes
+            -Dsonar.sources=ErmisServer/src,ErmisCommon/src,
+            -Dsonar.java.binaries=ErmisServer/target/classes,ErmisCommon/target/classes
+
 
   ermis_client:
     name: Analyze Mobile Client
@@ -135,5 +143,6 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.sources=ErmisClient/Mobile/ermis_client/lib
             -Dsonar.dart.analyzer.report.path=ErmisClient/Mobile/ermis_client/analysis-report.txt
+            -Dsonar.java.binaries=ErmisClient/Desktop/target/classes,ErmisCommon/target/classes
 
 
