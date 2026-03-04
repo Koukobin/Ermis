@@ -57,8 +57,10 @@ class CommandResultHandler {
 
         for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
-              message.setFileName(utf8.encode(file.fileName));
-              message.fileBytes = file.fileBytes;
+            message.addFields({
+              MessageFields.fileName: utf8.encode(file.fileName),
+              MessageFields.fileBytes: file.fileBytes,
+            });
             break;
           }
         }
@@ -76,8 +78,10 @@ class CommandResultHandler {
 
         for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
-            message.setFileName(utf8.encode(file.fileName));
-            message.fileBytes = file.fileBytes;
+            message.addFields({
+              MessageFields.fileName: utf8.encode(file.fileName),
+              MessageFields.fileBytes: file.fileBytes,
+            });
             break;
           }
         }
@@ -95,8 +99,10 @@ class CommandResultHandler {
 
         for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
           if (message.messageID == messageID) {
-            message.setFileName(utf8.encode(file.fileName));
-            message.fileBytes = file.fileBytes;
+            message.addFields({
+              MessageFields.fileName: utf8.encode(file.fileName),
+              MessageFields.fileBytes: file.fileBytes,
+            });
             break;
           }
         }
@@ -360,8 +366,10 @@ class CommandResultHandler {
             messageID: messageID,
             chatSessionID: chatSession.chatSessionID,
             chatSessionIndex: chatSessionIndex,
-            text: messageBytes,
-            fileName: fileNameBytes,
+            fields: {
+              MessageFields.text: messageBytes,
+              MessageFields.fileName: fileNameBytes,
+            },
             epochSecond: epochSecond,
             contentType: contentType,
             deliveryStatus: isRead

@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/data_sources/api_client.dart';
 import '../../../../../core/event_bus/app_event_bus.dart';
 import '../../../../../core/models/message_events.dart';
+import '../../../../../core/networking/common/message_types/content_type.dart';
 import '../../../../../core/util/file_utils.dart';
 import '../../../../../core/widgets/dots_loading_screen.dart';
 import '../../../../../mixins/event_bus_subscription_mixin.dart';
@@ -89,8 +90,10 @@ class _VoiceMessageState extends State<VoiceMessage> with EventBusSubscriptionMi
       isDownloading = false;
 
       if (event.messageID != _message.messageID) return;
-      _message.setFileName(Uint8List.fromList(utf8.encode(event.file.fileName)));
-      _message.fileBytes = event.file.fileBytes;
+      _message.addFields({
+        MessageFields.fileName: utf8.encode(event.file.fileName),
+        MessageFields.fileBytes: event.file.fileBytes,
+      });
 
       togglePlayer();
     });

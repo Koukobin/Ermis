@@ -24,7 +24,6 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../../models/message.dart';
 import '../../../networking/common/message_types/content_type.dart';
-import '../../../networking/common/message_types/message_delivery_status.dart';
 import '../utils/content_type_converter.dart';
 
 extension ChatMessagesExtension on DBConnection {
@@ -136,8 +135,11 @@ extension ChatMessagesExtension on DBConnection {
         chatSessionID: chatSessionID,
         chatSessionIndex: -1,
         epochSecond: (DateTime.parse(timeWritten).millisecondsSinceEpoch / 1000).toInt(),
-        text: text != null ? utf8.encode(text) : null,
-        fileName: fileName != null ? utf8.encode(fileName) : null,
+        fields: {
+          MessageFields.text: text != null ? utf8.encode(text) : null,
+          MessageFields.fileName:
+              fileName != null ? utf8.encode(fileName) : null,
+        },
         contentType: contentType,
         deliveryStatus: deliveryStatus,
       );

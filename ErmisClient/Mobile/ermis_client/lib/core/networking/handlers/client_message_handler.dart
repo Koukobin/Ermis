@@ -29,23 +29,22 @@ final AppEventBus _eventBus = AppEventBus.instance;
 
 class ClientMessageHandler {
   static void handle(ByteBuf msg) {
-    Message message = Message.empty();
-
     MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
     int epochSecond = msg.readInt64();
 
-    Uint8List? text;
-    Uint8List? fileNameBytes;
+    Map<MessageFields, Uint8List?> fields = {};
     switch (contentType) {
       case MessageContentType.text || MessageContentType.gif:
         var textLength = msg.readInt32();
-        text = msg.readBytes(textLength);
+        Uint8List? text = msg.readBytes(textLength);
+        fields[MessageFields.text] = text;
         break;
       case MessageContentType.file ||
             MessageContentType.image ||
             MessageContentType.voice:
         var fileNameLength = msg.readInt32();
-        fileNameBytes = msg.readBytes(fileNameLength);
+        Uint8List? fileNameBytes = msg.readBytes(fileNameLength);
+        fields[MessageFields.fileName] = fileNameBytes;
         break;
     }
 
@@ -56,23 +55,20 @@ class ClientMessageHandler {
     int clientID = msg.readInt32();
     int messageID = msg.readInt32();
     int chatSessionID = msg.readInt32();
-
-    message.setContentType(contentType);
-    message.setUsername(username);
-    message.setClientID(clientID);
-    message.setMessageID(messageID);
-    message.setChatSessionID(chatSessionID);
-    message.setChatSessionIndex(
-        UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.chatSessionIndex);
-    message.setText(text);
-    message.setFileName(fileNameBytes);
-    message.setEpochSecond(epochSecond);
-
-    if (message.clientID == UserInfoManager.clientID) {
-      message.setDeliveryStatus(MessageDeliveryStatus.serverReceived);
-    } else {
-      message.setDeliveryStatus(MessageDeliveryStatus.delivered);
-    }
+    
+    Message message = Message(
+      username: username,
+      clientID: clientID,
+      fields: fields,
+      messageID: messageID,
+      chatSessionID: chatSessionID,
+      chatSessionIndex: UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.chatSessionIndex,
+      epochSecond: epochSecond,
+      contentType: contentType,
+      deliveryStatus: clientID == UserInfoManager.clientID
+          ? MessageDeliveryStatus.serverReceived
+          : MessageDeliveryStatus.delivered,
+    );
 
     ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
     chatSession.messages.add(message);

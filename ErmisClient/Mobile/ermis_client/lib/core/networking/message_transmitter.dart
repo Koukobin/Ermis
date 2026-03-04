@@ -80,7 +80,7 @@ class MessageTransmitter {
     _writer.write(payload);
 
     return createPendingMessage(
-      text: Uint8List.fromList(utf8.encode(text)),
+      fields: {MessageFields.text: Uint8List.fromList(utf8.encode(text))},
       contentType: MessageContentType.text,
       chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
@@ -106,7 +106,7 @@ class MessageTransmitter {
     _writer.write(payload);
 
     return createPendingMessage(
-      fileName: Uint8List.fromList(utf8.encode(fileName)),
+      fields: {MessageFields.fileName: Uint8List.fromList(utf8.encode(fileName))},
       contentType: MessageContentType.file,
       chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
@@ -132,7 +132,9 @@ class MessageTransmitter {
     _writer.write(payload);
 
     return createPendingMessage(
-      fileName: Uint8List.fromList(utf8.encode(fileName)),
+      fields: {
+        MessageFields.fileName: Uint8List.fromList(utf8.encode(fileName))
+      },
       contentType: MessageContentType.image,
       chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
@@ -158,7 +160,9 @@ class MessageTransmitter {
     _writer.write(payload);
 
     return createPendingMessage(
-      fileName: Uint8List.fromList(utf8.encode(fileName)),
+      fields: {
+        MessageFields.fileName: Uint8List.fromList(utf8.encode(fileName))
+      },
       contentType: MessageContentType.voice,
       chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
@@ -178,7 +182,7 @@ class MessageTransmitter {
     _writer.write(payload);
 
     return createPendingMessage(
-      text: gifBytes,
+      fields: {MessageFields.text: gifBytes},
       contentType: MessageContentType.gif,
       chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
       chatSessionIndex: chatSessionIndex,
@@ -187,16 +191,14 @@ class MessageTransmitter {
   }
 
   Message createPendingMessage({
-    Uint8List? text,
-    Uint8List? fileName,
+    required Map<MessageFields, Uint8List> fields,
     required MessageContentType contentType,
     required int chatSessionID,
     required int chatSessionIndex,
     required int tempMessageID,
   }) {
     final m = Message(
-        text: text,
-        fileName: fileName,
+        fields: fields,
         username: username!,
         clientID: clientID,
         messageID: -1,

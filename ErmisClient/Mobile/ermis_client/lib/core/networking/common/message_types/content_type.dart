@@ -16,15 +16,19 @@
 
 import '../../../exceptions/enum_not_found_exception.dart';
 
+enum MessageFields {
+  text, fileName, fileBytes;
+}
+
 enum MessageContentType {
-  text(0),
-  file(1),
-  image(2),
-  voice(3),
-  gif(4);
+  text (0,  [MessageFields.text]),
+  file (1,  [MessageFields.fileName, MessageFields.fileBytes]),
+  image(2,  [MessageFields.fileName, MessageFields.fileBytes]),
+  voice(3,  [MessageFields.fileName, MessageFields.fileBytes]),
+  gif  (4,  [MessageFields.text]);
 
   final int id;
-  const MessageContentType(this.id);
+  const MessageContentType(this.id, List<MessageFields> fields);
 
   // This function mimics the fromId functionality and throws an exception when no match is found.
   static MessageContentType fromId(int id) {

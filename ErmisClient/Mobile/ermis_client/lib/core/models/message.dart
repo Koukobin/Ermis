@@ -27,9 +27,7 @@ class Message {
   int _messageID;
   int _chatSessionID;
   int _chatSessionIndex;
-  Uint8List? _text;
-  Uint8List? _fileName;
-  Uint8List? fileBytes;
+  final Map<MessageFields, Uint8List?> _fields;
   int _epochSecond;
   MessageContentType _contentType;
   MessageDeliveryStatus _deliveryStatus;
@@ -40,19 +38,17 @@ class Message {
     required int messageID,
     required int chatSessionID,
     required int chatSessionIndex,
-    Uint8List? text,
-    Uint8List? fileName,
+    required Map<MessageFields, Uint8List?> fields,
     required int epochSecond,
     required MessageContentType contentType,
     required MessageDeliveryStatus deliveryStatus,
   })  : _deliveryStatus = deliveryStatus,
         _contentType = contentType,
         _epochSecond = epochSecond,
-        _fileName = fileName,
+        _fields = fields,
         _clientID = clientID,
         _messageID = messageID,
         _chatSessionIndex = chatSessionIndex,
-        _text = text,
         _chatSessionID = chatSessionID,
         _username = username;
 
@@ -62,8 +58,7 @@ class Message {
         _messageID = 0,
         _chatSessionID = 0,
         _chatSessionIndex = 0,
-        _text = null,
-        _fileName = null,
+        _fields = {},
         _epochSecond = 0,
         _contentType = MessageContentType.text, // Assuming a default value
         _deliveryStatus = MessageDeliveryStatus.sending;
@@ -74,8 +69,13 @@ class Message {
   void setMessageID(int messageID) => _messageID = messageID;
   void setChatSessionID(int chatSessionID) => _chatSessionID = chatSessionID;
   void setChatSessionIndex(int chatSessionIndex) => _chatSessionIndex = chatSessionIndex;
-  void setText(Uint8List? text) => _text = text;
-  void setFileName(Uint8List? fileName) => _fileName = fileName;
+
+  void addFields(Map<MessageFields, Uint8List?> fields) {
+    for (MapEntry<MessageFields, Uint8List?> field in fields.entries) {
+      _fields[field.key] = field.value;
+    }
+  }
+
   void setEpochSecond(int epochSecond) => _epochSecond = epochSecond;
   void setContentType(MessageContentType contentType) => _contentType = contentType;
 
@@ -84,21 +84,29 @@ class Message {
   int get messageID => _messageID;
   int get chatSessionID => _chatSessionID;
   int get chatSessionIndex => _chatSessionIndex;
+
   String get text {
-    if (_text == null) {
+    Uint8List? fieldText = _fields[MessageFields.text];
+    if (fieldText == null) {
       return "";
     }
 
-    return utf8.decode(_text!.toList(), allowMalformed: true);
+    return utf8.decode(fieldText.toList(), allowMalformed: true);
   }
 
   String get fileName {
-    if (_fileName == null) {
+    Uint8List? fieldFileName = _fields[MessageFields.fileName];
+    if (fieldFileName == null) {
       return "";
     }
 
-    return utf8.decode(_fileName!.toList(), allowMalformed: true);
+    return utf8.decode(fieldFileName.toList(), allowMalformed: true);
   }
+
+  Uint8List? get fileBytes {
+    return _fields[MessageFields.fileBytes];
+  }
+
   int get epochSecond => _epochSecond;
   MessageContentType get contentType => _contentType;
   MessageDeliveryStatus get deliveryStatus => _deliveryStatus;
@@ -115,8 +123,7 @@ class Message {
         _clientID == other._clientID &&
         _contentType == other._contentType &&
         _messageID == other._messageID &&
-        _text == other._text &&
-        _fileName == other._fileName &&
+        _fields == other._fields &&
         _epochSecond == other._epochSecond &&
         _username == other._username;
   }
@@ -124,6 +131,6 @@ class Message {
   @override
   String toString() {
     return 'Message{username: $_username, clientID: $_clientID, messageID: $_messageID, chatSessionID: $_chatSessionID, '
-        'chatSessionIndex $_chatSessionIndex, text: $_text, fileName: $_fileName, timeWritten: $_epochSecond, contentType: $_contentType}';
+        'chatSessionIndex $_chatSessionIndex, fields: $_fields, timeWritten: $_epochSecond, contentType: $_contentType}';
   }
 }
