@@ -5,6 +5,8 @@ On Production Mode:
         - "db_key-store_password"
         - "emailer_password"
 
+    Note that only as root can you define/configure systemd passwords!
+
     Instructions for each:
         "server_key-store_password":
            cd /opt/ermis-server/ && ./set_systemd_credential.sh
