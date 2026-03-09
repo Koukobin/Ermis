@@ -22,12 +22,15 @@ import 'package:ermis_mobile/core/networking/common/message_types/message_delive
 import '../networking/common/message_types/content_type.dart';
 
 class Message {
-  String _username;
-  int _clientID;
+  final String _username;
+  final int _clientID;
+
   int _messageID;
-  int _chatSessionID;
+  final int _chatSessionID;
   int _chatSessionIndex;
+
   final Map<MessageFields, Uint8List?> _fields;
+
   int _epochSecond;
   MessageContentType _contentType;
   MessageDeliveryStatus _deliveryStatus;
@@ -63,11 +66,8 @@ class Message {
         _contentType = MessageContentType.text, // Assuming a default value
         _deliveryStatus = MessageDeliveryStatus.sending;
 
-  void setUsername(String username) => _username = username;
   void setDeliveryStatus(MessageDeliveryStatus deliveryStatus) => _deliveryStatus = deliveryStatus;
-  void setClientID(int clientID) => _clientID = clientID;
   void setMessageID(int messageID) => _messageID = messageID;
-  void setChatSessionID(int chatSessionID) => _chatSessionID = chatSessionID;
   void setChatSessionIndex(int chatSessionIndex) => _chatSessionIndex = chatSessionIndex;
 
   void addFields(Map<MessageFields, Uint8List?> fields) {
