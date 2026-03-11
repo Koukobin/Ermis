@@ -14,12 +14,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import '../widgets/glitch_effect.dart';
 
-import 'dart:math';
+import '../widgets/randomly_appearing_null_widget.dart';
 
 class GlitchingOverlay {
   static OverlayEntry? _overlayEntry;
@@ -51,7 +49,7 @@ class GlitchingOverlay {
             ),
             child: Container(color: Colors.transparent),
           ),
-          const _RandomlyAppearingNull(offset: Offset(65, 255)),
+          const RandomlyAppearingNull(offset: Offset(65, 255)),
           //Transform.translate(
           //  offset: const Offset(0, 45),
           //  child: Center(
@@ -60,7 +58,7 @@ class GlitchingOverlay {
           //    scale: 0.05,
           //  )),
           //),
-          const _RandomlyAppearingNull(offset: Offset(300, 450)),
+          const RandomlyAppearingNull(offset: Offset(300, 450)),
           Center(
             child: GlithEffect(
               child: const Text(
@@ -83,63 +81,3 @@ class GlitchingOverlay {
   }
 }
 
-class _RandomlyAppearingNull extends StatefulWidget {
-  final Offset offset;
-  const _RandomlyAppearingNull({required this.offset});
-
-  @override
-  State<_RandomlyAppearingNull> createState() => _RandomlyAppearingNullState();
-}
-
-class _RandomlyAppearingNullState extends State<_RandomlyAppearingNull> {
-  bool _visible = false;
-  late Timer _timer;
-
-  bool _disposed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (_disposed) return;
-      setState(() => _visible = !_visible);
-
-      Future.delayed(const Duration(milliseconds: 800), () {
-        if (_disposed) return;
-        setState(() => _visible = !_visible);
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    _disposed = true;
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return !_visible
-        ? const SizedBox.shrink()
-        : Transform.translate(
-            offset: widget.offset,
-            child: ColorFiltered(
-              colorFilter: const ColorFilter.matrix(<double>[
-                0.2126, 0.7152, 0.0722, 0, 0, // R
-                0.2126, 0.7152, 0.0722, 0, 0, // G
-                0.2126, 0.7152, 0.0722, 0, 0, // B
-                0, 0, 0, 1, 0, // A
-              ]),
-              child: GlithEffect(
-                glitchDuration: const Duration(milliseconds: 100),
-                repeatInterval: const Duration(microseconds: 0),
-                child: Text(
-                  ["NULL", "null"][Random().nextInt(2)],
-                  style: const TextStyle(fontSize: 18),
-                ),
-              ),
-            ),
-          );
-  }
-}
