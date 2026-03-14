@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_mobile/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 
 import '../../generated/l10n.dart';
@@ -36,7 +37,7 @@ class WhatsNewScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.current.whats_new_title,
+              "${S.current.whats_new_title} v${AppConstants.applicationVersion}",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
