@@ -34,6 +34,7 @@ public final class ContentTypeConverter {
 	private static final int FILE = 64; // WARNING: DO NOT CHANGE
 	private static final int IMAGE = 343; // WARNING: DO NOT CHANGE
 	private static final int VOICE = 2008; // WARNING: DO NOT CHANGE
+	private static final int VIDEO = 2026; // WARNING: DO NOT CHANGE
 	private static final int GIF = 2320; // WARNING: DO NOT CHANGE
 
 	private static final Map<ClientContentType, Integer> contentTypesToDatabaseInts = new EnumMap<>(ClientContentType.class);
@@ -46,12 +47,14 @@ public final class ContentTypeConverter {
 		contentTypesToDatabaseInts.put(ClientContentType.FILE, FILE);
 		contentTypesToDatabaseInts.put(ClientContentType.IMAGE, IMAGE);
 		contentTypesToDatabaseInts.put(ClientContentType.VOICE, VOICE);
+		contentTypesToDatabaseInts.put(ClientContentType.VIDEO, VIDEO);
 		contentTypesToDatabaseInts.put(ClientContentType.GIF, GIF);
 
 		databaseIntsToContentTypes.put(TEXT, ClientContentType.TEXT);
 		databaseIntsToContentTypes.put(FILE, ClientContentType.FILE);
 		databaseIntsToContentTypes.put(IMAGE, ClientContentType.IMAGE);
 		databaseIntsToContentTypes.put(VOICE, ClientContentType.VOICE);
+		databaseIntsToContentTypes.put(VIDEO, ClientContentType.VIDEO);
 		databaseIntsToContentTypes.put(GIF, ClientContentType.GIF);
 	}
 

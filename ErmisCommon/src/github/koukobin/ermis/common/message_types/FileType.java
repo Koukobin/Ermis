@@ -25,7 +25,7 @@ import github.koukobin.ermis.common.util.EnumIntConverter;
  *
  */
 public enum FileType {
-	FILE((byte) 0), IMAGE((byte) 1), VOICE((byte) 2);
+	FILE((byte) 0), IMAGE((byte) 1), VOICE((byte) 2), VIDEO((byte) 3);
 
 	private static final Map<Byte, FileType> values;
 

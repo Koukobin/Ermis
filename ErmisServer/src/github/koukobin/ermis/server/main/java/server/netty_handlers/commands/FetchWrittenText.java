@@ -93,7 +93,7 @@ public class FetchWrittenText implements ICommand {
 				payload.writeInt(messageBytes.length);
 				payload.writeBytes(messageBytes);
 			}
-			case FILE, IMAGE, VOICE -> {
+			case FILE, IMAGE, VOICE, VIDEO -> {
 				payload.writeInt(fileNameBytes.length);
 				payload.writeBytes(fileNameBytes);
 			}

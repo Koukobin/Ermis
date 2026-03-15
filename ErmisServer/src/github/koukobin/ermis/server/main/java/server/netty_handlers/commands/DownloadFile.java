@@ -75,6 +75,13 @@ public class DownloadFile implements ICommand {
 				// client can associate it to the correct message
 				payload.writeInt(messageID);
 			}
+			case VIDEO -> {
+				payload.writeInt(ClientCommandResultType.DOWNLOAD_VIDEO.id);
+
+				// Include the message ID of the file so the
+				// client can associate it to the correct message
+				payload.writeInt(messageID);
+			}
 			default -> {
 				final String log = """
 						How the fuck have we reached here. This log CANNOT happen. This log SHOULD NOT happen.

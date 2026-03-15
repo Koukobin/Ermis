@@ -194,7 +194,7 @@ final class MessageHandler extends AbstractChannelClientHandler {
 			payload.writeInt(textLength);
 			payload.writeBytes(textBytes);
 		}
-		case FILE, IMAGE, VOICE -> {
+		case FILE, IMAGE, VOICE, VIDEO -> {
 			int fileNameLength = msg.readInt();
 			fileNameBytes = new byte[fileNameLength];
 			msg.readBytes(fileNameBytes);
