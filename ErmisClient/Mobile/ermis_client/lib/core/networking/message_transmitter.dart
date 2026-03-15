@@ -170,6 +170,34 @@ class MessageTransmitter {
     );
   }
 
+  Message sendVideoToClient(String fileName, Uint8List bytes, int chatSessionIndex) {
+    Uint8List fileNameBytes = utf8.encode(fileName);
+
+    // Calculate the payload size in advance for efficiency
+    int payloadSize = 20 + fileNameBytes.length + bytes.length;
+
+    ByteBuf payload = ByteBuf(payloadSize);
+    payload.writeInt32(ClientMessageType.clientContent.id);
+    payload.writeInt32(++UserInfoManager.lastPendingMessageID);
+    payload.writeInt32(MessageContentType.video.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(fileNameBytes.length);
+    payload.writeBytes(fileNameBytes);
+    payload.writeBytes(bytes);
+
+    _writer.write(payload);
+
+    return createPendingMessage(
+      fields: {
+        MessageFields.fileName: Uint8List.fromList(utf8.encode(fileName))
+      },
+      contentType: MessageContentType.video,
+      chatSessionID: UserInfoManager.chatSessions![chatSessionIndex].chatSessionID,
+      chatSessionIndex: chatSessionIndex,
+      tempMessageID: UserInfoManager.lastPendingMessageID,
+    );
+  }
+
   Message sendGifToClient(Uint8List gifBytes, int chatSessionIndex) {
     ByteBuf payload = ByteBuf.smallBuffer(growable: true);
     payload.writeInt32(ClientMessageType.clientContent.id);
@@ -549,6 +577,17 @@ class Commands {
     payload.writeInt32(chatSessionIndex);
     payload.writeInt32(messageID);
     payload.writeInt8(FileType.sound.id);
+
+    out.write(payload);
+  }
+
+  void downloadVideo(int messageID, int chatSessionIndex) {
+    ByteBuf payload = ByteBuf.smallBuffer();
+    payload.writeInt32(ClientMessageType.command.id);
+    payload.writeInt32(ClientCommandType.downloadFile.id);
+    payload.writeInt32(chatSessionIndex);
+    payload.writeInt32(messageID);
+    payload.writeInt8(FileType.video.id);
 
     out.write(payload);
   }

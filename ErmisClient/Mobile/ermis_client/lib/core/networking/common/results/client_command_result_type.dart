@@ -41,6 +41,7 @@ enum ClientCommandResultType {
   downloadFile(400),
   downloadImage(401),
   downloadVoice(402),
+  downloadVideo(403),
 
   // Voice calls
   fetchSignallingServerPort(501),

@@ -14,11 +14,119 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 
+enum ImageType {
+  png,
+  jpeg,
+  gif,
+  bmp,
+  tiff,
+  ico,
+  cur,
+  pvr,
+  webp,
+  psd,
+  exr,
+  pnm, // covers PBM, PGM, PPM
+  unknown,
+}
+
 class ImageUtils {
+  /// Detects image type from raw bytes based on magic numbers.
+  ///
+  /// Pass at least the first 12 bytes of the file for reliable detection.
+  /// Returns [ImageType.unknown] if the format cannot be determined.
+  static ImageType detectImageType(List<int> bytes) {
+    if (bytes.isEmpty) return ImageType.unknown;
+
+    // PNG: 89 50 4E 47 0D 0A 1A 0A
+    if (_matchesSignature(bytes, [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])) {
+      return ImageType.png;
+    }
+
+    // JPEG: FF D8 FF
+    if (_matchesSignature(bytes, [0xFF, 0xD8, 0xFF])) {
+      return ImageType.jpeg;
+    }
+
+    // GIF: 47 49 46 38 37 61 ("GIF87a") or 47 49 46 38 39 61 ("GIF89a")
+    if (_matchesSignature(bytes, [0x47, 0x49, 0x46, 0x38, 0x37, 0x61]) ||
+        _matchesSignature(bytes, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61])) {
+      return ImageType.gif;
+    }
+
+    // BMP: 42 4D ("BM")
+    if (_matchesSignature(bytes, [0x42, 0x4D])) {
+      return ImageType.bmp;
+    }
+
+    // TIFF: 49 49 2A 00 (little-endian) or 4D 4D 00 2A (big-endian)
+    if (_matchesSignature(bytes, [0x49, 0x49, 0x2A, 0x00]) ||
+        _matchesSignature(bytes, [0x4D, 0x4D, 0x00, 0x2A])) {
+      return ImageType.tiff;
+    }
+
+    // WebP: 52 49 46 46 (?? ?? ?? ??) 57 45 42 50
+    // "RIFF" at offset 0, "WEBP" at offset 8
+    if (bytes.length >= 12 &&
+        _matchesSignature(bytes, [0x52, 0x49, 0x46, 0x46]) &&
+        _matchesSignature(bytes.sublist(8), [0x57, 0x45, 0x42, 0x50])) {
+      return ImageType.webp;
+    }
+
+    // ICO: 00 00 01 00
+    if (_matchesSignature(bytes, [0x00, 0x00, 0x01, 0x00])) {
+      return ImageType.ico;
+    }
+
+    // CUR: 00 00 02 00
+    if (_matchesSignature(bytes, [0x00, 0x00, 0x02, 0x00])) {
+      return ImageType.cur;
+    }
+
+    // PSD (Photoshop): 38 42 50 53 ("8BPS")
+    if (_matchesSignature(bytes, [0x38, 0x42, 0x50, 0x53])) {
+      return ImageType.psd;
+    }
+
+    // EXR (OpenEXR): 76 2F 31 01
+    if (_matchesSignature(bytes, [0x76, 0x2F, 0x31, 0x01])) {
+      return ImageType.exr;
+    }
+
+    // PVR (PowerVR v3): 50 56 52 03 ("PVR\x03")
+    if (_matchesSignature(bytes, [0x50, 0x56, 0x52, 0x03])) {
+      return ImageType.pvr;
+    }
+
+    // PNM variants (plain text headers):
+    //   PBM: P1 or P4
+    //   PGM: P2 or P5
+    //   PPM: P3 or P6
+    //   PAM: P7
+    if (bytes.length >= 2 && bytes[0] == 0x50) {
+      final second = bytes[1];
+      if (second >= 0x31 && second <= 0x37) { // '1'..'7'
+        return ImageType.pnm;
+      }
+    }
+
+    return ImageType.unknown;
+  }
+
+  static bool _matchesSignature(List<int> bytes, List<int> signature) {
+    if (bytes.length < signature.length) return false;
+    for (var i = 0; i < signature.length; i++) {
+      if (bytes[i] != signature[i]) return false;
+    }
+    return true;
+  }
+
   /// This function checks for the given file's signature and allows
   /// you to identify whether the byte data is valid for a particular
   /// image format.
@@ -202,3 +310,149 @@ class ImageUtils {
     return desiredHeight == null ? imageWidth! : imageHeight!;
   }
 }
+
+
+enum MediaFormat {
+  // Video
+  mp4,
+  mkv,
+  webm,
+  flv,
+  mpegTs,
+  mpegPs,
+  avi,
+  // Audio
+  mp3,
+  aac,
+  ogg,
+  flac,
+  wav,
+  // Unknown
+  unknown,
+}
+
+/// Detects the media format of a file based on its file signature
+Future<MediaFormat> detectMediaFormat(String filePath) async {
+  final file = File(filePath);
+  if (!await file.exists()) {
+    throw FileSystemException('File not found', filePath);
+  }
+
+  // Read 12 bytes to cover all signatures
+  final raf = await file.open();
+  final bytes = await raf.read(12);
+  await raf.close();
+
+  return detectFromBytes(bytes);
+}
+
+/// Detects media format from raw bytes by evaluating magic number
+MediaFormat detectFromBytes(Uint8List bytes) {
+  if (bytes.length < 4) {
+    return MediaFormat.unknown;
+  }
+
+  bool matchAt(Uint8List bytes, int offset, List<int> signature) {
+    if (bytes.length < offset + signature.length) return false;
+    for (int i = 0; i < signature.length; i++) {
+      if (bytes[offset + i] != signature[i]) return false;
+    }
+    return true;
+  }
+
+  // ── MP4 / M4A / M4V / MOV ──────────────────────────────────────────────────
+  // Bytes 4–7 are the box type: ftyp, moov, mdat, free, etc.
+  // ftyp box is the standard indicator for MP4-family files.
+  if (bytes.length >= 8 && matchAt(bytes, 4, [0x66, 0x74, 0x79, 0x70])) {
+    return MediaFormat.mp4;
+  }
+
+  // ── Matroska / MKV ─────────────────────────────────────────────────────────
+  // EBML header: 1A 45 DF A3
+  if (matchAt(bytes, 0, [0x1A, 0x45, 0xDF, 0xA3])) {
+    // WebM is a subset of MKV — distinguish by DocType in the EBML header.
+    // For magic-number purposes we label it MKV; deeper inspection needed for WebM.
+    return MediaFormat.mkv;
+  }
+
+  // ── WebM ───────────────────────────────────────────────────────────────────
+  // WebM shares the EBML magic number with MKV (caught above).
+  // A more reliable check requires reading the EBML DocType string "webm".
+  // This branch handles files where the DocType can be found in the first 12 bytes.
+  if (bytes.length >= 12) {
+    final chunk = String.fromCharCodes(bytes.sublist(0, 12));
+    if (chunk.contains('webm')) {
+      return MediaFormat.webm;
+    }
+  }
+
+  // ── FLV ────────────────────────────────────────────────────────────────────
+  // 46 4C 56  ("FLV") followed by version byte
+  if (matchAt(bytes, 0, [0x46, 0x4C, 0x56])) {
+    return MediaFormat.flv;
+  }
+
+  // ── MPEG-TS ────────────────────────────────────────────────────────────────
+  // Sync byte 0x47 at offset 0 (and repeats every 188 bytes, but 1 byte is enough here)
+  if (bytes[0] == 0x47) {
+    return MediaFormat.mpegTs;
+  }
+
+  // ── MPEG-PS ────────────────────────────────────────────────────────────────
+  // Pack start code: 00 00 01 BA
+  if (matchAt(bytes, 0, [0x00, 0x00, 0x01, 0xBA])) {
+    return MediaFormat.mpegPs;
+  }
+
+  // ── AVI ────────────────────────────────────────────────────────────────────
+  // RIFF....AVI : 52 49 46 46 ?? ?? ?? ?? 41 56 49 20
+  if (bytes.length >= 12 &&
+      matchAt(bytes, 0, [0x52, 0x49, 0x46, 0x46]) &&
+      matchAt(bytes, 8, [0x41, 0x56, 0x49, 0x20])) {
+    return MediaFormat.avi;
+  }
+
+  // ── MP3 ────────────────────────────────────────────────────────────────────
+  // ID3 tag: 49 44 33
+  if (matchAt(bytes, 0, [0x49, 0x44, 0x33])) {
+    return MediaFormat.mp3;
+  }
+  // Raw MP3 sync word: FF FB / FF FA / FF F3 / FF F2
+  if (bytes[0] == 0xFF &&
+      (bytes[1] == 0xFB ||
+          bytes[1] == 0xFA ||
+          bytes[1] == 0xF3 ||
+          bytes[1] == 0xF2)) {
+    return MediaFormat.mp3;
+  }
+
+  // ── AAC (ADTS) ─────────────────────────────────────────────────────────────
+  // Sync word: FF F1 (MPEG-4 AAC) or FF F9 (MPEG-2 AAC)
+  if (bytes[0] == 0xFF && (bytes[1] == 0xF1 || bytes[1] == 0xF9)) {
+    return MediaFormat.aac;
+  }
+
+  // ── OGG ────────────────────────────────────────────────────────────────────
+  // 4F 67 67 53  ("OggS")
+  if (matchAt(bytes, 0, [0x4F, 0x67, 0x67, 0x53])) {
+    return MediaFormat.ogg;
+  }
+
+  // ── FLAC ───────────────────────────────────────────────────────────────────
+  // 66 4C 61 43  ("fLaC")
+  if (matchAt(bytes, 0, [0x66, 0x4C, 0x61, 0x43])) {
+    return MediaFormat.flac;
+  }
+
+  // ── WAV ────────────────────────────────────────────────────────────────────
+  // RIFF....WAVE : 52 49 46 46 ?? ?? ?? ?? 57 41 56 45
+  if (bytes.length >= 12 &&
+      matchAt(bytes, 0, [0x52, 0x49, 0x46, 0x46]) &&
+      matchAt(bytes, 8, [0x57, 0x41, 0x56, 0x45])) {
+    return MediaFormat.wav;
+  }
+
+  return MediaFormat.unknown;
+}
+
+

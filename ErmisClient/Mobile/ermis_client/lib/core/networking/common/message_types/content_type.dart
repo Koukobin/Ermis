@@ -25,6 +25,7 @@ enum MessageContentType {
   file (1,  [MessageFields.fileName, MessageFields.fileBytes]),
   image(2,  [MessageFields.fileName, MessageFields.fileBytes]),
   voice(3,  [MessageFields.fileName, MessageFields.fileBytes]),
+  video(5,  [MessageFields.fileName, MessageFields.fileBytes]),
   gif  (4,  [MessageFields.text]);
 
   final int id;

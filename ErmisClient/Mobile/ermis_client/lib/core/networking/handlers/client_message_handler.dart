@@ -41,7 +41,8 @@ class ClientMessageHandler {
         break;
       case MessageContentType.file ||
             MessageContentType.image ||
-            MessageContentType.voice:
+            MessageContentType.voice ||
+            MessageContentType.video:
         var fileNameLength = msg.readInt32();
         Uint8List? fileNameBytes = msg.readBytes(fileNameLength);
         fields[MessageFields.fileName] = fileNameBytes;
@@ -55,7 +56,7 @@ class ClientMessageHandler {
     int clientID = msg.readInt32();
     int messageID = msg.readInt32();
     int chatSessionID = msg.readInt32();
-    
+
     Message message = Message(
       username: username,
       clientID: clientID,

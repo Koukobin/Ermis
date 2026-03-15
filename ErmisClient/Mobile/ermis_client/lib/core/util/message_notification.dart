@@ -93,7 +93,8 @@ void handleChatMessageNotification(ChatSession chatSession, Message msg, Setting
       break;
     case MessageContentType.file ||
           MessageContentType.image ||
-          MessageContentType.voice:
+          MessageContentType.voice ||
+          MessageContentType.video:
       body = fileReceived;
       break;
   }

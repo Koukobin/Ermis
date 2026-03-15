@@ -18,11 +18,13 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
+import 'package:ermis_mobile/core/networking/common/message_types/content_type.dart';
 import 'package:ermis_mobile/core/util/file_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:vibration/vibration.dart';
 
+import '../../../core/util/image_utils.dart';
 import '../../../generated/l10n.dart';
 import '../../../theme/app_colors.dart';
 
@@ -60,11 +62,15 @@ class SendFilePopupMenu extends StatefulWidget {
   final int chatSessionIndex;
   final FileCallBack fileCallBack;
   final ImageCallBack imageCallBack;
+  final AudioCallBack audioCallBack;
+  final VideoCallBack videoCallBack;
 
   const SendFilePopupMenu({
     required this.chatSessionIndex,
     required this.fileCallBack,
     required this.imageCallBack,
+    required this.audioCallBack,
+    required this.videoCallBack,
     super.key,
   });
 
@@ -82,8 +88,62 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
     widget.fileCallBack(fileName, fileBytes);
   }
 
-  void _sendImageFile(String fileName, Uint8List fileBytes) {
+  void _sendImage(String fileName, Uint8List fileBytes) {
     widget.imageCallBack(fileName, fileBytes);
+  }
+
+  void _sendAudio(String fileName, Uint8List fileBytes) {
+    widget.audioCallBack(fileName, fileBytes);
+  }
+
+  void _sendVideo(String fileName, Uint8List fileBytes) {
+    widget.videoCallBack(fileName, fileBytes);
+  }
+
+  MessageContentType? acquireContentType(Uint8List data) {
+    final imageType = ImageUtils.detectImageType(data);
+    switch (imageType) {
+      case ImageType.png ||
+            ImageType.jpeg ||
+            ImageType.bmp ||
+            ImageType.tiff ||
+            ImageType.ico ||
+            ImageType.cur ||
+            ImageType.pvr ||
+            ImageType.webp ||
+            ImageType.psd ||
+            ImageType.exr ||
+            ImageType.pnm:
+        return MessageContentType.image;
+      default:
+        {
+          // Do nothing.
+        }
+    }
+
+    final mediaType = detectFromBytes(data);
+    switch (mediaType) {
+      case MediaFormat.mp4 ||
+            MediaFormat.mkv ||
+            MediaFormat.webm ||
+            MediaFormat.flv ||
+            MediaFormat.mpegTs ||
+            MediaFormat.mpegPs ||
+            MediaFormat.avi:
+        return MessageContentType.video;
+      case MediaFormat.mp3 ||
+            MediaFormat.aac ||
+            MediaFormat.ogg ||
+            MediaFormat.flac ||
+            MediaFormat.wav:
+        return MessageContentType.voice;
+      default:
+        {
+          // Do nothing.
+        }
+    }
+
+    return MessageContentType.file;
   }
 
   Widget _buildPopupOption(
@@ -150,12 +210,29 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                               String fileName,
                               Uint8List fileBytes,
                             ) {
-                              _showEditImageDialog(
-                                context,
-                                fileName: fileName,
-                                fileBytes: fileBytes,
-                                sendImageFile: _sendImageFile,
-                              ).whenComplete(() => Navigator.pop(context));
+                              final contentType = acquireContentType(fileBytes);
+
+                              switch (contentType) {
+                                case MessageContentType.file:
+                                  {
+                                    _sendFile(fileName, fileBytes);
+                                  }
+                                case MessageContentType.image:
+                                  _showEditImageDialog(
+                                    context,
+                                    fileName: fileName,
+                                    fileBytes: fileBytes,
+                                    sendImageFile: _sendImage,
+                                  ).whenComplete(() => Navigator.pop(context));
+                                case MessageContentType.voice:
+                                  _sendAudio(fileName, fileBytes);
+                                case MessageContentType.video:
+                                  _sendVideo(fileName, fileBytes);
+                                default:
+                                  {
+                                    // Do nothing.
+                                  }
+                              }
                             });
                           },
                         ),
@@ -178,7 +255,7 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                               context,
                               fileName: fileName,
                               fileBytes: fileBytes,
-                              sendImageFile: _sendImageFile,
+                              sendImageFile: _sendImage,
                             );
 
                             Navigator.pop(context);

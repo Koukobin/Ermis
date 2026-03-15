@@ -137,6 +137,24 @@ class _InputFieldState extends State<InputField> {
                       );
                       _showAchievementScreen(pendingMessage);
                     },
+                    audioCallBack: (String fileName, Uint8List fileContent) {
+                      Message pendingMessage =
+                          Client.instance().sendVoiceMessageToClient(
+                        fileName,
+                        fileContent,
+                        widget.chatSessionIndex,
+                      );
+                      _showAchievementScreen(pendingMessage);
+                    },
+                    videoCallBack: (String fileName, Uint8List fileContent) {
+                      Message pendingMessage =
+                          Client.instance().sendVideoMessageToClient(
+                        fileName,
+                        fileContent,
+                        widget.chatSessionIndex,
+                      );
+                      _showAchievementScreen(pendingMessage);
+                    },
                   ),
                   Expanded(
                     child: Theme(

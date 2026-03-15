@@ -22,6 +22,7 @@ import 'package:ermis_mobile/core/util/custom_date_formatter.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/abstract_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/file_message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/image_message_bubble.dart';
+import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/video_message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/voice_message_bubble.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -201,6 +202,11 @@ class MessageBubble extends Bubble {
           key: Key("${message.messageID}") /* CRITICAL FOR SOME REASON DO NOT REMOVE */,
           message: message,
         );
+      case MessageContentType.video:
+        return VideoMessageBubble(
+          key: Key("${message.messageID}") /* CRITICAL FOR SOME REASON DO NOT REMOVE */,
+          message: message,
+        );
       case MessageContentType.gif:
         return _GifPage(gifUrl: message.text);
     }
@@ -215,3 +221,4 @@ class _GifPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Image.network(gifUrl);
 }
+

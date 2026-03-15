@@ -174,6 +174,10 @@ class Client {
     return _messageTransmitter!.sendVoiceToClient(fileName, fileContentBytes, chatSessionIndex);
   }
 
+  Message sendVideoMessageToClient(String fileName, Uint8List fileContentBytes, int chatSessionIndex) {
+    return _messageTransmitter!.sendVideoToClient(fileName, fileContentBytes, chatSessionIndex);
+  }
+
   Message sendGifMessageToClient(Uint8List gifBytes, int chatSessionIndex) {
     return _messageTransmitter!.sendGifToClient(gifBytes, chatSessionIndex);
   }

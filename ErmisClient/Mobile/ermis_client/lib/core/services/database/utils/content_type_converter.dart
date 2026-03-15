@@ -25,6 +25,7 @@ class ContentTypeConverter {
 	static const int file = 64; // WARNING: DO NOT CHANGE TO ENSURE COMPATIBILITY WITH LOCAL SQLITE DATABASE
 	static const int image = 343; // WARNING: DO NOT CHANGE TO ENSURE COMPATIBILITY WITH LOCAL SQLITE DATABASE
 	static const int voice = 2008; // WARNING: DO NOT CHANGE TO ENSURE COMPATIBILITY WITH LOCAL SQLITE DATABASE
+	static const int video = 2026; // WARNING: DO NOT CHANGE TO ENSURE COMPATIBILITY WITH LOCAL SQLITE DATABASE
 	static const int gif = 2320; // WARNING: DO NOT CHANGE TO ENSURE COMPATIBILITY WITH LOCAL SQLITE DATABASE
 
   static final Map<MessageContentType, int> contentTypesToDatabaseInts = UnmodifiableMapView(const {
@@ -32,6 +33,7 @@ class ContentTypeConverter {
     MessageContentType.file: file,
     MessageContentType.image: image,
     MessageContentType.voice: voice,
+    MessageContentType.video: video,
     MessageContentType.gif: gif,
   });
 
@@ -40,6 +42,7 @@ class ContentTypeConverter {
     file: MessageContentType.file,
     image: MessageContentType.image,
     voice: MessageContentType.voice,
+    video: MessageContentType.video,
     gif: MessageContentType.gif,
   });
 }

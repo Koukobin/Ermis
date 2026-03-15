@@ -30,6 +30,8 @@ import 'permissions.dart';
 
 typedef FileCallBack = void Function(String fileName, Uint8List fileContent);
 typedef ImageCallBack = FileCallBack;
+typedef AudioCallBack = FileCallBack;
+typedef VideoCallBack = FileCallBack;
 
 class MyCamera {
   static Future<CameraController> initializeCamera() async {

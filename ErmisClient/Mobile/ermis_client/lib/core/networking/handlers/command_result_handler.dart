@@ -109,6 +109,27 @@ class CommandResultHandler {
 
         _eventBus.fire(VoiceDownloadedEvent(file, messageID));
         break;
+      case ClientCommandResultType.downloadVideo:
+        final messageID = msg.readInt32();
+        final chatSessionID = msg.readInt32();
+        final fileNameLength = msg.readInt32();
+        final fileNameBytes = msg.readBytes(fileNameLength);
+        final fileBytes = msg.readBytes(msg.readableBytes);
+
+        final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
+
+        for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
+          if (message.messageID == messageID) {
+            message.addFields({
+              MessageFields.fileName: utf8.encode(file.fileName),
+              MessageFields.fileBytes: file.fileBytes,
+            });
+            break;
+          }
+        }
+
+        _eventBus.fire(VideoDownloadedEvent(file, messageID));
+        break;
       case ClientCommandResultType.fetchProfileInfo:
         // ClientID
         UserInfoManager.clientID = msg.readInt32();
@@ -354,7 +375,10 @@ class CommandResultHandler {
             case MessageContentType.text || MessageContentType.gif:
               messageBytes = msg.readBytes(msg.readInt32());
               break;
-            case MessageContentType.file || MessageContentType.image || MessageContentType.voice:
+            case MessageContentType.file ||
+                  MessageContentType.image ||
+                  MessageContentType.voice ||
+                  MessageContentType.video:
               fileNameBytes = msg.readBytes(msg.readInt32());
               break;
           }

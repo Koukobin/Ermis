@@ -19,7 +19,8 @@ import '../../../exceptions/enum_not_found_exception.dart';
 enum FileType {
   file(0),
   image(1),
-  sound(2);
+  sound(2),
+  video(3);
 
   final int id;
   const FileType(this.id);
