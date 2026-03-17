@@ -228,6 +228,8 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                                   _sendAudio(fileName, fileBytes);
                                 case MessageContentType.video:
                                   _sendVideo(fileName, fileBytes);
+                                case null:
+                                  print("Content type not recognized");
                                 default:
                                   {
                                     // Do nothing.

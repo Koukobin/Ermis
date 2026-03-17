@@ -97,6 +97,8 @@ void handleChatMessageNotification(ChatSession chatSession, Message msg, Setting
           MessageContentType.video:
       body = fileReceived;
       break;
+    case null:
+      body = S().content_type_unknown;
   }
 
   Uint8List transmitterProfilePhoto = chatSession.members

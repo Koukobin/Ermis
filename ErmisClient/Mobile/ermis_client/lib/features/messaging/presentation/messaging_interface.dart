@@ -570,6 +570,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                         MessageContentType.video:
                     data = message.fileName;
                     break;
+                  case null:
+                    return;
                 }
 
                 Clipboard.setData(ClipboardData(text: data));

@@ -19,13 +19,17 @@ import 'package:ermis_mobile/core/networking/common/message_types/content_type.d
 import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
 import 'package:ermis_mobile/core/models/message.dart';
 import 'package:ermis_mobile/core/util/custom_date_formatter.dart';
+import 'package:ermis_mobile/core/widgets/glitch_effect.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/abstract_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/file_message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/image_message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/video_message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/voice_message_bubble.dart';
+import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../../core/widgets/randomly_appearing_null_widget.dart';
 
 class MessageBubble extends Bubble {
   final Message message;
@@ -209,6 +213,8 @@ class MessageBubble extends Bubble {
         );
       case MessageContentType.gif:
         return _GifPage(gifUrl: message.text);
+      case null:
+        return OminousUnknownWidget(text: S().content_type_unknown);
     }
   }
 
@@ -222,3 +228,45 @@ class _GifPage extends StatelessWidget {
   Widget build(BuildContext context) => Image.network(gifUrl);
 }
 
+class OminousUnknownWidget extends StatelessWidget {
+  final String text;
+  const OminousUnknownWidget({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [Colors.black, Color.fromARGB(255, 73, 51, 51)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.red.withValues(alpha: 0.7),
+            blurRadius: 15,
+            spreadRadius: 7,
+          ),
+        ],
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          RandomlyAppearingNull(offset: Offset(50, 50)),
+          Center(
+            child: GlithEffect(
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

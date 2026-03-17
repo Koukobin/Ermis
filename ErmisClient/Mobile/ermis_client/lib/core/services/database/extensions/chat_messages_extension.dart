@@ -42,6 +42,8 @@ extension ChatMessagesExtension on DBConnection {
     required Message message,
     ConflictAlgorithm onConflict = ConflictAlgorithm.ignore,
   }) async {
+    if (message.contentType == null) return 0;
+
     final db = await database;
 
     final epochSecond = message.epochSecond;

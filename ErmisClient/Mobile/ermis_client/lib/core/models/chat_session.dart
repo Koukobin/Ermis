@@ -62,6 +62,8 @@ class ChatSession {
             MessageContentType.voice ||
             MessageContentType.video:
         return message.fileName;
+      case null:
+        return "";
     }
   }
 

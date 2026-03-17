@@ -29,7 +29,7 @@ final AppEventBus _eventBus = AppEventBus.instance;
 
 class ClientMessageHandler {
   static void handle(ByteBuf msg) {
-    MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
+    MessageContentType? contentType = MessageContentType.fromId(msg.readInt32());
     int epochSecond = msg.readInt64();
 
     Map<MessageFields, Uint8List?> fields = {};
@@ -46,6 +46,9 @@ class ClientMessageHandler {
         var fileNameLength = msg.readInt32();
         Uint8List? fileNameBytes = msg.readBytes(fileNameLength);
         fields[MessageFields.fileName] = fileNameBytes;
+        break;
+      case null:
+        msg.readBytes(msg.readInt32());
         break;
     }
 

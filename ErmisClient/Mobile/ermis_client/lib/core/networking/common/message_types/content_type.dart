@@ -14,8 +14,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import '../../../exceptions/enum_not_found_exception.dart';
-
 enum MessageFields {
   text, fileName, fileBytes;
 }
@@ -32,11 +30,11 @@ enum MessageContentType {
   const MessageContentType(this.id, List<MessageFields> fields);
 
   // This function mimics the fromId functionality and throws an exception when no match is found.
-  static MessageContentType fromId(int id) {
+  static MessageContentType? fromId(int id) {
     try {
       return MessageContentType.values.firstWhere((type) => type.id == id);
     } catch (e) {
-      throw EnumNotFoundException('No ContentType found for id $id');
+      return null;
     }
   }
 }

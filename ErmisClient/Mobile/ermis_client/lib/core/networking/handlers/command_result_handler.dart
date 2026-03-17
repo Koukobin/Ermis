@@ -349,7 +349,7 @@ class CommandResultHandler {
         Set<Message> messagesSet = chatSession.messages.toSet();
 
         while (msg.readableBytes > 0) {
-          MessageContentType contentType = MessageContentType.fromId(msg.readInt32());
+          MessageContentType? contentType = MessageContentType.fromId(msg.readInt32());
           int senderClientID = msg.readInt32();
           int messageID = msg.readInt32();
           
@@ -380,6 +380,9 @@ class CommandResultHandler {
                   MessageContentType.voice ||
                   MessageContentType.video:
               fileNameBytes = msg.readBytes(msg.readInt32());
+              break;
+            case null:
+              msg.readBytes(msg.readInt32());
               break;
           }
 

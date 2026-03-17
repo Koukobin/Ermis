@@ -32,7 +32,7 @@ class Message {
   final Map<MessageFields, Uint8List?> _fields;
 
   int _epochSecond;
-  MessageContentType _contentType;
+  MessageContentType? _contentType;
   MessageDeliveryStatus _deliveryStatus;
 
   Message({
@@ -43,7 +43,7 @@ class Message {
     required int chatSessionIndex,
     required Map<MessageFields, Uint8List?> fields,
     required int epochSecond,
-    required MessageContentType contentType,
+    required MessageContentType? contentType,
     required MessageDeliveryStatus deliveryStatus,
   })  : _deliveryStatus = deliveryStatus,
         _contentType = contentType,
@@ -108,7 +108,7 @@ class Message {
   }
 
   int get epochSecond => _epochSecond;
-  MessageContentType get contentType => _contentType;
+  MessageContentType? get contentType => _contentType;
   MessageDeliveryStatus get deliveryStatus => _deliveryStatus;
 
   @override
