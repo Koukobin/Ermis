@@ -101,7 +101,17 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> with EventBusSu
         child: videoPlayerController == null
             ? isDownloading
                 ? const LinearProgressIndicator()
-                : null
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.play_arrow, size: 48),
+                        ],
+                      ),
+                    ],
+                  )
             : videoPlayerController!.value.isInitialized
                 ? Chewie(controller: chewieController!)
                 : const CircularProgressIndicator(),
