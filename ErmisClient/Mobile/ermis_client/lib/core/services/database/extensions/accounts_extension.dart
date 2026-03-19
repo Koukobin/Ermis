@@ -148,7 +148,7 @@ extension AccountsExtension on DBConnection {
     final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
     final int lastUsed = record['last_updated_at'] as int;
 
-    Uint8List decompressedProfile = (await compressedProfilePhoto.decompress())!;
+    Uint8List decompressedProfile = (await compressedProfilePhoto.decompress()) ?? Uint8List(0);
 
     return LocalUserInfo(
       displayName: displayName,
@@ -171,18 +171,25 @@ extension AccountsExtension on DBConnection {
       whereArgs: [emailAssociatedWithProfile],
     );
 
-    Size size = ImageUtils.resizeImage(
-      imageBytes: info.profilePhoto,
-      maxWidth: 250,
-      maxHeight: 250,
-    );
+    Size size;
+    Uint8List compressedProfile;
 
-    Uint8List compressedProfile = await FlutterImageCompress.compressWithList(
-      info.profilePhoto,
-      quality: 70,
-      minHeight: size.height.toInt(),
-      minWidth: size.width.toInt(),
-    );
+    if (info.profilePhoto.isEmpty) {
+      size = Size.zero;
+      compressedProfile = Uint8List(0);
+    } else {
+      size = ImageUtils.resizeImage(
+        imageBytes: info.profilePhoto,
+        maxWidth: 250,
+        maxHeight: 250,
+      );
+      compressedProfile = await FlutterImageCompress.compressWithList(
+        info.profilePhoto,
+        quality: 70,
+        minHeight: size.height.toInt(),
+        minWidth: size.width.toInt(),
+      );
+    }
 
     db.insert(
       "server_profiles",
