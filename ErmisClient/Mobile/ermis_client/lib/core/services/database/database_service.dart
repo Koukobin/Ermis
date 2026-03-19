@@ -43,6 +43,17 @@ class DBConnection {
     return DBConnection._(database);
   }
 
+  static Future<void> _nukeDatabase(Database db) async {
+    final tables = await db.query(
+      'sqlite_master',
+      where: 'type = ?',
+      whereArgs: ['table'],
+    );
+    for (final table in tables) {
+      await db.execute('DROP TABLE IF EXISTS ${table['name']};');
+    }
+  }
+
   static Future<Database> _initializeDB() async {
     // "Avoid errors caused by flutter upgrade.
     // Importing 'package:flutter/widgets.dart' is required." by flutter documentation
@@ -59,14 +70,17 @@ class DBConnection {
       onCreate: (Database db, int version) async {},
       onDowngrade: (Database db, int oldVersion, int newVersion) async {},
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
-        if (oldVersion != newVersion) {
-          await db.execute('DROP TABLE IF EXISTS server_device_uuids');
-          await db.execute('DROP TABLE IF EXISTS server_accounts;');
-          await db.execute('DROP TABLE IF EXISTS server_profiles;');
-          await db.execute('DROP TABLE IF EXISTS members;');
-          await db.execute('DROP TABLE IF EXISTS chat_session_members;');
-          await db.execute('DROP TABLE IF EXISTS chat_sessions;');
-          await db.execute('DROP TABLE IF EXISTS chat_messages;');
+        for (int version = oldVersion + 1; version <= newVersion; version++) {
+          switch (version) {
+            default:
+              // Should never occur - BUT, just in case an unhandled
+              // version is reached, nuke the whole database to avoid
+              // mismatched schemas.
+              {
+                await _nukeDatabase(db);
+              }
+              break;
+          }
         }
       },
       version: 10,
