@@ -90,10 +90,16 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>org.flywaydb</groupId>
-		    <artifactId>flyway-core</artifactId>
-		    <version>12.1.1</version>
-		    <scope>compile</scope>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>12.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+			<version>12.1.1</version>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
