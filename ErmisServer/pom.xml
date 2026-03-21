@@ -76,7 +76,7 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.25.3</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.password4j</groupId>
 			<artifactId>password4j</artifactId>
@@ -87,6 +87,13 @@
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 			<version>7.0.2</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.flywaydb</groupId>
+		    <artifactId>flyway-core</artifactId>
+		    <version>12.1.1</version>
+		    <scope>compile</scope>
 		</dependency>
 
 		<dependency>
