@@ -17,10 +17,10 @@
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
-    password_hash CHAR(PASSWORD_HASH_LENGTH) NOT NULL,
+    password_hash CHAR(22) NOT NULL,
     client_id INTEGER NOT NULL, -- IDs are generated manually within server
-    backup_verification_codes CHAR(BACKUP_VERIFICATION_CODES_LENGTH)[BACKUP_VERIFICATION_CODES_AMOUNT] NOT NULL,
-    salt CHAR(SALT_LENGTH) NOT NULL,
+    backup_verification_codes CHAR(12)[3] NOT NULL,
+    salt CHAR(12) NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     password_last_updated_at TIMESTAMP DEFAULT now(),
     PRIMARY KEY (client_id)
@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS users_email_index ON users (email);
 -- Create user_profiles table
 CREATE TABLE IF NOT EXISTS user_profiles (
     client_id INTEGER NOT NULL REFERENCES users(client_id) ON DELETE CASCADE,
-    display_name VARCHAR(DISPLAY_LENGTH) NOT NULL,
+    display_name VARCHAR(16) NOT NULL,
     about VARCHAR(128) NOT NULL,
     profile_photo_id TEXT, -- Hallmark name of profile photo bytes stored on local storage
     last_updated_at TIMESTAMP DEFAULT now(),
