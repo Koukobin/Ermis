@@ -40,9 +40,9 @@
 
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<mainClass>github.koukobin.ermis.server.main.java.ServerLauncher</mainClass>
-		<src.resources>src/github/koukobin/ermis/server/main/resources</src.resources>
-		<target.resources>${project.build.directory}/classes/github/koukobin/ermis/server/main/resources/</target.resources>
+		<mainClass>main.io.github.koukobin.ermis.server.java.ServerLauncher</mainClass>
+		<src.resources>src/main/resources</src.resources>
+		<target.resources>${project.build.directory}/classes/main/resources/</target.resources>
 	</properties>
 
 	<dependencies>
