@@ -21,7 +21,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
 import github.koukobin.ermis.desktop_client.main.java.util.dialogs.DialogsUtil;
 import javafx.beans.value.ChangeListener;
@@ -29,6 +28,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
+import main.java.io.github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
 
 /**
  * @author Ilias Koukovinis

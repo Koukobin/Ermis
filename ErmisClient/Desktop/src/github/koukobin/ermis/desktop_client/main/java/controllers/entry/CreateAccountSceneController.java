@@ -23,8 +23,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import github.koukobin.ermis.common.entry.CreateAccountInfo;
-import github.koukobin.ermis.common.entry.EntryType;
 import github.koukobin.ermis.desktop_client.main.java.info.entry.EntryInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
 import github.koukobin.ermis.desktop_client.main.java.util.MemoryUtil;
@@ -46,6 +44,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import main.java.io.github.koukobin.ermis.common.entry.CreateAccountInfo;
+import main.java.io.github.koukobin.ermis.common.entry.EntryType;
 import me.gosimple.nbvcxz.Nbvcxz;
 import me.gosimple.nbvcxz.resources.Configuration;
 import me.gosimple.nbvcxz.resources.ConfigurationBuilder;

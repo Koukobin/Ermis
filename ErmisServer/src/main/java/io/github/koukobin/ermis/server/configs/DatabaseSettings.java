@@ -30,7 +30,7 @@ import com.password4j.BcryptFunction;
 import com.password4j.HashingFunction;
 import com.password4j.ScryptFunction;
 
-import github.koukobin.ermis.common.util.FileUtils;
+import main.java.io.github.koukobin.ermis.common.util.FileUtils;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.complexity_checker.CredentialRequirements;
 
 /**

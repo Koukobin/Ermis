@@ -17,7 +17,7 @@ package main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_dat
 
 import java.util.Arrays;
 
-import github.koukobin.ermis.common.util.EmptyArrays;
+import main.java.io.github.koukobin.ermis.common.util.EmptyArrays;
 
 /**
  * @author Ilias Koukovinis

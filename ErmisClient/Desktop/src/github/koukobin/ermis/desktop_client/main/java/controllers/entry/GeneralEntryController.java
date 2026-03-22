@@ -15,15 +15,11 @@
  */
 package github.koukobin.ermis.desktop_client.main.java.controllers.entry;
 
-import github.koukobin.ermis.common.entry.AddedInfo;
-import github.koukobin.ermis.common.entry.EntryType;
-import github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
 import github.koukobin.ermis.desktop_client.main.java.database.ClientDatabase;
 import github.koukobin.ermis.desktop_client.main.java.database.models.LocalAccountInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.EntryResult;
 import github.koukobin.ermis.desktop_client.main.java.util.dialogs.DialogsUtil;
-import github.koukobin.ermis.common.entry.Resultable;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -45,6 +41,10 @@ import javafx.scene.Node;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import main.java.io.github.koukobin.ermis.common.entry.AddedInfo;
+import main.java.io.github.koukobin.ermis.common.entry.EntryType;
+import main.java.io.github.koukobin.ermis.common.entry.Resultable;
+import main.java.io.github.koukobin.ermis.common.entry.EntryType.CredentialInterface;
 
 /**
  * @author Ilias Koukovinis

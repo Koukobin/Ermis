@@ -15,7 +15,7 @@
  */
 package main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.models;
 
-import github.koukobin.ermis.common.VoiceCallHistoryStatus;
+import main.java.io.github.koukobin.ermis.common.VoiceCallHistoryStatus;
 
 /**
  * @author Ilias Koukovinis

@@ -31,7 +31,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import github.koukobin.ermis.common.util.CompressionDetector;
+import main.java.io.github.koukobin.ermis.common.util.CompressionDetector;
 import main.java.io.github.koukobin.ermis.server.configs.ConfigurationsPaths.UserFilesStorage;
 
 /**

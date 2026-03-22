@@ -23,14 +23,14 @@ import java.util.concurrent.CountDownLatch;
 
 import com.google.common.collect.Lists;
 
-import github.koukobin.ermis.common.message_types.ClientContentType;
-import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
-import github.koukobin.ermis.common.message_types.ServerInfoMessage;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerInfoMessage;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 import main.java.io.github.koukobin.ermis.server.WhatTheFuckIsGoingOnException;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.models.DatabaseChatMessage;

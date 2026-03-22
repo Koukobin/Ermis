@@ -28,10 +28,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import github.koukobin.ermis.common.LoadedInMemoryFile;
-import github.koukobin.ermis.common.message_types.ClientCommandResultType;
-import github.koukobin.ermis.common.message_types.ClientContentType;
-import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events;
 import github.koukobin.ermis.desktop_client.main.java.service.client.GlobalMessageDispatcher;
@@ -41,6 +37,10 @@ import github.koukobin.ermis.desktop_client.main.java.service.client.models.Chat
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.Message;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.ChatSession.Member;
 import io.netty.buffer.ByteBuf;
+import main.java.io.github.koukobin.ermis.common.LoadedInMemoryFile;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandResultType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 
 /**
  * @author Ilias Koukovinis

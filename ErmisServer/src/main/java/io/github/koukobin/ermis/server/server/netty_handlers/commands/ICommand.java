@@ -21,10 +21,10 @@ import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import github.koukobin.ermis.common.message_types.ClientCommandType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.data_access.UserProfileModule;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.models.UserIcon;
 import main.java.io.github.koukobin.ermis.server.server.ActiveClients;

@@ -15,9 +15,9 @@
  */
 package main.java.io.github.koukobin.ermis.server.server.netty_handlers.commands;
 
-import github.koukobin.ermis.common.message_types.ClientCommandType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 import main.java.io.github.koukobin.ermis.server.server.netty_handlers.EntryHandler;
 import main.java.io.github.koukobin.ermis.server.server.netty_handlers.StartingEntryHandler;

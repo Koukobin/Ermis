@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.util.EmptyArrays;
+import main.java.io.github.koukobin.ermis.common.util.EmptyArrays;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.generators.ChatSessionIDGenerator;
 import main.java.io.github.koukobin.ermis.server.server.netty_handlers.ClientUpdate;
 

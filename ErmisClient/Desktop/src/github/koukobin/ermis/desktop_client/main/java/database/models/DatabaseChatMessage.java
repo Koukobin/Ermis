@@ -18,7 +18,7 @@ package github.koukobin.ermis.desktop_client.main.java.database.models;
 import java.util.Arrays;
 import java.util.Objects;
 
-import github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
 
 /**
  * @author Ilias Koukovinis

@@ -17,11 +17,11 @@ package main.java.io.github.koukobin.ermis.server.server.netty_handlers.commands
 
 import java.io.IOException;
 
-import github.koukobin.ermis.common.entry.LoginInfo;
-import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.results.GeneralResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
+import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 import main.java.io.github.koukobin.ermis.server.server.netty_handlers.EntryHandler;

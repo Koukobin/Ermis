@@ -21,13 +21,13 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.mail.MessagingException;
 
-import github.koukobin.ermis.common.entry.AddedInfo;
-import github.koukobin.ermis.common.entry.Verification;
-import github.koukobin.ermis.common.entry.Verification.Action;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.results.GeneralResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import main.java.io.github.koukobin.ermis.common.entry.AddedInfo;
+import main.java.io.github.koukobin.ermis.common.entry.Verification;
+import main.java.io.github.koukobin.ermis.common.entry.Verification.Action;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
+import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 import main.java.io.github.koukobin.ermis.server.server.util.EmailerService;
 import main.java.io.github.koukobin.ermis.server.util.SecureRandomNumberGenerator;

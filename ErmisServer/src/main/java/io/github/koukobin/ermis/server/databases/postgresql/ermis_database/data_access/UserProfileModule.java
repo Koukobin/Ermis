@@ -24,9 +24,9 @@ import java.util.UUID;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.Account;
-import github.koukobin.ermis.common.results.ChangeUsernameResult;
-import github.koukobin.ermis.common.util.EmptyArrays;
+import main.java.io.github.koukobin.ermis.common.Account;
+import main.java.io.github.koukobin.ermis.common.results.ChangeUsernameResult;
+import main.java.io.github.koukobin.ermis.common.util.EmptyArrays;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.FilesStorage;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.models.UserIcon;
 

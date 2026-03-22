@@ -20,10 +20,10 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import main.java.io.github.koukobin.ermis.server.server.util.MessageByteBufCreator;
 
 /**

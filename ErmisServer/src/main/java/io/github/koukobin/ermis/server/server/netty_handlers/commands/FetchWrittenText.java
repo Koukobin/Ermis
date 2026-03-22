@@ -15,14 +15,14 @@
  */
 package main.java.io.github.koukobin.ermis.server.server.netty_handlers.commands;
 
-import github.koukobin.ermis.common.message_types.ClientCommandResultType;
-import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ClientContentType;
-import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.message_types.UserMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandResultType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
+import main.java.io.github.koukobin.ermis.common.message_types.UserMessage;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 
