@@ -19,7 +19,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
 
 /**
  * 

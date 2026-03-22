@@ -15,12 +15,12 @@
  */
 package main.java.io.github.koukobin.ermis.server.server.netty_handlers.commands;
 
-import github.koukobin.ermis.common.UserDeviceInfo;
-import github.koukobin.ermis.common.message_types.ClientCommandResultType;
-import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.UserDeviceInfo;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandResultType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 

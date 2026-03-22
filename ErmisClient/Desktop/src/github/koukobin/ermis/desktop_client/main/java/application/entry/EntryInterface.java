@@ -18,8 +18,6 @@ package github.koukobin.ermis.desktop_client.main.java.application.entry;
 
 import java.io.IOException;
 
-import github.koukobin.ermis.common.entry.EntryType;
-import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
 import github.koukobin.ermis.desktop_client.main.java.controllers.entry.CreateAccountSceneController;
 import github.koukobin.ermis.desktop_client.main.java.controllers.entry.GeneralEntryController;
 import github.koukobin.ermis.desktop_client.main.java.controllers.entry.LoginSceneController;
@@ -30,6 +28,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import main.java.io.github.koukobin.ermis.common.entry.EntryType;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
 
 /**
  * @author Ilias Koukovinis

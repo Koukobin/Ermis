@@ -24,18 +24,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.io.Files;
 
-import github.koukobin.ermis.common.ClientStatus;
-import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ClientMessageType;
-import github.koukobin.ermis.common.message_types.FileType;
-import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.desktop_client.main.java.service.client.io.ByteBufOutputStream;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.ChatRequest;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.ChatSession;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.Message;
-import github.koukobin.ermis.common.message_types.ClientContentType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import main.java.io.github.koukobin.ermis.common.ClientStatus;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientMessageType;
+import main.java.io.github.koukobin.ermis.common.message_types.FileType;
+import main.java.io.github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 
 /**
  * 

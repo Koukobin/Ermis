@@ -17,8 +17,8 @@ package github.koukobin.ermis.desktop_client.main.java.service.client.models;
 
 import java.util.Map;
 
-import github.koukobin.ermis.common.entry.AddedInfo;
-import github.koukobin.ermis.common.entry.Resultable;
+import main.java.io.github.koukobin.ermis.common.entry.AddedInfo;
+import main.java.io.github.koukobin.ermis.common.entry.Resultable;
 
 /**
  * @author Ilias Koukovinis

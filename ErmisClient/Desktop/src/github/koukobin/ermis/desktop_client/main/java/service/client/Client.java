@@ -42,18 +42,6 @@ import javax.net.ssl.X509TrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import github.koukobin.ermis.common.entry.AddedInfo;
-import github.koukobin.ermis.common.entry.CreateAccountInfo;
-import github.koukobin.ermis.common.entry.CreateAccountInfo.CredentialValidation;
-import github.koukobin.ermis.common.entry.EntryType;
-import github.koukobin.ermis.common.entry.GeneralEntryAction;
-import github.koukobin.ermis.common.entry.LoginInfo;
-import github.koukobin.ermis.common.entry.Resultable;
-import github.koukobin.ermis.common.entry.LoginInfo.CredentialsExchange;
-import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
-import github.koukobin.ermis.common.entry.Verification;
-import github.koukobin.ermis.common.message_types.ClientMessageType;
-import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.desktop_client.main.java.database.models.LocalAccountInfo;
 import github.koukobin.ermis.desktop_client.main.java.database.models.ServerInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.EntryMessage;
@@ -64,6 +52,18 @@ import github.koukobin.ermis.desktop_client.main.java.service.client.models.Chat
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.EntryResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import main.java.io.github.koukobin.ermis.common.entry.AddedInfo;
+import main.java.io.github.koukobin.ermis.common.entry.CreateAccountInfo;
+import main.java.io.github.koukobin.ermis.common.entry.EntryType;
+import main.java.io.github.koukobin.ermis.common.entry.GeneralEntryAction;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
+import main.java.io.github.koukobin.ermis.common.entry.Resultable;
+import main.java.io.github.koukobin.ermis.common.entry.Verification;
+import main.java.io.github.koukobin.ermis.common.entry.CreateAccountInfo.CredentialValidation;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo.CredentialsExchange;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientMessageType;
+import main.java.io.github.koukobin.ermis.common.results.ResultHolder;
 
 /**
  * 

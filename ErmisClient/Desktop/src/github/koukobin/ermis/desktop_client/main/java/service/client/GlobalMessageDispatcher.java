@@ -20,7 +20,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import github.koukobin.ermis.common.message_types.ServerMessageType;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.IMessage;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Events.ServerMessageInfoEvent;
 import github.koukobin.ermis.desktop_client.main.java.service.client.handlers.ClientMessageHandler;
@@ -30,6 +29,7 @@ import github.koukobin.ermis.desktop_client.main.java.service.client.handlers.Me
 import io.netty.buffer.ByteBuf;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 
 /**
  * @author Ilias Koukovinis

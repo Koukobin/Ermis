@@ -22,9 +22,9 @@ import java.util.UUID;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.DeviceType;
-import github.koukobin.ermis.common.UserDeviceInfo;
-import github.koukobin.ermis.common.util.EmptyArrays;
+import main.java.io.github.koukobin.ermis.common.DeviceType;
+import main.java.io.github.koukobin.ermis.common.UserDeviceInfo;
+import main.java.io.github.koukobin.ermis.common.util.EmptyArrays;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.DeviceTypeConverter;
 
 /**

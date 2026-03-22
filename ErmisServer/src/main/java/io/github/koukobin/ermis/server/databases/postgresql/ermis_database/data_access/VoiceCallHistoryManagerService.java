@@ -23,7 +23,7 @@ import java.time.Instant;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.VoiceCallHistoryStatus;
+import main.java.io.github.koukobin.ermis.common.VoiceCallHistoryStatus;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.models.PersonalizedVoiceCallHistory;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.models.VoiceCallHistory;
 

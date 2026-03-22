@@ -29,11 +29,11 @@ import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ServerInfoMessage;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerInfoMessage;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 import main.java.io.github.koukobin.ermis.server.server.netty_handlers.CommandHandler;
 

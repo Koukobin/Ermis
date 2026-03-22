@@ -18,11 +18,11 @@ package main.java.io.github.koukobin.ermis.server.server.netty_handlers.commands
 import java.util.Collection;
 import java.util.List;
 
-import github.koukobin.ermis.common.ClientStatus;
-import github.koukobin.ermis.common.message_types.ClientCommandType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.ClientStatus;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
 import main.java.io.github.koukobin.ermis.server.server.ChatSession;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 

@@ -15,11 +15,11 @@
  */
 package main.java.io.github.koukobin.ermis.server.server.netty_handlers.commands;
 
-import github.koukobin.ermis.common.message_types.ClientCommandType;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
+import main.java.io.github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import main.java.io.github.koukobin.ermis.server.server.ChatSession;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 import main.java.io.github.koukobin.ermis.server.server.web_rtc_signalling_server.WebRTCSignallingServer;

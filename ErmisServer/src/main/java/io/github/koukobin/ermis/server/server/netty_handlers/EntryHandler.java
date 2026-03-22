@@ -18,10 +18,10 @@ package main.java.io.github.koukobin.ermis.server.server.netty_handlers;
 import java.io.IOException;
 import java.util.List;
 
-import github.koukobin.ermis.common.entry.GeneralEntryAction;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import main.java.io.github.koukobin.ermis.common.entry.GeneralEntryAction;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 
 /**

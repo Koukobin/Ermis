@@ -37,8 +37,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
-import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -71,6 +69,8 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.CharsetUtil;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
+import main.java.io.github.koukobin.ermis.common.message_types.VoiceCallMessageType;
 import main.java.io.github.koukobin.ermis.server.configs.ServerSettings;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.ActiveChatSessions;

@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import github.koukobin.ermis.common.ClientStatus;
 import io.netty.channel.Channel;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.ClientStatus;
 
 /**
  * @author Ilias Koukovinis

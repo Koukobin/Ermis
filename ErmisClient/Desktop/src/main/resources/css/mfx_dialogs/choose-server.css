@@ -1,0 +1,93 @@
+/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+* {
+    -mfx-main: blue;
+    -mfx-secondary: grey;
+    -fx-background-color: rgb(23, 23, 23);
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: white;
+}
+
+.mfx-dialog {
+    -fx-background-radius: 10;
+    -fx-border-color: rgb(10, 10, 10);
+    -fx-border-radius: 10;
+    -fx-padding: 10;
+}
+
+/* TOGGLE BUTTON */
+.mfx-toggle-button {
+    -fx-padding: 10px;
+    -fx-border-radius: 5px;        /* Rounded corners */
+    -fx-border-color: transparent; 
+}
+
+.mfx-toggle-button .mfx-ripple-generator {
+    -mfx-animation-speed: 1.5;
+    -mfx-ripple-radius: 10;
+    -mfx-ripple-color: -mfx-main;
+    -mfx-ripple-opacity: 0.4;
+}
+
+.mfx-toggle-button .line {
+    -fx-stroke-line-cap: ROUND;
+    -fx-stroke: -mfx-secondary;
+    -fx-opacity: 0.3;
+}
+
+.mfx-toggle-button:selected .mfx-ripple-generator {
+    -mfx-ripple-color: -mfx-secondary;
+}
+
+.mfx-toggle-button:selected .circle {
+    -fx-fill: -mfx-main;
+}
+
+.mfx-toggle-button:selected .line {
+    -fx-stroke: -mfx-main;
+}
+/* TOGGLE BUTTON */
+
+/* COMBO BOX */
+.mfx-combo-box .caret .mfx-ripple-generator {
+    -mfx-ripple-color: black;
+    -mfx-ripple-radius: 14;
+}
+
+.mfx-text-field {
+	-fx-border-color: -mfx-main;
+}
+
+.mfx-combo-box .combo-popup .virtual-flow {
+	-fx-border-color: rgb(15, 15, 15);
+}
+
+.mfx-combo-box .combo-popup .virtual-flow .mfx-combo-box-cell,
+.mfx-combo-box .combo-popup .virtual-flow .data-label {
+    -fx-background-color: rgb(15, 15, 15); /* Color for selected item */
+    -fx-text-fill: rgb(7, 50, 242); /* Text color for selected item */
+}
+
+.mfx-combo-box .combo-popup .virtual-flow .mfx-combo-box-cell {
+    -fx-border-color: rgb(10,10,10);
+    -fx-border-radius: 1;
+	
+}
+/* COMBO BOX */
+
+
+

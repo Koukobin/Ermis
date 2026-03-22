@@ -25,12 +25,12 @@ import java.util.Optional;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.UserDeviceInfo;
-import github.koukobin.ermis.common.entry.AddedInfo;
-import github.koukobin.ermis.common.entry.CreateAccountInfo;
-import github.koukobin.ermis.common.entry.LoginInfo;
-import github.koukobin.ermis.common.results.GeneralResult;
-import github.koukobin.ermis.common.util.EmptyArrays;
+import main.java.io.github.koukobin.ermis.common.UserDeviceInfo;
+import main.java.io.github.koukobin.ermis.common.entry.AddedInfo;
+import main.java.io.github.koukobin.ermis.common.entry.CreateAccountInfo;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
+import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
+import main.java.io.github.koukobin.ermis.common.util.EmptyArrays;
 import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings;
 import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings.Client.BackupVerificationCodes;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.generators.BackupVerificationCodesGenerator;

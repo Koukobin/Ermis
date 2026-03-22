@@ -23,10 +23,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import main.java.io.github.koukobin.ermis.server.server.util.MessageByteBufCreator;
 
 /**

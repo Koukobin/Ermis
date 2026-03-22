@@ -20,7 +20,7 @@ import java.util.Iterator;
 
 import com.github.luben.zstd.Zstd;
 
-import github.koukobin.ermis.common.message_types.UserMessage;
+import main.java.io.github.koukobin.ermis.common.message_types.UserMessage;
 import main.java.io.github.koukobin.ermis.server.configs.ServerSettings;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 

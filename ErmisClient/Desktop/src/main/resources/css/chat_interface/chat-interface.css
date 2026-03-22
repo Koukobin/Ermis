@@ -1,0 +1,186 @@
+/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import url("../dark-theme.css");
+
+.root {
+	-fx-background-color: -fx-default-background-color;
+}
+
+.mfx-text-field {
+	-fx-background-radius: 3;
+}
+
+.text-field {
+    -fx-background-radius: 15;
+}
+
+#optionsBar {
+    -fx-background-color: black;
+}
+
+#chats {
+    -fx-background-color: rgb(10,10,10);
+}
+
+.jfx-list-view {
+    -fx-background-color: -fx-default-background-color;
+}
+
+.jfx-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -mfx-main;
+    -fx-font-size: 14px;
+}
+
+.jfx-list-view .list-cell:selected {
+    -fx-background-color: -mfx-main;
+    -fx-text-fill: black;
+}
+
+#searchHBOX {
+    -fx-background-color: rgb(30, 30, 30);
+    -fx-background-radius: 15;  
+}
+
+#inputField {
+    -fx-background-radius: 3;
+}
+
+#chatHBox {
+    -fx-background-color: black;
+}
+
+#refreshChatSessionsButton {}
+
+.mfx-scroll-pane {
+   -fx-background-color: -fx-default-background-color;
+   -fx-border-color: transparent;   /* Removes any border color on focus */
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-border-radius:2.0em;
+}
+
+.scroll-bar:vertical .increment-button ,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding :0.0 10.0 0.0 0.0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow{
+    -fx-shape: " ";    
+    -fx-padding: 0.15em 0.0;
+}
+
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow{
+    -fx-shape: " ";    
+    -fx-padding:0.0 0.15em;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: derive(black,90.0%);
+    -fx-background-insets: 2.0, 0.0, 0.0;
+    -fx-background-radius: 2.0em;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: derive(#4D4C4F,10.0%);
+    -fx-background-insets: 2.0, 0.0, 0.0;
+    -fx-background-radius: 2.0em;
+}
+
+.split-pane:vertical *.split-pane-divider {
+    -fx-padding: 1 0 1 0; /* Set divider to transparent*/
+}
+
+.scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-border-radius:2.0em;
+}
+
+.scroll-bar:horizontal .increment-button ,
+.scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding :0.0 10.0 0.0 0.0;
+}
+
+.scroll-bar:horizontal .increment-arrow,
+.scroll-bar:horizontal .decrement-arrow{
+    -fx-shape: " ";    
+    -fx-padding:0.0 0.15em;
+}
+
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: derive(black,90.0%);
+    -fx-background-insets: 2.0, 0.0, 0.0;
+    -fx-background-radius: 2.0em;
+}
+
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: derive(#4D4C4F,10.0%);
+    -fx-background-insets: 2.0, 0.0, 0.0;
+    -fx-background-radius: 2.0em;
+}
+
+#userMessageLabel, #otherMessageLabel {
+    -fx-min-width: 30px;
+    -fx-min-height: 35px;
+    -fx-text-fill: black;
+    -fx-font-size: 16px;
+    -fx-text-fill: black;
+    -fx-alignment: center;
+    -fx-padding: 0 5 0 5;
+    -fx-background-radius: 15px;
+}
+
+#userMessageLabel {
+    -fx-background-color: linear-gradient(to top, rgb(2, 62, 201), rgb(54, 128, 255));
+}
+
+#otherMessageLabel {
+    -fx-background-color: linear-gradient(to top, rgb(100, 100, 100), rgb(130, 130, 130));
+}
+
+#downloadFileButton {
+	-fx-background-color: transparent;
+}
+
+#chatBox {
+	-fx-padding: 5 50 5 50;	
+}
+
+#chatsTopPane {
+    -fx-background-color: rgb(10,10,10);
+    -fx-border-color: -mfx-main;  
+    -fx-border-width: 0 0 2 0;   
+    -fx-padding: 5px;
+}
+
+#chatsTopPane .label {
+  	-fx-font-size: 25;
+    -fx-font-family: System;
+    -fx-font-weight: bold;
+}

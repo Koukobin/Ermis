@@ -15,11 +15,11 @@
  */
 package main.java.io.github.koukobin.ermis.server.server.util;
 
-import github.koukobin.ermis.common.message_types.ServerInfoMessage;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.epoll.EpollSocketChannel;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerInfoMessage;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 
 /**
  * Utility class that facilitates communication between the server and the client

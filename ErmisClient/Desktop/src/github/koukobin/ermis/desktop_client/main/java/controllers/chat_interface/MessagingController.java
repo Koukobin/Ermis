@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import com.jfoenix.controls.JFXButton;
 
-import github.koukobin.ermis.common.message_types.ClientContentType;
-import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.desktop_client.main.java.context_menu.MyContextMenuItem;
 import github.koukobin.ermis.desktop_client.main.java.info.Icons;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
@@ -72,6 +70,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 
 /**
  * @author Ilias Koukovinis

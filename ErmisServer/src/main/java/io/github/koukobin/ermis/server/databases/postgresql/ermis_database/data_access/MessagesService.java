@@ -26,10 +26,10 @@ import java.util.Optional;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.LoadedInMemoryFile;
-import github.koukobin.ermis.common.message_types.ClientContentType;
-import github.koukobin.ermis.common.message_types.UserMessage;
-import github.koukobin.ermis.common.util.EmptyArrays;
+import main.java.io.github.koukobin.ermis.common.LoadedInMemoryFile;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.UserMessage;
+import main.java.io.github.koukobin.ermis.common.util.EmptyArrays;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ContentTypeConverter;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.FilesStorage;
 

@@ -1,0 +1,38 @@
+/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import url("settings.css");
+
+/* Android-style TextField */
+.text-field {
+    -fx-background-color: transparent;
+}
+
+#changeDisplayNameHbox, #changePasswordHbox {
+    -fx-border-color: -mfx-main; /* Teal or a similar Android accent color */
+    -fx-border-width: 0 0 2px 0; /* Border only on the bottom */
+    -fx-padding: 5 0 5 0;
+}
+
+.floating-label {
+    -fx-font-size: 12px;
+    -fx-translate-y: -20px; /* Move the label up to give a floating effect */
+}
+
+.mfx-text-field .floating-text {
+	-fx-text-fill: white;
+	-fx-background-color: rgb(30, 30, 30);
+}

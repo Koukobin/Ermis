@@ -19,10 +19,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-import github.koukobin.ermis.common.entry.EntryType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
+import main.java.io.github.koukobin.ermis.common.entry.EntryType;
 import main.java.io.github.koukobin.ermis.server.configs.GeneralServerInfo;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;

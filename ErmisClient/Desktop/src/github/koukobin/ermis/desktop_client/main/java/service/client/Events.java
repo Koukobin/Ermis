@@ -17,15 +17,15 @@ package github.koukobin.ermis.desktop_client.main.java.service.client;
 
 import java.util.List;
 
-import github.koukobin.ermis.common.Account;
-import github.koukobin.ermis.common.LoadedInMemoryFile;
-import github.koukobin.ermis.common.UserDeviceInfo;
-import github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.ChatRequest;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.ChatSession;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.Message;
 import github.koukobin.ermis.desktop_client.main.java.service.client.models.ChatSession.Member;
 import io.netty.buffer.ByteBuf;
+import main.java.io.github.koukobin.ermis.common.Account;
+import main.java.io.github.koukobin.ermis.common.LoadedInMemoryFile;
+import main.java.io.github.koukobin.ermis.common.UserDeviceInfo;
+import main.java.io.github.koukobin.ermis.common.message_types.MessageDeliveryStatus;
 
 /**
  * @author Ilias Koukovinis

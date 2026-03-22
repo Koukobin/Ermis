@@ -1,0 +1,100 @@
+/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/* This css file helps disable the ugly borders JavaFX applies to Nodes by default */
+
+.button:focused,
+.toggle-button:focused,
+.radio-button:focused > .radio,
+.check-box:focused > .box,
+.menu-button:focused,
+.choice-box:focused,
+.color-picker.split-button:focused > .color-picker-label,
+.combo-box-base:focused,
+.slider:focused .thumb {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 3px, 3px, 2px, 1px;
+}
+
+.scroll-pane:focused,
+.split-pane:focused,
+.list-view:focused,
+.tree-view:focused,
+.table-view:focused,
+.tree-table-view:focused,
+.html-editor:focused {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 1;
+    -fx-padding: 1;
+}
+
+.radio-button > .radio, .radio-button:focused > .radio  {   
+    -fx-background-radius: 1.0em; /* large value to make sure this remains circular */    
+    -fx-padding: 0.333333em; /* 4 -- padding from outside edge to the inner black dot */ 
+}
+.split-menu-button:focused {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0 0 -1 0, 0;
+    -fx-background-radius: 3, 3;
+}
+.split-menu-button:focused > .label {
+    -fx-text-fill: -fx-text-base-color;
+    -fx-background-color: transparent;
+    -fx-background-insets: 1 0 1 1, 2 1 2 2;
+    -fx-background-radius: 2 0 0 2, 1 0 0 1;
+    -fx-padding: 0.333333em 0.667em 0.333333em 0.667em; /* 4 8 4 8 */
+}
+.split-menu-button:focused > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 1, 2;
+    -fx-background-radius: 0 2 2 0, 0 1 1 0;
+    -fx-padding: 0.5em 0.667em 0.5em 0.667em; /* 6 8 6 8 */
+}
+
+.scroll-bar:focused {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 1 0 1 0;
+}
+.scroll-bar:vertical:focused {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 0 1 0 1;
+}
+
+.text-input:focused {
+    -fx-highlight-fill: -fx-accent;
+    -fx-highlight-text-fill: transparent;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 3, 2;
+    -fx-prompt-text-fill: transparent;
+}
+
+.text-area:focused .content {
+    -fx-background-color: transparent;
+    -fx-background-radius: 2;
+}
+
+.titled-pane:focused > .title > .arrow-button > .arrow {
+    -fx-background-color: transparent;
+    -fx-background-insets: 1 0 -1 0, 0;
+}
+
+.color-picker.split-button:focused > .arrow-button {
+    -fx-background-color:transparent;
+    -fx-background-insets: 1 1 1 0, 1, 2;
+    -fx-background-radius: 0 3 3 0, 0 2 2 0, 0 1 1 0;
+}

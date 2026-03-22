@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import github.koukobin.ermis.common.util.FileUtils;
+import main.java.io.github.koukobin.ermis.common.util.FileUtils;
 
 /**
  * @author Ilias Koukovinis

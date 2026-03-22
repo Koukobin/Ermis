@@ -18,10 +18,10 @@ package main.java.io.github.koukobin.ermis.server.server.netty_handlers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import github.koukobin.ermis.common.message_types.ClientMessageType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientMessageType;
 
 /**
  * @author Ilias Koukovinis

@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.util.FileUtils;
+import main.java.io.github.koukobin.ermis.common.util.FileUtils;
 
 /**
  * @author Ilias Koukovinis

@@ -1,0 +1,41 @@
+/* Copyright (C) 2023 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+* {
+   -fx-default-background-color: rgb(23, 23, 23);
+}
+
+.root {
+	-fx-background-color: linear-gradient(to top, rgb(0, 41, 135), rgb(27, 64, 128));
+    -fx-background-size: 1200 900;
+    -fx-background-radius: 64 8 64 8;
+}
+
+.label {
+	-fx-font: 32 ComicSans;
+	-fx-text-fill: black;
+	-fx-font-weight: bold;
+}
+
+.mfx-progress-bar .bar1,
+.mfx-progress-bar:indeterminate .bar1,
+.mfx-progress-bar:indeterminate .bar2 {
+	-fx-fill: #0062ff;
+}
+
+.mfx-progress-bar:disabled .track {
+	-fx-fill: #bcbcbc;
+}

@@ -23,17 +23,17 @@ import java.util.Map.Entry;
 
 import javax.mail.MessagingException;
 
-import github.koukobin.ermis.common.DeviceType;
-import github.koukobin.ermis.common.UserDeviceInfo;
-import github.koukobin.ermis.common.entry.AddedInfo;
-import github.koukobin.ermis.common.entry.LoginInfo;
-import github.koukobin.ermis.common.entry.LoginInfo.Action;
-import github.koukobin.ermis.common.entry.LoginInfo.Credential;
-import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
-import github.koukobin.ermis.common.message_types.ServerMessageType;
-import github.koukobin.ermis.common.results.GeneralResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import main.java.io.github.koukobin.ermis.common.DeviceType;
+import main.java.io.github.koukobin.ermis.common.UserDeviceInfo;
+import main.java.io.github.koukobin.ermis.common.entry.AddedInfo;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo.Action;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo.Credential;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
+import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 import main.java.io.github.koukobin.ermis.server.server.util.EmailCreator;

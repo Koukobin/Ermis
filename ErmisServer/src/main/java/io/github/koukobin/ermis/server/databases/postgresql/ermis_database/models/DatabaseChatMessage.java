@@ -18,7 +18,7 @@ package main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_dat
 import java.util.Arrays;
 import java.util.Objects;
 
-import github.koukobin.ermis.common.message_types.ClientContentType;
+import main.java.io.github.koukobin.ermis.common.message_types.ClientContentType;
 
 /**
  * @author Ilias Koukovinis

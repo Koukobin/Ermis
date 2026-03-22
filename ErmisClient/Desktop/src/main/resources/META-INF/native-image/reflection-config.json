@@ -1,0 +1,29 @@
+[
+  {
+    "name": "github.ermis.client.main.java.application.Main",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
+  },
+    {
+    "name": "javafx.application.Application",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "javafx.stage.Stage",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "javafx.application.Platform",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.sun.javafx.tk.quantum.QuantumToolkit",
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  }
+]

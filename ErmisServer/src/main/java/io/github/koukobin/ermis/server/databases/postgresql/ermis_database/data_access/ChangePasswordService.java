@@ -23,10 +23,10 @@ import java.util.Optional;
 
 import com.google.common.base.Throwables;
 
-import github.koukobin.ermis.common.entry.AddedInfo;
-import github.koukobin.ermis.common.entry.LoginInfo;
-import github.koukobin.ermis.common.results.ChangePasswordResult;
-import github.koukobin.ermis.common.results.GeneralResult;
+import main.java.io.github.koukobin.ermis.common.entry.AddedInfo;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
+import main.java.io.github.koukobin.ermis.common.results.ChangePasswordResult;
+import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
 import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.hashing.HashUtil;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.hashing.SimpleHash;

@@ -20,10 +20,6 @@ import java.net.URL;
 import java.util.EnumMap;
 import java.util.ResourceBundle;
 
-import github.koukobin.ermis.common.entry.EntryType;
-import github.koukobin.ermis.common.entry.LoginInfo;
-import github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
-import github.koukobin.ermis.common.results.ResultHolder;
 import github.koukobin.ermis.desktop_client.main.java.info.entry.EntryInfo;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client;
 import github.koukobin.ermis.desktop_client.main.java.service.client.Client.BackupVerificationEntry;
@@ -42,6 +38,10 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import main.java.io.github.koukobin.ermis.common.entry.EntryType;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
+import main.java.io.github.koukobin.ermis.common.entry.LoginInfo.PasswordType;
+import main.java.io.github.koukobin.ermis.common.results.ResultHolder;
 
 /**
  * @author Ilias Koukovinis

@@ -21,9 +21,9 @@ import java.io.InputStream;
 import com.github.luben.zstd.Zstd;
 import com.google.common.primitives.Ints;
 
-import github.koukobin.ermis.common.util.CompressionDetector;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import main.java.io.github.koukobin.ermis.common.util.CompressionDetector;
 
 /**
  * @author Ilias Koukovinis
