@@ -54,6 +54,10 @@ public final class GeneralResult {
 		return isSuccessful;
 	}
 
+	public boolean isSuccess() {
+		return isSuccessful;
+	}
+
 	public Map<AddedInfo, String> getAddedInfo() {
 		return addedInfo;
 	}
