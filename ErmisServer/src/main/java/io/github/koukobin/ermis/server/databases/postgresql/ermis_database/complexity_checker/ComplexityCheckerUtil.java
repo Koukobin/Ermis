@@ -24,12 +24,16 @@ import com.google.common.base.CharMatcher;
 final class ComplexityCheckerUtil {
 
 	private ComplexityCheckerUtil() {}
-	
+
 	public static boolean estimate(CredentialRequirements requirements, String string) {
 		// Check if username has exceeded minimum required entropy
 		boolean hasStringExceededMaxLength = string.length() > requirements.getMaxLength();
 
 		if (hasStringExceededMaxLength) {
+			return false;
+		}
+
+		if (string.strip().isEmpty()) {
 			return false;
 		}
 
