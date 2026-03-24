@@ -34,7 +34,12 @@ import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_data
 public interface UserDevicesManagerService extends BaseComponent, UserProfileModule {
 
 	default Insert insertUserDevice(String email, UserDeviceInfo deviceInfo) {
-		return insertUserDevice(getClientID(email).orElseThrow(), deviceInfo);
+		return getClientID(email)
+			    .map(clientID -> insertUserDevice(clientID, deviceInfo))
+			    .orElseGet(() -> {
+			    	logger.debug("No clientID found for email: {}", email);
+			    	return Insert.INTERNAL_ERROR;
+		    	});
 	}
 
 	default Insert insertUserDevice(int clientID, UserDeviceInfo deviceInfo) {
