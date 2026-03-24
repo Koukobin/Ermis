@@ -194,7 +194,7 @@ public interface AuthService
 				getSalt(email),
 				DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
 
-		return passwordHash.equals(enteredPasswordHash.getHashString())
+		return enteredPasswordHash.getHashString().equals(passwordHash)
 				? Optional.of(passwordHash)
 				: Optional.ofNullable(null);
 	}
