@@ -31,7 +31,7 @@ import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_data
  * @author Ilias Koukovinis
  *
  */
-public class ChatSessionTest {
+public class ChatSessionTest extends BaseIntegrationTest {
 
 	private static final String EMAIL_1    = "chat.user1@example.com";
 	private static final String PASSWORD_1 = "Str0ng!Pass#User1";
