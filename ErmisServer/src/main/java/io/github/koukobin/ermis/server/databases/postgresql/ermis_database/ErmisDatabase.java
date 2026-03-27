@@ -66,7 +66,6 @@ public final class ErmisDatabase {
 
 	public static void initialize() {
 		// Helper method to initialize class
-		dbSettings = AppContext.get().dbSettings;
 	}
 
 	static {
@@ -75,6 +74,8 @@ public final class ErmisDatabase {
 
 	static {
 		try {
+			dbSettings = AppContext.get().dbSettings;
+
 			generalPurposeDataSource = new PostgreSQLDatabase.HikariDataSourceBuilder()
 					.setUser(dbSettings.user)
 					.setUserPassword(dbSettings.userPassword)
