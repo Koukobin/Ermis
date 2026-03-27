@@ -17,7 +17,7 @@ package main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_dat
 
 import java.security.SecureRandom;
 
-import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings.Client.BackupVerificationCodes;
+import main.java.io.github.koukobin.ermis.server.configs.AppContext;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.hashing.HashUtil;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.hashing.SimpleHash;
 
@@ -33,7 +33,7 @@ public final class BackupVerificationCodesGenerator {
 	private BackupVerificationCodesGenerator() {}
 
 	public static String generateRawBackupVerificationCode() {
-		byte[] codesBytes = new byte[BackupVerificationCodes.AMOUNT_OF_CHARACTERS];
+		byte[] codesBytes = new byte[AppContext.get().getDBSettings().backupCodes.AMOUNT_OF_CHARACTERS];
 
 		for (int i = 0; i < codesBytes.length; i++) {
 			int charsIndex = secureRandom.nextInt(LEGIBLE_CHARS.length);
@@ -44,7 +44,7 @@ public final class BackupVerificationCodesGenerator {
 	}
 
 	public static String[] generateRawBackupVerificationCodes() {
-		String[] backupVerificationCodes = new String[BackupVerificationCodes.AMOUNT_OF_CODES];
+		String[] backupVerificationCodes = new String[AppContext.get().dbSettings.backupCodes.AMOUNT_OF_CHARACTERS];
 
 		for (int i = 0; i < backupVerificationCodes.length; i++) {
 			String codesBytes = generateRawBackupVerificationCode();
@@ -63,7 +63,7 @@ public final class BackupVerificationCodesGenerator {
 			SimpleHash hash = HashUtil.createHash(
 					code,
 					salt,
-					BackupVerificationCodes.Hashing.HASHING_ALGORITHM);
+					AppContext.get().dbSettings.backupCodes.hashing.HASHING_ALGORITHM);
 
 			hashedBackupVerificationCodes[i] = hash.getHashString();
 		}

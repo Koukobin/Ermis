@@ -33,7 +33,7 @@ import main.java.io.github.koukobin.ermis.common.entry.CreateAccountInfo.Action;
 import main.java.io.github.koukobin.ermis.common.entry.CreateAccountInfo.Credential;
 import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
-import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings;
+import main.java.io.github.koukobin.ermis.server.configs.AppContext;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 import main.java.io.github.koukobin.ermis.server.server.util.EmailCreator;
@@ -77,15 +77,18 @@ public final class CreateAccountHandler extends EntryHandler {
 			osName = new String(osNameBytes);
 		}
 		case FETCH_REQUIREMENTS -> {
+			var usernameRequirements = AppContext.get().dbSettings.username.REQUIREMENTS;
+			var passwordRequirements = AppContext.get().dbSettings.password.REQUIREMENTS;
+
 			ByteBuf payload = ctx.alloc().ioBuffer();
 			payload.writeInt(ServerMessageType.ENTRY.id);
-			payload.writeInt(DatabaseSettings.Client.Username.REQUIREMENTS.getMaxLength());
-			payload.writeInt(DatabaseSettings.Client.Username.REQUIREMENTS.getInvalidCharacters().length());
-			payload.writeBytes(DatabaseSettings.Client.Username.REQUIREMENTS.getInvalidCharacters().getBytes());
+			payload.writeInt(usernameRequirements.getMaxLength());
+			payload.writeInt(usernameRequirements.getInvalidCharacters().length());
+			payload.writeBytes(usernameRequirements.getInvalidCharacters().getBytes());
 
-			payload.writeInt(DatabaseSettings.Client.Password.REQUIREMENTS.getMaxLength());
-			payload.writeFloat(DatabaseSettings.Client.Password.REQUIREMENTS.getMinEntropy());
-			payload.writeBytes(DatabaseSettings.Client.Password.REQUIREMENTS.getInvalidCharacters().getBytes());
+			payload.writeInt(passwordRequirements.getMaxLength());
+			payload.writeFloat(passwordRequirements.getMinEntropy());
+			payload.writeBytes(passwordRequirements.getInvalidCharacters().getBytes());
 
 			ctx.channel().writeAndFlush(payload);
 

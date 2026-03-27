@@ -31,8 +31,7 @@ import main.java.io.github.koukobin.ermis.common.entry.CreateAccountInfo;
 import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
 import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
 import main.java.io.github.koukobin.ermis.common.util.EmptyArrays;
-import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings;
-import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings.Client.BackupVerificationCodes;
+import main.java.io.github.koukobin.ermis.server.configs.AppContext;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.generators.BackupVerificationCodesGenerator;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.generators.ClientIDGenerator;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.hashing.HashUtil;
@@ -86,8 +85,8 @@ public interface AuthService
 
 		{
 			SimpleHash passwordSimpleHash = HashUtil.createHash(password,
-					DatabaseSettings.Client.General.SaltForHashing.SALT_LENGTH,
-					DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
+					dbSettings().client.general.saltForHashing.SALT_LENGTH,
+					dbSettings().password.hashing.HASHING_ALGORITHM);
 
 			passwordHash = passwordSimpleHash.getHashString();
 			salt = passwordSimpleHash.getSalt();
@@ -192,7 +191,7 @@ public interface AuthService
 		String passwordHash = getPasswordHash(email);
 		SimpleHash enteredPasswordHash = HashUtil.createHash(enteredPassword,
 				getSalt(email),
-				DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
+				dbSettings().password.hashing.HASHING_ALGORITHM);
 
 		return enteredPasswordHash.getHashString().equals(passwordHash)
 				? Optional.of(passwordHash)
@@ -213,7 +212,7 @@ public interface AuthService
 		String enteredHashedCode = HashUtil.createHash(
 				backupVerificationCode, 
 				getSalt(email),
-				BackupVerificationCodes.Hashing.HASHING_ALGORITHM)
+				dbSettings().backupCodes.hashing.HASHING_ALGORITHM)
 				.getHashString();
 
 		String query = """

@@ -27,7 +27,6 @@ import main.java.io.github.koukobin.ermis.common.entry.AddedInfo;
 import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
 import main.java.io.github.koukobin.ermis.common.results.ChangePasswordResult;
 import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
-import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.hashing.HashUtil;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.hashing.SimpleHash;
 
@@ -49,7 +48,7 @@ public interface ChangePasswordService extends BaseComponent, UserProfileModule,
 		}
 
 		String salt = getSalt(enteredEmail);
-		SimpleHash simpleHash = HashUtil.createHash(newPassword, salt, DatabaseSettings.Client.Password.Hashing.HASHING_ALGORITHM);
+		SimpleHash simpleHash = HashUtil.createHash(newPassword, salt, dbSettings().client.password.hashing.HASHING_ALGORITHM);
 		String passwordHash = simpleHash.getHashString();
 
 		try (PreparedStatement changePassword = getConn()

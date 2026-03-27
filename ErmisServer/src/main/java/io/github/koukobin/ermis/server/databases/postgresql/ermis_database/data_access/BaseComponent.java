@@ -20,6 +20,7 @@ import java.sql.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import main.java.io.github.koukobin.ermis.server.configs.AppContext;
 import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.complexity_checker.PasswordComplexityChecker;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.complexity_checker.UsernameComplexityChecker;
@@ -31,8 +32,10 @@ import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_data
 public interface BaseComponent {
 	Logger logger = LogManager.getLogger("database");
 
-	UsernameComplexityChecker usernameComplexityChecker = new UsernameComplexityChecker(DatabaseSettings.Client.Username.REQUIREMENTS);
-	PasswordComplexityChecker passwordComplexityChecker = new PasswordComplexityChecker(DatabaseSettings.Client.Password.REQUIREMENTS);
+	UsernameComplexityChecker usernameComplexityChecker = new UsernameComplexityChecker(AppContext.get().dbSettings.username.REQUIREMENTS);
+	PasswordComplexityChecker passwordComplexityChecker = new PasswordComplexityChecker(AppContext.get().dbSettings.password.REQUIREMENTS);
 
 	Connection getConn();
+
+	DatabaseSettings dbSettings();
 }

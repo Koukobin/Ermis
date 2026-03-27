@@ -39,6 +39,8 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
+import main.java.io.github.koukobin.ermis.server.configs.AppContext;
+import main.java.io.github.koukobin.ermis.server.configs.ConfigurationLoader;
 import main.java.io.github.koukobin.ermis.server.configs.ServerSettings;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.codec.Encoder;
@@ -79,6 +81,9 @@ public final class Server {
 	static {
 		try {
 			LOGGER.info("Initializing...");
+
+			ConfigurationLoader loader = new ConfigurationLoader();
+			AppContext.initialize(loader);
 
 			EmailerService.initialize();
 			ErmisDatabase.initialize();

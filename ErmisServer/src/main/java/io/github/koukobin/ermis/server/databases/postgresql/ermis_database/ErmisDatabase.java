@@ -29,6 +29,7 @@ import org.flywaydb.core.Flyway;
 import com.google.common.base.Throwables;
 import com.zaxxer.hikari.HikariDataSource;
 
+import main.java.io.github.koukobin.ermis.server.configs.AppContext;
 import main.java.io.github.koukobin.ermis.server.configs.DatabaseSettings;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.PostgreSQLDatabase;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.data_access.AccountRepository;
@@ -57,12 +58,15 @@ public final class ErmisDatabase {
 	private static final HikariDataSource generalPurposeDataSource;
 	private static final HikariDataSource writeChatMessagesDataSource;
 
+	private static DatabaseSettings dbSettings;
+
 	private ErmisDatabase() throws IllegalAccessException {
 		throw new IllegalAccessException("Database cannot be constructed since it is statically initialized!");
 	}
 
 	public static void initialize() {
 		// Helper method to initialize class
+		dbSettings = AppContext.get().dbSettings;
 	}
 
 	static {
@@ -72,26 +76,26 @@ public final class ErmisDatabase {
 	static {
 		try {
 			generalPurposeDataSource = new PostgreSQLDatabase.HikariDataSourceBuilder()
-					.setUser(DatabaseSettings.USER)
-					.setServerNames(DatabaseSettings.DATABASE_ADDRESS)
-					.setDatabaseName(DatabaseSettings.DATABASE_NAME)
-					.setUserPassword(DatabaseSettings.USER_PASSWORD)
-					.setPortNumbers(DatabaseSettings.DATABASE_PORT)
-					.addDriverProperties(DatabaseSettings.Driver.getDriverProperties())
-					.setMinimumIdle(DatabaseSettings.ConnectionPool.GeneralPurposePool.MIN_IDLE)
-					.setMaximumPoolSize(DatabaseSettings.ConnectionPool.GeneralPurposePool.MAX_POOL_SIZE)
+					.setUser(dbSettings.user)
+					.setUserPassword(dbSettings.userPassword)
+					.setServerNames(dbSettings.databaseAddress)
+					.setDatabaseName(dbSettings.databaseName)
+					.setPortNumbers(dbSettings.databasePort)
+					.addDriverProperties(dbSettings.driver.getDriverProperties())
+					.setMinimumIdle(dbSettings.pool.generalPurposePool.MIN_IDLE)
+					.setMaximumPoolSize(dbSettings.pool.generalPurposePool.MAX_POOL_SIZE)
 					.setConnectionTimeout(0)
 					.build();
 
 			writeChatMessagesDataSource = new PostgreSQLDatabase.HikariDataSourceBuilder()
-					.setUser(DatabaseSettings.USER)
-					.setServerNames(DatabaseSettings.DATABASE_ADDRESS)
-					.setDatabaseName(DatabaseSettings.DATABASE_NAME)
-					.setUserPassword(DatabaseSettings.USER_PASSWORD)
-					.setPortNumbers(DatabaseSettings.DATABASE_PORT)
-					.addDriverProperties(DatabaseSettings.Driver.getDriverProperties())
-					.setMinimumIdle(DatabaseSettings.ConnectionPool.WriteChatMessagesPool.MIN_IDLE)
-					.setMaximumPoolSize(DatabaseSettings.ConnectionPool.WriteChatMessagesPool.MAX_POOL_SIZE)
+					.setUser(dbSettings.user)
+					.setUserPassword(dbSettings.userPassword)
+					.setServerNames(dbSettings.databaseAddress)
+					.setDatabaseName(dbSettings.databaseName)
+					.setPortNumbers(dbSettings.databasePort)
+					.addDriverProperties(dbSettings.driver.getDriverProperties())
+					.setMinimumIdle(dbSettings.pool.writeChatMessagePool.MIN_IDLE)
+					.setMaximumPoolSize(dbSettings.pool.writeChatMessagePool.MAX_POOL_SIZE)
 					.setConnectionTimeout(0)
 					.build();
 
@@ -259,6 +263,11 @@ public final class ErmisDatabase {
 		@Override
 		public Connection getConn() {
 			return conn;
+		}
+
+		@Override
+		public DatabaseSettings dbSettings() {
+			return dbSettings;
 		}
 
 	}
