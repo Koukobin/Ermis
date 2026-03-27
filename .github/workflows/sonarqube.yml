@@ -43,7 +43,7 @@ jobs:
 
       - name: Build Client
         run: |
-          mvn clean install
+          mvn verify
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -88,7 +88,7 @@ jobs:
 
       - name: Build Server
         run: |
-          mvn clean install
+          mvn verify
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

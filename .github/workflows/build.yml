@@ -44,7 +44,7 @@ jobs:
 
       - name: Build Server
         run: |
-          mvn clean install
+          mvn verify
 
   desktop_client:
     name: Build Desktop Client
@@ -64,7 +64,7 @@ jobs:
 
       - name: Build Desktop Client
         run: |
-          mvn clean install
+          mvn verify
 
   ermis_client:
     name: Build Mobile Client
