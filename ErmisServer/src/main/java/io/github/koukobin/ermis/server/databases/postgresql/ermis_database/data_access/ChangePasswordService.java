@@ -44,7 +44,7 @@ public interface ChangePasswordService extends BaseComponent, UserProfileModule,
 		}
 
 		if (!passwordComplexityChecker.estimate(newPassword)) {
-			return new GeneralResult(ChangePasswordResult.SUCCESFULLY_CHANGED_PASSWORD);
+			return new GeneralResult(ChangePasswordResult.ERROR_WHILE_CHANGING_PASSWORD);
 		}
 
 		String salt = getSalt(enteredEmail);
