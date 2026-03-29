@@ -32,7 +32,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import main.java.io.github.koukobin.ermis.common.util.CompressionDetector;
-import main.java.io.github.koukobin.ermis.server.configs.ConfigurationsPaths.UserFilesStorage;
+import main.java.io.github.koukobin.ermis.server.configs.AppContext;
 
 /**
  * @author Ilias Koukovinis
@@ -47,6 +47,9 @@ public final class FilesStorage {
 	private static final LoadingCache<String /* ID */, byte[] /* Content */> filesCache;
 	private static final LoadingCache<String /* ID */, byte[] /* Content */> profilePhotosCache;
 
+	private static final String PROFILE_PHOTOS_DIRECTORY;
+	private static final String SENT_FILES_DIRECTORY;
+
 	private FilesStorage() {}
 
 	public static void initialize() {
@@ -54,9 +57,12 @@ public final class FilesStorage {
 	}
 
 	static {
+		PROFILE_PHOTOS_DIRECTORY = AppContext.get().userFilesStorageSettings.PROFILE_PHOTOS_DIRECTORY;
+		SENT_FILES_DIRECTORY = AppContext.get().userFilesStorageSettings.SENT_FILES_DIRECTORY;
+
 		try {
-			Files.createDirectories(Paths.get(UserFilesStorage.PROFILE_PHOTOS_DIRECTORY));
-			Files.createDirectories(Paths.get(UserFilesStorage.SENT_FILES_DIRECTORY));
+			Files.createDirectories(Paths.get(PROFILE_PHOTOS_DIRECTORY));
+			Files.createDirectories(Paths.get(SENT_FILES_DIRECTORY));
 		} catch (FileAlreadyExistsException fae) {
 			LOGGER.info("Directory {} already exists", fae.getFile());
 		} catch (IOException ioe) {
@@ -75,7 +81,7 @@ public final class FilesStorage {
 
 					@Override
 					public byte[] load(String uuid) throws IOException {
-						String sentFilePath = UserFilesStorage.SENT_FILES_DIRECTORY + uuid;
+						String sentFilePath = SENT_FILES_DIRECTORY + uuid;
 						return Files.readAllBytes(Paths.get(sentFilePath));
 					}
 				});
@@ -91,7 +97,7 @@ public final class FilesStorage {
 
 					@Override
 					public byte[] load(String uuid) throws IOException {
-						String photoFilePath = UserFilesStorage.PROFILE_PHOTOS_DIRECTORY + uuid;
+						String photoFilePath = PROFILE_PHOTOS_DIRECTORY + uuid;
 						return Files.readAllBytes(Paths.get(photoFilePath));
 					}
 				});
@@ -103,7 +109,7 @@ public final class FilesStorage {
 
 	public static String storeProfilePhoto(byte[] photoBytes) throws IOException {
 		String uuid = generateUUID();
-		String photoFilePath = UserFilesStorage.PROFILE_PHOTOS_DIRECTORY + uuid;
+		String photoFilePath = PROFILE_PHOTOS_DIRECTORY + uuid;
 		byte[] photoBytesCompressed = Zstd.compress(photoBytes, FILE_COMPRESSION_LEVEL);
 
 		Path path = Paths.get(photoFilePath);
@@ -116,7 +122,7 @@ public final class FilesStorage {
 
 	public static String storeSentFile(byte[] fileBytes) throws IOException {
 		String uuid = generateUUID();
-		String photoFilePath = UserFilesStorage.SENT_FILES_DIRECTORY + uuid;
+		String photoFilePath = SENT_FILES_DIRECTORY + uuid;
 		byte[] fileBytesCompressed = Zstd.compress(fileBytes, FILE_COMPRESSION_LEVEL);
 
 		Path path = Paths.get(photoFilePath);

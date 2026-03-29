@@ -26,9 +26,11 @@ public final class AppContext {
 	private static AppContext instance;
 
 	public final DatabaseSettings dbSettings;
+	public final UserFilesStorageSettings userFilesStorageSettings;
 
 	private AppContext(ConfigurationLoader loader) throws IOException {
 		this.dbSettings = new DatabaseSettings(loader);
+		this.userFilesStorageSettings = new UserFilesStorageSettings(loader);
 	}
 
 	public static void initialize(ConfigurationLoader loader) throws IOException {

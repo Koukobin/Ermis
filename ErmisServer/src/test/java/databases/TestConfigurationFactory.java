@@ -61,6 +61,9 @@ public class TestConfigurationFactory {
 				.withDatabaseClientPasswordHashingScrypt(scrypt())
 				.withDatabaseClientBackupCodesGeneral(withDatabaseClientBackupCodesGeneral())
 				.withDatabaseClientBackupCodesHashingArgon2(argon2())
+				.withUserFilesStorageRoot("./target/test")
+				.withProfilePhotosDir("./target/test/profile-photos/")
+				.withSentFilesDir("./target/test/sent-files/")
 				.withJUnitTestsEnabled()
 				.build();
 	}

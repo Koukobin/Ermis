@@ -56,6 +56,10 @@ public class ConfigurationLoader {
 	private final Properties databaseClientBackupCodesHashingBcrypt;
 	private final Properties databaseClientBackupCodesHashingScrypt;
 
+	private final String userFilesStorageRoot;
+	private final String profilePhotosDir;
+	private final String sentFilesDir;
+
 	public boolean enableUnitTests = false;
 
 	public ConfigurationLoader() throws IOException {
@@ -86,6 +90,10 @@ public class ConfigurationLoader {
         this.databaseClientBackupCodesHashingArgon2 = FileUtils.readPropertiesFile(ConfigurationsPaths.BackupVerificationCodes.HashingAlgorithms.ARGON2_SETTINGS_PATH);
         this.databaseClientBackupCodesHashingBcrypt = FileUtils.readPropertiesFile(ConfigurationsPaths.BackupVerificationCodes.HashingAlgorithms.BCRYPT_SETTINGS_PATH);
         this.databaseClientBackupCodesHashingScrypt = FileUtils.readPropertiesFile(ConfigurationsPaths.BackupVerificationCodes.HashingAlgorithms.SCRYPT_SETTINGS_PATH);
+
+		this.userFilesStorageRoot = ConfigurationsPaths.UserFilesStorage.ROOT_FOLDER;
+		this.profilePhotosDir     = ConfigurationsPaths.UserFilesStorage.PROFILE_PHOTOS_DIRECTORY;
+		this.sentFilesDir         = ConfigurationsPaths.UserFilesStorage.SENT_FILES_DIRECTORY;
 	}
 
 	// Constructor utilized by Builder
@@ -117,6 +125,10 @@ public class ConfigurationLoader {
 		this.databaseClientBackupCodesHashingArgon2 = orEmpty(builder.databaseClientBackupCodesHashingArgon2);
 		this.databaseClientBackupCodesHashingBcrypt = orEmpty(builder.databaseClientBackupCodesHashingBcrypt);
 		this.databaseClientBackupCodesHashingScrypt = orEmpty(builder.databaseClientBackupCodesHashingScrypt);
+
+		this.userFilesStorageRoot = builder.userFilesStorageRoot;
+		this.profilePhotosDir     = builder.profilePhotosDir;
+		this.sentFilesDir         = builder.sentFilesDir;
 
 		this.enableUnitTests = builder.enableUnitTests;
 	}
@@ -153,6 +165,10 @@ public class ConfigurationLoader {
     public Properties getDatabaseClientBackupCodesHashingBcrypt() { return databaseClientBackupCodesHashingBcrypt; }
     public Properties getDatabaseClientBackupCodesHashingScrypt() { return databaseClientBackupCodesHashingScrypt; }
 
+    public String getUserFilesStorageRoot()  { return userFilesStorageRoot; }
+    public String getProfilePhotosDir()      { return profilePhotosDir; }
+    public String getSentFilesDir()          { return sentFilesDir; }
+    
 	// Builder useful for tests
 	public static class Builder {
 
@@ -184,6 +200,10 @@ public class ConfigurationLoader {
 		private Properties databaseClientBackupCodesHashingBcrypt;
 		private Properties databaseClientBackupCodesHashingScrypt;
 
+		private String userFilesStorageRoot;
+		private String profilePhotosDir;
+		private String sentFilesDir;
+
 		private boolean enableUnitTests;
 
         public Builder withServerGeneral(Properties p)   { this.serverGeneral = p; return this; }
@@ -213,6 +233,10 @@ public class ConfigurationLoader {
         public Builder withDatabaseClientBackupCodesHashingArgon2(Properties p) { this.databaseClientBackupCodesHashingArgon2 = p; return this; }
         public Builder withDatabaseClientBackupCodesHashingBcrypt(Properties p) { this.databaseClientBackupCodesHashingBcrypt = p; return this; }
         public Builder withDatabaseClientBackupCodesHashingScrypt(Properties p) { this.databaseClientBackupCodesHashingScrypt = p; return this; }
+
+        public Builder withUserFilesStorageRoot(String s) { this.userFilesStorageRoot  = s; return this; }
+        public Builder withProfilePhotosDir(String s)     { this.profilePhotosDir      = s; return this; }
+        public Builder withSentFilesDir(String s)         { this.sentFilesDir          = s; return this; }
 
 		public Builder withJUnitTestsEnabled() { this.enableUnitTests  = true; return this; }
 
