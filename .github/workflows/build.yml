@@ -19,18 +19,6 @@ jobs:
     needs: detect-module-changes
     if: needs.detect-module-changes.outputs.server == 'true' || needs.detect-module-changes.outputs.common == 'true'
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: test_db
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
 
     steps:
       - name: Checkout repository
