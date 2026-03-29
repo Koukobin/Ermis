@@ -92,7 +92,7 @@ public interface UserDevicesManagerService extends BaseComponent, UserProfileMod
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate == 1;
+		return resultUpdate > 0;
 	}
 
 	default boolean isDeviceLoggedIn(String email, UUID deviceUUID) {
