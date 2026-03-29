@@ -42,11 +42,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Create required directories
-        run: |
-          mkdir -p /var/lib/ermis-server/profile-photos/
-          chmod -R 755 /var/lib/ermis-server/profile-photos/
-
       - name: Build Server
         run: |
           mvn verify
