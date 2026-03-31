@@ -91,6 +91,14 @@ class AuthServiceTest extends BaseIntegrationTest {
 			assertFalse(conn.accountWithEmailExists(ALT_EMAIL));
 		}
 
+		@Test
+		@DisplayName("is case-insensitive for the email address")
+		void caseInsensitive_matchesAccount() {
+			conn.createAccount(VALID_USERNAME, VALID_PASSWORD, uniqueDevice(), VALID_EMAIL);
+
+			assertTrue(conn.accountWithEmailExists(VALID_EMAIL.toUpperCase()),
+					"Email lookup should be case-insensitive");
+		}
 	}
 
 	// =========================================================================
