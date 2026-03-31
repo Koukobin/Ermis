@@ -30,7 +30,7 @@ public interface AccountRepository extends BaseComponent {
 	default boolean accountWithEmailExists(String email) {
 		boolean accountExists = false;
 
-		try (PreparedStatement getEmailAddress = getConn().prepareStatement("SELECT 1 FROM users WHERE email=?;")) {
+		try (PreparedStatement getEmailAddress = getConn().prepareStatement("SELECT 1 FROM users WHERE LOWER(email)=LOWER(?);")) {
 			getEmailAddress.setString(1, email);
 			ResultSet rs = getEmailAddress.executeQuery();
 
