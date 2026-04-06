@@ -137,7 +137,7 @@ void maintainWebSocketConnection(ServiceInstance service) {
     setupOfflineClient().whenComplete(() {
       serverInfo = Client.instance().serverInfo!;
 
-      final sessions = Client.instance().chatSessions!;
+      final sessions = Client.instance().chatSessions ?? [];
       for (final session in sessions) {
         Client.instance().commands!.fetchWrittenText(session.chatSessionIndex);
       }
