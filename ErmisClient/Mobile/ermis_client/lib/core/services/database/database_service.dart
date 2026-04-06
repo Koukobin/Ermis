@@ -72,6 +72,11 @@ class DBConnection {
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         for (int version = oldVersion + 1; version <= newVersion; version++) {
           switch (version) {
+            case 11:
+              {
+                await db.execute('DROP TABLE IF EXISTS members;');
+              }
+              break;
             default:
               // Should never occur - BUT, just in case an unhandled
               // version is reached, nuke the whole database to avoid
@@ -83,7 +88,7 @@ class DBConnection {
           }
         }
       },
-      version: 10,
+      version: 11,
     );
 
     // Create the 'servers' table
