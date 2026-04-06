@@ -39,7 +39,7 @@ enum ChatBackDrop {
   }
 
   String get name => switch (this) {
-        monotone => S.current.default_monotone,
+        monotone => S.current.defaultMonotone,
         abstract => S.current.abstract,
         ermis => AppConstants.applicationTitle,
         gradient => S.current.gradient,

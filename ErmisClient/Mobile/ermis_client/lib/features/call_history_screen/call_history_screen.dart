@@ -75,7 +75,7 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(S().call_history_app_title),
+        title: Text(S().callHistoryAppTitle),
       ),
       body: _callHistory.isEmpty
           ? Column(
@@ -100,7 +100,7 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
                     spacing: 5,
                     children: [
                       Text(
-                        S().voice_calls_history,
+                        S().voiceCallsHistory,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: appColors.secondaryColor,
@@ -155,20 +155,20 @@ class _CallHistoryPageState extends State<CallHistoryPage> {
                     },
                   ),
                   title: Text(
-                    '${S().session_capitalized} '
+                    '${S().sessionCapitalized} '
                     '(ID: ${entry.chatSessionID}): '
                     '${UserInfoManager.chatSessionIDSToChatSessions[entry.chatSessionID]!.toString()}',
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${S().caller_capitalized}: ${entry.callerUsername}'),
+                      Text('${S().callerCapitalized}: ${entry.callerUsername}'),
                       Text(
                         '${formatDateTime('MMM d, yyyy', startDate)}, ${formatDateTime('MMM d, yyyy', endDate)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       Text(
-                        '${S().duration_capitalized}: ${formatDuration(endDate.difference(startDate))}',
+                        '${S().durationCapitalized}: ${formatDuration(endDate.difference(startDate))}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

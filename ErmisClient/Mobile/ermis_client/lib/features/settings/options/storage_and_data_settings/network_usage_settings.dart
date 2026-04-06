@@ -56,7 +56,7 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
 
     return Scaffold(
       appBar: ErmisAppBar(
-        titleText: S().network_usage,
+        titleText: S().networkUsage,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -70,7 +70,7 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      S().usage_capitalized,
+                      S().usageCapitalized,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 5),
@@ -101,7 +101,7 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              S().sent_capitalized,
+                              S().sentCapitalized,
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -119,7 +119,7 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              S().received_capitalized,
+                              S().receivedCapitalized,
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -147,10 +147,10 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
                   scrollView: ListView(
             children: [
               // _unknownDataWidget(),
-              fuck(S().calls_usage_not_available, Icons.call_outlined),
-              fuck(S().media_usage_not_available, Icons.image),
-              fuck(S().messages_usage_not_available, Icons.message_outlined),
-              fuck(S().roaming_usage_not_available, Icons.public),
+              fuck(S().callsUsageNotAvailable, Icons.call_outlined),
+              fuck(S().mediaUsageNotAvailable, Icons.image),
+              fuck(S().messagesUsageNotAvailable, Icons.message_outlined),
+              fuck(S().roamingUsageNotAvailable, Icons.public),
             ],
           ))),
           Column(
@@ -158,11 +158,11 @@ class _NetworkUsageScreenState extends State<NetworkUsageScreen> {
               const Divider(),
               ListTile(
                 contentPadding: const EdgeInsets.only(left: 75),
-                title: Text(S().reset_statistics),
+                title: Text(S().resetStatistics),
                 onTap: () {
                   showConfirmationDialog(
                     context,
-                    S().reset_network_usage_statistics,
+                    S().resetNetworkUsageStatistics,
                     () {
                       ErmisDB.getConnection().resetNetworkUsage(UserInfoManager.serverInfo);
                       setState(() {

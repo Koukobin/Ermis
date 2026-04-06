@@ -83,7 +83,7 @@ class ChatUserAvatar extends InteractiveUserAvatar {
                   popContext();
                   showSnackBarDialog(
                     context: context,
-                    content: S.current.functionality_not_implemented,
+                    content: S.current.functionalityNotImplemented,
                   );
                 },
                 icon: Icon(

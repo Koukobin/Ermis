@@ -112,10 +112,10 @@ void onDidReceiveNotification(NotificationResponse response) async {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await silentClientConnect();
 
-        showToastDialog(S.current.Connecting);
+        showToastDialog(S.current.callStatusConnecting);
         showSnackBarDialog(
           context: NavigationService.currentContext,
-          content: S.current.Connecting,
+          content: S.current.callStatusConnecting,
         );
 
         await Future.delayed(const Duration(seconds: 3)); // Await until first screen builds

@@ -116,7 +116,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
 
         if (_conversations!.length < event.sessions.length) {
           if (SettingsJson().hasUserMadeFirstFriend) {
-            showToastDialog(S().new_chat);
+            showToastDialog(S().newChat);
             return;
           }
 
@@ -235,9 +235,9 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text(S.current.delete_this_chat_question),
+                        title: Text(S.current.deleteThisChat),
                         content: Text(S.current
-                            .deleting_this_chat_will_permanently_delete_all_prior_messages),
+                            .deletingChatWillPermanentlyDeleteAllMessages),
                         actions: [
                           TextButton(
                             onPressed: Navigator.of(context).pop, // Cancel
@@ -252,7 +252,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
                                     ?.deleteChatSession(cs.chatSessionIndex);
                               }
                             }, // Confirm
-                            child: Text(S.current.delete_chat),
+                            child: Text(S.current.deleteChat),
                           ),
                         ],
                       );
@@ -332,7 +332,7 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
                                     ),
                                   ),
                                   child: Text(
-                                    S.current.no_conversations_available,
+                                    S.current.noConversationsAvailable,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: appColors.secondaryColor,

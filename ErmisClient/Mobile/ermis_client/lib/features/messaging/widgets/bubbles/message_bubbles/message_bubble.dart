@@ -214,7 +214,7 @@ class MessageBubble extends Bubble {
       case MessageContentType.gif:
         return _GifPage(gifUrl: message.text);
       case null:
-        return OminousUnknownWidget(text: S().content_type_unknown);
+        return OminousUnknownWidget(text: S().contentTypeUnknown);
     }
   }
 
@@ -225,7 +225,9 @@ class _GifPage extends StatelessWidget {
   const _GifPage({required this.gifUrl});
 
   @override
-  Widget build(BuildContext context) => Image.network(gifUrl);
+  Widget build(BuildContext context) {
+    return Image.network(gifUrl);
+  }
 }
 
 class OminousUnknownWidget extends StatelessWidget {

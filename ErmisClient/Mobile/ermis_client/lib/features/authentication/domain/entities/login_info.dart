@@ -34,10 +34,10 @@ enum LoginResult implements Resultable {
 
   @override
   String get message => switch(this) {
-    LoginResult.successfullyLoggedIn => S.current.login_success,
-    LoginResult.errorWhileLoggingIn => S.current.login_error,
-    LoginResult.incorrectPassword => S.current.login_password_incorrect,
-    LoginResult.incorrectBackupVerificationCode => S.current.login_backup_code_incorrect,
+    LoginResult.successfullyLoggedIn => S.current.loginSucess,
+    LoginResult.errorWhileLoggingIn => S.current.loginError,
+    LoginResult.incorrectPassword => S.current.incorrectPassword,
+    LoginResult.incorrectBackupVerificationCode => S.current.incorrectBackupCode,
   };
 
   static final Map<int, LoginResult> _valuesById = {
@@ -77,9 +77,9 @@ enum LoginCredentialResult implements Resultable {
   
   @override
   String get message => switch (this) {
-    LoginCredentialResult.successfullyExchangedCredentials => S.current.credential_validation_success,
-    LoginCredentialResult.incorrectEmail => S.current.login_email_incorrect,
-    LoginCredentialResult.accountDoesntExist => S.current.login_account_not_found,
+    LoginCredentialResult.successfullyExchangedCredentials => S.current.credentialValidationSuccess,
+    LoginCredentialResult.incorrectEmail => S.current.incorrectEmail,
+    LoginCredentialResult.accountDoesntExist => S.current.accountNotFound,
   };
 
   static final Map<int, LoginCredentialResult> _valuesById = {

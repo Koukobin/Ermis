@@ -139,7 +139,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                             ? CustomTextField(
                                 key: const ValueKey('backupCode'), // Unique key for backup verification code
                                 controller: _backupVerificationController,
-                                hint: S.current.backup_verification_code,
+                                hint: S.current.backupVerificationCode,
                               )
                             : CustomTextField(
                                 keyboardType: TextInputType.text,
@@ -167,12 +167,12 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                         textColor: appColors.primaryColor,
                         onPressed: () async {
                           if (_emailController.text.isEmpty) {
-                            showToastDialog(S.current.email_is_empty);
+                            showToastDialog(S.current.emailEmpty);
                             return;
                           }
 
                           if (_passwordController.text.isEmpty && _backupVerificationController.text.isEmpty) {
-                            showToastDialog(S.current.password_is_empty);
+                            showToastDialog(S.current.passwordIsEmpty);
                             return;
                           }
 
@@ -201,7 +201,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                           if (!isExchangeSuccessful) {
                             showSnackBarDialog(
                                 context: context,
-                                content: S.current.registration_failed(resultMessage));
+                                content: S.current.registrationFailed(resultMessage));
                             return;
                           }
 
@@ -263,14 +263,14 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                           child: _useBackupverificationCode
                               ? Text(
                                   key: const ValueKey("switch-to-password"),
-                                  S.current.use_password,
+                                  S.current.usePassword,
                                   style: TextStyle(
                                       fontSize: 18,
                                       color: appColors.inferiorColor),
                                 )
                               : Text(
                                   key: const ValueKey("switch-to-backup-verification-code"),
-                                  S.current.use_backup_verification_code,
+                                  S.current.useBackupVerificationCode,
                                   style: TextStyle(
                                       fontSize: 18,
                                       color: appColors.inferiorColor),
@@ -294,7 +294,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
             ),
 
             buildButton(
-                label: S.current.create_account,
+                label: S.current.createAccount,
                 icon: Icons.account_circle,
                 backgroundColor: appColors.primaryColor,
                 textColor: appColors.secondaryColor,

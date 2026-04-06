@@ -54,7 +54,7 @@ Future<void> showVerificationDialog({
                     controller: codeController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: S.current.enter_verification_code,
+                      labelText: S.current.enterVerificationCode,
                       border: const OutlineInputBorder(),
                     ),
                   ),
@@ -73,7 +73,7 @@ Future<void> showVerificationDialog({
                             MediaQuery.of(context).size.height,
                           ),
                         ),
-                        child: Text(S.current.resend_code),
+                        child: Text(S.current.resendCode),
                       ),
                       ElevatedButton(
                         onPressed: isSubmitting
@@ -82,7 +82,7 @@ Future<void> showVerificationDialog({
                                 final codeString = codeController.text.trim();
                                 if (codeString.isEmpty) {
                                   showToastDialog(
-                                      S.current.please_enter_the_verification_code);
+                                      S.current.pleaseEnterVerificationCode);
                                   return;
                                 }
             
@@ -90,7 +90,7 @@ Future<void> showVerificationDialog({
             
                                 if (codeInt == null) {
                                   showToastDialog(
-                                      S.current.verification_code_must_be_number);
+                                      S.current.verificationCodeMustBeNumber);
                                   return;
                                 }
             
@@ -154,7 +154,7 @@ mixin Verification {
       await showVerificationDialog(
           context: context,
           title: S.current.verification,
-          promptMessage: S.current.enter_verification_code_sent_to_your_email,
+          promptMessage: S.current.enterVerificationCodeSentToEmail,
           onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
@@ -192,7 +192,7 @@ mixin Verification {
       await showVerificationDialog(
           context: context,
           title: S.current.verification,
-          promptMessage: S.current.enter_verification_code_sent_to_your_email,
+          promptMessage: S.current.enterVerificationCodeSentToEmail,
           onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
           onSumbittedCode: verificationEntry.sendVerificationCode);
 
@@ -263,7 +263,7 @@ mixin Verification {
       await showVerificationDialog(
           context: context,
           title: S.current.verification,
-          promptMessage: S.current.enter_verification_code_sent_to_your_email,
+          promptMessage: S.current.enterVerificationCodeSentToEmail,
           onResendCode: () => verificationEntry.resendVerificationCodeToEmail(),
           onSumbittedCode: verificationEntry.sendVerificationCode);
 

@@ -312,7 +312,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                     maxWidth: constraints.maxWidth * 0.45, // Number chosen arbitrarily
                   ),
                   child: Text(
-                    S.current.chat_with(widget.chatSession.members
+                    S.current.chatWith(widget.chatSession.members
                         .map((m) => m.username)
                         .join(', ')),
                     overflow: TextOverflow.ellipsis,
@@ -339,7 +339,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                         // FUCK
                       },
                       padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: Text(S.current.chat_theme),
+                      child: Text(S.current.chatTheme),
                     ),
                     PopupMenuItem(
                       value: () async {
@@ -353,7 +353,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                         Client.instance().commands?.addUsersInChatSession(_chatSession.chatSessionIndex, memberIds);
                       },
                       padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: Text(S.current.add_user),
+                      child: Text(S.current.addUser),
                     ),
                   ],
                 ),
@@ -495,7 +495,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                                 color: appColors.primaryColor.withAlpha(175),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Text(S().new_message),
+                              child: Text(S().newMessage),
                             ),
                           ),
                         MessageBubble(
@@ -576,7 +576,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
                 Clipboard.setData(ClipboardData(text: data));
                 showSnackBarDialog(
-                    context: context, content: S.current.message_copied);
+                    context: context, content: S.current.messageCopied);
                 setState(() {
                   _isEditingMessage = false;
                   _messagesBeingEdited.clear();
@@ -598,12 +598,12 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
                     onPressed: () {
                       Navigator.of(context).pop();
                       Client.instance().commands?.deleteMessages(_chatSessionIndex, messageIDs);
-                      showSnackBarDialog(context: context, content: S.current.attempting_delete_message);
+                      showSnackBarDialog(context: context, content: S.current.attemptingDeleteMessage);
                     },
                     child: Text(S.current.delete),
                   ),
                 ],
-                content: S.current.confirm_delete_message,
+                content: S.current.confirmDeleteMessage,
               );
 
               setState(() {
@@ -636,7 +636,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
           children: [
             UserAvatar.empty(),
             const SizedBox(width: 10),
-            Text(S.current.chat_with(widget.chatSession.members[0].username),
+            Text(S.current.chatWith(widget.chatSession.members[0].username),
                 style: TextStyle(color: appColors.inferiorColor)),
           ],
         ),

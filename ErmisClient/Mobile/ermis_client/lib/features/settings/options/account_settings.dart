@@ -102,7 +102,7 @@ class AccountSettings extends StatefulWidget {
                       style: const TextStyle(fontSize: 18)),
                   onTap: () {
                     showConfirmationDialog(context,
-                        S.current.are_you_sure_you_want_to_switch_to(serverAccount.name()),
+                        S.current.areYouSureYouWantToSwitchTo(serverAccount.name()),
                         () async {
                       ServerInfo serverDetails = UserInfoManager.serverInfo;
                       final DBConnection conn = ErmisDB.getConnection();
@@ -149,7 +149,7 @@ class AccountSettings extends StatefulWidget {
                         pushSlideTransition(
                             context, const CreateAccountInterface());
                       },
-                      child: Text(S.current.account_add))
+                      child: Text(S.current.accountAdd))
                 ],
               ),
             ],
@@ -180,21 +180,21 @@ class _AccountSettingsState extends State<AccountSettings>
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
-      appBar: ErmisAppBar(titleText: S.current.account_settings),
+      appBar: ErmisAppBar(titleText: S.current.accountSettings),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ListView(
           children: [
             ListTile(
               leading: const Icon(Icons.password),
-              title: Text(S.current.change_password),
+              title: Text(S.current.changePassword),
               onTap: () async {
                 pushSlideTransition(context, const ChangePasswordSettings());
               },
             ),
             ListTile(
               leading: const Icon(Icons.person_add_alt),
-              title: Text(S.current.account_add),
+              title: Text(S.current.accountAdd),
               onTap: () async {
                 await AccountSettings.showOtherAccounts(context);
               },
@@ -208,7 +208,7 @@ class _AccountSettingsState extends State<AccountSettings>
               onTap: () {
                 showConfirmationDialog(
                   context,
-                  S().are_you_sure,
+                  S().areYouSure,
                   () {
                     Client.instance().commands!.logoutAllDevices();
                     resetToStartingScreen(context);
@@ -222,7 +222,7 @@ class _AccountSettingsState extends State<AccountSettings>
                 FontAwesomeIcons.solidTrashCan,
                 color: Colors.redAccent,
               ),
-              title: Text(S.current.account_delete),
+              title: Text(S.current.accountDelete),
               onTap: () {
                 pushSlideTransition(context, const DeleteAccountSettings());
               },
@@ -255,7 +255,7 @@ class _ChangePasswordPageState extends State<ChangePasswordSettings>
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: ErmisAppBar(titleText: S.current.change_password),
+      appBar: ErmisAppBar(titleText: S.current.changePassword),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),
         child: ScrollViewFixer.createScrollViewWithAppBarSafety(
@@ -307,7 +307,7 @@ class _ChangePasswordPageState extends State<ChangePasswordSettings>
 
             // Button to change password
             buildButton(
-              label: S.current.change_password,
+              label: S.current.changePassword,
               backgroundColor: appColors.secondaryColor,
               icon: Icons.password,
               onPressed: _changePassword,
@@ -343,7 +343,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
-      appBar: ErmisAppBar(titleText: S.current.account_delete),
+      appBar: ErmisAppBar(titleText: S.current.accountDelete),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 16.0),
         child: ScrollViewFixer.createScrollViewWithAppBarSafety(
@@ -358,7 +358,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
                 const SizedBox(width: 20),
 
                 // Display the warning text about account deletion
-                Text(S.current.account_delete_confirmation,
+                Text(S.current.accountDeleteConfirmation,
                     style: const TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
@@ -370,16 +370,16 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
             const SizedBox(height: 16),
 
             // Display bullet points explaining what will happen if the account is deleted
-            buildBullet(S.current.account_delete_bullet1),
-            buildBullet(S.current.account_delete_bullet2),
-            buildBullet(S.current.account_delete_bullet3),
+            buildBullet(S.current.accountDeleteBullet1),
+            buildBullet(S.current.accountDeleteBullet2),
+            buildBullet(S.current.accountDeleteBullet3),
 
             // Add space below the bullet points
             const SizedBox(height: 30),
 
             // Text
             Text(
-              S.current.account_confirm_proceed,
+              S.current.accountConfirmProceed,
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -432,7 +432,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
                 minimumSize: const Size.fromHeight(50),
               ),
               child: Text(
-                S.current.account_delete,
+                S.current.accountDelete,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
@@ -488,7 +488,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                S.current.name_enter,
+                S.current.enterYourName,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
@@ -498,7 +498,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
                   Flexible(
                       child: TextField(
                     decoration: InputDecoration(
-                      hintText: S.current.name_enter,
+                      hintText: S.current.enterYourName,
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: appColors.primaryColor), // Bottom line color

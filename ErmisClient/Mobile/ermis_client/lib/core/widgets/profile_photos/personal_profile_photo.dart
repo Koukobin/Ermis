@@ -83,7 +83,7 @@ class PersonalProfilePhoto extends StatefulWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                S.current.profile_photo,
+                S.current.profilePhoto,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
@@ -92,7 +92,7 @@ class PersonalProfilePhoto extends StatefulWidget {
                 children: [
                   buildPopupOption(
                     icon: Icons.image_outlined,
-                    label: S.current.profile_gallery,
+                    label: S.current.gallery,
                     onTap: () async {
                       Navigator.pop(context);
                       attachSingleFile(context, (String fileName, Uint8List fileBytes) {
@@ -107,7 +107,7 @@ class PersonalProfilePhoto extends StatefulWidget {
                   ),
                   buildPopupOption(
                     icon: Icons.camera_alt_outlined,
-                    label: S.current.profile_camera,
+                    label: S.current.camera,
                     onTap: () async {
                       Navigator.pop(context);
                       XFile? file = await MyCamera.capturePhoto();
@@ -172,7 +172,7 @@ class PersonalProfilePhotoState extends LoadingState<PersonalProfilePhoto> with 
       setState(() => isLoading = false);
       showSnackBarDialog(
           context: context,
-          content: S.current.an_error_occured_while_trying_to_change_profile_photo);
+          content: S.current.errorOccuredWhileTryingToChangeProfilePhoto);
     });
 
   }

@@ -44,7 +44,7 @@ Future<void> setupClientSession(
   // (theoretically at least) with server version 1.y.z; but not with server version
   // 2.0.0! (Using "!" to avoid ambiguity with version dots)
   if (AppConstants.applicationVersion.codeUnitAt(0) != serverVersion.codeUnitAt(0)) {
-    showToastDialog(S.current.incompatible_server_version_warning);
+    showToastDialog(S.current.incompatibleServerVersionWarning);
   }
 
   Client.instance().startMessageDispatcher();

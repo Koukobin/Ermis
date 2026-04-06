@@ -95,7 +95,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: appColors.secondaryColor,
-        appBar: ErmisAppBar(titleText: S.current.profile_settings),
+        appBar: ErmisAppBar(titleText: S.current.profileSettings),
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20.0),
           child: ScrollViewFixer.createScrollViewWithAppBarSafety(
@@ -157,16 +157,16 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      S.current.profile_about,
+                      S.current.aboutCapitlized,
                       style: TextStyle(color: Colors.grey[500]),
                     ),
-                    Text(S.current.profile_hey_there),
+                    Text(S.current.profileHeyThere),
                   ],
                 ),
                 onTap: () {
                   showSnackBarDialog(
                       context: context,
-                      content: S.current.functionality_not_implemented);
+                      content: S.current.functionalityNotImplemented);
                 },
               ),
               ListTile(
@@ -184,7 +184,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: _clientID.toString()));
                   showSnackBarDialog(
-                      context: context, content: S.current.profile_id_copied);
+                      context: context, content: S.current.profileIdCopied);
                 },
               ),
             ],
@@ -217,7 +217,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                S.current.name_enter,
+                S.current.enterYourName,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
@@ -226,7 +226,7 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
                   Flexible(
                       child: TextField(
                     decoration: InputDecoration(
-                      hintText: S.current.name_enter,
+                      hintText: S.current.enterYourName,
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: appColors.primaryColor), // Bottom line color

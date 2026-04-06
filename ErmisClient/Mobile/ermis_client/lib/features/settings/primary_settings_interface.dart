@@ -65,7 +65,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
               leading: const PersonalProfilePhoto(radius: 25),
               title: const DisplayName(),
-              subtitle: Text(S.current.profile_change_name_id),
+              subtitle: Text(S.current.accountProfileSettingsLabel),
               onTap: () {
                 navigateWithFade(context, const ProfileSettings());
               },
@@ -81,7 +81,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             ListTile(
               leading: const Icon(Icons.key),
               title: Text(S.current.account),
-              subtitle: Text(S.current.privacy_security_change_password),
+              subtitle: Text(S.current.accountSecuritySettingsLabel),
               onTap: () {
                 pushSlideTransition(context, const AccountSettings());
               },
@@ -97,7 +97,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             ListTile(
               leading: const Icon(Icons.chat),
               title: Text(S.current.chats),
-              subtitle: Text(S.current.theme_wallpapers_chat_history),
+              subtitle: Text(S.current.chatsSettingsLabel),
               onTap: () {
                 pushSlideTransition(context, const ThemeSettingsPage());
               },
@@ -105,22 +105,22 @@ class SettingsScreenState extends State<SettingsScreen> {
             ListTile(
               leading: const Icon(Icons.notifications),
               title: Text(S.current.notifications),
-              subtitle: Text(S.current.message_group_call_tones),
+              subtitle: Text(S.current.notificationSettingsLabel),
               onTap: () {
                 pushSlideTransition(context, const NotificationSettings());
               },
             ),
             ListTile(
               leading: const Icon(Icons.data_usage),
-              title: Text(S.current.storage_data),
-              subtitle: Text(S.current.network_usage_auto_download),
+              title: Text(S.current.storageData),
+              subtitle: Text(S.current.networkUsageAutoDownload),
               onTap: () {
                 pushSlideTransition(context, const StorageAndDataScreen());
               },
             ),
             ListTile(
               leading: const Icon(Icons.language),
-              title: Text(S.current.app_language),
+              title: Text(S.current.appLanguage),
               subtitle: Text(localeProvider.language ?? "Could not find language"),
               onTap: () {
                 LanguageSettingsPage.showSheet(context);
@@ -129,7 +129,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             ListTile(
               leading: const Icon(Icons.help),
               title: Text(S.current.help),
-              subtitle: Text(S.current.faq_contact_terms_privacy),
+              subtitle: Text(S.current.helpSettingsLabel),
               onTap: () {
                 pushSlideTransition(context, const HelpSettings());
               },
@@ -137,7 +137,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.link),
-              title: Text(S.current.linked_devices),
+              title: Text(S.current.linkedDevices),
               onTap: () {
                 pushSlideTransition(context, const LinkedDevicesScreen());
               },
@@ -148,7 +148,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 color: Colors.redAccent,
               ),
               title: Text(
-                S.current.logout_from_this_device,
+                S.current.logoutFromThisDevice,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.redAccent,
@@ -159,7 +159,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 showLogoutConfirmationDialog(
                   context,
-                  S.current.are_you_sure_you_want_to_logout_from_this_device,
+                  S.current.areYouSureYouWantToLogoutFromThisDevice,
                   () {
                     Client.instance().commands?.logoutThisDevice();
                     resetToStartingScreen(context);

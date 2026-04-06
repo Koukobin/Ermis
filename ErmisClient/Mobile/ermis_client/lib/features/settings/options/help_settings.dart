@@ -60,7 +60,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
-      appBar: ErmisAppBar(titleText: S.current.help_settings),
+      appBar: ErmisAppBar(titleText: S.current.helpSettings),
       body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ScrollViewFixer.createScrollViewWithAppBarSafety(
@@ -70,13 +70,13 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  S.current.source_code,
+                  S.current.sourceCode,
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               ListTile(
                 leading: const Icon(FontAwesomeIcons.github),
-                title: Text(S.current.source_code, style: const TextStyle(fontSize: 16)),
+                title: Text(S.current.sourceCode, style: const TextStyle(fontSize: 16)),
                 onTap: () {
                   UrlLauncher.launchURL(context, AppConstants.sourceCodeURL);
                 },
@@ -84,7 +84,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               ListTile(
                 leading: const Icon(Icons.code),
                 title: Text(
-                  S.current.server_source_code,
+                  S.current.serverSourceCode,
                   style: const TextStyle(fontSize: 16),
                 ),
                 onTap: () {
@@ -105,7 +105,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               ListTile(
                 leading: const Icon(Icons.favorite),
                 title:
-                    Text(S.current.donate_to_hoster, style: const TextStyle(fontSize: 16)),
+                    Text(S.current.donateToHoster, style: const TextStyle(fontSize: 16)),
                 onTap: () {
                   Client.instance().commands?.requestDonationHTMLPage();
                 },
@@ -113,13 +113,13 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               ListTile(
                 leading: const Icon(Icons.favorite),
                 title: Text(
-                  S.current.donate_to_ermis_project,
+                  S.current.donateToErmisProject,
                   style: const TextStyle(fontSize: 16),
                 ),
                 onTap: () {
                   showSnackBarDialog(
                     context: context,
-                    content: S.current.functionality_not_implemented,
+                    content: S.current.functionalityNotImplemented,
                   );
                 },
               ),
@@ -136,14 +136,14 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               ),
               ListTile(
                 leading: const Icon(FontAwesomeIcons.shieldHalved),
-                title: Text(S.current.license_crux, style: const TextStyle(fontSize: 16)),
+                title: Text(S.current.licenseCrux, style: const TextStyle(fontSize: 16)),
                 onTap: () async {
                   UrlLauncher.launchURL(context, AppConstants.licenceURL);
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: Text(S.current.app_info, style: const TextStyle(fontSize: 16)),
+                title: Text(S.current.appInfo, style: const TextStyle(fontSize: 16)),
                 onTap: () => pushSlideTransition(context, const AppInfo()),
               ),
             ],
@@ -174,7 +174,7 @@ class AppInfo extends StatelessWidget {
                 ),
               ),
               Text(
-                "${S.current.version_capitalized}: ${AppConstants.applicationVersion}",
+                "${S.current.versionCapitalized}: ${AppConstants.applicationVersion}",
                 style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFF9E9E9E),
@@ -203,7 +203,7 @@ class AppInfo extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 32),
                 ),
                 child: Text(
-                  S.current.license_capitalized,
+                  S.current.licenseCapitalized,
                   style: TextStyle(fontSize: 18, color: appColors.secondaryColor),
                 ),
               ),

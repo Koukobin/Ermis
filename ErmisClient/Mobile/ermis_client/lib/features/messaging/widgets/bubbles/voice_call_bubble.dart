@@ -142,12 +142,12 @@ class VoiceCallBubble extends Bubble {
                         spacing: 4,
                         children: [
                           Text(
-                            S.current.voice_call,
+                            S.current.voiceCall,
                             style: Theme.of(context).textTheme.titleSmall,
                             softWrap: true,
                           ),
                           Text(
-                            S().started_at_time(CustomDateFormatter.formatDate(
+                            S().startedAtTime(CustomDateFormatter.formatDate(
                               EpochDateTime.fromSecondsSinceEpoch(entry.tsDebuted),
                               'HH:mm',
                             )),

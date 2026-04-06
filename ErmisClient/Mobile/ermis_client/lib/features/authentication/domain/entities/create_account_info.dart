@@ -87,12 +87,12 @@ enum CredentialValidationResult implements Resultable {
   
   @override
   String get message => switch (this) {
-    CredentialValidationResult.successfullyExchangedCredentials => S.current.credential_validation_success,
-    CredentialValidationResult.unableToGenerateClientId => S.current.credential_validation_client_id_error,
-    CredentialValidationResult.emailAlreadyUsed => S.current.create_account_email_exists,
-    CredentialValidationResult.usernameRequirementsNotMet => S.current.credential_validation_username_invalid,
-    CredentialValidationResult.passwordRequirementsNotMet => S.current.credential_validation_password_invalid,
-    CredentialValidationResult.invalidEmailAddress => S.current.credential_validation_email_invalid,
+    CredentialValidationResult.successfullyExchangedCredentials => S.current.credentialValidationSuccess,
+    CredentialValidationResult.unableToGenerateClientId => S.current.cliendIdGenerationError,
+    CredentialValidationResult.emailAlreadyUsed => S.current.emailAlreadyUsed,
+    CredentialValidationResult.usernameRequirementsNotMet => S.current.usernameReqsNotMet,
+    CredentialValidationResult.passwordRequirementsNotMet => S.current.passwordReqsNotMet,
+    CredentialValidationResult.invalidEmailAddress => S.current.invalidEmailAddress,
   };
 
   static final Map<int, CredentialValidationResult> _valuesById = {
@@ -118,10 +118,10 @@ enum CreateAccountResult implements Resultable {
   
   @override
   String get message => switch(this) {
-    CreateAccountResult.successfullyCreatedAccount => S.current.create_account_success,
-    CreateAccountResult.errorWhileCreatingAccount => S.current.create_account_error,
-    CreateAccountResult.databaseMaxSizeReached => S.current.create_account_database_full,
-    CreateAccountResult.emailAlreadyUsed => S.current.create_account_email_exists,
+    CreateAccountResult.successfullyCreatedAccount => S.current.createAccountSuccess,
+    CreateAccountResult.errorWhileCreatingAccount => S.current.createAccountError,
+    CreateAccountResult.databaseMaxSizeReached => S.current.databaseFullError,
+    CreateAccountResult.emailAlreadyUsed => S.current.emailAlreadyUsed,
   };
 
   static final Map<int, CreateAccountResult> _valuesById = {

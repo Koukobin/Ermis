@@ -50,7 +50,7 @@ class ChatPopupMenuButton extends StatelessWidget {
           },
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(
-            S.current.new_group,
+            S.current.newGroup,
             style: const TextStyle(
                 color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
           ),
@@ -62,7 +62,7 @@ class ChatPopupMenuButton extends StatelessWidget {
           },
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(
-            S.current.new_chat,
+            S.current.newChat,
             style: const TextStyle(
                 color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
           ),
@@ -72,7 +72,7 @@ class ChatPopupMenuButton extends StatelessWidget {
             pushSlideTransition(context, const LinkedDevicesScreen());
           },
           padding: const EdgeInsets.symmetric(horizontal: 50),
-          child: Text(S.current.linked_devices,
+          child: Text(S.current.linkedDevices,
               style: const TextStyle(
                   color: Colors.green,
                   fontStyle: FontStyle.italic,
@@ -83,7 +83,7 @@ class ChatPopupMenuButton extends StatelessWidget {
             pushSlideTransition(context, const CallHistoryPage());
           },
           padding: const EdgeInsets.symmetric(horizontal: 50),
-          child: Text(S().voice_calls_history,
+          child: Text(S().voiceCallsHistory,
               style: const TextStyle(
                   color: Colors.green,
                   fontStyle: FontStyle.italic,
@@ -104,7 +104,7 @@ class ChatPopupMenuButton extends StatelessWidget {
           value: () => resetToStartingScreen(context),
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(
-            S.current.sign_out,
+            S.current.signOut,
             style: const TextStyle(
                 color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
           ),

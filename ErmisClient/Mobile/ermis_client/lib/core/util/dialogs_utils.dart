@@ -123,14 +123,14 @@ Future<void> showPermissionDeniedDialog(
           Navigator.of(context).pop();
           openAppSettings();
         },
-        child: Text(S().open_settings),
+        child: Text(S().openSettings),
       ),
       TextButton(
         onPressed: Navigator.of(context).pop,
         child: const Text("Ok"),
       ),
     ],
-    content: S().specific_permission_denied(permission.toString()),
+    content: S().specificPermissionDenied(permission.toString()),
   );
 }
 
@@ -145,16 +145,16 @@ Future<void> showConfirmationDialog(
     builder: (BuildContext context) {
       return WhatsAppPopupDialog(
         child: AlertDialog(
-          title: includeTitle ? Text(S().are_you_sure) : null,
+          title: includeTitle ? Text(S().areYouSure) : null,
           content: Text(content),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false), // Cancel
-              child: const Text("No", style: TextStyle(fontSize: 18)),
+              child: const Text("No", style: const TextStyle(fontSize: 18)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true), // Confirm
-              child: const Text("Yes", style: TextStyle(fontSize: 18)),
+              child: const Text("Yes", style: const TextStyle(fontSize: 18)),
             ),
           ],
         ),
@@ -174,7 +174,7 @@ Future<void> showLogoutConfirmationDialog(
     builder: (BuildContext context) {
       return WhatsAppPopupDialog(
         child: AlertDialog(
-          title: Text(S().logout_capitalized_question_mark),
+          title: Text(S().logoutCapitalizedQuestionMark),
           content: Text(content),
           actions: [
             TextButton(
@@ -187,7 +187,7 @@ Future<void> showLogoutConfirmationDialog(
                 onYes();
               },
               child: Text(
-                S.current.logout_capitalized,
+                S.current.logoutCapitalized,
                 style: const TextStyle(color: Colors.red),
               ),
             ),

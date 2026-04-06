@@ -173,7 +173,7 @@ class _InputFieldState extends State<InputField> {
                         keyboardType: TextInputType.multiline,
                         controller: _inputController,
                         decoration: InputDecoration(
-                          hintText: S.current.type_message,
+                          hintText: S.current.typeMessage,
                           filled: true,
                           fillColor: appColors.tertiaryColor,
                           border: OutlineInputBorder(

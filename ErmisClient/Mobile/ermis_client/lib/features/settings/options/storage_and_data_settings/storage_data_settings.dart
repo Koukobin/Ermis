@@ -78,19 +78,19 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ErmisAppBar(titleText: S().storage_and_data_title),
+      appBar: ErmisAppBar(titleText: S().storageAndDataTitle),
       body: ScrollViewFixer.createScrollViewWithAppBarSafety(
           scrollView: ListView(
         children: [
           ListTile(
             leading: const Icon(Icons.storage),
-            title: Text(S().manage_storage),
+            title: Text(S().manageStorage),
             subtitle: Text("${formatBytes(utilizedStorageByServerData)} ${S().used}"),
             onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.network_check),
-            title: Text(S().network_usage),
+            title: Text(S().networkUsage),
             subtitle: Row(
               children: [
                 ValueListenableBuilder<int>(
@@ -119,7 +119,7 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              S().media_auto_download,
+              S().mediaAutoDownload,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
@@ -154,12 +154,12 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              S().call_settings,
+              S().callSettings,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           SwitchListTile(
-            title: Text(S().use_less_data_for_calls),
+            title: Text(S().useLessDataForCalls),
             value: useLessDataForCalls,
             onChanged: (bool value) {
               setState(() {

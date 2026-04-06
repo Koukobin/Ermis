@@ -81,7 +81,7 @@ class _EndVoiceCallScreenState extends State<EndVoiceCallScreen> {
               const SizedBox(height: 20),
               // Call ended text
               Text(
-                S.current.call_ended,
+                S.current.callEnded,
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,

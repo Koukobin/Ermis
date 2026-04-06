@@ -57,14 +57,14 @@ class _NotificationSettingsState extends State<NotificationSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ErmisAppBar(titleText: S.current.notification_settings),
+      appBar: ErmisAppBar(titleText: S.current.notificationSettings),
       body: ScrollViewFixer.createScrollViewWithAppBarSafety(
           scrollView: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           // Enable/Disable Notifications
           SwitchListTile(
-            title: Text(S.current.notification_enable),
+            title: Text(S.current.enableNotifications),
             value: _notificationsEnabled,
             onChanged: (bool newValue) {
               setState(() {
@@ -77,8 +77,8 @@ class _NotificationSettingsState extends State<NotificationSettings> {
 
           // Enable/Disable Message Previews
           SwitchListTile(
-            title: Text(S.current.notification_preview_show),
-            subtitle: Text(S.current.display_part_of_messages_in_notifications),
+            title: Text(S.current.showMessagePreview),
+            subtitle: Text(S.current.displayPartOfMessageInNotifications),
             value: _messagePreviewEnabled,
             onChanged: (bool newValue) {
               setState(() {
@@ -91,7 +91,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
 
           // Notification Sound Selection
           ListTile(
-            title: Text(S.current.notification_sound),
+            title: Text(S.current.notificationSound),
             subtitle: Text(_selectedSound.cleanName),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
@@ -101,7 +101,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
 
           const Divider(),
           Text(
-            S.current.other_settings,
+            S.current.otherSettings,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
 
@@ -111,7 +111,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
             onChanged: (bool newValue) async {
               // Check if vibration is available on this device
               if (!(await Vibration.hasVibrator())) {
-                showSnackBarDialog(context: context, content: S.current.vibration_unavailable);
+                showSnackBarDialog(context: context, content: S.current.vibrationUnavailable);
                 return;
               }
 
@@ -135,7 +135,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
       builder: (context) {
         return WhatsAppPopupDialog(
           child: AlertDialog(
-            title: Text(S.current.notification_sound_select),
+            title: Text(S.current.selectNotificationSound),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: NotificationSound.values.map((NotificationSound sound) {

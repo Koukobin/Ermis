@@ -36,9 +36,9 @@ void handleChatMessageNotificationForeground(ChatSession chatSession, Message ms
     msg,
     settingsJson,
     replyCallBack,
-    newMessage: S.current.new_message,
-    fileReceived: S.current.file_received(msg.fileName),
-    messageBy: S.current.message_by(msg.username),
+    newMessage: S.current.newMessage,
+    fileReceived: S.current.fileReceived(msg.fileName),
+    messageBy: S.current.messageBy(msg.username),
   );
 }
 
@@ -98,7 +98,7 @@ void handleChatMessageNotification(ChatSession chatSession, Message msg, Setting
       body = fileReceived;
       break;
     case null:
-      body = S().content_type_unknown;
+      body = S().contentTypeUnknown;
   }
 
   Uint8List transmitterProfilePhoto = chatSession.members

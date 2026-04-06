@@ -29,9 +29,9 @@ enum CallStatus {
 
   String get text {
     return switch(CallStatus.fromId(id)) {
-      CallStatus.active => S.current.active,
-      CallStatus.connecting => S.current.Connecting,
-      CallStatus.calling => S.current.Calling,
+      CallStatus.active => S.current.callStatusActive,
+      CallStatus.connecting => S.current.callStatusConnecting,
+      CallStatus.calling => S.current.callStatusConnecting,
       CallStatus.ringing => "Ringing",
       CallStatus.ended => S.current.ended,
     };

@@ -272,12 +272,12 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
     });
 
     subscribe(AppEventBus.instance.on<ConnectionResetEvent>(), (event) {
-      showToastDialog(S.current.connection_reset);
+      showToastDialog(S.current.connectionReset);
       setState(() {});
     });
 
     subscribe(AppEventBus.instance.on<MessageDeletionUnsuccessfulEvent>(), (event) {
-      showToastDialog(S.current.message_deletion_unsuccessful);
+      showToastDialog(S.current.messageDelFailed);
     });
 
     subscribe(AppEventBus.instance.on<WrittenTextEvent>(), (event) async {

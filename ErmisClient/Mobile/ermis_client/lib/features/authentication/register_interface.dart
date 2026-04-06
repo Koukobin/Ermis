@@ -151,7 +151,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                         illegalCharacters: _usernameRequirements.invalidCharacters,
                         keyboardType: TextInputType.name,
                         controller: _usernameController,
-                        hint: S.current.display_name,
+                        hint: S.current.displayName,
                       ),
                       const SizedBox(height: 8),
 
@@ -173,14 +173,14 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                           // Flexible so text is flexible and does not exceed screen
                           Flexible(
                             child: Text(
-                              S.current.entropy_rough_estimate(double.parse((_passwordEntropy).toStringAsFixed(3))),
+                              S.current.entropyRoughEstimate(double.parse((_passwordEntropy).toStringAsFixed(3))),
                               style: const TextStyle(fontStyle: FontStyle.italic),
                             ),
                           ),
                           // Flexible so text is flexible and does not exceed screen
                           Flexible( 
                             child: Text(
-                              S.current.min_entropy(_passwordRequirements.minEntropy ?? 0),
+                              S.current.minEntropy(_passwordRequirements.minEntropy ?? 0),
                               style: const TextStyle(fontStyle: FontStyle.italic),
                             ),
                           )
@@ -202,7 +202,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
 
                       // Register
                       buildButton(
-                        label: S.current.create_account,
+                        label: S.current.createAccount,
                         icon: Icons.account_circle,
                         backgroundColor: appColors.secondaryColor,
                         textColor: appColors.primaryColor,

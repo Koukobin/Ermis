@@ -30,15 +30,15 @@ class SendChatRequestButton extends StatefulWidget {
     final String input = await showInputDialog(
       context: context,
       keyboardType: TextInputType.number,
-      title: S.current.send_chat_request,
-      hintText: S.current.client_id_must_be_a_number,
+      title: S.current.sendChatRequest,
+      hintText: S.current.clientIdMustBeANumber,
     );
 
     if (input.trim().isEmpty) return;
     if (int.tryParse(input) == null) {
       showSnackBarDialog(
         context: context,
-        content: S.current.client_id_must_be_a_number,
+        content: S.current.clientIdMustBeANumber,
       );
       return;
     }

@@ -122,7 +122,7 @@ class _ChatRequestsState extends LoadingState<ChatRequests> with EventBusSubscri
                               ),
                             ),
                             child: Text(
-                              S.current.no_chat_requests_available,
+                              S.current.noChatRequestsAvailable,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: appColors.secondaryColor,

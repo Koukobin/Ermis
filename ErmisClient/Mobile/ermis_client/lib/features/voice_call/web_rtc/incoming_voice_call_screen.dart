@@ -218,7 +218,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  S().incoming_voice_call,
+                  S().incomingVoiceCall,
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 18,

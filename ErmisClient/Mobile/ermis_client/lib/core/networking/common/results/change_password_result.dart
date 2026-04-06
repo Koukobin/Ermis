@@ -42,8 +42,8 @@ enum ChangePasswordResult implements Resultable {
   
   @override
   String get message => switch(ChangePasswordResult.fromId(id)) {
-    ChangePasswordResult.successfullyChangedPassword => S.current.change_password_success,
-    ChangePasswordResult.errorWhileChangingPassword => S.current.change_password_error
+    ChangePasswordResult.successfullyChangedPassword => S.current.changePasswordSuccess,
+    ChangePasswordResult.errorWhileChangingPassword => S.current.changePasswordError
   };
 
   static ChangePasswordResult fromId(int id) {

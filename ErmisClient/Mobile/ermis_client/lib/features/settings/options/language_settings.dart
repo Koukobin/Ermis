@@ -43,7 +43,7 @@ class LanguageSettingsPage {
                   color: Colors.grey,
                 ),
                 title: Text(
-                  S.current.app_language,
+                  S.current.appLanguage,
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                   ),

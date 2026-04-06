@@ -118,7 +118,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
   Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: ErmisAppBar(titleText: S.current.linked_devices),
+      appBar: ErmisAppBar(titleText: S.current.linkedDevices),
       body: ScrollViewFixer.createScrollViewWithAppBarSafety(
           scrollView: Column(
         children: [
@@ -170,7 +170,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                         onSelected: (value) {
                           if (value == 'logout') {
                             showLogoutConfirmationDialog(context,
-                                S.current.are_you_sure_you_want_to_logout_from(device.formattedInfo()),
+                                S.current.areYouSureYouWantToLogoutFrom(device.formattedInfo()),
                                 () {
                               Client.instance()
                                   .commands
@@ -185,7 +185,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                               children: [
                                 const Icon(Icons.delete, color: Colors.red),
                                 const SizedBox(width: 8),
-                                Text(S.current.logout_capitalized),
+                                Text(S.current.logoutCapitalized),
                               ],
                             ),
                           ),
@@ -193,7 +193,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                       ),
                       onTap: () {
                         showLogoutConfirmationDialog(context,
-                             S.current.are_you_sure_you_want_to_logout_from(device.formattedInfo()),
+                             S.current.areYouSureYouWantToLogoutFrom(device.formattedInfo()),
                             () {
                           Client.instance()
                               .commands
@@ -211,12 +211,12 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
                           Icon(Icons.cloud_off, size: 120, color: Colors.grey[400]), // Changed icon
                           const SizedBox(height: 16),
                           Text(
-                            S.current.no_linked_devices, // Assuming you have this localization
+                            S.current.noLinkedDevices, // Assuming you have this localization
                             style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            S.current.link_new_device, // Assuming you have this localization
+                            S.current.linkNewDevice, // Assuming you have this localization
                             style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                           ),
                         ],
@@ -232,7 +232,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
             ),
             title: Center(
               child: Text(
-                S.current.logout_from_all_devices,
+                S.current.logoutAllDevices,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.redAccent,
@@ -242,7 +242,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
               ),
             ),
             onTap: () {
-              showLogoutConfirmationDialog(context, S.current.are_you_sure_you_want_to_logout_from_all_devices,
+              showLogoutConfirmationDialog(context, S.current.areYouSureYouWantToLogoutFromAllDevices,
                   () {
                 Client.instance().commands?.logoutAllDevices();
                 SystemNavigator.pop();
@@ -257,7 +257,7 @@ class LinkedDevicesScreenState extends LoadingState<LinkedDevicesScreen> with Ev
   @override
   Widget buildLoadingScreen() {
     return Scaffold(
-      appBar: ErmisAppBar(titleText: S.current.linked_devices),
+      appBar: ErmisAppBar(titleText: S.current.linkedDevices),
       body: const DotsLoadingScreen(),
     );
   }

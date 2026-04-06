@@ -194,7 +194,7 @@ class SendFilePopupMenuState extends State<SendFilePopupMenu> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      S.current.choose_option,
+                      S.current.chooseOption,
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),

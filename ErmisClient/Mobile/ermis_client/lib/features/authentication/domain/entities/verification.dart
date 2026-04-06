@@ -37,9 +37,9 @@ enum VerificationResult implements Resultable {
 
   @override
   String get message => switch(this) {
-    VerificationResult.successfullyVerified => S.current.verification_success,
-    VerificationResult.wrongCode => S.current.verification_code_incorrect,
-    VerificationResult.runOutOfAttempts => S.current.verification_attempts_exhausted,
+    VerificationResult.successfullyVerified => S.current.verificationSuccess,
+    VerificationResult.wrongCode => S.current.verificationCodeIncorrect,
+    VerificationResult.runOutOfAttempts => S.current.verificationAttemptsExhausted,
   };
 }
 

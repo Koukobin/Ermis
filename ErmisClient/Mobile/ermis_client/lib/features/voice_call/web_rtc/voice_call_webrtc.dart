@@ -374,7 +374,7 @@ Future<void> _startListeningForMessagesFromCounterpart() async {
         }
       case "end_call":
         {
-          showToastDialog(S.current.call_ended);
+          showToastDialog(S.current.callEnded);
           _endCall();
           break;
         }
@@ -752,7 +752,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
                   icon: const Icon(Icons.arrow_back),
                 )
               : null,
-          title: Text(S.current.voice_call),
+          title: Text(S.current.voiceCall),
         ),
         body: Center(
           child: Padding(

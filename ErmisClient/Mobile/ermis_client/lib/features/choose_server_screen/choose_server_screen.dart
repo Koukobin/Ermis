@@ -117,7 +117,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 120),
               child: Text(
-                S().how_to_configure_your_own_server,
+                S().howToConfigureYourOwnServer,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -184,7 +184,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                       onPressed: () async {
                         String url = await showInputDialog(
                           context: context,
-                          title: S.current.server_url_enter,
+                          title: S.current.enterServerUrl,
                           hintText: "example.com",
                         );
                     
@@ -207,13 +207,13 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                     
                         // Feedback
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(S.current.server_add_success)),
+                          SnackBar(content: Text(S.current.serverAddedSuccess)),
                         );
                       },
                       icon: const Icon(Icons.add),
                       label: Text(
                         softWrap: true,
-                        S.current.server_add,
+                        S.current.serverAdd,
                         style: const TextStyle(fontSize: 16),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -232,7 +232,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                       },
                       activeColor: appColors.primaryColor,
                       title: Text(
-                        S.current.server_certificate_check,
+                        S.current.checkCertificate,
                         textAlign: TextAlign.right,
                         style: TextStyle(
                           fontSize: 16,
@@ -282,13 +282,13 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                           );
 
                           if (e is SocketException) {
-                            await showToastDialog(S.current.connection_refused);
+                            await showToastDialog(S.current.connectionRefused);
                             return;
                           }
 
                           if (e is ServerVerificationFailedException) {
                             await showToastDialog(
-                                S.current.could_not_verify_server_certificate);
+                                S.current.couldNotVerifyServerCertificate);
                             return;
                           }
 
@@ -345,7 +345,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
           child: DropdownButton<String>(
             key: _widgetKey,
             hint: Text(
-              S.current.server_url_choose,
+              S.current.chooseServerUrl,
               style: TextStyle(
                 color: appColors.primaryColor,
                 fontWeight: FontWeight.w500,

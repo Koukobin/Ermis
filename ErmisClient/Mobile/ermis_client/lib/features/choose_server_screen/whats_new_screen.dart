@@ -28,7 +28,7 @@ class WhatsNewScreen extends StatelessWidget {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.current.whats_new),
+        title: Text(S.current.whatsNewTitle),
         backgroundColor: appColors.primaryColor,
       ),
       body: Padding(
@@ -37,7 +37,7 @@ class WhatsNewScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "${S.current.whats_new_title} v${AppConstants.applicationVersion}",
+              "${S.current.whatsNewTitle} v${AppConstants.applicationVersion}",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -48,23 +48,23 @@ class WhatsNewScreen extends StatelessWidget {
             // Feature List
             ListTile(
               leading: Icon(Icons.add, color: appColors.primaryColor),
-              title: Text(S.current.feature_encryption),
+              title: Text(S.current.enhancedEncryption),
             ),
             ListTile(
               leading: Icon(Icons.lightbulb_outline, color: appColors.primaryColor),
-              title: Text(S.current.ability_to_form_group_chats),
+              title: Text(S.current.abilityToFormGroupChats),
             ),
             ListTile(
               leading: Icon(Icons.build, color: appColors.primaryColor),
-              title: Text(S.current.many_bug_fixes),
+              title: Text(S.current.manyBugFixes),
             ),
             ListTile(
               leading: Icon(Icons.speed, color: appColors.primaryColor),
-              title: Text(S.current.optimizations_on_data_usage),
+              title: Text(S.current.optimizationsOnDataUsage),
             ),
             ListTile(
               leading: Icon(Icons.call,  color: appColors.primaryColor),
-              title: Text(S.current.feature_voice_calls),
+              title: Text(S.current.voiceCallsFeature),
             ),
             const SizedBox(height: 30),
             // Dismiss Button
@@ -75,7 +75,7 @@ class WhatsNewScreen extends StatelessWidget {
                 ),
                 onPressed: Navigator.of(context).pop,
                 child: Text(
-                  S.current.got_it_button,
+                  S.current.gotIt,
                   style: const TextStyle(color: Colors.white),
                 ),
               ),

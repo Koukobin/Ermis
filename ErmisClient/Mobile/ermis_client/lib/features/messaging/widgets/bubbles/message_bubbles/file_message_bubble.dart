@@ -119,14 +119,14 @@ class _FileMessageBubbleState extends State<FileMessageBubble> with EventBusSubs
                     if (success) {
                       showSnackBarDialog(
                         context: context,
-                        content: S.current.downloaded_file,
+                        content: S.current.downloadedFile,
                       );
                       return;
                     }
                 
                     showExceptionDialog(
                       context,
-                      S.current.error_saving_file,
+                      S.current.errorSavingFile,
                     );
                   },
                   child: isFetching
@@ -147,7 +147,7 @@ class _FileMessageBubbleState extends State<FileMessageBubble> with EventBusSubs
                         overflow: TextOverflow.clip,
                         maxLines: null,
                       ),
-                      Text(S.current.unknown_size),
+                      Text(S.current.unknownSize),
                     ],
                   ),
                 ),
