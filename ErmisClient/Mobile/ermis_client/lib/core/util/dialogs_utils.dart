@@ -145,7 +145,7 @@ Future<void> showConfirmationDialog(
     builder: (BuildContext context) {
       return WhatsAppPopupDialog(
         child: AlertDialog(
-          title: includeTitle ? const Text("Are you sure?") : null,
+          title: includeTitle ? Text(S().are_you_sure) : null,
           content: Text(content),
           actions: [
             TextButton(
