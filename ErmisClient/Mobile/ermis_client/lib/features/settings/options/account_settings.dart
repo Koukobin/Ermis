@@ -200,8 +200,28 @@ class _AccountSettingsState extends State<AccountSettings>
               },
             ),
             ListTile(
-              leading: const Icon(FontAwesomeIcons.solidTrashCan,
-                  color: Colors.redAccent),
+              leading: const Icon(
+                Icons.lock,
+                color: Colors.redAccent,
+              ),
+              title: Text("Lock account"),
+              onTap: () {
+                showConfirmationDialog(
+                  context,
+                  S().are_you_sure,
+                  () {
+                    Client.instance().commands!.logoutAllDevices();
+                    resetToStartingScreen(context);
+                  },
+                  includeTitle: true,
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                FontAwesomeIcons.solidTrashCan,
+                color: Colors.redAccent,
+              ),
               title: Text(S.current.account_delete),
               onTap: () {
                 pushSlideTransition(context, const DeleteAccountSettings());
