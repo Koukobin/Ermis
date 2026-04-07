@@ -44,7 +44,7 @@ fi
 
 # Reorganize JSON keys alphabetically using jq
 # The `sort_keys` filter sorts all keys in the JSON object recursively.
-jq --sort-keys . "$INPUT_FILE"
+jq --sort-keys . "$INPUT_FILE" > "temp_$INPUT_FILE"
 
 # Check the exit status of jq
 if [ $? -ne 0 ]; then
@@ -53,5 +53,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+mv "temp_$INPUT_FILE" "$INPUT_FILE"
 echo "JSON keys reorganized successfully for '$INPUT_FILE'."
 
