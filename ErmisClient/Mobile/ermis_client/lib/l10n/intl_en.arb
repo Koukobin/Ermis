@@ -1,4 +1,6 @@
 {
+  "noCapitalized": "No",
+  "yesCapitalized": "Yes",
   "callStatusCalling": "Calling...",
   "callStatusConnecting": "Connecting...",
   "abilityToFormGroupChats": "Ability to form group chats!",
