@@ -150,11 +150,11 @@ Future<void> showConfirmationDialog(
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false), // Cancel
-              child: const Text("No", style: const TextStyle(fontSize: 18)),
+              child: Text(S().noCapitalized, style: const TextStyle(fontSize: 18)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true), // Confirm
-              child: const Text("Yes", style: const TextStyle(fontSize: 18)),
+              child: Text(S().yesCapitalized, style: const TextStyle(fontSize: 18)),
             ),
           ],
         ),
