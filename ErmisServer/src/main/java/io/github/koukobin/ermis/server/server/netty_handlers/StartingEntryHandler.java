@@ -59,9 +59,16 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 				}
 
 				if (ctx.pipeline().get(LoginHandler.class) != null) {
-					ctx.pipeline().replace(LoginHandler.class, CreateAccountHandler.class.getName(), new CreateAccountHandler(clientInfo));
+					ctx.pipeline().replace(
+							LoginHandler.class,
+							CreateAccountHandler.class.getName(),
+							new CreateAccountHandler(clientInfo)
+						);
 				} else {
-					ctx.pipeline().addLast(CreateAccountHandler.class.getName(), new CreateAccountHandler(clientInfo));
+					ctx.pipeline().addLast(
+							CreateAccountHandler.class.getName(),
+							new CreateAccountHandler(clientInfo)
+						);
 				}
 			}
 			default -> getLogger().debug("Unknown registration type");
@@ -82,9 +89,15 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 			}
 
 			if (ctx.pipeline().get(CreateAccountHandler.class) != null) {
-				ctx.pipeline().replace(CreateAccountHandler.class, LoginHandler.class.getName(), new LoginHandler(clientInfo));
+				ctx.pipeline().replace(CreateAccountHandler.class,
+						LoginHandler.class.getName(),
+						new LoginHandler(clientInfo)
+					);
 			} else {
-				ctx.pipeline().addLast(LoginHandler.class.getName(), new LoginHandler(clientInfo));
+				ctx.pipeline().addLast(
+						LoginHandler.class.getName(),
+						new LoginHandler(clientInfo)
+					);
 			}
 
 			return;
