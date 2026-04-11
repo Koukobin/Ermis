@@ -325,10 +325,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: "289279317b4b16eb2bb7e271abccd4bf84ec9bdcbe999e278a94b804f5630418"
+      sha256: "6d7fd89431262d8f3125e81b50d3847a091d846eafcd4fdb88dd06f36d705a45"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.2.0"
   file:
     dependency: transitive
     description:
@@ -865,10 +865,10 @@ packages:
     dependency: transitive
     description:
       name: matcher
-      sha256: "12956d0ad8390bbcc63ca2e1469c0619946ccb52809807067a7020d57e647aa6"
+      sha256: dc0b7dc7651697ea4ff3e69ef44b0407ea32c487a39fff6a4004fa585e901861
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.18"
+    version: "0.12.19"
   material_color_utilities:
     dependency: transitive
     description:
@@ -1358,26 +1358,26 @@ packages:
     dependency: "direct dev"
     description:
       name: test
-      sha256: "54c516bbb7cee2754d327ad4fca637f78abfc3cbcc5ace83b3eda117e42cd71a"
+      sha256: "280d6d890011ca966ad08df7e8a4ddfab0fb3aa49f96ed6de56e3521347a9ae7"
       url: "https://pub.dev"
     source: hosted
-    version: "1.29.0"
+    version: "1.30.0"
   test_api:
     dependency: transitive
     description:
       name: test_api
-      sha256: "93167629bfc610f71560ab9312acdda4959de4df6fac7492c89ff0d3886f6636"
+      sha256: "8161c84903fd860b26bfdefb7963b3f0b68fee7adea0f59ef805ecca346f0c7a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.9"
+    version: "0.7.10"
   test_core:
     dependency: transitive
     description:
       name: test_core
-      sha256: "394f07d21f0f2255ec9e3989f21e54d3c7dc0e6e9dbce160e5a9c1a6be0e2943"
+      sha256: "0381bd1585d1a924763c308100f2138205252fb90c9d4eeaf28489ee65ccde51"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.15"
+    version: "0.6.16"
   timezone:
     dependency: "direct main"
     description:
@@ -1670,66 +1670,74 @@ packages:
     dependency: "direct main"
     description:
       name: zstandard
-      sha256: d2cae71d34dfdd014525259be2f84ebc2a738c94cc4232515df44a1415dde9d3
+      sha256: "0332045357644eaf66ff0b92619edefc5f8d2e1ef385403d2cb46c150db5db89"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.29"
+    version: "1.5.0"
   zstandard_android:
     dependency: transitive
     description:
       name: zstandard_android
-      sha256: "7d85d814f147faa7a33d5cd5b5610dea451a57f95b34f98c93723bb2f2efbf98"
+      sha256: b8dc9860d2ae834744bd82d6b648fc15bdf11dd85d61e01ac563c9e1d51f4bcf
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.29"
+    version: "1.5.0"
   zstandard_ios:
     dependency: transitive
     description:
       name: zstandard_ios
-      sha256: "50e6b3d05ad6ecf8def65c9fae46d4b786edd89150fd2bb207cdcef918946f0d"
+      sha256: a992ee46aef915029abce6acd54f03a4bf7076e92d9148000fc56e9e6068f6d9
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.29"
+    version: "1.5.0"
   zstandard_linux:
     dependency: transitive
     description:
       name: zstandard_linux
-      sha256: "66a61f7839016671a18448b73dab1910f7390bd9ab15bc118c8591381103f5b2"
+      sha256: "3006d3bc722e97581d89f568001779bab63372c1ddf2f885ae554b7203d17206"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.29"
+    version: "1.5.0"
   zstandard_macos:
     dependency: transitive
     description:
       name: zstandard_macos
-      sha256: f4e02dc613f9d0c960edad8a330b41c4e0f0a548aea26668a12f45eebacd6aa1
+      sha256: "121dd02005b7bb0f5f2a2e7f952e640931d5c9855444f13551348206023f6e38"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.29"
+    version: "1.5.0"
+  zstandard_native:
+    dependency: transitive
+    description:
+      name: zstandard_native
+      sha256: ff8d27287670934f0894ea5cb016c888ca94b1ba0be9f653f089cf3888716fe1
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   zstandard_platform_interface:
     dependency: transitive
     description:
       name: zstandard_platform_interface
-      sha256: "0261e2ce3520eace49e5d1e766e69a8c2613d24f0805c94e08544a139ad20e48"
+      sha256: "815884ae6c4785328e1d25ad0967c3b58119613173f505ab7815ca1f56475cb6"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.29"
+    version: "1.5.0"
   zstandard_web:
     dependency: transitive
     description:
       name: zstandard_web
-      sha256: ed0d385dab253fefbe7c42e4eb7b58d3f2425713420402cc3f3b281d5a49e8a7
+      sha256: "41e0a1affc925af33d86d13cb0027e65095c71c431e47056614c703de2ba594d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.29"
+    version: "1.5.0"
   zstandard_windows:
     dependency: transitive
     description:
       name: zstandard_windows
-      sha256: "86bbd10b9d563dd22eedd4df94904078ac443d8f941b79a72c4fda534da76461"
+      sha256: "5b60bc38633a82caca806c534bfc31fa0f73dfa2c57a9d7a161413560fc57e5d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.29"
+    version: "1.5.0"
 sdks:
   dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.38.0"
