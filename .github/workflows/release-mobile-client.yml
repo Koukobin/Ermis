@@ -44,12 +44,6 @@ jobs:
           # -------
           flutter build apk --release --target-platform="android-arm64"
           mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/app-target-arm64-release.apk
-          # Strip nondeterministic metadata from APKs to ensure reproducibility
-          zip -X -o build/app/outputs/app-fat-release.apk
-          zip -X -o build/app/outputs/app-split-arm64-release.apk
-          zip -X -o build/app/outputs/app-split-arm32-release.apk
-          zip -X -o build/app/outputs/app-split-x64-release.apk
-          zip -X -o build/app/outputs/app-target-arm64-release.apk
         env:
           RELEASE_STORE_FILE: my-release-key.keystore
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
