@@ -35,15 +35,15 @@ jobs:
           chmod +x build.sh
           ./build.sh
           flutter build apk --release
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-fat-release.apk
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/app-fat-release.apk
           # -------
           flutter build apk --release --split-per-abi
-          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/flutter-apk/app-split-arm64-release.apk
-          mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/app/outputs/flutter-apk/app-split-arm32-release.apk
-          mv build/app/outputs/flutter-apk/app-x86_64-release.apk build/app/outputs/flutter-apk/app-split-x64-release.apk
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/app-split-arm64-release.apk
+          mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/app/outputs/app-split-arm32-release.apk
+          mv build/app/outputs/flutter-apk/app-x86_64-release.apk build/app/outputs/app-split-x64-release.apk
           # -------
           flutter build apk --release --target-platform="android-arm64"
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-target-arm64-release.apk
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/app-target-arm64-release.apk
           # Strip nondeterministic metadata from APKs to ensure reproducibility
           zip -X -o build/app/outputs/app-fat-release.apk
           zip -X -o build/app/outputs/app-split-arm64-release.apk
