@@ -85,7 +85,7 @@ dependencies:
   # pointycastle: ^3.9.1
 
   # Compression
-  zstandard: ^1.3.29
+  zstandard: ^1.5.0
   flutter_image_compress: ^2.4.0
 
   # The following adds the Cupertino Icons font to your application.
