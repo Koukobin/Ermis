@@ -15,7 +15,7 @@ rm -r vg
 dart run vector_graphics_compiler --input-dir SVG/ --out-dir vg/
 
 i=0
-for f in vg/*.svg.vec; do
+for f in $(find vg/ -name "*.svg.vec" | sort); do
   out="vg/$i.vg"
   mv "$f" "$out"
   ((i++))
