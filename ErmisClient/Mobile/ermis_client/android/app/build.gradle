@@ -45,6 +45,11 @@ android {
                 keyAlias System.getenv("RELEASE_KEY_ALIAS")
                 keyPassword System.getenv("RELEASE_KEY_PASSWORD")
             }
+
+            v1SigningEnabled true
+            v2SigningEnabled true
+            v3SigningEnabled true
+            v4SigningEnabled true
         }
     } else if (project.hasProperty('RELEASE_STORE_FILE')) {
         keystoreFile = file(RELEASE_STORE_FILE)
