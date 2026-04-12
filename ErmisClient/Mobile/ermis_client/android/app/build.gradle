@@ -46,7 +46,6 @@ android {
                 keyPassword System.getenv("RELEASE_KEY_PASSWORD")
             }
 
-            v1SigningEnabled true
             v2SigningEnabled true
         }
     } else if (project.hasProperty('RELEASE_STORE_FILE')) {
