@@ -62,7 +62,7 @@ jobs:
           for apk in build/app/outputs/*.apk; do
               echo "Signing $apk..."
               $APKSIGNER sign \
-                --ks my-release-key.keystore \
+                --ks android/app/my-release-key.keystore \
                 --ks-pass pass:${{ secrets.RELEASE_STORE_PASSWORD }} \
                 --ks-key-alias ${{ secrets.RELEASE_KEY_ALIAS }} \
                 --key-pass pass:${{ secrets.RELEASE_KEY_PASSWORD }} \
