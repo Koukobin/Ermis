@@ -50,6 +50,26 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
 
+      - name: Sign APK with V1 and V2 Schemes
+        run: |
+          for apk in build/app/outputs/*.apk; do
+              apksigner sign \
+                --ks ${{ my-release-key.keystore }} \
+                --ks-pass pass:${{ secrets.RELEASE_STORE_PASSWORD }} \
+                --ks-key-alias ${{ secrets.RELEASE_KEY_ALIAS }} \
+                --key-pass pass:${{ secrets.RELEASE_KEY_PASSWORD }} \
+                --v1-signing-enabled true \
+                --v2-signing-enabled true \
+                --out signed.apk \
+                build/app/outputs/apk
+
+      - name: Verify APK Signature
+        run: |
+          for apk in build/app/outputs/*.apk; do
+              echo "Verifying $apk..."
+              apksigner verify --verbose "$apk"
+          done
+
       - name: Upload APKs to Release
         uses: softprops/action-gh-release@v2
         with:
