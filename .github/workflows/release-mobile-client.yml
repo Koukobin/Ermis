@@ -54,6 +54,7 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          PUB_CACHE: /home/runner/.pub-cache # Required to match F-Droid pub cache path
 
       - name: Upload APKs to Release
         uses: softprops/action-gh-release@v2
