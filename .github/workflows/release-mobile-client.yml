@@ -19,7 +19,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platforms;android-34 build-tools;34.0.0'
+          cmdline-tools-version: latest
+          packages: 'platforms;android-34 build-tools;34.0.0 ndk;27.0.12077973'
+        env:
+          ANDROID_SDK_ROOT: /opt/android-sdk
+          ANDROID_HOME: /opt/android-sdk
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -33,11 +37,6 @@ jobs:
           echo "$RELEASE_STORE_FILE_ENCODED" | base64 --decode > android/app/my-release-key.keystore
         env:
           RELEASE_STORE_FILE_ENCODED: ${{ secrets.RELEASE_STORE_FILE_ENCODED }}
-
-      - name: Set debug prefix map for reproducible builds
-        run: |
-          echo "CFLAGS=-fdebug-prefix-map=/opt/android-sdk/" >> $GITHUB_ENV
-          echo "CXXFLAGS=-fdebug-prefix-map=/opt/android-sdk/" >> $GITHUB_ENV
 
       - name: Build
         working-directory: ErmisClient/Mobile/ermis_client
