@@ -55,31 +55,6 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
 
-      - name: Sign APK with V1 and V2 Schemes
-        working-directory: ErmisClient/Mobile/ermis_client
-        run: |
-          APKSIGNER=$ANDROID_HOME/build-tools/34.0.0/apksigner
-          for apk in build/app/outputs/*.apk; do
-              echo "Signing $apk..."
-              $APKSIGNER sign \
-                --ks android/app/my-release-key.keystore \
-                --ks-pass pass:${{ secrets.RELEASE_STORE_PASSWORD }} \
-                --ks-key-alias ${{ secrets.RELEASE_KEY_ALIAS }} \
-                --key-pass pass:${{ secrets.RELEASE_KEY_PASSWORD }} \
-                --v1-signing-enabled true \
-                --v2-signing-enabled true \
-                "$apk"
-          done
-
-      - name: Verify APK Signature
-        working-directory: ErmisClient/Mobile/ermis_client
-        run: |
-          APKSIGNER=$ANDROID_HOME/build-tools/34.0.0/apksigner
-          for apk in build/app/outputs/*.apk; do
-              echo "Verifying $apk..."
-              $APKSIGNER verify --verbose "$apk"
-          done
-
       - name: Upload APKs to Release
         uses: softprops/action-gh-release@v2
         with:
