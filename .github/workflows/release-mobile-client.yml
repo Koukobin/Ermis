@@ -34,6 +34,9 @@ jobs:
         env:
           RELEASE_STORE_FILE_ENCODED: ${{ secrets.RELEASE_STORE_FILE_ENCODED }}
 
+      - name: Symlink Android SDK to match F-Droid path
+        run: sudo mkdir -p /opt && sudo ln -s /usr/local/lib/android/sdk /opt/android-sdk
+
       - name: Build
         working-directory: ErmisClient/Mobile/ermis_client
         run: |
