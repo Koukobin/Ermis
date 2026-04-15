@@ -32,6 +32,19 @@ android {
         multiDexEnabled true
     }
 
+    // Required modification for publishing on F-Droid.
+    //
+    // See:
+    // https://gitlab.com/fdroid/admin/-/work_items/367
+    // https://gitlab.com/fdroid/fdroidserver/-/work_items/1056
+    // https://android.izzysoft.de/articles/named/iod-scan-apkchecks?lang=en#blobs
+    dependenciesInfo {
+        // Disable including dependency metadata when building APKs
+        includeInApk = false
+        // Disable including dependency metadata when building Android App Bundles
+        includeInBundle = false
+    }
+
     // Used in release CI pipeline wherein secrets are injected
     // as environment variables.
     def keystoreFilePath = System.getenv("RELEASE_STORE_FILE")
