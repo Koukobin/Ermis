@@ -16,10 +16,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    packagingOptions {
-        doNotStrip "**/*.so"
-    }
-
     kotlinOptions {
         jvmTarget = "1.8"
     }
