@@ -16,11 +16,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: latest
-          packages: 'platforms;android-34 build-tools;34.0.0 ndk;27.0.12077973'
+      - name: Setup Android SDK at /opt/android-sdk
+        run: |
+          sudo mkdir -p /opt/android-sdk/cmdline-tools
+          sudo chown -R $USER /opt/android-sdk
+          # Download cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-14742923_latest.zip -O /tmp/cmdline-tools.zip
+          unzip -q /tmp/cmdline-tools.zip -d /opt/android-sdk/cmdline-tools
+          mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
+          # Install SDK, build tools, and NDK
+          yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "ndk;27.0.12077973"
         env:
           ANDROID_SDK_ROOT: /opt/android-sdk
           ANDROID_HOME: /opt/android-sdk
