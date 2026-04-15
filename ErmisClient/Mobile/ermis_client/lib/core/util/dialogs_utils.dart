@@ -99,8 +99,8 @@ Future<void> showWhatsAppDialog(
   String? title,
   required List<TextButton> buttons,
   required String content,
-}) async {
-  await showDialog(
+}) {
+  return showDialog(
       context: context,
       barrierDismissible: true,
       builder: (_) => WhatsAppPopupDialog(
@@ -114,8 +114,8 @@ Future<void> showWhatsAppDialog(
 }
 
 Future<void> showPermissionDeniedDialog(
-    BuildContext context, Permission permission) async {
-  await showWhatsAppDialog(
+    BuildContext context, Permission permission) {
+  return showWhatsAppDialog(
     context,
     buttons: [
       TextButton(
@@ -145,14 +145,22 @@ Future<void> showConfirmationDialog(
     builder: (BuildContext context) {
       return WhatsAppPopupDialog(
         child: AlertDialog(
-          title: includeTitle ? Text(S().areYouSure) : null,
-          content: Text(content),
+          title: includeTitle
+              ? Text(
+                  S().areYouSure,
+                  style: Theme.of(context).textTheme.titleLarge,
+                )
+              : null,
+          content: Text(
+            content,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false), // Cancel
               child: Text(S().noCapitalized, style: const TextStyle(fontSize: 18)),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true), // Confirm
               child: Text(S().yesCapitalized, style: const TextStyle(fontSize: 18)),
             ),
@@ -198,8 +206,8 @@ Future<void> showLogoutConfirmationDialog(
   );
 }
 
-Future<void> showExceptionDialog(BuildContext context, String exception) async {
-  await showSimpleAlertDialog(
+Future<void> showExceptionDialog(BuildContext context, String exception) {
+  return showSimpleAlertDialog(
     context: context,
     title: "An error occurred",
     content: exception,
@@ -223,8 +231,8 @@ Future<T> showLoadingDialog<T>(
   return result;
 }
 
-Future<void> showErrorDialog(BuildContext context, String message) async {
-  await showSimpleAlertDialog(
+Future<void> showErrorDialog(BuildContext context, String message) {
+  return showSimpleAlertDialog(
     context: context,
     title: "Error",
     content: message,
@@ -275,24 +283,6 @@ Future<void> showSimpleAlertDialog({
         ),
       );
     },
-  );
-}
-
-Widget createSimpleAlertDialog(
-    BuildContext context, String title, String content) {
-  return WhatsAppPopupDialog(
-    child: AlertDialog(
-      title: Text(title),
-      content: Text(content),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('OK'),
-        ),
-      ],
-    ),
   );
 }
 
