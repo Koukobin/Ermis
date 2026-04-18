@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> Android is under threat. This project supports [Keep Android Open](https://keepandroidopen.org) — an initiative to protect Android's openness. Learn more and show your support at [keepandroidopen.org](https://keepandroidopen.org).
+
+#
+
 <div align="center">
 	<img 
 		width="550" 
@@ -229,3 +234,14 @@ Ermis is distributed under the _**GNU Affero General Public License Version 3.0*
 For a brief synopsis of the license refer to [Wiki](https://github.com/Koukobin/Ermis/wiki/License).
 
 By using this software, you agree to the terms outlined in the license agreement.
+
+#
+
+<div align="center">
+	<img 
+		width="150" 
+		src="https://keepandroidopen.org/img/altered-deal.png"
+		alt="Keep Android Open"
+	/>
+</div>
+<h2><p align="center"><b>Keep Android Open</b></p></h2>
