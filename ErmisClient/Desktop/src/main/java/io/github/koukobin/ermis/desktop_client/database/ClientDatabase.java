@@ -111,46 +111,34 @@ public final class ClientDatabase {
 			return DriverManager.getConnection(JDBC_URL);
 		}
 
-		public int addServerInfo(ServerInfo serverInfo) {
-			int resultUpdate = 0;
-
+		public void addServerInfo(ServerInfo serverInfo) {
 			try (PreparedStatement addServerInfo = conn.prepareStatement("INSERT INTO server_info (server_url) VALUES(?);")) {
 				addServerInfo.setString(1, serverInfo.getURL().toString());
 
-				resultUpdate = addServerInfo.executeUpdate();
+				addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(sqle.getMessage(), sqle);
 			}
-
-			return resultUpdate;
 		}
 
-		public int removeServerInfo(ServerInfo serverInfo) {
-			int resultUpdate = 0;
-
+		public void removeServerInfo(ServerInfo serverInfo) {
 			try (PreparedStatement addServerInfo = conn.prepareStatement("DELETE FROM server_info WHERE server_url=?;")) {
 				addServerInfo.setString(1, serverInfo.getURL().toString());
 
-				resultUpdate = addServerInfo.executeUpdate();
+				addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(sqle.getMessage(), sqle);
 			}
-
-			return resultUpdate;
 		}
 
-		public int setServerInfo(ServerInfo serverInfo) {
-			int resultUpdate = 0;
-
+		public void setServerInfo(ServerInfo serverInfo) {
 			try (PreparedStatement addServerInfo = conn.prepareStatement("UPDATE server_info SET server_url=?;")) {
 				addServerInfo.setString(1, serverInfo.getURL().toString());
 
-				resultUpdate = addServerInfo.executeUpdate();
+				addServerInfo.executeUpdate();
 			} catch (SQLException sqle) {
 				logger.error(sqle.getMessage(), sqle);
 			}
-
-			return resultUpdate;
 		}
 
 		public ServerInfo[] getServerInfos() {
