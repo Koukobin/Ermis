@@ -69,7 +69,7 @@ extension ChatMessagesExtension on DBConnection {
     }
     tsEntered = DateTime.fromMillisecondsSinceEpoch(epochSecond * 1000).toIso8601String();
 
-    int resultUpdate = await db.insert(
+    int rowsAffected = await db.insert(
       'chat_messages',
       {
         'server_url': serverInfo.toString(),
@@ -86,7 +86,7 @@ extension ChatMessagesExtension on DBConnection {
       conflictAlgorithm: onConflict,
     );
 
-    return resultUpdate;
+    return rowsAffected;
   }
 
   Future<void> deleteChatMessage(
