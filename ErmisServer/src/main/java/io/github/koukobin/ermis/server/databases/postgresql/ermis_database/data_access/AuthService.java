@@ -111,9 +111,9 @@ public interface AuthService
 
 			createUser.setString(5, salt);
 
-			int resultUpdate = createUser.executeUpdate();
+			int rowsAffected = createUser.executeUpdate();
 
-			if (resultUpdate == 0) {
+			if (rowsAffected == 0) {
 				return new GeneralResult(CreateAccountInfo.CreateAccount.Result.ERROR_WHILE_CREATING_ACCOUNT);
 			}
 		} catch (SQLException sqle) {
@@ -128,9 +128,9 @@ public interface AuthService
 			createProfile.setInt(2, clientID);
 			createProfile.setString(3, "");
 
-			int resultUpdate = createProfile.executeUpdate();
+			int rowsAffected = createProfile.executeUpdate();
 
-			if (resultUpdate == 1) {
+			if (rowsAffected == 1) {
 				insertUserDevice(clientID, deviceInfo);
 
 				Map<AddedInfo, String> addedInfo = new EnumMap<>(AddedInfo.class);
@@ -166,8 +166,8 @@ public interface AuthService
 		try (PreparedStatement pstmt = getConn().prepareStatement("DELETE FROM users WHERE client_id=?;")) {
 			pstmt.setInt(1, clientID);
 
-			int resultUpdate = pstmt.executeUpdate();
-			if (resultUpdate == 1 /* SUCCESS */) {
+			int rowsAffected = pstmt.executeUpdate();
+			if (rowsAffected == 1 /* SUCCESS */) {
 				return new GeneralResult(LoginInfo.Login.Result.SUCCESFULLY_LOGGED_IN);
 			}
 		} catch (SQLException sqle) {

@@ -120,25 +120,23 @@ public interface ChatRequestsHandlerModule extends BaseComponent {
 	}
 
 	default boolean deleteChatRequest(int receiverClientID, int senderClientID) {
-
-		int resultUpdate = 0;
+		int rowsAffected = 0;
 
 		String query = "DELETE FROM chat_requests WHERE receiver_client_id=? AND sender_client_id=?";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
 			pstmt.setInt(1, receiverClientID);
 			pstmt.setInt(2, senderClientID);
 
-			resultUpdate = pstmt.executeUpdate();
+			rowsAffected = pstmt.executeUpdate();
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate == 1;
+		return rowsAffected == 1;
 	}
 
 	default boolean sendChatRequest(int receiverClientID, int senderClientID) {
-
-		int resultUpdate = 0;
+		int rowsAffected = 0;
 
 		// No need to check if given client id exists since the chat_requests table
 		// references client ids from users table
@@ -159,13 +157,13 @@ public interface ChatRequestsHandlerModule extends BaseComponent {
 			try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
 				pstmt.setInt(1, receiverClientID);
 				pstmt.setInt(2, senderClientID);
-				resultUpdate = pstmt.executeUpdate();
+				rowsAffected = pstmt.executeUpdate();
 			}
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate == 1;
+		return rowsAffected == 1;
 	}
 
 	default Integer[] getChatRequests(int clientID) {

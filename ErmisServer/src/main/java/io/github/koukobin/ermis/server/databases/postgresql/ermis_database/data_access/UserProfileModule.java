@@ -46,8 +46,8 @@ public interface UserProfileModule extends BaseComponent {
 			changeUsername.setString(1, newDisplayName);
 			changeUsername.setInt(2, clientID);
 
-			int resultUpdate = changeUsername.executeUpdate();
-			if (resultUpdate == 1) {
+			int rowsAffected = changeUsername.executeUpdate();
+			if (rowsAffected == 1) {
 				return ChangeUsernameResult.SUCCESFULLY_CHANGED_USERNAME;
 			}
 		} catch (SQLException sqle) {

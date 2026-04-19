@@ -53,9 +53,9 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 
 			replaceBackupVerificationCodes.setString(2, email);
 
-			int resultUpdate = replaceBackupVerificationCodes.executeUpdate();
+			int rowsAffected = replaceBackupVerificationCodes.executeUpdate();
 
-			if (resultUpdate == 1)
+			if (rowsAffected == 1)
 				return Optional.of(rawBackupVerificationCodes);
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));

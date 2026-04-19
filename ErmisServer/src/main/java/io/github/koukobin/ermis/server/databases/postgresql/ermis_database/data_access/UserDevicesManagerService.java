@@ -65,34 +65,34 @@ public interface UserDevicesManagerService extends BaseComponent, UserProfileMod
 	}
 
 	default boolean logoutDevice(UUID deviceUUID, int clientID) {
-		int resultUpdate = 0;
+		int rowsAffected = 0;
 
 		String sql = "DELETE FROM user_devices WHERE device_uuid=? AND client_id=?";
 		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
 			pstmt.setString(1, deviceUUID.toString());
 			pstmt.setInt(2, clientID);
 
-			resultUpdate = pstmt.executeUpdate();
+			rowsAffected = pstmt.executeUpdate();
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate == 1;
+		return rowsAffected == 1;
 	}
 
 	default boolean logoutAllDevices(int clientID) {
-		int resultUpdate = 0;
+		int rowsAffected = 0;
 
 		String sql = "DELETE FROM user_devices WHERE client_id=?";
 		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
 			pstmt.setInt(1, clientID);
 
-			resultUpdate = pstmt.executeUpdate();
+			rowsAffected = pstmt.executeUpdate();
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate > 0;
+		return rowsAffected > 0;
 	}
 
 	default boolean isDeviceLoggedIn(String email, UUID deviceUUID) {

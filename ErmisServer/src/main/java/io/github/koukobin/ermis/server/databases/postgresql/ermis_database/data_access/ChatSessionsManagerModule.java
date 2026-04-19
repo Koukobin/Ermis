@@ -41,9 +41,9 @@ public interface ChatSessionsManagerModule extends BaseComponent {
 		String createChatSQL = "INSERT INTO chat_sessions (chat_session_id) VALUES(?) ON CONFLICT DO NOTHING;";
 		try (PreparedStatement psmtp = getConn().prepareStatement(createChatSQL)) {
 			psmtp.setInt(1, chatSessionID);
-			int resultUpdate = psmtp.executeUpdate();
+			int rowsAffected = psmtp.executeUpdate();
 
-			if (resultUpdate == 1) {
+			if (rowsAffected == 1) {
 				insertMembersToChatSession(chatSessionID, members);
 			} else {
 				ChatSessionIDGenerator.undo(chatSessionID); // In case of failure, return session id
@@ -59,18 +59,18 @@ public interface ChatSessionsManagerModule extends BaseComponent {
 	}
 
 	default boolean deleteChatSession(int chatSessionID) {
-		int resultUpdate = 0;
+		int rowsAffected = 0;
 
 		// chat_session_members auto-deleted by CASCADE
 		String query = "DELETE FROM chat_sessions WHERE chat_session_id = ?;";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
 			pstmt.setInt(1, chatSessionID);
-			resultUpdate = pstmt.executeUpdate();
+			rowsAffected = pstmt.executeUpdate();
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate == 1;
+		return rowsAffected == 1;
 	}
 
 	/**
@@ -79,19 +79,18 @@ public interface ChatSessionsManagerModule extends BaseComponent {
 	 * 
 	 */
 	default boolean addUserToChatSession(int chatSessionID, int memberID) {
-
-		int resultUpdate = 0;
+		int rowsAffected = 0;
 
 		String query = "INSERT INTO chat_session_members (chat_session_id, member_id) VALUES (?, ?);";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
 			pstmt.setInt(1, chatSessionID);
 			pstmt.setInt(2, memberID);
-			resultUpdate = pstmt.executeUpdate();
+			rowsAffected = pstmt.executeUpdate();
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate == 1;
+		return rowsAffected == 1;
 	}
 
 	/**

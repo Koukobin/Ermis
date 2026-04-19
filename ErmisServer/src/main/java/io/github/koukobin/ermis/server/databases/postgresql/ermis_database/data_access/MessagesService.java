@@ -40,7 +40,7 @@ import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_data
 public interface MessagesService extends BaseComponent, UserProfileModule {
 
 	default boolean deleteChatMessage(int chatSessionID, int messageID) {
-		int resultUpdate = 0;
+		int rowsAffected = 0;
 
 		try {
 			try (PreparedStatement deleteMessage = getConn()
@@ -49,13 +49,13 @@ public interface MessagesService extends BaseComponent, UserProfileModule {
 				deleteMessage.setInt(1, chatSessionID);
 				deleteMessage.setInt(2, messageID);
 
-				resultUpdate = deleteMessage.executeUpdate();
+				rowsAffected = deleteMessage.executeUpdate();
 			}
 		} catch (SQLException sqle) {
 			logger.error(Throwables.getStackTraceAsString(sqle));
 		}
 
-		return resultUpdate == 1;
+		return rowsAffected == 1;
 	}
 
 	default Optional<LoadedInMemoryFile> getFile(int messageID, int chatSessionID) {

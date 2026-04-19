@@ -57,8 +57,8 @@ public interface ChangePasswordService extends BaseComponent, UserProfileModule,
 			changePassword.setString(1, passwordHash);
 			changePassword.setString(2, enteredEmail);
 
-			int resultUpdate = changePassword.executeUpdate();
-			if (resultUpdate == 1) {
+			int rowsAffected = changePassword.executeUpdate();
+			if (rowsAffected == 1) {
 				Map<AddedInfo, String> info = new EnumMap<>(AddedInfo.class);
 				info.put(AddedInfo.PASSWORD_HASH, passwordHash);
 
