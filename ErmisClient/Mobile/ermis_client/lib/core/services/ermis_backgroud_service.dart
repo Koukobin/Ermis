@@ -150,12 +150,12 @@ void maintainWebSocketConnection(ServiceInstance service) {
       DBConnection conn = ErmisDB.getConnection();
 
       for (Message msg in messages) {
-        int resultUpdate = await conn.insertChatMessage(
+        bool inserted = await conn.insertChatMessage(
           serverInfo: serverInfo,
           message: msg,
         );
 
-        if (resultUpdate > 0 && msg.clientID != Client.instance().clientID) {
+        if (inserted && msg.clientID != Client.instance().clientID) {
           handleChatMessageNotificationBackground(chatSession, msg, settingsJson, (String text) {
             Client.instance().sendMessageToClient(text, chatSession.chatSessionIndex);
           });

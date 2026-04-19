@@ -287,13 +287,13 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
       DBConnection conn = ErmisDB.getConnection();
 
       for (final Message message in messages) {
-        int resultUpdate = await conn.insertChatMessage(
+        bool inserted = await conn.insertChatMessage(
           serverInfo: serverInfo,
           message: message,
           onConflict: ConflictAlgorithm.ignore,
         );
 
-        if (resultUpdate > 0 && message.clientID != UserInfoManager.clientID) {
+        if (inserted && message.clientID != UserInfoManager.clientID) {
           conn.insertUnreadMessage(
             serverInfo,
             message.chatSessionID,

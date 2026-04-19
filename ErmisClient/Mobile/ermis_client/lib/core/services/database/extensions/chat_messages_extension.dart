@@ -37,12 +37,14 @@ extension ChatMessagesExtension on DBConnection {
     }
   }
 
-  Future<int> insertChatMessage({
+  /// Inserts a chat message into the database. Returns
+  /// true if the row was successfully inserted.
+  Future<bool> insertChatMessage({
     required ServerInfo serverInfo,
     required Message message,
     ConflictAlgorithm onConflict = ConflictAlgorithm.ignore,
   }) async {
-    if (message.contentType == null) return 0;
+    if (message.contentType == null) return false;
 
     final db = await database;
 
@@ -86,7 +88,7 @@ extension ChatMessagesExtension on DBConnection {
       conflictAlgorithm: onConflict,
     );
 
-    return rowsAffected;
+    return rowsAffected > 0;
   }
 
   Future<void> deleteChatMessage(
