@@ -20,11 +20,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import main.java.io.github.koukobin.ermis.desktop_client.database.models.LocalAccountInfo;
 import main.java.io.github.koukobin.ermis.desktop_client.service.client.models.ChatRequest;
 import main.java.io.github.koukobin.ermis.desktop_client.service.client.models.ChatSession;
 import main.java.io.github.koukobin.ermis.desktop_client.service.client.models.Message;
 
 public class UserInfoManager {
+	public static LocalAccountInfo accountInfo;
+
 	public static String username;
 	public static int clientID;
 	public static byte[] accountIcon;

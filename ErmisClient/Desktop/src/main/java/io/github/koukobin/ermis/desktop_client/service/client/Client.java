@@ -229,7 +229,12 @@ public class Client {
 			logger.error(ioe.getMessage(), ioe); // Should not happen
 		}
 
-		return isLoggedIn();
+		boolean isLoggedIn = isLoggedIn();
+		if (isLoggedIn) {
+			UserInfoManager.accountInfo = userInfo;
+		}
+
+		return isLoggedIn;
 	}
 
 	public static class Entry<T extends EntryType.CredentialInterface> {

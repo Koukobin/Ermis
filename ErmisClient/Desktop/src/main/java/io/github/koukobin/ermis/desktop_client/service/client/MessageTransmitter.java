@@ -306,6 +306,7 @@ public abstract class MessageTransmitter implements AutoCloseable {
 			ByteBuf payload = Unpooled.buffer();
 			payload.writeInt(ClientMessageType.USER_COMMAND.id);
 			payload.writeInt(ClientCommandType.LOGOUT_THIS_DEVICE.id);
+			payload.writeBytes(UserInfoManager.accountInfo.getDeviceUUID().toString().getBytes());
 
 			out.write(payload);
 		}
