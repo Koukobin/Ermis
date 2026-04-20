@@ -117,13 +117,13 @@ class AuthServiceTest extends BaseIntegrationTest {
 		}
 
 		@Test
-		@DisplayName("returned token/hash is non-blank")
+		@DisplayName("returned password hash is non-blank")
 		void validCredentials_tokenIsNotBlank() {
 			conn.createAccount(VALID_USERNAME, VALID_PASSWORD, uniqueDevice(), VALID_EMAIL);
 
 			Optional<String> result = conn.checkAuthentication(VALID_EMAIL, VALID_PASSWORD);
 			assertTrue(result.isPresent());
-			assertFalse(result.get().isBlank(), "Returned token must not be blank");
+			assertFalse(result.get().isBlank(), "Returned password hash must not be blank");
 		}
 
 		@Test
