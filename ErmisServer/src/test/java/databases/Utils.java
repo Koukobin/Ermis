@@ -57,8 +57,8 @@ class Utils {
 	}
 
 	static int resolveClientID(String email, ErmisDatabase.GeneralPurposeDBConnection conn) {
-		Optional<Integer> token = conn.getClientID(email);
-		assertTrue(token.isPresent(), "Could not resolve client ID for " + email);
-		return token.get();
+		Optional<Integer> clientID = conn.getClientID(email);
+		assertTrue(clientID.isPresent(), "Could not resolve client ID for " + email);
+		return clientID.get();
 	}
 }

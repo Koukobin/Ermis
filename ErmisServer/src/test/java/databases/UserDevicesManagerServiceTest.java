@@ -97,14 +97,14 @@ class UserDevicesManagerServiceTest extends BaseIntegrationTest {
 		}
 
 		@Test
-		@DisplayName("returns DUPLICATE_ENTRY when the same device token is inserted twice")
+		@DisplayName("returns DUPLICATE_ENTRY when the same device UUID is inserted twice")
 		void duplicateDevice_returnsDuplicateEntry() {
 			UserDeviceInfo device = uniqueDevice();
 			conn.insertUserDevice(EMAIL_1, device);
 
 			Insert second = conn.insertUserDevice(EMAIL_1, device);
 			assertEquals(Insert.DUPLICATE_ENTRY, second,
-					"Re-inserting the same device token must return DUPLICATE_ENTRY");
+					"Re-inserting the same device UUID must return DUPLICATE_ENTRY");
 		}
 
 		@Test
@@ -139,14 +139,14 @@ class UserDevicesManagerServiceTest extends BaseIntegrationTest {
 		}
 
 		@Test
-		@DisplayName("returns DUPLICATE_ENTRY when the same device token is inserted twice")
+		@DisplayName("returns DUPLICATE_ENTRY when the same device UUID is inserted twice")
 		void duplicateDevice_returnsDuplicateEntry() {
 			UserDeviceInfo device = uniqueDevice();
 			conn.insertUserDevice(CLIENT_ID_1, device);
 
 			Insert second = conn.insertUserDevice(CLIENT_ID_1, device);
 			assertEquals(Insert.DUPLICATE_ENTRY, second,
-					"Re-inserting the same device token must return DUPLICATE_ENTRY");
+					"Re-inserting the same device UUID must return DUPLICATE_ENTRY");
 		}
 
 		@Test
@@ -215,7 +215,7 @@ class UserDevicesManagerServiceTest extends BaseIntegrationTest {
 		}
 
 		@Test
-		@DisplayName("returns false for the correct token under the wrong email")
+		@DisplayName("returns false for device under the wrong email")
 		void wrongEmail_returnsFalse() {
 			UserDeviceInfo device = uniqueDevice();
 			conn.insertUserDevice(EMAIL_1, device);
@@ -253,7 +253,7 @@ class UserDevicesManagerServiceTest extends BaseIntegrationTest {
 		}
 
 		@Test
-		@DisplayName("returns false for a device token that does not exist")
+		@DisplayName("returns false for a device that does not exist")
 		void nonExistentDevice_returnsFalse() {
 			assertFalse(conn.logoutDevice(UUID.randomUUID(), CLIENT_ID_1),
 					"Logging out a non-existent device must return false");
