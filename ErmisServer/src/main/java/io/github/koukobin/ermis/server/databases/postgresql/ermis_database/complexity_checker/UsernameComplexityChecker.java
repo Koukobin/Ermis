@@ -50,7 +50,6 @@ public final class UsernameComplexityChecker {
 
 	@Override
 	public boolean equals(Object obj) {
-
 		if (this == obj) {
 			return true;
 		}
