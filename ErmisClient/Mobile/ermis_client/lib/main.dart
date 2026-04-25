@@ -465,7 +465,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
           Future<bool> hasInternet() async {
             try {
               final socket = await Socket.connect(
-                serverInfo.address!.host,
+                serverInfo.host,
                 serverInfo.port!,
                 timeout: const Duration(seconds: 5),
               );

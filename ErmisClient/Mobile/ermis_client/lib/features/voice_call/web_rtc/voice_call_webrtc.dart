@@ -143,7 +143,7 @@ class VoiceCallWebrtc extends StatefulWidget {
 final Map<String, dynamic> configuration = {
   'iceServers': [
     const {'urls': 'stun:stun.l.google.com:19302'},
-    {'urls': 'stun:${UserInfoManager.serverInfo.address!.host}:5439'}
+    {'urls': 'stun:${UserInfoManager.serverInfo.host}:5439'}
   ]
 };
 
@@ -527,7 +527,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
       _channel = IOWebSocketChannel.connect(
-        Uri.parse('wss://${UserInfoManager.serverInfo.address!.host}:${e.port}/ws'),
+        Uri.parse('wss://${UserInfoManager.serverInfo.host}:${e.port}/ws'),
         customClient: client,
       );
       await _channel!.ready;

@@ -18,13 +18,11 @@ import 'dart:io';
 
 class ServerInfo {
   final Uri _serverUrl;
-  final InternetAddress? _address;
   final int? _port;
   DateTime lastUsed;
 
   ServerInfo.empty()
       : _serverUrl = Uri(),
-        _address = null,
         _port = -1,
         lastUsed = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -38,16 +36,23 @@ class ServerInfo {
       throw InvalidServerUrlException("Invalid server URL: $serverUrl");
     }
 
-    InternetAddress address = InternetAddress(serverUrl.host);
     int port = serverUrl.port;
-
-    return ServerInfo._(serverUrl, address, port, lastUsed ?? DateTime.now());
+    return ServerInfo._(serverUrl, port, lastUsed ?? DateTime.now());
   }
 
-  ServerInfo._(this._serverUrl, this._address, this._port, this.lastUsed);
+  ServerInfo._(this._serverUrl, this._port, this.lastUsed);
 
   Uri get serverUrl => _serverUrl;
-  InternetAddress? get address => _address;
+  String get host => _serverUrl.host;
+
+  Future<InternetAddress> get address async {
+    InternetAddress? address = InternetAddress.tryParse(serverUrl.host);
+    address ??= await InternetAddress.lookup(_serverUrl.host)
+        .then((list) => list.first);
+
+    return address!;
+  }
+
   int? get port => _port;
 
   Map<String, Object?> toMap() {
