@@ -94,7 +94,9 @@ void main() async {
   ));
 }
 
-/// overlay entry point
+/// WebRTC overlay entry point
+///
+/// MUST BE ADJACENT TO main()
 @pragma("vm:entry-point")
 void overlayMain() async {
   WidgetsFlutterBinding.ensureInitialized();
