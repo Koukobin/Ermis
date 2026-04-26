@@ -1,4 +1,5 @@
 {
+  "connectionFailure": "接続を確立できません",
   "abilityToFormGroupChats": "グループチャット機能！",
   "aboutCapitlized": "概要",
   "abstract": "要約",

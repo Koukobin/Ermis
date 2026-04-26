@@ -14,6 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'dart:async';
+
 import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
@@ -37,7 +39,12 @@ Future<void> setupClientSession(
   LocalAccountInfo? accountInfo,
   bool keepPreviousRoutes = false,
 }) async {
-  String serverVersion = await Client.instance().readServerVersion();
+
+  String serverVersion = await Client.instance()
+      .readServerVersion()
+      .timeout(const Duration(seconds: 5), onTimeout: () {
+    throw TimeoutException("Client session setup timed out");
+  });
 
   // Check if the first digit of the application version - which is also the most significant -
   // matches the server version. For instance, app version 1.x.x should be compatible

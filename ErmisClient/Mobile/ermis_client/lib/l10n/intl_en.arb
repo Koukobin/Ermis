@@ -1,4 +1,5 @@
 {
+  "connectionFailure": "Unable to establish a connection",
   "noCapitalized": "No",
   "yesCapitalized": "Yes",
   "callStatusCalling": "Calling...",

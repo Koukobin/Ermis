@@ -1,4 +1,5 @@
 {
+  "connectionFailure": "Не удалось установить соединение",
   "abilityToFormGroupChats": "Возможность создавать групповые чаты!",
   "aboutCapitlized": "О себе",
   "abstract": "Аннотация",

@@ -1,4 +1,5 @@
 {
+  "connectionFailure": "Impossible d'établir une connexion",
   "abilityToFormGroupChats": "Possibilité de créer des discussions de groupe !",
   "aboutCapitlized": "À propos",
   "abstract": "Résumé",

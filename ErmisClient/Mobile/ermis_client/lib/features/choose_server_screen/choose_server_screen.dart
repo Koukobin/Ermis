@@ -295,7 +295,14 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                           rethrow;
                         }
 
-                        setupClientSession(context);
+                        try {
+                          await setupClientSession(context);
+                        } on Exception catch (te) {
+                          if (kDebugMode) debugPrint(te.toString());
+
+                          showToastDialog(S.current.connectionFailure);
+                          setState(() => _isConnectingToServer = false);
+                        }
                       },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: appColors.inferiorColor, // Splash color

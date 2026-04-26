@@ -1,4 +1,5 @@
 {
+  "connectionFailure": "Não foi possível estabelecer uma ligação",
   "abilityToFormGroupChats": "Capacidade de formar chats em grupo!",
   "aboutCapitlized": "Sobre",
   "abstract": "Resumo",
