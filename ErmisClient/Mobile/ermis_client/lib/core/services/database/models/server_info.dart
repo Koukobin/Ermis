@@ -27,6 +27,7 @@ class ServerInfo {
         lastUsed = DateTime.fromMillisecondsSinceEpoch(0);
 
   factory ServerInfo(Uri serverUrl, [DateTime? lastUsed]) {
+    // Include scheme if it is not already embedded
     if (!serverUrl.toString().startsWith("https://")) {
       serverUrl = Uri.parse("https://${serverUrl.toString()}");
     }
