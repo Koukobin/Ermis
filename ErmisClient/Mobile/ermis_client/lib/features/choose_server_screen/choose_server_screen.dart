@@ -312,7 +312,9 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                 child: Text(S.current.connect,
                     style: TextStyle(
                       fontSize: 18,
-                      color: appColors.primaryColor,
+                      color: _isConnectingToServer
+                          ? appColors.secondaryColor
+                          : appColors.primaryColor,
                     )),
               ),
             ],
