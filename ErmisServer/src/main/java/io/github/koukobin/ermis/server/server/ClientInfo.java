@@ -48,7 +48,13 @@ public final class ClientInfo {
 		status = ClientStatus.ONLINE; // For obvious reasons, by default is online
 	}
 
-	public ClientInfo(String username, String email, int clientID, ClientStatus status, List<ChatSession> chatSessions, List<Integer> chatRequests, EpollSocketChannel channel) {
+	public ClientInfo(String username,
+			String email,
+			int clientID,
+			ClientStatus status,
+			List<ChatSession> chatSessions,
+			List<Integer> chatRequests,
+			EpollSocketChannel channel) {
 		this.username = username;
 		this.email = email;
 		this.clientID = clientID;
