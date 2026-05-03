@@ -43,7 +43,7 @@ server {
         root /var/ermis-server/images/;
     }
 
-    # Reverse Proxy for Java Ermis server
+    # Reverse proxy for ermis-server
     location / {
         proxy_pass https://IP_ADDRESS:SERVER_PORT;
     	proxy_set_header Host $host;
