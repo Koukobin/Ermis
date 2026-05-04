@@ -37,9 +37,57 @@
       <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
-    <modules>
-        <module>ErmisCommon</module>
-        <module>ErmisServer</module>
-        <module>ErmisClient/Desktop</module>
-    </modules>
+	<!--
+	    Configure each module as a separate profile so it's only included in the build
+	    when its directory exists. Something akin to listing all modules together under
+	    a single <modules> block (as shown below) would cause the build to fail if any
+	    one of them was missing:
+
+	        <modules>
+	            <module>ErmisCommon</module>
+	            <module>ErmisServer</module>
+	            <module>ErmisClient/Desktop</module>
+	        </modules>
+
+        This is especially an issue in the context of building a Docker image for ermis
+        server, as in that case the missing `ErmisClient/Desktop` module triggers a
+        total build failure.
+	-->
+	<profiles>
+		<profile>
+			<id>ErmisCommon</id>
+			<activation>
+				<file>
+					<exists>ErmisCommon/pom.xml</exists>
+				</file>
+			</activation>
+			<modules>
+				<module>ErmisCommon</module>
+			</modules>
+		</profile>
+
+		<profile>
+			<id>ErmisServer</id>
+			<activation>
+				<file>
+					<exists>ErmisServer/pom.xml</exists>
+				</file>
+			</activation>
+			<modules>
+				<module>ErmisServer</module>
+			</modules>
+		</profile>
+
+		<profile>
+			<id>ErmisClient</id>
+			<activation>
+				<file>
+					<exists>ErmisClient/Desktop/pom.xml</exists>
+				</file>
+			</activation>
+			<modules>
+				<module>ErmisClient/Desktop</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>
