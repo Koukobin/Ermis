@@ -105,6 +105,7 @@ public final class ErmisDatabase {
 				Flyway flyway = Flyway.configure()
 						.dataSource(generalPurposeDataSource)
 						.loggers("log4j2")
+						.locations("filesystem:src/main/resources/db/migration", "classpath:main/resources/db/migration")
 						.load();
 
 				flyway.migrate();
