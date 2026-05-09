@@ -154,6 +154,8 @@ public final class Server {
 			throw new RuntimeException("Failed to start WebRTC Signaling Server", e);
 		}
 
+		if (ServerSettings.IS_PRODUCTION_MODE) return;
+
 		// Add two second delay before warning "server is running
 		// in development mode" to ensure it is not obscured among
 		// other console output
