@@ -1,0 +1,14 @@
+# Ignore everything
+**
+
+# Allow specific files/folders
+!pom.xml
+
+!ErmisServer/pom.xml
+!ErmisServer/src/
+!ErmisServer/Docker/**
+!ErmisServer/Installers/Unix/DEB/ermis-server-installer_all/etc/**
+
+!ErmisCommon/pom.xml
+!ErmisCommon/src
+

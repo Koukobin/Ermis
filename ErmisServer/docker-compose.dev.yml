@@ -1,0 +1,72 @@
+services:
+  ermis-server:
+    build:
+      context: ..
+      dockerfile: ErmisServer/Docker/Dockerfile
+    networks:
+      - ermis-net
+    secrets:
+      - db_user_password
+      - server_key-store_password
+      - db_key-store_password
+      - emailer_password
+    ports:
+      - "5551:5551"
+    volumes:
+      - ./ermis-configs:/etc/ermis-server/configs
+      - ./secrets:/run/secrets/ermis-server.service:ro
+      - ermis-user-files:/var/lib/ermis-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+#    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    networks:
+      - ermis-net
+    secrets:
+      - db_user_password
+      - db_key-store_password
+    environment:
+      POSTGRES_DB: ermis_database
+      POSTGRES_USER: ermis_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_user_password
+    volumes:
+      - ermis-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ermis_admin -d ermis_database"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:stable-alpine
+    networks:
+      - ermis-net
+    ports:
+      - "80:80"
+    volumes:
+      - ./ermis-configs/nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+    depends_on:
+      - ermis-server
+    restart: unless-stopped
+
+networks:
+  ermis-net:
+    driver: bridge
+
+secrets:
+  db_user_password:
+    file: ./secrets/db_user_password
+  server_key-store_password:
+    file: ./secrets/server_key-store_password
+  db_key-store_password:
+    file: ./secrets/db_key-store_password
+  emailer_password:
+    file: ./secrets/emailer_password
+
+volumes:
+  ermis-user-files:
+  ermis-postgres-data:
