@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Prompt for user input
+# Prompt for certificate validity
 echo -n "Enter the number of days the certificates should be valid for (default 3650):"
 read DAYS_VALID
 DAYS_VALID=${DAYS_VALID:-3650}  # Use 3650 days as default if no input
