@@ -8,8 +8,8 @@ echo -n "Enter the number of days the certificates should be valid for (default 
 read DAYS_VALID
 DAYS_VALID=${DAYS_VALID:-3650} # Use 3650 days as default if no input
 
-mkdir -p ./ermis-configs/certs
-cd ./ermis-configs/certs
+mkdir ./certs
+cd ./certs
 
 # Step 1: Create Your Own Certificate Authority (CA)
 

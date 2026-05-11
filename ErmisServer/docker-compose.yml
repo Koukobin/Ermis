@@ -12,6 +12,7 @@ services:
       - "5551:5551"
     volumes:
       - ./ermis-configs:/etc/ermis-server/configs
+      - ./certs:/etc/ermis-server/certs:ro
       - ./secrets:/run/secrets/ermis-server.service:ro
       - ermis-user-files:/var/lib/ermis-server
     depends_on:
@@ -47,6 +48,7 @@ services:
       - "80:80"
     volumes:
       - ./ermis-configs/nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ./certs:/etc/ermis-server/certs:ro
     depends_on:
       - ermis-server
     restart: unless-stopped
