@@ -50,9 +50,6 @@ RUN groupadd --system ermis_docker 2>/dev/null || addgroup -S ermis_docker \
 RUN mkdir -p /var/ermis-server/log/server-logs \
     && chown -R ermis_docker:ermis_docker /var/ermis-server
 
-# Mount volume for user-generated files
-VOLUME ["/var/lib/ermis-server"]
-
 RUN apt-get update && apt-get install -y gosu && rm -rf /var/lib/apt/lists/*
 
 # Copy and set entrypoint script
