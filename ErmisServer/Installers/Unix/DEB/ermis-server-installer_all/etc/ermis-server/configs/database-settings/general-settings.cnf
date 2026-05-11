@@ -7,7 +7,7 @@ databasePort=5432
 
 user=ermis_admin
 
-key-store= ------
+key-store=/etc/ermis-server/certs/keystore.jks
 
 # Number of already written messages to retrieve and send to users whenever they request.
 numberOfAlreadyMessagesToSendToUsersWheneverTheyRequest=200
