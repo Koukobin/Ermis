@@ -21,7 +21,7 @@ use File::Find;
 # Extract address and port
 my $address;
 my $port;
-open my $fh, '<', '/opt/ermis-server/configs/server-settings/general-settings.cnf' or die "Cannot open config file: $!\n";
+open my $fh, '<', '/etc/ermis-server/configs/server-settings/general-settings.cnf' or die "Cannot open config file: $!\n";
 while (my $line = <$fh>) {
     if ($line =~ /^address=(.*)$/) {
         $address = $1;
@@ -52,7 +52,7 @@ if ($port eq " ------") {
 my $paypal_client_id;
 my $bitcoin_address;
 my $monero_address;
-open $fh, '<', '/opt/ermis-server/configs/donation-settings/general-settings.cnf' or die "Cannot open config file: $!\n";
+open $fh, '<', '/etc/ermis-server/configs/donation-settings/general-settings.cnf' or die "Cannot open config file: $!\n";
 while (my $line = <$fh>) {
     if ($line =~ /^paypal-client-id=(.*)$/) {
  	    $paypal_client_id= $1;
@@ -78,7 +78,7 @@ find(sub {
     open my $in, '<', $_ or die "Cannot open file $_: $!\n";
     my @lines = <$in>;
     close $in;
-    
+
     open my $out, '>', $_ or die "Cannot write to file $_: $!\n";
     foreach my $line (@lines) {
         $line =~ s/SERVER_ADDRESS/$address/g;
