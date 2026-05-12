@@ -14,8 +14,8 @@ server {
     ##
     # SSL Settings
     ##
-    ssl_certificate /opt/ermis-server/certificate/server_full.pem;
-    ssl_certificate_key /opt/ermis-server/certificate/server.key;
+    ssl_certificate SSL_CERTIFICATE;
+    ssl_certificate_key SSL_CERTIFICATE_KEY;
 
     # SSL settings
     ssl_protocols TLSv1.2 TLSv1.3;

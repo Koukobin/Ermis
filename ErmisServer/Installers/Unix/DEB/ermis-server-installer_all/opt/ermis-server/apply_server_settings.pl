@@ -48,6 +48,26 @@ if ($port eq " ------") {
     die "Error: Port is invalid!\n";
 }
 
+# Extract SSL certificate data
+my $ssl_certificate;
+my $ssl_certificate_key;
+open $fh, '<', '/etc/ermis-server/configs/server-settings/ssl-settings.cnf' or die "Cannot open config file: $!\n";
+while (my $line = <$fh>) {
+    if ($line =~ /^ssl-certificate=(.*)$/) {
+	    $ssl_certificate= $1;
+    }
+    if ($line =~ /^ssl-certificate-key=(.*)$/) {
+        $ssl_certificate_key = $1;
+    }
+}
+close $fh;
+
+# Ensure ssl certificate is configured
+die "Error: Could not extract ssl certificate path from config file!\n" unless $ssl_certificate;
+
+# Ensure ssl certificate key is configured
+die "Error: Could not extract ssl certificate key path from config file!\n" unless $ssl_certificate_key;
+
 # Extract donation data
 my $paypal_client_id;
 my $bitcoin_address;
@@ -85,6 +105,8 @@ find(sub {
         $line =~ s/IP_ADDRESS/$address/g;
         $line =~ s/SERVER_PORT/$port/g;
         $line =~ s/PORT/$port/g;
+        $line =~ s/SSL_CERTIFICATE/$ssl_certificate/g;
+        $line =~ s/SSL_CERTIFICATE_KEY/$ssl_certificate_key/g;
         $line =~ s/PAYPAL_CLIENT_ID/$paypal_client_id/g;
         $line =~ s/BTC_ADDRESS/$bitcoin_address/g;
         $line =~ s/XMR_ADDRESS/$monero_address/g;
