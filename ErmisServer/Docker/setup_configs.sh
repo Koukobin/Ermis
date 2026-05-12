@@ -14,7 +14,7 @@ if [ ! -d "./ermis-configs" ] || [ -z "$(ls ./ermis-configs 2>/dev/null)" ]; the
     mkdir ./ermis-configs/nginx
     docker cp nginx-temp:/etc/nginx/nginx.conf ./ermis-configs/nginx
     docker cp nginx-temp:/etc/nginx/mime.types ./ermis-configs/nginx/mime.types
-    docker cp ermis-temp:/etc/nginx/sites-enabled ./ermis-configs/nginx/sites-enabled
+    docker cp ermis-temp:/etc/nginx/sites-enabled ./ermis-configs/nginx/conf.d
 
     docker rm nginx-temp > /dev/null
     docker rm ermis-temp > /dev/null
@@ -33,8 +33,8 @@ echo ""
 # Write settings into configs
 echo "Writing configurations..."
 sed -i "s|databaseAddress=.*|databaseAddress=postgres|" ./ermis-configs/database-settings/general-settings.cnf
-sed -i "s|IP_ADDRESS|0.0.0.0|" ./ermis-configs/nginx/sites-enabled/ermis-server
-sed -i "s|SERVER_PORT|5551|" ./ermis-configs/nginx/sites-enabled/ermis-server
+sed -i "s|IP_ADDRESS|0.0.0.0|" ./ermis-configs/nginx/conf.d/ermis-server
+sed -i "s|SERVER_PORT|5551|" ./ermis-configs/nginx/conf.d/ermis-server
 sed -i "s|key-store=.*|key-store=/etc/ermis-server/certs/keystore.jks|" ./ermis-configs/server-settings/ssl-settings.cnf
 [ -s "${EMAIL_USERNAME}"   ] && sed -i "s|emailUsername=.*|emailUsername=${EMAIL_USERNAME}|" ./ermis-configs/emailer-settings/general-settings.cnf
 [ -s "${PAYPAL_CLIENT_ID}" ] && sed -i "s|paypal-client-id=.*|paypal-client-id=${PAYPAL_CLIENT_ID}|" ./ermis-configs/donation-settings/general-settings.cnf
