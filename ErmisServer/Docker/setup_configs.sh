@@ -6,13 +6,17 @@ if [ ! -d "./ermis-configs" ] || [ -z "$(ls ./ermis-configs 2>/dev/null)" ]; the
     echo "Extracting default configuration files..."
 
     docker create --name ermis-temp ermis-server > /dev/null
+    docker create --name nginx-temp nginx:stable-alpine > /dev/null
 
     rm -r ./ermis-configs 2> /dev/null
     docker cp ermis-temp:/etc/ermis-server/configs ./ermis-configs
 
     mkdir ./ermis-configs/nginx
+    docker cp nginx-temp:/etc/nginx/nginx.conf ./ermis-configs/nginx
+    docker cp nginx-temp:/etc/nginx/mime.types ./ermis-configs/nginx/mime.types
     docker cp ermis-temp:/etc/nginx/sites-enabled ./ermis-configs/nginx/sites-enabled
 
+    docker rm nginx-temp > /dev/null
     docker rm ermis-temp > /dev/null
 
     echo -e "Configs extracted to ./ermis-configs\n"
