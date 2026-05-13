@@ -1,6 +1,6 @@
 services:
   ermis-server:
-    image: koukobin/ermis-server:latest
+    image: koukobin/ermis-server:1.2.0
     networks:
       - ermis-net
     secrets:
