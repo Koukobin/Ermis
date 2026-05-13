@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
 
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:1.30-alpine
     networks:
       - ermis-net
     ports:
