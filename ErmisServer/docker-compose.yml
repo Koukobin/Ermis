@@ -1,6 +1,6 @@
 services:
   ermis-server:
-    image: koukobin/ermis-server:1.2.0
+    image: koukobin/ermis-server:1.2
     networks:
       - ermis-net
     secrets:
@@ -21,7 +21,7 @@ services:
 #    restart: unless-stopped
 
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18.3-bookworm
     networks:
       - ermis-net
     secrets:
@@ -32,7 +32,7 @@ services:
       POSTGRES_USER: ermis_admin
       POSTGRES_PASSWORD_FILE: /run/secrets/db_user_password
     volumes:
-      - ermis-postgres-data:/var/lib/postgresql/data
+      - ermis-postgres-data:/var/lib/postgresql/main
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ermis_admin -d ermis_database"]
       interval: 10s
