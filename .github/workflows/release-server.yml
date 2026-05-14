@@ -78,7 +78,7 @@ jobs:
           context: .
           dockerfile: ErmisServer/Docker/Dockerfile
           push: true
-          tags:
+          tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:stable
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.version.outputs.server_version }}
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.version_mj.outputs.server_version }}
