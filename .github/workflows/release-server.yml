@@ -71,6 +71,10 @@ jobs:
           MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
           echo "server_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
 
+      - name: Extract lowercase repo owner name
+        id: owner
+        run: echo "lowercase=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
+
       # Push Docker image to Docker Hub & GHCR
       - name: Build image and push to registries
         uses: docker/build-push-action@v5
@@ -83,7 +87,7 @@ jobs:
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.version.outputs.server_version }}
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.version_mj.outputs.server_version }}
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.sha.outputs.sha_short }}
-            ghcr.io/${{ github.repository_owner | lowercase }}/ermis-server:stable
-            ghcr.io/${{ github.repository_owner | lowercase }}/ermis-server:${{ steps.version.outputs.server_version }}
-            ghcr.io/${{ github.repository_owner | lowercase }}/ermis-server:${{ steps.version_mj.outputs.server_version }}
-            ghcr.io/${{ github.repository_owner | lowercase }}/ermis-server:${{ steps.sha.outputs.sha_short }}
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:stable
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.version.outputs.server_version }}
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.version_mj.outputs.server_version }}
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.sha.outputs.sha_short }}
