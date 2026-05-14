@@ -1,7 +1,7 @@
 name: Server Release (DEB)
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 on:
