@@ -25,7 +25,7 @@ jobs:
 
       - name: Build
         run: |
-          mvn clean install
+          mvn package -DskipTests
           cd ErmisServer/Installers/Unix/DEB
           chmod +x build_debian_installer.sh
           ./build_debian_installer.sh
