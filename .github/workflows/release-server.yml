@@ -1,7 +1,8 @@
 name: Server Release (DEB)
 
 permissions:
-  contents: write
+  contents: read
+  packages: write
 
 on:
   release:
@@ -34,3 +35,56 @@ jobs:
         with:
           files: |
             ErmisServer/Installers/Unix/DEB/ermis-server-installer_all.deb
+
+      # Build Docker image
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Shorten git SHA to just 7 chars (full SHA is 40 chars)
+      - name: Set short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Parse server version
+        id: vars
+        run: |
+          VERSION=${GITHUB_REF_NAME#server-v}
+          echo "server_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Extract major & minor server version
+        id: vars
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
+          echo "major_minor_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
+
+      # Push Docker image to Docker Hub & GHCR
+      - name: Build image and push to registries
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          dockerfile: ErmisServer/Docker/Dockerfile
+          push: true
+          tags:
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:stable
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.vars.outputs.server_version }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.vars.outputs.server_version_major_minor }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.vars.outputs.sha_short }}
+
+            ghcr.io/${{ github.repository_owner }}/ermis-server:stable
+            ghcr.io/${{ github.repository_owner }}/ermis-server:${{ steps.vars.outputs.server_version }}
+            ghcr.io/${{ github.repository_owner }}/ermis-server:${{ steps.vars.outputs.server_version_major_minor }}
+            ghcr.io/${{ github.repository_owner }}/ermis-server:${{ steps.vars.outputs.sha_short }}
