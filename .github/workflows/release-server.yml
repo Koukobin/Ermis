@@ -61,15 +61,17 @@ jobs:
       - name: Parse server version
         id: vars
         run: |
-          VERSION=${GITHUB_REF_NAME#server-v}
-          echo "server_version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Extract major & minor server version
-        id: vars
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
-          echo "major_minor_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
+          # Extract full server version
+          (
+            VERSION=${GITHUB_REF_NAME#server-v}
+            echo "server_version=$VERSION" >> $GITHUB_OUTPUT
+          )
+          # Extract major & minor server version
+          (
+            VERSION=${GITHUB_REF_NAME#server-v}
+            MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
+            echo "server_version_major_minor=$MAJOR_MINOR" >> $GITHUB_OUTPUT
+          )
 
       # Push Docker image to Docker Hub & GHCR
       - name: Build image and push to registries
