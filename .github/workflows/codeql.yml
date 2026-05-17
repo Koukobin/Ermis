@@ -1,5 +1,8 @@
 name: "CodeQL Advanced"
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ "master" ]
@@ -13,7 +16,7 @@ jobs:
     name: Analyze (${{ matrix.language }})
     runs-on: 'ubuntu-latest'
     permissions:
-      # required for all workflows
+      contents: read
       security-events: write
 
     strategy:
