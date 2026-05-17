@@ -23,18 +23,29 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Build
+      - name: Parse server version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF_NAME#server-v}
+          echo "server_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build Debian-based Installer
         run: |
           mvn package -DskipTests
           cd ErmisServer/Installers/Unix/DEB
           chmod +x build_debian_installer.sh
           ./build_debian_installer.sh
 
-      - name: Upload DEB to Release
+      - name: Build Docker ZIP
+        run: |
+          tar -czf ermis-docker-${{ steps.version.outputs.server_version }}.tar.gz ErmisServer/docker-compose.yml,ErmisServer/Docker/bootstrap/**
+
+      - name: Upload Artifacts to Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           files: |
             ErmisServer/Installers/Unix/DEB/ermis-server-installer_all.deb
+            ermis-docker-${{ steps.version.outputs.server_version }}.tar.gz
 
       # Build Docker image
       - name: Set up Docker Buildx
