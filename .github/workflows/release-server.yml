@@ -72,12 +72,6 @@ jobs:
         id: sha
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Parse server version
-        id: version
-        run: |
-          VERSION=${GITHUB_REF_NAME#server-v}
-          echo "server_version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Extract major & minor server version
         id: version_mj
         run: |
