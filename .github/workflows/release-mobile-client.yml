@@ -78,6 +78,5 @@ jobs:
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-split-arm64-release.apk
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-split-arm32-release.apk
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-split-x64-release.apk
-            ErmisClient/Mobile/ermis_client/build/app/outputs/app-target-arm64-release.apk
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-release.aab
 
