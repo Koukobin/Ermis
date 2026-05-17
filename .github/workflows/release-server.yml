@@ -97,6 +97,9 @@ jobs:
           file: ErmisServer/Docker/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
+          # Enable caching inside GitHub Actions to speed up subsequent builds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:stable
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.version.outputs.server_version }}
