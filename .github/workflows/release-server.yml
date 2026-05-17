@@ -38,7 +38,9 @@ jobs:
 
       - name: Build Docker ZIP
         run: |
-          tar -czf ermis-docker-${{ steps.version.outputs.server_version }}.tar.gz ErmisServer/docker-compose.yml,ErmisServer/Docker/bootstrap/**
+          tar -czf ermis-docker-${{ steps.version.outputs.server_version }}.tar.gz \
+            ErmisServer/docker-compose.yml \
+            ErmisServer/Docker/bootstrap/
 
       - name: Upload Artifacts to Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
