@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Android SDK at /opt/android-sdk
         run: |
@@ -35,7 +35,7 @@ jobs:
           echo "/opt/android-sdk/platform-tools" >> $GITHUB_PATH
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           flutter-version: '3.41.1'
 
@@ -71,7 +71,7 @@ jobs:
           PUB_CACHE: /home/runner/work/Ermis/Ermis/ErmisClient/Mobile/ermis_client/.pub-cache # Required to match F-Droid pub cache path
 
       - name: Upload APKs to Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           files: |
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-fat-release.apk
