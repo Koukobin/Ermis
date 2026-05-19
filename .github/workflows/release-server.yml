@@ -50,7 +50,7 @@ jobs:
             ErmisServer/Installers/Unix/DEB/ermis-server-installer_all.deb
             ermis-docker-${{ steps.version.outputs.server_version }}.tar.gz
 
-      # Build Docker image
+      # Release Docker image
       - name: Set up QEMU
         uses: docker/setup-qemu-action@72cd56508471caa31aa98bca67440b2dc2f355c0 # v4.0.0
 
@@ -81,6 +81,9 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}
           MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
           echo "server_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
+
+      - name: Set version for Docker compose
+        run: echo "SERVER_VERSION=${{ steps.version_mj.outputs.server_version }}" >> $GITHUB_ENV
 
       - name: Extract lowercase repo owner name
         id: owner
