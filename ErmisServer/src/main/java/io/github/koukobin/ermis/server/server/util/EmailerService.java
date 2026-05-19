@@ -76,9 +76,15 @@ public final class EmailerService {
 
 		// Send test email to self to ensure emailer works correctly
 		try {
-			sendEmail("Test", "Test", EmailerSettings.EMAIL_USERNAME);
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
+			MimeMessage message = new MimeMessage(session);
+			message.addRecipients(Message.RecipientType.TO, EmailerSettings.EMAIL_USERNAME);
+			Transport.send(message);
+		} catch (MessagingException me) {
+			// Throw exception ONLY in prod; continue execution in dev
+			if (ServerSettings.IS_PRODUCTION_MODE) {
+				throw new RuntimeException(me);
+			}
+			LOGGER.debug(Throwables.getStackTraceAsString(me));
 		}
 	}
 
