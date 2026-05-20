@@ -1,6 +1,6 @@
 services:
   ermis-server:
-    image: koukobin/ermis-server:${SERVER_VERSION:-stable} # Fallback to 'stable' if version not defined
+    image: koukobin/ermis-server:${SERVER_VERSION}
     networks:
       - ermis-net
     secrets:
