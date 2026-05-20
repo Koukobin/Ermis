@@ -9,7 +9,7 @@ on:
     types: [published]
 
 jobs:
-  build:
+  release:
     if: startsWith(github.ref_name, 'server')
     runs-on: ubuntu-latest
 
