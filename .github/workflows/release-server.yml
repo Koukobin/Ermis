@@ -29,12 +29,25 @@ jobs:
           VERSION=${GITHUB_REF_NAME#server-v}
           echo "server_version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Extract major & minor server version
+        id: version_mj
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
+          echo "server_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
+
       - name: Build Debian-based Installer
         run: |
           mvn package -DskipTests
           cd ErmisServer/Installers/Unix/DEB
           chmod +x build_debian_installer.sh
           ./build_debian_installer.sh
+
+      - name: Replace version placeholder with proper version in compose file
+        run: |
+          SERVER_VERSION=${{ steps.version_mj.outputs.server_version }}
+          # Substitute version placeholder with actual version in compose file
+          envsubst < ErmisServer/docker-compose.yml > docker-compose.yml
 
       - name: Build Docker ZIP
         run: |
@@ -74,16 +87,6 @@ jobs:
       - name: Set short SHA
         id: sha
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Extract major & minor server version
-        id: version_mj
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
-          echo "server_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
-
-      - name: Set version for Docker compose
-        run: echo "SERVER_VERSION=${{ steps.version_mj.outputs.server_version }}" >> $GITHUB_ENV
 
       - name: Extract lowercase repo owner name
         id: owner
