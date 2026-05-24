@@ -32,7 +32,7 @@ jobs:
       - name: Extract major & minor server version
         id: version_mj
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          VERSION=${GITHUB_REF_NAME#server-v}
           MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
           echo "server_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
 
