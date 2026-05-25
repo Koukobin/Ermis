@@ -48,6 +48,7 @@ jobs:
           export SERVER_VERSION=${{ steps.version_mj.outputs.server_version }}
           # Substitute version placeholder with actual version in compose file
           envsubst < ErmisServer/docker-compose.yml > docker-compose.yml
+          mv docker-compose.yml ErmisServer/docker-compose.yml
           mkdir temp/
           envsubst < ErmisServer/Docker/bootstrap/*.* > temp/*.*
           mv temp/*.* ErmisServer/Docker/bootstrap/*.*
@@ -56,7 +57,7 @@ jobs:
         run: |
           tar -czf ermis-docker-${{ steps.version.outputs.server_version }}.tar.gz \
             --transform='s|.*/||' \
-            docker-compose.yml \
+            ErmisServer/docker-compose.yml \
             ErmisServer/Docker/bootstrap/*
 
       - name: Upload Artifacts to Release
