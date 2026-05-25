@@ -50,8 +50,10 @@ jobs:
           envsubst < ErmisServer/docker-compose.yml > docker-compose.yml
           mv docker-compose.yml ErmisServer/docker-compose.yml
           mkdir temp/
-          envsubst < ErmisServer/Docker/bootstrap/*.* > temp/*.*
-          mv temp/*.* ErmisServer/Docker/bootstrap/*.*
+          for f in ErmisServer/Docker/bootstrap/*.*; do
+            envsubst < "$f" > temp/${f##*/}
+          done
+          mv temp/*.* ErmisServer/Docker/bootstrap/
 
       - name: Build Docker ZIP
         run: |
