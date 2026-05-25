@@ -43,11 +43,14 @@ jobs:
           chmod +x build_debian_installer.sh
           ./build_debian_installer.sh
 
-      - name: Replace version placeholder with proper version in compose file
+      - name: Substitute version placeholders with proper version
         run: |
           export SERVER_VERSION=${{ steps.version_mj.outputs.server_version }}
           # Substitute version placeholder with actual version in compose file
           envsubst < ErmisServer/docker-compose.yml > docker-compose.yml
+          mkdir temp/
+          envsubst < ErmisServer/Docker/bootstrap/*.* > temp/*.*
+          mv temp/*.* ErmisServer/Docker/bootstrap/*.*
 
       - name: Build Docker ZIP
         run: |
