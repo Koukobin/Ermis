@@ -58,7 +58,7 @@ public final class EmailerService {
 	private EmailerService() {}
 
 	static {
-		Properties properties = System.getProperties();
+		Properties properties = new Properties();
 		properties.put("mail.smtp.host", EmailerSettings.MAIL_SMTP_HOST);
 		properties.put("mail.smtp.port", EmailerSettings.MAIL_SMTP_PORT);
 		properties.put("mail.smtp.ssl.checkserveridentity", "true");
