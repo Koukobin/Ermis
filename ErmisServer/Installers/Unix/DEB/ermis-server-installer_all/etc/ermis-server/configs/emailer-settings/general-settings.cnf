@@ -1,5 +1,6 @@
 # NOTE: if emailer fails silently, you may have to change
-# the SMTP port; consider switching to port 588 or 2525.
+# the SMTP port; consider switching to port 465 or 2525.
+# Available SMTP ports include: 465, 587, 2525, 25.
 
 mailSmtpHost=smtp.gmail.com
 mailSmtpPort=587
