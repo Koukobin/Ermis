@@ -87,6 +87,8 @@ public final class EmailerService {
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(emailAddress);
 			message.addRecipients(Message.RecipientType.TO, EmailerSettings.EMAIL_USERNAME);
+			message.setSubject("Test");
+			message.setText("Test email");
 			Transport.send(message);
 		} catch (MessagingException me) {
 			// Throw exception ONLY in prod; continue execution in dev
