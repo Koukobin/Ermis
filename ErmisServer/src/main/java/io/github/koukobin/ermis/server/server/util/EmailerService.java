@@ -51,7 +51,9 @@ import main.java.io.github.koukobin.ermis.server.configs.ServerSettings;
 public final class EmailerService {
 
 	private static final Logger LOGGER = LogManager.getLogger("server");
+
 	private static final Session session;
+	private static final InternetAddress emailAddress;
 
 	private EmailerService() {}
 
@@ -74,9 +76,16 @@ public final class EmailerService {
 		});
 		session.setDebug(!ServerSettings.IS_PRODUCTION_MODE);
 
+		try {
+			emailAddress = new InternetAddress(EmailerSettings.EMAIL_USERNAME);
+		} catch (AddressException ae) {
+			throw new RuntimeException(ae);
+		}
+
 		// Send test email to self to ensure emailer works correctly
 		try {
 			MimeMessage message = new MimeMessage(session);
+			message.setFrom(emailAddress);
 			message.addRecipients(Message.RecipientType.TO, EmailerSettings.EMAIL_USERNAME);
 			Transport.send(message);
 		} catch (MessagingException me) {
@@ -99,6 +108,7 @@ public final class EmailerService {
 		}
 
 		MimeMessage message = new MimeMessage(session);
+		message.setFrom(emailAddress);
 		message.addRecipients(Message.RecipientType.TO, toAddress);
 		message.setSubject(subject);
 		message.setText(body);
@@ -113,6 +123,7 @@ public final class EmailerService {
 		}
 
 		MimeMessage message = new MimeMessage(session);
+		message.setFrom(emailAddress);
 		message.addRecipients(Message.RecipientType.TO, toAddress);
 		message.setSubject(subject);
 		message.setContent(text, "text/html");
@@ -127,6 +138,7 @@ public final class EmailerService {
 		}
 
 		MimeMessage message = new MimeMessage(session);
+		message.setFrom(emailAddress);
 		message.addRecipients(Message.RecipientType.TO, toAddress);
 		message.setSubject(subject);
 
