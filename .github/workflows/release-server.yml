@@ -58,7 +58,7 @@ jobs:
           mvn package -DskipTests
           cd ErmisServer/Installers/Unix/DEB
           chmod +x build_debian_installer.sh
-          ./build_debian_installer.sh
+          SERVER_VERSION=$SERVER_VERSION_FULL ./build_debian_installer.sh
 
       - name: Substitute version placeholders with proper version
         run: |

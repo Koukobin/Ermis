@@ -32,6 +32,8 @@ DOC_FILES=("README.md" "LICENSE" "NOTICE")
 INSTALL_FOLDER="ermis-server-installer_all/opt/ermis-server"
 BIN="$INSTALL_FOLDER/bin"
 
+export SERVER_VERSION=${SERVER_VERSION:-0.0.0-dev}
+
 # Create necessary directories
 mkdir -p "$BIN/lib"
 
@@ -45,6 +47,9 @@ for file in "${DOC_FILES[@]}"; do
 done
 
 # Create DEB package
+envsubst < ermis-server-installer_all/DEBIAN/control.template > ermis-server-installer_all/DEBIAN/control
+trap 'rm -f "ermis-server-installer_all/DEBIAN/control"' EXIT
+
 chmod 755 ermis-server-installer_all/DEBIAN/ && chmod 755 ermis-server-installer_all/DEBIAN/* # Ensure correct permissions
 sudo dpkg-deb --build ermis-server-installer_all || { echo "Failed to build DEB package"; exit 0; }
 
