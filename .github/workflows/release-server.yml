@@ -85,8 +85,8 @@ jobs:
             ErmisServer/Docker/bootstrap/*
 
       - name: Upload Artifacts to Release
+        if: needs.init.outputs.is_dev == 'false'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
-        if: needs.init.outputs.is_dev == 'false
         with:
           files: |
             ErmisServer/Installers/Unix/DEB/ermis-server-installer_all.deb
