@@ -63,10 +63,22 @@ public final class EmailerService {
 		properties.put("mail.smtp.port", MAIL_SMTP_PORT);
 		properties.put("mail.smtp.ssl.checkserveridentity", "true");
 		properties.put("mail.smtp.auth", "true");
-		properties.put("mail.smtp.starttls.enable", "true");
-		properties.put("mail.smtp.starttls.required", "true");
 		properties.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3");
-		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+
+		final SmtpProtocol SMTP_PROTOCOL = VALID_SMTP_PORTS_TO_PROTOCOl.get(MAIL_SMTP_PORT);
+		if (SMTP_PROTOCOL == null)
+			throw new RuntimeException("Invalid SMTP port: " + MAIL_SMTP_PORT);
+
+		switch (SMTP_PROTOCOL) {
+		case SSL_TLS -> {
+			properties.put("mail.smtp.ssl.enable", "true");
+			properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+		}
+		case STARTTLS -> {
+			properties.put("mail.smtp.starttls.enable", "true");
+			properties.put("mail.smtp.starttls.required", "true");
+		}
+		}
 
 		session = Session.getDefaultInstance(properties, new Authenticator() {
 			@Override

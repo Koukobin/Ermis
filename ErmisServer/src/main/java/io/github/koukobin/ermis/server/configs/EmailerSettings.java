@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Properties;
 
 import main.java.io.github.koukobin.ermis.common.util.FileUtils;
@@ -39,8 +40,26 @@ public final class EmailerSettings {
 		}
 	}
 
+	/**
+	 * Enum containing SMTP protocols.
+	 *
+	 * PLAIN is not supported since sending plain unencrypted emails would be a
+	 * security vulnerability for this kind of server.
+	 */
+	public enum SmtpProtocol {
+		SSL_TLS,  // SSL/TLS
+		STARTTLS, // STARTTLS
+	}
+
+	public static final Map<Integer, SmtpProtocol> VALID_SMTP_PORTS_TO_PROTOCOl = Map.of(
+			465,  SmtpProtocol.SSL_TLS,
+			587,  SmtpProtocol.STARTTLS,
+			2525, SmtpProtocol.STARTTLS,
+			25,   SmtpProtocol.STARTTLS
+			);
+
 	public static final String MAIL_SMTP_HOST = GENERAL_PROPERTIES.getProperty("mailSmtpHost");
-	public static final String MAIL_SMTP_PORT = GENERAL_PROPERTIES.getProperty("mailSmtpPort");
+	public static final Integer MAIL_SMTP_PORT = Integer.valueOf(GENERAL_PROPERTIES.getProperty("mailSmtpPort"));
 
 	public static final String EMAIL_USERNAME = GENERAL_PROPERTIES.getProperty("emailUsername");
 	public static final String EMAIL_PASSWORD;
