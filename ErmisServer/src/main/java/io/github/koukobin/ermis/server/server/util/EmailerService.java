@@ -41,7 +41,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Throwables;
 
-import main.java.io.github.koukobin.ermis.server.configs.EmailerSettings;
+import static main.java.io.github.koukobin.ermis.server.configs.EmailerSettings.*;
 import main.java.io.github.koukobin.ermis.server.configs.ServerSettings;
 
 /**
@@ -59,8 +59,8 @@ public final class EmailerService {
 
 	static {
 		Properties properties = new Properties();
-		properties.put("mail.smtp.host", EmailerSettings.MAIL_SMTP_HOST);
-		properties.put("mail.smtp.port", EmailerSettings.MAIL_SMTP_PORT);
+		properties.put("mail.smtp.host", MAIL_SMTP_HOST);
+		properties.put("mail.smtp.port", MAIL_SMTP_PORT);
 		properties.put("mail.smtp.ssl.checkserveridentity", "true");
 		properties.put("mail.smtp.auth", "true");
 		properties.put("mail.smtp.starttls.enable", "true");
@@ -71,13 +71,13 @@ public final class EmailerService {
 		session = Session.getDefaultInstance(properties, new Authenticator() {
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(EmailerSettings.EMAIL_USERNAME, EmailerSettings.EMAIL_PASSWORD);
+				return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PASSWORD);
 			}
 		});
 		session.setDebug(!ServerSettings.IS_PRODUCTION_MODE);
 
 		try {
-			emailAddress = new InternetAddress(EmailerSettings.EMAIL_USERNAME);
+			emailAddress = new InternetAddress(EMAIL_USERNAME);
 		} catch (AddressException ae) {
 			throw new RuntimeException(ae);
 		}
@@ -86,7 +86,7 @@ public final class EmailerService {
 		try {
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(emailAddress);
-			message.addRecipients(Message.RecipientType.TO, EmailerSettings.EMAIL_USERNAME);
+			message.addRecipients(Message.RecipientType.TO, EMAIL_USERNAME);
 			message.setSubject("Test");
 			message.setText("Test email");
 			Transport.send(message);
