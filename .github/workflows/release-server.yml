@@ -9,19 +9,18 @@ on:
     types: [published]
 
 jobs:
-  release:
+  init:
     if: startsWith(github.ref_name, 'server')
     runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.server_version }}
+      version_mj: ${{ steps.version_mj.outputs.server_version }}
+      is_dev: ${{ steps.version.outputs.is_dev }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.7.0
-        with:
-          java-version: 21
-          distribution: 'temurin'
 
       - name: Parse server version
         id: version
@@ -36,6 +35,24 @@ jobs:
           MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
           echo "server_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
 
+  release:
+    if: success() && startsWith(github.ref_name, 'server')
+    needs: [init]
+    runs-on: ubuntu-latest
+    env:
+      SERVER_VERSION_FULL: ${{ needs.init.outputs.version }}
+      SERVER_VERSION_MJ: ${{ needs.init.outputs.version_mj}}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.7.0
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
       - name: Build Debian-based Installer
         run: |
           mvn package -DskipTests
@@ -45,7 +62,7 @@ jobs:
 
       - name: Substitute version placeholders with proper version
         run: |
-          export SERVER_VERSION=${{ steps.version_mj.outputs.server_version }}
+          export SERVER_VERSION=$SERVER_VERSION_MJ
           # Substitute version placeholder with actual version in compose file
           envsubst < ErmisServer/docker-compose.yml > docker-compose.yml
           mv docker-compose.yml ErmisServer/docker-compose.yml
@@ -57,7 +74,7 @@ jobs:
 
       - name: Build Docker ZIP
         run: |
-          tar -czf ermis-docker-${{ steps.version.outputs.server_version }}.tar.gz \
+          tar -czf ermis-docker-$SERVER_VERSION_FULL.tar.gz \
             --transform='s|.*/||' \
             ErmisServer/docker-compose.yml \
             ErmisServer/Docker/bootstrap/*
@@ -67,7 +84,7 @@ jobs:
         with:
           files: |
             ErmisServer/Installers/Unix/DEB/ermis-server-installer_all.deb
-            ermis-docker-${{ steps.version.outputs.server_version }}.tar.gz
+            ermis-docker-$SERVER_VERSION_FULL.tar.gz
 
       # Release Docker image
       - name: Set up QEMU
@@ -111,10 +128,10 @@ jobs:
           cache-to: type=gha,mode=max
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:stable
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.version.outputs.server_version }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.version_mj.outputs.server_version }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:$SERVER_VERSION_FULL
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:$SERVER_VERSION_MJ
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.sha.outputs.sha_short }}
             ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:stable
-            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.version.outputs.server_version }}
-            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.version_mj.outputs.server_version }}
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:$SERVER_VERSION_FULL
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:$SERVER_VERSION_MJ
             ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.sha.outputs.sha_short }}
