@@ -65,7 +65,7 @@ public final class EmailerService {
 		properties.put("mail.smtp.auth", "true");
 		properties.put("mail.smtp.starttls.enable", "true");
 		properties.put("mail.smtp.starttls.required", "true");
-		properties.put("mail.smtp.ssl.protocols", "TLSv1.3");
+		properties.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3");
 		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
 		session = Session.getDefaultInstance(properties, new Authenticator() {
