@@ -50,7 +50,27 @@ RUN groupadd --system ermis_docker 2>/dev/null || addgroup -S ermis_docker \
 RUN mkdir -p /var/ermis-server/log/server-logs \
     && chown -R ermis_docker:ermis_docker /var/ermis-server
 
-RUN apt-get update && apt-get install -y gosu && rm -rf /var/lib/apt/lists/*
+# Install gosu manually with GPG verification and
+# subsequently remove redundant packages to reduce:
+#   1. image size
+#   2. attack surface
+#   3. CVE reports by Docker Scout (main reason)
+RUN set -eux; \
+    GOSU_VERSION=1.17; \
+    dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends wget gnupg; \
+    wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-${dpkgArch}"; \
+    wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-${dpkgArch}.asc"; \
+    gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+    gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+    rm /usr/local/bin/gosu.asc; \
+    chmod +x /usr/local/bin/gosu; \
+    gosu --version; \
+    gosu nobody true; \
+    apt-get remove -y wget gnupg; \
+    apt-get autoremove -y; \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy and set entrypoint script
 COPY ErmisServer/Docker/entrypoint.sh /opt/ermis-server/entrypoint.sh
