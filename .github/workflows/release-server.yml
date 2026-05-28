@@ -136,11 +136,24 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:stable
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:$SERVER_VERSION_FULL
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:$SERVER_VERSION_MJ
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.sha.outputs.sha_short }}
-            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:stable
             ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:$SERVER_VERSION_FULL
-            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:$SERVER_VERSION_MJ
             ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.sha.outputs.sha_short }}
+
+      - name: Update stable and major minor version tags
+        if: needs.init.outputs.is_dev == 'false' && github.event.release.prerelease == 'false'
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: .
+          file: ErmisServer/Docker/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          # Enable caching inside GitHub Actions to speed up subsequent builds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:stable
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:$SERVER_VERSION_MJ
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:stable
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:$SERVER_VERSION_MJ
