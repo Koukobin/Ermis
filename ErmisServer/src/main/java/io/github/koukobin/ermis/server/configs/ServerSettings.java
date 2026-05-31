@@ -90,7 +90,7 @@ public final class ServerSettings {
 			try {
 				if (ServerSettings.IS_PRODUCTION_MODE) {
 					CERTIFICATE_PASSWORD = Files.readString(
-							Path.of("/run/credentials/ermis-server.service/db_key-store_password"),
+							Path.of("/run/credentials/ermis-server.service/server_key-store_password"),
 							StandardCharsets.ISO_8859_1 // Use this charset so password can contain latin characters
 					).trim();
 				} else {
