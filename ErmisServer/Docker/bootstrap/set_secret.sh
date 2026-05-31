@@ -9,7 +9,7 @@ NC='\033[0m' # Color reset
 
 mkdir -p ./secrets
 
-declare -a my_array=("server_key-store_password" "db_user_password" "db_key-store_password" "emailer_password" "exit")
+declare -a my_array=("keystore_password" "db_user_password" "emailer_password" "exit")
 arraylength=${#my_array[@]}
 last_index=$(( arraylength - 1 ))
 

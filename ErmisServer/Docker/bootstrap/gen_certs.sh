@@ -44,7 +44,7 @@ STATE=""             # optional
 CITY=""              # optional
 EMAIL=""             # optional
 CERT_ALIAS="ermis-server"  # alias used in PKCS12 and JKS entries
-SECRET_PATH="./secrets/server_key-store_password"
+SECRET_PATH="./secrets/keystore_password"
 
 # Cleanup ephemeral intermediate files
 function cleanup() {

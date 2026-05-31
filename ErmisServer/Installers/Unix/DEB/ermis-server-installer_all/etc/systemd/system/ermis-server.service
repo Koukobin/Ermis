@@ -6,9 +6,8 @@ After=network.target
 User=ermis
 Type=simple
 
-LoadCredential=server_key-store_password:/etc/ermis-server/server_key-store_password.cred
+LoadCredential=keystore_password:/etc/ermis-server/keystore_password.cred
 LoadCredential=db_user_password:/etc/ermis-server/db_user_password.cred
-LoadCredential=db_key-store_password:/etc/ermis-server/db_key-store_password.cred
 LoadCredential=emailer_password:/etc/ermis-server/emailer_password.cred
 
 WorkingDirectory=/opt/ermis-server/

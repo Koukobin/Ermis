@@ -5,8 +5,7 @@ services:
       - ermis-net
     secrets:
       - db_user_password
-      - server_key-store_password
-      - db_key-store_password
+      - keystore_password
       - emailer_password
     ports:
       - "5551:5551"
@@ -26,7 +25,6 @@ services:
       - ermis-net
     secrets:
       - db_user_password
-      - db_key-store_password
     environment:
       POSTGRES_DB: ermis_database
       POSTGRES_USER: ermis_admin
@@ -60,10 +58,8 @@ networks:
 secrets:
   db_user_password:
     file: ./secrets/db_user_password
-  server_key-store_password:
-    file: ./secrets/server_key-store_password
-  db_key-store_password:
-    file: ./secrets/db_key-store_password
+  keystore_password:
+    file: ./secrets/keystore_password
   emailer_password:
     file: ./secrets/emailer_password
 

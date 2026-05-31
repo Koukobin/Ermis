@@ -1,20 +1,16 @@
 On Production Mode:
     This service requires the following systemd credentials:
-        - "server_key-store_password"
+        - "keystore_password"
         - "db_user_password"
-        - "db_key-store_password"
         - "emailer_password"
 
     Note that only as root can you define/configure systemd passwords!
 
     Instructions for each:
-        "server_key-store_password":
+        "keystore_password":
            cd /opt/ermis-server/ && ./set_systemd_credential.sh
 
         "db_user_password":
-           cd /opt/ermis-server/ && ./set_systemd_credential.sh
-
-        "db_key-store_password":
            cd /opt/ermis-server/ && ./set_systemd_credential.sh
 
         # Keep in mind that if you have 2-step verification enabled,

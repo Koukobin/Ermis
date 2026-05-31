@@ -90,13 +90,13 @@ public final class ServerSettings {
 			try {
 				if (ServerSettings.IS_PRODUCTION_MODE) {
 					CERTIFICATE_PASSWORD = Files.readString(
-							Path.of("/run/credentials/ermis-server.service/server_key-store_password"),
+							Path.of("/run/credentials/ermis-server.service/keystore_password"),
 							StandardCharsets.ISO_8859_1 // Use this charset so password can contain latin characters
 					).trim();
 				} else {
 					CERTIFICATE_PASSWORD = FileUtils.
 							readPropertiesFile(ConfigurationsPaths.DevelopmentMode.CONF_SETTINGS)
-							.getProperty("server_key-store_password");
+							.getProperty("keystore_password");
 				}
 			} catch (IOException ioe) {
 				throw new RuntimeException(ioe);
