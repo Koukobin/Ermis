@@ -43,7 +43,7 @@ echo ""
 # Write settings into configs
 echo "Writing configurations..."
 sed -i "s|databaseAddress=.*|databaseAddress=postgres|" ./ermis-configs/database-settings/general-settings.cnf
-sed -i "s|IP_ADDRESS|0.0.0.0|" ./ermis-configs/nginx/conf.d/ermis-server
+sed -i "s|IP_ADDRESS|ermis-server|" ./ermis-configs/nginx/conf.d/ermis-server
 sed -i "s|SERVER_PORT|5551|" ./ermis-configs/nginx/conf.d/ermis-server
 sed -i "s|SSL_CERTIFICATE|/etc/ermis-server/certs/server_full.pem|" ./ermis-configs/nginx/conf.d/ermis-server
 sed -i "s|SSL_CERTIFICATE_KEY|/etc/ermis-server/certs/server.key|" ./ermis-configs/nginx/conf.d/ermis-server
