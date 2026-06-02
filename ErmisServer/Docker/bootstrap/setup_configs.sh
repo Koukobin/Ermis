@@ -5,13 +5,18 @@ echo -e "=== Ermis Server Setup ===\n"
 if [ ! -d "./ermis-configs" ] || [ -z "$(ls ./ermis-configs 2>/dev/null)" ]; then
     echo "Extracting default configuration files..."
 
-    if [ -z $SERVER_VERSION ]; then
-        SERVER_IMAGE_DECLARATION=$(cat docker-compose.yml | grep 'koukobin/ermis-server')
-        SERVER_VERSION=$(echo "$SERVER_IMAGE_DECLARATION" | cut -d: -f3)
+    if [ -z $ERMIS_SERVER_VERSION ]; then
+        IMAGE_DECLARATION=$(cat docker-compose.yml | grep 'koukobin/ermis-server')
+        ERMIS_SERVER_VERSION=$(echo "$IMAGE_DECLARATION" | cut -d: -f3)
     fi
 
-    docker create --name ermis-temp koukobin/ermis-server:$SERVER_VERSION > /dev/null
-    docker create --name nginx-temp nginx:stable-alpine > /dev/null
+    if [ -z $NGINX_VERSION ]; then
+        IMAGE_DECLARATION=$(cat docker-compose.yml | grep 'image: nginx')
+        NGINX_VERSION=$(echo "$IMAGE_DECLARATION" | cut -d: -f3)
+    fi
+
+    docker create --name ermis-temp koukobin/ermis-server:$ERMIS_SERVER_VERSION > /dev/null
+    docker create --name nginx-temp nginx:$NGINX_VERSION > /dev/null
 
     rm -r ./ermis-configs 2> /dev/null
     docker cp ermis-temp:/etc/ermis-server/configs ./ermis-configs
