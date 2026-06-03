@@ -33,6 +33,9 @@ RUN mkdir -p /opt/ermis-server \
 # Copy default config files into the image
 COPY ErmisServer/Installers/Unix/DEB/ermis-server-installer_all/etc/ermis-server/configs /etc/ermis-server/configs
 COPY ErmisServer/Installers/Unix/DEB/ermis-server-installer_all/etc/nginx/sites-enabled /etc/nginx/sites-enabled
+
+# Copy static assets
+COPY ErmisServer/Installers/Unix/DEB/ermis-server-installer_all/var/ermis-server /var/ermis-server
 # RUN ls /etc/ermis-server/configs/
 
 # Copy jar and dependencies
