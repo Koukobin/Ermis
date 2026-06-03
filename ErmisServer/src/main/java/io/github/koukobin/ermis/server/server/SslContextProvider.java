@@ -66,9 +66,6 @@ public final class SslContextProvider {
 					.protocols(ServerSettings.SSL.getEnabledProtocols())
 					.sslProvider(SslProvider.OPENSSL)
 					.ciphers(Arrays.asList(ServerSettings.SSL.getEnabledCipherSuites()), SupportedCipherSuiteFilter.INSTANCE)
-					.applicationProtocolConfig(
-							new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
-									SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_1_1))
 					.build();
 		} catch (Exception e) {
 			final Logger logger = LogManager.getLogger("server");
