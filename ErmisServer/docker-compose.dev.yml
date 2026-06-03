@@ -16,6 +16,7 @@ services:
       - ./certs:/etc/ermis-server/certs:ro
       - ./secrets:/run/secrets/ermis-server.service:ro
       - ermis-user-files:/var/lib/ermis-server
+      - ermis-static-assets:/var/ermis-server/
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,7 +48,8 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./ermis-configs/nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ./ermis-configs/nginx/:/etc/nginx/:ro
+      - ermis-static-assets:/var/ermis-server/
       - ./certs:/etc/ermis-server/certs:ro
     depends_on:
       - ermis-server
@@ -67,4 +69,5 @@ secrets:
 
 volumes:
   ermis-user-files:
+  ermis-static-assets:
   ermis-postgres-data:
