@@ -47,6 +47,7 @@ services:
       - ermis-net
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./ermis-configs/nginx/:/etc/nginx/:ro
       - ermis-static-assets:/var/ermis-server/
