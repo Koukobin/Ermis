@@ -1,6 +1,6 @@
 See the KeyStore section in https://docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html#keystore-types for more information about standard keystore types.
-key-store-type=JKS
-key-store=/etc/ermis-server/certs/keystore.jks
+key-store-type=PKCS12
+key-store=/etc/ermis-server/certs/server.p12
 
 ssl-certificate=/etc/ermis-server/certs/server_full.pem
 ssl-certificate-key=/etc/ermis-server/certs/server.key
