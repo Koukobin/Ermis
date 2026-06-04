@@ -34,7 +34,7 @@ step()    { echo -e "\n${BOLD}── $* ──${RESET}"; }
 DAYS_VALID=3650
 DOMAINS="localhost"
 IPS="127.0.0.1"
-OUT_DIR="./certs"
+OUT_DIR="/etc/ermis-server/certs"
 KEY_BITS=4096
 COMMON_NAME="ermis-server"
 ORG_NAME="Ermis Organisation"
