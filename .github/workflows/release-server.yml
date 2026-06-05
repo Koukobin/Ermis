@@ -89,7 +89,7 @@ jobs:
         with:
           files: |
             ErmisServer/Installers/Unix/DEB/ermis-server-installer_all.deb
-            ermis-docker-$SERVER_VERSION_FULL.tar.gz
+            ermis-docker-${{ env.SERVER_VERSION_FULL }}.tar.gz
 
       # Release Docker image
       - name: Set up QEMU
