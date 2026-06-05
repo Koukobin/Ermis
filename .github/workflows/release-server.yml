@@ -67,7 +67,7 @@ jobs:
 
       - name: Substitute version placeholders with proper version
         run: |
-          export SERVER_VERSION=$SERVER_VERSION_MJ
+          export SERVER_VERSION=$SERVER_VERSION_FULL
           # Substitute version placeholder with actual version in compose file
           envsubst < ErmisServer/docker-compose.yml > docker-compose.yml
           mv docker-compose.yml ErmisServer/docker-compose.yml
