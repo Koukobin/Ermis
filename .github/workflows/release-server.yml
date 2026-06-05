@@ -27,7 +27,7 @@ jobs:
         run: |
           VERSION=${GITHUB_REF_NAME#server-v}
           echo "server_version=$VERSION" >> $GITHUB_OUTPUT
-          if [[ $VERSION == *"-dev"* ]]; then
+          if [[ $VERSION =~ -dev|-alpha|-a|-beta|-b|-rc|-snapshot|-pre ]]; then
             echo "is_dev=true" >> $GITHUB_OUTPUT
           else
             echo "is_dev=false" >> $GITHUB_OUTPUT
