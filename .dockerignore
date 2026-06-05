@@ -8,6 +8,7 @@
 !ErmisServer/src/
 !ErmisServer/Docker/**
 !ErmisServer/Installers/Unix/DEB/ermis-server-installer_all/etc/**
+!ErmisServer/Installers/Unix/DEB/ermis-server-installer_all/var/**
 
 !ErmisCommon/pom.xml
 !ErmisCommon/src
