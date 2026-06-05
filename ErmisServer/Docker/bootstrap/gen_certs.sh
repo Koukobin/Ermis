@@ -233,6 +233,7 @@ success "CA certificate --> $CA_CRT"
 step "Step 2/5 - Server Certificate"
 
 SERVER_KEY="${OUT_DIR}/server.key"
+SERVER_KEY_PLAIN="${OUT_DIR}/server_plain.key"  # unencrypted
 SERVER_CSR="${OUT_DIR}/server.csr"  # ephemeral
 SERVER_CRT="${OUT_DIR}/server.crt"
 
@@ -244,6 +245,12 @@ openssl genpkey \
     -pass file:"$SECRET_PATH" \
     -pkeyopt rsa_keygen_bits:"$KEY_BITS"
 chmod 600 "$SERVER_KEY"
+
+info "Generating plain unencrypted server private key..."
+openssl rsa \
+    -in "$SERVER_KEY" \
+    -out "$SERVER_KEY_PLAIN" \
+    -passin file:"$SECRET_PATH"
 
 info "Generating server CSR (DN: $SUBJECT_DN)..."
 openssl req \
@@ -273,7 +280,6 @@ success "Server certificate --> $SERVER_CRT"
 # Step 3: PEM Formats
 step "Step 3/5 - PEM Formats"
 
-SERVER_KEY_PLAIN="${OUT_DIR}/server_plain.key"  # unencrypted, temp
 SERVER_FULL_PEM="${OUT_DIR}/server_full.pem"
 
 info "Decrypting server key into memory and assembling full PEM (no plaintext key on disk)..."
