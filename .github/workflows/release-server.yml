@@ -69,11 +69,11 @@ jobs:
         run: |
           export SERVER_VERSION=$SERVER_VERSION_FULL
           # Substitute version placeholder with actual version in compose file
-          envsubst < ErmisServer/docker-compose.yml > docker-compose.yml
+          envsubst '${SERVER_VERSION}' < ErmisServer/docker-compose.yml > docker-compose.yml
           mv docker-compose.yml ErmisServer/docker-compose.yml
           mkdir temp/
           for f in ErmisServer/Docker/bootstrap/*.*; do
-            envsubst < "$f" > temp/${f##*/}
+            envsubst '${SERVER_VERSION}' < "$f" > temp/${f##*/}
           done
           mv temp/*.* ErmisServer/Docker/bootstrap/
 
