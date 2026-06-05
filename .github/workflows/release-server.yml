@@ -142,7 +142,7 @@ jobs:
             ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.sha.outputs.sha_short }}
 
       - name: Update stable and major minor version tags
-        if: needs.init.outputs.is_dev == 'false' && github.event.release.prerelease == 'false'
+        if: needs.init.outputs.is_dev == 'false'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
