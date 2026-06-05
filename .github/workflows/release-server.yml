@@ -132,9 +132,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:$SERVER_VERSION_FULL
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ env.SERVER_VERSION_FULL }}
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ steps.sha.outputs.sha_short }}
-            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:$SERVER_VERSION_FULL
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ env.SERVER_VERSION_FULL }}
             ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ steps.sha.outputs.sha_short }}
 
       - name: Update stable and major minor version tags
@@ -150,6 +150,6 @@ jobs:
           cache-to: type=gha,mode=max
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:stable
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:$SERVER_VERSION_MJ
+            ${{ secrets.DOCKER_HUB_USERNAME }}/ermis-server:${{ env.SERVER_VERSION_MJ }}
             ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:stable
-            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:$SERVER_VERSION_MJ
+            ghcr.io/${{ steps.owner.outputs.lowercase }}/ermis-server:${{ env.SERVER_VERSION_MJ }}
