@@ -42,16 +42,13 @@ COPY ErmisServer/Installers/Unix/DEB/ermis-server-installer_all/var/ermis-server
 COPY --from=builder /app/ErmisServer/target/ermis-server-*.jar /app/app.jar
 COPY --from=builder /app/ErmisServer/target/lib ./lib
 
-# Non-root user
-RUN groupadd --system ermis_docker 2>/dev/null || addgroup -S ermis_docker \
-    && (useradd --system --gid ermis_docker --no-create-home ermis_docker 2>/dev/null \
-        || adduser -S -G ermis_docker ermis_docker) \
-    && chown -R ermis_docker:ermis_docker /opt/ermis-server \
-    && chown -R ermis_docker:ermis_docker /etc/ermis-server \
-    && chown -R ermis_docker:ermis_docker /var/lib/ermis-server
-
-RUN mkdir -p /var/ermis-server/log/server-logs \
-    && chown -R ermis_docker:ermis_docker /var/ermis-server
+# Configure non-root ermis user with explicit user/group IDs
+RUN set -eux; \
+	groupadd -r ermis_docker --gid=1567; \
+	useradd -r -g ermis_docker --uid=1567 ermis_docker; \
+    chown -R -V ermis_docker:ermis_docker /opt/ermis-server; \
+    chown -R -V ermis_docker:ermis_docker /etc/ermis-server; \
+    chown -R -V ermis_docker:ermis_docker /var/lib/ermis-server;
 
 # Grab gosu for easy step-down from root
 # https://github.com/tianon/gosu/releases
