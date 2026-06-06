@@ -251,6 +251,7 @@ openssl rsa \
     -in "$SERVER_KEY" \
     -out "$SERVER_KEY_PLAIN" \
     -passin file:"$SECRET_PATH"
+chmod 600 "$SERVER_KEY_PLAIN"
 
 info "Generating server CSR (DN: $SUBJECT_DN)..."
 openssl req \
