@@ -132,7 +132,7 @@ else
     mkdir -p "$OUT_DIR"
 fi
 # Restrict directory permissions immediately
-chmod 700 "$OUT_DIR"
+chmod 750 "$OUT_DIR"
 
 # Build SAN extension block
 build_san() {
@@ -244,7 +244,7 @@ openssl genpkey \
     -aes256 \
     -pass file:"$SECRET_PATH" \
     -pkeyopt rsa_keygen_bits:"$KEY_BITS"
-chmod 600 "$SERVER_KEY"
+chmod 640 "$SERVER_KEY"
 
 info "Generating plain unencrypted server private key..."
 openssl rsa \
@@ -288,7 +288,7 @@ openssl rsa \
     -in "$SERVER_KEY" \
     -passin file:"$SECRET_PATH" | \
 cat "$SERVER_CRT" - > "$SERVER_FULL_PEM"
-chmod 600 "$SERVER_FULL_PEM"
+chmod 640 "$SERVER_FULL_PEM"
 success "Full PEM bundle --> $SERVER_FULL_PEM"
 
 # Step 4: PKCS12 + JKS
@@ -308,7 +308,7 @@ openssl pkcs12 \
     -name "$COMMON_NAME" \
     -CAfile "$CA_CRT" \
     -caname root
-chmod 600 "$P12"
+chmod 640 "$P12"
 success "PKCS12 bundle --> $P12"
 
 info "Importing CA into JKS keystore (alias: ${CERT_ALIAS}-ca)..."
@@ -328,7 +328,7 @@ keytool -importkeystore \
     -deststoretype JKS \
     -deststorepass "$MASTER_PASSWORD" \
     -noprompt
-chmod 600 "$JKS"
+chmod 640 "$JKS"
 success "JKS keystore --> $JKS"
 
 # Step 5: Verification
