@@ -7,6 +7,13 @@ cp -r /run/secrets/* /run/credentials/ermis-server.service/
 chown -R ermis_docker:ermis_docker /run/credentials/ermis-server.service/
 chmod 400 /run/credentials/ermis-server.service/*
 
+# Create log dirs and grant appropriate permissions at runtime
+# (at build-time the equivalent would be overwritten by volume mounts)
+mkdir -p /var/ermis-server/log/server-logs \
+         /var/ermis-server/log/database-logs
+chown -R ermis_docker:ermis_docker /var/ermis-server/log
+chmod -R 750 /var/ermis-server/log
+
 exec gosu ermis_docker java \
   -Djava.security.egd=file:/dev/./urandom \
   -server \
