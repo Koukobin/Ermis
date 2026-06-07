@@ -1,4 +1,47 @@
 services:
+  cert-init:
+    image: alpine
+    volumes:
+      - ./certs:/certs:ro
+      - ermis_certs:/ermis_certs
+      - pg_certs:/pg_certs
+      - nginx_certs:/nginx_certs
+    command: >
+      sh -c "
+        cp /certs/ca.crt /ermis_certs/ && chown 1567:1567 /ermis_certs/ca.crt
+        cp /certs/ca.crt /pg_certs/ && chown 999:999 /pg_certs/ca.crt
+        cp /certs/ca.crt /nginx_certs/ && chown 101:101 /nginx_certs/ca.crt
+        echo ""
+        cp /certs/ca.key /ermis_certs/ && chown 1567:1567 /ermis_certs/ca.key
+        cp /certs/ca.key /pg_certs/ && chown 999:999 /pg_certs/ca.key
+        cp /certs/ca.key /nginx_certs/ && chown 101:101 /nginx_certs/ca.key
+        echo ""
+        cp /certs/keystore.jks /ermis_certs/ && chown 1567:1567 /ermis_certs/keystore.jks
+        cp /certs/keystore.jks /pg_certs/ && chown 999:999 /pg_certs/keystore.jks
+        cp /certs/keystore.jks /nginx_certs/ && chown 101:101 /nginx_certs/keystore.jks
+        echo ""
+        cp /certs/server.crt /ermis_certs/ && chown 1567:1567 /ermis_certs/server.crt
+        cp /certs/server.crt /pg_certs/ && chown 999:999 /pg_certs/server.crt
+        cp /certs/server.crt /nginx_certs/ && chown 101:101 /nginx_certs/server.crt
+        echo ""
+        cp /certs/server.p12 /ermis_certs/ && chown 1567:1567 /ermis_certs/server.p12
+        cp /certs/server.p12 /pg_certs/ && chown 999:999 /pg_certs/server.p12
+        cp /certs/server.p12 /nginx_certs/ && chown 101:101 /nginx_certs/server.p12
+        echo ""
+        cp /certs/server_full.pem /ermis_certs/ && chown 1567:1567 /ermis_certs/server_full.pem
+        cp /certs/server_full.pem /pg_certs/ && chown 999:999 /pg_certs/server_full.pem
+        cp /certs/server_full.pem /nginx_certs/ && chown 101:101 /nginx_certs/server_full.pem
+        echo ""
+        cp /certs/server.key /ermis_certs/ && chown 1567:1567 /ermis_certs/server.key
+        cp /certs/server.key /pg_certs/ && chown 999:999 /pg_certs/server.key
+        cp /certs/server.key /nginx_certs/ && chown 101:101 /nginx_certs/server.key
+        echo ""
+        cp /certs/server_plain.key /ermis_certs/ && chown 1567:1567 /ermis_certs/server_plain.key
+        cp /certs/server_plain.key /pg_certs/ && chown 999:999 /pg_certs/server_plain.key
+        cp /certs/server_plain.key /nginx_certs/ && chown 101:101 /nginx_certs/server_plain.key
+      "
+    restart: "no"
+
   ermis-server:
     image: koukobin/ermis-server:${SERVER_VERSION}
     networks:
@@ -11,17 +54,20 @@ services:
       - "5551:5551"
     volumes:
       - ./ermis-configs:/etc/ermis-server/configs
-      - ./certs:/etc/ermis-server/certs:ro
+      - ermis_certs:/etc/ermis-server/certs:ro
       - ./secrets:/run/secrets/ermis-server.service:ro
       - ermis-user-files:/var/lib/ermis-server
       - ermis-static-assets:/var/ermis-server/
     depends_on:
       postgres:
         condition: service_healthy
+      cert-init:
+        condition: service_completed_successfully
 #    restart: unless-stopped
 
   postgres:
     image: postgres:18.3-bookworm
+    depends_on: [cert-init]
     networks:
       - ermis-net
     secrets:
@@ -32,13 +78,12 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/db_user_password
     volumes:
       - ermis-postgres-data:/var/lib/postgresql/main
-      - ./certs/server.crt:/var/lib/postgresql/certs/server.crt:ro
-      - ./certs/server_plain.key:/var/lib/postgresql/certs/server.key:ro
+      - pg_certs:/var/lib/postgresql/certs:ro
     command: >
       postgres
         -c ssl=on
         -c ssl_cert_file=/var/lib/postgresql/certs/server.crt
-        -c ssl_key_file=/var/lib/postgresql/certs/server.key
+        -c ssl_key_file=/var/lib/postgresql/certs/server_plain.key
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ermis_admin -d ermis_database"]
       interval: 10s
@@ -58,6 +103,7 @@ services:
       - ermis-static-assets:/var/ermis-server/
     depends_on:
       - ermis-server
+      - cert-init
     restart: unless-stopped
 
 networks:
@@ -76,3 +122,6 @@ volumes:
   ermis-user-files:
   ermis-static-assets:
   ermis-postgres-data:
+  ermis_certs:
+  pg_certs:
+  nginx_certs:
