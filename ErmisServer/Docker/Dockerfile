@@ -22,7 +22,7 @@ RUN mvn -f ErmisServer/pom.xml package -DskipTests
 FROM eclipse-temurin:21-jdk AS jre-builder
 RUN jlink \
     --module-path "$JAVA_HOME/jmods" \
-    --add-modules java.base,java.logging,java.xml,java.desktop,java.scripting,jdk.attach,jdk.jdi,jdk.sctp,java.naming,jdk.security.auth,java.security.jgss,java.security.sasl,jdk.crypto.ec,jdk.crypto.cryptoki,java.net.http,jdk.net,java.sql,java.transaction.xa,java.instrument,jdk.unsupported,java.management,java.management.rmi,jdk.management.agent,jdk.naming.dns,java.compiler \
+    --add-modules java.base,java.logging,java.xml,java.desktop,java.scripting,jdk.attach,jdk.jdi,jdk.sctp,jdk.jfr,java.naming,jdk.security.auth,java.security.jgss,java.security.sasl,jdk.crypto.ec,jdk.crypto.cryptoki,java.net.http,jdk.net,java.sql,java.transaction.xa,java.instrument,jdk.unsupported,java.management,java.management.rmi,jdk.management.agent,jdk.naming.dns,java.compiler \
     --strip-debug \
     --no-header-files \
     --no-man-pages \
