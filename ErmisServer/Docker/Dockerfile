@@ -19,8 +19,23 @@ RUN mvn -f ErmisServer/pom.xml dependency:go-offline -B
 COPY ErmisServer/src ./ErmisServer/src
 RUN mvn -f ErmisServer/pom.xml package -DskipTests
 
+FROM eclipse-temurin:21-jdk AS jre-builder
+RUN jlink \
+    --module-path "$JAVA_HOME/jmods" \
+    --add-modules java.base,java.logging,java.xml,java.desktop,java.scripting,jdk.attach,jdk.jdi,jdk.sctp,java.naming,jdk.security.auth,java.security.jgss,java.security.sasl,jdk.crypto.ec,jdk.crypto.cryptoki,java.net.http,jdk.net,java.sql,java.transaction.xa,java.instrument,jdk.unsupported,java.management,java.management.rmi,jdk.management.agent,jdk.naming.dns,java.compiler \
+    --strip-debug \
+    --no-header-files \
+    --no-man-pages \
+    --compress=2 \
+    --output /opt/jre
+
 # Runtime stage
-FROM eclipse-temurin:21-jre
+FROM debian:bookworm-slim
+
+COPY --from=jre-builder /opt/jre /opt/jre
+
+ENV JAVA_HOME=/opt/jre
+ENV PATH="$JAVA_HOME/bin:$PATH"
 
 WORKDIR /app
 
@@ -46,9 +61,17 @@ COPY --from=builder /app/ErmisServer/target/lib ./lib
 RUN set -eux; \
 	groupadd -r ermis_docker --gid=1567; \
 	useradd -r -g ermis_docker --uid=1567 ermis_docker; \
-    chown -R -V ermis_docker:ermis_docker /opt/ermis-server; \
-    chown -R -V ermis_docker:ermis_docker /etc/ermis-server; \
-    chown -R -V ermis_docker:ermis_docker /var/lib/ermis-server;
+    chown -R ermis_docker:ermis_docker /opt/ermis-server; \
+    chown -R ermis_docker:ermis_docker /etc/ermis-server; \
+    chown -R ermis_docker:ermis_docker /var/lib/ermis-server;
+
+RUN set -ex; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		gnupg \
+		less \
+	; \
+	rm -rf /var/lib/apt/lists/*
 
 # Grab gosu for easy step-down from root
 # https://github.com/tianon/gosu/releases
