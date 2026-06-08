@@ -59,7 +59,7 @@ services:
       - ermis_certs:/etc/ermis-server/certs:ro
       - ./secrets:/run/secrets/ermis-server.service:ro
       - ermis-user-files:/var/lib/ermis-server
-      - ermis-static-assets:/var/ermis-server/
+      - ./web_assets:/var/ermis-server/
     depends_on:
       postgres:
         condition: service_healthy
@@ -102,7 +102,7 @@ services:
       - "443:443"
     volumes:
       - ./ermis-configs/nginx/:/etc/nginx/:ro
-      - ermis-static-assets:/var/ermis-server/
+      - ./web_assets:/var/ermis-server/
       - nginx_certs:/etc/ermis-server/certs:ro
     depends_on:
       - ermis-server
@@ -123,7 +123,6 @@ secrets:
 
 volumes:
   ermis-user-files:
-  ermis-static-assets:
   ermis-postgres-data:
   ermis_certs:
   pg_certs:

@@ -17,6 +17,7 @@ if [ ! -d "./ermis-configs" ] || [ -z "$(ls ./ermis-configs 2>/dev/null)" ]; the
 
     docker create --name ermis-temp koukobin/ermis-server:$ERMIS_SERVER_VERSION > /dev/null
     docker create --name nginx-temp nginx:$NGINX_VERSION > /dev/null
+    docker cp ermis-temp:/var/ermis-server/ ./web_assets
 
     rm -r ./ermis-configs 2> /dev/null
     docker cp ermis-temp:/etc/ermis-server/configs ./ermis-configs
@@ -40,12 +41,49 @@ read -p "Email username   (Enter to skip): " EMAIL_USERNAME
 read -p "PayPal client ID (Enter to skip): " PAYPAL_CLIENT_ID
 read -p "Bitcoin address  (Enter to skip): " BITCOIN_ADDRESS
 read -p "Monero  address  (Enter to skip): " MONERO_ADDRESS
+
+echo "=== Select the IP to inject into HTML: ==="
+echo "This won't impact any server functionality, it will simply be how the server shows up on the web page"
+
+# Fetch local IPs from network interfaces (filter out interfaces that don't have an IP assigned)
+mapfile -t local_options < <(ip -brief addr show | awk '/UP|UNKNOWN/ {print $1 " (" $3 ")"}')
+
+# Fetch public IP (with a 3-second timeout)
+echo "Fetching public IP..."
+public_ip=$(curl -s --max-time 3 https://ifconfig.me)
+
+if [ -n "$public_ip" ]; then
+    echo "Successfully fetched public IP"
+else
+    echo "Could not extract public IP"
+    read -p "Specify public IP   (Enter to skip): " public_ip
+fi
+
+# Combine public and local IPs into a single array for the menu
+options=("${local_options[@]}")
+if [ -n "$public_ip" ]; then
+    options+=("PUBLIC_EXTERNAL ($public_ip)")
+fi
+
+select opt in "${options[@]}" "Skip"; do
+    if [ -n "$opt" ]; then
+        # Extract solely the addr from the selection
+        SELECTED_IP=$(echo "$opt" | grep -oP '\d+\.\d+\.\d+\.\d+')
+        break
+    else
+        echo "Invalid selection"
+    fi
+done
+
 echo ""
 
 # Write settings into configs
 echo "Writing configurations..."
 sed -i "s|databaseAddress=.*|databaseAddress=postgres|" ./ermis-configs/database-settings/general-settings.cnf
+find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SERVER_ADDRESS|ermis-server|" {} +
+[ -n "${SELECTED_IP}" ] && find ./web_assets -type f -name "**" -exec sed -i "s|SERVER_ADDRESS|${SELECTED_IP}|" {} +
 find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|IP_ADDRESS|ermis-server|" {} +
+[ -n "${SELECTED_IP}" ] && find ./web_assets -type f -name "**" -exec sed -i "s|IP_ADDRESS|${SELECTED_IP}|" {} +
 find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SERVER_PORT|5551|" {} +
 find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SSL_CERTIFICATE|/etc/ermis-server/certs/server_full.pem|" {} +
 find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SSL_CERTIFICATE_KEY|/etc/ermis-server/certs/server_plain.key|" {} +
