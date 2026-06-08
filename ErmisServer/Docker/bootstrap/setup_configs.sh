@@ -1,5 +1,21 @@
 #!/bin/bash
-echo -e "=== Ermis Server Setup ===\n"
+
+# Color variables
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m' # Color reset
+
+info()    { echo -e "${CYAN}[INFO]${RESET}  $*"; }
+success() { echo -e "${GREEN}[OK]${RESET}    $*"; }
+warn()    { echo -e "${YELLOW}[WARN]${RESET}  $*" >&2; }
+die()     { echo -e "${RED}[ERROR]${RESET} $*" >&2; exit 1; }
+step()    { echo -e "\n${BOLD}── $* ──${RESET}"; }
+
+step "Ermis Server Setup"
 
 # Extract default configs - if missing or empty - from the image
 if [ ! -d "./ermis-configs" ] || [ -z "$(ls ./ermis-configs 2>/dev/null)" ]; then
@@ -36,14 +52,14 @@ if [ ! -d "./ermis-configs" ] || [ -z "$(ls ./ermis-configs 2>/dev/null)" ]; the
 fi
 
 # Collect user settings
-echo "=== Server Settings ==="
+step "Server Settings"
 read -p "Email username   (Enter to skip): " EMAIL_USERNAME
 read -p "PayPal client ID (Enter to skip): " PAYPAL_CLIENT_ID
 read -p "Bitcoin address  (Enter to skip): " BITCOIN_ADDRESS
 read -p "Monero  address  (Enter to skip): " MONERO_ADDRESS
 
-echo "=== Select the IP to inject into HTML: ==="
-echo "This won't impact any server functionality, it will simply be how the server shows up on the web page"
+step "Select the IP to inject into HTML:"
+info "This won't impact any server functionality, it will simply be how the server shows up on the web page"
 
 # Fetch local IPs from network interfaces (filter out interfaces that don't have an IP assigned)
 mapfile -t local_options < <(ip -brief addr show | awk '/UP|UNKNOWN/ {print $1 " (" $3 ")"}')
@@ -53,9 +69,9 @@ echo "Fetching public IP..."
 public_ip=$(curl -s --max-time 3 https://ifconfig.me)
 
 if [ -n "$public_ip" ]; then
-    echo "Successfully fetched public IP"
+    success "Successfully fetched public IP"
 else
-    echo "Could not extract public IP"
+    warn "Could not extract public IP"
     read -p "Specify public IP   (Enter to skip): " public_ip
 fi
 
@@ -78,7 +94,7 @@ done
 echo ""
 
 # Write settings into configs
-echo "Writing configurations..."
+info "Writing configurations..."
 sed -i "s|databaseAddress=.*|databaseAddress=postgres|" ./ermis-configs/database-settings/general-settings.cnf
 find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SERVER_ADDRESS|ermis-server|" {} +
 [ -n "${SELECTED_IP}" ] && find ./web_assets -type f -name "**" -exec sed -i "s|SERVER_ADDRESS|${SELECTED_IP}|" {} +
@@ -93,6 +109,6 @@ sed -i "s|key-store=.*|key-store=/etc/ermis-server/certs/server.p12|" ./ermis-co
 [ -n "${BITCOIN_ADDRESS}"  ] && sed -i "s|bitcon=.*|bitcon=${BITCOIN_ADDRESS}|" ./ermis-configs/donation-settings/general-settings.cnf
 [ -n "${MONERO_ADDRESS}"   ] && sed -i "s|monero=.*|monero=${MONERO_ADDRESS}|" ./ermis-configs/donation-settings/general-settings.cnf
 
-echo "Setup complete!"
-echo "You can modify the configs any time at ./ermis-configs"
+success "Setup complete!"
+info "You can modify the configs any time at ./ermis-configs"
 
