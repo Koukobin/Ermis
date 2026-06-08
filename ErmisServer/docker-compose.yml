@@ -101,6 +101,7 @@ services:
     volumes:
       - ./ermis-configs/nginx/:/etc/nginx/:ro
       - ermis-static-assets:/var/ermis-server/
+      - nginx_certs:/etc/ermis-server/certs:ro
     depends_on:
       - ermis-server
       - cert-init
