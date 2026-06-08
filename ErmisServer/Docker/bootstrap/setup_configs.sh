@@ -85,8 +85,8 @@ find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SERVER_ADDRESS|er
 find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|IP_ADDRESS|ermis-server|" {} +
 [ -n "${SELECTED_IP}" ] && find ./web_assets -type f -name "**" -exec sed -i "s|IP_ADDRESS|${SELECTED_IP}|" {} +
 find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SERVER_PORT|5551|" {} +
-find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SSL_CERTIFICATE|/etc/ermis-server/certs/server_full.pem|" {} +
 find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SSL_CERTIFICATE_KEY|/etc/ermis-server/certs/server_plain.key|" {} +
+find ./ermis-configs/nginx/ -type f -name "**" -exec sed -i "s|SSL_CERTIFICATE|/etc/ermis-server/certs/server_full.pem|" {} +
 sed -i "s|key-store=.*|key-store=/etc/ermis-server/certs/server.p12|" ./ermis-configs/server-settings/ssl-settings.cnf
 [ -n "${EMAIL_USERNAME}"   ] && sed -i "s|emailUsername=.*|emailUsername=${EMAIL_USERNAME}|" ./ermis-configs/emailer-settings/general-settings.cnf
 [ -n "${PAYPAL_CLIENT_ID}" ] && sed -i "s|paypal-client-id=.*|paypal-client-id=${PAYPAL_CLIENT_ID}|" ./ermis-configs/donation-settings/general-settings.cnf
