@@ -8,8 +8,42 @@ on:
     types: [published]
 
 jobs:
-  release:
+  init:
     if: startsWith(github.ref_name, 'client-mobile')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Parse client version
+        id: version
+        run: |
+          SEM_VER=${GITHUB_REF_NAME#client-mobile-v}
+          BUILD_NUMBER=${SEM_VER#+}
+          # echo "client_sem_ver=$SEM_VER" >> $GITHUB_OUTPUT
+          # echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          VERSION="${SEM_VER}+$((BUILD_NUMBER + 1))"
+          echo "client_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update client version in pubspec.yaml
+        working-directory: ErmisClient/Mobile/ermis_client
+        run: |
+          sed -i "0,/version: .*/s//version: ${{ steps.version.outputs.client_version }}/" pubspec.yaml
+
+      - name: Commit and push updated pubspec.yaml
+        working-directory: ErmisClient/Mobile/ermis_client
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git remote set-url origin https://github.com/Koukobin/Ermis.git
+          git add pubspec.yaml
+          git commit -m "chore: update client version in pubspec.yaml to ${{ steps.version.outputs.client_version }}"
+          git push origin HEAD:master
+
+  release:
+    if: success() && startsWith(github.ref_name, 'client-mobile')
+    needs: [init]
     runs-on: ubuntu-latest
 
     steps:
