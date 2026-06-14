@@ -47,6 +47,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+          git remote set-url origin https://github.com/Koukobin/Ermis.git
           git add pom.xml
           git commit -m "Update pom.xml version to ${{ steps.version_mj.outputs.server_version }}"
           git push origin master
