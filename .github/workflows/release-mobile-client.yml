@@ -19,10 +19,8 @@ jobs:
       - name: Parse client version
         id: version
         run: |
-          SEM_VER=${GITHUB_REF_NAME#client-mobile-v}
-          BUILD_NUMBER=${SEM_VER#+}
-          # echo "client_sem_ver=$SEM_VER" >> $GITHUB_OUTPUT
-          # echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          SEM_VER=$(echo "${GITHUB_REF_NAME#client-mobile-v}" | cut -d+ -f1)
+          BUILD_NUMBER=$(echo "$GITHUB_REF_NAME" | cut -d+ -f2)
           VERSION="${SEM_VER}+$((BUILD_NUMBER + 1))"
           echo "client_version=$VERSION" >> $GITHUB_OUTPUT
 
