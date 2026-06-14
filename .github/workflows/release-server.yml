@@ -50,7 +50,7 @@ jobs:
           git remote set-url origin https://github.com/Koukobin/Ermis.git
           git add pom.xml
           git commit -m "Update pom.xml version to ${{ steps.version_mj.outputs.server_version }}"
-          git push origin master
+          git push origin HEAD:master
 
   release:
     if: success() && startsWith(github.ref_name, 'server')
