@@ -17,10 +17,11 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Parse client version
+        working-directory: ErmisClient/Mobile/ermis_client
         id: version
         run: |
-          SEM_VER=$(echo "${GITHUB_REF_NAME#client-mobile-v}" | cut -d+ -f1)
-          BUILD_NUMBER=$(echo "$GITHUB_REF_NAME" | cut -d+ -f2)
+          SEM_VER=$(echo "${GITHUB_REF_NAME#client-mobile-v}")
+          BUILD_NUMBER=$(cat pubspec.yaml | grep "version: " | cut -d+ -f2)
           VERSION="${SEM_VER}+$((BUILD_NUMBER + 1))"
           echo "client_version=$VERSION" >> $GITHUB_OUTPUT
 
