@@ -273,22 +273,36 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                           await UserInfoManager.fetchProfileInformation();
                           await UserInfoManager.fetchLocalChatSessions();
 
-                          // Navigate to the main interface
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const MainInterface()),
-                            (route) => false, // Removes all previous routes.
-                          );
-
-                          if (e is SocketException) {
-                            await showToastDialog(S.current.connectionRefused);
-                            return;
+                          void pushToMainInterface() {
+                            // Navigate to the main interface
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MainInterface()),
+                              (route) => false, // Removes all previous routes.
+                            );
                           }
 
                           if (e is ServerVerificationFailedException) {
-                            await showToastDialog(
-                                S.current.couldNotVerifyServerCertificate);
+                            bool $continue = false;
+                            await showConfirmationDialog(
+                              context,
+                              S.current.couldNotVerifyServerCertificate,
+                              () => $continue = true,
+                              includeTitle: true,
+                            );
+                            if (!$continue) {
+                              setState(() => _isConnectingToServer = false);
+                              return;
+                            }
+
+                            pushToMainInterface();
+                            return;
+                          }
+
+                          if (e is SocketException) {
+                            await showToastDialog(S.current.connectionRefused);
+                            pushToMainInterface();
                             return;
                           }
 
