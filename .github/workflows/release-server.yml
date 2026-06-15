@@ -105,7 +105,7 @@ jobs:
 
       # Release Docker image
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@259a565a6f30a57c28f9ea913f2d359b43ff5fc9 # v4.0.0
+        uses: docker/setup-qemu-action@eaefd20f597840d8870070b5b0e1bd33d2fff867 # v4.0.0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v3.7.1
