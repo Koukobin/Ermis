@@ -379,7 +379,7 @@ class _DeleteAccountSettingsState extends State<DeleteAccountSettings>
 
             // Text
             Text(
-              S.current.accountConfirmProceed,
+              S.current.areYouCertainYouWantToProceed,
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
