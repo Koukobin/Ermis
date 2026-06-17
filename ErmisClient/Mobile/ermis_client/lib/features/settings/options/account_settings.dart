@@ -218,8 +218,8 @@ class _AccountSettingsState extends State<AccountSettings>
               },
             ),
             ListTile(
-              leading: const Icon(
-                FontAwesomeIcons.solidTrashCan,
+              leading: Icon(
+                FontAwesomeIcons.solidTrashCan.data,
                 color: Colors.redAccent,
               ),
               title: Text(S.current.accountDelete),
