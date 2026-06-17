@@ -32,6 +32,7 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import '../../core/networking/user_info_manager.dart';
 import '../../core/services/database/database_service.dart';
+import '../../core/services/database/extensions/accounts_extension.dart';
 import 'domain/entities/create_account_info.dart';
 import '../../constants/app_constants.dart';
 import '../../main.dart';
@@ -217,26 +218,35 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
                           if (deviceUUID != null) {
                             createAccountEntry.setDeviceUUID(deviceUUID);
                           }
-                          
+
+                          String email = _emailController.text;
+                          String username = _usernameController.text;
+                          String password = _passwordController.text;
+
                           createAccountEntry.sendCredentials({
-                            CreateAccountCredential.email: _emailController.text,
-                            CreateAccountCredential.username: _usernameController.text,
-                            CreateAccountCredential.password: _passwordController.text,
+                            CreateAccountCredential.email: email,
+                            CreateAccountCredential.username: username,
+                            CreateAccountCredential.password: password,
                           });
-                      
+
                           Resultable entryResult = await createAccountEntry.getCredentialsExchangeResult();
-                      
+
                           bool isSuccessful = entryResult.isSuccessful;
                           String resultMessage = entryResult.message;
-                      
+
                           if (!isSuccessful) {
                             showSnackBarDialog(context: context, content: resultMessage);
                             return;
                           }
-                      
-                          isSuccessful = await performRegistrationVerification(context, _emailController.text);
-                      
+
+                          isSuccessful = await performRegistrationVerification(context, email);
+
                           if (isSuccessful) {
+                            final DBConnection conn = ErmisDB.getConnection();
+                            conn.updateLastUsedAccount(
+                              UserInfoManager.serverInfo,
+                              email,
+                            );
                             await showLoadingDialog(context, Client.instance().fetchUserInformation());
                             // Navigate to the main interface
                             Navigator.pushAndRemoveUntil(

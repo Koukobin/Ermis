@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import '../../core/data_sources/api_client.dart';
+import '../../core/services/database/extensions/accounts_extension.dart';
 import 'domain/entities/login_info.dart';
 import '../../constants/app_constants.dart';
 import '../../core/util/device_utils.dart';
@@ -188,9 +189,14 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
                             loginEntry.setDeviceUUID(deviceUUID);
                           }
 
+                          String email = _emailController.text;
+                          String password = _useBackupverificationCode
+                              ? _backupVerificationController.text
+                              : _passwordController.text;
+
                           loginEntry.sendCredentials({
                             LoginCredential.email: _emailController.text,
-                            LoginCredential.password: _useBackupverificationCode ? _backupVerificationController.text : _passwordController.text,
+                            LoginCredential.password: password,
                           });
 
                           Resultable entryResult = await loginEntry.getCredentialsExchangeResult();
@@ -209,12 +215,17 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
 
                           // If password is used, further verification/authentication is required
                           if (_usePassword) {
-                            isSuccessful = await performRegistrationVerification(context, _emailController.text);
+                            isSuccessful = await performRegistrationVerification(context, email);
                           } else {
-                            isSuccessful = await getBackupVerification(context, loginEntry, _emailController.text);
+                            isSuccessful = await getBackupVerification(context, loginEntry, email);
                           }
 
                           if (isSuccessful) {
+                            final DBConnection conn = ErmisDB.getConnection();
+                            conn.updateLastUsedAccount(
+                              UserInfoManager.serverInfo,
+                              email,
+                            );
                             await showLoadingDialog(context, Client.instance().fetchUserInformation());
                             // Navigate to the main interface
                             Navigator.pushAndRemoveUntil(
