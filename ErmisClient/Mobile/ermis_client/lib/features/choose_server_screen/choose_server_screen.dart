@@ -96,6 +96,77 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
     });
   }
 
+  void connectToServer() async {
+    // Disconnect & reset information to ensure
+    // nothing leaks from previous sessions
+    await Client.instance().disconnect();
+
+    Uri url = Uri.parse(serverUrl!);
+    setState(() => _isConnectingToServer = true);
+
+    ServerInfo serverInfo = ServerInfo(url);
+
+    final DBConnection conn = ErmisDB.getConnection();
+    conn.updateServerUrlLastUsed(serverInfo);
+
+    try {
+      await Client.instance().initialize(
+        url,
+        _checkServerCertificate
+            ? ServerCertificateVerification.verify
+            : ServerCertificateVerification.ignore,
+      );
+    } catch (e) {
+      UserInfoManager.serverInfo = serverInfo;
+      await UserInfoManager.fetchProfileInformation();
+      await UserInfoManager.fetchLocalChatSessions();
+
+      void pushToMainInterface() {
+        // Navigate to the main interface
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const MainInterface()),
+          (route) => false, // Removes all previous routes.
+        );
+      }
+
+      if (e is ServerVerificationFailedException) {
+        bool $continue = false;
+        await showConfirmationDialog(
+          context,
+          S.current.couldNotVerifyServerCertificate,
+          () => $continue = true,
+          includeTitle: true,
+        );
+        if (!$continue) {
+          setState(() => _isConnectingToServer = false);
+          return;
+        }
+
+        pushToMainInterface();
+        return;
+      }
+
+      if (e is SocketException) {
+        await showToastDialog(S.current.connectionRefused);
+        pushToMainInterface();
+        return;
+      }
+
+      rethrow;
+    }
+
+    try {
+      await setupClientSession(context);
+    } on Exception catch (te) {
+      if (kDebugMode) debugPrint(te.toString());
+
+      showToastDialog(S.current.connectionFailure);
+      setState(() => _isConnectingToServer = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
@@ -246,78 +317,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
               const SizedBox(height: 30),
               // "Connect" Button
               ElevatedButton(
-                onPressed: _isConnectingToServer
-                    ? null
-                    : () async {
-                        // Disconnect & reset information to ensure
-                        // nothing leaks from previous sessions
-                        await Client.instance().disconnect();
-
-                        Uri url = Uri.parse(serverUrl!);
-                        setState(() => _isConnectingToServer = true);
-
-                        ServerInfo serverInfo = ServerInfo(url);
-
-                        final DBConnection conn = ErmisDB.getConnection();
-                        conn.updateServerUrlLastUsed(serverInfo);
-
-                        try {
-                          await Client.instance().initialize(
-                            url,
-                            _checkServerCertificate
-                                ? ServerCertificateVerification.verify
-                                : ServerCertificateVerification.ignore,
-                          );
-                        } catch (e) {
-                          UserInfoManager.serverInfo = serverInfo;
-                          await UserInfoManager.fetchProfileInformation();
-                          await UserInfoManager.fetchLocalChatSessions();
-
-                          void pushToMainInterface() {
-                            // Navigate to the main interface
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MainInterface()),
-                              (route) => false, // Removes all previous routes.
-                            );
-                          }
-
-                          if (e is ServerVerificationFailedException) {
-                            bool $continue = false;
-                            await showConfirmationDialog(
-                              context,
-                              S.current.couldNotVerifyServerCertificate,
-                              () => $continue = true,
-                              includeTitle: true,
-                            );
-                            if (!$continue) {
-                              setState(() => _isConnectingToServer = false);
-                              return;
-                            }
-
-                            pushToMainInterface();
-                            return;
-                          }
-
-                          if (e is SocketException) {
-                            await showToastDialog(S.current.connectionRefused);
-                            pushToMainInterface();
-                            return;
-                          }
-
-                          rethrow;
-                        }
-
-                        try {
-                          await setupClientSession(context);
-                        } on Exception catch (te) {
-                          if (kDebugMode) debugPrint(te.toString());
-
-                          showToastDialog(S.current.connectionFailure);
-                          setState(() => _isConnectingToServer = false);
-                        }
-                      },
+                onPressed: _isConnectingToServer ? null : connectToServer,
                 style: ElevatedButton.styleFrom(
                   foregroundColor: appColors.inferiorColor, // Splash color
                   backgroundColor: appColors.secondaryColor,
