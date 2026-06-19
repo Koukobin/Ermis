@@ -144,7 +144,8 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
           return;
         }
 
-        pushToMainInterface();
+        _checkServerCertificate = false;
+        connectToServer();
         return;
       }
 
