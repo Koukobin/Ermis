@@ -143,28 +143,81 @@ Future<void> showConfirmationDialog(
   final bool? shouldExit = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+
       return WhatsAppPopupDialog(
-        child: AlertDialog(
-          title: includeTitle
-              ? Text(
-                  S().areYouSure,
-                  style: Theme.of(context).textTheme.titleLarge,
-                )
-              : null,
-          content: Text(
-            content,
-            style: Theme.of(context).textTheme.bodyMedium,
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false), // Cancel
-              child: Text(S().noCapitalized, style: const TextStyle(fontSize: 18)),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (includeTitle) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    S().areYouCertainYouWantToProceed,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      height: 1.3, // Trivial - may be remove
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Text(
+                  content,
+                  textAlign: TextAlign.center,
+                  style: (includeTitle
+                          ? theme.textTheme.bodyMedium
+                          : theme.textTheme.titleMedium)
+                      ?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    height: 1.5, // Trivial - may be remove
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          S().noCapitalized,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text(
+                          S().yesCapitalized,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true), // Confirm
-              child: Text(S().yesCapitalized, style: const TextStyle(fontSize: 18)),
-            ),
-          ],
+          ),
         ),
       );
     },
@@ -176,30 +229,89 @@ Future<void> showConfirmationDialog(
 }
 
 Future<void> showLogoutConfirmationDialog(
-    BuildContext context, String content, VoidCallback onYes) {
+  BuildContext context,
+  String content,
+  VoidCallback onYes,
+) {
   return showDialog(
     context: context,
     builder: (BuildContext context) {
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+
       return WhatsAppPopupDialog(
-        child: AlertDialog(
-          title: Text(S().logoutCapitalizedQuestionMark),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(S.current.cancel),
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  S().logoutCapitalizedQuestionMark,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    height: 1.3, // Trivial - may be remove
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  content,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color:  colorScheme.onSurfaceVariant,
+                    height: 1.5, // Trivial - may be remove
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 24,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        S().cancel,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    FilledButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            WidgetStateProperty.all(colorScheme.error),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        onYes();
+                      },
+                      child: Text(
+                        S.current.logoutCapitalized,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                onYes();
-              },
-              child: Text(
-                S.current.logoutCapitalized,
-                style: const TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
+          ),
         ),
       );
     },
