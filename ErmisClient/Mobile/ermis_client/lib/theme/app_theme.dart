@@ -70,6 +70,10 @@ class AppThemeState extends State<AppTheme> {
 
   ThemeData buildDarkThemeData() {
     return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: widget.darkAppColors.primaryColor,
+        brightness: Brightness.dark,
+      ),
       brightness: Brightness.dark,
       extensions: [widget.darkAppColors],
       visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts to platform
@@ -187,6 +191,10 @@ class AppThemeState extends State<AppTheme> {
 
   ThemeData buildLightThemeData() {
     return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: widget.lightAppColors.primaryColor,
+        brightness: Brightness.light,
+      ),
       brightness: Brightness.light,
       extensions: [widget.lightAppColors],
       visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts to platform
