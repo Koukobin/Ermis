@@ -37,6 +37,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/models/message.dart';
 import '../../core/networking/common/message_types/content_type.dart';
+import '../../core/util/basic_markdown_parser.dart';
 import '../../core/util/transitions_util.dart';
 import '../../core/widgets/scroll/custom_scroll_view.dart';
 import '../messaging/presentation/messaging_interface.dart';
@@ -479,10 +480,18 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
           ],
         ),
       ),
-      subtitle: Text(
+      subtitle: parseMessage(
         chatSession.lastMessageContent,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
+        a: (String text) => Text(
+          text,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+        b: (TextSpan spans) => RichText(
+          text: spans,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
       tileColor: selectedConversations.contains(chatSession)
           ? appColors.primaryColor.withAlpha(102)

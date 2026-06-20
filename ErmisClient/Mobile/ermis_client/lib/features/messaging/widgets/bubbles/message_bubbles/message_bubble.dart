@@ -23,6 +23,7 @@ import 'package:ermis_mobile/core/widgets/glitch_effect.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/abstract_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/file_message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/image_message_bubble.dart';
+import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/text_message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/video_message_bubble.dart';
 import 'package:ermis_mobile/features/messaging/widgets/bubbles/message_bubbles/voice_message_bubble.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
@@ -185,11 +186,9 @@ class MessageBubble extends Bubble {
   Widget _buildMessageContent(BuildContext context, Message message) {
     switch (message.contentType) {
       case MessageContentType.text:
-        return Text(
-          message.text,
-          softWrap: true, // Enable text wrapping
-          overflow: TextOverflow.clip,
-          maxLines: null,
+        return TextMessageBubble(
+          message: message,
+          appColors: appColors,
         );
       case MessageContentType.file:
         return FileMessageBubble(

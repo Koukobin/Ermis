@@ -1,0 +1,80 @@
+/* Copyright (C) 2026 Ilias Koukovinis <ilias.koukovinis@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import 'package:flutter/widgets.dart';
+
+Widget parseMessage(
+  String text, {
+  required Text Function(String text) a,
+  required RichText Function(TextSpan spans) b,
+}) {
+  TextSpan? spans = formatMessage(text);
+
+  if (spans == null) {
+    return a(text);
+  }
+
+  return b(spans);
+}
+
+TextSpan? formatMessage(String text) {
+  final List<InlineSpan> spans = [];
+
+  final regex = RegExp(
+    r'(?<!\*)\*([^*]+)\*(?!\*)|(?<!_)_([^_]+)_(?!_)|(?<!~)~([^~]+)~(?!~)|(?<!`)`([^`]+)`(?!`)',
+  );
+
+  int last = 0;
+
+  for (final match in regex.allMatches(text)) {
+    if (match.start > last) {
+      spans.add(TextSpan(text: text.substring(last, match.start)));
+    }
+
+    final token = match.group(0)!;
+
+    if (token.startsWith('*')) { // BOLD
+      spans.add(TextSpan(
+        text: token.substring(1, token.length - 1),
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ));
+    } else if (token.startsWith('_')) { // ITALIIC
+      spans.add(TextSpan(
+        text: token.substring(1, token.length - 1),
+        style: const TextStyle(fontStyle: FontStyle.italic),
+      ));
+    } else if (token.startsWith('~')) { // STRIKETHROUGH
+      spans.add(TextSpan(
+        text: token.substring(1, token.length - 1),
+        style: const TextStyle(
+          decoration: TextDecoration.lineThrough,
+        ),
+      ));
+    } else if (token.startsWith('`')) { // MONOSPACE
+      spans.add(TextSpan(
+        text: token.substring(1, token.length - 1),
+        style: const TextStyle(fontFamily: "monospace"),
+      ));
+    }
+
+    last = match.end;
+  }
+
+  if (spans.isEmpty) return null;
+
+  spans.add(TextSpan(text: text.substring(last)));
+  return TextSpan(children: spans);
+}
