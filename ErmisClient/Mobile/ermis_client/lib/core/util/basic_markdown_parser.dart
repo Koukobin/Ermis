@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 Widget parseMessage(
@@ -63,10 +64,21 @@ TextSpan? formatMessage(String text) {
           decoration: TextDecoration.lineThrough,
         ),
       ));
-    } else if (token.startsWith('`')) { // MONOSPACE
-      spans.add(TextSpan(
-        text: token.substring(1, token.length - 1),
-        style: const TextStyle(fontFamily: "monospace"),
+    } else if (token.startsWith('`')) { // INLINE CODE
+      spans.add(WidgetSpan(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(9),
+            color: const Color.fromARGB(225, 42, 42, 45),
+          ),
+          child: Text(
+            token.substring(1, token.length - 1),
+            style: const TextStyle(
+              color: Color.fromARGB(255, 181, 182, 182),
+            ),
+          ),
+        ),
       ));
     }
 
