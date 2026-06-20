@@ -47,7 +47,16 @@ TextSpan? formatMessage(String text) {
 
     final token = match.group(0)!;
 
-    if (token.startsWith('*')) { // BOLD
+    if ((token.startsWith('*_') && token.endsWith('_*')) ||
+        (token.startsWith('_*') && token.endsWith('*_'))) { // BOLD + ITALIC
+      spans.add(TextSpan(
+        text: token.substring(2, token.length - 2),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontStyle: FontStyle.italic,
+        ),
+      ));
+    } else if (token.startsWith('*')) { // BOLD
       spans.add(TextSpan(
         text: token.substring(1, token.length - 1),
         style: const TextStyle(fontWeight: FontWeight.bold),
