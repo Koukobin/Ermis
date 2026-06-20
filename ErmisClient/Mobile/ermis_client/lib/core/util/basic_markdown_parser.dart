@@ -18,16 +18,16 @@ import 'package:flutter/widgets.dart';
 
 Widget parseMessage(
   String text, {
-  required Text Function(String text) a,
-  required RichText Function(TextSpan spans) b,
+  required Text Function(String text) plainBuilder,
+  required RichText Function(TextSpan spans) formattedBuilder,
 }) {
   TextSpan? spans = formatMessage(text);
 
   if (spans == null) {
-    return a(text);
+    return plainBuilder(text);
   }
 
-  return b(spans);
+  return formattedBuilder(spans);
 }
 
 TextSpan? formatMessage(String text) {

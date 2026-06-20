@@ -482,12 +482,12 @@ class _ChatsState extends ConvultedState<Chats> with EventBusSubscriptionMixin {
       ),
       subtitle: parseMessage(
         chatSession.lastMessageContent,
-        a: (String text) => Text(
+        plainBuilder: (String text) => Text(
           text,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
         ),
-        b: (TextSpan spans) => RichText(
+        formattedBuilder: (TextSpan spans) => RichText(
           text: spans,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
