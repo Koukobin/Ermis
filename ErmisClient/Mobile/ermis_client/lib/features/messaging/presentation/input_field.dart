@@ -99,6 +99,79 @@ class _InputFieldState extends State<InputField> {
     }
   }
 
+  TextField _buildTextField(AppColors appColors) {
+    return TextField(
+      maxLines: null,
+      keyboardType: TextInputType.multiline,
+      controller: _inputController,
+      decoration: InputDecoration(
+        hintText: S.current.typeMessage,
+        filled: true,
+        fillColor: appColors.tertiaryColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      contextMenuBuilder: (context, EditableTextState editableTextState) {
+        final buttonItems = editableTextState.contextMenuButtonItems;
+
+        void modifyText(String Function(String) parser) {
+          final TextEditingValue value = editableTextState.textEditingValue;
+          final TextSelection selection = value.selection;
+
+          if (!selection.isValid || selection.isCollapsed) {
+            editableTextState.hideToolbar();
+            return;
+          }
+
+          final String fullText = value.text;
+          final String selectedText = value.selection.textInside(value.text);
+          final String newSelectedText = parser(selectedText);
+
+          // Rebuild full text with the modified selection spliced in
+          final String newText = fullText.replaceRange(
+            selection.start,
+            selection.end,
+            newSelectedText,
+          );
+
+          _inputController.value = TextEditingValue(
+            text: newText,
+            // Keep the same range selected, adjusted for new length
+            selection: TextSelection(
+              baseOffset: selection.start,
+              extentOffset: selection.start + newSelectedText.length,
+            ),
+          );
+
+          // close the toolbar after action
+          editableTextState.hideToolbar();
+        }
+
+        buttonItems.insert(
+          buttonItems.length > 2 ? (buttonItems.length - 3).abs() : 0,
+          ContextMenuButtonItem(
+            label: 'Bold',
+            onPressed: () => modifyText((selectedText) => "*$selectedText*"),
+          ),
+        );
+        buttonItems.insert(
+          buttonItems.length > 2 ? (buttonItems.length - 3).abs() : 1,
+          ContextMenuButtonItem(
+            label: 'Italic',
+            onPressed: () => modifyText((selectedText) => "_$selectedText\_"),
+          ),
+        );
+
+        return AdaptiveTextSelectionToolbar.buttonItems(
+          anchors: editableTextState.contextMenuAnchors,
+          buttonItems: buttonItems,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
@@ -168,20 +241,7 @@ class _InputFieldState extends State<InputField> {
                           contentPadding: EdgeInsets.symmetric(vertical: 5),
                         ),
                       ),
-                      child: TextField(
-                        maxLines: null,
-                        keyboardType: TextInputType.multiline,
-                        controller: _inputController,
-                        decoration: InputDecoration(
-                          hintText: S.current.typeMessage,
-                          filled: true,
-                          fillColor: appColors.tertiaryColor,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
+                      child: _buildTextField(appColors),
                     ),
                   ),
                   IconButton(
