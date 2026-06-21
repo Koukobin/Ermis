@@ -275,7 +275,7 @@ Future<void> showLogoutConfirmationDialog(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           vertical: 14,
-                          horizontal: 24,
+                          horizontal: 34,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -293,6 +293,8 @@ Future<void> showLogoutConfirmationDialog(
                       style: ButtonStyle(
                         backgroundColor:
                             WidgetStateProperty.all(colorScheme.error),
+                        foregroundColor:
+                            WidgetStateProperty.all(colorScheme.onError),
                       ),
                       onPressed: () {
                         Navigator.of(context).pop();
@@ -303,7 +305,6 @@ Future<void> showLogoutConfirmationDialog(
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.red,
                         ),
                       ),
                     ),
