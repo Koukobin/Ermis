@@ -63,7 +63,7 @@ services:
         condition: service_healthy
       cert-init:
         condition: service_completed_successfully
-#    restart: unless-stopped
+    restart: unless-stopped
 
   postgres:
     image: postgres:18.3-bookworm
