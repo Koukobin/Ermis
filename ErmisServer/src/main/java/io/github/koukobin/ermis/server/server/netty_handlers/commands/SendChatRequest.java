@@ -48,8 +48,7 @@ public class SendChatRequest implements ICommand {
 				.stream()
 				.map(ChatSession::getActiveMembers)
 				.flatMap(Collection::stream)
-				.filter((ClientInfo ci) -> ci.getClientID() == receiverID)
-				.count() != 0) {
+				.anyMatch((ClientInfo ci) -> ci.getClientID() == receiverID)) {
 			getLogger().debug("You cannot send chat request to someone with which you already share a chat session");
 			return;
 		}
