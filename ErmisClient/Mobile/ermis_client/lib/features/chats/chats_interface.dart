@@ -52,14 +52,10 @@ class Chats extends StatefulWidget {
   State<Chats> createState() => _ChatsState();
 
   int getTotalUnreadMessagesCount() {
-    Iterable<List<int>> iter =
-        _ChatsState.unreadMessageCounts.values.whereType<List<int>>();
+    Iterable<int> iter =
+        _ChatsState.unreadMessageCounts.values.whereType<int>();
 
-    int totalCount = 0;
-    for (final unreadMessages in iter) {
-      totalCount += unreadMessages.length;
-    }
-
+    int totalCount = iter.fold(0, (previous, current) => previous + current);
     return totalCount;
   }
 }
