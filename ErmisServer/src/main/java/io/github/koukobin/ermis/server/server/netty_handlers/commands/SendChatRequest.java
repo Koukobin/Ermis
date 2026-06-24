@@ -24,6 +24,7 @@ import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType
 import main.java.io.github.koukobin.ermis.common.message_types.ServerInfoMessage;
 import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
+import main.java.io.github.koukobin.ermis.server.server.ActiveClients;
 import main.java.io.github.koukobin.ermis.server.server.ChatSession;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 
@@ -50,6 +51,21 @@ public class SendChatRequest implements ICommand {
 				.flatMap(Collection::stream)
 				.anyMatch((ClientInfo ci) -> ci.getClientID() == receiverID)) {
 			getLogger().debug("You cannot send chat request to someone with which you already share a chat session");
+			return;
+		}
+
+		if (clientInfo.getChatRequests()
+				.stream()
+				.anyMatch((Integer clientID) -> clientID.equals(receiverID))) {
+			getLogger().debug("You cannot send chat request to someone with which you already share a chat request");
+			return;
+		}
+
+		ClientInfo receiverInfo = ActiveClients.getClient(receiverID).get(0);
+		if (receiverInfo.getChatRequests()
+				.stream()
+				.anyMatch((Integer clientID) -> clientID.equals(senderClientID))) {
+			getLogger().debug("You cannot send chat request to someone with which you already share a chat request");
 			return;
 		}
 
