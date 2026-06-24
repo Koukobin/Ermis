@@ -68,7 +68,7 @@ class _DotsLoadingScreenState extends State<DotsLoadingScreen> with SingleTicker
                   margin: const EdgeInsets.symmetric(horizontal: 5),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.green,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               );

@@ -23,6 +23,7 @@ import 'package:ermis_mobile/features/messaging/presentation/choose_friends_scre
 import 'package:ermis_mobile/features/settings/options/linked_devices_settings.dart';
 import 'package:ermis_mobile/features/settings/primary_settings_interface.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/util/screen_reset.dart';
@@ -32,6 +33,7 @@ class ChatPopupMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
     return PopupMenuButton<VoidCallback>(
       position: PopupMenuPosition.under,
       menuPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
@@ -51,8 +53,11 @@ class ChatPopupMenuButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(
             S.current.newGroup,
-            style: const TextStyle(
-                color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
+            style: TextStyle(
+              color: appColors.primaryColor,
+              fontStyle: FontStyle.italic,
+              fontSize: 15,
+            ),
           ),
         ),
         PopupMenuItem(
@@ -63,8 +68,11 @@ class ChatPopupMenuButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(
             S.current.newChat,
-            style: const TextStyle(
-                color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
+            style: TextStyle(
+              color: appColors.primaryColor,
+              fontStyle: FontStyle.italic,
+              fontSize: 15,
+            ),
           ),
         ),
         PopupMenuItem(
@@ -73,10 +81,11 @@ class ChatPopupMenuButton extends StatelessWidget {
           },
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(S.current.linkedDevices,
-              style: const TextStyle(
-                  color: Colors.green,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 15)),
+              style: TextStyle(
+                color: appColors.primaryColor,
+                fontStyle: FontStyle.italic,
+                fontSize: 15,
+              )),
         ),
         PopupMenuItem(
           value: () {
@@ -84,10 +93,11 @@ class ChatPopupMenuButton extends StatelessWidget {
           },
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(S().voiceCallsHistory,
-              style: const TextStyle(
-                  color: Colors.green,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 15)),
+              style: TextStyle(
+                color: appColors.primaryColor,
+                fontStyle: FontStyle.italic,
+                fontSize: 15,
+              )),
         ),
         PopupMenuItem(
           value: () {
@@ -96,8 +106,11 @@ class ChatPopupMenuButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(
             S.current.settings,
-            style: const TextStyle(
-                color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
+            style: TextStyle(
+              color: appColors.primaryColor,
+              fontStyle: FontStyle.italic,
+              fontSize: 15,
+            ),
           ),
         ),
         PopupMenuItem(
@@ -105,8 +118,11 @@ class ChatPopupMenuButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Text(
             S.current.signOut,
-            style: const TextStyle(
-                color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15),
+            style: TextStyle(
+              color: appColors.primaryColor,
+              fontStyle: FontStyle.italic,
+              fontSize: 15,
+            ),
           ),
         ),
       ],
