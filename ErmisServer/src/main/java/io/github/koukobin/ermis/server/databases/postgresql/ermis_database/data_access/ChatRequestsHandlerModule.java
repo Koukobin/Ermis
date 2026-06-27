@@ -141,8 +141,20 @@ public interface ChatRequestsHandlerModule extends BaseComponent {
 		// No need to check if given client id exists since the chat_requests table
 		// references client ids from users table
 		try {
-			String checkRequestSQL = "SELECT 1 FROM chat_requests WHERE sender_client_id = ? AND receiver_client_id = ?";
-			try (PreparedStatement pstmt = getConn().prepareStatement(checkRequestSQL)) {
+			String doesChatRequestExistSQL = "SELECT 1 FROM chat_requests WHERE sender_client_id = ? AND receiver_client_id = ?";
+			try (PreparedStatement pstmt = getConn().prepareStatement(doesChatRequestExistSQL)) {
+				pstmt.setInt(1, senderClientID);
+				pstmt.setInt(2, receiverClientID);
+
+				ResultSet rs = pstmt.executeQuery();
+
+				if (rs.next()) {
+					return false; // Chat request already exists
+				}
+			}
+
+			String doesChatRequestExistSQL2 = "SELECT 1 FROM chat_requests WHERE receiver_client_id = ? AND sender_client_id = ?";
+			try (PreparedStatement pstmt = getConn().prepareStatement(doesChatRequestExistSQL2)) {
 				pstmt.setInt(1, senderClientID);
 				pstmt.setInt(2, receiverClientID);
 
