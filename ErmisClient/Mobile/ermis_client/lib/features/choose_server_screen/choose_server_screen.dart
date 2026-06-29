@@ -155,7 +155,10 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
         return;
       }
 
-      rethrow;
+      if (kDebugMode) print(e);
+
+      setState(() => _isConnectingToServer = false);
+      return;
     }
 
     try {
