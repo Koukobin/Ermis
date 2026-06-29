@@ -68,7 +68,7 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: postgres:18.3-bookworm
+    image: postgres:18.3-bookworm # Changing to alpine requires updating cert-init chown UID from 999:999 to 70:70
     depends_on: [cert-init]
     networks:
       - ermis-net
