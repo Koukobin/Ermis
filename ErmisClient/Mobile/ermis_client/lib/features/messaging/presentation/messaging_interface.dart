@@ -87,6 +87,8 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
 
   final List<int> unreadMessages = [];
 
+  static late Widget doodles;
+
   @override
   void initState() {
     super.initState();
@@ -142,6 +144,31 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
     });
 
     _voiceCallsHistory = UserInfoManager.chatSessionIDSToVoiceCallHistory[_chatSession.chatSessionID];
+
+    doodles = // Wrap LayoutBuilder in RepaintBoundary to ensure
+        // the former is cached and ultimately reduce
+        // performance overhead.
+        RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Because it is certain that the doodles will
+          // not have been loaded on the first execution
+          // of the doodle painter, configure doodler to
+          // repaint after a certain time interval.
+          if (!ErmisDoodlePainter.areDoodlesLoaded()) {
+            Future.delayed(
+              const Duration(milliseconds: 300),
+              () => setState(() {}),
+            );
+          }
+      
+          return CustomPaint(
+            size: Size(constraints.maxWidth, constraints.maxHeight),
+            painter: ErmisDoodlePainter(),
+          );
+        },
+      ),
+    );
   }
 
   Future<List<Message>> _retrieveFurtherLocalMessages() async {
@@ -252,30 +279,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
         child: Stack(
           children: [
             if (SettingsJson().ermisDoodlesEnabled)
-              // Wrap LayoutBuilder in RepaintBoundary to ensure
-              // the former is cached and ultimately reduce
-              // performance overhead.
-              RepaintBoundary(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    // Because it is certain that the doodles will
-                    // not have been loaded on the first execution
-                    // of the doodle painter, configure doodler to
-                    // repaint after a certain time interval.
-                    if (!ErmisDoodlePainter.areDoodlesLoaded()) {
-                      Future.delayed(
-                        const Duration(milliseconds: 300),
-                        () => setState(() {}),
-                      );
-                    }
-
-                    return CustomPaint(
-                      size: Size(constraints.maxWidth, constraints.maxHeight),
-                      painter: ErmisDoodlePainter(),
-                    );
-                  },
-                ),
-              ),
+              doodles,
             Column(
               children: [
                 _buildMessageList(appColors),
