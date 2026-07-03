@@ -41,6 +41,9 @@ public final class ConfigurationsPaths {
 			PropertiesUtil.resolvePlaceholders(properties);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to load configuration path properties.", e);
+		} catch (NullPointerException npe) {
+			throw new RuntimeException(String.format(
+					"Failed to load properties (\'%s\'). Ensure the file exists and the path is correct.", configPath));
 		}
 	}
 
