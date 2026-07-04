@@ -16,21 +16,54 @@
 
 import 'dart:typed_data';
 
+import 'package:ermis_mobile/core/models/member_icon.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class UserAvatar extends StatelessWidget {
-  final Uint8List imageBytes;
+import '../../services/custom_http_service.dart';
+
+class UserAvatar extends StatefulWidget {
+  final MemberIcon memberIcon;
   final ClientStatus status;
 
   const UserAvatar({
     super.key,
-    required this.imageBytes,
+    required this.memberIcon,
     required this.status,
   });
 
-  UserAvatar.empty({super.key}) : imageBytes = Uint8List(0), status = ClientStatus.offline;
+  UserAvatar.empty({super.key})
+      : memberIcon = MemberIcon.emptY(),
+        status = ClientStatus.offline;
+
+  @override
+  State<UserAvatar> createState() => _UserAvatarState();
+}
+
+class _UserAvatarState extends State<UserAvatar> {
+  Uint8List imageBytes = Uint8List(0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIcon();
+  }
+
+  Future<void> _loadIcon() async {
+    if (widget.memberIcon.isLoaded()) {
+      setState(() {
+        imageBytes = widget.memberIcon.profilePhoto;
+      });
+      return;
+    }
+    String iconUrl = widget.memberIcon.getUrl();
+    imageBytes = await CustomHttpClient().fetchUint8ListFromUrl(iconUrl) ?? Uint8List(0);
+
+    setState(() {
+      widget.memberIcon.profilePhoto = imageBytes;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +89,7 @@ class UserAvatar extends StatelessWidget {
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: switch (status) {
+              color: switch (widget.status) {
                 ClientStatus.online => Colors.green,
                 ClientStatus.offline => Colors.red,
                 ClientStatus.doNotDisturb => Colors.amber,
@@ -74,5 +107,4 @@ class UserAvatar extends StatelessWidget {
       ],
     );
   }
-
 }

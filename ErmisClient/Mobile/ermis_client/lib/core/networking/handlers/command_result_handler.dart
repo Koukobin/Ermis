@@ -255,13 +255,13 @@ class CommandResultHandler {
             } else {
               int usernameLength = msg.readInt32();
               String username = utf8.decode(msg.readBytes(usernameLength));
-              Uint8List iconBytes = msg.readBytes(msg.readInt32());
+              String iconID = utf8.decode(msg.readBytes(msg.readInt32()));
               int lastUpdatedAtEpochSecond = msg.readInt64();
 
               member = Member(
                 username,
                 memberID,
-                MemberIcon(iconBytes),
+                MemberIcon.empty(profilePhotoID: iconID),
                 ClientStatus.offline,
                 lastUpdatedAtEpochSecond,
               );

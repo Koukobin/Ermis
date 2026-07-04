@@ -159,6 +159,7 @@ class DBConnection {
         server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
         display_name TEXT NOT NULL,
         client_id INTEGER NOT NULL,
+        profile_photo_id STRING NOT NULL,
         profile_photo BLOB NOT NULL,
         last_updated_at TIMESTAMP NOT NULL,
         PRIMARY KEY (server_url, client_id)

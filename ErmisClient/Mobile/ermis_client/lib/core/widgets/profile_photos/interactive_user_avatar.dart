@@ -18,18 +18,23 @@ import 'dart:async';
 import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
+import 'package:ermis_mobile/core/services/database/database_service.dart';
+import 'package:ermis_mobile/core/services/database/extensions/members_extension.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../services/custom_http_service.dart';
+import '../loading_state.dart';
 
 typedef FutureVoidCallback = Future<void> Function();
 
 typedef AvatarClickedCallback = List<Widget> Function(BuildContext context, FutureVoidCallback popContext);
 List<Widget> _defaultAvatarClickedAction(BuildContext _, VoidCallback __) => const [];
 
-class InteractiveUserAvatar extends StatelessWidget {
-  final Uint8List imageBytes;
+class InteractiveUserAvatar extends StatefulWidget {
   final ClientStatus status;
 
   final ChatSession chatSession;
@@ -44,20 +49,57 @@ class InteractiveUserAvatar extends StatelessWidget {
     required this.member,
     required this.chatSession,
     this.onAvatarClicked = _defaultAvatarClickedAction,
-  })  : imageBytes = member.icon.profilePhoto,
-        status = member.status,
+  })  : status = member.status,
         avatarID = "avarar-hero-${chatSession.chatSessionID}-${member.clientID}";
 
   @override
-  Widget build(BuildContext context) {
+  State<InteractiveUserAvatar> createState() => _InteractiveUserAvatarState();
+}
+
+class _InteractiveUserAvatarState extends LoadingState<InteractiveUserAvatar> {
+  Uint8List imageBytes = Uint8List(0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIcon();
+  }
+
+  Future<void> _loadIcon() async {
+    if (widget.member.icon.isLoaded()) {
+      setState(() {
+        imageBytes = widget.member.icon.profilePhoto;
+        isLoading = false;
+      });
+      return;
+    }
+    String iconUrl = widget.member.icon.getUrl();
+    imageBytes = await CustomHttpClient().fetchUint8ListFromUrl(iconUrl) ?? Uint8List(0);
+
+    widget.member.icon.profilePhoto = imageBytes;
+    DBConnection conn = ErmisDB.getConnection();
+    conn.insertMember(
+      serverUrl: UserInfoManager.serverInfo.serverUrl.toString(),
+      member: widget.member,
+    );
+
+    setState(() {
+      widget.member.icon.profilePhoto = imageBytes;
+      isLoading = false;
+    });
+  }
+
+  @override
+  Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+
     return InkWell(
       borderRadius: BorderRadius.circular(24),
       onTap: () => _showAvatarDialog(context),
       child: Stack(
         children: [
           Hero(
-            tag: avatarID,
+            tag: widget.avatarID,
             child: CircleAvatar(
               radius: 25,
               backgroundColor: Colors.grey[200],
@@ -78,7 +120,7 @@ class InteractiveUserAvatar extends StatelessWidget {
               width: 14,
               height: 14,
               decoration: BoxDecoration(
-                color: switch (status) {
+                color: switch (widget.status) {
                   ClientStatus.online => Colors.green,
                   ClientStatus.offline => Colors.red,
                   ClientStatus.doNotDisturb => Colors.amber,
@@ -160,7 +202,7 @@ class InteractiveUserAvatar extends StatelessWidget {
                           minScale: 1.0,
                           maxScale: 8.0,
                           child: Hero(
-                            tag: avatarID,
+                            tag: widget.avatarID,
                             child: Container(
                               color: appColors.tertiaryColor,
                               child: imageBytes.isEmpty
@@ -190,7 +232,7 @@ class InteractiveUserAvatar extends StatelessWidget {
                             color: appColors.tertiaryColor,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: onAvatarClicked(context, popContext),
+                              children: widget.onAvatarClicked(context, popContext),
                             ),
                           ),
                         ),
@@ -204,5 +246,10 @@ class InteractiveUserAvatar extends StatelessWidget {
         },
       );
     });
+  }
+
+  @override
+  Widget buildLoadingScreen() {
+    return const CircularProgressIndicator();
   }
 }

@@ -77,7 +77,7 @@ class _EndVoiceCallScreenState extends State<EndVoiceCallScreen> {
               //   color: Colors.red[400],
               //   size: 80,
               // ),
-              UserProfilePhoto(radius: 65, profileBytes: widget.member.icon.profilePhoto),
+              UserProfilePhoto(radius: 65, icon: widget.member.icon),
               const SizedBox(height: 20),
               // Call ended text
               Text(

@@ -69,11 +69,10 @@ abstract class Bubble extends StatelessWidget {
       child: UserProfilePhoto(
         radius: 15,
         removeBorder: false,
-        profileBytes: chatSession.members
+        icon: chatSession.members
             .where((m) => m.clientID == currentMessageClientID)
             .firstOrNull
-            ?.icon
-            .profilePhoto,
+            ?.icon,
       ),
     );
   }

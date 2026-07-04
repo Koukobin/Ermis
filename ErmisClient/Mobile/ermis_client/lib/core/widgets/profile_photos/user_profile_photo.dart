@@ -16,21 +16,23 @@
 
 import 'dart:typed_data';
 
+import 'package:ermis_mobile/core/models/member_icon.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants/app_constants.dart';
+import '../../services/custom_http_service.dart';
 
 class UserProfilePhoto extends StatefulWidget {
   final double? radius;
-  final Uint8List? profileBytes;
+  final MemberIcon? icon;
   final bool removeBorder;
 
   const UserProfilePhoto({
     super.key,
     this.radius,
     this.removeBorder = false,
-    required this.profileBytes,
+    required this.icon,
   });
 
   @override
@@ -38,10 +40,26 @@ class UserProfilePhoto extends StatefulWidget {
 }
 
 class UserProfilePhotoState extends State<UserProfilePhoto> {
+  Uint8List? profileBytes;
 
   @override
   void initState() {
     super.initState();
+    _loadIcon();
+  }
+
+  Future<void> _loadIcon() async {
+    if (widget.icon == null) return;
+    if (widget.icon?.isLoaded() ?? false) {
+      setState(() {
+        profileBytes = widget.icon?.profilePhoto;
+      });
+      return;
+    }
+    String iconUrl = widget.icon?.getUrl() ?? "";
+    profileBytes = await CustomHttpClient().fetchUint8ListFromUrl(iconUrl) ?? Uint8List(0);
+
+    widget.icon?.profilePhoto = profileBytes!;
   }
 
   @override
@@ -58,14 +76,14 @@ class UserProfilePhotoState extends State<UserProfilePhoto> {
             ),
           );
 
-    bool isProfileVacant = widget.profileBytes?.isEmpty ?? true;
+    bool isProfileVacant = profileBytes?.isEmpty ?? true;
 
     return Container(
       decoration: boxDecoration,
       child: CircleAvatar(
         radius: widget.radius,
         backgroundColor: Colors.grey[200],
-        backgroundImage: !isProfileVacant ? MemoryImage(widget.profileBytes!) : null,
+        backgroundImage: !isProfileVacant ? MemoryImage(profileBytes!) : null,
         child: isProfileVacant
             ?
             // Icon(

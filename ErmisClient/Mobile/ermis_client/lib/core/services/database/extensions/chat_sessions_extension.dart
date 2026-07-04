@@ -85,13 +85,17 @@ extension ChatSessionsExtension on DBConnection {
       final String displayName = record['display_name'] as String;
       final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
             
+      final String profilePhotoID = record['profile_photo_id'] as String;
       final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
       final Uint8List decompressedProfile = (await compressedProfilePhoto.decompress()) ?? Uint8List(0);
 
       Member member = Member(
         displayName,
         clientID,
-        MemberIcon(decompressedProfile),
+        MemberIcon(
+          profilePhotoID: profilePhotoID,
+          profilePhoto: decompressedProfile,
+        ),
         ClientStatus.offline,
         lastUpdatedAtEpochSecond,
       );

@@ -48,13 +48,17 @@ extension MembersExtension on DBConnection {
       final int clientID = record['client_id'] as int;
       final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
 
+      final String profilePhotoID = record['profile_photo_id'] as String;
       final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
       final Uint8List decompressedProfile = (await compressedProfilePhoto.decompress())!;
 
       return Member(
         displayName,
         clientID,
-        MemberIcon(decompressedProfile),
+        MemberIcon(
+          profilePhotoID: profilePhotoID,
+          profilePhoto: decompressedProfile,
+        ),
         ClientStatus.offline,
         lastUpdatedAtEpochSecond,
       );
@@ -90,13 +94,17 @@ extension MembersExtension on DBConnection {
       final int clientID = record['client_id'] as int;
       final int lastUpdatedAtEpochSecond = record['last_updated_at'] as int;
 
+      final String profilePhotoID = record['profile_photo_id'] as String;
       final Uint8List compressedProfilePhoto = record['profile_photo'] as Uint8List;
       final Uint8List decompressedProfile = (await compressedProfilePhoto.decompress())!;
 
       return Member(
         displayName,
         clientID,
-        MemberIcon(decompressedProfile),
+        MemberIcon(
+          profilePhotoID: profilePhotoID,
+          profilePhoto: decompressedProfile,
+        ),
         ClientStatus.offline,
         lastUpdatedAtEpochSecond,
       );
@@ -120,13 +128,13 @@ extension MembersExtension on DBConnection {
   }) async {
     final db = await database;
 
-    Size size = member.icon.profilePhoto.isEmpty
+    Size size = member.icon.profilePhoto.isEmpty 
         ? const Size(0, 0)
         : ImageUtils.resizeImage(
             imageBytes: member.icon.profilePhoto,
             maxWidth: 250,
             maxHeight: 250,
-    );
+          );
 
     Uint8List compressedProfile = member.icon.profilePhoto.isEmpty
         ? member.icon.profilePhoto
@@ -143,6 +151,7 @@ extension MembersExtension on DBConnection {
         'server_url': serverUrl,
         'display_name': member.username,
         'client_id': member.clientID,
+        'profile_photo_id': member.icon.profilePhotoID,
         'profile_photo': await compressedProfile.compress(compressionLevel: 12),
         'last_updated_at': member.lastUpdatedAtEpochSecond,
       },

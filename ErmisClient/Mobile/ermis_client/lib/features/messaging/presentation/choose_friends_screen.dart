@@ -142,7 +142,7 @@ class _ChooseFriendScreenState extends State<ChooseFriendScreen> {
                       ),
                     ],
                   )),
-                  secondary: UserAvatar(imageBytes: friend.icon.profilePhoto, status: friend.status),
+                  secondary: UserAvatar(memberIcon: friend.icon, status: friend.status),
                   value: selectedFriends.contains(friend),
                   activeColor: Colors.green,
                   onChanged: (selected) {

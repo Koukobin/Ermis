@@ -14,8 +14,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:math';
 import 'dart:typed_data';
+import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
@@ -37,21 +37,46 @@ class Uint8ListConverter implements JsonConverter<Uint8List, String> {
 
 @JsonSerializable()
 class MemberIcon {
+  final String profilePhotoID;
   @Uint8ListConverter()
-  final Uint8List profilePhoto;
-  const MemberIcon(this.profilePhoto);
+  Uint8List profilePhoto;
+
+  MemberIcon({
+    required this.profilePhotoID,
+    required this.profilePhoto,
+  });
+
+  MemberIcon.empty({
+    required this.profilePhotoID,
+  }) : profilePhoto = Uint8List(0);
+
+  MemberIcon.emptY() : profilePhotoID = "", profilePhoto = Uint8List(0);
+
+  String getUrl() {
+    print(profilePhotoID);
+    print(profilePhotoID);
+    print(profilePhotoID);
+    print(profilePhotoID);
+    print(profilePhotoID);
+    return "${UserInfoManager.serverInfo.serverUrl}/user-profiles/$profilePhotoID";
+  }
+
+  bool isLoaded() {
+    return profilePhoto == Uint8List(0);
+  }
 
   /// This hashCode is not ideal nor is it optimal but it is
   /// good enough and sufficient for virtually all cases
   @override
-  int get hashCode => profilePhoto.length * Random().nextInt(1000);
+  int get hashCode => profilePhotoID.hashCode;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! MemberIcon) return false;
 
-    return profilePhoto == other.profilePhoto;
+    return profilePhotoID == other.profilePhotoID &&
+        profilePhoto == other.profilePhoto;
   }
 
   factory MemberIcon.fromJson(Map<String, dynamic> json) => _$MemberIconFromJson(json);

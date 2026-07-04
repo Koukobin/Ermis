@@ -307,7 +307,7 @@ class _MessagingInterfaceState extends LoadingState<MessagingInterface> with Eve
               children: [
                 for (final member in _chatSession.members)
                   UserAvatar(
-                    imageBytes: member.icon.profilePhoto,
+                    memberIcon: member.icon,
                     status: member.status,
                   ),
                 const SizedBox(width: 10),

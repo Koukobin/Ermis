@@ -204,7 +204,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen>
                 // Caller Avatar
                 UserProfilePhoto(
                   radius: 60,
-                  profileBytes: member.icon.profilePhoto,
+                  icon: member.icon,
                 ),
                 const SizedBox(height: 20),
                 // Caller name

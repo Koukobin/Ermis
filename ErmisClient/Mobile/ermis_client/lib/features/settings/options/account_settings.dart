@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
 import 'package:ermis_mobile/core/models/account.dart';
+import 'package:ermis_mobile/core/models/member_icon.dart';
 import 'package:ermis_mobile/core/models/message_events.dart';
 import 'package:ermis_mobile/core/services/database/extensions/accounts_extension.dart';
 import 'package:ermis_mobile/core/services/database/models/local_account_info.dart';
@@ -97,7 +98,10 @@ class AccountSettings extends StatefulWidget {
               for (final Account serverAccount in _accounts ?? [])
                 ListTile(
                   leading: UserProfilePhoto(
-                      profileBytes: serverAccount.profilePhoto),
+                      icon: MemberIcon(
+                    profilePhotoID: "dummy-id",
+                    profilePhoto: serverAccount.profilePhoto,
+                  )),
                   title: Text(serverAccount.name(),
                       style: const TextStyle(fontSize: 18)),
                   onTap: () {
