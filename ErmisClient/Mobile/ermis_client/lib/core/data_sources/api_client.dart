@@ -89,6 +89,7 @@ class Client {
         uri.port,
         context: sslContext,
         timeout: const Duration(seconds: 5),
+        supportedProtocols: ["ermis/1"],
         onBadCertificate: (X509Certificate cert) =>
             scv == ServerCertificateVerification.ignore,
       );

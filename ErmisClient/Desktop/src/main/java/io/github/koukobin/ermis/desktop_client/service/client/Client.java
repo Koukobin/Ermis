@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -137,8 +138,14 @@ public class Client {
 			SSLContext sc = SSLContext.getInstance("TLSv1.3");
 			sc.init(kmf.getKeyManagers(), trustManagers, new SecureRandom());
 
+			// Explicitly advertise custom ermis ALPN protocol
+			SSLParameters sslParams = new SSLParameters();
+			sslParams.setApplicationProtocols(new String[] { "ermis/1" });
+
 			SSLSocketFactory ssf = sc.getSocketFactory();
 			sslSocket = (SSLSocket) ssf.createSocket(remoteAddress, remotePort);
+			sslSocket.setSSLParameters(sslParams); // Apply SSLParameters to socket
+
 			sslSocket.startHandshake();
 
 			in = new ByteBufInputStream(sslSocket.getInputStream());
