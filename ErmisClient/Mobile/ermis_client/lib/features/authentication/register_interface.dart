@@ -243,7 +243,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
 
                           if (isSuccessful) {
                             final DBConnection conn = ErmisDB.getConnection();
-                            conn.updateLastUsedAccount(
+                            await conn.updateLastUsedAccount(
                               UserInfoManager.serverInfo,
                               email,
                             );

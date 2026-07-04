@@ -222,7 +222,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
 
                           if (isSuccessful) {
                             final DBConnection conn = ErmisDB.getConnection();
-                            conn.updateLastUsedAccount(
+                            await conn.updateLastUsedAccount(
                               UserInfoManager.serverInfo,
                               email,
                             );
