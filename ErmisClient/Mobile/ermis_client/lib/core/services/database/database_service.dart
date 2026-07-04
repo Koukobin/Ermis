@@ -77,6 +77,10 @@ class DBConnection {
                 await db.execute('DROP TABLE IF EXISTS members;');
               }
               break;
+            case 12:
+              {
+                await db.execute('DROP TABLE IF EXISTS members;');
+              }
             default:
               // Should never occur - BUT, just in case an unhandled
               // version is reached, nuke the whole database to avoid
@@ -88,7 +92,7 @@ class DBConnection {
           }
         }
       },
-      version: 11,
+      version: 12,
     );
 
     // Create the 'servers' table
