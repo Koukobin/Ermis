@@ -25,6 +25,7 @@ import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../services/custom_http_service.dart';
 import '../loading_state.dart';
@@ -101,7 +102,7 @@ class _InteractiveUserAvatarState extends LoadingState<InteractiveUserAvatar> {
           Hero(
             tag: widget.avatarID,
             child: CircleAvatar(
-              radius: 25,
+              radius: 25, // MUST MATCH AVATAR RADIUS OF LOADING BUILD
               backgroundColor: Colors.grey[200],
               backgroundImage: imageBytes.isEmpty ? null : MemoryImage(imageBytes),
               child: imageBytes.isEmpty
@@ -250,6 +251,10 @@ class _InteractiveUserAvatarState extends LoadingState<InteractiveUserAvatar> {
 
   @override
   Widget buildLoadingScreen() {
-    return const CircularProgressIndicator();
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade400,
+      highlightColor: Colors.grey.shade100,
+      child: const CircleAvatar(radius: 25 /* MUST MATCH AVATAR RADIUS OF MAIN BUILD */),
+    );
   }
 }
