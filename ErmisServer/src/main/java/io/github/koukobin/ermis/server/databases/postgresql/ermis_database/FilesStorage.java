@@ -15,6 +15,9 @@
  */
 package main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -22,6 +25,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+
+import javax.imageio.ImageIO;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -110,13 +115,22 @@ public final class FilesStorage {
 	public static String storeProfilePhoto(byte[] photoBytes) throws IOException {
 		String uuid = generateUUID();
 		String photoFilePath = PROFILE_PHOTOS_DIRECTORY + uuid;
-		byte[] photoBytesCompressed = Zstd.compress(photoBytes, FILE_COMPRESSION_LEVEL);
 
-		Path path = Paths.get(photoFilePath);
-		Files.createFile(path);
-		Files.write(path, photoBytesCompressed);
+		BufferedImage image = ImageIO.read(new ByteArrayInputStream(photoBytes));
+		if (image == null) {
+			throw new IOException("Unsupported or corrupt image format");
+		}
 
-		profilePhotosCache.put(uuid, photoBytesCompressed); // Cache file on initial transmission, when retrieval is most likely
+		// Flatten to RGB since JPEG doesn't support alpha channel
+		BufferedImage rgbImage = new BufferedImage(
+                image.getWidth(),
+                image.getHeight(),
+                BufferedImage.TYPE_INT_RGB
+		);
+		rgbImage.createGraphics().drawImage(image, 0, 0, java.awt.Color.WHITE, null);
+
+		ImageIO.write(rgbImage, "jpeg", new FileOutputStream(photoFilePath));
+
 		return uuid;
 	}
 
