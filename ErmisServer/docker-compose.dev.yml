@@ -103,6 +103,7 @@ services:
     volumes:
       - ./ermis-configs/nginx/:/etc/nginx/:ro
       - ./web_assets:/var/ermis-server/
+      - ermis-user-files:/var/lib/ermis-server
       - nginx_certs:/etc/ermis-server/certs:ro
     depends_on:
       - ermis-server

@@ -37,7 +37,7 @@ public class FetchAccountIcon implements ICommand {
 	public void execute(ClientInfo clientInfo, EpollSocketChannel channel, ByteBuf args) {
 		Optional<UserIcon> optionalIcon;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			optionalIcon = conn.selectUserIcon(clientInfo.getClientID());
+			optionalIcon = conn.extractUserIcon(clientInfo.getClientID());
 		}
 
 		optionalIcon.ifPresentOrElse((UserIcon icon) -> {

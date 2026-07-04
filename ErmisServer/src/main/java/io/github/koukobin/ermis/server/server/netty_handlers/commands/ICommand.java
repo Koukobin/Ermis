@@ -15,6 +15,7 @@
  */
 package main.java.io.github.koukobin.ermis.server.server.netty_handlers.commands;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -26,7 +27,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.epoll.EpollSocketChannel;
 import main.java.io.github.koukobin.ermis.common.message_types.ClientCommandType;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.data_access.UserProfileModule;
-import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.models.UserIcon;
 import main.java.io.github.koukobin.ermis.server.server.ActiveClients;
 import main.java.io.github.koukobin.ermis.server.server.ChatSession;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
@@ -60,8 +60,7 @@ public interface ICommand {
 		long lastUpdatedEpochSecond = conn.getWhenUserLastUpdatedProfile(clientID).orElse(Long.valueOf(-1));
 
 		byte[] usernameBytes;
-		UserIcon icon = conn.selectUserIcon(clientID).orElse(UserIcon.empty());
-		byte[] iconBytes = icon.iconBytes();
+		String iconID = conn.fetchUserIconID(clientID).orElse("");
 
 		if (member == null) {
 			usernameBytes = conn.getUsername(clientID).orElse("null").getBytes();
@@ -72,8 +71,8 @@ public interface ICommand {
 
 		payload.writeInt(usernameBytes.length);
 		payload.writeBytes(usernameBytes);
-		payload.writeInt(iconBytes.length);
-		payload.writeBytes(iconBytes);
+		payload.writeInt(iconID.length());
+		payload.writeCharSequence(iconID, Charset.defaultCharset());
 		payload.writeLong(lastUpdatedEpochSecond);
 	}
 

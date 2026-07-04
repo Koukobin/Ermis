@@ -90,8 +90,29 @@ public interface UserProfileModule extends BaseComponent {
 		return Optional.empty();
 	}
 
-	default Optional<UserIcon> selectUserIcon(int clientID) {
+	default Optional<String> fetchUserIconID(int clientID) {
+		String sql = "SELECT profile_photo_id FROM user_profiles WHERE client_id = ?;";
+		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
+			pstmt.setInt(1, clientID);
 
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					String iconID = rs.getString(1);
+					if (iconID == null) {
+						return Optional.empty();
+					}
+
+					return Optional.of(iconID);
+				}
+			}
+		} catch (SQLException sqle) {
+			logger.error("Error while trying to retrieve profile photo id from database", sqle); // Shouldn't happen
+		}
+
+		return Optional.empty();
+	}
+
+	default Optional<UserIcon> extractUserIcon(int clientID) {
 		String sql = "SELECT profile_photo_id FROM user_profiles WHERE client_id = ?;";
 		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
 			pstmt.setInt(1, clientID);

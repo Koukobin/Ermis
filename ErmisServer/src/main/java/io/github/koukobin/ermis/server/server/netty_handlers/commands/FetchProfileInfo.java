@@ -62,7 +62,7 @@ public class FetchProfileInfo implements ICommand {
 
 		Optional<UserIcon> optionalIcon;
 		try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
-			optionalIcon = conn.selectUserIcon(clientInfo.getClientID());
+			optionalIcon = conn.extractUserIcon(clientInfo.getClientID());
 		}
 
 		optionalIcon.ifPresentOrElse((UserIcon icon) -> {
