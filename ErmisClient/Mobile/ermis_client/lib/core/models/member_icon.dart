@@ -62,7 +62,7 @@ class MemberIcon {
   }
 
   bool isLoaded() {
-    return profilePhoto == Uint8List(0);
+    return profilePhoto.isNotEmpty;
   }
 
   /// This hashCode is not ideal nor is it optimal but it is
