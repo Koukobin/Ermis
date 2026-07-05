@@ -17,11 +17,13 @@
 import 'dart:typed_data';
 
 import 'package:ermis_mobile/core/models/member_icon.dart';
+import 'package:ermis_mobile/core/widgets/loading_state.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../constants/app_constants.dart';
-import '../../services/custom_http_service.dart';
+import '../../services/profile_icon_loader.dart';
 
 class UserProfilePhoto extends StatefulWidget {
   final double? radius;
@@ -39,31 +41,25 @@ class UserProfilePhoto extends StatefulWidget {
   State<UserProfilePhoto> createState() => UserProfilePhotoState();
 }
 
-class UserProfilePhotoState extends State<UserProfilePhoto> {
+class UserProfilePhotoState extends LoadingState<UserProfilePhoto> {
   Uint8List? profileBytes;
 
   @override
   void initState() {
     super.initState();
-    _loadIcon();
-  }
-
-  Future<void> _loadIcon() async {
-    if (widget.icon == null) return;
-    if (widget.icon?.isLoaded() ?? false) {
-      setState(() {
-        profileBytes = widget.icon?.profilePhoto;
+    if (widget.icon != null) {
+      IconLoaderUtil. loadIcon$0(widget.icon!).then((bytes) {
+        if (!mounted) return;
+        setState(() {
+          isLoading = false;
+          profileBytes = bytes;
+        });
       });
-      return;
     }
-    String iconUrl = widget.icon?.getUrl() ?? "";
-    profileBytes = await CustomHttpClient().fetchUint8ListFromUrl(iconUrl) ?? Uint8List(0);
-
-    widget.icon?.profilePhoto = profileBytes!;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
     BoxDecoration? boxDecoration = widget.removeBorder
@@ -94,6 +90,15 @@ class UserProfilePhotoState extends State<UserProfilePhoto> {
             Image.asset(AppConstants.emptyUserProfileIconPath)
             : null,
       ),
+    );
+  }
+
+  @override
+  Widget buildLoadingScreen() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade400,
+      highlightColor: Colors.grey.shade100,
+      child: const CircleAvatar(radius: 25 /* MUST MATCH AVATAR RADIUS OF MAIN BUILD */),
     );
   }
 }

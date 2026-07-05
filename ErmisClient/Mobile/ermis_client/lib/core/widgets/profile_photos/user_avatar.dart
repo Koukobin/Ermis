@@ -18,10 +18,12 @@ import 'dart:typed_data';
 
 import 'package:ermis_mobile/core/models/member_icon.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
+import 'package:ermis_mobile/core/services/profile_icon_loader.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
-import '../../services/custom_http_service.dart';
+import '../loading_state.dart';
 
 class UserAvatar extends StatefulWidget {
   final MemberIcon memberIcon;
@@ -41,32 +43,23 @@ class UserAvatar extends StatefulWidget {
   State<UserAvatar> createState() => _UserAvatarState();
 }
 
-class _UserAvatarState extends State<UserAvatar> {
+class _UserAvatarState extends LoadingState<UserAvatar> {
   Uint8List imageBytes = Uint8List(0);
 
   @override
   void initState() {
     super.initState();
-    _loadIcon();
-  }
-
-  Future<void> _loadIcon() async {
-    if (widget.memberIcon.isLoaded()) {
+    IconLoaderUtil.loadIcon$0(widget.memberIcon).then((bytes) {
+      if (!mounted) return;
       setState(() {
-        imageBytes = widget.memberIcon.profilePhoto;
+        isLoading = false;
+        imageBytes = bytes;
       });
-      return;
-    }
-    String iconUrl = widget.memberIcon.getUrl();
-    imageBytes = await CustomHttpClient().fetchUint8ListFromUrl(iconUrl) ?? Uint8List(0);
-
-    setState(() {
-      widget.memberIcon.profilePhoto = imageBytes;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build0(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Stack(
       children: [
@@ -105,6 +98,15 @@ class _UserAvatarState extends State<UserAvatar> {
           ),
         ),
       ],
+    );
+  }
+
+  @override
+  Widget buildLoadingScreen() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade400,
+      highlightColor: Colors.grey.shade100,
+      child: const CircleAvatar(radius: 25 /* MUST MATCH AVATAR RADIUS OF MAIN BUILD */),
     );
   }
 }

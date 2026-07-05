@@ -18,16 +18,13 @@ import 'dart:async';
 import 'package:ermis_mobile/core/models/chat_session.dart';
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
-import 'package:ermis_mobile/core/networking/user_info_manager.dart';
-import 'package:ermis_mobile/core/services/database/database_service.dart';
-import 'package:ermis_mobile/core/services/database/extensions/members_extension.dart';
+import 'package:ermis_mobile/core/services/profile_icon_loader.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../services/custom_http_service.dart';
 import '../loading_state.dart';
 
 typedef FutureVoidCallback = Future<void> Function();
@@ -63,30 +60,12 @@ class _InteractiveUserAvatarState extends LoadingState<InteractiveUserAvatar> {
   @override
   void initState() {
     super.initState();
-    _loadIcon();
-  }
-
-  Future<void> _loadIcon() async {
-    if (widget.member.icon.isLoaded()) {
+    IconLoaderUtil.loadIcon(widget.member).then((bytes) {
+      if (!mounted) return;
       setState(() {
-        imageBytes = widget.member.icon.profilePhoto;
         isLoading = false;
+        imageBytes = bytes;
       });
-      return;
-    }
-    String iconUrl = widget.member.icon.getUrl();
-    imageBytes = await CustomHttpClient().fetchUint8ListFromUrl(iconUrl) ?? Uint8List(0);
-
-    widget.member.icon.profilePhoto = imageBytes;
-    DBConnection conn = ErmisDB.getConnection();
-    conn.insertMember(
-      serverUrl: UserInfoManager.serverInfo.serverUrl.toString(),
-      member: widget.member,
-    );
-
-    setState(() {
-      widget.member.icon.profilePhoto = imageBytes;
-      isLoading = false;
     });
   }
 
