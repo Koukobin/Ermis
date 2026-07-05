@@ -73,8 +73,17 @@ class _ProfileSettingsState extends State<ProfileSettings> with SingleTickerProv
       ),
     );
 
-    // Start the animation
-    Future.delayed(const Duration(milliseconds: 500), _controller.forward);
+    // Start the animation - IF widget is still mounted
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.stop();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
