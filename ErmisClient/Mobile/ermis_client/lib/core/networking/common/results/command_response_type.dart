@@ -16,7 +16,7 @@
 
 import '../../../exceptions/enum_not_found_exception.dart';
 
-enum ClientCommandResultType {
+enum CommandResponseType {
   // Account Management
   setAccountIcon(100),
 
@@ -52,14 +52,14 @@ enum ClientCommandResultType {
   getSourceCodePageURL(601);
 
   final int id;
-  const ClientCommandResultType(this.id);
+  const CommandResponseType(this.id);
 
-  static ClientCommandResultType fromId(int id) {
+  static CommandResponseType fromId(int id) {
     try {
-      return ClientCommandResultType.values
+      return CommandResponseType.values
           .firstWhere((type) => type.id == id);
     } catch (e) {
-      throw EnumNotFoundException('No $ClientCommandResultType found for id $id');
+      throw EnumNotFoundException('No $CommandResponseType found for id $id');
     }
   }
 }

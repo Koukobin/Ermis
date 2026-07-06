@@ -22,7 +22,7 @@ enum ServerMessageType {
   voiceCalls(2),
   serverMessageInfo(3),
   entry(4),
-  commandResult(5);
+  commandResponse(5);
 
   final int id;
   const ServerMessageType(this.id);

@@ -17,8 +17,8 @@
 import 'package:ermis_mobile/core/event_bus/app_event_bus.dart';
 import 'package:ermis_mobile/core/networking/common/message_types/server_info_message.dart';
 import 'package:ermis_mobile/core/networking/handlers/client_message_handler.dart';
-import 'package:ermis_mobile/core/networking/handlers/command_result_handler.dart';
-import 'package:ermis_mobile/core/networking/common/results/client_command_result_type.dart';
+import 'package:ermis_mobile/core/networking/handlers/command_respone_handler.dart';
+import 'package:ermis_mobile/core/networking/common/results/command_response_type.dart';
 import 'package:ermis_mobile/core/networking/handlers/message_delivery_status_handler.dart';
 import 'package:ermis_mobile/core/networking/handlers/voice_call_handler.dart';
 import 'package:ermis_mobile/core/data/models/network/input_stream.dart';
@@ -74,9 +74,9 @@ class MessageDispatcher {
         case ServerMessageType.clientMessage:
           ClientMessageHandler.handle(data);
           break;
-        case ServerMessageType.commandResult:
-          final commandResult = ClientCommandResultType.fromId(data.readInt32());
-          CommandResultHandler.handle(commandResult, data);
+        case ServerMessageType.commandResponse:
+          final commandResponse = CommandResponseType.fromId(data.readInt32());
+          CommandResponseHandler.handle(commandResponse, data);
           break;
       }
     } catch (e) {
