@@ -80,6 +80,7 @@ class DBConnection {
             case 12:
               {
                 await db.execute('DROP TABLE IF EXISTS members;');
+                await db.execute('DROP TABLE IF EXISTS server_accounts;');
               }
             default:
               // Should never occur - BUT, just in case an unhandled
@@ -118,8 +119,6 @@ class DBConnection {
       CREATE TABLE IF NOT EXISTS server_accounts (
         server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
         email TEXT NOT NULL,
-        password_hash TEXT NOT NULL,
-        device_uuid TEXT NOT NULL REFERENCES server_device_uuids(device_uuid) ON DELETE CASCADE,
         last_used DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (server_url, email)
       );

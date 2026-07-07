@@ -23,11 +23,15 @@ import 'package:ermis_mobile/core/services/database/extensions/servers_extension
 import 'package:ermis_mobile/core/services/database/models/local_account_info.dart';
 import 'package:ermis_mobile/core/services/database/models/local_user_info.dart';
 import 'package:ermis_mobile/core/services/database/models/server_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:zstandard/zstandard.dart';
 
 import '../../../util/image_utils.dart';
+
+final _secureStorage = FlutterSecureStorage();
 
 extension AccountsExtension on DBConnection {
   Future<void> addUserAccount(LocalAccountInfo userAccount, ServerInfo serverInfo) async {
@@ -35,13 +39,17 @@ extension AccountsExtension on DBConnection {
 
     await setServerDeviceUUID(serverInfo, userAccount.deviceUUID);
 
+    await _secureStorage.write(
+        key: "${serverInfo.toString()}-${userAccount.email}-p",
+        value: userAccount.passwordHash);
+    await _secureStorage.write(
+        key: "${serverInfo.toString()}-${userAccount.email}-d",
+        value: userAccount.deviceUUID);
     await db.insert(
       'server_accounts',
       {
         'server_url': serverInfo.toString(),
         'email': userAccount.email,
-        'password_hash': userAccount.passwordHash,
-        'device_uuid': userAccount.deviceUUID,
         'last_used': userAccount.lastUsed.toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -53,7 +61,7 @@ extension AccountsExtension on DBConnection {
 
     final List<Map<String, dynamic>> userAccounts = await db.query(
       'server_accounts',
-      columns: ['email', 'password_hash', 'device_uuid', 'last_used'],
+      columns: ['email', 'last_used'],
       where: 'server_url = ?',
       whereArgs: [serverInfo.toString()],
       orderBy: 'last_used DESC',
@@ -67,14 +75,31 @@ extension AccountsExtension on DBConnection {
     }
 
     final String email = firstRow['email'] as String;
-    final String passwordHash = firstRow['password_hash'] as String;
-    final String deviceUUID = firstRow['device_uuid'] as String;
     final String lastUsed = firstRow['last_used'] as String;
+
+    final String? passwordHash = await _secureStorage.read(key: '${serverInfo.toString()}-$email-p');
+    final String? deviceUUID = await _secureStorage.read(key: '${serverInfo.toString()}-$email-d');
+    if (kDebugMode) {
+      if (passwordHash == null) {
+        debugPrint("Password hash for $email not found");
+        debugPrint("Password hash for $email not found");
+        debugPrint("Password hash for $email not found");
+        debugPrint("Password hash for $email not found");
+        debugPrint("Password hash for $email not found");
+      }
+      if (deviceUUID == null) {
+        debugPrint("Device UUID for $email not found");
+        debugPrint("Device UUID for $email not found");
+        debugPrint("Device UUID for $email not found");
+        debugPrint("Device UUID for $email not found");
+        debugPrint("Device UUID for $email not found");
+      }
+    }
 
     return LocalAccountInfo(
       email: email,
-      passwordHash: passwordHash,
-      deviceUUID: deviceUUID,
+      passwordHash: passwordHash ?? "",
+      deviceUUID: deviceUUID ?? "",
       lastUsed: DateTime.parse(lastUsed),
     );
   }
@@ -87,24 +112,43 @@ extension AccountsExtension on DBConnection {
 
     final List<Map<String, Object?>> userAccountMap = await db.query(
       "server_accounts",
-      columns: ["email", "password_hash", "device_uuid", "last_used"],
+      columns: ["email", "last_used"],
       where: 'server_url = ?',
       whereArgs: [serverInfo.toString()],
     );
 
-    List<LocalAccountInfo> userAccounts = userAccountMap.map((record) {
+    List<LocalAccountInfo> userAccounts = await Future.wait(userAccountMap.map((record) async {
       final String email = record['email'] as String;
-      final String passwordHash = record['password_hash'] as String;
-      final String deviceUUID = record['device_uuid'] as String;
       final String lastUsed = record['last_used'] as String;
+
+      final String? passwordHash =
+          await _secureStorage.read(key: '${serverInfo.toString()}-$email-p');
+      final String? deviceUUID =
+          await _secureStorage.read(key: '${serverInfo.toString()}-$email-d');
+      if (kDebugMode) {
+        if (passwordHash == null) {
+          debugPrint("Password hash for $email not found");
+          debugPrint("Password hash for $email not found");
+          debugPrint("Password hash for $email not found");
+          debugPrint("Password hash for $email not found");
+          debugPrint("Password hash for $email not found");
+        }
+        if (deviceUUID == null) {
+          debugPrint("Device UUID for $email not found");
+          debugPrint("Device UUID for $email not found");
+          debugPrint("Device UUID for $email not found");
+          debugPrint("Device UUID for $email not found");
+          debugPrint("Device UUID for $email not found");
+        }
+      }
 
       return LocalAccountInfo(
         email: email,
-        passwordHash: passwordHash,
-        deviceUUID: deviceUUID,
+        passwordHash: passwordHash ?? "",
+        deviceUUID: deviceUUID ?? "",
         lastUsed: DateTime.parse(lastUsed),
       );
-    }).toList();
+    }).toList());
 
     userAccounts.sort((a, b) {
       final DateTime lastUsedA = a.lastUsed;
