@@ -105,15 +105,6 @@ class DBConnection {
       );
     ''');
 
-    // Create 'server_device_uuids' table
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS server_device_uuids (
-        server_url TEXT NOT NULL REFERENCES servers(server_url) ON DELETE CASCADE,
-        device_uuid TEXT NOT NULL,
-        PRIMARY KEY (server_url, device_uuid)
-      );
-    ''');
-
     // Create 'server_accounts' table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS server_accounts (
