@@ -14,505 +14,62 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:ermis_mobile/core/models/member.dart';
-import 'package:ermis_mobile/core/models/voice_call_history.dart';
-import 'package:ermis_mobile/core/networking/intermediary_service.dart';
-import 'package:ermis_mobile/core/data_sources/api_client.dart';
-import 'package:ermis_mobile/core/networking/common/message_types/content_type.dart';
-import 'package:ermis_mobile/core/networking/common/message_types/message_delivery_status.dart';
+import 'package:ermis_mobile/core/networking/handlers/commands/account_commands.dart';
+import 'package:ermis_mobile/core/networking/handlers/commands/chat_commands.dart';
+import 'package:ermis_mobile/core/networking/handlers/commands/misc_commands.dart';
+import 'package:ermis_mobile/core/networking/handlers/commands/profile_commands.dart';
+import 'package:ermis_mobile/core/networking/handlers/commands/session_commands.dart';
 import 'package:ermis_mobile/core/networking/common/results/command_response_type.dart';
 import 'package:ermis_mobile/core/data/models/network/byte_buf.dart';
-import 'package:ermis_mobile/core/extensions/iterable_extensions.dart';
-import 'package:ermis_mobile/core/models/message_events.dart';
-import 'package:ermis_mobile/core/models/account.dart';
-import 'package:ermis_mobile/core/models/chat_request.dart';
-import 'package:ermis_mobile/core/models/chat_session.dart';
-import 'package:ermis_mobile/core/models/file_heap.dart';
-import 'package:ermis_mobile/core/models/message.dart';
-import 'package:ermis_mobile/core/models/user_device.dart';
-import 'package:ermis_mobile/core/networking/user_info_manager.dart';
-import 'package:ermis_mobile/core/networking/common/message_types/client_status.dart';
-import 'package:ermis_mobile/core/services/database/models/local_user_info.dart';
-import '../../event_bus/app_event_bus.dart';
-import '../../models/member_icon.dart';
-import '../common/message_types/voice_call_history_status.dart';
-
-final AppEventBus _eventBus = AppEventBus.instance;
-
-class CommandResponseHandler {
-  const CommandResponseHandler._();
-
-  static Future<void> handle(CommandResponseType commandResponse, ByteBuf msg) async {
-    switch (commandResponse) {
-      case CommandResponseType.downloadFile:
-        final messageID = msg.readInt32();
-        final chatSessionID = msg.readInt32();
-        final fileNameLength = msg.readInt32();
-        final fileNameBytes = msg.readBytes(fileNameLength);
-        final fileBytes = msg.readBytes(msg.readableBytes);
-
-        final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
-
-        for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
-          if (message.messageID == messageID) {
-            message.addFields({
-              MessageFields.fileName: utf8.encode(file.fileName),
-              MessageFields.fileBytes: file.fileBytes,
-            });
-            break;
-          }
-        }
-
-        _eventBus.fire(FileDownloadedEvent(file, messageID));
-        break;
-      case CommandResponseType.downloadImage:
-        final messageID = msg.readInt32();
-        final chatSessionID = msg.readInt32();
-        final fileNameLength = msg.readInt32();
-        final fileNameBytes = msg.readBytes(fileNameLength);
-        final fileBytes = msg.readBytes(msg.readableBytes);
-
-        final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
-
-        for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
-          if (message.messageID == messageID) {
-            message.addFields({
-              MessageFields.fileName: utf8.encode(file.fileName),
-              MessageFields.fileBytes: file.fileBytes,
-            });
-            break;
-          }
-        }
-
-        _eventBus.fire(ImageDownloadedEvent(file, messageID));
-        break;
-      case CommandResponseType.downloadVoice:
-        final messageID = msg.readInt32();
-        final chatSessionID = msg.readInt32();
-        final fileNameLength = msg.readInt32();
-        final fileNameBytes = msg.readBytes(fileNameLength);
-        final fileBytes = msg.readBytes(msg.readableBytes);
-
-        final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
-
-        for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
-          if (message.messageID == messageID) {
-            message.addFields({
-              MessageFields.fileName: utf8.encode(file.fileName),
-              MessageFields.fileBytes: file.fileBytes,
-            });
-            break;
-          }
-        }
-
-        _eventBus.fire(VoiceDownloadedEvent(file, messageID));
-        break;
-      case CommandResponseType.downloadVideo:
-        final messageID = msg.readInt32();
-        final chatSessionID = msg.readInt32();
-        final fileNameLength = msg.readInt32();
-        final fileNameBytes = msg.readBytes(fileNameLength);
-        final fileBytes = msg.readBytes(msg.readableBytes);
-
-        final file = LoadedInMemoryFile(utf8.decode(fileNameBytes), fileBytes);
-
-        for (final message in UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!.messages) {
-          if (message.messageID == messageID) {
-            message.addFields({
-              MessageFields.fileName: utf8.encode(file.fileName),
-              MessageFields.fileBytes: file.fileBytes,
-            });
-            break;
-          }
-        }
-
-        _eventBus.fire(VideoDownloadedEvent(file, messageID));
-        break;
-      case CommandResponseType.fetchProfileInfo:
-        // ClientID
-        UserInfoManager.clientID = msg.readInt32();
-        _eventBus.fire(ClientIdReceivedEvent(UserInfoManager.clientID));
-
-        // Username
-        final usernameBytes = msg.readBytes(msg.readInt32());
-        UserInfoManager.username = utf8.decode(usernameBytes);
-        _eventBus.fire(UsernameReceivedEvent(UserInfoManager.username!));
-
-        int lastUpdatedEpochSecond = msg.readInt64();
-
-        // Profile photo
-        UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(ProfilePhotoReceivedEvent(UserInfoManager.profilePhoto!));
-
-        IntermediaryService().addLocalUserInfo(
-          server: UserInfoManager.serverInfo,
-          info: LocalUserInfo(
-            displayName: UserInfoManager.username!,
-            clientID: UserInfoManager.clientID,
-            profilePhoto: UserInfoManager.profilePhoto!,
-            lastUpdatedEpochSecond: lastUpdatedEpochSecond,
-          ),
-        );
-        break;
-      case CommandResponseType.getDisplayName:
-        final usernameBytes = msg.readBytes(msg.readableBytes);
-        UserInfoManager.username = utf8.decode(usernameBytes);
-        _eventBus.fire(UsernameReceivedEvent(UserInfoManager.username!));
-        break;
-      case CommandResponseType.getClientId:
-        UserInfoManager.clientID = msg.readInt32();
-        _eventBus.fire(ClientIdReceivedEvent(UserInfoManager.clientID));
-        break;
-      case CommandResponseType.fetchAccountStatus:
-        UserInfoManager.accountStatus = ClientStatus.fromId(msg.readInt32());
-        _eventBus.fire(AccountStatusEvent(UserInfoManager.accountStatus!));
-        break;
-      case CommandResponseType.getChatSessionIndices:
-        UserInfoManager.chatSessions = [];
-
-        int i = 0;
-        while (msg.readableBytes > 0) {
-          int chatSessionIndex = i;
-          int chatSessionID = msg.readInt32();
-
-          ChatSession? chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID];
-          if (chatSession == null) {
-            chatSession = ChatSession(chatSessionID, chatSessionIndex);
-            UserInfoManager.chatSessionIDSToChatSessions[chatSessionID] = chatSession;
-          } else {
-            chatSession.chatSessionIndex = i;
-          }
-
-          UserInfoManager.chatSessions!.add(chatSession);
-
-          i++;
-        }
-
-        for (ChatSession session in UserInfoManager.chatSessions!) {
-          if (session.chatSessionIndex == -1) {
-            UserInfoManager.chatSessions!.remove(session);
-            UserInfoManager.chatSessionIDSToChatSessions.remove(session.chatSessionID);
-
-            IntermediaryService().deleteChatSession(
-              server: UserInfoManager.serverInfo,
-              session: session,
-            );
-          }
-        }
-
-        _eventBus.fire(ChatSessionsIndicesReceivedEvent(UserInfoManager.chatSessions!));
-
-        Client.instance().commands?.fetchChatSessions(); // Proceed to fetching chat sessions
-        break;
-      case CommandResponseType.getChatSessions:
-        Map<int /* client id */, Member> cache = {};
-
-        while (msg.readableBytes > 0) {
-          int chatSessionIndex = msg.readInt32();
-          ChatSession chatSession;
-
-          if (chatSessionIndex >= 0 && chatSessionIndex < UserInfoManager.chatSessions!.length) {
-            chatSession = UserInfoManager.chatSessions![chatSessionIndex];
-          } else {
-            // This could happen potentially if this chat session
-            // had been cached in the local database and when the
-            // conditional request was made, the server did not know
-            // what to do and sent -1. Outdated chat sessions - locally
-            // will be deleted after new chat sessions have been processed.
-            continue;
-          }
-
-          List<Member> members = chatSession.members;
-
-          int membersSize = msg.readInt32();
-          if (membersSize == -1) {
-            // Infer session has been deleted since membersSize is -1
-
-            UserInfoManager.chatSessions!.removeAt(chatSessionIndex);
-            UserInfoManager.chatSessionIDSToChatSessions.remove(chatSession.chatSessionID);
-
-            IntermediaryService().deleteChatSession(
-              server: UserInfoManager.serverInfo,
-              session: chatSession,
-            );
-
-            continue;
-          }
-
-          bool isChatSessionChanged = false;
-          if (membersSize > 0) {
-            isChatSessionChanged = true;
-          }
-
-          for (int j = 0; j < membersSize; j++) {
-            int memberID = msg.readInt32();
-
-            Member member;
-            if (cache.containsKey(memberID)) {
-              member = cache[memberID]!;
-            } else {
-              int usernameLength = msg.readInt32();
-              String username = utf8.decode(msg.readBytes(usernameLength));
-              String iconID = utf8.decode(msg.readBytes(msg.readInt32()));
-              int lastUpdatedAtEpochSecond = msg.readInt64();
-
-              member = Member(
-                username,
-                memberID,
-                MemberIcon.empty(profilePhotoID: iconID),
-                ClientStatus.offline,
-                lastUpdatedAtEpochSecond,
-              );
-
-              cache[memberID] = member;
-            }
-
-            // Remove outdated member info before adding renewed one
-            members.removeWhere((Member member) => member.clientID == memberID);
-            members.add(member);
-          }
-
-          if (isChatSessionChanged) {
-            IntermediaryService().insertChatSession(
-              server: UserInfoManager.serverInfo,
-              session: chatSession,
-            );
-          }
-        }
-
-        // Delete outdated chat sessions
-        for (final session in UserInfoManager.chatSessionIDSToChatSessions.values) {
-          if (UserInfoManager.chatSessions!.contains(session)) continue;
-
-          IntermediaryService().deleteChatSession(
-            server: UserInfoManager.serverInfo,
-            session: session,
-          );
-        }
-
-        _eventBus.fire(ChatSessionsEvent(UserInfoManager.chatSessions!));
-
-        Client.instance().commands?.fetchChatSessionsStatuses(); // Proceed to fetching statuses
-        break;
-      case CommandResponseType.getChatSessionStatuses:
-        while (msg.readableBytes > 0) {
-          int clientID = msg.readInt32();
-          ClientStatus status = ClientStatus.fromId(msg.readInt32());  
-          
-          for (final session in UserInfoManager.chatSessions!) {
-            Member? member = session.members.firstWhereOrNull((m) => m.clientID == clientID);
-
-            if (member == null) continue;
-            member.status = status;
-
-            break; // Since all chat sessions share identical Member objects, only need to update one
-          }
-        }
-        
-        _eventBus.fire(ChatSessionsStatusesEvent(UserInfoManager.chatSessions!));
-        break;
-      case CommandResponseType.getChatRequests:
-        UserInfoManager.chatRequests = [];
-
-        int friendRequestsLength = msg.readInt32();
-        for (int i = 0; i < friendRequestsLength; i++) {
-          int clientID = msg.readInt32();
-          UserInfoManager.chatRequests!.add(ChatRequest(clientID));
-        }
-
-        _eventBus.fire(ChatRequestsEvent(UserInfoManager.chatRequests!));
-        break;
-      case CommandResponseType.getOtherAccountsAssociatedWithDevice:
-        UserInfoManager.otherAccounts = [];
-
-        while (msg.readableBytes > 0) {
-          int clientID = msg.readInt32();
-          String email = utf8.decode(msg.readBytes(msg.readInt32()));
-          String displayName = utf8.decode(msg.readBytes(msg.readInt32()));
-          Uint8List profilePhoto = Uint8List(0);
-
-          UserInfoManager.otherAccounts!.add(Account(
-            profilePhoto: profilePhoto,
-            displayName: displayName,
-            email: email,
-            clientID: clientID,
-          ));
-        }
-
-        _eventBus.fire(OtherAccountsEvent(UserInfoManager.otherAccounts!));
-        break;
-      case CommandResponseType.getWrittenText:
-        int chatSessionIndex = msg.readInt32();
-        ChatSession chatSession = UserInfoManager.chatSessions![chatSessionIndex];
-        Set<Message> messagesSet = chatSession.messages.toSet();
-
-        while (msg.readableBytes > 0) {
-          MessageContentType? contentType = MessageContentType.fromId(msg.readInt32());
-          int senderClientID = msg.readInt32();
-          int messageID = msg.readInt32();
-          
-          String username;
-
-          Uint8List? messageBytes;
-          Uint8List? fileNameBytes;
-          
-          int epochSecond = msg.readInt64();
-
-          bool isRead;
-          if (senderClientID == UserInfoManager.clientID) {
-            isRead = msg.readBoolean();
-            username = UserInfoManager.username!;
-          } else {
-            isRead = true;
-            username = chatSession.members
-                .firstWhere((member) => member.clientID == senderClientID)
-                .username;
-          }
-
-          switch (contentType) {
-            case MessageContentType.text || MessageContentType.gif:
-              messageBytes = msg.readBytes(msg.readInt32());
-              break;
-            case MessageContentType.file ||
-                  MessageContentType.image ||
-                  MessageContentType.voice ||
-                  MessageContentType.video:
-              fileNameBytes = msg.readBytes(msg.readInt32());
-              break;
-            case null:
-              msg.readBytes(msg.readInt32());
-              break;
-          }
-
-          messagesSet.removeWhere((message) => message.messageID == messageID);
-          messagesSet.add(Message(
-            username: username,
-            clientID: senderClientID,
-            messageID: messageID,
-            chatSessionID: chatSession.chatSessionID,
-            chatSessionIndex: chatSessionIndex,
-            fields: {
-              MessageFields.text: messageBytes,
-              MessageFields.fileName: fileNameBytes,
-            },
-            epochSecond: epochSecond,
-            contentType: contentType,
-            deliveryStatus: isRead
-                ? MessageDeliveryStatus.delivered
-                : MessageDeliveryStatus.serverReceived,
-          ));
-        }
-
-        List<Message> messagesList = messagesSet.toList();
-        messagesList.sort((a, b) => a.messageID.compareTo(b.messageID));
-
-        chatSession.setMessages(messagesList);
-        chatSession.setHasLatestMessages(true);
-        _eventBus.fire(WrittenTextEvent(chatSession));
-        break;
-      case CommandResponseType.deleteChatMessage:
-        int chatSessionID = msg.readInt32();  
-        while (msg.readableBytes > 0) {
-          int messageID = msg.readInt32();
-          bool success = msg.readBoolean();
-
-          if (!success) {
-            _eventBus.fire(const MessageDeletionUnsuccessfulEvent());
-            continue;
-          }
-
-          UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!
-            .messages.removeWhere((Message message) => message.messageID == messageID);
-
-          _eventBus.fire(MessageDeletedEvent(UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!, messageID));
-        }
-        break;
-      case CommandResponseType.fetchVoiceCallHistory:
-        int chatSessionID = msg.readInt32();
-
-        List<VoiceCallHistory>? callsHistory = UserInfoManager.chatSessionIDSToVoiceCallHistory[chatSessionID];
-        callsHistory ??= [];
-        callsHistory.clear();
-
-        ChatSession chatSession = UserInfoManager.chatSessionIDSToChatSessions[chatSessionID]!;
-        while (msg.readableBytes > 0) {
-          int initiatorClientID = msg.readInt32();
-          int tsDebuted = msg.readInt64();
-          int tsEnded = msg.readInt64();
-          VoiceCallHistoryStatus status = VoiceCallHistoryStatus.fromId(msg.readInt32());
-
-          String callerUsername;
-          if (initiatorClientID == UserInfoManager.clientID) {
-            callerUsername = UserInfoManager.username!;
-          } else {
-            callerUsername = chatSession.members
-              .firstWhere((member) => member.clientID == initiatorClientID)
-              .username;
-          }
-
-          VoiceCallHistory callHistory = VoiceCallHistory(
-            chatSessionID: chatSessionID,
-            initiatorClientID: initiatorClientID,
-            callerUsername: callerUsername,
-            tsDebuted: tsDebuted,
-            tsEnded: tsEnded,
-            status: status,
-          );
-
-          callsHistory.add(callHistory);
-        }
-
-        callsHistory.sort((a, b) => a.tsDebuted.compareTo(b.tsDebuted));
-
-        UserInfoManager.chatSessionIDSToVoiceCallHistory[chatSessionID] = callsHistory;
-
-        _eventBus.fire(VoiceCallHistoryReceivedEvent(
-          chatSessionID: chatSessionID,
-          history: callsHistory,
-        ));
-        break;
-      case CommandResponseType.fetchAccountIcon:
-        UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
-        _eventBus
-            .fire(ProfilePhotoReceivedEvent(UserInfoManager.profilePhoto!));
-        break;
-      case CommandResponseType.fetchUserDevices:
-        UserInfoManager.userDevices = [];
-
-        while (msg.readableBytes > 0) {
-          DeviceType deviceType = DeviceType.fromId(msg.readInt32());
-          String deviceUUID = utf8.decode(msg.readBytes(msg.readInt32()));
-          String osName = utf8.decode(msg.readBytes(msg.readInt32()));
-          UserInfoManager.userDevices!.add(UserDeviceInfo(deviceUUID, deviceType, osName));
-        }
-        _eventBus.fire(UserDevicesEvent(UserInfoManager.userDevices!));
-        break;
-      case CommandResponseType.setAccountIcon:
-        bool isSuccessful = msg.readBoolean();
-        if (!isSuccessful) {
-          break;
-        }
-
-        // Deduce epoch second
-        int lastUpdatedEpochSecond = (DateTime.now().millisecondsSinceEpoch / 1000).toInt();
-        UserInfoManager.commitPendingProfilePhoto(lastUpdatedEpochSecond);
-
-        _eventBus.fire(AddProfilePhotoResultEvent(isSuccessful));
-        break;
-      case CommandResponseType.getDonationPageURL:
-        Uint8List donationPageURL = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(DonationPageEvent(utf8.decode(donationPageURL)));
-        break;
-      case CommandResponseType.getSourceCodePageURL:
-        Uint8List sourceCodePageURL = msg.readBytes(msg.readableBytes);
-        _eventBus.fire(SourceCodePageEvent(utf8.decode(sourceCodePageURL)));
-        break;
-      case CommandResponseType.fetchSignallingServerPort:
-        int signallingServerPort = msg.readInt32();
-        _eventBus.fire(SignallingServerPortEvent(signallingServerPort));
-        break;
-    }
+import 'commands/download_commands.dart';
+
+class CommandResponseHandler
+    with
+        DownloadCommands,
+        ProfileCommands,
+        AccountCommands,
+        SessionCommands,
+        ChatCommands,
+        UnrelatedCommands {
+  static final crh = CommandResponseHandler._internal().._init();
+
+  late final Map<CommandResponseType, Function(ByteBuf)> actions;
+
+  CommandResponseHandler._internal();
+
+  factory CommandResponseHandler() {
+    return crh;
+  }
+
+  void _init() {
+    actions = {
+      CommandResponseType.downloadFile: downloadFile,
+      CommandResponseType.downloadImage: downloadImage,
+      CommandResponseType.downloadVoice: downloadVoice,
+      CommandResponseType.downloadVideo: downloadVideo,
+      CommandResponseType.fetchProfileInfo: fetchProfileInfo,
+      CommandResponseType.getDisplayName: getDisplayName,
+      CommandResponseType.getClientId: getClientId,
+      CommandResponseType.fetchAccountStatus: fetchAccountStatus,
+      CommandResponseType.getOtherAccountsAssociatedWithDevice:
+          getOtherAccountsAssociatedWithDevice,
+      CommandResponseType.getChatSessionIndices: getChatSessionIndices,
+      CommandResponseType.getChatSessions: getChatSessions,
+      CommandResponseType.getChatSessionStatuses: getChatSessionStatuses,
+      CommandResponseType.getChatRequests: getChatRequests,
+      CommandResponseType.getWrittenText: getWrittenText,
+      CommandResponseType.deleteChatMessage: deleteChatMessage,
+      CommandResponseType.fetchVoiceCallHistory: fetchVoiceCallHistory,
+      CommandResponseType.fetchAccountIcon: fetchAccountIcon,
+      CommandResponseType.fetchUserDevices: fetchUserDevices,
+      CommandResponseType.setAccountIcon: setAccountIcon,
+      CommandResponseType.getDonationPageURL: getDonationPageURL,
+      CommandResponseType.getSourceCodePageURL: getSourceCodePageURL,
+      CommandResponseType.fetchSignallingServerPort: fetchSignallingPortUrl,
+    };
+  }
+
+  void handle(CommandResponseType commandResponse, ByteBuf msg) {
+    actions[commandResponse]?.call(msg);
   }
 }

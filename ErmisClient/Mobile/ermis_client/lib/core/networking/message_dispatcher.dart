@@ -76,7 +76,7 @@ class MessageDispatcher {
           break;
         case ServerMessageType.commandResponse:
           final commandResponse = CommandResponseType.fromId(data.readInt32());
-          CommandResponseHandler.handle(commandResponse, data);
+          CommandResponseHandler().handle(commandResponse, data);
           break;
       }
     } catch (e) {
