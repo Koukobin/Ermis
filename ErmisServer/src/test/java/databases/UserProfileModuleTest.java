@@ -16,7 +16,6 @@
 package test.java.databases;
 
 import main.java.io.github.koukobin.ermis.common.Account;
-import main.java.io.github.koukobin.ermis.common.DeviceType;
 import main.java.io.github.koukobin.ermis.common.UserDeviceInfo;
 import main.java.io.github.koukobin.ermis.common.results.ChangeUsernameResult;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
@@ -222,7 +221,7 @@ class UserProfileModuleTest extends BaseIntegrationTest {
 		void afterSet_iconIsPresent() {
 			conn.setProfilePhoto(CLIENT_ID, minimalPng());
 
-			Optional<UserIcon> icon = conn.selectUserIcon(CLIENT_ID);
+			Optional<UserIcon> icon = conn.extractUserIcon(CLIENT_ID);
 			assertTrue(icon.isPresent(), "selectUserIcon must return a present Optional after setProfilePhoto");
 			assertNotNull(icon.get().iconBytes(), "UserIcon bytes must not be null");
 			assertNotEquals(0, icon.get().iconBytes().length, "UserIcon bytes must not be empty");
@@ -234,7 +233,7 @@ class UserProfileModuleTest extends BaseIntegrationTest {
 			byte[] photo = minimalPng();
 			conn.setProfilePhoto(CLIENT_ID, photo);
 
-			byte[] stored = conn.selectUserIcon(CLIENT_ID)
+			byte[] stored = conn.extractUserIcon(CLIENT_ID)
 					.orElseThrow(() -> new AssertionError("Icon must be present after setProfilePhoto")).iconBytes();
 			assertArrayEquals(photo, stored, "Retrieved icon bytes must exactly match what was stored");
 		}
@@ -255,7 +254,7 @@ class UserProfileModuleTest extends BaseIntegrationTest {
 			conn.setProfilePhoto(CLIENT_ID, firstPhoto);
 			conn.setProfilePhoto(CLIENT_ID, secondPhoto);
 
-			byte[] stored = conn.selectUserIcon(CLIENT_ID)
+			byte[] stored = conn.extractUserIcon(CLIENT_ID)
 					.orElseThrow()
 					.iconBytes();
 			assertArrayEquals(secondPhoto, stored, 
@@ -274,13 +273,13 @@ class UserProfileModuleTest extends BaseIntegrationTest {
 		void afterPhotoSet_returnsPresent() {
 			conn.setProfilePhoto(CLIENT_ID, minimalPng());
 
-			assertTrue(conn.selectUserIcon(CLIENT_ID).isPresent());
+			assertTrue(conn.extractUserIcon(CLIENT_ID).isPresent());
 		}
 
 		@Test
 		@DisplayName("returns empty for an unknown clientID")
 		void unknownClientID_returnsEmpty() {
-			Optional<UserIcon> icon = conn.selectUserIcon(Integer.MAX_VALUE);
+			Optional<UserIcon> icon = conn.extractUserIcon(Integer.MAX_VALUE);
 			assertFalse(icon.isPresent(), "selectUserIcon must return empty for unknown clientID");
 		}
 	}
