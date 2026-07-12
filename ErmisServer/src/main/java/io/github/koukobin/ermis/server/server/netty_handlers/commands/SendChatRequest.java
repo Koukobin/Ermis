@@ -15,7 +15,9 @@
  */
 package main.java.io.github.koukobin.ermis.server.server.netty_handlers.commands;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -61,8 +63,18 @@ public class SendChatRequest implements ICommand {
 			return;
 		}
 
-		ClientInfo receiverInfo = ActiveClients.getClient(receiverID).get(0);
-		if (receiverInfo.getChatRequests()
+		List<Integer> receiverChatRequests;
+		{
+			List<ClientInfo> receiverInfo = ActiveClients.getClient(receiverID);
+			if (receiverInfo == null) {
+				try (ErmisDatabase.GeneralPurposeDBConnection conn = ErmisDatabase.getGeneralPurposeConnection()) {
+					receiverChatRequests = Arrays.asList(conn.getChatRequests(receiverID));
+				}
+			} else {
+				receiverChatRequests = receiverInfo.get(0).getChatRequests();
+			}
+		}
+		if (receiverChatRequests
 				.stream()
 				.anyMatch((Integer clientID) -> clientID.equals(senderClientID))) {
 			getLogger().debug("You cannot send chat request to someone with which you already share a chat request");
