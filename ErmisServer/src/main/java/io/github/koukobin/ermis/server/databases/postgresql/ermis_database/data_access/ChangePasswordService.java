@@ -52,7 +52,7 @@ public interface ChangePasswordService extends BaseComponent, UserProfileModule,
 		String passwordHash = simpleHash.getHashString();
 
 		try (PreparedStatement changePassword = getConn()
-				.prepareStatement("UPDATE users SET password_hash=? WHERE email=?")) {
+				.prepareStatement("UPDATE user_auth_email SET password_hash=? WHERE email=?")) {
 
 			changePassword.setString(1, passwordHash);
 			changePassword.setString(2, enteredEmail);

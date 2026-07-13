@@ -44,7 +44,7 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 		rawBackupVerificationCodes = BackupVerificationCodesGenerator.generateRawBackupVerificationCodes();
 		hashedBackupVerificationCodes = BackupVerificationCodesGenerator.hashBackupCodes(rawBackupVerificationCodes, salt);
 
-		String query = "UPDATE users SET backup_verification_codes=? WHERE email=?;";
+		String query = "UPDATE user_auth_email SET backup_verification_codes=? WHERE email=?;";
 		try (PreparedStatement replaceBackupVerificationCodes = getConn().prepareStatement(query)) {
 
 			Array backupVerificationCodesArray = getConn().createArrayOf("TEXT", hashedBackupVerificationCodes);
@@ -66,7 +66,7 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 
 	default Optional<Integer> removeBackupVerificationCode(String backupVerificationCode, String email) {
 		String sql = """
-				UPDATE users
+				UPDATE user_auth_email
 				SET backup_verification_codes=array_remove(backup_verification_codes, ?)
 				WHERE email=?
 				RETURNING array_length(backup_verification_codes::TEXT[], 1)
@@ -92,7 +92,7 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 	default String[] getBackupVerificationCodesAsStringArray(String email) {
 		String[] backupVerificationCodes = null;
 
-		String query = "SELECT backup_verification_codes FROM users WHERE email=?";
+		String query = "SELECT backup_verification_codes FROM user_auth_email WHERE email=?";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
 			pstmt.setString(1, email);
 
@@ -122,7 +122,7 @@ public interface BackupVerificationCodesModule extends BaseComponent, UserCreden
 	default int getNumberOfBackupVerificationCodesLeft(String email) {
 		int numberOfBackupVerificationCodesLeft = 0;
 
-		String sql = "SELECT array_length(backup_verification_codes, 1) FROM users WHERE email=?;";
+		String sql = "SELECT array_length(backup_verification_codes, 1) FROM user_auth_email WHERE email=?;";
 		try (PreparedStatement pstmt = getConn().prepareStatement(sql)) {
 
 			pstmt.setString(1, email);

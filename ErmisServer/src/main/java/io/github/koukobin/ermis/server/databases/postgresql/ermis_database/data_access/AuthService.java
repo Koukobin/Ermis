@@ -23,6 +23,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.postgresql.util.PGobject;
+
 import com.google.common.base.Throwables;
 
 import main.java.io.github.koukobin.ermis.common.UserDeviceInfo;
@@ -31,7 +33,6 @@ import main.java.io.github.koukobin.ermis.common.entry.CreateAccountInfo;
 import main.java.io.github.koukobin.ermis.common.entry.LoginInfo;
 import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
 import main.java.io.github.koukobin.ermis.common.util.EmptyArrays;
-import main.java.io.github.koukobin.ermis.server.configs.AppContext;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.generators.BackupVerificationCodesGenerator;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.generators.ClientIDGenerator;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.hashing.HashUtil;
@@ -96,20 +97,28 @@ public interface AuthService
 		}
 
 		String createUserQuery = """
-				INSERT INTO users
+				INSERT INTO users (client_id, auth_method) VALUES(?, ?);
+				INSERT INTO user_auth_email
 				(email, password_hash, client_id, backup_verification_codes, salt)
 				VALUES(?, ?, ?, ?, ?);
 				""";
 		try (PreparedStatement createUser = getConn().prepareStatement(createUserQuery)) {
-			createUser.setString(1, emailAddress);
-			createUser.setString(2, passwordHash);
-			createUser.setInt(3, clientID);
+			createUser.setInt(1, clientID);
+
+			PGobject authMethodEnum = new PGobject();
+			authMethodEnum.setType("auth_method_enum");
+			authMethodEnum.setValue("email");
+			createUser.setObject(2, authMethodEnum);
+
+			createUser.setString(3, emailAddress);
+			createUser.setString(4, passwordHash);
+			createUser.setInt(5, clientID);
 
 			Array backupVerificationCodesArray = getConn().createArrayOf("TEXT", hashedBackupVerificationCodes);
-			createUser.setArray(4, backupVerificationCodesArray);
+			createUser.setArray(6, backupVerificationCodesArray);
 			backupVerificationCodesArray.free();
 
-			createUser.setString(5, salt);
+			createUser.setString(7, salt);
 
 			int rowsAffected = createUser.executeUpdate();
 
@@ -217,7 +226,7 @@ public interface AuthService
 
 		String query = """
 				SELECT 1
-				FROM users
+				FROM user_auth_email
 				WHERE ? = ANY(backup_verification_codes)
 				AND email=?;
 				""";

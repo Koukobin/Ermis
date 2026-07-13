@@ -100,10 +100,10 @@ public interface UserDevicesManagerService extends BaseComponent, UserProfileMod
 
 		String query = """
 				    SELECT 1
-				    FROM users u
+				    FROM user_auth_email uae
 				    JOIN user_devices ud
-				    ON u.client_id = ud.client_id
-				    WHERE u.email = ? AND ud.device_uuid = ?;
+				    ON uae.client_id = ud.client_id
+				    WHERE uae.email = ? AND ud.device_uuid = ?;
 				""";
 		try (PreparedStatement pstmt = getConn().prepareStatement(query)) {
 			pstmt.setString(1, email);

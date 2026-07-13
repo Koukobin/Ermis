@@ -14,20 +14,56 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
--- Create users table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'auth_method_enum') THEN
+        CREATE TYPE auth_method_enum AS ENUM ('email');
+    END IF;
+END
+$$;
+
 CREATE TABLE IF NOT EXISTS users (
+    client_id INTEGER NOT NULL, -- IDs are generated manually within server
+    auth_method auth_method_enum NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+-- Email + password login
+CREATE TABLE IF NOT EXISTS user_auth_email (
+    client_id INTEGER NOT NULL REFERENCES users(client_id) ON DELETE CASCADE,
     email TEXT NOT NULL UNIQUE,
     password_hash CHAR(PASSWORD_HASH_LENGTH) NOT NULL,
-    client_id INTEGER NOT NULL, -- IDs are generated manually within server
     backup_verification_codes CHAR(BACKUP_VERIFICATION_CODES_LENGTH)[BACKUP_VERIFICATION_CODES_AMOUNT] NOT NULL,
     salt CHAR(SALT_LENGTH) NOT NULL,
-    created_at TIMESTAMP DEFAULT now(),
     password_last_updated_at TIMESTAMP DEFAULT now(),
     PRIMARY KEY (client_id)
 );
 
-CREATE INDEX IF NOT EXISTS users_client_id_index ON users (client_id);
-CREATE INDEX IF NOT EXISTS users_email_index ON users (email);
+-- Ensure user has at least ONE registered authentication method
+CREATE OR REPLACE FUNCTION check_user_has_registered_method()
+RETURNS TRIGGER AS $$
+DECLARE
+    has_email BOOLEAN;
+BEGIN
+    SELECT EXISTS(SELECT 1 FROM user_auth_email WHERE client_id = NEW.client_id) INTO has_email;
+
+    IF NOT (has_email) THEN
+        RAISE EXCEPTION 'User % has no registered authentication method', NEW.client_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Ensure user has at least ONE registered authentication method
+CREATE CONSTRAINT TRIGGER trg_user_has_auth_method
+    AFTER INSERT ON users
+    DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW
+    EXECUTE FUNCTION check_user_has_registered_method();
+
+CREATE INDEX IF NOT EXISTS idx_users_client_id ON users (client_id);
+CREATE INDEX IF NOT EXISTS idx_user_email_client_id ON user_email (client_id);
 
 -- Create user_profiles table
 CREATE TABLE IF NOT EXISTS user_profiles (

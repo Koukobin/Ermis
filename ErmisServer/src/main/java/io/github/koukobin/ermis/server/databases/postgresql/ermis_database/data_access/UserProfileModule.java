@@ -75,7 +75,7 @@ public interface UserProfileModule extends BaseComponent {
 	}
 
 	default Optional<Integer> getClientID(String email) {
-		try (PreparedStatement pstmt = getConn().prepareStatement("SELECT client_id FROM users WHERE email=?;")) {
+		try (PreparedStatement pstmt = getConn().prepareStatement("SELECT client_id FROM user_auth_email WHERE email=?;")) {
 
 			pstmt.setString(1, email);
 			ResultSet rs = pstmt.executeQuery();
@@ -187,11 +187,11 @@ public interface UserProfileModule extends BaseComponent {
 
 		String query = """
 				SELECT up.display_name,
-				 u.email,
+				 uae.email,
 				 ud.client_id
 				 FROM user_profiles up
 				 JOIN user_devices ud ON up.client_id = ud.client_id
-				 JOIN users u ON up.client_id = u.client_id
+				 JOIN user_auth_email u ON up.client_id = uae.client_id
 				 WHERE ud.device_uuid = ?;
 				""";
 

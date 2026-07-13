@@ -32,7 +32,7 @@ public interface UserCredentialsRepository extends BaseComponent {
 		String emailAddress = null;
 
 		try (PreparedStatement getEmailAddress = getConn()
-				.prepareStatement("SELECT email FROM users WHERE client_id=?;")) {
+				.prepareStatement("SELECT email FROM user_auth_email WHERE client_id=?;")) {
 			getEmailAddress.setInt(1, clientID);
 			ResultSet rs = getEmailAddress.executeQuery();
 
@@ -49,7 +49,7 @@ public interface UserCredentialsRepository extends BaseComponent {
 	default String getPasswordHash(String email) {
 		String passwordHash = null;
 
-		try (PreparedStatement pstmt = getConn().prepareStatement("SELECT password_hash FROM users WHERE email=?")) {
+		try (PreparedStatement pstmt = getConn().prepareStatement("SELECT password_hash FROM user_auth_email WHERE email=?")) {
 			pstmt.setString(1, email);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -66,7 +66,7 @@ public interface UserCredentialsRepository extends BaseComponent {
 
 		String passwordHash = null;
 
-		try (PreparedStatement pstmt = getConn().prepareStatement("SELECT password_hash FROM users WHERE client_id=?")) {
+		try (PreparedStatement pstmt = getConn().prepareStatement("SELECT password_hash FROM user_auth_email WHERE client_id=?")) {
 			pstmt.setInt(1, clientID);
 			ResultSet rs = pstmt.executeQuery();
 
@@ -84,7 +84,7 @@ public interface UserCredentialsRepository extends BaseComponent {
 
 		String salt = null;
 
-		try (PreparedStatement getPasswordHash = getConn().prepareStatement("SELECT salt FROM users WHERE email=?")) {
+		try (PreparedStatement getPasswordHash = getConn().prepareStatement("SELECT salt FROM user_auth_email WHERE email=?")) {
 			getPasswordHash.setString(1, email);
 
 			ResultSet rs = getPasswordHash.executeQuery();
@@ -103,7 +103,7 @@ public interface UserCredentialsRepository extends BaseComponent {
 		String salt = null;
 
 		try (PreparedStatement getPasswordHash = getConn()
-				.prepareStatement("SELECT salt FROM users WHERE client_id=?")) {
+				.prepareStatement("SELECT salt FROM user_auth_email WHERE client_id=?")) {
 
 			getPasswordHash.setInt(1, clientID);
 
