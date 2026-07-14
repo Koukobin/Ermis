@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import main.java.io.github.koukobin.ermis.common.entry.EntryType;
+import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 import main.java.io.github.koukobin.ermis.server.configs.GeneralServerInfo;
 import main.java.io.github.koukobin.ermis.server.databases.postgresql.ermis_database.ErmisDatabase;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
@@ -138,7 +139,10 @@ public final class StartingEntryHandler extends AbstractChannelClientHandler {
 			getLogger().debug("Error during authentication", e);
 		} finally {
 			// Regardless of authentication outcome inform success to user
-			ctx.channel().writeAndFlush(Unpooled.copyBoolean(isSuccessful));
+			ByteBuf successBuffer = ctx.channel().alloc().ioBuffer(5);
+			successBuffer.writeInt(ServerMessageType.ENTRY.id);
+			successBuffer.writeBoolean(isSuccessful);
+			ctx.channel().writeAndFlush(successBuffer);
 		}
 
 	}

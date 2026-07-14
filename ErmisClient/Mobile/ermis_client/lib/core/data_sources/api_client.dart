@@ -146,7 +146,9 @@ class Client {
 
     _outputStream!.write(buffer);
 
-    _isLoggedIn = (await _inputStream!.read()).readBoolean();
+    await AppEventBus.instance.on<EntryMessage>().first.then((EntryMessage msg) {
+      _isLoggedIn = msg.buffer.readBoolean();
+    });
     if (_isLoggedIn) {
       // Proactively reset user information to ensure that
       // user information does not leak into this account

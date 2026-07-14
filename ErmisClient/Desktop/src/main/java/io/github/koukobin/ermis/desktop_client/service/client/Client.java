@@ -231,7 +231,14 @@ public class Client {
 		// Send the request
 		try {
 			out.write(buffer);
-			isLoggedIn.set(in.read().readBoolean());
+
+			EntryMessage msg = GlobalMessageDispatcher.getDispatcher()
+					.observeMessages()
+					.ofType(EntryMessage.class)
+					.firstElement()
+					.blockingGet();
+
+			isLoggedIn.set(msg.getBuffer().readBoolean());
 		} catch (IOException ioe) {
 			logger.error(ioe.getMessage(), ioe); // Should not happen
 		}
