@@ -229,7 +229,7 @@ extension AccountsExtension on DBConnection {
       );
       compressedProfile = await FlutterImageCompress.compressWithList(
         info.profilePhoto,
-        quality: 70,
+        quality: 90,
         minHeight: size.height.toInt(),
         minWidth: size.width.toInt(),
       );
