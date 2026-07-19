@@ -25,6 +25,7 @@ import java.sql.Statement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.exception.FlywayValidateException;
 
 import com.google.common.base.Throwables;
 import com.zaxxer.hikari.HikariDataSource;
@@ -107,6 +108,13 @@ public final class ErmisDatabase {
 						.loggers("log4j2")
 						.locations("filesystem:src/main/resources/db/migration", "classpath:main/resources/db/migration")
 						.load();
+
+				try {
+					flyway.validate();
+				} catch (FlywayValidateException fve) {
+					logger.error(Throwables.getStackTraceAsString(fve));
+					flyway.repair();
+				}
 
 				flyway.migrate();
 			}
