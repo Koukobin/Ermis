@@ -86,7 +86,7 @@ public final class EmailerService {
 				return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PASSWORD);
 			}
 		});
-		session.setDebug(!ServerSettings.IS_PRODUCTION_MODE);
+		session.setDebug(ServerSettings.IS_DEV_MODE);
 
 		try {
 			emailAddress = new InternetAddress(EMAIL_USERNAME);

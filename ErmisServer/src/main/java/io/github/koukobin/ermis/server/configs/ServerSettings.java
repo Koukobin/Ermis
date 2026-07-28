@@ -48,6 +48,7 @@ public final class ServerSettings {
 	}
 
 	public static final boolean IS_PRODUCTION_MODE = Boolean.parseBoolean(GENERAL_PROPERTIES.getProperty("isProductionMode"));
+	public static final boolean IS_DEV_MODE = !IS_PRODUCTION_MODE;
 
 	public static final String SOURCE_CODE_URL = GENERAL_PROPERTIES.getProperty("sourceCodeURL");
 
