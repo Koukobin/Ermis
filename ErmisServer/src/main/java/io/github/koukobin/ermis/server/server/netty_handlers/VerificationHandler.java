@@ -28,6 +28,7 @@ import main.java.io.github.koukobin.ermis.common.entry.Verification;
 import main.java.io.github.koukobin.ermis.common.entry.Verification.Action;
 import main.java.io.github.koukobin.ermis.common.message_types.ServerMessageType;
 import main.java.io.github.koukobin.ermis.common.results.GeneralResult;
+import main.java.io.github.koukobin.ermis.server.configs.ServerSettings;
 import main.java.io.github.koukobin.ermis.server.server.ClientInfo;
 import main.java.io.github.koukobin.ermis.server.server.util.EmailerService;
 import main.java.io.github.koukobin.ermis.server.util.SecureRandomNumberGenerator;
@@ -72,6 +73,10 @@ public abstract non-sealed class VerificationHandler extends EntryHandler {
 				EmailerService.sendEmailWithHTML("Security Alert", createEmailMessage(codeString), emailAddress);
 			} catch (MessagingException me) {
 				getLogger().error("Failed to send email", me);
+			}
+
+			if (ServerSettings.IS_DEV_MODE) {
+				getLogger().debug("Verification code for {}: {}", emailAddress, codeString);
 			}
 		});
 	}
