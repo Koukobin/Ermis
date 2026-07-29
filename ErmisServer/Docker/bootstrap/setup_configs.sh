@@ -24,6 +24,12 @@ if [ ! -d "./ermis-configs" ] || [ -z "$(ls ./ermis-configs 2>/dev/null)" ]; the
     if [ -z $ERMIS_SERVER_VERSION ]; then
         IMAGE_DECLARATION=$(cat docker-compose.yml | grep 'koukobin/ermis-server')
         ERMIS_SERVER_VERSION=$(echo "$IMAGE_DECLARATION" | cut -d: -f3)
+
+        if [ -z $ERMIS_SERVER_VERSION ]; then
+            error "Could not extrapolate ermis server version; ensure a version\n           is specified in compose or configure .env file"
+            exit 1
+        fi
+
     fi
 
     if [ -z $NGINX_VERSION ]; then
