@@ -22,8 +22,31 @@ if [ ! -d "./ermis-configs" ] || [ -z "$(ls ./ermis-configs 2>/dev/null)" ]; the
     echo "Extracting default configuration files..."
 
     if [ -z $ERMIS_SERVER_VERSION ]; then
-        IMAGE_DECLARATION=$(cat docker-compose.yml | grep 'koukobin/ermis-server')
-        ERMIS_SERVER_VERSION=$(echo "$IMAGE_DECLARATION" | cut -d: -f3)
+        # Attempt to fetch server version from `.env` file
+        if [ -f ".env" ]; then
+            ERMIS_SERVER_VERSION=$(grep "^SERVER_VERSION=" .env | cut -d= -f2)
+        fi
+
+        # If still undefined, attempt to grep from compose file
+        if [ -z $ERMIS_SERVER_VERSION ]; then
+            IMAGE_DECLARATION=$(cat docker-compose.yml | grep 'koukobin/ermis-server')
+            ERMIS_SERVER_VERSION=$(echo "$IMAGE_DECLARATION" | cut -d: -f3)
+
+            # Remove curly brackets if they exist (by default compose server version is ${SERVER_VERSION})
+            TEMP="${ERMIS_SERVER_VERSION#\$\{}" # Remove '${' prefix
+            TEMP="${TEMP%\}}" # Remove '}' suffix
+
+            # If fetched string is a valid variable name, attempt to obtain associated value
+            if [[ "$TEMP" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+                ERMIS_SERVER_VERSION="${!TEMP}" # Use indirect expansion to retrieve value of referenced variable
+            fi
+        fi
+
+        if [ -z $ERMIS_SERVER_VERSION ]; then
+            error "Could not extrapolate ermis server version; ensure a version\n           is specified in compose or configure .env file"
+            exit 1
+        fi
+
     fi
 
     if [ -z $NGINX_VERSION ]; then
