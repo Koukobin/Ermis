@@ -42,7 +42,7 @@ while :; do
     printf '\n'
     read -s -p "Enter Password (again): " password2
     printf '\n'
-    
+
     if [[ "$password" != "$password2" ]]; then
         echo -e "${RED}Passwords do not match${NC}"
         printf '\n'
