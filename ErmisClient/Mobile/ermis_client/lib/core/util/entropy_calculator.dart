@@ -17,28 +17,39 @@
 import 'dart:math';
 
 /// Terrible Shannon entropy approximation calculator
+///
+/// August 2nd 2026 Update: Still terrible Shannon entropy calculator
+///                         - but enhanced by Claude (Just like god intended)
 class EntropyCalculator {
+  /// Total entropy in bits for the whole string
+  /// (per-symbol entropy * number of symbols).
+  static double approximateTotalBits(String input) {
+    if (input.isEmpty) return 0.0;
+    return approximate(input) * input.runes.length;
+  }
+
+  /// Computes the Shannon entropy (in bits per symbol) of [input].
+  ///
+  /// Symbols are Unicode code points (runes), not UTF-16 code units, so
+  /// multi-byte characters (emoji, non-Latin scripts, etc.) are counted
+  /// correctly. Returns 0.0 for an empty string.
   static double approximate(String input) {
     if (input.isEmpty) return 0.0;
 
-    final Map<String, int> frequencyMap = {};
+    final Map<int, int> frequencyMap = {};
+    int symbolCount = 0;
 
-    // Count occurrences of each character
-    for (final int char in input.runes) {
-      String key = String.fromCharCode(char);
-      frequencyMap[key] = (frequencyMap[key] ?? 0) + 1;
+    for (final int rune in input.runes) {
+      frequencyMap[rune] = (frequencyMap[rune] ?? 0) + 1;
+      symbolCount++;
     }
 
-    final int length = input.length;
     double entropy = 0.0;
-
-    // Calculate entropy
     for (final int count in frequencyMap.values) {
-      double probability = count / length;
+      final double probability = count / symbolCount;
       entropy -= probability * (log(probability) / ln2);
     }
 
-    if (input.length > 12) return entropy * 30;
-    return entropy * 4;
+    return entropy;
   }
 }
