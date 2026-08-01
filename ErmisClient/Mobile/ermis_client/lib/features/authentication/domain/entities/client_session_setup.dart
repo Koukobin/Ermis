@@ -31,6 +31,7 @@ import '../../../../core/data_sources/api_client.dart';
 import '../../../../main.dart';
 import '../../../../core/services/database/database_service.dart';
 import '../../../../core/util/dialogs_utils.dart';
+import '../../choose_entry_type.dart';
 import '../../register_interface.dart';
 
 /// Setups client session in accordance to the most recently used accounts associated with server
@@ -94,7 +95,7 @@ Future<void> setupClientSession(
     // Navigate to the Registration interface
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const CreateAccountInterface()),
+      MaterialPageRoute(builder: (context) => const AuthLandingScreen()),
       (route) => keepPreviousRoutes, // Removes all previous routes.
     );
     return;
