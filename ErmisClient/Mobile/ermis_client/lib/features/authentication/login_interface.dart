@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
+import '../../constants/app_colors.dart';
 import '../../core/data_sources/api_client.dart';
 import '../../core/services/database/extensions/accounts_extension.dart';
 import 'domain/entities/login_info.dart';
@@ -96,7 +97,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
 
     return Scaffold(
       appBar: ErmisAppBar(centerTitle: false, removeDivider: true),
-      backgroundColor: appColors.secondaryColor,
+      backgroundColor: AppColors0.background,
       resizeToAvoidBottomInset: false, // Prevent resizing when keyboard opens
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),
@@ -106,7 +107,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
           children: [
             // App icon display
             Image.asset(
-              AppConstants.appIconPath,
+              AppConstants.externalAppIconPath,
               width: 100,
               height: 100,
             ),
