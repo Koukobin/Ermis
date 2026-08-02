@@ -77,7 +77,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
     });
 
     _passwordController.addListener(() {
-      _passwordEntropy = EntropyCalculator.approximate(_passwordController.text);
+      _passwordEntropy = EntropyCalculator.approximateTotalBits(_passwordController.text);
       setState(() { /* Password entropy changed. */ });
     });
 
