@@ -191,7 +191,7 @@ public interface UserProfileModule extends BaseComponent {
 				 ud.client_id
 				 FROM user_profiles up
 				 JOIN user_devices ud ON up.client_id = ud.client_id
-				 JOIN user_auth_email u ON up.client_id = uae.client_id
+				 JOIN user_auth_email uae ON up.client_id = uae.client_id
 				 WHERE ud.device_uuid = ?;
 				""";
 
