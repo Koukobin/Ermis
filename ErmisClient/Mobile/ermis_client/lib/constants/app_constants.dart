@@ -63,6 +63,7 @@ class AppConstants {
 
   static const String sourceCodeURL = "https://github.com/Koukobin/Ermis";
   static const String configureServerURL = "https://github.com/Koukobin/Ermis/wiki/Ermis%E2%80%90Server-Installation";
+  static const String privacyPolicyURL = "https://github.com/Koukobin/Ermis/blob/master/PRIVACY_POLICY.md";
 
   static const String licenceURL = "$sourceCodeURL/wiki/License";
   static const String licencePath = "assets/LICENCE.txt";
