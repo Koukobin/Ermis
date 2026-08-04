@@ -78,7 +78,7 @@ class AppConstants {
 
   static const AppColors darkAppColors = AppColors(
     primaryColor: Colors.green,
-    secondaryColor: Color.fromARGB(255, 17, 17, 17),
+    secondaryColor: Color.fromARGB(255, 11, 11, 13),
     tertiaryColor: Color.fromARGB(255, 30, 30, 30),
     quaternaryColor: Color.fromARGB(255, 46, 46, 46),
     inferiorColor: Colors.white,
