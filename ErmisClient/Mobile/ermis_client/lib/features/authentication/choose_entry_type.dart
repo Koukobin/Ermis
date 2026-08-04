@@ -32,9 +32,10 @@ class AuthLandingScreen extends StatelessWidget {
     final mq = MediaQuery.of(context);
     final isCompact = mq.size.height < 700;
     final appColors = Theme.of(context).extension<AppColors>()!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColors0.background,
+      backgroundColor: appColors.secondaryColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 28.0),
@@ -50,7 +51,7 @@ class AuthLandingScreen extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 "Ermis",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
@@ -60,10 +61,10 @@ class AuthLandingScreen extends StatelessWidget {
               Text(
                 'Giving you the freedom to communicate,\n— on your own terms.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   height: 1.4,
-                  color: AppColors0.textMuted,
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -118,13 +119,14 @@ class _PrimaryPillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: colorScheme.primary,
           foregroundColor: Colors.black,
           shape: const StadiumBorder(),
           elevation: 0,
@@ -146,6 +148,7 @@ class _SecondaryPillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: double.infinity,
       height: 52,
@@ -153,7 +156,7 @@ class _SecondaryPillButton extends StatelessWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           foregroundColor: Colors.white,
-          side: const BorderSide(color: AppColors0.divider, width: 1.4),
+          side: BorderSide(color: colorScheme.outlineVariant, width: 1.4),
           shape: const StadiumBorder(),
           textStyle: const TextStyle(
             fontSize: 16,
@@ -171,21 +174,23 @@ class _OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
-        const Expanded(child: Divider(color: AppColors0.divider, height: 1)),
+        Expanded(child: Divider(color: colorScheme.outlineVariant, height: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             'or continue with',
-            style: TextStyle(fontSize: 12.5, color: AppColors0.textMuted),
+            style: TextStyle(fontSize: 12.5, color: colorScheme.onSurfaceVariant),
           ),
         ),
-        const Expanded(child: Divider(color: AppColors0.divider, height: 1)),
+        Expanded(child: Divider(color: colorScheme.outlineVariant, height: 1)),
       ],
     );
   }
 }
+
 
 // Placeholder options, none implemented yet
 class _ContinueRow extends StatelessWidget {
@@ -226,6 +231,7 @@ class _IconOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Material(
       color: AppColors0.surface,
       borderRadius: BorderRadius.circular(14),
@@ -237,7 +243,7 @@ class _IconOptionButton extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors0.divider, width: 1),
+            border: Border.all(color: colorScheme.outline, width: 1),
           ),
           child: Icon(icon, size: 26),
         ),
@@ -251,6 +257,7 @@ class _PrivacyFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         Row(
@@ -260,7 +267,7 @@ class _PrivacyFooter extends StatelessWidget {
             const SizedBox(width: 3),
             Text(
               '2021-2026 Ilias Koukovinis',
-              style: TextStyle(fontSize: 13, color: AppColors0.textMuted),
+              style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -271,7 +278,7 @@ class _PrivacyFooter extends StatelessWidget {
             Text(
               'By continuing, you agree to the',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11.5, color: AppColors0.textMuted.withValues(alpha: 0.8)),
+              style: TextStyle(fontSize: 11.5, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
             ),
             ElevatedButton(
               onPressed: () {
