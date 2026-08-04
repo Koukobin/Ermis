@@ -44,6 +44,7 @@ mixin ProfileCommands {
     int lastUpdatedEpochSecond = msg.readInt64();
 
     // Profile photo
+    int profilePhotoID = msg.readInt32();
     UserInfoManager.profilePhoto = msg.readBytes(msg.readableBytes);
     _eventBus.fire(ProfilePhotoReceivedEvent(UserInfoManager.profilePhoto!));
 
