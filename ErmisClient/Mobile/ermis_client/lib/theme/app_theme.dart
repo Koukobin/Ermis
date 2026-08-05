@@ -68,23 +68,29 @@ class AppThemeState extends State<AppTheme> {
     });
   }
 
-  ThemeData buildDarkThemeData() {
+  ThemeData buildThemeData(Brightness brightness) {
+    AppColors appColors = switch (brightness) {
+      Brightness.dark => widget.darkAppColors,
+      Brightness.light => widget.lightAppColors,
+    };
+
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: widget.darkAppColors.primaryColor,
-        brightness: Brightness.dark,
+        seedColor: appColors.primaryColor,
+        brightness: brightness,
       ),
-      brightness: Brightness.dark,
-      extensions: [widget.darkAppColors],
+      brightness: brightness,
+      extensions: [appColors],
       visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts to platform
       splashFactory: InkRipple.splashFactory, // Smooth ripple
-      primaryColor: widget.darkAppColors.primaryColor,
+      primaryColor: appColors.primaryColor,
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: widget.darkAppColors.primaryColor,
+        backgroundColor: appColors.primaryColor,
+        foregroundColor: appColors.secondaryColor,
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: widget.darkAppColors.primaryColor,
+          foregroundColor: appColors.primaryColor,
           textStyle: const TextStyle(fontSize: 15),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
@@ -93,83 +99,97 @@ class AppThemeState extends State<AppTheme> {
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        fillColor: widget.darkAppColors.quaternaryColor,
+        fillColor: appColors.quaternaryColor,
         hintStyle: const TextStyle(color: Colors.grey),
-        labelStyle: const TextStyle(color: Colors.green),
+        labelStyle: TextStyle(color: appColors.primaryColor),
         border: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.green),
+          borderSide: BorderSide(color: appColors.primaryColor),
           borderRadius: BorderRadius.circular(8),
         ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.green, width: 2),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: appColors.primaryColor, width: 2),
         ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.green),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: appColors.primaryColor),
         ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: widget.darkAppColors.tertiaryColor.withValues(alpha: 1.0),
+        backgroundColor: appColors.tertiaryColor.withValues(alpha: 1.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
         titleTextStyle: TextStyle(
-          color: widget.darkAppColors.inferiorColor,
+          color: appColors.inferiorColor,
           fontSize: 20,
         ),
         contentTextStyle: TextStyle(
-          color: widget.darkAppColors.inferiorColor,
+          color: appColors.inferiorColor,
           fontSize: 16,
         ),
       ),
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.green, // Color of the blinking text cursor
+        cursorColor: appColors.primaryColor, // Color of the blinking text cursor
         selectionColor: Colors.greenAccent.withValues(alpha: 0.5), // Color of the selected text background
-        selectionHandleColor: Colors.green, // Color of the selection handles
+        selectionHandleColor: appColors.primaryColor, // Color of the selection handles
       ),
       radioTheme: RadioThemeData(
           fillColor: WidgetStateProperty.resolveWith<Color>((states) {
         if (states.contains(WidgetState.selected)) {
-          return widget.darkAppColors.primaryColor; // Active color
+          return appColors.primaryColor; // Active color
         }
-        return widget.darkAppColors.quaternaryColor; // Inactive color
+        return appColors.quaternaryColor; // Inactive color
       })),
       checkboxTheme: CheckboxThemeData(
-        checkColor: WidgetStateProperty.all(Colors.white), // Checkmark color
+        checkColor: WidgetStateProperty.all(appColors.inferiorColor), // Checkmark color
         splashRadius: 20,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
             style: ButtonStyle(
-          foregroundColor: WidgetStateProperty.all(widget.darkAppColors.secondaryColor),
-          backgroundColor: WidgetStateProperty.all(Colors.green),
+          foregroundColor: WidgetStateProperty.all(appColors.secondaryColor),
+          backgroundColor: WidgetStateProperty.all(appColors.primaryColor),
           overlayColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return Colors.green.withValues(alpha: 0.2); // Splash effect color
+              return appColors.primaryColor.withValues(alpha: 0.2); // Splash effect color
             }
             return null; // Default for other states
           }),
         )),
         progressIndicatorTheme:
-            ProgressIndicatorThemeData(color: Colors.grey),
+            const ProgressIndicatorThemeData(color: Colors.grey),
         bottomSheetTheme: BottomSheetThemeData(
-            backgroundColor: widget.darkAppColors.tertiaryColor.withValues(alpha: 1.0)),
+            backgroundColor: appColors.tertiaryColor.withValues(alpha: 1.0)),
       popupMenuTheme: PopupMenuThemeData(
-          color: const Color.fromARGB(255, 25, 25, 25),
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+        color: switch (brightness) {
+          Brightness.dark => const Color.fromARGB(255, 25, 25, 25),
+          Brightness.light => const Color.fromARGB(255, 210, 210, 210),
+        },
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
+      ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color(0xFF333333),
-        contentTextStyle: const TextStyle(
-          color: Colors.white,
+        backgroundColor: switch (brightness) {
+            Brightness.dark => const Color(0xFF333333),
+            Brightness.light => const Color.fromARGB(255, 172, 172, 172),
+          },
+        contentTextStyle: TextStyle(
+          color: switch (brightness) {
+            Brightness.dark => Colors.white,
+            Brightness.light => Colors.black,
+          },
           fontSize: 16,
         ),
         closeIconColor: Colors.grey,
         showCloseIcon: true,
         shape: RoundedRectangleBorder(
-          side: const BorderSide(
-              color: Color.fromARGB(195, 10, 10, 10), width: 1.25),
+          side: BorderSide(
+            color: switch (brightness) {
+              Brightness.dark => Color.fromARGB(195, 10, 10, 10),
+              Brightness.light => Color.fromARGB(195, 220, 220, 220),
+            },
+            width: 1.25,
+          ),
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 1,
@@ -178,136 +198,14 @@ class AppThemeState extends State<AppTheme> {
       switchTheme: SwitchThemeData(
           trackColor: WidgetStateProperty.resolveWith<Color>((states) {
             if (states.contains(WidgetState.selected)) {
-              return widget.darkAppColors.primaryColor; // Active color
+              return appColors.primaryColor; // Active color
             }
-            return widget.darkAppColors.secondaryColor; // Inactive color
+            return appColors.secondaryColor; // Inactive color
           }),
           thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
-            return widget.darkAppColors.quaternaryColor; // Thumb color
+            return appColors.quaternaryColor; // Thumb color
           }),
         ),
-    );
-  }
-
-  ThemeData buildLightThemeData() {
-    return ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: widget.lightAppColors.primaryColor,
-        brightness: Brightness.light,
-      ),
-      brightness: Brightness.light,
-      extensions: [widget.lightAppColors],
-      visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts to platform
-      splashFactory: InkRipple.splashFactory, // Smooth ripple
-      primaryColor: widget.lightAppColors.primaryColor,
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: widget.lightAppColors.primaryColor,
-        foregroundColor: widget.lightAppColors.secondaryColor,
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: widget.lightAppColors.primaryColor,
-          textStyle: const TextStyle(fontSize: 15),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        fillColor: widget.lightAppColors.quaternaryColor,
-        hintStyle: const TextStyle(color: Colors.grey),
-        labelStyle: const TextStyle(color: Colors.green),
-        border: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.green),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.green, width: 2),
-        ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.green),
-        ),
-      ),
-      dialogTheme: DialogThemeData(
-        backgroundColor: widget.lightAppColors.tertiaryColor.withValues(alpha: 1.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        titleTextStyle: TextStyle(
-          color: widget.lightAppColors.inferiorColor,
-          fontSize: 20,
-        ),
-        contentTextStyle: TextStyle(
-          color: widget.lightAppColors.inferiorColor,
-          fontSize: 16,
-        ),
-      ),
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.green, // Color of the blinking text cursor
-        selectionColor: Colors.greenAccent.withValues(alpha: 0.5), // Color of the selected text background
-        selectionHandleColor: Colors.green, // Color of the selection handles
-      ),
-      radioTheme: RadioThemeData(
-          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-        if (states.contains(WidgetState.selected)) {
-          return widget.lightAppColors.primaryColor; // Active color
-        }
-        return widget.lightAppColors.quaternaryColor; // Inactive color
-      })),
-      checkboxTheme: CheckboxThemeData(
-        checkColor: WidgetStateProperty.all(Colors.black), // Checkmark color
-        splashRadius: 20,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ButtonStyle(
-          foregroundColor: WidgetStateProperty.all(widget.lightAppColors.secondaryColor),
-          backgroundColor: WidgetStateProperty.all(Colors.green),
-          overlayColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.pressed)) {
-              return Colors.green.withValues(alpha: 0.2); // Splash effect color
-            }
-            return null; // Default for other states
-          }),
-        )),
-        progressIndicatorTheme:
-            ProgressIndicatorThemeData(color: Colors.grey),
-        bottomSheetTheme: BottomSheetThemeData(
-            backgroundColor: widget.lightAppColors.tertiaryColor.withValues(alpha: 1.0)),
-      popupMenuTheme: PopupMenuThemeData(
-          color: const Color.fromARGB(255, 210, 210, 210),
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color.fromARGB(255, 172, 172, 172),
-        contentTextStyle: const TextStyle(
-          color: Colors.black,
-          fontSize: 16,
-        ),
-        closeIconColor: Colors.grey,
-        showCloseIcon: true,
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(
-              color: Color.fromARGB(195, 220, 220, 220), width: 1.25),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 1,
-        behavior: SnackBarBehavior.fixed,
-      ),
-      switchTheme: SwitchThemeData(
-        trackColor: WidgetStateProperty.resolveWith<Color>((states) {
-          if (states.contains(WidgetState.selected)) {
-            return widget.lightAppColors.primaryColor; // Active color
-          }
-          return widget.lightAppColors.secondaryColor; // Inactive color
-        }),
-        thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
-          return widget.lightAppColors.quaternaryColor; // Thumb color
-        }),
-      ),
     );
   }
 
@@ -372,8 +270,8 @@ class AppThemeState extends State<AppTheme> {
             // },
             navigatorKey: NavigationService.navigatorKey, // Set global context of Material App
             themeMode: _themeMode,
-            darkTheme: buildDarkThemeData(),
-            theme: buildLightThemeData(),
+            darkTheme: buildThemeData(Brightness.dark),
+            theme: buildThemeData(Brightness.light),
             home: widget.home,
           );
         },
