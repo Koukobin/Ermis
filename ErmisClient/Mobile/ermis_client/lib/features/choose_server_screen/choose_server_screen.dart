@@ -31,9 +31,9 @@ import 'package:flutter/material.dart';
 
 import '../../core/data_sources/api_client.dart';
 import '../../constants/app_constants.dart';
-import '../../core/util/url_launcher.dart';
 import '../../main.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
+import 'configure_your_own_server_button.dart';
 import 'whats_new_screen.dart';
 
 String? serverUrl;
@@ -174,39 +174,12 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
-
-    Widget buildHowToConfigureYourOwnServerInstanceUrlLauncher() {
-      return Padding(
-        padding: const EdgeInsets.only(top: 25),
-        child: Column(
-          children: [
-            IconButton.outlined(
-              onPressed: () {
-                UrlLauncher.launchURL(
-                  context,
-                  AppConstants.configureServerURL,
-                );
-              },
-              icon: const Icon(Icons.question_mark),
-            ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 120),
-              child: Text(
-                S().howToConfigureYourOwnServer,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return Scaffold(
       body: Stack(
         alignment: Alignment.topRight,
         children: [
           buildConnectToServer(appColors),
-          buildHowToConfigureYourOwnServerInstanceUrlLauncher(),
+          ConfigureOwnServerButton(shouldPulse: cachedServerUrls.isEmpty),
         ],
       ),
     );
