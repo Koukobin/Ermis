@@ -106,7 +106,7 @@ class LoginInterfaceState extends State<LoginInterface> with Verification, Entry
           children: [
             // App icon display
             Image.asset(
-              AppConstants.appIconPath,
+              AppConstants.externalAppIconPath,
               width: 100,
               height: 100,
             ),

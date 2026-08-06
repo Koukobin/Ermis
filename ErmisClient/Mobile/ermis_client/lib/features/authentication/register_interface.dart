@@ -108,7 +108,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
 
     return Scaffold(
       appBar: ErmisAppBar(),
-      backgroundColor: appColors.tertiaryColor,
+      backgroundColor: appColors.secondaryColor,
       resizeToAvoidBottomInset: false, // Prevent resizing when keyboard opens
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),
@@ -118,7 +118,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
           children: [
             // App icon display
             Image.asset(
-              AppConstants.appIconPath,
+              AppConstants.externalAppIconPath,
               width: 100,
               height: 100,
             ),

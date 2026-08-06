@@ -41,6 +41,7 @@ class AppConstants {
 
   static const String applicationTitle = "Ermis";
   static const String appIconPath = 'assets/primary_application_icon.png';
+  static const String externalAppIconPath = 'assets/application_icon.png';
 
   static const String parthenonasPath = 'assets/chat_backgrounds/parthenon.jpg';
   static const String ermisBackgroundPath = 'assets/chat_backgrounds/ermis_wallpaper_by_solvazquez_on_reddit.png';
@@ -62,6 +63,7 @@ class AppConstants {
 
   static const String sourceCodeURL = "https://github.com/Koukobin/Ermis";
   static const String configureServerURL = "https://github.com/Koukobin/Ermis/wiki/Ermis%E2%80%90Server-Installation";
+  static const String privacyPolicyURL = "https://github.com/Koukobin/Ermis/blob/master/PRIVACY_POLICY.md";
 
   static const String licenceURL = "$sourceCodeURL/wiki/License";
   static const String licencePath = "assets/LICENCE.txt";
@@ -76,7 +78,7 @@ class AppConstants {
 
   static const AppColors darkAppColors = AppColors(
     primaryColor: Colors.green,
-    secondaryColor: Color.fromARGB(255, 17, 17, 17),
+    secondaryColor: Color.fromARGB(255, 11, 11, 13),
     tertiaryColor: Color.fromARGB(255, 30, 30, 30),
     quaternaryColor: Color.fromARGB(255, 46, 46, 46),
     inferiorColor: Colors.white,
