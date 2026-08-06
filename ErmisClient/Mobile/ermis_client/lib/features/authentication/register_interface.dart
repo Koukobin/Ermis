@@ -30,7 +30,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
-import '../../constants/app_colors.dart';
 import '../../core/networking/user_info_manager.dart';
 import '../../core/services/database/database_service.dart';
 import '../../core/services/database/extensions/accounts_extension.dart';
@@ -109,7 +108,7 @@ class CreateAccountInterfaceState extends State<CreateAccountInterface> with Ver
 
     return Scaffold(
       appBar: ErmisAppBar(),
-      backgroundColor: AppColors0.background,
+      backgroundColor: appColors.secondaryColor,
       resizeToAvoidBottomInset: false, // Prevent resizing when keyboard opens
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),

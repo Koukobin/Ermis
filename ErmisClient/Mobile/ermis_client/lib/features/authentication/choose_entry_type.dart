@@ -18,7 +18,6 @@ import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/features/authentication/login_interface.dart';
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_constants.dart';
 import '../../core/util/url_launcher.dart';
 import '../../theme/app_colors.dart';
@@ -233,7 +232,7 @@ class _IconOptionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Material(
-      color: AppColors0.surface,
+      color: colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
