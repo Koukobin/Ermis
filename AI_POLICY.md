@@ -4,7 +4,7 @@
 
 Using AI (i.e., LLMs) as tools when contributing to Ermis is supported. However, you are responsible for any contributions you submit, and I am responsible for any contributions I greenlight and release. I hold a high bar for all contributions to this project.
 
-I have to dedicate time and energy to reviewing contributions. Submitting AI-generated content that you have not personally reviewed and understood is simply contemptuous, insulating, wastes my time, and will not be accepted.
+I have to dedicate time and energy to reviewing contributions. Submitting AI-generated content that you have not personally reviewed and understood is simply contemptuous, insulting, wastes my time, and will not be accepted.
 
 ## Autonomous agents
 
