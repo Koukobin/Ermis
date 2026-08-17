@@ -5,8 +5,8 @@
 
 <div align="center">
 	<img 
-		width="550" 
-		src="https://github.com/Koukobin/Ermis/blob/master/Images/ermis-retro-futuristic.png"
+		height="400"
+		src="https://github.com/Koukobin/Ermis/blob/master/Images/feature-graphic.jpg"
 		alt="Ermis"
 	/>
 </div>
