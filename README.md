@@ -6,7 +6,7 @@
 <div align="center">
 	<img 
 		height="400"
-		src="https://github.com/Koukobin/Ermis/blob/master/Images/feature-graphic.jpg"
+		src="https://github.com/Koukobin/Ermis/blob/master/Images/feature-graphic-large.jpg"
 		alt="Ermis"
 	/>
 </div>
