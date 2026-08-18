@@ -24,6 +24,7 @@ import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/features/authentication/domain/entities/verification.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
+import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showVerificationDialog({
@@ -42,8 +43,10 @@ Future<void> showVerificationDialog({
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
+          final appColors = Theme.of(context).extension<AppColors>()!;
           return WhatsAppPopupDialog(
             child: AlertDialog(
+              backgroundColor: appColors.secondaryColor,
               title: Text(title),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
