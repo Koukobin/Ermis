@@ -80,7 +80,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 borderRadius: BorderRadius.circular(10),
               ),
               filled: true,
-              fillColor: appColors.tertiaryColor,
+              fillColor: appColors.secondaryColor,
               suffixIcon: widget.obscureText
                   ? IconButton(
                       icon: Icon(
