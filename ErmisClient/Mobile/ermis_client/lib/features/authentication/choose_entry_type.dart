@@ -74,7 +74,7 @@ class AuthLandingScreen extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const LoginInterface()),
+                        builder: (context) => const CreateAccountInterface()),
                     (route) => false, // Removes all previous routes
                   )
                 },
@@ -86,7 +86,7 @@ class AuthLandingScreen extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const CreateAccountInterface()),
+                        builder: (context) => const LoginInterface()),
                     (route) => false, // Removes all previous routes
                   )
                 },
