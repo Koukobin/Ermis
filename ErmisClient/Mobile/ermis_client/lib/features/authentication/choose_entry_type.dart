@@ -154,7 +154,10 @@ class _SecondaryPillButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.white,
+          foregroundColor: switch (Theme.of(context).brightness) {
+            Brightness.dark => Colors.white,
+            Brightness.light => Colors.black,
+          },
           side: BorderSide(color: colorScheme.outlineVariant, width: 1.4),
           shape: const StadiumBorder(),
           textStyle: const TextStyle(
