@@ -33,7 +33,7 @@ import '../../core/data_sources/api_client.dart';
 import '../../constants/app_constants.dart';
 import '../../main.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
-import 'configure_your_own_server_button.dart';
+import 'configure_own_server_button.dart';
 import 'whats_new_screen.dart';
 
 String? serverUrl;
