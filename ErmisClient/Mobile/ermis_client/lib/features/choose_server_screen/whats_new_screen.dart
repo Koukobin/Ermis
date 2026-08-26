@@ -27,6 +27,7 @@ class WhatsNewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
+      backgroundColor: appColors.secondaryColor,
       appBar: AppBar(
         title: Text(S.current.whatsNewTitle),
         backgroundColor: appColors.primaryColor,
