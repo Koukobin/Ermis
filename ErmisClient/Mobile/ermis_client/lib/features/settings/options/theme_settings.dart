@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_mobile/core/util/top_app_bar_utils.dart';
 import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
@@ -55,13 +56,12 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Scaffold(
-      appBar: AppBar(
+      appBar: ErmisAppBar(
         title: Text(S.current.chatThemeSettings),
-        backgroundColor: appColors.primaryColor,
         actions: [
           IconButton(
             onPressed: _saveSettingsJson,
-            icon: const Icon(Icons.save),
+            icon: Icon(Icons.save, color: appColors.primaryColor),
             tooltip: S.current.saveSettings,
           ),
         ],
