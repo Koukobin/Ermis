@@ -77,19 +77,20 @@ class _StorageAndDataScreenState extends State<StorageAndDataScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: ErmisAppBar(titleText: S().storageAndDataTitle),
       body: ScrollViewFixer.createScrollViewWithAppBarSafety(
           scrollView: ListView(
         children: [
           ListTile(
-            leading: const Icon(Icons.storage),
+            leading: Icon(Icons.storage, color: colorScheme.primary),
             title: Text(S().manageStorage),
             subtitle: Text("${formatBytes(utilizedStorageByServerData)} ${S().used}"),
             onTap: () {},
           ),
           ListTile(
-            leading: const Icon(Icons.network_check),
+            leading: Icon(Icons.network_check, color: colorScheme.primary),
             title: Text(S().networkUsage),
             subtitle: Row(
               children: [

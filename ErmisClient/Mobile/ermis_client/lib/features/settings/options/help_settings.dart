@@ -75,7 +75,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
                 ),
               ),
               ListTile(
-                leading: Icon(FontAwesomeIcons.github.data),
+                leading: Icon(FontAwesomeIcons.github.data, color: appColors.primaryColor),
                 title: Text(S.current.sourceCode, style: const TextStyle(fontSize: 16)),
                 onTap: () {
                   UrlLauncher.launchURL(context, AppConstants.sourceCodeURL);
@@ -103,7 +103,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.favorite),
+                leading: Icon(Icons.favorite, color: appColors.primaryColor),
                 title:
                     Text(S.current.donateToHoster, style: const TextStyle(fontSize: 16)),
                 onTap: () {
@@ -135,7 +135,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
                 ),
               ),
               ListTile(
-                leading: Icon(FontAwesomeIcons.shieldHalved.data),
+                leading: Icon(FontAwesomeIcons.shieldHalved.data, color: appColors.primaryColor),
                 title: Text(S.current.licenseCrux, style: const TextStyle(fontSize: 16)),
                 onTap: () async {
                   UrlLauncher.launchURL(context, AppConstants.licenceURL);
