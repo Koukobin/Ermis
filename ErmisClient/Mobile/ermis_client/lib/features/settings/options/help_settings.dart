@@ -110,19 +110,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
                   Client.instance().commands?.requestDonationHTMLPage();
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.favorite),
-                title: Text(
-                  S.current.donateToErmisProject,
-                  style: const TextStyle(fontSize: 16),
-                ),
-                onTap: () {
-                  showSnackBarDialog(
-                    context: context,
-                    content: S.current.functionalityNotImplemented,
-                  );
-                },
-              ),
+              _buildDonateToErmisProjectTile(),
 
               const Divider(thickness: 2),
 
@@ -148,6 +136,71 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
               ),
             ],
           ))),
+    );
+  }
+
+  ListTile _buildDonateToErmisProjectTile() {
+    const List<Color> goldGradient = [
+      Color(0xFFFFF6BA), // Pale highlight
+      Color(0xFFFFBD3C), // Classic gold
+      Color(0xFFB8860B), // Gold shadow
+      Color(0xFFFFBD3C), // Classic gold
+    ];
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: ShaderMask(
+        shaderCallback: (bounds) => const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: goldGradient,
+          stops: [0.0, 0.4, 0.7, 1.0],
+        ).createShader(bounds),
+        child: Icon(
+          Icons.favorite,
+          color: Colors.white,
+          size: 28,
+          shadows: [
+            Shadow(blurRadius: 20.0, color: goldGradient[1]),
+            Shadow(blurRadius: 8.0, color: goldGradient[0]),
+          ],
+        ),
+      ),
+      title: ShaderMask(
+        shaderCallback: (bounds) => const LinearGradient(
+          colors: goldGradient,
+          stops: [0.0, 0.4, 0.7, 1.0],
+        ).createShader(bounds),
+        child: Text(
+          S.current.donateToErmisProject,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+            shadows: [
+              Shadow(blurRadius: 15.0, color: goldGradient[1]),
+              Shadow(blurRadius: 10.0, color: goldGradient[0]),
+            ],
+          ),
+        ),
+      ),
+      subtitle: Text(
+        "Support Ermis Development",
+        style: TextStyle(
+          fontSize: 12,
+          color: goldGradient[2],
+        ),
+      ),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: goldGradient[2],
+      ),
+      onTap: () {
+        showSnackBarDialog(
+          context: context,
+          content: S.current.functionalityNotImplemented,
+        );
+      },
     );
   }
 }
