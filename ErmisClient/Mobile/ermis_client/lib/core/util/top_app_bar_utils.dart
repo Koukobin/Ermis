@@ -42,10 +42,9 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
     title ??= Text(
           titleText ?? AppConstants.applicationTitle,
           style: TextStyle(
-            fontStyle: FontStyle.italic,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             fontSize: 20,
-            letterSpacing: 1.2,
+            letterSpacing: 1.4,
           ),
         );
 
@@ -78,15 +77,16 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
+    final colorScheme = Theme.of(context).colorScheme;
     return AppBar(
       leading: leading,
       backgroundColor: color ?? appColors.secondaryColor,
-      foregroundColor: appColors.primaryColor,
+      foregroundColor: colorScheme.onSurface,
       title: title,
       actions: actions,
       centerTitle: centerTitle ?? actions.isEmpty ? true : false,  // Could be simplified but I find this much more intuitive
       elevation: 0, // Removes AppBar shadow for a flat, modern appearance
-      bottom: removeDivider ? null : DividerBottom(dividerColor: appColors.primaryColor),
+      bottom: removeDivider ? null : DividerBottom(dividerColor: colorScheme.outlineVariant),
     );
   }
 }
