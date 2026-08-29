@@ -35,76 +35,81 @@ class AuthLandingScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: appColors.secondaryColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0),
-          child: Column(
-            children: [
-              SizedBox(height: isCompact ? 24 : 56),
-              // App icon display
-              Image.asset(
-                AppConstants.externalAppIconPath,
-                width: 100,
-                height: 100,
+      appBar: AppBar(toolbarHeight: 40),
+      body: Builder(
+        builder: (context) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28.0),
+              child: Column(
+                children: [
+                  SizedBox(height: (isCompact || Scaffold.of(context).hasAppBar) ? 24 : 56),
+                  // App icon display
+                  Image.asset(
+                    AppConstants.externalAppIconPath,
+                    width: 100,
+                    height: 100,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Ermis",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Giving you the freedom to communicate,\n— on your own terms.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      height: 1.4,
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const Spacer(),
+                  _PrimaryPillButton(
+                    label: 'Create a free account',
+                    onPressed: () => {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CreateAccountInterface()),
+                        (route) => true, // Don't remove all previous routes
+                      )
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  _SecondaryPillButton(
+                    label: 'Log in',
+                    onPressed: () => {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginInterface()),
+                        (route) => true, // Don't remove all previous routes
+                      )
+                    },
+                  ),
+                  const SizedBox(height: 28),
+                  const _OrDivider(),
+                  const SizedBox(height: 20),
+                  _ContinueRow(
+                    withPhoneNumber: () => showSnackBarDialog(context: context, content: 'Continue with number'),
+                    withFingerprint: () => showSnackBarDialog(context: context, content: 'Continue with fingerprint'),
+                    withPrivateKey: () => showSnackBarDialog(context: context, content: 'Continue with private key'),
+                  ),
+                  const SizedBox(height: 20),
+                  _PrivacyFooter(),
+                  SizedBox(height: (isCompact || Scaffold.of(context).hasAppBar) ? 16 : 28),
+                ],
               ),
-              const SizedBox(height: 20),
-              Text(
-                "Ermis",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Giving you the freedom to communicate,\n— on your own terms.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.4,
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const Spacer(),
-              _PrimaryPillButton(
-                label: 'Create a free account',
-                onPressed: () => {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const CreateAccountInterface()),
-                    (route) => false, // Removes all previous routes
-                  )
-                },
-              ),
-              const SizedBox(height: 14),
-              _SecondaryPillButton(
-                label: 'Log in',
-                onPressed: () => {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginInterface()),
-                    (route) => false, // Removes all previous routes
-                  )
-                },
-              ),
-              const SizedBox(height: 28),
-              const _OrDivider(),
-              const SizedBox(height: 20),
-              _ContinueRow(
-                withPhoneNumber: () => showSnackBarDialog(context: context, content: 'Continue with number'),
-                withFingerprint: () => showSnackBarDialog(context: context, content: 'Continue with fingerprint'),
-                withPrivateKey: () => showSnackBarDialog(context: context, content: 'Continue with private key'),
-              ),
-              const SizedBox(height: 28),
-              _PrivacyFooter(),
-              SizedBox(height: isCompact ? 16 : 28),
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       ),
     );
   }
