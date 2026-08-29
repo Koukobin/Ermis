@@ -235,7 +235,7 @@ class AppInfo extends StatelessWidget {
               ),
               const SizedBox(height: 25),
               Image.asset(
-                AppConstants.appIconPath,
+                AppConstants.externalAppIconPath,
                 width: 125,
                 height: 125,
               ),
