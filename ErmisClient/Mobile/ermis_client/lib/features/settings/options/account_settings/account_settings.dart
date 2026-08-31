@@ -176,23 +176,54 @@ class _AccountSettingsState extends State<AccountSettings> with EventBusSubscrip
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: appColors.secondaryColor,
-      appBar: ErmisAppBar(titleText: S.current.accountSettings),
+      appBar: ErmisAppBar(
+        titleText: S.current.accountSettings,
+        actions: [
+          PopupMenuButton<VoidCallback>(
+            position: PopupMenuPosition.under,
+            onSelected: (VoidCallback callback) {
+              callback();
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                value: () => pushSlideTransition(context, const DeleteAccountSettings()),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  children: [
+                    Icon(
+                      FontAwesomeIcons.solidTrashCan.data,
+                      color: Colors.redAccent,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      S().accountDelete,
+                      style: TextStyle(color: Colors.redAccent),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ListView(
           children: [
             ListTile(
-              leading: const Icon(Icons.password),
-              title: Text(S.current.changePassword),
-              onTap: () async {
-                pushSlideTransition(context, const ChangePasswordSettings());
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.person_add_alt),
               title: Text(S.current.accountAdd),
               onTap: () async {
                 await AccountSettings.showOtherAccounts(context);
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: const Icon(Icons.password),
+              title: Text(S.current.changePassword),
+              onTap: () async {
+                pushSlideTransition(context, const ChangePasswordSettings());
               },
             ),
             ListTile(
@@ -223,6 +254,7 @@ class _AccountSettingsState extends State<AccountSettings> with EventBusSubscrip
                 pushSlideTransition(context, const DeleteAccountSettings());
               },
             ),
+            Divider(),
           ],
         ),
       ),
