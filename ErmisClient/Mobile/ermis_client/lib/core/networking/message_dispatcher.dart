@@ -76,6 +76,9 @@ class MessageDispatcher {
           break;
         case ServerMessageType.commandResponse:
           final commandResponse = CommandResponseType.fromId(data.readInt32());
+          if (kDebugMode) {
+            debugPrint(commandResponse.toString());
+          }
           CommandResponseHandler().handle(commandResponse, data);
           break;
       }
