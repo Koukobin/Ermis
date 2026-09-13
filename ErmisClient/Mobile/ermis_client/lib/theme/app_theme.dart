@@ -160,7 +160,7 @@ class AppThemeState extends State<AppTheme> {
             backgroundColor: appColors.tertiaryColor.withValues(alpha: 1.0)),
       popupMenuTheme: PopupMenuThemeData(
         color: switch (brightness) {
-          Brightness.dark => const Color.fromARGB(255, 25, 25, 25),
+          Brightness.dark => appColors.tertiaryColor,
           Brightness.light => const Color.fromARGB(255, 210, 210, 210),
         },
         elevation: 5,
@@ -169,10 +169,7 @@ class AppThemeState extends State<AppTheme> {
         ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: switch (brightness) {
-            Brightness.dark => const Color(0xFF333333),
-            Brightness.light => const Color.fromARGB(255, 172, 172, 172),
-          },
+        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
         contentTextStyle: TextStyle(
           color: switch (brightness) {
             Brightness.dark => Colors.white,
