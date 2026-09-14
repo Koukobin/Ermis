@@ -84,6 +84,10 @@ class AppThemeState extends State<AppTheme> {
       visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts to platform
       splashFactory: InkRipple.splashFactory, // Smooth ripple
       primaryColor: appColors.primaryColor,
+      scaffoldBackgroundColor: appColors.secondaryColor,
+      appBarTheme: AppBarTheme(
+        backgroundColor: appColors.secondaryColor,
+      ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: appColors.primaryColor,
         foregroundColor: appColors.secondaryColor,
