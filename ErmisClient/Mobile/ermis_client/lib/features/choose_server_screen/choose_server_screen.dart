@@ -187,6 +187,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
 
   Widget buildConnectToServer(AppColors appColors) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16.0, 100.0, 16.0, 200.0),
@@ -195,7 +196,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
         colors: [
           appColors.secondaryColor,
           isDarkMode ? Colors.black : Colors.white,
-          const Color(0xFF00FF00), // Neon green glow
+          colorScheme.primary, // Neon green glow
         ],
         begin: Alignment.topRight,
         end: Alignment.bottomCenter,
