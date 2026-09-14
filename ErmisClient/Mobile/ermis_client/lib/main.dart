@@ -492,7 +492,7 @@ class MainInterfaceState extends State<MainInterface> with EventBusSubscriptionM
             await Client.instance().disconnect();
             try {
               await Client.instance().initialize(
-                serverInfo.serverUrl,
+                serverInfo,
                 ServerCertificateVerification.ignore,
               );
             } catch (e) {

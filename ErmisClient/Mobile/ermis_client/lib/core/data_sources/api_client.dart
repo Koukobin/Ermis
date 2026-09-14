@@ -77,7 +77,8 @@ class Client {
 
   Client._();
 
-  Future<void> initialize(Uri uri, ServerCertificateVerification scv) async {
+  Future<void> initialize(ServerInfo serverInfo, ServerCertificateVerification scv) async {
+    Uri uri = serverInfo.serverUrl;
     if (uri.port <= 0) {
       throw ArgumentError("Port cannot be below zero");
     }
@@ -96,7 +97,7 @@ class Client {
 
       _broadcastStream = sslSocket.asBroadcastStream();
 
-      UserInfoManager.serverInfo = ServerInfo(uri);
+      UserInfoManager.serverInfo = serverInfo;
 
       _inputStream = ByteBufInputStream(socket: sslSocket, stream: _broadcastStream!);
       _outputStream = ByteBufOutputStream(socket: sslSocket);
@@ -251,6 +252,7 @@ class Client {
 
   bool isConnectionRefused() => _isConnectionRefused;
   bool isConnectionReset() => _isConnectionReset;
+
 
 }
 

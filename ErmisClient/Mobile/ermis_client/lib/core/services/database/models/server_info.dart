@@ -26,19 +26,20 @@ class ServerInfo {
         _port = -1,
         lastUsed = DateTime.fromMillisecondsSinceEpoch(0);
 
-  factory ServerInfo(Uri serverUrl, [DateTime? lastUsed]) {
+  factory ServerInfo(String serverUrl, [DateTime? lastUsed]) {
     // Include scheme if it is not already embedded
-    if (!serverUrl.toString().startsWith("https://")) {
-      serverUrl = Uri.parse("https://${serverUrl.toString()}");
-    }
+    Uri buildUri(String url) => url.startsWith('http')
+      ? Uri.parse(url)
+      : Uri.https(url);
+    Uri serverUrl0 = buildUri(serverUrl);
 
     // Check if url is valid
-    if (!(serverUrl.hasScheme && serverUrl.hasAuthority)) {
-      throw InvalidServerUrlException("Invalid server URL: $serverUrl");
+    if (!(serverUrl0.hasScheme && serverUrl0.hasAuthority)) {
+      throw InvalidServerUrlException("Invalid server URL: $serverUrl0");
     }
 
-    int port = serverUrl.port;
-    return ServerInfo._(serverUrl, port, lastUsed ?? DateTime.now());
+    int port = serverUrl0.port;
+    return ServerInfo._(serverUrl0, port, lastUsed ?? DateTime.now());
   }
 
   ServerInfo._(this._serverUrl, this._port, this.lastUsed);

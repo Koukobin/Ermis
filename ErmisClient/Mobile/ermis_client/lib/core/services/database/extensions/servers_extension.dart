@@ -109,7 +109,7 @@ extension ServersExtension on DBConnection {
       final String lastUsed = record['last_used'] as String;
 
       return ServerInfo(
-        Uri.parse(serverUrl),
+        serverUrl,
         DateTime.parse(lastUsed),
       );
     }).toList();

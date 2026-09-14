@@ -101,17 +101,16 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
     // nothing leaks from previous sessions
     await Client.instance().disconnect();
 
-    Uri url = Uri.parse(serverUrl!);
     setState(() => _isConnectingToServer = true);
 
-    ServerInfo serverInfo = ServerInfo(url);
+    ServerInfo serverInfo = ServerInfo(serverUrl!);
 
     final DBConnection conn = ErmisDB.getConnection();
     conn.updateServerUrlLastUsed(serverInfo);
 
     try {
       await Client.instance().initialize(
-        url,
+        serverInfo,
         _checkServerCertificate
             ? ServerCertificateVerification.verify
             : ServerCertificateVerification.ignore,
@@ -241,11 +240,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                     
                         ServerInfo serverInfo;
                         try {
-                          Uri buildUri(String url) => url.startsWith('http')
-                              ? Uri.parse(url)
-                              : Uri.https(url);
-                    
-                          serverInfo = ServerInfo(buildUri(url));
+                          serverInfo = ServerInfo(url);
                         } on InvalidServerUrlException catch (e) {
                           showExceptionDialog(context, e.message);
                           return;
@@ -410,3 +405,4 @@ class _DropdownMenuState extends State<DropdownMenu> {
     );
   }
 }
+

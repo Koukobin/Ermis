@@ -115,7 +115,7 @@ Future<void> silentClientConnect() async {
   ServerInfo serverInfo = await conn.getServerUrlLastUsed();
 
   await Client.instance().initialize(
-    serverInfo.serverUrl,
+    serverInfo,
     ServerCertificateVerification.ignore, // Since user connected once he has no issue connecting again
   );
 
