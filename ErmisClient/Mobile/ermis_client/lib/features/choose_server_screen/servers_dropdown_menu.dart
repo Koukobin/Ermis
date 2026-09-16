@@ -24,6 +24,7 @@ import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/services/settings_json.dart';
 import '../../core/widgets/profile_photos/avatar_glow.dart';
 
 class ServersDropdownMenu extends StatefulWidget {
@@ -159,6 +160,19 @@ class _DropdownMenuState extends State<ServersDropdownMenu> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final colorScheme = Theme.of(context).colorScheme;
 
+    Widget showServerPickerButton = IconButton(
+          onPressed: () => showServerPicker(context),
+          icon: Icon(Icons.dns, color: Colors.lightGreenAccent) // TODO: change color dynamically using color scheme
+        );
+
+    if (!SettingsJson().whatsNewStatus.hasSeen) {
+      showServerPickerButton = AvatarGlow(
+        glowColor: colorScheme.primary,
+        glowRadiusFactor: 0.3,
+        child: showServerPickerButton,
+      );
+    }
+
     return DropdownMenu<String>(
       key: _widgetKey,
       initialSelection: selectedServerUrl,
@@ -177,10 +191,7 @@ class _DropdownMenuState extends State<ServersDropdownMenu> {
         Icons.arrow_drop_up,
         color: appColors.primaryColor,
       ),
-      leadingIcon: IconButton(
-        onPressed: () => showServerPicker(context),
-        icon: Icon(Icons.dns, color: Colors.lightGreenAccent), // TODO: change color dynamically using color scheme
-      ),
+      leadingIcon: showServerPickerButton,
       inputDecorationTheme: InputDecorationTheme(
         border: InputBorder.none,
         hintStyle: TextStyle(
