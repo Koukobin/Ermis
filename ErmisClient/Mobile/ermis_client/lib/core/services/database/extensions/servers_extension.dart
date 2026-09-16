@@ -54,6 +54,19 @@ extension ServersExtension on DBConnection {
     );
   }
 
+  Future<void> updateServerInfo(ServerInfo oldInfo, ServerInfo newInfo) async {
+    final db = await database;
+
+    await db.update(
+      'servers',
+      newInfo.toMap(),
+      where: 'server_url = ?',
+      whereArgs: [oldInfo.toString()],
+    );
+
+    await updateServerUrlLastUsed(newInfo);
+  }
+
   Future<void> removeServerInfo(ServerInfo info) async {
     final db = await database;
 

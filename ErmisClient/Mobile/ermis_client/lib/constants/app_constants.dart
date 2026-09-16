@@ -14,6 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -83,6 +84,8 @@ class AppConstants {
     quaternaryColor: Color.fromARGB(255, 46, 46, 46),
     inferiorColor: Colors.white,
   );
+
+  static final Set<ServerInfo> verifiedServers = { ServerInfo("ermis.absgr.net") };
 
   static const List<Locale> availableLanguages = [
     Locale('en', 'EN'), // English

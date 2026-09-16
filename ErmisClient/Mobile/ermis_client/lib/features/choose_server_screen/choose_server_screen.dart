@@ -34,15 +34,16 @@ import '../../constants/app_constants.dart';
 import '../../main.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
 import 'configure_own_server_button.dart';
+import 'servers_dropdown_menu.dart';
 import 'whats_new_screen.dart';
 
-String? serverUrl;
+final ValueNotifier<String?> selectedServerUrl = ValueNotifier<String?>(null);
 
 class ChooseServerScreen extends StatefulWidget {
   final Set<ServerInfo> cachedServerUrls;
 
   ChooseServerScreen(this.cachedServerUrls, {super.key}) {
-    serverUrl = cachedServerUrls.firstOrNull?.toString();
+    selectedServerUrl.value = cachedServerUrls.firstOrNull?.toString();
     // Above one-liner is equivalent to:
     // `if (cachedServerUrls.isEmpty) {
     //   return;
@@ -103,7 +104,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
 
     setState(() => _isConnectingToServer = true);
 
-    ServerInfo serverInfo = ServerInfo(serverUrl!);
+    ServerInfo serverInfo = ServerInfo(selectedServerUrl.value!);
 
     final DBConnection conn = ErmisDB.getConnection();
     conn.updateServerUrlLastUsed(serverInfo);
@@ -215,7 +216,11 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Dropdown Menu for Server URLs
-              DropdownMenu(cachedServerUrls),
+              ServersDropdownMenu(
+                cachedServerUrls: cachedServerUrls,
+                verifiedServers: AppConstants.verifiedServers,
+                selectedServerUrl: selectedServerUrl,
+              ),
               const SizedBox(height: 20),
               // Add Server and Certificate Options
               Row(
@@ -311,98 +316,3 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
     );
   }
 }
-
-class DropdownMenu extends StatefulWidget {
-  final Set<ServerInfo> cachedServerUrls;
-  const DropdownMenu(this.cachedServerUrls, {super.key});
-
-  @override
-  State<DropdownMenu> createState() => _DropdownMenuState();
-}
-
-class _DropdownMenuState extends State<DropdownMenu> {
-  /// [UniqueKey] used to refresh dropdown menu (i.e force rebuild) when a URL is deleted
-  Key _widgetKey = UniqueKey();
-
-  @override
-  Widget build(BuildContext context) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
-    final borderRadius = BorderRadius.circular(8.0);
-
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        decoration: BoxDecoration(
-          color: appColors.secondaryColor.withValues(alpha: 0.1),
-          borderRadius: borderRadius,
-          border: Border.all(color: appColors.primaryColor, width: 1.5),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            key: _widgetKey,
-            hint: Text(
-              S.current.chooseServerUrl,
-              style: TextStyle(
-                color: appColors.primaryColor,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            value: serverUrl,
-            isExpanded: true,
-            onChanged: (String? selectedUrl) {
-              setState(() {
-                serverUrl = selectedUrl!;
-              });
-            },
-            dropdownColor: appColors.secondaryColor.withValues(alpha: 0.9),
-            style: TextStyle(
-              color: appColors.primaryColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: appColors.primaryColor,
-            ),
-            items: widget.cachedServerUrls.map((ServerInfo server) {
-              return DropdownMenuItem<String>(
-                value: server.toString(),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        server.toString(),
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: appColors.primaryColor),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      splashRadius: 20,
-                      onPressed: () {
-                        ErmisDB.getConnection().removeServerInfo(server);
-                        setState(() {
-                          widget.cachedServerUrls.remove(server);
-
-                          // To ensure an error is not thrown by dropdown menu because
-                          // it cannot find selected item - i.e serverUrl - assign it to null
-                          if (serverUrl == server.toString()) {
-                            serverUrl = null;
-                          }
-
-                          _widgetKey = UniqueKey();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ),
-    );
-  }
-}
-

@@ -34,6 +34,20 @@ class CustomHttpClient {
 
   const CustomHttpClient();
 
+  Future<bool> pingServer(String url) async {
+    try {
+      final result = await _httpClient
+          .get(Uri.parse(url))
+          .timeout(const Duration(seconds: 5));
+
+      if (kDebugMode) debugPrint("$url: ${result.statusCode}");
+      return true;
+    } catch (e) {
+      if (kDebugMode) debugPrint(e.toString());
+      return false;
+    }
+  }
+
   Future<Uint8List?> fetchUint8ListFromUrl(String url) async {
     try {
       final response = await _httpClient.get(Uri.parse(url));
