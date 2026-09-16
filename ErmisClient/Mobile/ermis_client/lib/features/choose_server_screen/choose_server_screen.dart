@@ -21,7 +21,6 @@ import 'package:ermis_mobile/core/networking/user_info_manager.dart';
 import 'package:ermis_mobile/core/services/database/extensions/servers_extension.dart';
 import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
-import 'package:ermis_mobile/core/models/app_state/new_features_page_status.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:ermis_mobile/core/services/database/database_service.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
@@ -31,6 +30,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/data_sources/api_client.dart';
 import '../../constants/app_constants.dart';
+import '../../core/models/app_state/whats_new_status.dart';
 import '../../main.dart';
 import '../authentication/domain/entities/client_session_setup.dart';
 import 'configure_own_server_button.dart';
@@ -65,8 +65,8 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
     super.initState();
     cachedServerUrls = widget.cachedServerUrls;
 
-    NewFeaturesPageStatus status = SettingsJson().newFeaturesPageStatus;
-    if (status.hasShown && status.version == AppConstants.applicationVersion) {
+    WhatsNewStatus status = SettingsJson().whatsNewStatus;
+    if (status.hasSeen && status.lastSeenVersion == AppConstants.applicationVersion) {
       if (kReleaseMode) return;
 
       // Many prints to ensure message is visible on terminal
@@ -80,11 +80,11 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
       debugPrint("NewFeaturesPage would not have been shown in production built!");
     }
 
-    status.hasShown = true;
-    status.version = AppConstants.applicationVersion;
+    status.hasSeen = true;
+    status.lastSeenVersion = AppConstants.applicationVersion;
 
     SettingsJson()
-      ..setHasShownNewFeaturesPage(status)
+      ..setWhatsNewStatus(status)
       ..saveSettingsJson();
     Future.delayed(const Duration(milliseconds: 500), () {
       showDialog(

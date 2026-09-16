@@ -18,7 +18,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ermis_mobile/constants/app_constants.dart';
-import 'package:ermis_mobile/core/models/app_state/new_features_page_status.dart';
+import 'package:ermis_mobile/core/models/app_state/whats_new_status.dart';
 import 'package:ermis_mobile/enums/notification_sound_enum.dart';
 import 'package:ermis_mobile/enums/chat_back_drop_enum.dart';
 import 'package:flutter/material.dart';
@@ -117,8 +117,8 @@ class SettingsJson {
     _settingsJson["vibrationEnabled"] = enabled;
   }
 
-  void setHasShownNewFeaturesPage(NewFeaturesPageStatus page) {
-    _settingsJson["newFeaturesPageStatus"] = jsonEncode(page.toJson());
+  void setWhatsNewStatus(WhatsNewStatus status) {
+    _settingsJson["whatsNewStatus"] = jsonEncode(status.toJson());
   }
 
   void setUseLessDataForCallsEnabled(bool enabled) {
@@ -155,17 +155,17 @@ class SettingsJson {
     return Locale(languageCode, countryCode);
   }
 
-  NewFeaturesPageStatus get newFeaturesPageStatus {
-    final status = _settingsJson["newFeaturesPageStatus"];
+  WhatsNewStatus get whatsNewStatus {
+    final status = _settingsJson["whatsNewStatus"];
     if (status is String) {
       try {
-        return NewFeaturesPageStatus.fromJson(jsonDecode(status));
+        return WhatsNewStatus.fromJson(jsonDecode(status));
       } on Error {
         // In case of a fail, return a default status
       }
     }
 
-    return NewFeaturesPageStatus(hasShown: false, version: AppConstants.applicationVersion);
+    return WhatsNewStatus(hasSeen: false, lastSeenVersion: AppConstants.applicationVersion);
   }
 
   bool get useLessDataForCallsEnabled => _settingsJson["useLessDataForCallsEnabled"];

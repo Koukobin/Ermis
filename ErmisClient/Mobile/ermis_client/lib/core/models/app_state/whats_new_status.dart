@@ -16,18 +16,18 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-part 'new_features_page_status.g.dart';
+part 'whats_new_status.g.dart';
 
 @JsonSerializable()
-class NewFeaturesPageStatus {
-  bool hasShown;
-  String version;
+class WhatsNewStatus {
+  bool hasSeen;
+  String lastSeenVersion;
 
-  NewFeaturesPageStatus({required this.hasShown, required this.version});
+  WhatsNewStatus({required this.hasSeen, required this.lastSeenVersion});
 
   // Factory method to create a User from JSON
-  factory NewFeaturesPageStatus.fromJson(Map<String, dynamic> json) => _$NewFeaturesPageStatusFromJson(json);
+  factory WhatsNewStatus.fromJson(Map<String, dynamic> json) => _$WhatsNewStatusFromJson(json);
 
   // Method to convert a User to JSON
-  Map<String, dynamic> toJson() => _$NewFeaturesPageStatusToJson(this);
+  Map<String, dynamic> toJson() => _$WhatsNewStatusToJson(this);
 }
