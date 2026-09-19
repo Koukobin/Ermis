@@ -42,7 +42,7 @@ class ErmisAppBar extends StatelessWidget implements PreferredSizeWidget {
     title ??= Text(
           titleText ?? AppConstants.applicationTitle,
           style: TextStyle(
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w600,
             fontSize: 20,
             letterSpacing: 1.4,
           ),
