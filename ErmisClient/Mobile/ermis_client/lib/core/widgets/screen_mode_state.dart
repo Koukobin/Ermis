@@ -16,24 +16,24 @@
 
 import 'package:flutter/material.dart';
 
-enum ConvultedTask { normal, loading, editing, searching }
+enum ScreenMode { normal, loading, editing, searching }
 
-abstract class ConvultedState<T extends StatefulWidget> extends State<T> with AutomaticKeepAliveClientMixin<T> {
-  ConvultedTask task;
+abstract class ScreenModeState<T extends StatefulWidget> extends State<T> with AutomaticKeepAliveClientMixin<T> {
+  ScreenMode task;
 
-  ConvultedState(this.task);
+  ScreenModeState(this.task);
 
   @override
   Widget build(BuildContext context) {
     super.build(context); // Cache state
     switch (task) {
-      case ConvultedTask.normal:
+      case ScreenMode.normal:
         return normalBuild(context);
-      case ConvultedTask.loading:
+      case ScreenMode.loading:
         return loadingBuild(context);
-      case ConvultedTask.editing:
+      case ScreenMode.editing:
         return editingBuild(context);
-      case ConvultedTask.searching:
+      case ScreenMode.searching:
         return searchingBuild(context);
     }
   }

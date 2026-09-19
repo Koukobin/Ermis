@@ -22,7 +22,7 @@ import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-import '../voice_call/web_rtc/call_info.dart';
+import '../../voice_call/web_rtc/call_info.dart';
 
 class ChatUserAvatar extends InteractiveUserAvatar {
   final void Function(BuildContext, ChatSession) pushMessageInterface;

@@ -18,7 +18,7 @@ import 'package:ermis_mobile/core/data_sources/api_client.dart';
 import 'package:ermis_mobile/core/models/member.dart';
 import 'package:ermis_mobile/core/util/transitions_util.dart';
 import 'package:ermis_mobile/features/call_history_screen/call_history_screen.dart';
-import 'package:ermis_mobile/features/chats/send_chat_request_button.dart';
+import 'package:ermis_mobile/features/chats/widgets/send_chat_request_button.dart';
 import 'package:ermis_mobile/features/messaging/presentation/choose_friends_screen.dart';
 import 'package:ermis_mobile/features/settings/options/linked_devices_settings.dart';
 import 'package:ermis_mobile/features/settings/primary_settings_interface.dart';
@@ -26,7 +26,7 @@ import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/util/screen_reset.dart';
+import '../../../core/util/screen_reset.dart';
 
 class ChatPopupMenuButton extends StatelessWidget {
   const ChatPopupMenuButton({super.key});

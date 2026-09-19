@@ -16,15 +16,20 @@
 
 import 'package:flutter/material.dart';
 
-import '../../generated/l10n.dart';
-import '../../theme/app_colors.dart';
+import '../../../generated/l10n.dart';
+import '../../../theme/app_colors.dart';
+
+typedef SearchConsumer = void Function(TextEditingController searchController);
 
 class ChatSearchField extends StatefulWidget {
   final TextEditingController searchController;
+  final SearchConsumer searchConsumer;
   final FocusNode focusNode;
+
   const ChatSearchField({
     super.key,
     required this.searchController,
+    required this.searchConsumer,
     required this.focusNode,
   });
 
@@ -33,16 +38,36 @@ class ChatSearchField extends StatefulWidget {
 }
 
 class _ChatSearchFieldState extends State<ChatSearchField> {
+  TextEditingController get _searchController => widget.searchController;
+  SearchConsumer        get _searchConsumer   => widget.searchConsumer;
+
   double _opacity = 0.0;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: 15), () {
+    Future.delayed(const Duration(milliseconds: 15), () {
       if (mounted) {
         setState(() => _opacity = 1.0);
       }
     });
+
+    // Whenever text changes performs search
+    _searchController.addListener(() {
+      if (!mounted) {
+        return;
+      }
+      performSearch();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void performSearch() {
+    _searchConsumer.call(_searchController);
   }
 
   @override
@@ -52,7 +77,7 @@ class _ChatSearchFieldState extends State<ChatSearchField> {
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
-      opacity: _opacity, // Fully visible when searching
+      opacity: _opacity,
       child: Container(
         height: 45,
         decoration: BoxDecoration(
