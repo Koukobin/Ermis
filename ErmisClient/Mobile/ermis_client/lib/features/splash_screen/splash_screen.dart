@@ -59,7 +59,11 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => ChooseServerScreen(cachedServerUrls),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return ChooseServerScreen(
+                cachedServerUrls: cachedServerUrls,
+                verifiedServerUrls: AppConstants.verifiedServers);
+          },
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             final fadeAnimation = Tween(begin: 0.0, end: 1.0).animate(
               CurvedAnimation(parent: animation, curve: Curves.ease),

@@ -41,14 +41,15 @@ final ValueNotifier<String?> selectedServerUrl = ValueNotifier<String?>(null);
 
 class ChooseServerScreen extends StatefulWidget {
   final Set<ServerInfo> cachedServerUrls;
+  final Set<ServerInfo> verifiedServerUrls;
 
-  ChooseServerScreen(this.cachedServerUrls, {super.key}) {
+  ChooseServerScreen({
+    required this.cachedServerUrls,
+    required this.verifiedServerUrls,
+    super.key,
+  }) {
     selectedServerUrl.value = cachedServerUrls.firstOrNull?.toString();
-    // Above one-liner is equivalent to:
-    // `if (cachedServerUrls.isEmpty) {
-    //   return;
-    // }
-    // serverUrl = cachedServerUrls.first.serverUrl.toString();`
+    selectedServerUrl.value ??= verifiedServerUrls.firstOrNull?.toString();
   }
 
   @override
@@ -56,14 +57,15 @@ class ChooseServerScreen extends StatefulWidget {
 }
 
 class ChooseServerScreenState extends State<ChooseServerScreen> {
-  Set<ServerInfo> cachedServerUrls = {};
   bool _checkServerCertificate = false;
   bool _isConnectingToServer = false;
+
+  Set<ServerInfo> get cachedServerUrls   => widget.cachedServerUrls;
+  Set<ServerInfo> get verifiedServerUrls => widget.verifiedServerUrls;
 
   @override
   void initState() {
     super.initState();
-    cachedServerUrls = widget.cachedServerUrls;
 
     WhatsNewStatus status = SettingsJson().whatsNewStatus;
     if (status.hasSeen && status.lastSeenVersion == AppConstants.applicationVersion) {
@@ -217,7 +219,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
               // Dropdown Menu for Server URLs
               ServersDropdownMenu(
                 cachedServerUrls: cachedServerUrls,
-                verifiedServers: AppConstants.verifiedServers,
+                verifiedServers: widget.verifiedServerUrls,
                 selectedServerUrl: selectedServerUrl,
               ),
               const SizedBox(height: 20),
