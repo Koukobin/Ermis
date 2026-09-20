@@ -43,6 +43,7 @@ class AppConstants {
   static const String applicationTitle = "Ermis";
   static const String appIconPath = 'assets/primary_application_icon.png';
   static const String externalAppIconPath = 'assets/application_icon.png';
+  static const String appIconSplashAnimationPath = 'assets/app_icon_splash_animation.lottie';
 
   static const String parthenonasPath = 'assets/chat_backgrounds/parthenon.jpg';
   static const String ermisBackgroundPath = 'assets/chat_backgrounds/ermis_wallpaper_by_solvazquez_on_reddit.png';

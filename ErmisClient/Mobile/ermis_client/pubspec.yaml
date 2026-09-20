@@ -102,6 +102,8 @@ dependencies:
 
   vector_graphics: ^1.2.2
 
+  lottie: ^3.5.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -139,6 +141,7 @@ flutter:
   assets:
     - assets/primary_application_icon.png
     - assets/application_icon.png
+    - assets/app_icon_splash_animation.lottie
     - assets/LICENCE.txt
     - assets/sounds/ermis_notification.mp3
     - assets/sounds/outgoing_call_ring_sound_effect.wav

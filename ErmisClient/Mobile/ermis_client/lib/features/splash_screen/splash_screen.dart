@@ -21,6 +21,7 @@ import 'package:ermis_mobile/core/services/database/models/server_info.dart';
 import 'package:ermis_mobile/core/util/dialogs_utils.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../core/util/ermis_loading_messages.dart';
 import '../choose_server_screen/choose_server_screen.dart';
@@ -145,12 +146,13 @@ class _SplashScreenState extends State<SplashScreen> {
               AnimatedOpacity(
                 opacity: 1.0,
                 duration: const Duration(seconds: 1),
-                child: Image.asset(
-                  AppConstants.appIconPath,
+                child: Lottie.asset(
+                  AppConstants.appIconSplashAnimationPath,
                   height: 120,
                   width: 120,
                 ),
               ),
+              const SizedBox(height: 20),
               buildErmisLoadingText(),
             ],
           ),
