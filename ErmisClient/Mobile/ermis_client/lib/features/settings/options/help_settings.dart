@@ -167,7 +167,7 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
         ),
       ),
       subtitle: Text(
-        "Support Ermis Development",
+        S().supportErmisDevelopment,
         style: TextStyle(
           fontSize: 12,
           color: gold.colors[2],

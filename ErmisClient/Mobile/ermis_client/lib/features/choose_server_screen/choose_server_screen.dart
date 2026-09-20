@@ -245,7 +245,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  S.current.checkCertificateDescription,
+                  S.current.verifyServerIdentity,
                   style: TextStyle(
                     fontSize: 13,
                     color: appColors.primaryColor.withAlpha(180),
