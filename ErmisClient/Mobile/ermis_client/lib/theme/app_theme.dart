@@ -182,26 +182,21 @@ class AppThemeState extends State<AppTheme> {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: Theme.of(context).colorScheme.inverseSurface,
         contentTextStyle: TextStyle(
-          color: switch (brightness) {
-            Brightness.dark => Colors.white,
-            Brightness.light => Colors.black,
-          },
+          color: Theme.of(context).colorScheme.onInverseSurface,
           fontSize: 16,
         ),
-        closeIconColor: Colors.grey,
+        actionTextColor: Theme.of(context).colorScheme.inversePrimary,
+        closeIconColor: Theme.of(context).colorScheme.onInverseSurface,
         showCloseIcon: true,
         shape: RoundedRectangleBorder(
           side: BorderSide(
-            color: switch (brightness) {
-              Brightness.dark => Color.fromARGB(195, 10, 10, 10),
-              Brightness.light => Color.fromARGB(195, 220, 220, 220),
-            },
+            color: Theme.of(context).colorScheme.onInverseSurface.withValues(alpha: 0.15),
             width: 1.25,
           ),
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 1,
-        behavior: SnackBarBehavior.fixed,
+        behavior: SnackBarBehavior.floating,
       ),
       switchTheme: SwitchThemeData(
           trackColor: WidgetStateProperty.resolveWith<Color>((states) {
