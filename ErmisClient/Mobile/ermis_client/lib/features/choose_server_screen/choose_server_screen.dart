@@ -186,7 +186,6 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
   }
 
   Widget buildConnectToServer(AppColors appColors) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -195,7 +194,7 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
           gradient: LinearGradient(
         colors: [
           appColors.secondaryColor,
-          isDarkMode ? Colors.black : Colors.white,
+          colorScheme.surfaceContainerLowest,
           colorScheme.primary, // Neon green glow
         ],
         begin: Alignment.topRight,
