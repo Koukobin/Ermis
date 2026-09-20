@@ -17,6 +17,7 @@
 import 'package:ermis_mobile/constants/app_constants.dart';
 import 'package:ermis_mobile/generated/l10n.dart';
 import 'package:ermis_mobile/theme/app_colors.dart';
+import 'package:ermis_mobile/theme/gold_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -80,7 +81,13 @@ class AppThemeState extends State<AppTheme> {
         brightness: brightness,
       ),
       brightness: brightness,
-      extensions: [appColors],
+      extensions: [
+        appColors,
+        switch (brightness) {
+          Brightness.dark => GoldStyle.dark,
+          Brightness.light => GoldStyle.light,
+        }
+      ],
       visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts to platform
       splashFactory: InkRipple.splashFactory, // Smooth ripple
       primaryColor: appColors.primaryColor,

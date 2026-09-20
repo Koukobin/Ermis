@@ -30,6 +30,7 @@ import '../../../constants/app_constants.dart';
 import '../../../core/util/file_utils.dart';
 import '../../../core/util/top_app_bar_utils.dart';
 import '../../../core/widgets/scroll/custom_scroll_view.dart';
+import '../../../theme/gold_style.dart';
 
 class HelpSettings extends StatefulWidget {
   const HelpSettings({super.key});
@@ -140,47 +141,28 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
   }
 
   ListTile _buildDonateToErmisProjectTile() {
-    const List<Color> goldGradient = [
-      Color(0xFFFFF6BA), // Pale highlight
-      Color(0xFFFFBD3C), // Classic gold
-      Color(0xFFB8860B), // Gold shadow
-      Color(0xFFFFBD3C), // Classic gold
-    ];
+    final gold = context.goldStyleExtension;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: ShaderMask(
-        shaderCallback: (bounds) => const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: goldGradient,
-          stops: [0.0, 0.4, 0.7, 1.0],
-        ).createShader(bounds),
+        shaderCallback: (bounds) => gold.gradient().createShader(bounds),
         child: Icon(
           Icons.favorite,
           color: Colors.white,
           size: 28,
-          shadows: [
-            Shadow(blurRadius: 20.0, color: goldGradient[1]),
-            Shadow(blurRadius: 8.0, color: goldGradient[0]),
-          ],
+          shadows: gold.iconShadows,
         ),
       ),
       title: ShaderMask(
-        shaderCallback: (bounds) => const LinearGradient(
-          colors: goldGradient,
-          stops: [0.0, 0.4, 0.7, 1.0],
-        ).createShader(bounds),
+        shaderCallback: (bounds) => gold.gradient().createShader(bounds),
         child: Text(
           S.current.donateToErmisProject,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.white,
-            shadows: [
-              Shadow(blurRadius: 15.0, color: goldGradient[1]),
-              Shadow(blurRadius: 10.0, color: goldGradient[0]),
-            ],
+            shadows: gold.textShadows,
           ),
         ),
       ),
@@ -188,12 +170,12 @@ class HelpSettingsState extends State<HelpSettings> with EventBusSubscriptionMix
         "Support Ermis Development",
         style: TextStyle(
           fontSize: 12,
-          color: goldGradient[2],
+          color: gold.colors[2],
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
-        color: goldGradient[2],
+        color: gold.colors[2],
       ),
       onTap: () {
         showSnackBarDialog(

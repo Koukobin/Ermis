@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/services/settings_json.dart';
 import '../../core/widgets/profile_photos/avatar_glow.dart';
+import '../../theme/gold_style.dart';
 
 class ServersDropdownMenu extends StatefulWidget {
   final Set<ServerInfo> cachedServerUrls;
@@ -56,6 +57,7 @@ class _DropdownMenuState extends State<ServersDropdownMenu> {
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (context) => DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.7,
@@ -90,7 +92,6 @@ class _DropdownMenuState extends State<ServersDropdownMenu> {
                     cachedServerUrls.add(serverInfo);
                     selectedServerUrl = url;
                   });
-                  Navigator.pop(context);
                 },
               ),
             ),
@@ -161,9 +162,14 @@ class _DropdownMenuState extends State<ServersDropdownMenu> {
     final colorScheme = Theme.of(context).colorScheme;
 
     Widget showServerPickerButton = IconButton(
-          onPressed: () => showServerPicker(context),
-          icon: Icon(Icons.dns, color: Colors.lightGreenAccent) // TODO: change color dynamically using color scheme
-        );
+        onPressed: () => showServerPicker(context),
+        icon: Icon(
+          Icons.dns,
+          color: switch (Theme.of(context).brightness) {
+            Brightness.dark => Colors.lightGreenAccent, // TODO: change color dynamically using color scheme
+            Brightness.light => colorScheme.primary,
+          },
+        ));
 
     if (!SettingsJson().whatsNewStatus.hasSeen) {
       showServerPickerButton = AvatarGlow(
@@ -211,57 +217,31 @@ class _DropdownMenuState extends State<ServersDropdownMenu> {
       },
       dropdownMenuEntries: [
         ...widget.verifiedServers.map((ServerInfo server) {
-          const goldGradient = [
-            Color(0xFFFFF6BA),
-            Color(0xFFFFBD3C),
-            Color(0xFFB8860B),
-            Color(0xFFFFBD3C),
-          ];
+          final gold = context.goldStyleExtension;
+
           return DropdownMenuEntry<String>(
             value: "$server",
             label: server.toString(),
             labelWidget: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: goldGradient,
-                stops: [0.0, 0.4, 0.7, 1.0],
-              ).createShader(bounds),
+              shaderCallback: (bounds) => gold.gradient().createShader(bounds),
               child: Text(
                 server.toString(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Colors.white,
-                  shadows: [
-                    Shadow(blurRadius: 15.0, color: Color(0xFFFFBD3C)),
-                    Shadow(blurRadius: 10.0, color: Color(0xFFFFF6BA)),
-                  ],
+                  shadows: gold.textShadows,
                 ),
               ),
             ),
             trailingIcon: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: goldGradient,
-                stops: [0.0, 0.4, 0.7, 1.0],
-              ).createShader(bounds),
+              shaderCallback: (bounds) => gold.gradient().createShader(bounds),
               child: IconButton(
-                icon: ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: goldGradient,
-                    stops: [0.0, 0.4, 0.7, 1.0],
-                  ).createShader(bounds),
-                  child: Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 28,
-                    shadows: [
-                      Shadow(blurRadius: 20.0, color: goldGradient[1]),
-                      Shadow(blurRadius: 8.0, color: goldGradient[0]),
-                    ],
-                  ),
+                icon: Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: 28,
+                  shadows: gold.textShadows
                 ),
                 onPressed: () {
                   showServerPicker(context);
@@ -319,50 +299,30 @@ class _VerifiedServerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const goldGradient = [
-      Color(0xFFFFF6BA),
-      Color(0xFFFFBD3C),
-      Color(0xFFB8860B),
-      Color(0xFFFFBD3C),
-    ];
+    final gold = context.goldStyleExtension;
 
     return ListTile(
       onTap: onTap,
       leading: _ServerStatusIndicator(server: server),
       title: ShaderMask(
-        shaderCallback: (bounds) => const LinearGradient(
-          colors: goldGradient,
-          stops: [0.0, 0.4, 0.7, 1.0],
-        ).createShader(bounds),
+        shaderCallback: (bounds) => gold.gradient().createShader(bounds),
         child: Text(
           server.toString(),
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.white,
-            shadows: [
-              Shadow(blurRadius: 15.0, color: Color(0xFFFFBD3C)),
-              Shadow(blurRadius: 10.0, color: Color(0xFFFFF6BA)),
-            ],
+            shadows: gold.textShadows,
           ),
         ),
       ),
       trailing: ShaderMask(
-        shaderCallback: (bounds) => const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: goldGradient,
-          stops: [0.0, 0.4, 0.7, 1.0],
-        ).createShader(bounds),
-        child: const Icon(
+        shaderCallback: (bounds) => gold.gradient().createShader(bounds),
+        child: Icon(
           Icons.verified,
           color: Colors.white,
           size: 24,
-          shadows: [
-            Shadow(blurRadius: 20.0, color: Color(0xFFFFBD3C)),
-            Shadow(blurRadius: 8.0, color: Color(0xFFFFF6BA)),
-          ],
         ),
       ),
     );
