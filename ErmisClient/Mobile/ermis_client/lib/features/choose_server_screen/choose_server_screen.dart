@@ -223,74 +223,33 @@ class ChooseServerScreenState extends State<ChooseServerScreen> {
               ),
               const SizedBox(height: 20),
               // Add Server and Certificate Options
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Constrain size of button to ensure other widgets are
-                  // not out of bounds in devices with large text fonts
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.5,
-                      maxHeight: MediaQuery.of(context).size.height * 0.1,
-                    ),
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        String url = await showInputDialog(
-                          context: context,
-                          title: S.current.enterServerUrl,
-                          hintText: "example.com",
-                        );
-                    
-                        if (url.isEmpty) return;
-                    
-                        ServerInfo serverInfo;
-                        try {
-                          serverInfo = ServerInfo(url);
-                        } on InvalidServerUrlException catch (e) {
-                          showExceptionDialog(context, e.message);
-                          return;
-                        }
-                    
-                        setState(() => cachedServerUrls.add(serverInfo));
-                        ErmisDB.getConnection().insertServerInfo(serverInfo);
-                    
-                        // Feedback
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(S.current.serverAddedSuccess)),
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: Text(
-                        softWrap: true,
-                        S.current.serverAdd,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: appColors.primaryColor,
-                        foregroundColor: appColors.tertiaryColor,
-                      ),
-                    ),
+              CheckboxListTile(
+                value: _checkServerCertificate,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _checkServerCertificate = value ?? false;
+                  });
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+                activeColor: appColors.primaryColor,
+                checkColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                dense: false,
+                title: Text(
+                  S.current.checkCertificate,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: appColors.primaryColor,
                   ),
-                  Expanded(
-                    child: CheckboxListTile(
-                      value: _checkServerCertificate,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _checkServerCertificate = value!;
-                        });
-                      },
-                      activeColor: appColors.primaryColor,
-                      title: Text(
-                        S.current.checkCertificate,
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: appColors.primaryColor,
-                        ),
-                      ),
-                    ),
+                ),
+                subtitle: Text(
+                  S.current.checkCertificateDescription,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: appColors.primaryColor.withAlpha(180),
                   ),
-                ],
+                ),
               ),
               const SizedBox(height: 30),
               // "Connect" Button
