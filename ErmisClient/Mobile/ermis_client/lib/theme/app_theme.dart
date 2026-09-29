@@ -77,7 +77,8 @@ class AppThemeState extends State<AppTheme> {
 
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: appColors.primaryColor,
+        seedColor: Colors.blue,
+        primary: appColors.primaryColor,
         brightness: brightness,
       ),
       brightness: brightness,
