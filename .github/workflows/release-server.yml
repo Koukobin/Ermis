@@ -41,7 +41,7 @@ jobs:
           echo "server_version=$MAJOR_MINOR" >> $GITHUB_OUTPUT
 
       - name: Update ermis-server version in pom.xml
-        run: sed -i "0,/<version>.*<\/version>/s//<version>${{ steps.version.outputs.server_version }}<\/version>/" pom.xml
+        run: sed -i "0,/<version>.*<\/version>/s//<version>${{ steps.version.outputs.server_version }}<\/version>/" ErmisServer/pom.xml
 
       - name: Commit and push updated pom.xml
         run: |
