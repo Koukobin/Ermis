@@ -71,7 +71,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
-          flutter-version: '3.41.1'
+          flutter-version: '3.44.4'
 
       - name: Decode Keystore
         working-directory: ErmisClient/Mobile/ermis_client
