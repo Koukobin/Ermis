@@ -45,6 +45,7 @@ dependencies:
   sqflite: ^2.4.2
   path: ^1.9.1
   path_provider: ^2.1.5
+  flutter_secure_storage: ^10.3.1
 
   # File Handling
   flutter_file_dialog: ^3.0.3
@@ -79,6 +80,7 @@ dependencies:
   flutter_webrtc: ^1.5.1
   web_socket_channel: ^3.0.3
   http: ^1.6.0
+  lottie: ^3.5.1
 
   # Encryption/Decryption
   # encrypt: ^5.0.3
@@ -101,8 +103,6 @@ dependencies:
   json_serializable: ^6.12.0
 
   vector_graphics: ^1.2.2
-
-  lottie: ^3.5.1
 
 dev_dependencies:
   flutter_test:
