@@ -51,37 +51,6 @@ CREATE TABLE IF NOT EXISTS user_auth_email (
 CREATE INDEX IF NOT EXISTS idx_users_client_id ON users (client_id);
 CREATE INDEX IF NOT EXISTS idx_user_email_client_id ON user_auth_email (client_id);
 
--- Repoint dependent foreign keys.
---    Postgres foreign keys track the referenced table by OID,
---    not by name, so table `users` RENAME to `users_legacy` carried
---    every existing FK that pointed at `users` along with it.
--- 	  They now silently point at `users_legacy` instead of the new `users` table.
---    This finds every such constraint and recreates it against
---    the new `users` table.
-DO $$
-DECLARE
-    r RECORD;
-    new_def TEXT;
-BEGIN
-    FOR r IN
-        SELECT c.oid,
-               c.conname,
-               c.conrelid::regclass AS table_name,
-               pg_get_constraintdef(c.oid) AS def
-        FROM pg_constraint c
-        WHERE c.contype = 'f'
-          AND c.confrelid = 'users_legacy'::regclass
-    LOOP
-        new_def := replace(r.def, 'users_legacy', 'users');
- 
-        EXECUTE format('ALTER TABLE %s DROP CONSTRAINT %I', r.table_name, r.conname);
-        EXECUTE format('ALTER TABLE %s ADD CONSTRAINT %I %s', r.table_name, r.conname, new_def);
- 
-        RAISE NOTICE 'Repointed constraint % on table % to reference users', r.conname, r.table_name;
-    END LOOP;
-END
-$$;
-
 -- Ensure user has at least ONE registered registration method
 CREATE OR REPLACE FUNCTION check_user_has_registered_method()
 RETURNS TRIGGER AS $$
@@ -121,5 +90,36 @@ SELECT client_id,
        backup_verification_codes,
        password_last_updated_at
 FROM users_legacy;
+
+-- Repoint dependent foreign keys.
+--    Postgres foreign keys track the referenced table by OID,
+--    not by name, so table `users` RENAME to `users_legacy` carried
+--    every existing FK that pointed at `users` along with it.
+-- 	  They now silently point at `users_legacy` instead of the new `users` table.
+--    This finds every such constraint and recreates it against
+--    the new `users` table.
+DO $$
+DECLARE
+    r RECORD;
+    new_def TEXT;
+BEGIN
+    FOR r IN
+        SELECT c.oid,
+               c.conname,
+               c.conrelid::regclass AS table_name,
+               pg_get_constraintdef(c.oid) AS def
+        FROM pg_constraint c
+        WHERE c.contype = 'f'
+          AND c.confrelid = 'users_legacy'::regclass
+    LOOP
+        new_def := replace(r.def, 'users_legacy', 'users');
+
+        EXECUTE format('ALTER TABLE %s DROP CONSTRAINT %I', r.table_name, r.conname);
+        EXECUTE format('ALTER TABLE %s ADD CONSTRAINT %I %s', r.table_name, r.conname, new_def);
+
+        RAISE NOTICE 'Repointed constraint % on table % to reference users', r.conname, r.table_name;
+    END LOOP;
+END
+$$;
 
 COMMIT;
