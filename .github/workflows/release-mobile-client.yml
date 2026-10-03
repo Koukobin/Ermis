@@ -38,6 +38,7 @@ jobs:
           git remote set-url origin https://github.com/Koukobin/Ermis.git
           git add pubspec.yaml
           git commit -m "chore: update client version in pubspec.yaml to ${{ steps.version.outputs.client_version }}"
+          git pull --rebase origin master
           git push origin HEAD:master
 
   release:
