@@ -670,7 +670,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
           Center(
             child: UserProfilePhoto(
               radius: 100,
-              profileBytes: widget.member.icon.profilePhoto,
+              icon: widget.member.icon,
             ),
           ),
         ],
