@@ -5,7 +5,7 @@
     <groupId>io.github.koukobin.ermis</groupId>
 	<artifactId>ermis.server</artifactId>
 	<packaging>jar</packaging>
-	<version>2.0.0</version>
+	<version>2.0.1-rc</version>
 
 	<name>ermis-server</name>
     <url>https://github.com/Koukobin/Ermis</url>
