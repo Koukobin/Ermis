@@ -4,51 +4,76 @@ permissions:
   contents: write
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Semantic version without prefix (e.g. 1.4.0)"
+        required: true
+        type: string
 
 jobs:
   init:
-    if: startsWith(github.ref_name, 'client-mobile')
     runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.bump.outputs.sha }}
+      tag: ${{ steps.bump.outputs.tag }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
 
       - name: Parse client version
         working-directory: ErmisClient/Mobile/ermis_client
         id: version
+        env:
+          SEM_VER: ${{ inputs.version }}
         run: |
-          SEM_VER=$(echo "${GITHUB_REF_NAME#client-mobile-v}")
+          set -euo pipefail
+          TAG="client-mobile-v${SEM_VER}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists" >&2
+            exit 1
+          fi
+          SEM_VER="${{ inputs.version }}"
           BUILD_NUMBER=$(cat pubspec.yaml | grep "version: " | cut -d+ -f2)
           VERSION="${SEM_VER}+$((BUILD_NUMBER + 1))"
-          echo "client_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "client_version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Update client version in pubspec.yaml
         working-directory: ErmisClient/Mobile/ermis_client
         run: |
           sed -i "0,/version: .*/s//version: ${{ steps.version.outputs.client_version }}/" pubspec.yaml
 
-      - name: Commit and push updated pubspec.yaml
+      - name: Commit and tag
+        id: bump
         working-directory: ErmisClient/Mobile/ermis_client
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
+          set -euo pipefail
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git remote set-url origin https://github.com/Koukobin/Ermis.git
           git add pubspec.yaml
           git commit -m "chore: update client version in pubspec.yaml to ${{ steps.version.outputs.client_version }}"
-          git pull --rebase origin master
-          git push origin HEAD:master
+          git tag "$TAG"
+          git push --atomic origin HEAD:master "refs/tags/$TAG"
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
   release:
-    if: success() && startsWith(github.ref_name, 'client-mobile')
     needs: [init]
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout tagged commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.init.outputs.tag }}
 
       - name: Setup Android SDK at /opt/android-sdk
         run: |
@@ -107,10 +132,11 @@ jobs:
       - name: Upload APKs to Release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
+          tag_name: ${{ needs.init.outputs.tag }}
+          generate_release_notes: true
           files: |
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-fat-release.apk
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-split-arm64-release.apk
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-split-arm32-release.apk
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-split-x64-release.apk
             ErmisClient/Mobile/ermis_client/build/app/outputs/app-release.aab
-
