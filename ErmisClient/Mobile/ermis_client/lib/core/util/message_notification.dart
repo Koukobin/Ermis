@@ -18,9 +18,10 @@ import 'dart:typed_data';
 
 import 'package:ermis_mobile/constants/app_constants.dart';
 import 'package:ermis_mobile/core/models/member.dart';
+import 'package:ermis_mobile/core/util/sound_player.dart';
 import 'package:ermis_mobile/enums/notification_sound_enum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:vibration/vibration.dart';
 
 import '../networking/common/message_types/content_type.dart';
@@ -76,9 +77,9 @@ void handleChatMessageNotification(ChatSession chatSession, Message msg, Setting
 
   switch (settingsJson.notificationSound) {
     case NotificationSound.osDefault:
-      FlutterRingtonePlayer().playNotification();
+      FlutterSoundPlayer.playNotification();
     case NotificationSound.ermis:
-      FlutterRingtonePlayer().play(fromAsset: AppConstants.ermisNotificationSoundPath);
+      FlutterSoundPlayer.play(fromAsset: AppConstants.ermisNotificationSoundPath);
   }
 
   if (!settingsJson.showMessagePreview) {

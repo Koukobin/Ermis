@@ -37,13 +37,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:synchronized/extension.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:web_socket_channel/io.dart';
 
+import '../../../core/util/sound_player.dart';
 import '../../../generated/l10n.dart';
 import '../../../constants/app_constants.dart';
 import '../../../core/data_sources/api_client.dart';
@@ -565,7 +565,7 @@ class _VoiceCallWebrtcState extends State<VoiceCallWebrtc> {
 
     Future.doWhile(() async {
       if (_callStatus == CallStatus.calling) {
-        FlutterRingtonePlayer().play(fromAsset: AppConstants.outgoingCallSoundPath);
+        FlutterSoundPlayer.play(fromAsset: AppConstants.outgoingCallSoundPath);
         await Future.delayed(const Duration(seconds: 5)); // Wait until player has completed
       }
 
@@ -889,7 +889,7 @@ void _endCall() async {
   state?.setState(() => _callStatus = CallStatus.ended);
   _sendChannelMessage({'type': 'end_call'});
 
-  FlutterRingtonePlayer().play(fromAsset: AppConstants.endCallSoundPath);
+  FlutterSoundPlayer.play(fromAsset: AppConstants.endCallSoundPath);
 
   if (state != null) {
     navigateWithFade(

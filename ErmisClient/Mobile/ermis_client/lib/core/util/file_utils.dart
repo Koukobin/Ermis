@@ -114,17 +114,10 @@ Future<void> attachSingleFile(BuildContext context /* Unused; should remove */, 
     return;
   }
 
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
-    allowMultiple: false, // Do not allow the selection of multiple files
-  );
+  PlatformFile? file = await FilePicker.pickFile();
 
-  if (result != null) {
-    PlatformFile file = result.files.first;
-
-    Uint8List? fileBytes = file.bytes;
-    // If the file has not already been loaded into RAM, load it manually
-    fileBytes ??= await File(file.path!).readAsBytes();
-
+  if (file != null) {
+    Uint8List fileBytes = await file.readAsBytes();
     onFinished(file.name, fileBytes);
   } else {
     // User canceled the file picker

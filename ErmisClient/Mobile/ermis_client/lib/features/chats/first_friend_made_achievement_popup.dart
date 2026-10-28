@@ -17,16 +17,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 import '../../constants/app_constants.dart';
 import '../../core/util/achievement_toast.dart';
 import '../../core/util/dialogs_utils.dart';
+import '../../core/util/sound_player.dart';
 import '../../core/widgets/achievement_widget.dart';
 
 class FirstFriendMadeAchievementPopup {
   static void show(BuildContext context) async {
-    FlutterRingtonePlayer().play(fromAsset: AppConstants.firstMessageSentAchievementSoundEffect);
+    FlutterSoundPlayer.play(fromAsset: AppConstants.firstMessageSentAchievementSoundEffect);
     await Future.delayed(const Duration(milliseconds: 100));
 
     const firstFriendMadeAncientGreek = "Πρῶτος φίλος γενόμενος";
